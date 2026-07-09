@@ -200,7 +200,6 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
 
     private void sendLoginSuccess(ChannelHandlerContext ctx, GameProfile profile) {
         LOGGER.info("Authentifie : {} ({})", profile.name(), profile.uuid());
-        UUID sessionId = UUID.randomUUID();
         ByteBuf out = ctx.alloc().buffer();
         PacketBuffer p = new PacketBuffer(out);
 
@@ -214,7 +213,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
             p.writeBoolean(prop.signature() != null);
             if (prop.signature() != null) p.writeString(prop.signature());
         }
-        p.writeUuid(sessionId);
+        p.writeUuid(profile.sessionId());
         ctx.writeAndFlush(out);
 
     }
