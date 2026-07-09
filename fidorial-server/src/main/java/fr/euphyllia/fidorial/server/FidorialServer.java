@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.api.Server;
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
+import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.network.NettyServer;
 import fr.euphyllia.fidorial.server.protocol.DynamicRegistries;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
@@ -27,6 +28,7 @@ public final class FidorialServer implements Server {
     private final ProtocolMap protocolMap = ProtocolMap.load();
     private final RegistrySnapshot registrySnapshot = RegistrySnapshot.load();
     private final DynamicRegistries dynamicRegistries = DynamicRegistries.load();
+    private final CommandManager commandManager = new CommandManager();
     private final ThreadedRegionizer regionizer = new ThreadedRegionizer(
             Math.max(2, Runtime.getRuntime().availableProcessors() / 2));
     private NettyServer network;
@@ -94,5 +96,9 @@ public final class FidorialServer implements Server {
 
     public ThreadedRegionizer regionizer() {
         return regionizer;
+    }
+
+    public CommandManager getCommandManager() {
+        return commandManager;
     }
 }
