@@ -6,6 +6,7 @@ public final class LoginServerboundPackets {
     public static final String CUSTOM_QUERY_ANSWER = "minecraft:custom_query_answer";
     public static final String LOGIN_ACKNOWLEDGED = "minecraft:login_acknowledged";
     public static final String COOKIE_RESPONSE = "minecraft:cookie_response";
+
     private LoginServerboundPackets() {
     }
 }

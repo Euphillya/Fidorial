@@ -7,10 +7,11 @@ import fr.euphyllia.fidorial.server.network.codec.CipherDecoder;
 import fr.euphyllia.fidorial.server.network.codec.CipherEncoder;
 import fr.euphyllia.fidorial.server.network.codec.CompressionDecoder;
 import fr.euphyllia.fidorial.server.network.codec.CompressionEncoder;
+import fr.euphyllia.fidorial.server.protocol.DynamicRegistries;
 import fr.euphyllia.fidorial.server.protocol.PacketIds;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
-import fr.euphyllia.fidorial.server.protocol.RegistrySnapshot;
+import fr.euphyllia.fidorial.server.protocol.catalog.ConfigurationClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayServerboundPackets;
 import fr.euphyllia.fidorial.server.status.StatusResponseBuilder;
@@ -246,6 +247,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
             case C_KNOWN_PACKS -> {
                 LOGGER.debug("Known Packs client recus -> envoi des registres");
                 sendRegistries(ctx);
+                sendTags(ctx);
                 sendClientbound(ctx, C_FINISH, p -> {
                 });
             }
@@ -258,34 +260,62 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     }
 
     private void sendRegistries(ChannelHandlerContext ctx) {
-        RegistrySnapshot snapshot = server.registrySnapshot();
-        if (snapshot.isEmpty()) {
-            LOGGER.warn("Aucun registre a envoyer (registries.json manquant) : le client "
-                    + "refusera probablement la connexion. Lance extract-protocol.sh.");
+        DynamicRegistries dynamic = server.dynamicRegistries();
+        if (dynamic.isEmpty()) {
+            LOGGER.warn("Aucun registre dynamique a envoyer (datapack_registries.json "
+                    + "manquant) : le client refusera la connexion. Lance "
+                    + "tools/extract-datapack-registries.py <minecraft.jar>.");
             return;
         }
-        for (Map.Entry<String, List<String>> reg : snapshot.registries().entrySet()) {
+        for (Map.Entry<String, DynamicRegistries.Registry> reg : dynamic.registries().entrySet()) {
             sendClientbound(ctx, C_REGISTRY, p -> {
                 p.writeIdentifier(reg.getKey());
-                p.writeVarInt(reg.getValue().size());
-                for (String entry : reg.getValue()) {
+                p.writeVarInt(reg.getValue().entries().size());
+                for (String entry : reg.getValue().entries()) {
                     p.writeIdentifier(entry);
+                    // false = pas de NBT inline : le client resout l'entree
+                    // dans son known pack minecraft:core (meme version).
                     p.writeBoolean(false);
                 }
             });
         }
     }
 
+    private void sendTags(ChannelHandlerContext ctx) {
+        DynamicRegistries dynamic = server.dynamicRegistries();
+        List<Map.Entry<String, DynamicRegistries.Registry>> withTags =
+                dynamic.registries().entrySet().stream()
+                        .filter(e -> !e.getValue().tags().isEmpty())
+                        .toList();
+        if (withTags.isEmpty()) return;
+
+        sendClientbound(ctx, ConfigurationClientboundPackets.UPDATE_TAGS, p -> {
+            p.writeVarInt(withTags.size());
+            for (Map.Entry<String, DynamicRegistries.Registry> reg : withTags) {
+                List<String> entries = reg.getValue().entries();
+                p.writeIdentifier(reg.getKey());
+                p.writeVarInt(reg.getValue().tags().size());
+                for (Map.Entry<String, List<String>> tag : reg.getValue().tags().entrySet()) {
+                    p.writeIdentifier(tag.getKey());
+                    p.writeVarInt(tag.getValue().size());
+                    for (String entry : tag.getValue()) {
+                        p.writeVarInt(entries.indexOf(entry));
+                    }
+                }
+            }
+        });
+    }
+
     private void enterPlay(ChannelHandlerContext ctx) {
-        RegistrySnapshot snap = server.registrySnapshot();
-        if (snap.isEmpty()) {
-            LOGGER.error("Registres synchronises absents : impossible d'entrer en jeu. "
-                    + "Lance tools/extract-protocol.sh <server.jar>.");
+        DynamicRegistries dynamic = server.dynamicRegistries();
+        if (dynamic.isEmpty()) {
+            LOGGER.error("Registres dynamiques absents : impossible d'entrer en jeu. "
+                    + "Lance tools/extract-datapack-registries.py <minecraft.jar>.");
             ctx.close();
             return;
         }
-        int dimType = Math.max(0, snap.networkId("minecraft:dimension_type", "minecraft:overworld"));
-        int biome = Math.max(0, snap.networkId("minecraft:worldgen/biome", "minecraft:plains"));
+        int dimType = Math.max(0, dynamic.networkId("minecraft:dimension_type", "minecraft:overworld"));
+        int biome = Math.max(0, dynamic.networkId("minecraft:worldgen/biome", "minecraft:plains"));
 
         sendLoginPlay(ctx, dimType);
         sendClientbound(ctx, PlayClientboundPackets.GAME_EVENT, p -> p.writeByte(13).writeFloat(0f));

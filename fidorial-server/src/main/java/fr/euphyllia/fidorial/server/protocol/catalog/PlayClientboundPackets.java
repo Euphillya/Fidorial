@@ -142,6 +142,7 @@ public final class PlayClientboundPackets {
     public static final String WAYPOINT = "minecraft:waypoint";
     public static final String CLEAR_DIALOG = "minecraft:clear_dialog";
     public static final String SHOW_DIALOG = "minecraft:show_dialog";
+
     private PlayClientboundPackets() {
     }
 }

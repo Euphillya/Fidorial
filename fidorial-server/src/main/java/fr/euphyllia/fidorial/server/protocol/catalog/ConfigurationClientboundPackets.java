@@ -21,6 +21,7 @@ public final class ConfigurationClientboundPackets {
     public static final String CLEAR_DIALOG = "minecraft:clear_dialog";
     public static final String SHOW_DIALOG = "minecraft:show_dialog";
     public static final String CODE_OF_CONDUCT = "minecraft:code_of_conduct";
+
     private ConfigurationClientboundPackets() {
     }
 }

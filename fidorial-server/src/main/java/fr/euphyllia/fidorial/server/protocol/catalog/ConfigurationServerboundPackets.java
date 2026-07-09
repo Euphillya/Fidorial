@@ -11,6 +11,7 @@ public final class ConfigurationServerboundPackets {
     public static final String SELECT_KNOWN_PACKS = "minecraft:select_known_packs";
     public static final String CUSTOM_CLICK_ACTION = "minecraft:custom_click_action";
     public static final String ACCEPT_CODE_OF_CONDUCT = "minecraft:accept_code_of_conduct";
+
     private ConfigurationServerboundPackets() {
     }
 }

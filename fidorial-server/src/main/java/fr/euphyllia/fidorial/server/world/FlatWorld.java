@@ -42,12 +42,11 @@ public final class FlatWorld {
             for (int i = 0; i < SECTION_COUNT; i++) {
                 boolean solid = i == 0;
                 sp.writeShort(solid ? 4096 : 0);
+                sp.writeShort(0);
                 sp.writeByte(0);
                 sp.writeVarInt(solid ? COBBLESTONE_STATE_ID : AIR_STATE_ID);
-                sp.writeVarInt(0);
                 sp.writeByte(0);
                 sp.writeVarInt(biomeId);
-                sp.writeVarInt(0);
             }
             byte[] out = new byte[sec.readableBytes()];
             sec.readBytes(out);

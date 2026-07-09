@@ -70,6 +70,7 @@ public final class PlayServerboundPackets {
     public static final String USE_ITEM_ON = "minecraft:use_item_on";
     public static final String USE_ITEM = "minecraft:use_item";
     public static final String CUSTOM_CLICK_ACTION = "minecraft:custom_click_action";
+
     private PlayServerboundPackets() {
     }
 }

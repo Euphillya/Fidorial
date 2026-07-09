@@ -19,6 +19,7 @@ public final class ProtocolMap {
     private static final String RESOURCE = "/protocol/26.2.json";
     private final Map<ConnectionState, Map<Boolean, Direction>> table = new EnumMap<>(ConnectionState.class);
     private final boolean available;
+
     private ProtocolMap(boolean available) {
         this.available = available;
         seedFixedStates();
