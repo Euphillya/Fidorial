@@ -15,7 +15,11 @@ import fr.euphyllia.fidorial.server.protocol.catalog.ConfigurationClientboundPac
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayServerboundPackets;
 import fr.euphyllia.fidorial.server.status.StatusResponseBuilder;
+import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
+import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.FlatWorld;
+import fr.euphyllia.fidorial.server.world.World;
+import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,7 +29,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
-import java.util.*;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -60,7 +68,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf raw) {
+    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf raw) throws Exception {
         PacketBuffer buf = new PacketBuffer(raw);
         int packetId = buf.readVarInt();
         switch (state) {
@@ -236,7 +244,8 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         });
     }
 
-    private void handleConfiguration(ChannelHandlerContext ctx, int packetId, PacketBuffer buf) {
+    private void handleConfiguration(ChannelHandlerContext ctx, int packetId, PacketBuffer buf)
+            throws IOException {
         String name = protocol.serverboundName(ConnectionState.CONFIGURATION, packetId);
         if (name == null) {
             LOGGER.debug("Paquet Configuration 0x{} inconnu (ignore)", Integer.toHexString(packetId));
@@ -305,7 +314,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         });
     }
 
-    private void enterPlay(ChannelHandlerContext ctx) {
+    private void enterPlay(ChannelHandlerContext ctx) throws IOException {
         DynamicRegistries dynamic = server.dynamicRegistries();
         if (dynamic.isEmpty()) {
             LOGGER.error("Registres dynamiques absents : impossible d'entrer en jeu. "
@@ -321,11 +330,15 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         sendClientbound(ctx, PlayClientboundPackets.SET_CHUNK_CACHE_CENTER,
                 p -> p.writeVarInt(0).writeVarInt(0));
 
+        ChunkNetworkSerializer chunkNet =
+                new ChunkNetworkSerializer(new BlockStateRegistry(), biome);
+
+        World overworld = server.worldManager().overworld();
         for (int cx = -CHUNK_RADIUS; cx <= CHUNK_RADIUS; cx++) {
             for (int cz = -CHUNK_RADIUS; cz <= CHUNK_RADIUS; cz++) {
-                int fx = cx, fz = cz;
+                ChunkColumn column = overworld.getChunk(cx, cz); // disque -> sinon génère
                 sendClientbound(ctx, PlayClientboundPackets.LEVEL_CHUNK_WITH_LIGHT,
-                        p -> FlatWorld.writeChunk(p, ctx.alloc(), fx, fz, biome));
+                        p -> chunkNet.writeChunk(p, ctx.alloc(), column));
             }
         }
 

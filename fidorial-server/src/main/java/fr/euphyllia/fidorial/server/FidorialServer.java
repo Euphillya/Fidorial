@@ -11,10 +11,16 @@ import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
 import fr.euphyllia.fidorial.server.protocol.RegistrySnapshot;
 import fr.euphyllia.fidorial.server.region.ThreadedRegionizer;
+import fr.euphyllia.fidorial.server.world.FlatWorld;
+import fr.euphyllia.fidorial.server.world.WorldManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.security.KeyPair;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class FidorialServer implements Server {
@@ -32,18 +38,30 @@ public final class FidorialServer implements Server {
     private final ThreadedRegionizer regionizer = new ThreadedRegionizer(
             Math.max(2, Runtime.getRuntime().availableProcessors() / 2));
     private NettyServer network;
+    private WorldManager worldManager;
+    private final ScheduledExecutorService saveWorldScheduler = Executors.newScheduledThreadPool(1);
 
     public FidorialServer(int port) {
         this.port = port;
     }
 
-    public void start() throws InterruptedException {
+    public void start() throws Exception {
         if (!running.compareAndSet(false, true)) return;
         LOGGER.info("Demarrage de Fidorial (Minecraft {} / protocole {})",
                 minecraftVersion(), protocolVersion());
+        this.worldManager = WorldManager.openOrCreate(
+                java.nio.file.Path.of("world"), FlatWorld.MIN_Y, FlatWorld.HEIGHT);
         this.network = new NettyServer(this, port);
         this.network.bind();
         LOGGER.info("En ecoute sur le port {}", port);
+
+        saveWorldScheduler.scheduleAtFixedRate(() -> {
+            try {
+                worldManager.saveDirty();
+            } catch (IOException exception) {
+                LOGGER.error(exception.getMessage());
+            }
+        }, 5, 5, TimeUnit.SECONDS);
     }
 
     @Override
@@ -51,6 +69,13 @@ public final class FidorialServer implements Server {
         if (!running.compareAndSet(true, false)) return;
         LOGGER.info("Arret de Fidorial...");
         if (network != null) network.shutdown();
+        if (worldManager != null) {
+            try {
+                worldManager.close();
+            } catch (Exception e) {
+                LOGGER.error("Sauvegarde du monde", e);
+            }
+        }
         regionizer.shutdown();
     }
 
@@ -100,5 +125,9 @@ public final class FidorialServer implements Server {
 
     public CommandManager getCommandManager() {
         return commandManager;
+    }
+
+    public WorldManager worldManager() {
+        return worldManager;
     }
 }

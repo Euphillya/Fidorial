@@ -44,3 +44,4 @@ bin/
 
 ## Other files to ignore
 tool/
+fidorial-server/world/
