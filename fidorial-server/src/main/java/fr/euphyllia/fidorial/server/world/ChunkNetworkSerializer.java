@@ -57,14 +57,15 @@ public final class ChunkNetworkSerializer {
     private void writeSection(PacketBuffer sp, ChunkSection section) {
         PalettedContainer<BlockState> blocks = section.blocks();
 
-        sp.writeShort(section.nonAirCount());
+        sp.writeShort(section.nonAirCount());   // nonEmptyBlockCount
+        sp.writeShort(0);                   // fluidCount (0 pour plat)
 
         if (blocks.isSingleValue()) {
             int stateId = blockRegistry.networkId(blocks.palette().getFirst());
-            sp.writeShort(0);
-            sp.writeByte(0);
-            sp.writeVarInt(stateId);
-            sp.writeByte(0);
+            sp.writeByte(0);           // bitsPerEntry = 0 (single value)
+            sp.writeVarInt(stateId);     // valeur unique, pas de tableau de longs
+
+            sp.writeByte(0);           // biomes single value
             sp.writeVarInt(biomeNetworkId);
         } else {
             writeIndirectSection(sp, blocks);
@@ -73,18 +74,20 @@ public final class ChunkNetworkSerializer {
 
     private void writeIndirectSection(PacketBuffer sp, PalettedContainer<BlockState> blocks) {
         int bits = Math.max(4, blocks.bitsPerEntry());
-        sp.writeShort(0);
         sp.writeByte(bits);
         sp.writeVarInt(blocks.palette().size());
         for (BlockState state : blocks.palette()) {
             sp.writeVarInt(blockRegistry.networkId(state));
         }
-        long[] data = blocks.packedData();
-        long[] safe = data == null ? new long[0] : data;
-        sp.writeVarInt(safe.length);
-        for (long l : safe) sp.writeLong(l);
 
-        // biomes single-valued
+        int entriesPerLong = 64 / bits;
+        int expectedLongs = (4096 + entriesPerLong - 1) / entriesPerLong;
+        long[] data = blocks.packedData();
+        for (int i = 0; i < expectedLongs; i++) {
+            sp.writeLong(data != null && i < data.length ? data[i] : 0L);
+        }
+
+        // biomes single value
         sp.writeByte(0);
         sp.writeVarInt(biomeNetworkId);
     }

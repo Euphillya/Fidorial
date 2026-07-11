@@ -7,6 +7,7 @@ public class WorldPaths {
 
     private final Path worldRoot;
     private final Layout writeLayout;
+
     public WorldPaths(Path worldRoot) {
         this(worldRoot, Layout.MODERN);
     }

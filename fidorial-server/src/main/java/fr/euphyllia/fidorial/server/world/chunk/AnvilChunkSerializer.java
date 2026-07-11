@@ -151,7 +151,7 @@ public class AnvilChunkSerializer {
             NbtList pal = bio.getList("palette");
             if (pal != null) {
                 for (Nbt t : pal.items()) {
-                    if (t instanceof NbtString s) biomePalette.add(s.value());
+                    if (t instanceof NbtString(String value)) biomePalette.add(value);
                 }
             }
             biomeData = bio.getLongArray("data");
@@ -171,8 +171,8 @@ public class AnvilChunkSerializer {
         }
         Map<String, String> map = new TreeMap<>();
         for (var e : props.tags().entrySet()) {
-            if (e.getValue() instanceof NbtString s) {
-                map.put(e.getKey(), s.value());
+            if (e.getValue() instanceof NbtString(String value)) {
+                map.put(e.getKey(), value);
             }
         }
         return new BlockState(name, map);

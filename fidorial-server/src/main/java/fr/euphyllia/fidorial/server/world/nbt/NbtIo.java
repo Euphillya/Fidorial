@@ -152,6 +152,21 @@ public final class NbtIo {
         };
     }
 
+    public static void writeNetwork(DataOutput out, Nbt tag) throws IOException {
+        out.writeByte(tag.type().id());
+        writePayload(out, tag);
+    }
+
+    public static byte[] writeNetworkToBytes(Nbt tag) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(256);
+        try (DataOutputStream out = new DataOutputStream(baos)) {
+            writeNetwork(out, tag);
+        } catch (IOException e) {
+            throw new RuntimeException("Serialisation NBT reseau impossible", e);
+        }
+        return baos.toByteArray();
+    }
+
     public record Named(String name, NbtCompound compound) {
     }
 }

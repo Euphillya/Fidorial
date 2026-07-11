@@ -37,9 +37,9 @@ public final class FidorialServer implements Server {
     private final CommandManager commandManager = new CommandManager();
     private final ThreadedRegionizer regionizer = new ThreadedRegionizer(
             Math.max(2, Runtime.getRuntime().availableProcessors() / 2));
+    private final ScheduledExecutorService saveWorldScheduler = Executors.newScheduledThreadPool(1);
     private NettyServer network;
     private WorldManager worldManager;
-    private final ScheduledExecutorService saveWorldScheduler = Executors.newScheduledThreadPool(1);
 
     public FidorialServer(int port) {
         this.port = port;

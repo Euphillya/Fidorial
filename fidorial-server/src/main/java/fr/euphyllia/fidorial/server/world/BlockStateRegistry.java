@@ -8,7 +8,7 @@ import java.util.Map;
 public final class BlockStateRegistry {
 
     private final Map<BlockState, Integer> ids = new HashMap<>();
-    private int defaultId = 0; // air
+    private final int defaultId = 0; // air
 
     public BlockStateRegistry() {
         register(BlockState.AIR, 0);

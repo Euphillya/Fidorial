@@ -15,11 +15,9 @@ import fr.euphyllia.fidorial.server.protocol.catalog.ConfigurationClientboundPac
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayServerboundPackets;
 import fr.euphyllia.fidorial.server.status.StatusResponseBuilder;
-import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
-import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
-import fr.euphyllia.fidorial.server.world.FlatWorld;
-import fr.euphyllia.fidorial.server.world.World;
+import fr.euphyllia.fidorial.server.world.*;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -270,19 +268,21 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     private void sendRegistries(ChannelHandlerContext ctx) {
         DynamicRegistries dynamic = server.dynamicRegistries();
         if (dynamic.isEmpty()) {
-            LOGGER.warn("Aucun registre dynamique a envoyer (datapack_registries.json "
-                    + "manquant) : le client refusera la connexion. Lance "
-                    + "tools/extract-datapack-registries.py <minecraft.jar>.");
+            LOGGER.warn("Aucun registre dynamique a envoyer (datapack_registries.json manquant).");
             return;
         }
+        Map<String, NbtCompound> dimensionData = DimensionTypeData.all();
+
         for (Map.Entry<String, DynamicRegistries.Registry> reg : dynamic.registries().entrySet()) {
+            String key = reg.getKey();
+            if (key.contains("minecraft:enchantment")) continue;
+
+            boolean isDimension = key.equals("minecraft:dimension_type");
             sendClientbound(ctx, C_REGISTRY, p -> {
                 p.writeIdentifier(reg.getKey());
                 p.writeVarInt(reg.getValue().entries().size());
                 for (String entry : reg.getValue().entries()) {
                     p.writeIdentifier(entry);
-                    // false = pas de NBT inline : le client resout l'entree
-                    // dans son known pack minecraft:core (meme version).
                     p.writeBoolean(false);
                 }
             });
@@ -294,11 +294,12 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         List<Map.Entry<String, DynamicRegistries.Registry>> withTags =
                 dynamic.registries().entrySet().stream()
                         .filter(e -> !e.getValue().tags().isEmpty())
+                        .filter(e -> !e.getKey().contains("enchantment"))
                         .toList();
-        if (withTags.isEmpty()) return;
 
         sendClientbound(ctx, ConfigurationClientboundPackets.UPDATE_TAGS, p -> {
-            p.writeVarInt(withTags.size());
+            p.writeVarInt(withTags.size() + 1);
+
             for (Map.Entry<String, DynamicRegistries.Registry> reg : withTags) {
                 List<String> entries = reg.getValue().entries();
                 p.writeIdentifier(reg.getKey());
@@ -311,6 +312,15 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
                     }
                 }
             }
+
+            p.writeIdentifier("minecraft:block");
+            p.writeVarInt(3);
+            p.writeIdentifier("minecraft:infiniburn_overworld");
+            p.writeVarInt(2).writeVarInt(285).writeVarInt(671);
+            p.writeIdentifier("minecraft:infiniburn_nether");
+            p.writeVarInt(2).writeVarInt(285).writeVarInt(671);
+            p.writeIdentifier("minecraft:infiniburn_end");
+            p.writeVarInt(3).writeVarInt(285).writeVarInt(671).writeVarInt(34);
         });
     }
 
