@@ -6,10 +6,10 @@ import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.network.NettyServer;
-import fr.euphyllia.fidorial.server.protocol.DynamicRegistries;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
-import fr.euphyllia.fidorial.server.protocol.RegistrySnapshot;
+import fr.euphyllia.fidorial.server.registry.Registries;
+import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.region.ThreadedRegionizer;
 import fr.euphyllia.fidorial.server.world.FlatWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
@@ -32,8 +32,7 @@ public final class FidorialServer implements Server {
     private final KeyPair keyPair = EncryptionUtils.generateServerKeyPair();
     private final MojangSessionService sessionService = new MojangSessionService();
     private final ProtocolMap protocolMap = ProtocolMap.load();
-    private final RegistrySnapshot registrySnapshot = RegistrySnapshot.load();
-    private final DynamicRegistries dynamicRegistries = DynamicRegistries.load();
+    private final Registries registries = Registries.load();
     private final CommandManager commandManager = new CommandManager();
     private final ThreadedRegionizer regionizer = new ThreadedRegionizer(
             Math.max(2, Runtime.getRuntime().availableProcessors() / 2));
@@ -111,12 +110,16 @@ public final class FidorialServer implements Server {
         return protocolMap;
     }
 
-    public RegistrySnapshot registrySnapshot() {
-        return registrySnapshot;
+    public Registries registries() {
+        return registries;
     }
 
-    public DynamicRegistries dynamicRegistries() {
-        return dynamicRegistries;
+    public RegistryHolder registrySnapshot() {
+        return registries.snapshot();
+    }
+
+    public RegistryHolder dynamicRegistries() {
+        return registries.dynamic();
     }
 
     public ThreadedRegionizer regionizer() {
