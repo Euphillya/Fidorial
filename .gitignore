@@ -43,8 +43,10 @@ bin/
 .DS_Store
 
 ## Other files to ignore
-tool/
+tool/*
 fidorial-server/world/
 
-# Add files in folder ignore
+# Ré-inclure uniquement le générateur
+!tool/registry-generator/
+tool/registry-generator/*
 !tool/registry-generator/generate.py
