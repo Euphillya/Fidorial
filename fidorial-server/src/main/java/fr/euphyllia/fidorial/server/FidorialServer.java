@@ -5,6 +5,7 @@ import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
+import fr.euphyllia.fidorial.server.entity.player.PlayerInventoryStorage;
 import fr.euphyllia.fidorial.server.network.NettyServer;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.KeyPair;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,6 +39,8 @@ public final class FidorialServer implements Server {
     private final ThreadedRegionizer regionizer = new ThreadedRegionizer(
             Math.max(2, Runtime.getRuntime().availableProcessors() / 2));
     private final ScheduledExecutorService saveWorldScheduler = Executors.newScheduledThreadPool(1);
+    private final PlayerInventoryStorage playerInventoryStorage =
+            new PlayerInventoryStorage(Path.of("world/player"), false);
     private NettyServer network;
     private WorldManager worldManager;
 
@@ -48,8 +52,7 @@ public final class FidorialServer implements Server {
         if (!running.compareAndSet(false, true)) return;
         LOGGER.info("Demarrage de Fidorial (Minecraft {} / protocole {})",
                 minecraftVersion(), protocolVersion());
-        this.worldManager = WorldManager.openOrCreate(
-                java.nio.file.Path.of("world"), FlatWorld.MIN_Y, FlatWorld.HEIGHT);
+        this.worldManager = WorldManager.openOrCreate(Path.of("world"), FlatWorld.MIN_Y, FlatWorld.HEIGHT);
         this.network = new NettyServer(this, port);
         this.network.bind();
         LOGGER.info("En ecoute sur le port {}", port);
@@ -128,5 +131,9 @@ public final class FidorialServer implements Server {
 
     public WorldManager worldManager() {
         return worldManager;
+    }
+
+    public PlayerInventoryStorage playerInventoryStorage() {
+        return playerInventoryStorage;
     }
 }

@@ -1,6 +1,9 @@
 package fr.euphyllia.fidorial.server.network.listener;
 
+import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.entity.player.Player;
+import fr.euphyllia.fidorial.server.entity.player.PlayerInventory;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.*;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
@@ -48,6 +51,9 @@ public final class PlayPacketHandler implements PlayPacketListener {
         int dimType = Math.max(0, dynamic.networkId("minecraft:dimension_type", "minecraft:overworld"));
         int biome = Math.max(0, dynamic.networkId("minecraft:worldgen/biome", "minecraft:plains"));
 
+        Player player = loadPlayer();
+        connection.setPlayer(player);
+
         connection.send(new ClientboundLoginPacket(ENTITY_ID, "minecraft:overworld", dimType, VIEW_DISTANCE));
         connection.send(new ClientboundGameEventPacket(
                 ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
@@ -74,6 +80,26 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
         connection.startKeepAlive();
         LOGGER.info("{} est en jeu (monde plat cobblestone)", connection.username());
+    }
+
+    private Player loadPlayer() {
+        PlayerProfile profile = connection.profile();
+        if (profile == null) {
+            // Filet de sécurité si l'on démarre sans phase de login complète.
+            profile = new PlayerProfile(java.util.UUID.randomUUID(), connection.username());
+        }
+        PlayerInventory inventory;
+        try {
+            inventory = server.playerInventoryStorage().load(profile.uuid());
+            if (!inventory.isEmpty()) {
+                LOGGER.info("Inventaire de {} rechargé", profile.name());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Chargement de l'inventaire de {} impossible (inventaire vide utilisé)",
+                    profile.name(), e);
+            inventory = new PlayerInventory();
+        }
+        return new Player(profile, inventory);
     }
 
     @Override

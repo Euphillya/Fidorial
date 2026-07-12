@@ -1,7 +1,9 @@
 package fr.euphyllia.fidorial.server.network;
 
+import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.entity.player.Player;
 import fr.euphyllia.fidorial.server.network.codec.CipherDecoder;
 import fr.euphyllia.fidorial.server.network.codec.CipherEncoder;
 import fr.euphyllia.fidorial.server.network.codec.CompressionDecoder;
@@ -41,6 +43,8 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
 
     private int clientProtocol;
     private String username;
+    private PlayerProfile profile;
+    private Player player;
     private ScheduledFuture<?> keepAliveTask;
 
     public ClientConnection(FidorialServer server) {
@@ -138,6 +142,23 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         if (keepAliveTask != null) {
             keepAliveTask.cancel(false);
         }
+        saveInventoryOnDisconnect();
+    }
+
+    private void saveInventoryOnDisconnect() {
+        Player disconnecting = this.player;
+        if (disconnecting == null) {
+            return;
+        }
+        this.player = null;
+        Thread.startVirtualThread(() -> {
+            try {
+                server.playerInventoryStorage().save(disconnecting.uuid(), disconnecting.inventory());
+                LOGGER.info("Inventaire de {} sauvegardé", disconnecting.name());
+            } catch (Exception e) {
+                LOGGER.error("Sauvegarde de l'inventaire de {} impossible", disconnecting.name(), e);
+            }
+        });
     }
 
     @Override
@@ -168,5 +189,21 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public PlayerProfile profile() {
+        return profile;
+    }
+
+    public void setProfile(PlayerProfile profile) {
+        this.profile = profile;
+    }
+
+    public Player player() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 }

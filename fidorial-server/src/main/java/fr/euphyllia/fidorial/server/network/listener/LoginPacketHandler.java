@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.network.listener;
 
+import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.GameProfile;
 import fr.euphyllia.fidorial.server.FidorialServer;
@@ -100,6 +101,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
 
     private void sendLoginSuccess(GameProfile profile) {
         LOGGER.info("Authentifie : {} ({})", profile.name(), profile.uuid());
+        connection.setProfile(new PlayerProfile(profile.uuid(), profile.name()));
         connection.send(new ClientboundLoginFinishedPacket(profile));
     }
 
