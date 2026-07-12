@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.world;
 
+import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
@@ -51,6 +52,24 @@ public final class World {
 
     public void markDirty(int chunkX, int chunkZ) {
         dirty.add(key(chunkX, chunkZ));
+    }
+
+    public boolean setBlock(int x, int y, int z, BlockState state) throws IOException {
+        ChunkColumn column = getChunk(x >> 4, z >> 4);
+        if (y < column.minY() || y >= column.minY() + column.height()) {
+            return false;
+        }
+        column.setBlock(x & 15, y, z & 15, state);
+        markDirty(x >> 4, z >> 4);
+        return true;
+    }
+
+    public BlockState getBlock(int x, int y, int z) throws IOException {
+        ChunkColumn column = getChunk(x >> 4, z >> 4);
+        if (y < column.minY() || y >= column.minY() + column.height()) {
+            return BlockState.AIR;
+        }
+        return column.getBlock(x & 15, y, z & 15);
     }
 
     public void saveDirty() throws IOException {

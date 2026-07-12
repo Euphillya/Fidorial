@@ -11,8 +11,11 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.Serverboun
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundLoginAcknowledgedPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerActionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCarriedItemPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCreativeModeSlotPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundPingRequestPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundStatusRequestPacket;
 
@@ -54,6 +57,12 @@ public class ServerboundPackets {
                 ServerboundKeepAlivePacket::read);
         register(ConnectionState.PLAY, PlayServerboundPackets.SET_CREATIVE_MODE_SLOT,
                 ServerboundSetCreativeModeSlotPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.USE_ITEM_ON,
+                ServerboundUseItemOnPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.PLAYER_ACTION,
+                ServerboundPlayerActionPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.SET_CARRIED_ITEM,
+                ServerboundSetCarriedItemPacket::read);
     }
 
     private ServerboundPackets() {

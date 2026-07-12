@@ -142,6 +142,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         if (keepAliveTask != null) {
             keepAliveTask.cancel(false);
         }
+        server.removePlayerConnection(this);
         saveInventoryOnDisconnect();
     }
 

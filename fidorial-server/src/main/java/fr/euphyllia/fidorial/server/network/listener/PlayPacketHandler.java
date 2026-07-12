@@ -11,14 +11,19 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.*;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerActionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCarriedItemPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCreativeModeSlotPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.euphyllia.fidorial.server.world.BlockPos;
 import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.FlatWorld;
 import fr.euphyllia.fidorial.server.world.World;
+import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +40,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     private final ClientConnection connection;
     private final FidorialServer server;
+    private final BlockStateRegistry blockRegistry = new BlockStateRegistry();
 
     private int teleportId;
+    private int selectedSlot;
 
     public PlayPacketHandler(ClientConnection connection) {
         this.connection = connection;
@@ -71,7 +78,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         connection.send(new ClientboundSetChunkCacheCenterPacket(0, 0));
 
-        ChunkNetworkSerializer chunkNet = new ChunkNetworkSerializer(new BlockStateRegistry(), biome);
+        ChunkNetworkSerializer chunkNet = new ChunkNetworkSerializer(blockRegistry, biome);
         World overworld = server.worldManager().overworld();
         try {
             for (int cx = -CHUNK_RADIUS; cx <= CHUNK_RADIUS; cx++) {
@@ -94,6 +101,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 player.inventory(), server.registries().frozen()));
 
         connection.startKeepAlive();
+        server.addPlayerConnection(connection);
         LOGGER.info("{} est en jeu (monde plat cobblestone)", connection.username());
     }
 
@@ -164,12 +172,72 @@ public final class PlayPacketHandler implements PlayPacketListener {
         String key = items.entries().get(packet.itemId());
         player.inventory().set(storageSlot, new ItemStack(Key.parse(key), packet.count()));
 
-        // combien de slots non vides maintenant ?
         int nonEmpty = 0;
         for (int i = 0; i < player.inventory().size(); i++) {
             if (!player.inventory().get(i).isEmpty()) nonEmpty++;
         }
         LOGGER.info("[CREATIVE] pose {} x{} au slot {} -> inventaire non vide = {} slots",
                 key, packet.count(), storageSlot, nonEmpty);
+    }
+
+    @Override
+    public void handleSetCarriedItem(ServerboundSetCarriedItemPacket packet) {
+        int slot = packet.slot();
+        if (slot >= 0 && slot <= 8) {
+            this.selectedSlot = slot;
+        }
+    }
+
+    @Override
+    public void handleUseItemOn(ServerboundUseItemOnPacket packet) {
+        Player player = connection.player();
+        if (player == null) {
+            return;
+        }
+
+        BlockPos placedAt = packet.target().relative(BlockPos.Direction.byId(packet.face()));
+
+        ItemStack held = player.inventory().get(selectedSlot);
+        BlockState toPlace = held.isEmpty() ? null : blockRegistry.blockForItem(held.id());
+        if (toPlace == null) {
+            connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
+            return;
+        }
+
+        applyBlockChange(placedAt, toPlace, packet.sequence());
+        LOGGER.info("{} pose {} en {},{},{}", connection.username(),
+                toPlace.name(), placedAt.x(), placedAt.y(), placedAt.z());
+    }
+
+    @Override
+    public void handlePlayerAction(ServerboundPlayerActionPacket packet) {
+        int status = packet.status();
+        // Cassage instantané (créatif) ou fin de minage (survie) -> le bloc devient de l'air.
+        boolean broke = status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK
+                || status == ServerboundPlayerActionPacket.FINISH_DESTROY_BLOCK;
+        if (!broke) {
+            return;
+        }
+
+        applyBlockChange(packet.position(), BlockState.AIR, packet.sequence());
+        LOGGER.info("{} casse le bloc en {},{},{}", connection.username(),
+                packet.position().x(), packet.position().y(), packet.position().z());
+    }
+
+    private void applyBlockChange(BlockPos pos, BlockState state, int sequence) {
+        World world = server.worldManager().overworld();
+        try {
+            boolean applied = world.setBlock(pos.x(), pos.y(), pos.z(), state);
+            if (applied) {
+                int stateId = blockRegistry.networkId(state);
+                server.broadcast(new ClientboundBlockUpdatePacket(pos, stateId));
+            }
+        } catch (IOException e) {
+            LOGGER.error("Changement de bloc impossible en {},{},{}",
+                    pos.x(), pos.y(), pos.z(), e);
+        } finally {
+            // Toujours acquitter, même en cas d'échec, pour éviter un blocage client.
+            connection.send(new ClientboundBlockChangedAckPacket(sequence));
+        }
     }
 }

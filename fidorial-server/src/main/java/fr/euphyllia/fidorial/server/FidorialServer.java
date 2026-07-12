@@ -6,9 +6,11 @@ import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.entity.player.PlayerInventoryStorage;
+import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.NettyServer;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
+import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.region.ThreadedRegionizer;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
@@ -41,6 +43,8 @@ public final class FidorialServer implements Server {
     private final ScheduledExecutorService saveWorldScheduler = Executors.newScheduledThreadPool(1);
     private final PlayerInventoryStorage playerInventoryStorage =
             new PlayerInventoryStorage(Path.of("world/player"), false);
+    private final java.util.Set<ClientConnection> playerConnections =
+            java.util.concurrent.ConcurrentHashMap.newKeySet();
     private NettyServer network;
     private WorldManager worldManager;
 
@@ -135,5 +139,19 @@ public final class FidorialServer implements Server {
 
     public PlayerInventoryStorage playerInventoryStorage() {
         return playerInventoryStorage;
+    }
+
+    public void addPlayerConnection(ClientConnection connection) {
+        playerConnections.add(connection);
+    }
+
+    public void removePlayerConnection(ClientConnection connection) {
+        playerConnections.remove(connection);
+    }
+    
+    public void broadcast(ClientboundPacket packet) {
+        for (ClientConnection connection : playerConnections) {
+            connection.send(packet);
+        }
     }
 }

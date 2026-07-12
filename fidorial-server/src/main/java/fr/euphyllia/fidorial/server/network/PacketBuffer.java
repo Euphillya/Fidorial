@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.network;
 
+import fr.euphyllia.fidorial.server.world.BlockPos;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 
@@ -163,6 +164,14 @@ public final class PacketBuffer {
         buf.writeLong(uuid.getMostSignificantBits());
         buf.writeLong(uuid.getLeastSignificantBits());
         return this;
+    }
+
+    public BlockPos readPosition() {
+        long packed = buf.readLong();
+        int x = (int) (packed >> 38);
+        int y = (int) (packed << 52 >> 52);
+        int z = (int) (packed << 26 >> 38);
+        return new BlockPos(x, y, z);
     }
 
     public PacketBuffer writePosition(int x, int y, int z) {
