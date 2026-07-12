@@ -65,7 +65,7 @@ public class AnvilChunkSerializer {
         blockStates.put("palette", blockPalette);
         long[] blockData = section.blocks().packedData();
         if (blockData != null) {
-            blockStates.putLongArray("data", blockData);
+            blockStates.putLongArray("tool/data", blockData);
         }
         c.put("block_states", blockStates);
 
@@ -78,7 +78,7 @@ public class AnvilChunkSerializer {
         biomes.put("palette", biomePalette);
         long[] biomeData = section.biomes().packedData();
         if (biomeData != null) {
-            biomes.putLongArray("data", biomeData);
+            biomes.putLongArray("tool/data", biomeData);
         }
         c.put("biomes", biomes);
 
@@ -137,7 +137,7 @@ public class AnvilChunkSerializer {
                     }
                 }
             }
-            blockData = bs.getLongArray("data");
+            blockData = bs.getLongArray("tool/data");
         }
         if (blockPalette.isEmpty()) blockPalette.add(defaultBlock);
         PalettedContainer<BlockState> blocks = PalettedContainer.fromNbt(
@@ -154,7 +154,7 @@ public class AnvilChunkSerializer {
                     if (t instanceof NbtString(String value)) biomePalette.add(value);
                 }
             }
-            biomeData = bio.getLongArray("data");
+            biomeData = bio.getLongArray("tool/data");
         }
         if (biomePalette.isEmpty()) biomePalette.add(defaultBiome);
         PalettedContainer<String> biomes = PalettedContainer.fromNbt(

@@ -45,3 +45,6 @@ bin/
 ## Other files to ignore
 tool/
 fidorial-server/world/
+
+# Add files in folder ignore
+!tool/registry-generator/generate.py

@@ -8,9 +8,9 @@ import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.network.NettyServer;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
+import fr.euphyllia.fidorial.server.region.ThreadedRegionizer;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
-import fr.euphyllia.fidorial.server.region.ThreadedRegionizer;
 import fr.euphyllia.fidorial.server.world.FlatWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import org.slf4j.Logger;
@@ -112,10 +112,6 @@ public final class FidorialServer implements Server {
 
     public Registries registries() {
         return registries;
-    }
-
-    public RegistryHolder registrySnapshot() {
-        return registries.snapshot();
     }
 
     public RegistryHolder dynamicRegistries() {

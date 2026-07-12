@@ -50,7 +50,7 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
     private void sendRegistries() {
         RegistryHolder dynamic = server.dynamicRegistries();
         if (dynamic.isEmpty()) {
-            LOGGER.warn("Aucun registre dynamique a envoyer (datapack_registries.json manquant).");
+            LOGGER.warn("Aucun registre dynamique a envoyer (GeneratedRegistryData vide).");
             return;
         }
         for (Registry reg : dynamic.all()) {

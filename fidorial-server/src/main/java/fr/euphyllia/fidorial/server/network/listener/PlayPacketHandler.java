@@ -40,8 +40,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
     public void onEnter() {
         RegistryHolder dynamic = server.dynamicRegistries();
         if (dynamic.isEmpty()) {
-            LOGGER.error("Registres dynamiques absents : impossible d'entrer en jeu. "
-                    + "Lance tools/extract-datapack-registries.py <minecraft.jar>.");
+            LOGGER.error("Registres dynamiques absents : impossible d'entrer en jeu "
+                    + "(GeneratedRegistryData vide).");
             connection.close();
             return;
         }

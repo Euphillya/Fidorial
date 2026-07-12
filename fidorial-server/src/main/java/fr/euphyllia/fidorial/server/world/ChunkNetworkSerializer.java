@@ -7,10 +7,14 @@ import fr.euphyllia.fidorial.server.world.chunk.ChunkSection;
 import fr.euphyllia.fidorial.server.world.chunk.PalettedContainer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
 public final class ChunkNetworkSerializer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChunkNetworkSerializer.class);
 
     private final BlockStateRegistry blockRegistry;
     private final int biomeNetworkId;
@@ -30,6 +34,16 @@ public final class ChunkNetworkSerializer {
         p.writeInt(chunk.chunkX());
         p.writeInt(chunk.chunkZ());
         p.writeVarInt(0); // heightmaps : 0 → le client recalcule
+
+        if (chunk.chunkX() == 0 && chunk.chunkZ() == 0) {
+            int idx = 0;
+            for (ChunkSection s : chunk.sections()) {
+                var pal = s.blocks().palette();
+                LOGGER.info("sec {} nonAir={} single={} palette={} -> ids={}",
+                        idx++, s.nonAirCount(), s.blocks().isSingleValue(),
+                        pal, pal.stream().map(blockRegistry::networkId).toList());
+            }
+        }
 
         byte[] sections = buildSections(alloc, chunk);
         p.writeByteArray(sections);
@@ -58,12 +72,12 @@ public final class ChunkNetworkSerializer {
         PalettedContainer<BlockState> blocks = section.blocks();
 
         sp.writeShort(section.nonAirCount());   // nonEmptyBlockCount
-        sp.writeShort(0);                   // fluidCount (0 pour plat)
+        sp.writeShort(0);                        // fluidCount (0 pour plat)
 
         if (blocks.isSingleValue()) {
             int stateId = blockRegistry.networkId(blocks.palette().getFirst());
             sp.writeByte(0);           // bitsPerEntry = 0 (single value)
-            sp.writeVarInt(stateId);     // valeur unique, pas de tableau de longs
+            sp.writeVarInt(stateId);   // valeur unique, pas de tableau de longs
 
             sp.writeByte(0);           // biomes single value
             sp.writeVarInt(biomeNetworkId);
