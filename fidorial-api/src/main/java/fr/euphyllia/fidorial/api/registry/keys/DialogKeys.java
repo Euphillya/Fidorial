@@ -12,11 +12,12 @@ import fr.euphyllia.fidorial.api.registry.data.Dialog;
  */
 public final class DialogKeys {
 
+    private DialogKeys() {
+    }
+
     public static final TypedKey<Dialog> CUSTOM_OPTIONS = create("custom_options");
     public static final TypedKey<Dialog> QUICK_ACTIONS = create("quick_actions");
     public static final TypedKey<Dialog> SERVER_LINKS = create("server_links");
-    private DialogKeys() {
-    }
 
     private static TypedKey<Dialog> create(String value) {
         return TypedKey.create(RegistryKey.DIALOG, Key.minecraft(value));

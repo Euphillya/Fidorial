@@ -51,6 +51,13 @@ attr = snap["minecraft:attribute"]["entries"]
 attr_ordered = [k for k, _ in sorted(attr.items(), key=lambda e: e[1]["protocol_id"])]
 specs.append(("minecraft:attribute", attr_ordered, {}))
 
+# item: frozen (non-datapack) registry. Typed keys + a runtime id table,
+# but it must NEVER be networked to the client. Tracked separately below.
+_item = snap["minecraft:item"]["entries"]
+_item_ordered = [k for k, _ in sorted(_item.items(), key=lambda e: e[1]["protocol_id"])]
+specs.append(("minecraft:item", _item_ordered, {}))
+FROZEN_RIDS = {"minecraft:item"}
+
 # marker name / keys-class / registry-constant per registry
 def names(rid):
     sh = short(rid)
@@ -177,9 +184,10 @@ final class GeneratedRegistryData {
 """)
     # emit one builder method per registry to keep methods small
     method_names = []
-    for rid, entries, tags in [(r, e, t) for r, e, t in specs if r in dyn]:
+    frozen_names = []
+    for rid, entries, tags in [(r, e, t) for r, e, t in specs if r in dyn or r in FROZEN_RIDS]:
         m = "r_" + re.sub(r"[^A-Za-z0-9]", "_", strip(rid))
-        method_names.append((rid, m))
+        (frozen_names if rid in FROZEN_RIDS else method_names).append((rid, m))
         f.write("    private static Registry %s() {\n" % m)
         f.write("        List<String> entries = List.of(\n")
         f.write(",\n".join("            " + jstr(e) for e in entries))
@@ -199,6 +207,14 @@ final class GeneratedRegistryData {
     f.write("    private static Map<String, Registry> build() {\n")
     f.write("        Map<String, Registry> m = new LinkedHashMap<>();\n")
     for rid, m in method_names:
+        f.write("        m.put(%s, %s());\n" % (jstr(rid), m))
+    f.write("        return m;\n    }\n\n")
+    # frozen (never networked) table
+    f.write("    static Map<String, Registry> frozen() {\n        return FROZEN;\n    }\n\n")
+    f.write("    private static final Map<String, Registry> FROZEN = buildFrozen();\n\n")
+    f.write("    private static Map<String, Registry> buildFrozen() {\n")
+    f.write("        Map<String, Registry> m = new LinkedHashMap<>();\n")
+    for rid, m in frozen_names:
         f.write("        m.put(%s, %s());\n" % (jstr(rid), m))
     f.write("        return m;\n    }\n}\n")
 

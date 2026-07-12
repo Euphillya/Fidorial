@@ -12,6 +12,9 @@ import fr.euphyllia.fidorial.api.registry.data.Attribute;
  */
 public final class AttributeKeys {
 
+    private AttributeKeys() {
+    }
+
     public static final TypedKey<Attribute> AIR_DRAG_MODIFIER = create("air_drag_modifier");
     public static final TypedKey<Attribute> ARMOR = create("armor");
     public static final TypedKey<Attribute> ARMOR_TOUGHNESS = create("armor_toughness");
@@ -52,8 +55,6 @@ public final class AttributeKeys {
     public static final TypedKey<Attribute> WATER_MOVEMENT_EFFICIENCY = create("water_movement_efficiency");
     public static final TypedKey<Attribute> WAYPOINT_TRANSMIT_RANGE = create("waypoint_transmit_range");
     public static final TypedKey<Attribute> WAYPOINT_RECEIVE_RANGE = create("waypoint_receive_range");
-    private AttributeKeys() {
-    }
 
     private static TypedKey<Attribute> create(String value) {
         return TypedKey.create(RegistryKey.ATTRIBUTE, Key.minecraft(value));

@@ -15,6 +15,19 @@ import java.util.Objects;
  */
 public record RegistryKey<T>(Key key) {
 
+    public RegistryKey {
+        Objects.requireNonNull(key, "key");
+    }
+
+    private static <T> RegistryKey<T> of(String path) {
+        return new RegistryKey<>(Key.minecraft(path));
+    }
+
+    @Override
+    public String toString() {
+        return "RegistryKey[" + key + "]";
+    }
+
     public static final RegistryKey<Attribute> ATTRIBUTE = of("attribute");
     public static final RegistryKey<BannerPattern> BANNER_PATTERN = of("banner_pattern");
     public static final RegistryKey<Biome> BIOME = of("worldgen/biome");
@@ -31,6 +44,7 @@ public record RegistryKey<T>(Key key) {
     public static final RegistryKey<Enchantment> ENCHANTMENT = of("enchantment");
     public static final RegistryKey<FrogVariant> FROG_VARIANT = of("frog_variant");
     public static final RegistryKey<Instrument> INSTRUMENT = of("instrument");
+    public static final RegistryKey<Item> ITEM = of("item");
     public static final RegistryKey<JukeboxSong> JUKEBOX_SONG = of("jukebox_song");
     public static final RegistryKey<PaintingVariant> PAINTING_VARIANT = of("painting_variant");
     public static final RegistryKey<PigSoundVariant> PIG_SOUND_VARIANT = of("pig_sound_variant");
@@ -42,16 +56,4 @@ public record RegistryKey<T>(Key key) {
     public static final RegistryKey<WolfVariant> WOLF_VARIANT = of("wolf_variant");
     public static final RegistryKey<WorldClock> WORLD_CLOCK = of("world_clock");
     public static final RegistryKey<ZombieNautilusVariant> ZOMBIE_NAUTILUS_VARIANT = of("zombie_nautilus_variant");
-    public RegistryKey {
-        Objects.requireNonNull(key, "key");
-    }
-
-    private static <T> RegistryKey<T> of(String path) {
-        return new RegistryKey<>(Key.minecraft(path));
-    }
-
-    @Override
-    public String toString() {
-        return "RegistryKey[" + key + "]";
-    }
 }

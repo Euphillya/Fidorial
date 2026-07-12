@@ -12,6 +12,9 @@ import fr.euphyllia.fidorial.api.registry.data.Enchantment;
  */
 public final class EnchantmentKeys {
 
+    private EnchantmentKeys() {
+    }
+
     public static final TypedKey<Enchantment> AQUA_AFFINITY = create("aqua_affinity");
     public static final TypedKey<Enchantment> BANE_OF_ARTHROPODS = create("bane_of_arthropods");
     public static final TypedKey<Enchantment> BINDING_CURSE = create("binding_curse");
@@ -55,8 +58,6 @@ public final class EnchantmentKeys {
     public static final TypedKey<Enchantment> UNBREAKING = create("unbreaking");
     public static final TypedKey<Enchantment> VANISHING_CURSE = create("vanishing_curse");
     public static final TypedKey<Enchantment> WIND_BURST = create("wind_burst");
-    private EnchantmentKeys() {
-    }
 
     private static TypedKey<Enchantment> create(String value) {
         return TypedKey.create(RegistryKey.ENCHANTMENT, Key.minecraft(value));

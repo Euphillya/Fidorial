@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCreativeModeSlotPacket;
 
 public interface PlayPacketListener extends PacketListener {
     void handlePlayerLoaded(ServerboundPlayerLoadedPacket packet);
@@ -11,4 +12,6 @@ public interface PlayPacketListener extends PacketListener {
     void handleAcceptTeleportation(ServerboundAcceptTeleportationPacket packet);
 
     void handleKeepAlive(ServerboundKeepAlivePacket packet);
+
+    void handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket packet);
 }

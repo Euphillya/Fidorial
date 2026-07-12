@@ -12,6 +12,9 @@ import fr.euphyllia.fidorial.api.registry.data.PaintingVariant;
  */
 public final class PaintingVariantKeys {
 
+    private PaintingVariantKeys() {
+    }
+
     public static final TypedKey<PaintingVariant> ALBAN = create("alban");
     public static final TypedKey<PaintingVariant> AZTEC = create("aztec");
     public static final TypedKey<PaintingVariant> AZTEC2 = create("aztec2");
@@ -63,8 +66,6 @@ public final class PaintingVariantKeys {
     public static final TypedKey<PaintingVariant> WATER = create("water");
     public static final TypedKey<PaintingVariant> WIND = create("wind");
     public static final TypedKey<PaintingVariant> WITHER = create("wither");
-    private PaintingVariantKeys() {
-    }
 
     private static TypedKey<PaintingVariant> create(String value) {
         return TypedKey.create(RegistryKey.PAINTING_VARIANT, Key.minecraft(value));

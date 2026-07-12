@@ -12,6 +12,9 @@ import fr.euphyllia.fidorial.api.registry.data.DamageType;
  */
 public final class DamageTypeKeys {
 
+    private DamageTypeKeys() {
+    }
+
     public static final TypedKey<DamageType> ARROW = create("arrow");
     public static final TypedKey<DamageType> BAD_RESPAWN_POINT = create("bad_respawn_point");
     public static final TypedKey<DamageType> CACTUS = create("cactus");
@@ -63,8 +66,6 @@ public final class DamageTypeKeys {
     public static final TypedKey<DamageType> WIND_CHARGE = create("wind_charge");
     public static final TypedKey<DamageType> WITHER = create("wither");
     public static final TypedKey<DamageType> WITHER_SKULL = create("wither_skull");
-    private DamageTypeKeys() {
-    }
 
     private static TypedKey<DamageType> create(String value) {
         return TypedKey.create(RegistryKey.DAMAGE_TYPE, Key.minecraft(value));

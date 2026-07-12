@@ -12,10 +12,11 @@ import fr.euphyllia.fidorial.api.registry.data.CatSoundVariant;
  */
 public final class CatSoundVariantKeys {
 
-    public static final TypedKey<CatSoundVariant> CLASSIC = create("classic");
-    public static final TypedKey<CatSoundVariant> ROYAL = create("royal");
     private CatSoundVariantKeys() {
     }
+
+    public static final TypedKey<CatSoundVariant> CLASSIC = create("classic");
+    public static final TypedKey<CatSoundVariant> ROYAL = create("royal");
 
     private static TypedKey<CatSoundVariant> create(String value) {
         return TypedKey.create(RegistryKey.CAT_SOUND_VARIANT, Key.minecraft(value));

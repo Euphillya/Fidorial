@@ -12,13 +12,13 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.Serverboun
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCreativeModeSlotPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundPingRequestPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundStatusRequestPacket;
 
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-
 
 public class ServerboundPackets {
 
@@ -52,6 +52,8 @@ public class ServerboundPackets {
                 ServerboundAcceptTeleportationPacket::read);
         register(ConnectionState.PLAY, PlayServerboundPackets.KEEP_ALIVE,
                 ServerboundKeepAlivePacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.SET_CREATIVE_MODE_SLOT,
+                ServerboundSetCreativeModeSlotPacket::read);
     }
 
     private ServerboundPackets() {

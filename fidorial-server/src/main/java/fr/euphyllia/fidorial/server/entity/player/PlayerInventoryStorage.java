@@ -78,7 +78,7 @@ public class PlayerInventoryStorage {
 
         NbtCompound root = new NbtCompound();
         root.putInt("DataVersion", AnvilChunkSerializer.DATA_VERSION_26_2);
-        root.put("Inventory", inventory.fakeTest());
+        root.put("Inventory", inventory.toNbt());
 
         byte[] data = NbtIo.writeToBytes(ROOT_NAME, root);
         if (gzip) {

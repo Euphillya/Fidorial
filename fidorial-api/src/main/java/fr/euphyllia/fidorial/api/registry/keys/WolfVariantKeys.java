@@ -12,6 +12,9 @@ import fr.euphyllia.fidorial.api.registry.data.WolfVariant;
  */
 public final class WolfVariantKeys {
 
+    private WolfVariantKeys() {
+    }
+
     public static final TypedKey<WolfVariant> ASHEN = create("ashen");
     public static final TypedKey<WolfVariant> BLACK = create("black");
     public static final TypedKey<WolfVariant> CHESTNUT = create("chestnut");
@@ -21,8 +24,6 @@ public final class WolfVariantKeys {
     public static final TypedKey<WolfVariant> SPOTTED = create("spotted");
     public static final TypedKey<WolfVariant> STRIPED = create("striped");
     public static final TypedKey<WolfVariant> WOODS = create("woods");
-    private WolfVariantKeys() {
-    }
 
     private static TypedKey<WolfVariant> create(String value) {
         return TypedKey.create(RegistryKey.WOLF_VARIANT, Key.minecraft(value));

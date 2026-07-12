@@ -42,4 +42,12 @@ public class ItemStack {
         return tag;
     }
 
+    public Key id() {
+        return id;
+    }
+
+    public int count() {
+        return count;
+    }
+
 }

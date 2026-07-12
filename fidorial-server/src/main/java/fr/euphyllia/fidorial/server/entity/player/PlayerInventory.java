@@ -99,4 +99,8 @@ public class PlayerInventory {
         }
     }
 
+    public ItemStack[] getAllItems() {
+        return slots;
+    }
+
 }

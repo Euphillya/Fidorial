@@ -12,12 +12,13 @@ import fr.euphyllia.fidorial.api.registry.data.DimensionType;
  */
 public final class DimensionTypeKeys {
 
+    private DimensionTypeKeys() {
+    }
+
     public static final TypedKey<DimensionType> OVERWORLD = create("overworld");
     public static final TypedKey<DimensionType> OVERWORLD_CAVES = create("overworld_caves");
     public static final TypedKey<DimensionType> THE_END = create("the_end");
     public static final TypedKey<DimensionType> THE_NETHER = create("the_nether");
-    private DimensionTypeKeys() {
-    }
 
     private static TypedKey<DimensionType> create(String value) {
         return TypedKey.create(RegistryKey.DIMENSION_TYPE, Key.minecraft(value));

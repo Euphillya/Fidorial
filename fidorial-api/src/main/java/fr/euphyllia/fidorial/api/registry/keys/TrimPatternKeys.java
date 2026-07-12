@@ -12,6 +12,9 @@ import fr.euphyllia.fidorial.api.registry.data.TrimPattern;
  */
 public final class TrimPatternKeys {
 
+    private TrimPatternKeys() {
+    }
+
     public static final TypedKey<TrimPattern> BOLT = create("bolt");
     public static final TypedKey<TrimPattern> COAST = create("coast");
     public static final TypedKey<TrimPattern> DUNE = create("dune");
@@ -30,8 +33,6 @@ public final class TrimPatternKeys {
     public static final TypedKey<TrimPattern> WARD = create("ward");
     public static final TypedKey<TrimPattern> WAYFINDER = create("wayfinder");
     public static final TypedKey<TrimPattern> WILD = create("wild");
-    private TrimPatternKeys() {
-    }
 
     private static TypedKey<TrimPattern> create(String value) {
         return TypedKey.create(RegistryKey.TRIM_PATTERN, Key.minecraft(value));

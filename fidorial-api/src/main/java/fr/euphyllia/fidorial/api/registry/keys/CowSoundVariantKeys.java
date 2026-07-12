@@ -12,10 +12,11 @@ import fr.euphyllia.fidorial.api.registry.data.CowSoundVariant;
  */
 public final class CowSoundVariantKeys {
 
-    public static final TypedKey<CowSoundVariant> CLASSIC = create("classic");
-    public static final TypedKey<CowSoundVariant> MOODY = create("moody");
     private CowSoundVariantKeys() {
     }
+
+    public static final TypedKey<CowSoundVariant> CLASSIC = create("classic");
+    public static final TypedKey<CowSoundVariant> MOODY = create("moody");
 
     private static TypedKey<CowSoundVariant> create(String value) {
         return TypedKey.create(RegistryKey.COW_SOUND_VARIANT, Key.minecraft(value));

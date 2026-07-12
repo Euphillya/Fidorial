@@ -12,11 +12,12 @@ import fr.euphyllia.fidorial.api.registry.data.CowVariant;
  */
 public final class CowVariantKeys {
 
+    private CowVariantKeys() {
+    }
+
     public static final TypedKey<CowVariant> COLD = create("cold");
     public static final TypedKey<CowVariant> TEMPERATE = create("temperate");
     public static final TypedKey<CowVariant> WARM = create("warm");
-    private CowVariantKeys() {
-    }
 
     private static TypedKey<CowVariant> create(String value) {
         return TypedKey.create(RegistryKey.COW_VARIANT, Key.minecraft(value));
