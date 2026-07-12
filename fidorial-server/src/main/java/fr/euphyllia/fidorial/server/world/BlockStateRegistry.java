@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.api.registry.Key;
+import fr.euphyllia.fidorial.api.world.block.Blocks;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 
 import java.util.HashMap;
@@ -14,8 +15,9 @@ public final class BlockStateRegistry {
     private final Map<Integer, BlockState> states = new HashMap<>();
 
     public BlockStateRegistry() {
-        register(BlockState.AIR, 0);
-        register(BlockState.of("minecraft:cobblestone"), 14);
+        for (Blocks block : Blocks.values()) {
+            register(BlockState.of(block.key().asString()), block.networkId());
+        }
     }
 
     public void register(BlockState state, int networkId) {
