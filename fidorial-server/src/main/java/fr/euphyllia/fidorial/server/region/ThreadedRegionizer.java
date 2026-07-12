@@ -13,6 +13,11 @@ public final class ThreadedRegionizer implements RegionizedScheduler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadedRegionizer.class);
     private static final long TICK_PERIOD_MS = 50L;
+    /**
+     * Number of consecutive empty ticks before an idle region is destroyed.
+     * At 20 TPS this corresponds to ~1 minute of inactivity.
+     */
+    private static final int MAX_EMPTY_TICKS = 20 * 60;
 
     private static final int SECTION_SHIFT = 5;
 
@@ -28,12 +33,12 @@ public final class ThreadedRegionizer implements RegionizedScheduler {
 
     @Override
     public void execute(String worldName, ChunkPos pos, Runnable task) {
-        regionFor(worldName, pos).enqueue(task, 0);
+        enqueue(worldName, pos, task, 0);
     }
 
     @Override
     public void executeDelayed(String worldName, ChunkPos pos, Runnable task, long delayTicks) {
-        regionFor(worldName, pos).enqueue(task, Math.max(0, delayTicks));
+        enqueue(worldName, pos, task, Math.max(0, delayTicks));
     }
 
     @Override
@@ -43,6 +48,10 @@ public final class ThreadedRegionizer implements RegionizedScheduler {
     }
 
     public void shutdown() {
+        for (Region region : regions.values()) {
+            ScheduledFuture<?> future = region.future;
+            if (future != null) future.cancel(false);
+        }
         workers.shutdown();
         try {
             if (!workers.awaitTermination(5, TimeUnit.SECONDS)) workers.shutdownNow();
@@ -52,12 +61,29 @@ public final class ThreadedRegionizer implements RegionizedScheduler {
         }
     }
 
-    private Region regionFor(String worldName, ChunkPos pos) {
-        return regions.computeIfAbsent(RegionKey.of(worldName, pos), key -> {
-            Region region = new Region(key);
-            region.future = workers.scheduleAtFixedRate(
-                    region::tick, 0, TICK_PERIOD_MS, TimeUnit.MILLISECONDS);
-            LOGGER.debug("Region creee : {}", key);
+    private void enqueue(String worldName, ChunkPos pos, Runnable task, long delayTicks) {
+        RegionKey key = RegionKey.of(worldName, pos);
+        regions.compute(key, (k, region) -> {
+            if (region == null) {
+                region = new Region(key);
+                region.future = workers.scheduleAtFixedRate(
+                        region::tick, 0, TICK_PERIOD_MS, TimeUnit.MILLISECONDS);
+                LOGGER.debug("Region creee : {}", key);
+            }
+            region.emptyTicks.set(0);
+            region.tasks.add(new ScheduledTask(task, region.currentTick + delayTicks));
+            return region;
+        });
+    }
+
+    private void tryRemoveIdle(Region region) {
+        regions.compute(region.key, (k, existing) -> {
+            if (existing != region) return existing;
+            if (region.tasks.isEmpty() && region.emptyTicks.get() >= MAX_EMPTY_TICKS) {
+                region.future.cancel(false);
+                LOGGER.debug("Region supprimee : {}", region.key);
+                return null;
+            }
             return region;
         });
     }
@@ -68,19 +94,16 @@ public final class ThreadedRegionizer implements RegionizedScheduler {
         }
     }
 
-    private static final class Region {
+    private final class Region {
         final RegionKey key;
         final Queue<ScheduledTask> tasks = new ConcurrentLinkedQueue<>();
+        final AtomicInteger emptyTicks = new AtomicInteger();
         volatile Thread tickingThread;
         ScheduledFuture<?> future;
         long currentTick;
 
         Region(RegionKey key) {
             this.key = key;
-        }
-
-        void enqueue(Runnable task, long delayTicks) {
-            tasks.add(new ScheduledTask(task, currentTick + delayTicks));
         }
 
         void tick() {
@@ -103,6 +126,13 @@ public final class ThreadedRegionizer implements RegionizedScheduler {
                     }
                 }
 
+                if (tasks.isEmpty()) {
+                    if (emptyTicks.incrementAndGet() >= MAX_EMPTY_TICKS) {
+                        tryRemoveIdle(this);
+                    }
+                } else {
+                    emptyTicks.set(0);
+                }
             } finally {
                 tickingThread = null;
             }
