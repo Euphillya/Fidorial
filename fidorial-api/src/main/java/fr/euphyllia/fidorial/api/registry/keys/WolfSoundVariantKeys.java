@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -19,6 +17,7 @@ public final class WolfSoundVariantKeys {
     public static final TypedKey<WolfSoundVariant> GRUMPY = create("grumpy");
     public static final TypedKey<WolfSoundVariant> PUGLIN = create("puglin");
     public static final TypedKey<WolfSoundVariant> SAD = create("sad");
+
     private WolfSoundVariantKeys() {
     }
 

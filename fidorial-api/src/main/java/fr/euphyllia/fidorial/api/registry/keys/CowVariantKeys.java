@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -15,6 +13,7 @@ public final class CowVariantKeys {
     public static final TypedKey<CowVariant> COLD = create("cold");
     public static final TypedKey<CowVariant> TEMPERATE = create("temperate");
     public static final TypedKey<CowVariant> WARM = create("warm");
+
     private CowVariantKeys() {
     }
 

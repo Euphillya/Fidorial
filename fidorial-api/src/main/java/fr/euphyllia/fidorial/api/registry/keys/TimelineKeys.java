@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -16,6 +14,7 @@ public final class TimelineKeys {
     public static final TypedKey<Timeline> EARLY_GAME = create("early_game");
     public static final TypedKey<Timeline> MOON = create("moon");
     public static final TypedKey<Timeline> VILLAGER_SCHEDULE = create("villager_schedule");
+
     private TimelineKeys() {
     }
 

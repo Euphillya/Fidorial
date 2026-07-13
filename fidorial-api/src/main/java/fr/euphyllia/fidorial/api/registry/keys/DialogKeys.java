@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -15,6 +13,7 @@ public final class DialogKeys {
     public static final TypedKey<Dialog> CUSTOM_OPTIONS = create("custom_options");
     public static final TypedKey<Dialog> QUICK_ACTIONS = create("quick_actions");
     public static final TypedKey<Dialog> SERVER_LINKS = create("server_links");
+
     private DialogKeys() {
     }
 

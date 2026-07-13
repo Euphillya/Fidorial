@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -63,6 +61,7 @@ public final class DamageTypeKeys {
     public static final TypedKey<DamageType> WIND_CHARGE = create("wind_charge");
     public static final TypedKey<DamageType> WITHER = create("wither");
     public static final TypedKey<DamageType> WITHER_SKULL = create("wither_skull");
+
     private DamageTypeKeys() {
     }
 

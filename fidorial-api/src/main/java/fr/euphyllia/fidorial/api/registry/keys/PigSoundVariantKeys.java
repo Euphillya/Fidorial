@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -15,6 +13,7 @@ public final class PigSoundVariantKeys {
     public static final TypedKey<PigSoundVariant> BIG = create("big");
     public static final TypedKey<PigSoundVariant> CLASSIC = create("classic");
     public static final TypedKey<PigSoundVariant> MINI = create("mini");
+
     private PigSoundVariantKeys() {
     }
 

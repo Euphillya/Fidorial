@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -63,6 +61,7 @@ public final class PaintingVariantKeys {
     public static final TypedKey<PaintingVariant> WATER = create("water");
     public static final TypedKey<PaintingVariant> WIND = create("wind");
     public static final TypedKey<PaintingVariant> WITHER = create("wither");
+
     private PaintingVariantKeys() {
     }
 

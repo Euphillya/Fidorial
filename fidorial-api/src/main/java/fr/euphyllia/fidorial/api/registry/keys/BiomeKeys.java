@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -78,6 +76,7 @@ public final class BiomeKeys {
     public static final TypedKey<Biome> WINDSWEPT_HILLS = create("windswept_hills");
     public static final TypedKey<Biome> WINDSWEPT_SAVANNA = create("windswept_savanna");
     public static final TypedKey<Biome> WOODED_BADLANDS = create("wooded_badlands");
+
     private BiomeKeys() {
     }
 

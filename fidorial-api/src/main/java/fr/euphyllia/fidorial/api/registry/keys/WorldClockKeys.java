@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -14,6 +12,7 @@ public final class WorldClockKeys {
 
     public static final TypedKey<WorldClock> OVERWORLD = create("overworld");
     public static final TypedKey<WorldClock> THE_END = create("the_end");
+
     private WorldClockKeys() {
     }
 

@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -19,6 +17,7 @@ public final class ChatTypeKeys {
     public static final TypedKey<ChatType> SAY_COMMAND = create("say_command");
     public static final TypedKey<ChatType> TEAM_MSG_COMMAND_INCOMING = create("team_msg_command_incoming");
     public static final TypedKey<ChatType> TEAM_MSG_COMMAND_OUTGOING = create("team_msg_command_outgoing");
+
     private ChatTypeKeys() {
     }
 

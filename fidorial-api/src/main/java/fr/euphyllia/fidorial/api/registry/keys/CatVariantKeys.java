@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -23,6 +21,7 @@ public final class CatVariantKeys {
     public static final TypedKey<CatVariant> SIAMESE = create("siamese");
     public static final TypedKey<CatVariant> TABBY = create("tabby");
     public static final TypedKey<CatVariant> WHITE = create("white");
+
     private CatVariantKeys() {
     }
 

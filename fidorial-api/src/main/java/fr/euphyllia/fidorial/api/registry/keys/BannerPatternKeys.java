@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -55,6 +53,7 @@ public final class BannerPatternKeys {
     public static final TypedKey<BannerPattern> TRIANGLE_TOP = create("triangle_top");
     public static final TypedKey<BannerPattern> TRIANGLES_BOTTOM = create("triangles_bottom");
     public static final TypedKey<BannerPattern> TRIANGLES_TOP = create("triangles_top");
+
     private BannerPatternKeys() {
     }
 

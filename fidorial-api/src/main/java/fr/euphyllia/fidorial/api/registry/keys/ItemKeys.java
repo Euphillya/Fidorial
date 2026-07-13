@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -1549,6 +1547,7 @@ public final class ItemKeys {
     public static final TypedKey<Item> OMINOUS_TRIAL_KEY = create("ominous_trial_key");
     public static final TypedKey<Item> VAULT = create("vault");
     public static final TypedKey<Item> OMINOUS_BOTTLE = create("ominous_bottle");
+
     private ItemKeys() {
     }
 

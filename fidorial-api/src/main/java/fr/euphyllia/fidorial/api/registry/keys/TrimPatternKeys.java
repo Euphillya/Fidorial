@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -30,6 +28,7 @@ public final class TrimPatternKeys {
     public static final TypedKey<TrimPattern> WARD = create("ward");
     public static final TypedKey<TrimPattern> WAYFINDER = create("wayfinder");
     public static final TypedKey<TrimPattern> WILD = create("wild");
+
     private TrimPatternKeys() {
     }
 

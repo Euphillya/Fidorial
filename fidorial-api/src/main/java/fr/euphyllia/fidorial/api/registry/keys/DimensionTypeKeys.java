@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -16,6 +14,7 @@ public final class DimensionTypeKeys {
     public static final TypedKey<DimensionType> OVERWORLD_CAVES = create("overworld_caves");
     public static final TypedKey<DimensionType> THE_END = create("the_end");
     public static final TypedKey<DimensionType> THE_NETHER = create("the_nether");
+
     private DimensionTypeKeys() {
     }
 

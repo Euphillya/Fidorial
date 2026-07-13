@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -23,6 +21,7 @@ public final class TrimMaterialKeys {
     public static final TypedKey<TrimMaterial> QUARTZ = create("quartz");
     public static final TypedKey<TrimMaterial> REDSTONE = create("redstone");
     public static final TypedKey<TrimMaterial> RESIN = create("resin");
+
     private TrimMaterialKeys() {
     }
 

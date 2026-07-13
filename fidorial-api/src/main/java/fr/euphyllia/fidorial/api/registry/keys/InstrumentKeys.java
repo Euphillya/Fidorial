@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -20,6 +18,7 @@ public final class InstrumentKeys {
     public static final TypedKey<Instrument> SEEK_GOAT_HORN = create("seek_goat_horn");
     public static final TypedKey<Instrument> SING_GOAT_HORN = create("sing_goat_horn");
     public static final TypedKey<Instrument> YEARN_GOAT_HORN = create("yearn_goat_horn");
+
     private InstrumentKeys() {
     }
 

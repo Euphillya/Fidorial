@@ -1,18 +1,9 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry;
 
 import fr.euphyllia.fidorial.api.registry.data.*;
 
 import java.util.Objects;
 
-/**
- * Identifies a Minecraft registry (e.g. {@code minecraft:worldgen/biome}).
- * The type parameter {@code T} is a phantom marker binding a registry to the
- * kind of value it holds, so a {@link TypedKey} cannot be pointed at the wrong
- * registry at compile time.
- *
- */
 public record RegistryKey<T>(Key key) {
 
     public static final RegistryKey<Attribute> ATTRIBUTE = of("attribute");

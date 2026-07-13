@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -52,6 +50,7 @@ public final class AttributeKeys {
     public static final TypedKey<Attribute> WATER_MOVEMENT_EFFICIENCY = create("water_movement_efficiency");
     public static final TypedKey<Attribute> WAYPOINT_TRANSMIT_RANGE = create("waypoint_transmit_range");
     public static final TypedKey<Attribute> WAYPOINT_RECEIVE_RANGE = create("waypoint_receive_range");
+
     private AttributeKeys() {
     }
 

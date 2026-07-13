@@ -1,5 +1,3 @@
-// GENERATED CODE - DO NOT EDIT.
-// Regenerate: python3 tool/registry-generator/generate.py <project-root>
 package fr.euphyllia.fidorial.api.registry.keys;
 
 import fr.euphyllia.fidorial.api.registry.Key;
@@ -55,6 +53,7 @@ public final class EnchantmentKeys {
     public static final TypedKey<Enchantment> UNBREAKING = create("unbreaking");
     public static final TypedKey<Enchantment> VANISHING_CURSE = create("vanishing_curse");
     public static final TypedKey<Enchantment> WIND_BURST = create("wind_burst");
+
     private EnchantmentKeys() {
     }
 
