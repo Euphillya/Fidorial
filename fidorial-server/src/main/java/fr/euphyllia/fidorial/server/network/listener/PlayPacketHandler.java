@@ -25,10 +25,15 @@ import fr.euphyllia.fidorial.server.world.FlatWorld;
 import fr.euphyllia.fidorial.server.world.World;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public final class PlayPacketHandler implements PlayPacketListener {
 
@@ -44,6 +49,16 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     private int teleportId;
     private int selectedSlot;
+
+    // Suivi du streaming de chunks : centre courant et chunks déjà envoyés au client.
+    private ChunkNetworkSerializer chunkNet;
+    private int centerChunkX;
+    private int centerChunkZ;
+    private final Set<Long> sentChunks = new HashSet<>();
+
+    private static long chunkKey(int cx, int cz) {
+        return ((long) cz << 32) | (cx & 0xFFFFFFFFL);
+    }
 
     public PlayPacketHandler(ClientConnection connection) {
         this.connection = connection;
@@ -76,17 +91,13 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.send(new ClientboundLoginPacket(ENTITY_ID, "minecraft:overworld", dimType, VIEW_DISTANCE));
         connection.send(new ClientboundGameEventPacket(
                 ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
-        connection.send(new ClientboundSetChunkCacheCenterPacket(0, 0));
+        this.chunkNet = new ChunkNetworkSerializer(blockRegistry, biome);
+        this.centerChunkX = (int) Math.floor(FlatWorld.SPAWN_X) >> 4;
+        this.centerChunkZ = (int) Math.floor(FlatWorld.SPAWN_Z) >> 4;
+        connection.send(new ClientboundSetChunkCacheCenterPacket(centerChunkX, centerChunkZ));
 
-        ChunkNetworkSerializer chunkNet = new ChunkNetworkSerializer(blockRegistry, biome);
-        World overworld = server.worldManager().overworld();
         try {
-            for (int cx = -CHUNK_RADIUS; cx <= CHUNK_RADIUS; cx++) {
-                for (int cz = -CHUNK_RADIUS; cz <= CHUNK_RADIUS; cz++) {
-                    ChunkColumn column = overworld.getChunk(cx, cz); // disque -> sinon genere
-                    connection.send(new ClientboundLevelChunkWithLightPacket(chunkNet, column));
-                }
-            }
+            streamChunksAround(centerChunkX, centerChunkZ);
         } catch (IOException e) {
             LOGGER.error("Lecture d'un chunk impossible pour {}", connection.username(), e);
             connection.close();
@@ -224,6 +235,67 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 packet.position().x(), packet.position().y(), packet.position().z());
     }
 
+    @Override
+    public void handleMovePlayerPos(ServerboundMovePlayerPosPacket packet) {
+        onPlayerMoved(packet.x(), packet.z());
+    }
+
+    @Override
+    public void handleMovePlayerPosRot(ServerboundMovePlayerPosRotPacket packet) {
+        onPlayerMoved(packet.x(), packet.z());
+    }
+
+    private void onPlayerMoved(double x, double z) {
+        int chunkX = (int) Math.floor(x) >> 4;
+        int chunkZ = (int) Math.floor(z) >> 4;
+        if (chunkX == centerChunkX && chunkZ == centerChunkZ) {
+            return;
+        }
+
+        centerChunkX = chunkX;
+        centerChunkZ = chunkZ;
+
+        connection.send(new ClientboundSetChunkCacheCenterPacket(chunkX, chunkZ));
+
+        try {
+            streamChunksAround(chunkX, chunkZ);
+        } catch (IOException e) {
+            LOGGER.error("Streaming de chunks impossible pour {}", connection.username(), e);
+        }
+    }
+
+    private void streamChunksAround(int centerX, int centerZ) throws IOException {
+        World overworld = server.worldManager().overworld();
+
+        Iterator<Long> it = sentChunks.iterator();
+        while (it.hasNext()) {
+            long key = it.next();
+            int cx = (int) key;
+            int cz = (int) (key >> 32);
+            if (Math.abs(cx - centerX) > CHUNK_RADIUS || Math.abs(cz - centerZ) > CHUNK_RADIUS) {
+                connection.send(new ClientboundForgetLevelChunkPacket(cx, cz));
+                it.remove();
+            }
+        }
+
+        for (int r = 0; r <= CHUNK_RADIUS; r++) {
+            for (int dx = -r; dx <= r; dx++) {
+                for (int dz = -r; dz <= r; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
+                        continue;
+                    }
+                    int cx = centerX + dx;
+                    int cz = centerZ + dz;
+                    if (!sentChunks.add(chunkKey(cx, cz))) {
+                        continue;
+                    }
+                    ChunkColumn column = overworld.getChunk(cx, cz);
+                    connection.send(new ClientboundLevelChunkWithLightPacket(chunkNet, column));
+                }
+            }
+        }
+    }
+
     private void applyBlockChange(BlockPos pos, BlockState state, int sequence) {
         World world = server.worldManager().overworld();
         try {
@@ -236,7 +308,6 @@ public final class PlayPacketHandler implements PlayPacketListener {
             LOGGER.error("Changement de bloc impossible en {},{},{}",
                     pos.x(), pos.y(), pos.z(), e);
         } finally {
-            // Toujours acquitter, même en cas d'échec, pour éviter un blocage client.
             connection.send(new ClientboundBlockChangedAckPacket(sequence));
         }
     }

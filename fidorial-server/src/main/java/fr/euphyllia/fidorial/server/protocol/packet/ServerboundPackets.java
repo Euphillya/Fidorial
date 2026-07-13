@@ -11,6 +11,8 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.Serverboun
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundLoginAcknowledgedPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerActionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCarriedItemPacket;
@@ -63,6 +65,10 @@ public class ServerboundPackets {
                 ServerboundPlayerActionPacket::read);
         register(ConnectionState.PLAY, PlayServerboundPackets.SET_CARRIED_ITEM,
                 ServerboundSetCarriedItemPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.MOVE_PLAYER_POS,
+                ServerboundMovePlayerPosPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.MOVE_PLAYER_POS_ROT,
+                ServerboundMovePlayerPosRotPacket::read);
     }
 
     private ServerboundPackets() {
