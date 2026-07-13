@@ -45,6 +45,7 @@ bin/
 ## Other files to ignore
 tool/*
 fidorial-server/world/
+fidorial-server/faststats/
 
 # Ré-inclure uniquement le générateur
 !tool/registry-generator/

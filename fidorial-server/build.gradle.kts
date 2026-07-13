@@ -8,6 +8,8 @@ dependencies {
     implementation(libs.netty.all)
     implementation(libs.gson)
     implementation(libs.slf4j.api)
+    implementation(libs.faststats.config)
+    implementation(libs.faststats.core)
     runtimeOnly(libs.logback.classic)
 }
 

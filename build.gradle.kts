@@ -10,6 +10,10 @@ subprojects {
 
     repositories {
         mavenCentral()
+        maven {
+            name = "faststatsReleases"
+            url = uri("https://repo.faststats.dev/releases")
+        }
     }
 
     extensions.configure<JavaPluginExtension> {

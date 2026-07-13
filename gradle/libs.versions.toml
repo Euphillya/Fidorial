@@ -3,9 +3,12 @@ netty = "4.1.115.Final"
 gson = "2.11.0"
 slf4j = "2.0.16"
 logback = "1.5.12"
+faststats = "0.27.2"
 
 [libraries]
 netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+faststats-core = { module = "dev.faststats.metrics:core", version.ref = "faststats" }
+faststats-config = { module = "dev.faststats.metrics:config", version.ref = "faststats" }

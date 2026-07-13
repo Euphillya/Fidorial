@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.status;
 
 import com.google.gson.JsonObject;
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 
 public final class StatusResponseBuilder {
@@ -19,7 +20,7 @@ public final class StatusResponseBuilder {
 
         JsonObject players = new JsonObject();
         players.addProperty("max", 100);
-        players.addProperty("online", 0);
+        players.addProperty("online", FidorialServer.getInstance().getPlayerCount());
 
         JsonObject description = new JsonObject();
         description.addProperty("text", "Fidorial | serveur regionalise from scratch");

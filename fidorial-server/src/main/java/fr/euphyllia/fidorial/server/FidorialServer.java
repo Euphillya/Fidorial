@@ -1,11 +1,14 @@
 package fr.euphyllia.fidorial.server;
 
+import dev.faststats.ErrorTracker;
+import dev.faststats.Metrics;
 import fr.euphyllia.fidorial.api.Server;
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.entity.player.PlayerInventoryStorage;
+import fr.euphyllia.fidorial.server.metrics.FidorialContext;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.NettyServer;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
@@ -32,8 +35,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class FidorialServer implements Server {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FidorialServer.class);
-
+    public static final Logger LOGGER = LoggerFactory.getLogger(FidorialServer.class);
+    public static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware();
+    private static FidorialServer INSTANCE;
     private final int port;
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final KeyPair keyPair = EncryptionUtils.generateServerKeyPair();
@@ -53,20 +57,31 @@ public final class FidorialServer implements Server {
     );
     private NettyServer network;
     private WorldManager worldManager;
+    private FidorialContext metricsContext;
+    private final String tokenFast = "6c8c21fe427163e998ea50f54a0ce855";
 
     public FidorialServer(int port) {
         this.port = port;
+        INSTANCE = this;
+    }
+
+    public static FidorialServer getInstance() {
+        return INSTANCE;
     }
 
     public void start() throws Exception {
         if (!running.compareAndSet(false, true)) return;
         LOGGER.info("Demarrage de Fidorial (Minecraft {} / protocole {})",
                 minecraftVersion(), protocolVersion());
+        metricsContext = new FidorialContext.Factory(tokenFast)
+                .errorTrackerService(ERROR_TRACKER)
+                .metrics(Metrics.Factory::create)
+                .create();
         this.worldManager = WorldManager.openOrCreate(Path.of("world"), FlatWorld.MIN_Y, FlatWorld.HEIGHT);
         this.network = new NettyServer(this, port);
         this.network.bind();
         LOGGER.info("En ecoute sur le port {}", port);
-
+        metricsContext.ready();
         saveWorldScheduler.scheduleAtFixedRate(() -> {
             try {
                 worldManager.saveDirty();
@@ -80,6 +95,9 @@ public final class FidorialServer implements Server {
     public void shutdown() {
         if (!running.compareAndSet(true, false)) return;
         LOGGER.info("Arret de Fidorial...");
+        if (metricsContext != null) {
+            metricsContext.shutdown();
+        }
         if (network != null) network.shutdown();
         if (worldManager != null) {
             try {
@@ -164,5 +182,9 @@ public final class FidorialServer implements Server {
         for (ClientConnection connection : playerConnections) {
             connection.send(packet);
         }
+    }
+
+    public int getPlayerCount() {
+        return playerConnections.size();
     }
 }
