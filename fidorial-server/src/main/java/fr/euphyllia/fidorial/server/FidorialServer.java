@@ -11,9 +11,10 @@ import fr.euphyllia.fidorial.server.network.NettyServer;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
-import fr.euphyllia.fidorial.server.region.ThreadedRegionizer;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
+import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.world.FlatWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import org.slf4j.Logger;
@@ -22,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.KeyPair;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,13 +41,16 @@ public final class FidorialServer implements Server {
     private final ProtocolMap protocolMap = ProtocolMap.load();
     private final Registries registries = Registries.load();
     private final CommandManager commandManager = new CommandManager();
-    private final ThreadedRegionizer regionizer = new ThreadedRegionizer(
-            Math.max(2, Runtime.getRuntime().availableProcessors() / 2));
+    private final ThreadedRegionRegionizer regionizer = new ThreadedRegionRegionizer(
+            Math.max(2, Runtime.getRuntime().availableProcessors() / 2)
+    );
     private final ScheduledExecutorService saveWorldScheduler = Executors.newScheduledThreadPool(1);
     private final PlayerInventoryStorage playerInventoryStorage =
             new PlayerInventoryStorage(Path.of("world/player"), false);
-    private final java.util.Set<ClientConnection> playerConnections =
-            java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private final Set<ClientConnection> playerConnections = ConcurrentHashMap.newKeySet();
+    private final ThreadedChunkWorker chunkWorker = new ThreadedChunkWorker(
+            Math.max(2, Runtime.getRuntime().availableProcessors() / 2)
+    );
     private NettyServer network;
     private WorldManager worldManager;
 
@@ -83,6 +89,11 @@ public final class FidorialServer implements Server {
             }
         }
         regionizer.shutdown();
+        chunkWorker.shutdown();
+    }
+
+    public ThreadedChunkWorker getThreadedChunkWorker() {
+        return chunkWorker;
     }
 
     @Override
@@ -125,7 +136,7 @@ public final class FidorialServer implements Server {
         return registries.dynamic();
     }
 
-    public ThreadedRegionizer regionizer() {
+    public ThreadedRegionRegionizer regionizer() {
         return regionizer;
     }
 

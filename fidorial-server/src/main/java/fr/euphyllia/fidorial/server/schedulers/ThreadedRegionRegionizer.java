@@ -1,4 +1,4 @@
-package fr.euphyllia.fidorial.server.region;
+package fr.euphyllia.fidorial.server.schedulers;
 
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
 import fr.euphyllia.fidorial.api.world.ChunkPos;
@@ -9,9 +9,9 @@ import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class ThreadedRegionizer implements RegionizedScheduler {
+public final class ThreadedRegionRegionizer implements RegionizedScheduler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadedRegionizer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadedRegionRegionizer.class);
     private static final long TICK_PERIOD_MS = 50L;
     /**
      * Number of consecutive empty ticks before an idle region is destroyed.
@@ -24,7 +24,7 @@ public final class ThreadedRegionizer implements RegionizedScheduler {
     private final ScheduledExecutorService workers;
     private final ConcurrentMap<RegionKey, Region> regions = new ConcurrentHashMap<>();
 
-    public ThreadedRegionizer(int workerThreads) {
+    public ThreadedRegionRegionizer(int workerThreads) {
         AtomicInteger id = new AtomicInteger();
         this.workers = Executors.newScheduledThreadPool(workerThreads,
                 r -> new Thread(r, "fidorial-region-worker-" + id.incrementAndGet()));

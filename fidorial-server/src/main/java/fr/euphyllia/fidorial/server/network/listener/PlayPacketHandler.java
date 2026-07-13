@@ -35,13 +35,15 @@ public final class PlayPacketHandler implements PlayPacketListener {
     private final ClientConnection connection;
     private final FidorialServer server;
     private final BlockStateRegistry blockRegistry = new BlockStateRegistry();
-    private final Set<Long> sentChunks = new HashSet<>();
     private int teleportId;
     private int selectedSlot;
     // Suivi du streaming de chunks : centre courant et chunks déjà envoyés au client.
     private ChunkNetworkSerializer chunkNet;
     private int centerChunkX;
     private int centerChunkZ;
+    private final Object chunkLock = new Object();
+    private final Set<Long> sentChunks = new HashSet<>();
+    private final Set<Long> pendingChunks = new HashSet<>();
 
     public PlayPacketHandler(ClientConnection connection) {
         this.connection = connection;
@@ -81,17 +83,15 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.send(new ClientboundGameEventPacket(
                 ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         this.chunkNet = new ChunkNetworkSerializer(blockRegistry, biome);
-        this.centerChunkX = (int) Math.floor(FlatWorld.SPAWN_X) >> 4;
-        this.centerChunkZ = (int) Math.floor(FlatWorld.SPAWN_Z) >> 4;
-        connection.send(new ClientboundSetChunkCacheCenterPacket(centerChunkX, centerChunkZ));
-
-        try {
-            streamChunksAround(centerChunkX, centerChunkZ);
-        } catch (IOException e) {
-            LOGGER.error("Lecture d'un chunk impossible pour {}", connection.username(), e);
-            connection.close();
-            return;
+        int spawnChunkX = (int) Math.floor(FlatWorld.SPAWN_X) >> 4;
+        int spawnChunkZ = (int) Math.floor(FlatWorld.SPAWN_Z) >> 4;
+        synchronized (chunkLock) {
+            this.centerChunkX = spawnChunkX;
+            this.centerChunkZ = spawnChunkZ;
         }
+        connection.send(new ClientboundSetChunkCacheCenterPacket(spawnChunkX, spawnChunkZ));
+
+        streamChunksAround(spawnChunkX, spawnChunkZ);
 
         teleportId++;
         connection.send(new ClientboundPlayerPositionPacket(
@@ -249,46 +249,68 @@ public final class PlayPacketHandler implements PlayPacketListener {
             return;
         }
 
-        centerChunkX = chunkX;
-        centerChunkZ = chunkZ;
+        synchronized (chunkLock) {
+            if (chunkX == centerChunkX && chunkZ == centerChunkZ) {
+                return;
+            }
+            centerChunkX = chunkX;
+            centerChunkZ = chunkZ;
+        }
 
         connection.send(new ClientboundSetChunkCacheCenterPacket(chunkX, chunkZ));
+        streamChunksAround(chunkX, chunkZ);
+    }
 
-        try {
-            streamChunksAround(chunkX, chunkZ);
-        } catch (IOException e) {
-            LOGGER.error("Streaming de chunks impossible pour {}", connection.username(), e);
+    private void streamChunksAround(int centerX, int centerZ) {
+        World overworld = server.worldManager().overworld();
+
+        synchronized (chunkLock) {
+            Iterator<Long> it = sentChunks.iterator();
+            while (it.hasNext()) {
+                long key = it.next();
+                int cx = (int) key;
+                int cz = (int) (key >> 32);
+                if (Math.abs(cx - centerX) > CHUNK_RADIUS || Math.abs(cz - centerZ) > CHUNK_RADIUS) {
+                    connection.send(new ClientboundForgetLevelChunkPacket(cx, cz));
+                    it.remove();
+                }
+            }
+
+            for (int r = 0; r <= CHUNK_RADIUS; r++) {
+                for (int dx = -r; dx <= r; dx++) {
+                    for (int dz = -r; dz <= r; dz++) {
+                        if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
+                            continue;
+                        }
+                        int cx = centerX + dx;
+                        int cz = centerZ + dz;
+                        long key = chunkKey(cx, cz);
+                        if (sentChunks.contains(key) || !pendingChunks.add(key)) {
+                            continue;
+                        }
+                        server.getThreadedChunkWorker().loadAsync(overworld, cx, cz)
+                                .whenComplete((column, error) -> onChunkLoaded(cx, cz, column, error));
+                    }
+                }
+            }
         }
     }
 
-    private void streamChunksAround(int centerX, int centerZ) throws IOException {
-        World overworld = server.worldManager().overworld();
-
-        Iterator<Long> it = sentChunks.iterator();
-        while (it.hasNext()) {
-            long key = it.next();
-            int cx = (int) key;
-            int cz = (int) (key >> 32);
-            if (Math.abs(cx - centerX) > CHUNK_RADIUS || Math.abs(cz - centerZ) > CHUNK_RADIUS) {
-                connection.send(new ClientboundForgetLevelChunkPacket(cx, cz));
-                it.remove();
+    private void onChunkLoaded(int cx, int cz, ChunkColumn column, Throwable error) {
+        long key = chunkKey(cx, cz);
+        synchronized (chunkLock) {
+            pendingChunks.remove(key);
+            if (error != null) {
+                LOGGER.error("Chargement asynchrone du chunk {},{} impossible pour {}",
+                        cx, cz, connection.username(), error);
+                return;
             }
-        }
-
-        for (int r = 0; r <= CHUNK_RADIUS; r++) {
-            for (int dx = -r; dx <= r; dx++) {
-                for (int dz = -r; dz <= r; dz++) {
-                    if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
-                        continue;
-                    }
-                    int cx = centerX + dx;
-                    int cz = centerZ + dz;
-                    if (!sentChunks.add(chunkKey(cx, cz))) {
-                        continue;
-                    }
-                    ChunkColumn column = overworld.getChunk(cx, cz);
-                    connection.send(new ClientboundLevelChunkWithLightPacket(chunkNet, column));
-                }
+            if (Math.abs(cx - centerChunkX) > CHUNK_RADIUS
+                    || Math.abs(cz - centerChunkZ) > CHUNK_RADIUS) {
+                return;
+            }
+            if (sentChunks.add(key)) {
+                connection.send(new ClientboundLevelChunkWithLightPacket(chunkNet, column));
             }
         }
     }
