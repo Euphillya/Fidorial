@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.crypto.SecretKey;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -101,7 +102,10 @@ public final class LoginPacketHandler implements LoginPacketListener {
 
     private void sendLoginSuccess(GameProfile profile) {
         LOGGER.info("Authentifie : {} ({})", profile.name(), profile.uuid());
-        connection.setProfile(new PlayerProfile(profile.uuid(), profile.name()));
+        List<PlayerProfile.Property> properties = profile.properties().stream()
+                .map(p -> new PlayerProfile.Property(p.name(), p.value(), p.signature()))
+                .toList();
+        connection.setProfile(new PlayerProfile(profile.uuid(), profile.name(), properties));
         connection.send(new ClientboundLoginFinishedPacket(profile));
     }
 

@@ -12,9 +12,6 @@ import fr.euphyllia.fidorial.api.registry.data.CatVariant;
  */
 public final class CatVariantKeys {
 
-    private CatVariantKeys() {
-    }
-
     public static final TypedKey<CatVariant> ALL_BLACK = create("all_black");
     public static final TypedKey<CatVariant> BLACK = create("black");
     public static final TypedKey<CatVariant> BRITISH_SHORTHAIR = create("british_shorthair");
@@ -26,6 +23,8 @@ public final class CatVariantKeys {
     public static final TypedKey<CatVariant> SIAMESE = create("siamese");
     public static final TypedKey<CatVariant> TABBY = create("tabby");
     public static final TypedKey<CatVariant> WHITE = create("white");
+    private CatVariantKeys() {
+    }
 
     private static TypedKey<CatVariant> create(String value) {
         return TypedKey.create(RegistryKey.CAT_VARIANT, Key.minecraft(value));

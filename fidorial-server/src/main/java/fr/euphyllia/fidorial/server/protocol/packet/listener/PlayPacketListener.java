@@ -1,15 +1,8 @@
 package fr.euphyllia.fidorial.server.protocol.packet.listener;
 
 import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerActionPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCarriedItemPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCreativeModeSlotPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.*;
 
 public interface PlayPacketListener extends PacketListener {
     void handlePlayerLoaded(ServerboundPlayerLoadedPacket packet);
@@ -29,4 +22,6 @@ public interface PlayPacketListener extends PacketListener {
     void handleMovePlayerPos(ServerboundMovePlayerPosPacket packet);
 
     void handleMovePlayerPosRot(ServerboundMovePlayerPosRotPacket packet);
+
+    void handleClientInformation(ServerboundClientInformationPacket packet);
 }

@@ -12,9 +12,6 @@ import fr.euphyllia.fidorial.api.registry.data.Biome;
  */
 public final class BiomeKeys {
 
-    private BiomeKeys() {
-    }
-
     public static final TypedKey<Biome> BADLANDS = create("badlands");
     public static final TypedKey<Biome> BAMBOO_JUNGLE = create("bamboo_jungle");
     public static final TypedKey<Biome> BASALT_DELTAS = create("basalt_deltas");
@@ -81,6 +78,8 @@ public final class BiomeKeys {
     public static final TypedKey<Biome> WINDSWEPT_HILLS = create("windswept_hills");
     public static final TypedKey<Biome> WINDSWEPT_SAVANNA = create("windswept_savanna");
     public static final TypedKey<Biome> WOODED_BADLANDS = create("wooded_badlands");
+    private BiomeKeys() {
+    }
 
     private static TypedKey<Biome> create(String value) {
         return TypedKey.create(RegistryKey.BIOME, Key.minecraft(value));

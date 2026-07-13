@@ -3,21 +3,14 @@ package fr.euphyllia.fidorial.server.protocol.packet;
 import fr.euphyllia.fidorial.server.network.ConnectionState;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.*;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundFinishConfigurationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundSelectKnownPacksPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.handshake.ServerboundIntentionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundHelloPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundKeyPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundLoginAcknowledgedPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerActionPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCarriedItemPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCreativeModeSlotPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.*;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundPingRequestPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundStatusRequestPacket;
 
@@ -48,6 +41,8 @@ public class ServerboundPackets {
 
         register(ConnectionState.CONFIGURATION, ConfigurationServerboundPackets.SELECT_KNOWN_PACKS,
                 ServerboundSelectKnownPacksPacket::read);
+        register(ConnectionState.CONFIGURATION, ConfigurationServerboundPackets.CLIENT_INFORMATION,
+                ServerboundClientInformationPacket::read);
         register(ConnectionState.CONFIGURATION, ConfigurationServerboundPackets.FINISH_CONFIGURATION,
                 ServerboundFinishConfigurationPacket::read);
 
@@ -69,6 +64,8 @@ public class ServerboundPackets {
                 ServerboundMovePlayerPosPacket::read);
         register(ConnectionState.PLAY, PlayServerboundPackets.MOVE_PLAYER_POS_ROT,
                 ServerboundMovePlayerPosRotPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.CLIENT_INFORMATION,
+                ServerboundClientInformationPacket::read);
     }
 
     private ServerboundPackets() {

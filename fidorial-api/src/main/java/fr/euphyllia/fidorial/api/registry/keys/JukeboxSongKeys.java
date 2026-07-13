@@ -12,9 +12,6 @@ import fr.euphyllia.fidorial.api.registry.data.JukeboxSong;
  */
 public final class JukeboxSongKeys {
 
-    private JukeboxSongKeys() {
-    }
-
     public static final TypedKey<JukeboxSong> _11 = create("11");
     public static final TypedKey<JukeboxSong> _13 = create("13");
     public static final TypedKey<JukeboxSong> _5 = create("5");
@@ -37,6 +34,8 @@ public final class JukeboxSongKeys {
     public static final TypedKey<JukeboxSong> TEARS = create("tears");
     public static final TypedKey<JukeboxSong> WAIT = create("wait");
     public static final TypedKey<JukeboxSong> WARD = create("ward");
+    private JukeboxSongKeys() {
+    }
 
     private static TypedKey<JukeboxSong> create(String value) {
         return TypedKey.create(RegistryKey.JUKEBOX_SONG, Key.minecraft(value));

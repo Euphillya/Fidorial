@@ -12,9 +12,6 @@ import fr.euphyllia.fidorial.api.registry.data.TrimMaterial;
  */
 public final class TrimMaterialKeys {
 
-    private TrimMaterialKeys() {
-    }
-
     public static final TypedKey<TrimMaterial> AMETHYST = create("amethyst");
     public static final TypedKey<TrimMaterial> COPPER = create("copper");
     public static final TypedKey<TrimMaterial> DIAMOND = create("diamond");
@@ -26,6 +23,8 @@ public final class TrimMaterialKeys {
     public static final TypedKey<TrimMaterial> QUARTZ = create("quartz");
     public static final TypedKey<TrimMaterial> REDSTONE = create("redstone");
     public static final TypedKey<TrimMaterial> RESIN = create("resin");
+    private TrimMaterialKeys() {
+    }
 
     private static TypedKey<TrimMaterial> create(String value) {
         return TypedKey.create(RegistryKey.TRIM_MATERIAL, Key.minecraft(value));

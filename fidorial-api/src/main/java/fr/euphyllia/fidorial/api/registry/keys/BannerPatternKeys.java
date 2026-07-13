@@ -12,9 +12,6 @@ import fr.euphyllia.fidorial.api.registry.data.BannerPattern;
  */
 public final class BannerPatternKeys {
 
-    private BannerPatternKeys() {
-    }
-
     public static final TypedKey<BannerPattern> BASE = create("base");
     public static final TypedKey<BannerPattern> BORDER = create("border");
     public static final TypedKey<BannerPattern> BRICKS = create("bricks");
@@ -58,6 +55,8 @@ public final class BannerPatternKeys {
     public static final TypedKey<BannerPattern> TRIANGLE_TOP = create("triangle_top");
     public static final TypedKey<BannerPattern> TRIANGLES_BOTTOM = create("triangles_bottom");
     public static final TypedKey<BannerPattern> TRIANGLES_TOP = create("triangles_top");
+    private BannerPatternKeys() {
+    }
 
     private static TypedKey<BannerPattern> create(String value) {
         return TypedKey.create(RegistryKey.BANNER_PATTERN, Key.minecraft(value));

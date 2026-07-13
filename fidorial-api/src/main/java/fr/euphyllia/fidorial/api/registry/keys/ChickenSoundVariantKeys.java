@@ -12,11 +12,10 @@ import fr.euphyllia.fidorial.api.registry.data.ChickenSoundVariant;
  */
 public final class ChickenSoundVariantKeys {
 
-    private ChickenSoundVariantKeys() {
-    }
-
     public static final TypedKey<ChickenSoundVariant> CLASSIC = create("classic");
     public static final TypedKey<ChickenSoundVariant> PICKY = create("picky");
+    private ChickenSoundVariantKeys() {
+    }
 
     private static TypedKey<ChickenSoundVariant> create(String value) {
         return TypedKey.create(RegistryKey.CHICKEN_SOUND_VARIANT, Key.minecraft(value));

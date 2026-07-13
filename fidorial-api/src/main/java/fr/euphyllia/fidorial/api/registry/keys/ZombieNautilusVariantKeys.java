@@ -12,11 +12,10 @@ import fr.euphyllia.fidorial.api.registry.data.ZombieNautilusVariant;
  */
 public final class ZombieNautilusVariantKeys {
 
-    private ZombieNautilusVariantKeys() {
-    }
-
     public static final TypedKey<ZombieNautilusVariant> TEMPERATE = create("temperate");
     public static final TypedKey<ZombieNautilusVariant> WARM = create("warm");
+    private ZombieNautilusVariantKeys() {
+    }
 
     private static TypedKey<ZombieNautilusVariant> create(String value) {
         return TypedKey.create(RegistryKey.ZOMBIE_NAUTILUS_VARIANT, Key.minecraft(value));

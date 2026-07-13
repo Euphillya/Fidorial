@@ -15,19 +15,6 @@ import java.util.Objects;
  */
 public record RegistryKey<T>(Key key) {
 
-    public RegistryKey {
-        Objects.requireNonNull(key, "key");
-    }
-
-    private static <T> RegistryKey<T> of(String path) {
-        return new RegistryKey<>(Key.minecraft(path));
-    }
-
-    @Override
-    public String toString() {
-        return "RegistryKey[" + key + "]";
-    }
-
     public static final RegistryKey<Attribute> ATTRIBUTE = of("attribute");
     public static final RegistryKey<BannerPattern> BANNER_PATTERN = of("banner_pattern");
     public static final RegistryKey<Biome> BIOME = of("worldgen/biome");
@@ -56,4 +43,16 @@ public record RegistryKey<T>(Key key) {
     public static final RegistryKey<WolfVariant> WOLF_VARIANT = of("wolf_variant");
     public static final RegistryKey<WorldClock> WORLD_CLOCK = of("world_clock");
     public static final RegistryKey<ZombieNautilusVariant> ZOMBIE_NAUTILUS_VARIANT = of("zombie_nautilus_variant");
+    public RegistryKey {
+        Objects.requireNonNull(key, "key");
+    }
+
+    private static <T> RegistryKey<T> of(String path) {
+        return new RegistryKey<>(Key.minecraft(path));
+    }
+
+    @Override
+    public String toString() {
+        return "RegistryKey[" + key + "]";
+    }
 }

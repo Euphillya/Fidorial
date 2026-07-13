@@ -148,7 +148,7 @@ public final class FidorialServer implements Server {
     public void removePlayerConnection(ClientConnection connection) {
         playerConnections.remove(connection);
     }
-    
+
     public void broadcast(ClientboundPacket packet) {
         for (ClientConnection connection : playerConnections) {
             connection.send(packet);

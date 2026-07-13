@@ -12,12 +12,11 @@ import fr.euphyllia.fidorial.api.registry.data.ChickenVariant;
  */
 public final class ChickenVariantKeys {
 
-    private ChickenVariantKeys() {
-    }
-
     public static final TypedKey<ChickenVariant> COLD = create("cold");
     public static final TypedKey<ChickenVariant> TEMPERATE = create("temperate");
     public static final TypedKey<ChickenVariant> WARM = create("warm");
+    private ChickenVariantKeys() {
+    }
 
     private static TypedKey<ChickenVariant> create(String value) {
         return TypedKey.create(RegistryKey.CHICKEN_VARIANT, Key.minecraft(value));

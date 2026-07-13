@@ -12,13 +12,12 @@ import fr.euphyllia.fidorial.api.registry.data.Timeline;
  */
 public final class TimelineKeys {
 
-    private TimelineKeys() {
-    }
-
     public static final TypedKey<Timeline> DAY = create("day");
     public static final TypedKey<Timeline> EARLY_GAME = create("early_game");
     public static final TypedKey<Timeline> MOON = create("moon");
     public static final TypedKey<Timeline> VILLAGER_SCHEDULE = create("villager_schedule");
+    private TimelineKeys() {
+    }
 
     private static TypedKey<Timeline> create(String value) {
         return TypedKey.create(RegistryKey.TIMELINE, Key.minecraft(value));

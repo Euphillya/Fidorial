@@ -94,6 +94,9 @@ public final class ThreadedRegionizer implements RegionizedScheduler {
         }
     }
 
+    private record ScheduledTask(Runnable task, long executeAtTick) {
+    }
+
     private final class Region {
         final RegionKey key;
         final Queue<ScheduledTask> tasks = new ConcurrentLinkedQueue<>();
@@ -137,8 +140,5 @@ public final class ThreadedRegionizer implements RegionizedScheduler {
                 tickingThread = null;
             }
         }
-    }
-
-    private record ScheduledTask(Runnable task, long executeAtTick) {
     }
 }

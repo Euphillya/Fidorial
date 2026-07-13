@@ -9,24 +9,13 @@ import fr.euphyllia.fidorial.server.entity.player.PlayerInventory;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.*;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerActionPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCarriedItemPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCreativeModeSlotPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.*;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
-import fr.euphyllia.fidorial.server.world.BlockPos;
-import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
-import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
-import fr.euphyllia.fidorial.server.world.FlatWorld;
-import fr.euphyllia.fidorial.server.world.World;
+import fr.euphyllia.fidorial.server.world.*;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,23 +35,21 @@ public final class PlayPacketHandler implements PlayPacketListener {
     private final ClientConnection connection;
     private final FidorialServer server;
     private final BlockStateRegistry blockRegistry = new BlockStateRegistry();
-
+    private final Set<Long> sentChunks = new HashSet<>();
     private int teleportId;
     private int selectedSlot;
-
     // Suivi du streaming de chunks : centre courant et chunks déjà envoyés au client.
     private ChunkNetworkSerializer chunkNet;
     private int centerChunkX;
     private int centerChunkZ;
-    private final Set<Long> sentChunks = new HashSet<>();
-
-    private static long chunkKey(int cx, int cz) {
-        return ((long) cz << 32) | (cx & 0xFFFFFFFFL);
-    }
 
     public PlayPacketHandler(ClientConnection connection) {
         this.connection = connection;
         this.server = connection.server();
+    }
+
+    private static long chunkKey(int cx, int cz) {
+        return ((long) cz << 32) | (cx & 0xFFFFFFFFL);
     }
 
     private static int fromWindowSlot(int window) {
@@ -89,6 +76,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.setPlayer(player);
 
         connection.send(new ClientboundLoginPacket(ENTITY_ID, "minecraft:overworld", dimType, VIEW_DISTANCE));
+        connection.send(new ClientboundPlayerInfoUpdatePacket(player.profile(), 1, 0));
+        connection.send(new ClientboundSetEntityDataPacket(ENTITY_ID, connection.displayedSkinParts()));
         connection.send(new ClientboundGameEventPacket(
                 ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         this.chunkNet = new ChunkNetworkSerializer(blockRegistry, biome);
@@ -149,6 +138,14 @@ public final class PlayPacketHandler implements PlayPacketListener {
     @Override
     public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
         // Reponse au keep-alive : la connexion reste consideree comme vivante.
+    }
+
+    @Override
+    public void handleClientInformation(ServerboundClientInformationPacket packet) {
+        connection.setDisplayedSkinParts(packet.displayedSkinParts());
+        if (connection.player() != null) {
+            connection.send(new ClientboundSetEntityDataPacket(ENTITY_ID, packet.displayedSkinParts()));
+        }
     }
 
     @Override

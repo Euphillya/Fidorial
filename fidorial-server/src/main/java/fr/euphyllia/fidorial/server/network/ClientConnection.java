@@ -45,6 +45,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     private String username;
     private PlayerProfile profile;
     private Player player;
+    private int displayedSkinParts = 0x7F; // toutes les couches activees par defaut
     private ScheduledFuture<?> keepAliveTask;
 
     public ClientConnection(FidorialServer server) {
@@ -198,6 +199,14 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
 
     public void setProfile(PlayerProfile profile) {
         this.profile = profile;
+    }
+
+    public int displayedSkinParts() {
+        return displayedSkinParts;
+    }
+
+    public void setDisplayedSkinParts(int displayedSkinParts) {
+        this.displayedSkinParts = displayedSkinParts;
     }
 
     public Player player() {

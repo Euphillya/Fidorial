@@ -12,9 +12,6 @@ import fr.euphyllia.fidorial.api.registry.data.Item;
  */
 public final class ItemKeys {
 
-    private ItemKeys() {
-    }
-
     public static final TypedKey<Item> AIR = create("air");
     public static final TypedKey<Item> STONE = create("stone");
     public static final TypedKey<Item> GRANITE = create("granite");
@@ -1552,6 +1549,8 @@ public final class ItemKeys {
     public static final TypedKey<Item> OMINOUS_TRIAL_KEY = create("ominous_trial_key");
     public static final TypedKey<Item> VAULT = create("vault");
     public static final TypedKey<Item> OMINOUS_BOTTLE = create("ominous_bottle");
+    private ItemKeys() {
+    }
 
     private static TypedKey<Item> create(String value) {
         return TypedKey.create(RegistryKey.ITEM, Key.minecraft(value));

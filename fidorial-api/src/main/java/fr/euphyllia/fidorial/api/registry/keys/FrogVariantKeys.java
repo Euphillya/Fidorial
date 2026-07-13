@@ -12,12 +12,11 @@ import fr.euphyllia.fidorial.api.registry.data.FrogVariant;
  */
 public final class FrogVariantKeys {
 
-    private FrogVariantKeys() {
-    }
-
     public static final TypedKey<FrogVariant> COLD = create("cold");
     public static final TypedKey<FrogVariant> TEMPERATE = create("temperate");
     public static final TypedKey<FrogVariant> WARM = create("warm");
+    private FrogVariantKeys() {
+    }
 
     private static TypedKey<FrogVariant> create(String value) {
         return TypedKey.create(RegistryKey.FROG_VARIANT, Key.minecraft(value));

@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.server.network.ConnectionState;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.configuration.*;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.ConfigurationPacketListener;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundFinishConfigurationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundSelectKnownPacksPacket;
 import fr.euphyllia.fidorial.server.registry.Registry;
@@ -68,5 +69,10 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
     @Override
     public void handleFinishConfiguration(ServerboundFinishConfigurationPacket packet) {
         connection.setState(ConnectionState.PLAY);
+    }
+
+    @Override
+    public void handleClientInformation(ServerboundClientInformationPacket packet) {
+        connection.setDisplayedSkinParts(packet.displayedSkinParts());
     }
 }
