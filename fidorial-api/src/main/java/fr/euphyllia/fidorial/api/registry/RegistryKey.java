@@ -34,6 +34,7 @@ public record RegistryKey<T>(Key key) {
     public static final RegistryKey<WolfVariant> WOLF_VARIANT = of("wolf_variant");
     public static final RegistryKey<WorldClock> WORLD_CLOCK = of("world_clock");
     public static final RegistryKey<ZombieNautilusVariant> ZOMBIE_NAUTILUS_VARIANT = of("zombie_nautilus_variant");
+
     public RegistryKey {
         Objects.requireNonNull(key, "key");
     }

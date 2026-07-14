@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.network.listener;
 
 import fr.euphyllia.fidorial.api.entity.PlayerProfile;
-import fr.euphyllia.fidorial.api.world.ChunkPos;
 import fr.euphyllia.fidorial.api.registry.Key;
+import fr.euphyllia.fidorial.api.world.ChunkPos;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.ItemStack;
 import fr.euphyllia.fidorial.server.entity.player.Player;
@@ -37,15 +37,15 @@ public final class PlayPacketHandler implements PlayPacketListener {
     private final ClientConnection connection;
     private final FidorialServer server;
     private final BlockStateRegistry blockRegistry = new BlockStateRegistry();
+    private final Object chunkLock = new Object();
+    private final Set<Long> sentChunks = new HashSet<>();
+    private final Set<Long> pendingChunks = new HashSet<>();
     private int teleportId;
     private int selectedSlot;
     // Suivi du streaming de chunks : centre courant et chunks déjà envoyés au client.
     private ChunkNetworkSerializer chunkNet;
     private int centerChunkX;
     private int centerChunkZ;
-    private final Object chunkLock = new Object();
-    private final Set<Long> sentChunks = new HashSet<>();
-    private final Set<Long> pendingChunks = new HashSet<>();
     private ChunkPos ticketChunk;
 
     public PlayPacketHandler(ClientConnection connection) {
@@ -267,9 +267,6 @@ public final class PlayPacketHandler implements PlayPacketListener {
     private void onPlayerMoved(double x, double z) {
         int chunkX = (int) Math.floor(x) >> 4;
         int chunkZ = (int) Math.floor(z) >> 4;
-        if (chunkX == centerChunkX && chunkZ == centerChunkZ) {
-            return;
-        }
 
         synchronized (chunkLock) {
             if (chunkX == centerChunkX && chunkZ == centerChunkZ) {
@@ -352,6 +349,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             if (applied) {
                 int stateId = blockRegistry.networkId(state);
                 server.broadcast(new ClientboundBlockUpdatePacket(pos, stateId));
+                server.fluids().notifyBlockChanged(WORLD_NAME, pos.x(), pos.y(), pos.z());
             }
         } catch (IOException e) {
             LOGGER.error("Changement de bloc impossible en {},{},{}",

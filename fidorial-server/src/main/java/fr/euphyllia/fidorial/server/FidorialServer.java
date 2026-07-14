@@ -4,6 +4,7 @@ import dev.faststats.ErrorTracker;
 import dev.faststats.Metrics;
 import fr.euphyllia.fidorial.api.Server;
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
+import fr.euphyllia.fidorial.api.world.fluid.FluidManager;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
@@ -19,8 +20,10 @@ import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
+import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
 import fr.euphyllia.fidorial.server.world.FlatWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
+import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,10 +59,11 @@ public final class FidorialServer implements Server {
     private final ThreadedChunkWorker chunkWorker = new ThreadedChunkWorker(
             Math.max(2, Runtime.getRuntime().availableProcessors() / 2)
     );
+    private final String tokenFast = "6c8c21fe427163e998ea50f54a0ce855";
     private NettyServer network;
     private WorldManager worldManager;
     private FidorialContext metricsContext;
-    private final String tokenFast = "6c8c21fe427163e998ea50f54a0ce855";
+    private FluidEngine fluidEngine;
 
     public FidorialServer(int port) {
         this.port = port;
@@ -79,6 +83,8 @@ public final class FidorialServer implements Server {
                 .metrics(Metrics.Factory::create)
                 .create();
         this.worldManager = WorldManager.openOrCreate(Path.of("world"), FlatWorld.MIN_Y, FlatWorld.HEIGHT);
+        this.fluidEngine = new FluidEngine(worldManager, regionizer,
+                new BlockStateRegistry(), this::broadcast);
         this.network = new NettyServer(this, port);
         this.network.bind();
         LOGGER.info("En ecoute sur le port {}", port);
@@ -134,6 +140,11 @@ public final class FidorialServer implements Server {
     @Override
     public boolean isRunning() {
         return running.get();
+    }
+
+    @Override
+    public FluidManager fluids() {
+        return fluidEngine;
     }
 
     public KeyPair keyPair() {

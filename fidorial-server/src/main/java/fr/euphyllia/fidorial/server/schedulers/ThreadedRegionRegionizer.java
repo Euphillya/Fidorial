@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ThreadedRegionRegionizer implements RegionizedScheduler {
@@ -25,7 +24,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
     private static final int MAX_EMPTY_TICKS = 20 * 60;
 
     private static final int SECTION_SHIFT = 5;
-
+    private static final int TPS_SAMPLE_SIZE = 100; // ~5 s a 20 TPS
     private final ScheduledExecutorService workers;
     private final ConcurrentMap<RegionKey, Region> regions = new ConcurrentHashMap<>();
     private final List<RegionTickHandler> tickHandlers = new CopyOnWriteArrayList<>();
@@ -151,8 +150,6 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
         }
     }
 
-    private static final int TPS_SAMPLE_SIZE = 100; // ~5 s a 20 TPS
-
     private record RegionKey(String world, int sectionX, int sectionZ) {
         static RegionKey of(String world, ChunkPos pos) {
             return new RegionKey(world, pos.x() >> SECTION_SHIFT, pos.z() >> SECTION_SHIFT);
@@ -167,13 +164,12 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
         final Queue<ScheduledTask> tasks = new ConcurrentLinkedQueue<>();
         final AtomicInteger emptyTicks = new AtomicInteger();
         final AtomicInteger tickets = new AtomicInteger();
-        volatile Thread tickingThread;
-        ScheduledFuture<?> future;
-        long currentTick;
-
         private final Object tpsLock = new Object();
         private final long[] tickEndNanos = new long[TPS_SAMPLE_SIZE];
         private final long[] tickDurationNanos = new long[TPS_SAMPLE_SIZE];
+        volatile Thread tickingThread;
+        ScheduledFuture<?> future;
+        long currentTick;
         private int sampleIndex;
         private int sampleCount;
 

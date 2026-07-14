@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.api;
 
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
+import fr.euphyllia.fidorial.api.world.fluid.FluidManager;
 
 public interface Server {
 
@@ -13,4 +14,7 @@ public interface Server {
     void shutdown();
 
     boolean isRunning();
+
+    FluidManager fluids();
+
 }

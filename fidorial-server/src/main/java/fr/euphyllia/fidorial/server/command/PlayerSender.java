@@ -4,17 +4,7 @@ import fr.euphyllia.fidorial.api.command.CommandSender;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
 
-public class PlayerSender implements CommandSender {
-
-    private final ClientConnection connection;
-
-    public PlayerSender(ClientConnection connection) {
-        this.connection = connection;
-    }
-
-    public ClientConnection connection() {
-        return connection;
-    }
+public record PlayerSender(ClientConnection connection) implements CommandSender {
 
     @Override
     public String name() {

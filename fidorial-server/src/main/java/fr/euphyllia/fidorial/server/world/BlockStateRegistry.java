@@ -18,11 +18,21 @@ public final class BlockStateRegistry {
         for (Blocks block : Blocks.values()) {
             register(BlockState.of(block.key().asString()), block.networkId());
         }
+        registerFluidLevels(Blocks.WATER);
+        registerFluidLevels(Blocks.LAVA);
     }
 
     public void register(BlockState state, int networkId) {
         ids.put(state, networkId);
         states.putIfAbsent(networkId, state);
+    }
+
+    private void registerFluidLevels(Blocks fluid) {
+        String name = fluid.key().asString();
+        int base = fluid.networkId();
+        for (int level = 0; level <= 15; level++) {
+            register(new BlockState(name, Map.of("level", String.valueOf(level))), base + level);
+        }
     }
 
     public int networkId(BlockState state) {
@@ -41,6 +51,15 @@ public final class BlockStateRegistry {
         if (itemId == null) {
             return null;
         }
+
+        if (itemId.asString().equals("minecraft:water_bucket")) {
+            return new BlockState(Blocks.WATER.key().asString(), Map.of("level", "0"));
+        }
+
+        if (itemId.asString().equals("minecraft:lava_bucket")) {
+            return new BlockState(Blocks.LAVA.key().asString(), Map.of("level", "0"));
+        }
+        
         BlockState candidate = BlockState.of(itemId.asString());
         if (candidate.isAir()) {
             return null;
