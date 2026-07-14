@@ -42,7 +42,7 @@ jobs:
           retention-days: 14
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -55,8 +55,19 @@ jobs:
           name: fidorial-server
           path: dist
 
-      - name: Creer la release GitHub
+      - name: Release stable (tag v*)
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
+          files: dist/*.jar
+          generate_release_notes: true
+
+      - name: Release de dev (commit sur master)
+        if: github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: "Build ${{ github.run_number }} (${{ github.sha }})"
+          prerelease: true
           files: dist/*.jar
           generate_release_notes: true
