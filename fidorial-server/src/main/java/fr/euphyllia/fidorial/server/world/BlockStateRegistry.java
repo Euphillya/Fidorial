@@ -59,7 +59,7 @@ public final class BlockStateRegistry {
         if (itemId.asString().equals("minecraft:lava_bucket")) {
             return new BlockState(Blocks.LAVA.key().asString(), Map.of("level", "0"));
         }
-        
+
         BlockState candidate = BlockState.of(itemId.asString());
         if (candidate.isAir()) {
             return null;

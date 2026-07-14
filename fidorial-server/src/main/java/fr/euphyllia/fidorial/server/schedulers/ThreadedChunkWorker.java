@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.schedulers;
 
-import fr.euphyllia.fidorial.server.world.World;
+import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +25,11 @@ public class ThreadedChunkWorker {
         LOGGER.info("Pool chunk demarre avec {} workers", workerThreads);
     }
 
-    private static String key(World world, int chunkX, int chunkZ) {
+    private static String key(ServerWorld world, int chunkX, int chunkZ) {
         return world.dimension().id() + ":" + chunkX + "," + chunkZ;
     }
 
-    public CompletableFuture<ChunkColumn> loadAsync(World world, int chunkX, int chunkZ) {
+    public CompletableFuture<ChunkColumn> loadAsync(ServerWorld world, int chunkX, int chunkZ) {
         String key = key(world, chunkX, chunkZ);
         return inFlight.computeIfAbsent(key, k ->
                 CompletableFuture.supplyAsync(() -> {

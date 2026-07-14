@@ -3,7 +3,7 @@ package fr.euphyllia.fidorial.server.network;
 import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.server.FidorialServer;
-import fr.euphyllia.fidorial.server.entity.player.Player;
+import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.codec.CipherDecoder;
 import fr.euphyllia.fidorial.server.network.codec.CipherEncoder;
 import fr.euphyllia.fidorial.server.network.codec.CompressionDecoder;
@@ -14,8 +14,10 @@ import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPackets;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundLoginDisconnectPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundKeepAlivePacket;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -44,7 +46,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     private int clientProtocol;
     private String username;
     private PlayerProfile profile;
-    private Player player;
+    private ServerPlayer player;
     private int displayedSkinParts = 0x7F; // toutes les couches activees par defaut
     private ScheduledFuture<?> keepAliveTask;
 
@@ -63,7 +65,6 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf raw) {
-        this.ctx = ctx;
         PacketBuffer buf = new PacketBuffer(raw);
         int packetId = buf.readVarInt();
 
@@ -97,19 +98,33 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     }
 
     public void send(ClientboundPacket packet) {
-        ByteBuf out = ctx.alloc().buffer();
-        PacketBuffer p = new PacketBuffer(out);
-        p.writeVarInt(protocol.clientboundId(state, packet.name()));
-        packet.write(p);
-        ctx.writeAndFlush(out);
+        write(packet).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     }
 
     public void sendAndClose(ClientboundPacket packet) {
+        write(packet).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    public void disconnect(String reason) {
+        if (state == ConnectionState.LOGIN) {
+            sendAndClose(ClientboundLoginDisconnectPacket.ofText(reason));
+        } else {
+            LOGGER.info("Deconnexion de {} : {}", username, reason);
+            close();
+        }
+    }
+
+    private ChannelFuture write(ClientboundPacket packet) {
         ByteBuf out = ctx.alloc().buffer();
-        PacketBuffer p = new PacketBuffer(out);
-        p.writeVarInt(protocol.clientboundId(state, packet.name()));
-        packet.write(p);
-        ctx.writeAndFlush(out).addListener(ChannelFutureListener.CLOSE);
+        try {
+            PacketBuffer p = new PacketBuffer(out);
+            p.writeVarInt(protocol.clientboundId(state, packet.name()));
+            packet.write(p);
+        } catch (Throwable t) {
+            out.release();
+            throw t;
+        }
+        return ctx.writeAndFlush(out);
     }
 
     public void close() {
@@ -155,7 +170,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     }
 
     private void saveInventoryOnDisconnect() {
-        Player disconnecting = this.player;
+        ServerPlayer disconnecting = this.player;
         if (disconnecting == null) {
             return;
         }
@@ -216,11 +231,11 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         this.displayedSkinParts = displayedSkinParts;
     }
 
-    public Player player() {
+    public ServerPlayer player() {
         return player;
     }
 
-    public void setPlayer(Player player) {
+    public void setPlayer(ServerPlayer player) {
         this.player = player;
     }
 }

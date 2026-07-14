@@ -20,7 +20,7 @@ public final class StatusResponseBuilder {
 
         JsonObject players = new JsonObject();
         players.addProperty("max", 100);
-        players.addProperty("online", FidorialServer.getInstance().getPlayerCount());
+        players.addProperty("online", FidorialServer.getInstance().playerCount());
 
         JsonObject description = new JsonObject();
         description.addProperty("text", "Fidorial | serveur regionalise from scratch");

@@ -1,361 +1,274 @@
 package fr.euphyllia.fidorial.server.network.listener;
 
 import fr.euphyllia.fidorial.api.entity.PlayerProfile;
+import fr.euphyllia.fidorial.api.event.player.BlockBreakEvent;
+import fr.euphyllia.fidorial.api.event.player.BlockPlaceEvent;
+import fr.euphyllia.fidorial.api.event.player.PlayerJoinEvent;
+import fr.euphyllia.fidorial.api.event.player.PlayerQuitEvent;
 import fr.euphyllia.fidorial.api.registry.Key;
+import fr.euphyllia.fidorial.api.world.BlockFace;
+import fr.euphyllia.fidorial.api.world.BlockPos;
 import fr.euphyllia.fidorial.api.world.ChunkPos;
+import fr.euphyllia.fidorial.api.world.Location;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.ServerConfig;
 import fr.euphyllia.fidorial.server.entity.ItemStack;
-import fr.euphyllia.fidorial.server.entity.player.Player;
+import fr.euphyllia.fidorial.server.entity.player.InventorySlots;
 import fr.euphyllia.fidorial.server.entity.player.PlayerInventory;
+import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
+import fr.euphyllia.fidorial.server.network.session.ChunkViewTracker;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.*;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.*;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
-import fr.euphyllia.fidorial.server.world.*;
+import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
+import fr.euphyllia.fidorial.server.world.FlatWorld;
+import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
-import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.UUID;
 
+/**
+ * Traduit les paquets de la phase PLAY en appels metier.
+ *
+ * <p>Ne fait plus que ca. Le streaming de chunks est parti dans {@link ChunkViewTracker},
+ * les changements de blocs dans BlockEditService, l'etat du joueur dans
+ * {@link ServerPlayer}, la correspondance des slots dans {@link InventorySlots}.
+ * Il reste un aiguilleur : c'est ce qu'un handler de protocole doit etre, et c'est ce
+ * qui permet d'ajouter un paquet sans relire 350 lignes.
+ */
 public final class PlayPacketHandler implements PlayPacketListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlayPacketHandler.class);
 
-    private static final int ENTITY_ID = 1;
-    private static final int VIEW_DISTANCE = 8;
-    private static final int CHUNK_RADIUS = 3;
-    private static final String WORLD_NAME = "minecraft:overworld";
-
     private final ClientConnection connection;
     private final FidorialServer server;
-    private final BlockStateRegistry blockRegistry = new BlockStateRegistry();
-    private final Object chunkLock = new Object();
-    private final Set<Long> sentChunks = new HashSet<>();
-    private final Set<Long> pendingChunks = new HashSet<>();
-    private int teleportId;
-    private int selectedSlot;
-    // Suivi du streaming de chunks : centre courant et chunks déjà envoyés au client.
-    private ChunkNetworkSerializer chunkNet;
-    private int centerChunkX;
-    private int centerChunkZ;
-    private ChunkPos ticketChunk;
+    private final ServerConfig config;
+
+    private ServerPlayer player;
+    private ChunkViewTracker chunkView;
+    private ChunkPos ticket;
 
     public PlayPacketHandler(ClientConnection connection) {
         this.connection = connection;
         this.server = connection.server();
-    }
-
-    private static long chunkKey(int cx, int cz) {
-        return ((long) cz << 32) | (cx & 0xFFFFFFFFL);
-    }
-
-    private static int fromWindowSlot(int window) {
-        if (window >= 36 && window <= 44) return window - 36; // hotbar -> 0..8
-        if (window >= 9 && window <= 35) return window;       // inventaire principal
-        if (window >= 5 && window <= 8) return 44 - window;  // armure : 5->39..8->36
-        if (window == 45) return 40;           // main secondaire
-        return -1;                                             // craft / resultat
+        this.config = server.config();
     }
 
     @Override
     public void onEnter() {
         RegistryHolder dynamic = server.dynamicRegistries();
         if (dynamic.isEmpty()) {
-            LOGGER.error("Registres dynamiques absents : impossible d'entrer en jeu "
-                    + "(GeneratedRegistryData vide).");
+            LOGGER.error("Registres dynamiques absents (GeneratedRegistryData vide) : entree en jeu impossible");
             connection.close();
             return;
         }
-        int dimType = Math.max(0, dynamic.networkId("minecraft:dimension_type", "minecraft:overworld"));
-        int biome = Math.max(0, dynamic.networkId("minecraft:worldgen/biome", "minecraft:plains"));
 
-        Player player = loadPlayer();
+        ServerWorld world = server.worldManager().overworld();
+        Location spawn = new Location(FlatWorld.SPAWN_X, FlatWorld.SPAWN_Y, FlatWorld.SPAWN_Z, 0f, 0f);
+        this.player = createPlayer(world, spawn);
         connection.setPlayer(player);
+        world.addEntity(player);
 
-        connection.send(new ClientboundLoginPacket(ENTITY_ID, "minecraft:overworld", dimType, VIEW_DISTANCE));
-        connection.send(new ClientboundPlayerInfoUpdatePacket(player.profile(), 1, 0));
-        connection.send(new ClientboundSetEntityDataPacket(ENTITY_ID, connection.displayedSkinParts()));
-        connection.send(new ClientboundGameEventPacket(
-                ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
-        this.chunkNet = new ChunkNetworkSerializer(blockRegistry, biome);
-        int spawnChunkX = (int) Math.floor(FlatWorld.SPAWN_X) >> 4;
-        int spawnChunkZ = (int) Math.floor(FlatWorld.SPAWN_Z) >> 4;
-        synchronized (chunkLock) {
-            this.centerChunkX = spawnChunkX;
-            this.centerChunkZ = spawnChunkZ;
-        }
-        connection.send(new ClientboundSetChunkCacheCenterPacket(spawnChunkX, spawnChunkZ));
-
-        this.ticketChunk = new ChunkPos(spawnChunkX, spawnChunkZ);
-        server.regionizer().addTicket(WORLD_NAME, ticketChunk);
-
-        streamChunksAround(spawnChunkX, spawnChunkZ);
-
-        teleportId++;
-        connection.send(new ClientboundPlayerPositionPacket(
-                teleportId, FlatWorld.SPAWN_X, FlatWorld.SPAWN_Y, FlatWorld.SPAWN_Z));
-
-        connection.send(new ClientboundContainerSetContentPacket(
-                player.inventory(), server.registries().frozen()));
+        sendLoginSequence(dynamic);
+        openChunkView(world, dynamic, spawn.chunk());
+        spawnPlayer(spawn);
 
         connection.startKeepAlive();
         server.addPlayerConnection(connection);
-        LOGGER.info("{} est en jeu (monde plat cobblestone)", connection.username());
+        server.events().post(new PlayerJoinEvent(player));
+        LOGGER.info("{} est en jeu", player.name());
     }
 
     @Override
     public void onDisconnect() {
-        if (ticketChunk != null) {
-            server.regionizer().removeTicket(WORLD_NAME, ticketChunk);
-            ticketChunk = null;
+        if (ticket != null) {
+            server.regionizer().removeTicket(worldId(), ticket);
+            ticket = null;
+        }
+        if (player != null) {
+            server.events().post(new PlayerQuitEvent(player));
+            server.worldManager().overworld().removeEntity(player);
+            player.remove();
         }
     }
 
-    private Player loadPlayer() {
+    // --- mise en jeu -----------------------------------------------------------
+
+    private ServerPlayer createPlayer(ServerWorld world, Location spawn) {
         PlayerProfile profile = connection.profile();
         if (profile == null) {
-            // Filet de sécurité si l'on démarre sans phase de login complète.
-            profile = new PlayerProfile(java.util.UUID.randomUUID(), connection.username());
+            // Filet de securite si l'on demarre sans phase de login complete.
+            profile = new PlayerProfile(UUID.randomUUID(), connection.username());
         }
-        PlayerInventory inventory;
-        try {
-            inventory = server.playerInventoryStorage().load(profile.uuid());
-            if (!inventory.isEmpty()) {
-                LOGGER.info("Inventaire de {} rechargé", profile.name());
-            }
-        } catch (Exception e) {
-            LOGGER.error("Chargement de l'inventaire de {} impossible (inventaire vide utilisé)",
-                    profile.name(), e);
-            inventory = new PlayerInventory();
-        }
-        return new Player(profile, inventory);
+        return new ServerPlayer(server.entityIds().allocate(), profile,
+                loadInventory(profile), connection, world, spawn);
     }
+
+    private PlayerInventory loadInventory(PlayerProfile profile) {
+        try {
+            PlayerInventory inventory = server.playerInventoryStorage().load(profile.uuid());
+            if (!inventory.isEmpty()) {
+                LOGGER.debug("Inventaire de {} recharge", profile.name());
+            }
+            return inventory;
+        } catch (Exception e) {
+            LOGGER.error("Chargement de l'inventaire de {} impossible, inventaire vide utilise",
+                    profile.name(), e);
+            return new PlayerInventory();
+        }
+    }
+
+    private void sendLoginSequence(RegistryHolder dynamic) {
+        int dimensionType = Math.max(0, dynamic.networkId("minecraft:dimension_type", worldId()));
+        connection.send(new ClientboundLoginPacket(
+                player.entityId(), worldId(), dimensionType, config.viewDistance()));
+        connection.send(new ClientboundPlayerInfoUpdatePacket(player.profile(), 1, 0));
+        connection.send(new ClientboundSetEntityDataPacket(
+                player.entityId(), connection.displayedSkinParts()));
+        connection.send(new ClientboundGameEventPacket(
+                ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
+    }
+
+    private void openChunkView(ServerWorld world, RegistryHolder dynamic, ChunkPos spawnChunk) {
+        int biome = Math.max(0, dynamic.networkId("minecraft:worldgen/biome", "minecraft:plains"));
+        this.chunkView = new ChunkViewTracker(connection, server.chunkWorker(), world,
+                new ChunkNetworkSerializer(server.blockStateRegistry(), biome), config.sendDistance());
+        this.ticket = spawnChunk;
+        server.regionizer().addTicket(worldId(), ticket);
+        chunkView.init(spawnChunk);
+    }
+
+    private void spawnPlayer(Location spawn) {
+        connection.send(new ClientboundPlayerPositionPacket(
+                player.nextTeleportId(), spawn.x(), spawn.y(), spawn.z()));
+        connection.send(new ClientboundContainerSetContentPacket(
+                player.inventory(), server.registries().frozen()));
+    }
+
+    // --- paquets ---------------------------------------------------------------
 
     @Override
     public void handlePlayerLoaded(ServerboundPlayerLoadedPacket packet) {
-        LOGGER.info("{} a fini de charger le terrain", connection.username());
+        LOGGER.debug("{} a fini de charger le terrain", player.name());
     }
 
     @Override
     public void handleAcceptTeleportation(ServerboundAcceptTeleportationPacket packet) {
-        // Le client confirme le teleport ; rien a faire pour l'instant.
+        // Confirmation du client : rien a faire tant que l'anti-cheat n'existe pas.
     }
 
     @Override
     public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
-        // Reponse au keep-alive : la connexion reste consideree comme vivante.
+        // La reponse suffit a considerer la connexion vivante.
     }
 
     @Override
     public void handleClientInformation(ServerboundClientInformationPacket packet) {
         connection.setDisplayedSkinParts(packet.displayedSkinParts());
-        if (connection.player() != null) {
-            connection.send(new ClientboundSetEntityDataPacket(ENTITY_ID, packet.displayedSkinParts()));
+        if (player != null) {
+            connection.send(new ClientboundSetEntityDataPacket(
+                    player.entityId(), packet.displayedSkinParts()));
         }
-    }
-
-    @Override
-    public void handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket packet) {
-        Player player = connection.player();
-        if (player == null) {
-            LOGGER.info("[CREATIVE] player == null, ignore");
-            return;
-        }
-
-        int storageSlot = fromWindowSlot(packet.slot());
-        LOGGER.info("[CREATIVE] fenetre={} count={} itemId={} -> stockage={}",
-                packet.slot(), packet.count(), packet.itemId(), storageSlot);
-
-        if (storageSlot < 0 || storageSlot >= player.inventory().size()) {
-            LOGGER.info("[CREATIVE] slot ignore (craft/resultat/hors zone)");
-            return;
-        }
-
-        if (packet.count() <= 0 || packet.itemId() < 0) {
-            player.inventory().set(storageSlot, ItemStack.EMPTY);
-            LOGGER.info("[CREATIVE] slot {} vide", storageSlot);
-            return;
-        }
-
-        Registry items = server.registries().frozen().get("minecraft:item");
-        if (items == null || packet.itemId() >= items.entries().size()) {
-            LOGGER.info("[CREATIVE] registre item introuvable ou id hors borne (items={})",
-                    items == null ? "null" : items.entries().size());
-            return;
-        }
-        String key = items.entries().get(packet.itemId());
-        player.inventory().set(storageSlot, new ItemStack(Key.parse(key), packet.count()));
-
-        int nonEmpty = 0;
-        for (int i = 0; i < player.inventory().size(); i++) {
-            if (!player.inventory().get(i).isEmpty()) nonEmpty++;
-        }
-        LOGGER.info("[CREATIVE] pose {} x{} au slot {} -> inventaire non vide = {} slots",
-                key, packet.count(), storageSlot, nonEmpty);
-    }
-
-    @Override
-    public void handleChatCommand(ServerboundChatCommandPacket packet) {
-        LOGGER.info("{} execute /{}", connection.username(), packet.command());
-        server.getCommandManager().dispatch(
-                new fr.euphyllia.fidorial.server.command.PlayerSender(connection),
-                packet.command());
     }
 
     @Override
     public void handleSetCarriedItem(ServerboundSetCarriedItemPacket packet) {
         int slot = packet.slot();
-        if (slot >= 0 && slot <= 8) {
-            this.selectedSlot = slot;
+        if (slot < 0 || slot > 8) {
+            LOGGER.debug("{} annonce un slot de hotbar invalide : {}", player.name(), slot);
+            return;
         }
+        player.setSelectedSlot(slot);
+    }
+
+    @Override
+    public void handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket packet) {
+        int slot = InventorySlots.fromWindow(packet.slot());
+        if (slot == InventorySlots.INVALID || slot >= player.inventory().size()) {
+            return;
+        }
+        if (packet.count() <= 0 || packet.itemId() < 0) {
+            player.inventory().set(slot, ItemStack.EMPTY);
+            return;
+        }
+        Registry items = server.registries().frozen().get("minecraft:item");
+        if (items == null || packet.itemId() >= items.entries().size()) {
+            LOGGER.warn("{} envoie un id d'item hors borne : {}", player.name(), packet.itemId());
+            return;
+        }
+        player.inventory().set(slot, new ItemStack(
+                Key.parse(items.entries().get(packet.itemId())), packet.count()));
+    }
+
+    @Override
+    public void handleChatCommand(ServerboundChatCommandPacket packet) {
+        server.commandManager().dispatch(player, packet.command());
     }
 
     @Override
     public void handleUseItemOn(ServerboundUseItemOnPacket packet) {
-        Player player = connection.player();
-        if (player == null) {
-            return;
+        BlockPos target = packet.target().relative(BlockFace.byId(packet.face()));
+        ItemStack held = player.inventory().get(player.selectedSlot());
+        BlockState state = held.isEmpty() ? null : server.blockStateRegistry().blockForItem(held.id());
+
+        if (state != null) {
+            BlockPlaceEvent event = server.events().post(new BlockPlaceEvent(
+                    player, target, server.blockStateRegistry().networkId(state)));
+            if (!event.isCancelled()) {
+                server.blockEdits().set(server.worldManager().overworld(), target, state);
+            }
         }
-
-        BlockPos placedAt = packet.target().relative(BlockPos.Direction.byId(packet.face()));
-
-        ItemStack held = player.inventory().get(selectedSlot);
-        BlockState toPlace = held.isEmpty() ? null : blockRegistry.blockForItem(held.id());
-        if (toPlace == null) {
-            connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
-            return;
-        }
-
-        applyBlockChange(placedAt, toPlace, packet.sequence());
-        LOGGER.info("{} pose {} en {},{},{}", connection.username(),
-                toPlace.name(), placedAt.x(), placedAt.y(), placedAt.z());
+        connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
     }
+
 
     @Override
     public void handlePlayerAction(ServerboundPlayerActionPacket packet) {
         int status = packet.status();
-        // Cassage instantané (créatif) ou fin de minage (survie) -> le bloc devient de l'air.
-        boolean broke = status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK
+        boolean breaking = status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK
                 || status == ServerboundPlayerActionPacket.FINISH_DESTROY_BLOCK;
-        if (!broke) {
-            return;
+        if (breaking) {
+            BlockBreakEvent event = server.events().post(new BlockBreakEvent(player, packet.position()));
+            if (!event.isCancelled()) {
+                server.blockEdits().set(server.worldManager().overworld(),
+                        packet.position(), BlockState.AIR);
+            }
+            connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
         }
-
-        applyBlockChange(packet.position(), BlockState.AIR, packet.sequence());
-        LOGGER.info("{} casse le bloc en {},{},{}", connection.username(),
-                packet.position().x(), packet.position().y(), packet.position().z());
     }
 
     @Override
     public void handleMovePlayerPos(ServerboundMovePlayerPosPacket packet) {
-        onPlayerMoved(packet.x(), packet.z());
+        onMoved(packet.x(), packet.y(), packet.z());
     }
 
     @Override
     public void handleMovePlayerPosRot(ServerboundMovePlayerPosRotPacket packet) {
-        onPlayerMoved(packet.x(), packet.z());
+        onMoved(packet.x(), packet.y(), packet.z());
     }
 
-    private void onPlayerMoved(double x, double z) {
-        int chunkX = (int) Math.floor(x) >> 4;
-        int chunkZ = (int) Math.floor(z) >> 4;
+    private void onMoved(double x, double y, double z) {
+        Location previous = player.location();
+        Location current = new Location(x, y, z, previous.yaw(), previous.pitch());
+        player.setLocation(current);
+        server.worldManager().overworld().entityManager()
+                .moved(player, previous.chunk(), current.chunk());
 
-        synchronized (chunkLock) {
-            if (chunkX == centerChunkX && chunkZ == centerChunkZ) {
-                return;
-            }
-            centerChunkX = chunkX;
-            centerChunkZ = chunkZ;
+        ChunkPos chunk = current.chunk();
+        if (!chunkView.moveTo(chunk.x(), chunk.z())) {
+            return;
         }
-
-        ChunkPos newChunk = new ChunkPos(chunkX, chunkZ);
-        if (ticketChunk != null) {
-            server.regionizer().moveTicket(WORLD_NAME, ticketChunk, newChunk);
-        } else {
-            server.regionizer().addTicket(WORLD_NAME, newChunk);
-        }
-        ticketChunk = newChunk;
-
-        connection.send(new ClientboundSetChunkCacheCenterPacket(chunkX, chunkZ));
-        streamChunksAround(chunkX, chunkZ);
+        server.regionizer().moveTicket(worldId(), ticket, chunk);
+        ticket = chunk;
     }
 
-    private void streamChunksAround(int centerX, int centerZ) {
-        World overworld = server.worldManager().overworld();
-
-        synchronized (chunkLock) {
-            Iterator<Long> it = sentChunks.iterator();
-            while (it.hasNext()) {
-                long key = it.next();
-                int cx = (int) key;
-                int cz = (int) (key >> 32);
-                if (Math.abs(cx - centerX) > CHUNK_RADIUS || Math.abs(cz - centerZ) > CHUNK_RADIUS) {
-                    connection.send(new ClientboundForgetLevelChunkPacket(cx, cz));
-                    it.remove();
-                }
-            }
-
-            for (int r = 0; r <= CHUNK_RADIUS; r++) {
-                for (int dx = -r; dx <= r; dx++) {
-                    for (int dz = -r; dz <= r; dz++) {
-                        if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
-                            continue;
-                        }
-                        int cx = centerX + dx;
-                        int cz = centerZ + dz;
-                        long key = chunkKey(cx, cz);
-                        if (sentChunks.contains(key) || !pendingChunks.add(key)) {
-                            continue;
-                        }
-                        server.getThreadedChunkWorker().loadAsync(overworld, cx, cz)
-                                .whenComplete((column, error) -> onChunkLoaded(cx, cz, column, error));
-                    }
-                }
-            }
-        }
-    }
-
-    private void onChunkLoaded(int cx, int cz, ChunkColumn column, Throwable error) {
-        long key = chunkKey(cx, cz);
-        synchronized (chunkLock) {
-            pendingChunks.remove(key);
-            if (error != null) {
-                LOGGER.error("Chargement asynchrone du chunk {},{} impossible pour {}",
-                        cx, cz, connection.username(), error);
-                return;
-            }
-            if (Math.abs(cx - centerChunkX) > CHUNK_RADIUS
-                    || Math.abs(cz - centerChunkZ) > CHUNK_RADIUS) {
-                return;
-            }
-            if (sentChunks.add(key)) {
-                connection.send(new ClientboundLevelChunkWithLightPacket(chunkNet, column));
-            }
-        }
-    }
-
-    private void applyBlockChange(BlockPos pos, BlockState state, int sequence) {
-        World world = server.worldManager().overworld();
-        try {
-            boolean applied = world.setBlock(pos.x(), pos.y(), pos.z(), state);
-            if (applied) {
-                int stateId = blockRegistry.networkId(state);
-                server.broadcast(new ClientboundBlockUpdatePacket(pos, stateId));
-                server.fluids().notifyBlockChanged(WORLD_NAME, pos.x(), pos.y(), pos.z());
-            }
-        } catch (IOException e) {
-            LOGGER.error("Changement de bloc impossible en {},{},{}",
-                    pos.x(), pos.y(), pos.z(), e);
-        } finally {
-            connection.send(new ClientboundBlockChangedAckPacket(sequence));
-        }
+    private String worldId() {
+        return server.worldManager().overworld().dimension().id();
     }
 }

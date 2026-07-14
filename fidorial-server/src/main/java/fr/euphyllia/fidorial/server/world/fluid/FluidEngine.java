@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.world.fluid;
 
+import fr.euphyllia.fidorial.api.world.BlockFace;
+import fr.euphyllia.fidorial.api.world.BlockPos;
 import fr.euphyllia.fidorial.api.world.ChunkPos;
 import fr.euphyllia.fidorial.api.world.fluid.FluidManager;
 import fr.euphyllia.fidorial.api.world.fluid.FluidState;
@@ -7,9 +9,8 @@ import fr.euphyllia.fidorial.api.world.fluid.FluidType;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundBlockUpdatePacket;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
-import fr.euphyllia.fidorial.server.world.BlockPos;
 import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
-import fr.euphyllia.fidorial.server.world.World;
+import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
@@ -29,9 +30,9 @@ public final class FluidEngine implements FluidManager {
     private static final BlockState OBSIDIAN = BlockState.of("minecraft:obsidian");
     private static final BlockState COBBLESTONE = BlockState.of("minecraft:cobblestone");
 
-    private static final BlockPos.Direction[] HORIZONTAL = {
-            BlockPos.Direction.NORTH, BlockPos.Direction.SOUTH,
-            BlockPos.Direction.WEST, BlockPos.Direction.EAST
+    private static final BlockFace[] HORIZONTAL = {
+            BlockFace.NORTH, BlockFace.SOUTH,
+            BlockFace.WEST, BlockFace.EAST
     };
 
     private final WorldManager worlds;
@@ -55,7 +56,7 @@ public final class FluidEngine implements FluidManager {
 
     @Override
     public FluidState fluidAt(String world, int x, int y, int z) {
-        World w = worldByName(world);
+        ServerWorld w = worldByName(world);
         if (w == null) {
             return FluidState.empty();
         }
@@ -69,7 +70,7 @@ public final class FluidEngine implements FluidManager {
 
     @Override
     public boolean placeSource(String world, int x, int y, int z, FluidType type) {
-        World w = worldByName(world);
+        ServerWorld w = worldByName(world);
         if (w == null) {
             return false;
         }
@@ -82,7 +83,7 @@ public final class FluidEngine implements FluidManager {
 
     @Override
     public boolean removeFluid(String world, int x, int y, int z) {
-        World w = worldByName(world);
+        ServerWorld w = worldByName(world);
         if (w == null) {
             return false;
         }
@@ -107,7 +108,7 @@ public final class FluidEngine implements FluidManager {
     @Override
     public void notifyBlockChanged(String world, int x, int y, int z) {
         scheduleUpdate(world, x, y, z);
-        for (BlockPos.Direction dir : BlockPos.Direction.values()) {
+        for (BlockFace dir : BlockFace.values()) {
             scheduleUpdate(world, x + dir.dx(), y + dir.dy(), z + dir.dz());
         }
     }
@@ -129,7 +130,7 @@ public final class FluidEngine implements FluidManager {
     }
 
     private void tick(String worldName, int x, int y, int z) throws IOException {
-        World world = worldByName(worldName);
+        ServerWorld world = worldByName(worldName);
         if (world == null) {
             return;
         }
@@ -164,7 +165,7 @@ public final class FluidEngine implements FluidManager {
         }
     }
 
-    private FluidState recomputeLevel(World world, String worldName,
+    private FluidState recomputeLevel(ServerWorld world, String worldName,
                                       int x, int y, int z, FluidState self) throws IOException {
         FluidType type = self.type();
         FluidState above = FluidBlockCodec.fromBlock(world.getBlock(x, y + 1, z));
@@ -172,7 +173,7 @@ public final class FluidEngine implements FluidManager {
 
         int best = Integer.MAX_VALUE;
         int adjacentSources = 0;
-        for (BlockPos.Direction dir : HORIZONTAL) {
+        for (BlockFace dir : HORIZONTAL) {
             FluidState n = FluidBlockCodec.fromBlock(
                     world.getBlock(x + dir.dx(), y, z + dir.dz()));
             if (n.type() == type) {
@@ -209,7 +210,7 @@ public final class FluidEngine implements FluidManager {
         return applyIfChanged(world, worldName, x, y, z, self, wanted);
     }
 
-    private FluidState applyIfChanged(World world, String worldName,
+    private FluidState applyIfChanged(ServerWorld world, String worldName,
                                       int x, int y, int z,
                                       FluidState current, FluidState wanted) throws IOException {
         if (wanted.equals(current)) {
@@ -221,7 +222,7 @@ public final class FluidEngine implements FluidManager {
         return wanted;
     }
 
-    private boolean flowDown(World world, String worldName,
+    private boolean flowDown(ServerWorld world, String worldName,
                              int x, int y, int z, FluidType type) throws IOException {
         BlockState belowBlock = world.getBlock(x, y - 1, z);
         FluidState below = FluidBlockCodec.fromBlock(belowBlock);
@@ -257,14 +258,14 @@ public final class FluidEngine implements FluidManager {
         return false; // bloqué : étalement horizontal
     }
 
-    private void spreadHorizontally(World world, String worldName,
+    private void spreadHorizontally(ServerWorld world, String worldName,
                                     int x, int y, int z, FluidState self) throws IOException {
         FluidType type = self.type();
         int spreadLevel = self.effectiveLevel() + type.dropOff();
         if (spreadLevel > type.maxSpreadLevel()) {
             return;
         }
-        for (BlockPos.Direction dir : HORIZONTAL) {
+        for (BlockFace dir : HORIZONTAL) {
             int tx = x + dir.dx();
             int tz = z + dir.dz();
             BlockState targetBlock = world.getBlock(tx, y, tz);
@@ -285,11 +286,11 @@ public final class FluidEngine implements FluidManager {
     }
 
 
-    private boolean touches(World world, int x, int y, int z, FluidType other) throws IOException {
+    private boolean touches(ServerWorld world, int x, int y, int z, FluidType other) throws IOException {
         if (FluidBlockCodec.fromBlock(world.getBlock(x, y + 1, z)).type() == other) {
             return true;
         }
-        for (BlockPos.Direction dir : HORIZONTAL) {
+        for (BlockFace dir : HORIZONTAL) {
             if (FluidBlockCodec.fromBlock(
                     world.getBlock(x + dir.dx(), y, z + dir.dz())).type() == other) {
                 return true;
@@ -298,7 +299,7 @@ public final class FluidEngine implements FluidManager {
         return false;
     }
 
-    private boolean setAndBroadcast(World world, int x, int y, int z, BlockState state) {
+    private boolean setAndBroadcast(ServerWorld world, int x, int y, int z, BlockState state) {
         try {
             if (!world.setBlock(x, y, z, state)) {
                 return false;
@@ -312,7 +313,7 @@ public final class FluidEngine implements FluidManager {
         return true;
     }
 
-    private World worldByName(String name) {
+    private ServerWorld worldByName(String name) {
         if (name == null || Dimension.OVERWORLD.id().equals(name)) {
             return worlds.overworld();
         }

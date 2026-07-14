@@ -19,7 +19,7 @@ public class FidorialMetricsImpl extends SimpleMetrics {
         );
         metrics.addProperty(
                 "player_count",
-                FidorialServer.getInstance().getPlayerCount()
+                FidorialServer.getInstance().playerCount()
         );
         metrics.addProperty("server_type", "Fidorial");
     }
