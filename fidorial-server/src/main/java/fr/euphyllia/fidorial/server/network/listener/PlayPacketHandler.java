@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.network.listener;
 
 import fr.euphyllia.fidorial.api.entity.PlayerProfile;
+import fr.euphyllia.fidorial.api.world.ChunkPos;
 import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.ItemStack;
@@ -31,6 +32,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     private static final int ENTITY_ID = 1;
     private static final int VIEW_DISTANCE = 8;
     private static final int CHUNK_RADIUS = 3;
+    private static final String WORLD_NAME = "minecraft:overworld";
 
     private final ClientConnection connection;
     private final FidorialServer server;
@@ -44,6 +46,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     private final Object chunkLock = new Object();
     private final Set<Long> sentChunks = new HashSet<>();
     private final Set<Long> pendingChunks = new HashSet<>();
+    private ChunkPos ticketChunk;
 
     public PlayPacketHandler(ClientConnection connection) {
         this.connection = connection;
@@ -91,6 +94,9 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
         connection.send(new ClientboundSetChunkCacheCenterPacket(spawnChunkX, spawnChunkZ));
 
+        this.ticketChunk = new ChunkPos(spawnChunkX, spawnChunkZ);
+        server.regionizer().addTicket(WORLD_NAME, ticketChunk);
+
         streamChunksAround(spawnChunkX, spawnChunkZ);
 
         teleportId++;
@@ -103,6 +109,14 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.startKeepAlive();
         server.addPlayerConnection(connection);
         LOGGER.info("{} est en jeu (monde plat cobblestone)", connection.username());
+    }
+
+    @Override
+    public void onDisconnect() {
+        if (ticketChunk != null) {
+            server.regionizer().removeTicket(WORLD_NAME, ticketChunk);
+            ticketChunk = null;
+        }
     }
 
     private Player loadPlayer() {
@@ -189,6 +203,14 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     @Override
+    public void handleChatCommand(ServerboundChatCommandPacket packet) {
+        LOGGER.info("{} execute /{}", connection.username(), packet.command());
+        server.getCommandManager().dispatch(
+                new fr.euphyllia.fidorial.server.command.PlayerSender(connection),
+                packet.command());
+    }
+
+    @Override
     public void handleSetCarriedItem(ServerboundSetCarriedItemPacket packet) {
         int slot = packet.slot();
         if (slot >= 0 && slot <= 8) {
@@ -256,6 +278,14 @@ public final class PlayPacketHandler implements PlayPacketListener {
             centerChunkX = chunkX;
             centerChunkZ = chunkZ;
         }
+
+        ChunkPos newChunk = new ChunkPos(chunkX, chunkZ);
+        if (ticketChunk != null) {
+            server.regionizer().moveTicket(WORLD_NAME, ticketChunk, newChunk);
+        } else {
+            server.regionizer().addTicket(WORLD_NAME, newChunk);
+        }
+        ticketChunk = newChunk;
 
         connection.send(new ClientboundSetChunkCacheCenterPacket(chunkX, chunkZ));
         streamChunksAround(chunkX, chunkZ);

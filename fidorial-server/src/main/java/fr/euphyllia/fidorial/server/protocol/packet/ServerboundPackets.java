@@ -66,6 +66,8 @@ public class ServerboundPackets {
                 ServerboundMovePlayerPosRotPacket::read);
         register(ConnectionState.PLAY, PlayServerboundPackets.CLIENT_INFORMATION,
                 ServerboundClientInformationPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.CHAT_COMMAND,
+                ServerboundChatCommandPacket::read);
     }
 
     private ServerboundPackets() {

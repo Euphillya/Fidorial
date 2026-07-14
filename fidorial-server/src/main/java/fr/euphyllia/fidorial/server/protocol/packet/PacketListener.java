@@ -4,4 +4,7 @@ public interface PacketListener {
 
     default void onEnter() {
     }
+
+    default void onDisconnect() {
+    }
 }

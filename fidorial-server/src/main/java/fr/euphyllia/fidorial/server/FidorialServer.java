@@ -7,6 +7,7 @@ import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
+import fr.euphyllia.fidorial.server.command.ConsoleCommandReader;
 import fr.euphyllia.fidorial.server.entity.player.PlayerInventoryStorage;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
@@ -81,6 +82,7 @@ public final class FidorialServer implements Server {
         this.network = new NettyServer(this, port);
         this.network.bind();
         LOGGER.info("En ecoute sur le port {}", port);
+        new ConsoleCommandReader(commandManager, running::get).start();
         metricsContext.ready();
         saveWorldScheduler.scheduleAtFixedRate(() -> {
             try {
