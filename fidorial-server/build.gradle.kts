@@ -1,5 +1,6 @@
 plugins {
     application
+    id("com.gradleup.shadow") version "9.2.2"
 }
 
 dependencies {
@@ -19,4 +20,10 @@ application {
 
 tasks.named<JavaExec>("run") {
     standardInput = System.`in`
+}
+
+tasks.shadowJar {
+    archiveBaseName.set("Fidorial")
+    archiveClassifier.set("")
+    mergeServiceFiles()
 }
