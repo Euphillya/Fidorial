@@ -123,7 +123,7 @@ public final class ChunkViewTracker {
                 LOGGER.error("Chargement du chunk {},{} impossible pour {}", cx, cz, connection.username(), error);
                 return;
             }
-            
+
             if (!inRange(cx, cz, centerX, centerZ) || !sent.add(key)) {
                 return;
             }

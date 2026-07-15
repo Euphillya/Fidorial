@@ -14,6 +14,7 @@ import fr.euphyllia.fidorial.api.service.ServicePriority;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
 import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.api.world.fluid.FluidManager;
+import fr.euphyllia.fidorial.api.world.weather.WeatherManager;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
@@ -39,6 +40,7 @@ import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
 import fr.euphyllia.fidorial.server.world.FlatWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
+import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +80,7 @@ public final class FidorialServer implements Server {
     private PlayerInventoryStorage inventoryStorage;
     private WorldManager worldManager;
     private FluidEngine fluidEngine;
+    private WeatherEngine weatherEngine;
     private BlockEditService blockEdits;
     private JavaPluginManager pluginManager;
     private NettyServer network;
@@ -140,6 +143,9 @@ public final class FidorialServer implements Server {
         closeQuietly("chunks", () -> {
             if (chunkWorker != null) chunkWorker.shutdown();
         });
+        closeQuietly("meteo", () -> {
+            if (weatherEngine != null) weatherEngine.close();
+        });
         closeQuietly("monde", () -> {
             if (worldManager != null) worldManager.close();
         });
@@ -173,6 +179,8 @@ public final class FidorialServer implements Server {
         worldManager = WorldManager.openOrCreate(config.worldPath(), blockStateRegistry,
                 FlatWorld.MIN_Y, FlatWorld.HEIGHT);
         fluidEngine = new FluidEngine(worldManager, regionizer, blockStateRegistry, this::broadcast);
+        weatherEngine = new WeatherEngine(worldManager.levelData(), this::broadcast);
+        weatherEngine.start();
         blockEdits = new BlockEditService(blockStateRegistry,
                 (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),
                 fluidEngine::notifyBlockChanged);
@@ -180,6 +188,7 @@ public final class FidorialServer implements Server {
 
     private void registerDefaultServices() {
         services.register(FluidManager.class, fluidEngine, this, ServicePriority.LOWEST);
+        services.register(WeatherManager.class, weatherEngine, this, ServicePriority.LOWEST);
         services.register(BlockEditService.class, blockEdits, this, ServicePriority.LOWEST);
         services.register(CommandManager.class, commandManager, this, ServicePriority.LOWEST);
     }
@@ -326,6 +335,10 @@ public final class FidorialServer implements Server {
 
     public BlockStateRegistry blockStateRegistry() {
         return blockStateRegistry;
+    }
+
+    public WeatherEngine weatherEngine() {
+        return weatherEngine;
     }
 
     public BlockEditService blockEdits() {

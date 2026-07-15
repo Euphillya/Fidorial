@@ -33,15 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
-/**
- * Traduit les paquets de la phase PLAY en appels metier.
- *
- * <p>Ne fait plus que ca. Le streaming de chunks est parti dans {@link ChunkViewTracker},
- * les changements de blocs dans BlockEditService, l'etat du joueur dans
- * {@link ServerPlayer}, la correspondance des slots dans {@link InventorySlots}.
- * Il reste un aiguilleur : c'est ce qu'un handler de protocole doit etre, et c'est ce
- * qui permet d'ajouter un paquet sans relire 350 lignes.
- */
 public final class PlayPacketHandler implements PlayPacketListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlayPacketHandler.class);
@@ -98,8 +89,6 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
     }
 
-    // --- mise en jeu -----------------------------------------------------------
-
     private ServerPlayer createPlayer(ServerWorld world, Location spawn) {
         PlayerProfile profile = connection.profile();
         if (profile == null) {
@@ -133,6 +122,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 player.entityId(), connection.displayedSkinParts()));
         connection.send(new ClientboundGameEventPacket(
                 ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
+        server.weatherEngine().syncTo(connection::send);
     }
 
     private void openChunkView(ServerWorld world, RegistryHolder dynamic, ChunkPos spawnChunk) {
@@ -150,8 +140,6 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.send(new ClientboundContainerSetContentPacket(
                 player.inventory(), server.registries().frozen()));
     }
-
-    // --- paquets ---------------------------------------------------------------
 
     @Override
     public void handlePlayerLoaded(ServerboundPlayerLoadedPacket packet) {

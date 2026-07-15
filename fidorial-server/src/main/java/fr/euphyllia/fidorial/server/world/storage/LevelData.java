@@ -27,6 +27,12 @@ public class LevelData {
     public int dataVersion = AnvilChunkSerializer.DATA_VERSION_26_2;
     public String versionName = "26.2";
 
+    public boolean raining = false;
+    public int rainTime = 0;
+    public boolean thundering = false;
+    public int thunderTime = 0;
+    public int clearWeatherTime = 0;
+
     public static LevelData read(Path levelDat) throws IOException {
         NbtIo.Named named = NbtIo.readGzip(levelDat);
         NbtCompound data = named.compound().getCompound("Data");
@@ -45,6 +51,11 @@ public class LevelData {
         l.difficulty = data.getByte("Difficulty");
         l.hardcore = data.getBoolean("hardcore");
         l.allowCommands = data.getBoolean("allowCommands");
+        l.raining = data.getBoolean("raining");
+        l.rainTime = data.getInt("rainTime");
+        l.thundering = data.getBoolean("thundering");
+        l.thunderTime = data.getInt("thunderTime");
+        l.clearWeatherTime = data.getInt("clearWeatherTime");
 
         NbtCompound wgs = data.getCompound("WorldGenSettings");
         if (wgs != null) l.seed = wgs.getLong("seed");
@@ -81,6 +92,12 @@ public class LevelData {
         data.putByte("Difficulty", difficulty);
         data.putBoolean("DifficultyLocked", false);
         data.putBoolean("allowCommands", allowCommands);
+
+        data.putInt("clearWeatherTime", clearWeatherTime);
+        data.putInt("rainTime", rainTime);
+        data.putBoolean("raining", raining);
+        data.putInt("thunderTime", thunderTime);
+        data.putBoolean("thundering", thundering);
 
         data.putInt("clearWeatherTime", 0);
         data.putInt("rainTime", 0);

@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.command;
 import fr.euphyllia.fidorial.api.command.CommandExecutor;
 import fr.euphyllia.fidorial.api.command.CommandSender;
 import fr.euphyllia.fidorial.server.command.defaults.TpsCommand;
+import fr.euphyllia.fidorial.server.command.defaults.WeatherCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,7 @@ public final class CommandManager {
 
     private void registerDefaults() {
         register("tps", new TpsCommand());
+        register("weather", new WeatherCommand());
     }
 
     public void register(String name, CommandExecutor executor) {
