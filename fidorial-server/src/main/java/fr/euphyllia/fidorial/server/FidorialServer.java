@@ -12,11 +12,13 @@ import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
 import fr.euphyllia.fidorial.api.service.ServicePriority;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
+import fr.euphyllia.fidorial.api.text.TextFormatter;
 import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.api.world.fluid.FluidManager;
 import fr.euphyllia.fidorial.api.world.weather.WeatherManager;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
+import fr.euphyllia.fidorial.server.chat.MiniTextFormatter;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleCommandReader;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
@@ -74,6 +76,7 @@ public final class FidorialServer implements Server {
     private ProtocolMap protocolMap;
     private Registries registries;
     private CommandManager commandManager;
+    private MiniTextFormatter miniTextFormatter;
     private ThreadedRegionRegionizer regionizer;
     private ThreadedChunkWorker chunkWorker;
     private ScheduledExecutorService autoSave;
@@ -167,6 +170,7 @@ public final class FidorialServer implements Server {
         protocolMap = ProtocolMap.load();
         registries = Registries.load();
         commandManager = new CommandManager();
+        miniTextFormatter = new MiniTextFormatter();
         inventoryStorage = new PlayerInventoryStorage(config.worldPath().resolve("player"), false);
     }
 
@@ -191,6 +195,7 @@ public final class FidorialServer implements Server {
         services.register(WeatherManager.class, weatherEngine, this, ServicePriority.LOWEST);
         services.register(BlockEditService.class, blockEdits, this, ServicePriority.LOWEST);
         services.register(CommandManager.class, commandManager, this, ServicePriority.LOWEST);
+        services.register(TextFormatter.class, miniTextFormatter, this, ServicePriority.LOWEST);
     }
 
     private void loadPlugins() throws IOException {

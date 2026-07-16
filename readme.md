@@ -29,6 +29,11 @@ offer, with a clean, regionized, multithreaded foundation designed for it from d
   scheduled on the region that owns the block, so a lake spreading in one corner of the map costs nothing to the rest of
   it
 - **Creative inventory** — item management with per-player persistence across sessions
+- **Rich text formatting** — MiniMessage-style tags supported natively in every message: colors (`<red>`, `<#ff8800>`),
+  decorations (`<bold>`, `<italic>`, ...), fonts, shadow colors, and interactivity (`<click:run_command:'/spawn'>`,
+  `<hover:show_text:'...'>`, `<insertion:'...'>`). Messages are serialized as native NBT text components for clients
+  and rendered with ANSI colors in the console. Exposed to plugins through the `TextFormatter` service.
+  See [Text formatting](#text-formatting)
 - **Weather engine** — vanilla-style rain and thunder cycle with randomized durations, broadcast to all players and
   synced to anyone joining mid-storm. Weather state is persisted in `level.dat` using the vanilla NBT keys, so it
   survives restarts. Controllable in game or from the console with `/weather`, and replaceable by plugins through the
@@ -145,6 +150,45 @@ disabled — you don't clean up by hand.
 hand long work to `ctx.server().scheduler()`. And each plugin gets its own classloader, so you can shade dependencies
 without colliding with anyone else.
 
+### Text formatting
+
+Every string passed to `sendMessage` supports MiniMessage-style tags out of the box — nothing to import, no component
+builder:
+
+```java
+
+public final class SendMessage() {
+
+    public void send(Player player) {
+        player.sendMessage("<gold><bold>Shop</bold></gold> <green>Purchase complete!</green>");
+        player.sendMessage("<click:run_command:'/spawn'><aqua>Click here</aqua></click> to go back to spawn");
+        player.sendMessage("<hover:show_text:'<gray>Last seen: today</gray>'>Steve</hover>");
+    }
+
+}
+```
+
+Supported tags: the 16 named colors, hex colors (`<#ff8800>` or `<color:#ff8800>`), `<bold>`, `<italic>`,
+`<underlined>`, `<strikethrough>`, `<obfuscated>`, `<font:...>`, `<shadow_color:#aarrggbb>`, `<insertion:'...'>`,
+`<click:action:'...'>` (open_url, run_command, suggest_command, copy_to_clipboard, change_page),
+`<hover:show_text:'...'>` (the tooltip itself can contain tags), closing tags (`</red>`, `</color>`), `<reset>`,
+and `\<` to escape a literal `<`. Unknown tags are left untouched. On the client side, messages become native NBT
+text components; in the console, tags are rendered as ANSI colors.
+
+The `TextFormatter` service gives plugins the utilities around it:
+
+```java
+private void setTextFormater() {
+    TextFormatter text = ctx.services().get(TextFormatter.class);
+
+    ctx.logger().info(text.stripTags("<red>Error:</red> details")); // tag-free logs
+    player.sendMessage("<yellow>Name: </yellow>" + TextFormatter.escape(userInput)); // no tag injection
+}
+```
+
+Like every default service, it is registered at `LOWEST` priority — register your own implementation to change how
+text is parsed server-wide.
+
 ### Using plugins as mods
 
 This is where Fidorial is going. Events let you *observe and veto*; the **service registry** lets you *replace*.
@@ -166,8 +210,8 @@ through `services.get(X.class)`**. As systems land — mobs, AI, world generatio
 default service, which means each one is replaceable the day it exists. A plugin that swaps `MobAiService` isn't really
 a plugin any more; it's a mod, and it never touched a line of server code.
 
-That story isn't finished. Today `FluidManager`, `WeatherManager`, `BlockEditService` and `CommandManager` are
-swappable. Mobs and worldgen aren't there yet.
+That story isn't finished. Today `FluidManager`, `WeatherManager`, `BlockEditService`, `CommandManager` and
+`TextFormatter` are swappable. Mobs and worldgen aren't there yet.
 
 ### Project structure
 
@@ -219,6 +263,11 @@ départ.
   obsidienne ou cobblestone. Les ticks de fluide sont planifiés sur la région propriétaire du bloc : un lac qui s'étale
   dans un coin de la carte ne coûte rien au reste
 - **Inventaire créatif** — gestion des items avec persistance par joueur entre les sessions
+- **Formatage de texte riche** — balises style MiniMessage supportées nativement dans tous les messages : couleurs
+  (`<red>`, `<#ff8800>`), décorations (`<bold>`, `<italic>`, ...), polices, couleurs d'ombre et interactivité
+  (`<click:run_command:'/spawn'>`, `<hover:show_text:'...'>`, `<insertion:'...'>`). Les messages sont sérialisés en
+  composants texte NBT natifs pour les clients et rendus en couleurs ANSI dans la console. Exposé aux plugins via le
+  service `TextFormatter`. Voir [Formatage de texte](#formatage-de-texte)
 - **Moteur météo** — cycle pluie/orage à la vanilla avec durées aléatoires, diffusé à tous les joueurs et synchronisé
   pour quiconque se connecte en pleine averse. L'état météo est persisté dans le `level.dat` avec les clés NBT vanilla,
   il survit donc aux redémarrages. Contrôlable en jeu ou depuis la console avec `/weather`, et remplaçable par un plugin
@@ -336,6 +385,45 @@ plugin est désactivé — pas de nettoyage à la main.
 bloque pas dedans, confie le travail long à `ctx.server().scheduler()`. Et chaque plugin a son propre classloader, donc
 tu peux embarquer tes dépendances sans entrer en collision avec les autres.
 
+### Formatage de texte
+
+Toute chaîne passée à `sendMessage` supporte les balises style MiniMessage sans rien faire de spécial — aucun import,
+pas de builder de composants :
+
+```java
+
+public final class SendMessage() {
+
+    public void send(Player player) {
+        player.sendMessage("<gold><bold>Boutique</bold></gold> <green>Achat effectué !</green>");
+        player.sendMessage("<click:run_command:'/spawn'><aqua>Clique ici</aqua></click> pour retourner au spawn");
+        player.sendMessage("<hover:show_text:'<gray>Dernière connexion : hier</gray>'>Steve</hover>");
+    }
+}
+```
+
+Balises supportées : les 16 couleurs nommées, les couleurs hex (`<#ff8800>` ou `<color:#ff8800>`), `<bold>`,
+`<italic>`, `<underlined>`, `<strikethrough>`, `<obfuscated>`, `<font:...>`, `<shadow_color:#aarrggbb>`,
+`<insertion:'...'>`, `<click:action:'...'>` (open_url, run_command, suggest_command, copy_to_clipboard, change_page),
+`<hover:show_text:'...'>` (le tooltip peut lui-même contenir des balises), les balises fermantes (`</red>`,
+`</color>`), `<reset>`, et `\<` pour afficher un `<` littéral. Les balises inconnues sont laissées telles quelles.
+Côté client, les messages deviennent des composants texte NBT natifs ; dans la console, les balises sont rendues en
+couleurs ANSI.
+
+Le service `TextFormatter` fournit aux plugins les utilitaires autour :
+
+```java
+private void setTextFormater() {
+    TextFormatter text = ctx.services().get(TextFormatter.class);
+
+    ctx.logger().info(text.stripTags("<red>Erreur :</red> détails")); // logs sans balises
+    player.sendMessage("<yellow>Pseudo : </yellow>" + TextFormatter.escape(saisieJoueur)); // pas d'injection de balises
+}
+```
+
+Comme tout service par défaut, il est enregistré en priorité `LOWEST` — enregistre ta propre implémentation pour
+changer la façon dont le texte est interprété sur tout le serveur.
+
 ### Utiliser les plugins comme des mods
 
 C'est là que Fidorial veut aller. Les événements permettent d'**observer et d'opposer un veto** ; le **registre de
@@ -358,8 +446,8 @@ via `services.get(X.class)`**. À mesure que les systèmes arrivent — mobs, IA
 items — chacun est livré comme un service par défaut, donc chacun est remplaçable le jour où il existe. Un plugin qui
 échange `MobAiService` n'est plus vraiment un plugin : c'est un mod, et il n'a pas touché une ligne de code serveur.
 
-L'histoire n'est pas finie. Aujourd'hui `FluidManager`, `WeatherManager`, `BlockEditService` et `CommandManager` sont
-remplaçables. Les mobs et la génération de monde ne sont pas encore là.
+L'histoire n'est pas finie. Aujourd'hui `FluidManager`, `WeatherManager`, `BlockEditService`, `CommandManager` et
+`TextFormatter` sont remplaçables. Les mobs et la génération de monde ne sont pas encore là.
 
 ### Structure du projet
 

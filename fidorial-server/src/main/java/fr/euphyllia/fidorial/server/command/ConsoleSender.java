@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.command;
 
 import fr.euphyllia.fidorial.api.command.CommandSender;
+import fr.euphyllia.fidorial.server.chat.MiniText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ public class ConsoleSender implements CommandSender {
 
     @Override
     public void sendMessage(String message) {
-        LOGGER.info(message);
+        System.out.println(MiniText.toAnsi(message));
     }
 
     @Override
