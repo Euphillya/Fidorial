@@ -43,7 +43,7 @@ public final class StatusResponseBuilder {
 
         JsonObject root = new JsonObject();
         root.add("version", version);
-        root.add(" ", players);
+        root.add("players", players);
         root.add("description", description);
         root.addProperty("enforcesSecureChat", false);
         return root.toString();
