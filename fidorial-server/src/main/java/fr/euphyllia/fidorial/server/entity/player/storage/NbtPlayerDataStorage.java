@@ -1,6 +1,7 @@
-package fr.euphyllia.fidorial.server.entity.player;
+package fr.euphyllia.fidorial.server.entity.player.storage;
 
 import fr.euphyllia.fidorial.api.entity.GameMode;
+import fr.euphyllia.fidorial.api.storage.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
@@ -17,19 +18,15 @@ import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-public class PlayerDataStorage {
+public class NbtPlayerDataStorage implements PlayerDataStorage {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PlayerDataStorage.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NbtPlayerDataStorage.class);
     private static final String ROOT_NAME = "PlayerData";
-
-
-    public record PlayerData(GameMode gameMode) {
-    }
 
     private final Path dataDir;
     private final boolean gzip;
 
-    public PlayerDataStorage(Path playerRoot, boolean gzip) {
+    public NbtPlayerDataStorage(Path playerRoot, boolean gzip) {
         this.dataDir = playerRoot.resolve("data");
         this.gzip = gzip;
     }
@@ -52,6 +49,7 @@ public class PlayerDataStorage {
         return dataDir.resolve(uuid.toString());
     }
 
+    @Override
     public PlayerData load(UUID uuid, PlayerData defaults) throws IOException {
         Path file = fileFor(uuid);
         if (!Files.isRegularFile(file)) {
@@ -80,6 +78,7 @@ public class PlayerDataStorage {
         return new PlayerData(gameMode);
     }
 
+    @Override
     public void save(UUID uuid, PlayerData data) throws IOException {
         Files.createDirectories(dataDir);
 
@@ -109,5 +108,4 @@ public class PlayerDataStorage {
     public Path dataDir() {
         return dataDir;
     }
-
 }

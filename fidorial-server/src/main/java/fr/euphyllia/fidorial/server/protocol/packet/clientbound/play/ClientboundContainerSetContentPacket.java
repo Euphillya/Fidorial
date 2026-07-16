@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 
-import fr.euphyllia.fidorial.server.entity.ItemStack;
-import fr.euphyllia.fidorial.server.entity.player.PlayerInventory;
+import fr.euphyllia.fidorial.api.inventory.ItemStack;
+import fr.euphyllia.fidorial.api.inventory.PlayerInventory;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;

@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.api.entity;
 
 import fr.euphyllia.fidorial.api.command.CommandSender;
+import fr.euphyllia.fidorial.api.inventory.PlayerInventory;
 
 import java.util.UUID;
 
@@ -19,6 +20,8 @@ public interface Player extends LivingEntity, CommandSender {
     }
 
     void kick(String reason);
+
+    PlayerInventory inventory();
 
     GameMode gameMode();
 

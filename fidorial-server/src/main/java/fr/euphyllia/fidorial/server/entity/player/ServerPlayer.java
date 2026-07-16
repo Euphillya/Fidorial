@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.entity.player;
 import fr.euphyllia.fidorial.api.entity.GameMode;
 import fr.euphyllia.fidorial.api.entity.Player;
 import fr.euphyllia.fidorial.api.entity.PlayerProfile;
+import fr.euphyllia.fidorial.api.inventory.PlayerInventory;
 import fr.euphyllia.fidorial.api.world.Location;
 import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;

@@ -13,6 +13,8 @@ import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
 import fr.euphyllia.fidorial.api.service.ServicePriority;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
+import fr.euphyllia.fidorial.api.storage.player.PlayerDataStorage;
+import fr.euphyllia.fidorial.api.storage.player.PlayerInventoryStorage;
 import fr.euphyllia.fidorial.api.text.TextFormatter;
 import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.api.world.fluid.FluidManager;
@@ -23,8 +25,8 @@ import fr.euphyllia.fidorial.server.chat.MiniTextFormatter;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleCommandReader;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
-import fr.euphyllia.fidorial.server.entity.player.PlayerDataStorage;
-import fr.euphyllia.fidorial.server.entity.player.PlayerInventoryStorage;
+import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
+import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStorage;
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
@@ -82,8 +84,8 @@ public final class FidorialServer implements Server {
     private ThreadedRegionRegionizer regionizer;
     private ThreadedChunkWorker chunkWorker;
     private ScheduledExecutorService autoSave;
-    private PlayerInventoryStorage inventoryStorage;
-    private PlayerDataStorage playerDataStorage;
+    private NbtPlayerInventoryStorage defaultInventoryStorage;
+    private NbtPlayerDataStorage defaultPlayerDataStorage;
     private WorldManager worldManager;
     private FluidEngine fluidEngine;
     private WeatherEngine weatherEngine;
@@ -174,8 +176,8 @@ public final class FidorialServer implements Server {
         registries = Registries.load();
         commandManager = new CommandManager();
         miniTextFormatter = new MiniTextFormatter();
-        inventoryStorage = new PlayerInventoryStorage(config.worldPath().resolve("player"), false);
-        playerDataStorage = new PlayerDataStorage(config.worldPath().resolve("player"), false);
+        defaultInventoryStorage = new NbtPlayerInventoryStorage(config.worldPath().resolve("player"), false);
+        defaultPlayerDataStorage = new NbtPlayerDataStorage(config.worldPath().resolve("player"), false);
     }
 
     private void startSchedulers() {
@@ -200,6 +202,8 @@ public final class FidorialServer implements Server {
         services.register(BlockEditService.class, blockEdits, this, ServicePriority.LOWEST);
         services.register(CommandManager.class, commandManager, this, ServicePriority.LOWEST);
         services.register(TextFormatter.class, miniTextFormatter, this, ServicePriority.LOWEST);
+        services.register(PlayerInventoryStorage.class, defaultInventoryStorage, this, ServicePriority.LOWEST);
+        services.register(PlayerDataStorage.class, defaultPlayerDataStorage, this, ServicePriority.LOWEST);
     }
 
     private void loadPlugins() throws IOException {
@@ -344,11 +348,11 @@ public final class FidorialServer implements Server {
     }
 
     public PlayerInventoryStorage playerInventoryStorage() {
-        return inventoryStorage;
+        return services.find(PlayerInventoryStorage.class).orElse(defaultInventoryStorage);
     }
 
     public PlayerDataStorage playerDataStorage() {
-        return playerDataStorage;
+        return services.find(PlayerDataStorage.class).orElse(defaultPlayerDataStorage);
     }
 
     public BlockStateRegistry blockStateRegistry() {

@@ -1,18 +1,17 @@
 <div align="center">
   <h1> Fidorial</h1>
-  
-  [English](#english) | [Français](#français)
-  
-  
-  [![VERSION](https://img.shields.io/badge/Minecraft-26.2-blue.svg)](https://github.com/Euphillya/Fidorial)
-  [![Java](https://img.shields.io/badge/Java-25+-orange.svg)](https://www.oracle.com/java/)
-  [![License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/Euphillya/Fidorial/blob/master/LICENCE)
-  [![Servers](https://img.shields.io/endpoint?url=https%3A%2F%2Ffaststats.dev%2Fapi%2Fshields%2Ffidorial%3Fmetric%3Dservers&style=flat)](https://faststats.dev/project/fidorial)
-  [![Total downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Ffaststats.dev%2Fapi%2Fshields%2Ffidorial%3Fmetric%3Ddownloads&style=flat)](https://faststats.dev/project/fidorial)
-  
-  [Documentation](https://fidorial.euphyllia.moe) • [GitHub](https://github.com/Euphillya/Fidorial) • [Discord](https://discord.gg/uUJQEB7XNN)
-  
-  [![Servers & Players](https://faststats.dev/embed/default:d01e30ea-8ddc-40f6-b773-24d369336950:servers-and-players.svg?w=960&h=340&theme=dark)](https://faststats.dev/project/fidorial/minecraft-plugin)
+
+[English](#english) | [Français](#français)
+
+[![VERSION](https://img.shields.io/badge/Minecraft-26.2-blue.svg)](https://github.com/Euphillya/Fidorial)
+[![Java](https://img.shields.io/badge/Java-25+-orange.svg)](https://www.oracle.com/java/)
+[![License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/Euphillya/Fidorial/blob/master/LICENCE)
+[![Servers](https://img.shields.io/endpoint?url=https%3A%2F%2Ffaststats.dev%2Fapi%2Fshields%2Ffidorial%3Fmetric%3Dservers&style=flat)](https://faststats.dev/project/fidorial)
+[![Total downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Ffaststats.dev%2Fapi%2Fshields%2Ffidorial%3Fmetric%3Ddownloads&style=flat)](https://faststats.dev/project/fidorial)
+
+[Documentation](https://fidorial.euphyllia.moe) • [GitHub](https://github.com/Euphillya/Fidorial) • [Discord](https://discord.gg/uUJQEB7XNN)
+
+[![Servers & Players](https://faststats.dev/embed/default:d01e30ea-8ddc-40f6-b773-24d369336950:servers-and-players.svg?w=960&h=340&theme=dark)](https://faststats.dev/project/fidorial/minecraft-plugin)
 </div>
 
 ---
@@ -44,7 +43,12 @@ offer, with a clean, regionized, multithreaded foundation designed for it from d
   the client-side mining duration (server-side validation will come with the anti-cheat). Each player's game mode is
   persisted separately from the inventory and survives reconnections; the mode given to new players is set with
   `default-game-mode` in `fidorial.properties`
-- **Creative inventory** — item management with per-player persistence across sessions
+- **Creative inventory** — item management with per-player persistence across sessions. Inventories are exposed to
+  plugins as API types (`PlayerInventory`, `ItemStack`) via `player.inventory()`
+- **Pluggable player storage** — inventories and player data (game mode, ...) are loaded and saved through the
+  `PlayerInventoryStorage` and `PlayerDataStorage` services. The server ships an NBT-file implementation by default;
+  a plugin can register its own backend (database, Redis, ...) and every call site picks it up.
+  See [Using plugins as mods](#using-plugins-as-mods)
 - **Rich text formatting** — MiniMessage-style tags supported natively in every message: colors (`<red>`, `<#ff8800>`),
   decorations (`<bold>`, `<italic>`, ...), fonts, shadow colors, and interactivity (`<click:run_command:'/spawn'>`,
   `<hover:show_text:'...'>`, `<insertion:'...'>`). Messages are serialized as native NBT text components for clients
@@ -235,8 +239,38 @@ through `services.get(X.class)`**. As systems land — mobs, AI, world generatio
 default service, which means each one is replaceable the day it exists. A plugin that swaps `MobAiService` isn't really
 a plugin any more; it's a mod, and it never touched a line of server code.
 
-That story isn't finished. Today `FluidManager`, `WeatherManager`, `BlockEditService`, `CommandManager` and
-`TextFormatter` are swappable. Mobs and worldgen aren't there yet.
+Storage works the same way. Player inventories and data go through `PlayerInventoryStorage` and `PlayerDataStorage`,
+and both work with pure API types (`PlayerInventory`, `ItemStack`, `PlayerData`) — no server internals, no NBT. Want
+inventories in a database shared across servers? Implement the interface and register it:
+
+```java
+
+@Override
+public void onEnable() {
+    // From now on, every inventory load/save goes through your backend.
+    ctx.services().register(PlayerInventoryStorage.class, new SqlInventoryStorage(), this);
+}
+
+final class SqlInventoryStorage implements PlayerInventoryStorage {
+    @Override
+    public PlayerInventory load(UUID uuid) {
+        PlayerInventory inv = new PlayerInventory();
+        // SELECT slot, item_id, count ... then:
+        // inv.set(slot, ItemStack.of(Key.parse(itemId), count));
+        return inv;
+    }
+
+    @Override
+    public void save(UUID uuid, PlayerInventory inventory) {
+        for (int slot = 0; slot < inventory.size(); slot++) {
+            ItemStack stack = inventory.get(slot);
+            if (!stack.isEmpty()) {
+                // INSERT (uuid, slot, stack.id().asString(), stack.count())
+            }
+        }
+    }
+}
+```
 
 ### Project structure
 
@@ -292,7 +326,12 @@ départ.
   la durée de minage côté client (la validation côté serveur viendra avec l'anti-cheat). Le mode de jeu de chaque
   joueur est persisté séparément de l'inventaire et survit aux reconnexions ; le mode des nouveaux joueurs se règle
   avec `default-game-mode` dans `fidorial.properties`
-- **Inventaire créatif** — gestion des items avec persistance par joueur entre les sessions
+- **Inventaire créatif** — gestion des items avec persistance par joueur entre les sessions. Les inventaires sont
+  exposés aux plugins comme des types API (`PlayerInventory`, `ItemStack`) via `player.inventory()`
+- **Stockage joueur remplaçable** — les inventaires et les données joueur (mode de jeu, ...) sont chargés et
+  sauvegardés via les services `PlayerInventoryStorage` et `PlayerDataStorage`. Le serveur fournit par défaut une
+  implémentation en fichiers NBT ; un plugin peut enregistrer son propre backend (base de données, Redis, ...) et
+  tous les points d'appel l'utilisent. Voir [Utiliser les plugins comme des mods](#utiliser-les-plugins-comme-des-mods)
 - **Formatage de texte riche** — balises style MiniMessage supportées nativement dans tous les messages : couleurs
   (`<red>`, `<#ff8800>`), décorations (`<bold>`, `<italic>`, ...), polices, couleurs d'ombre et interactivité
   (`<click:run_command:'/spawn'>`, `<hover:show_text:'...'>`, `<insertion:'...'>`). Les messages sont sérialisés en
@@ -484,8 +523,39 @@ via `services.get(X.class)`**. À mesure que les systèmes arrivent — mobs, IA
 items — chacun est livré comme un service par défaut, donc chacun est remplaçable le jour où il existe. Un plugin qui
 échange `MobAiService` n'est plus vraiment un plugin : c'est un mod, et il n'a pas touché une ligne de code serveur.
 
-L'histoire n'est pas finie. Aujourd'hui `FluidManager`, `WeatherManager`, `BlockEditService`, `CommandManager` et
-`TextFormatter` sont remplaçables. Les mobs et la génération de monde ne sont pas encore là.
+Le stockage fonctionne de la même façon. Les inventaires et données des joueurs passent par `PlayerInventoryStorage`
+et `PlayerDataStorage`, et les deux travaillent avec des types API purs (`PlayerInventory`, `ItemStack`,
+`PlayerData`) — pas d'entrailles du serveur, pas de NBT. Tu veux des inventaires en base de données partagés entre
+serveurs ? Implémente l'interface et enregistre-la :
+
+```java
+
+@Override
+public void onEnable() {
+    // Désormais, chaque chargement/sauvegarde d'inventaire passe par ton backend.
+    ctx.services().register(PlayerInventoryStorage.class, new SqlInventoryStorage(), this);
+}
+
+final class SqlInventoryStorage implements PlayerInventoryStorage {
+    @Override
+    public PlayerInventory load(UUID uuid) {
+        PlayerInventory inv = new PlayerInventory();
+        // SELECT slot, item_id, count ... puis :
+        // inv.set(slot, ItemStack.of(Key.parse(itemId), count));
+        return inv;
+    }
+
+    @Override
+    public void save(UUID uuid, PlayerInventory inventory) {
+        for (int slot = 0; slot < inventory.size(); slot++) {
+            ItemStack stack = inventory.get(slot);
+            if (!stack.isEmpty()) {
+                // INSERT (uuid, slot, stack.id().asString(), stack.count())
+            }
+        }
+    }
+}
+```
 
 ### Structure du projet
 
