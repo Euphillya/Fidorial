@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.network.listener;
 
+import fr.euphyllia.fidorial.api.entity.GameMode;
 import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.api.event.player.BlockBreakEvent;
 import fr.euphyllia.fidorial.api.event.player.BlockPlaceEvent;
@@ -16,6 +17,7 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.ServerConfig;
 import fr.euphyllia.fidorial.server.entity.ItemStack;
 import fr.euphyllia.fidorial.server.entity.player.InventorySlots;
+import fr.euphyllia.fidorial.server.entity.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.server.entity.player.PlayerInventory;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
@@ -98,7 +100,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
             profile = new PlayerProfile(UUID.randomUUID(), connection.username());
         }
         return new ServerPlayer(server.entityIds().allocate(), profile,
-                loadInventory(profile), connection, world, spawn);
+                loadInventory(profile), loadPlayerData(profile).gameMode(),
+                connection, world, spawn);
     }
 
     private PlayerInventory loadInventory(PlayerProfile profile) {
@@ -115,11 +118,26 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
     }
 
+    private PlayerDataStorage.PlayerData loadPlayerData(PlayerProfile profile) {
+        PlayerDataStorage.PlayerData defaults =
+                new PlayerDataStorage.PlayerData(config.defaultGameMode());
+        try {
+            return server.playerDataStorage().load(profile.uuid(), defaults);
+        } catch (Exception e) {
+            LOGGER.error("Chargement des donnees de {} impossible, valeurs par defaut utilisees",
+                    profile.name(), e);
+            return defaults;
+        }
+    }
+
     private void sendLoginSequence(RegistryHolder dynamic) {
         int dimensionType = Math.max(0, dynamic.networkId("minecraft:dimension_type", worldId()));
         connection.send(new ClientboundLoginPacket(
-                player.entityId(), worldId(), dimensionType, config.viewDistance()));
-        connection.send(new ClientboundPlayerInfoUpdatePacket(player.profile(), 1, 0));
+                player.entityId(), worldId(), dimensionType, config.viewDistance(),
+                player.gameMode().id()));
+        connection.send(new ClientboundPlayerInfoUpdatePacket(
+                player.profile(), player.gameMode().id(), 0));
+        connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(player.gameMode()));
         connection.send(new ClientboundSetEntityDataPacket(
                 player.entityId(), connection.displayedSkinParts()));
         connection.send(new ClientboundGameEventPacket(
@@ -179,6 +197,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket packet) {
+        if (player.gameMode() != GameMode.CREATIVE) {
+            LOGGER.debug("{} envoie un paquet creatif hors mode creatif (ignore)", player.name());
+            return;
+        }
         int slot = InventorySlots.fromWindow(packet.slot());
         if (slot == InventorySlots.INVALID || slot >= player.inventory().size()) {
             return;
@@ -224,6 +246,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleUseItemOn(ServerboundUseItemOnPacket packet) {
+        if (player.gameMode() == GameMode.SPECTATOR) {
+            connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
+            return;
+        }
         BlockPos target = packet.target().relative(BlockFace.byId(packet.face()));
         ItemStack held = player.inventory().get(player.selectedSlot());
         BlockState state = held.isEmpty() ? null : server.blockStateRegistry().blockForItem(held.id());
@@ -242,16 +268,25 @@ public final class PlayPacketHandler implements PlayPacketListener {
     @Override
     public void handlePlayerAction(ServerboundPlayerActionPacket packet) {
         int status = packet.status();
-        boolean breaking = status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK
-                || status == ServerboundPlayerActionPacket.FINISH_DESTROY_BLOCK;
+        boolean breaking = switch (player.gameMode()) {
+            case CREATIVE -> status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK;
+            case SURVIVAL -> status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK
+                    && instantMine(packet.position())
+                    || status == ServerboundPlayerActionPacket.FINISH_DESTROY_BLOCK;
+            case ADVENTURE, SPECTATOR -> false;
+        };
         if (breaking) {
             BlockBreakEvent event = server.events().post(new BlockBreakEvent(player, packet.position()));
             if (!event.isCancelled()) {
                 server.blockEdits().set(server.worldManager().overworld(),
                         packet.position(), BlockState.AIR);
             }
-            connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
         }
+        connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
+    }
+
+    private boolean instantMine(BlockPos position) {
+        return false;
     }
 
     @Override

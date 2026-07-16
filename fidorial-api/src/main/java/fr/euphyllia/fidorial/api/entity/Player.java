@@ -19,4 +19,9 @@ public interface Player extends LivingEntity, CommandSender {
     }
 
     void kick(String reason);
+
+    GameMode gameMode();
+
+    void setGameMode(GameMode gameMode);
+
 }

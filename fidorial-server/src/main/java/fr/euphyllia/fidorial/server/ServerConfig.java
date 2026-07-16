@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server;
 
+import fr.euphyllia.fidorial.api.entity.GameMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,8 @@ public record ServerConfig(int port,
                            Path pluginsPath,
                            int autoSaveSeconds,
                            int regionWorkers,
-                           int chunkWorkers) {
+                           int chunkWorkers,
+                           GameMode defaultGameMode) {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerConfig.class);
     private static final String DEFAULT_FILE = "fidorial.properties";
@@ -46,7 +48,8 @@ public record ServerConfig(int port,
                 Path.of("plugins"),
                 5,
                 Math.max(2, cpus / 2),
-                Math.max(2, cpus / 2));
+                Math.max(2, cpus / 2),
+                GameMode.SURVIVAL);
     }
 
     public static ServerConfig load() throws IOException {
@@ -74,7 +77,8 @@ public record ServerConfig(int port,
                 Path.of(props.getProperty("plugins-path", defaults.pluginsPath().toString())),
                 readInt(props, "auto-save-seconds", defaults.autoSaveSeconds()),
                 readInt(props, "region-workers", defaults.regionWorkers()),
-                readInt(props, "chunk-workers", defaults.chunkWorkers()));
+                readInt(props, "chunk-workers", defaults.chunkWorkers()),
+                readGameMode(props, "default-game-mode", defaults.defaultGameMode()));
         LOGGER.info("Configuration chargee depuis {}", file);
         return config;
     }
@@ -90,6 +94,19 @@ public record ServerConfig(int port,
             LOGGER.warn("{} = '{}' illisible, valeur par defaut {} utilisee", key, raw, fallback);
             return fallback;
         }
+    }
+
+    private static GameMode readGameMode(Properties props, String key, GameMode fallback) {
+        String raw = props.getProperty(key);
+        if (raw == null || raw.isBlank()) {
+            return fallback;
+        }
+        GameMode mode = GameMode.byName(raw.strip());
+        if (mode == null) {
+            LOGGER.warn("{} = '{}' inconnu, valeur par defaut {} utilisee", key, raw, fallback);
+            return fallback;
+        }
+        return mode;
     }
 
     private static boolean readBool(Properties props, String key, boolean fallback) {
@@ -109,6 +126,7 @@ public record ServerConfig(int port,
         props.setProperty("auto-save-seconds", Integer.toString(autoSaveSeconds));
         props.setProperty("region-workers", Integer.toString(regionWorkers));
         props.setProperty("chunk-workers", Integer.toString(chunkWorkers));
+        props.setProperty("default-game-mode", defaultGameMode.name().toLowerCase(java.util.Locale.ROOT));
         try (OutputStream out = Files.newOutputStream(file)) {
             props.store(out, "Configuration Fidorial");
         }

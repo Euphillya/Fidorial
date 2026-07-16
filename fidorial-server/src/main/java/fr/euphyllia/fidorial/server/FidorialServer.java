@@ -22,6 +22,7 @@ import fr.euphyllia.fidorial.server.chat.MiniTextFormatter;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleCommandReader;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
+import fr.euphyllia.fidorial.server.entity.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.server.entity.player.PlayerInventoryStorage;
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
@@ -81,6 +82,7 @@ public final class FidorialServer implements Server {
     private ThreadedChunkWorker chunkWorker;
     private ScheduledExecutorService autoSave;
     private PlayerInventoryStorage inventoryStorage;
+    private PlayerDataStorage playerDataStorage;
     private WorldManager worldManager;
     private FluidEngine fluidEngine;
     private WeatherEngine weatherEngine;
@@ -172,6 +174,7 @@ public final class FidorialServer implements Server {
         commandManager = new CommandManager();
         miniTextFormatter = new MiniTextFormatter();
         inventoryStorage = new PlayerInventoryStorage(config.worldPath().resolve("player"), false);
+        playerDataStorage = new PlayerDataStorage(config.worldPath().resolve("player"), false);
     }
 
     private void startSchedulers() {
@@ -336,6 +339,10 @@ public final class FidorialServer implements Server {
 
     public PlayerInventoryStorage playerInventoryStorage() {
         return inventoryStorage;
+    }
+
+    public PlayerDataStorage playerDataStorage() {
+        return playerDataStorage;
     }
 
     public BlockStateRegistry blockStateRegistry() {

@@ -5,7 +5,7 @@ import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 
 public record ClientboundLoginPacket(int entityId, String dimensionName, int dimensionTypeId,
-                                     int viewDistance) implements ClientboundPacket {
+                                     int viewDistance, int gameMode) implements ClientboundPacket {
 
     @Override
     public String name() {
@@ -27,7 +27,7 @@ public record ClientboundLoginPacket(int entityId, String dimensionName, int dim
         buf.writeVarInt(dimensionTypeId);
         buf.writeIdentifier(dimensionName);
         buf.writeLong(0L);                    // hashedSeed
-        buf.writeByte(1);                     // gameMode (survie)
+        buf.writeByte(gameMode);                     // gameMode (survie)
         buf.writeByte(-1);                    // previousGameMode
         buf.writeBoolean(false);              // isDebug
         buf.writeBoolean(true);               // isFlat

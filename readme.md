@@ -28,6 +28,11 @@ offer, with a clean, regionized, multithreaded foundation designed for it from d
   drop-off, infinite source formation, and lava/water interaction producing obsidian or cobblestone. Fluid ticks are
   scheduled on the region that owns the block, so a lake spreading in one corner of the map costs nothing to the rest of
   it
+- **Game modes** — survival, creative, adventure and spectator, switchable live with `/gamemode` (alias `/gm`),
+  in game or from the console. Creative grants flight, invulnerability and instant block breaking; survival respects
+  the client-side mining duration (server-side validation will come with the anti-cheat). Each player's game mode is
+  persisted separately from the inventory and survives reconnections; the mode given to new players is set with
+  `default-game-mode` in `fidorial.properties`
 - **Creative inventory** — item management with per-player persistence across sessions
 - **Rich text formatting** — MiniMessage-style tags supported natively in every message: colors (`<red>`, `<#ff8800>`),
   decorations (`<bold>`, `<italic>`, ...), fonts, shadow colors, and interactivity (`<click:run_command:'/spawn'>`,
@@ -43,7 +48,7 @@ offer, with a clean, regionized, multithreaded foundation designed for it from d
   ticking at 20 TPS on its own worker thread. Player-driven tickets keep regions alive and follow players as they move
 - **Plugin API** — load JARs at startup, subscribe to events, replace server behaviour through the service registry.
   See [Writing a plugin](#writing-a-plugin)
-- **Commands** — in-game (`/tps`) and interactive console. `/tps` reports per-region TPS, average tick time and pending
+- **Commands** — in-game (`/tps`, `/weather`, `/gamemode`) and interactive console. `/tps` reports per-region TPS, average tick time and pending
   tasks
 - **Anonymous metrics** via [FastStats](https://faststats.dev/project/fidorial/minecraft-plugin)
 
@@ -71,8 +76,8 @@ For development, you can also run directly:
 ./gradlew :fidorial-server:run
 ```
 
-On first start, Fidorial writes a `fidorial.properties` next to the jar — port, view distance, world path, online mode
-and worker thread counts live there. The server listens on port **25565** by default. Type `tps` in the console to check
+On first start, Fidorial writes a `fidorial.properties` next to the jar — port, view distance, world path, online
+mode, default game mode and worker thread counts live there. The server listens on port **25565** by default. Type `tps` in the console to check
 region health.
 
 ### Writing a plugin
@@ -263,6 +268,11 @@ départ.
   avec perte de niveau propre à chaque fluide, formation de sources infinies, et interaction lave/eau produisant
   obsidienne ou cobblestone. Les ticks de fluide sont planifiés sur la région propriétaire du bloc : un lac qui s'étale
   dans un coin de la carte ne coûte rien au reste
+- **Modes de jeu** — survie, créatif, aventure et spectateur, changeables à chaud avec `/gamemode` (alias `/gm`),
+  en jeu ou depuis la console. Le créatif donne le vol, l'invulnérabilité et la casse instantanée ; la survie respecte
+  la durée de minage côté client (la validation côté serveur viendra avec l'anti-cheat). Le mode de jeu de chaque
+  joueur est persisté séparément de l'inventaire et survit aux reconnexions ; le mode des nouveaux joueurs se règle
+  avec `default-game-mode` dans `fidorial.properties`
 - **Inventaire créatif** — gestion des items avec persistance par joueur entre les sessions
 - **Formatage de texte riche** — balises style MiniMessage supportées nativement dans tous les messages : couleurs
   (`<red>`, `<#ff8800>`), décorations (`<bold>`, `<italic>`, ...), polices, couleurs d'ombre et interactivité
@@ -279,7 +289,7 @@ départ.
   et les suivent dans leurs déplacements
 - **API de plugins** — chargement de JARs au démarrage, abonnement aux événements, remplacement du comportement du
   serveur via le registre de services. Voir [Écrire un plugin](#écrire-un-plugin)
-- **Commandes** — en jeu (`/tps`) et console interactive. `/tps` affiche les TPS par région, la durée moyenne de tick et
+- **Commandes** — en jeu (`/tps`, `/weather`, `/gamemode`) et console interactive. `/tps` affiche les TPS par région, la durée moyenne de tick et
   les tâches en attente
 - **Métriques anonymes** via [FastStats](https://faststats.dev/project/fidorial/minecraft-plugin)
 
@@ -308,7 +318,7 @@ Pour le développement, tu peux aussi lancer directement :
 ```
 
 Au premier démarrage, Fidorial écrit un `fidorial.properties` à côté du jar — port, distance de vue, chemin du monde,
-online mode et nombre de threads s'y trouvent. Le serveur écoute sur le port **25565** par défaut. Tape `tps` dans la
+online mode, mode de jeu par défaut et nombre de threads s'y trouvent. Le serveur écoute sur le port **25565** par défaut. Tape `tps` dans la
 console pour vérifier la santé des régions.
 
 ### Écrire un plugin
@@ -322,7 +332,7 @@ Ajoute l'API en dépendance, en `compileOnly` — le serveur la fournit à l'ex�
 
 ```kotlin
 dependencies {
-    compileOnly("fr.euphyllia.fidorial:fidorial-api:0.1.0-SNAPSHOT")
+  compileOnly("fr.euphyllia.fidorial:fidorial-api:0.1.0-SNAPSHOT")
 }
 ```
 
@@ -354,29 +364,29 @@ import fr.euphyllia.fidorial.api.plugin.PluginContext;
 
 public final class BedrockGuard implements Plugin {
 
-    private PluginContext ctx;
+  private PluginContext ctx;
 
-    @Override
-    public void onLoad(PluginContext ctx) {
-        this.ctx = ctx;
-    }
+  @Override
+  public void onLoad(PluginContext ctx) {
+    this.ctx = ctx;
+  }
 
-    @Override
-    public void onEnable() {
-        ctx.events().subscribe(PlayerJoinEvent.class, event ->
-                event.player().sendMessage("La bedrock est protégée sous y=0."));
+  @Override
+  public void onEnable() {
+    ctx.events().subscribe(PlayerJoinEvent.class, event ->
+            event.player().sendMessage("La bedrock est protégée sous y=0."));
 
-        // Annuler l'événement empêche le bloc de changer du tout :
-        // pas de paquet, pas d'écriture disque, pas de mise à jour des fluides.
-        ctx.events().subscribe(BlockBreakEvent.class, EventPriority.HIGH, event -> {
-            if (event.position().y() < 0) {
-                event.setCancelled(true);
-                event.player().sendMessage("Tu ne peux pas casser ça.");
-            }
-        });
+    // Annuler l'événement empêche le bloc de changer du tout :
+    // pas de paquet, pas d'écriture disque, pas de mise à jour des fluides.
+    ctx.events().subscribe(BlockBreakEvent.class, EventPriority.HIGH, event -> {
+      if (event.position().y() < 0) {
+        event.setCancelled(true);
+        event.player().sendMessage("Tu ne peux pas casser ça.");
+      }
+    });
 
-        ctx.logger().info("{} monde(s) surveillé(s)", ctx.server().worlds().size());
-    }
+    ctx.logger().info("{} monde(s) surveillé(s)", ctx.server().worlds().size());
+  }
 }
 ```
 
@@ -396,11 +406,11 @@ pas de builder de composants :
 
 public final class SendMessage() {
 
-    public void send(Player player) {
-        player.sendMessage("<gold><bold>Boutique</bold></gold> <green>Achat effectué !</green>");
-        player.sendMessage("<click:run_command:'/spawn'><aqua>Clique ici</aqua></click> pour retourner au spawn");
-        player.sendMessage("<hover:show_text:'<gray>Dernière connexion : hier</gray>'>Steve</hover>");
-    }
+  public void send(Player player) {
+    player.sendMessage("<gold><bold>Boutique</bold></gold> <green>Achat effectué !</green>");
+    player.sendMessage("<click:run_command:'/spawn'><aqua>Clique ici</aqua></click> pour retourner au spawn");
+    player.sendMessage("<hover:show_text:'<gray>Dernière connexion : hier</gray>'>Steve</hover>");
+  }
 }
 ```
 
@@ -416,10 +426,10 @@ Le service `TextFormatter` fournit aux plugins les utilitaires autour :
 
 ```java
 private void setTextFormater() {
-    TextFormatter text = ctx.services().get(TextFormatter.class);
+  TextFormatter text = ctx.services().get(TextFormatter.class);
 
-    ctx.logger().info(text.stripTags("<red>Erreur :</red> détails")); // logs sans balises
-    player.sendMessage("<yellow>Pseudo : </yellow>" + TextFormatter.escape(saisieJoueur)); // pas d'injection de balises
+  ctx.logger().info(text.stripTags("<red>Erreur :</red> détails")); // logs sans balises
+  player.sendMessage("<yellow>Pseudo : </yellow>" + TextFormatter.escape(saisieJoueur)); // pas d'injection de balises
 }
 ```
 
@@ -438,8 +448,8 @@ points d'appel la prennent à la place — aucun hook à ajouter, aucun code ser
 
 @Override
 public void onEnable() {
-    // Désormais, tout ce qui déplace un fluide interroge ton implémentation.
-    ctx.services().register(FluidManager.class, new MaPhysiqueDesFluides(), this);
+  // Désormais, tout ce qui déplace un fluide interroge ton implémentation.
+  ctx.services().register(FluidManager.class, new MaPhysiqueDesFluides(), this);
 }
 ```
 

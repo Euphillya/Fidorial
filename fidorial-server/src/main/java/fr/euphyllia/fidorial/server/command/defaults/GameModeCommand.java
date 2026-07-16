@@ -1,0 +1,62 @@
+package fr.euphyllia.fidorial.server.command.defaults;
+
+import fr.euphyllia.fidorial.api.command.CommandExecutor;
+import fr.euphyllia.fidorial.api.command.CommandSender;
+import fr.euphyllia.fidorial.api.entity.GameMode;
+import fr.euphyllia.fidorial.api.entity.Player;
+import fr.euphyllia.fidorial.server.FidorialServer;
+
+public final class GameModeCommand implements CommandExecutor {
+
+    private static String describe(GameMode mode) {
+        return switch (mode) {
+            case SURVIVAL -> "survie";
+            case CREATIVE -> "créatif";
+            case ADVENTURE -> "aventure";
+            case SPECTATOR -> "spectateur";
+        };
+    }
+
+    @Override
+    public void execute(CommandSender sender, String label, String[] args) {
+        if (args.length == 0) {
+            if (sender instanceof Player self) {
+                sender.sendMessage("Mode de jeu actuel : " + describe(self.gameMode()));
+            } else {
+                sender.sendMessage("Usage : /" + label + " <survival|creative|adventure|spectator> [joueur]");
+            }
+            return;
+        }
+
+        GameMode mode = GameMode.byName(args[0]);
+        if (mode == null) {
+            sender.sendMessage("Mode de jeu inconnu : " + args[0]
+                    + " (survival, creative, adventure, spectator)");
+            return;
+        }
+
+        Player target;
+        if (args.length >= 2) {
+            target = findPlayer(args[1]);
+            if (target == null) {
+                sender.sendMessage("Joueur introuvable : " + args[1]);
+                return;
+            }
+        } else if (sender instanceof Player self) {
+            target = self;
+        } else {
+            sender.sendMessage("Depuis la console : /" + label + " <mode> <joueur>");
+            return;
+        }
+
+        target.setGameMode(mode);
+        target.sendMessage("Mode de jeu changé : " + describe(mode));
+        if (target != sender) {
+            sender.sendMessage("Mode de jeu de " + target.name() + " changé : " + describe(mode));
+        }
+    }
+
+    private Player findPlayer(String name) {
+        return FidorialServer.getInstance().player(name).orElse(null);
+    }
+}
