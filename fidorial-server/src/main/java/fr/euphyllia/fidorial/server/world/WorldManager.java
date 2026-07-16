@@ -100,6 +100,14 @@ public final class WorldManager implements AutoCloseable {
         LOGGER.info("Monde sauvegardé ({} dimension(s))", worlds.size());
     }
 
+    public int unloadUnusedChunks() {
+        int total = 0;
+        for (ServerWorld w : worlds.values()) {
+            total += w.unloadUnusedChunks();
+        }
+        return total;
+    }
+
     public void saveDirty() throws IOException {
         for (ServerWorld w : worlds.values()) {
             w.saveDirty();

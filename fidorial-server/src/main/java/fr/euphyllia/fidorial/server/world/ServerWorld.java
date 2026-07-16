@@ -13,10 +13,7 @@ import fr.euphyllia.fidorial.server.world.storage.Dimension;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ServerWorld implements World {
@@ -31,6 +28,7 @@ public final class ServerWorld implements World {
 
     private final Map<Long, ChunkColumn> loaded = new ConcurrentHashMap<>();
     private final Set<Long> dirty = ConcurrentHashMap.newKeySet();
+    private final Set<ChunkViewSource> viewers = ConcurrentHashMap.newKeySet();
 
     public ServerWorld(Dimension dimension, ChunkStorage storage, ChunkGenerator generator,
                        BlockStateRegistry blockStates, int minY, int height) {
@@ -42,8 +40,12 @@ public final class ServerWorld implements World {
         this.height = height;
     }
 
-    private static long key(int chunkX, int chunkZ) {
+    public static long chunkKey(int chunkX, int chunkZ) {
         return ((long) chunkX << 32) | (chunkZ & 0xFFFFFFFFL);
+    }
+
+    private static long key(int chunkX, int chunkZ) {
+        return chunkKey(chunkX, chunkZ);
     }
 
     public Dimension dimension() {
@@ -172,6 +174,35 @@ public final class ServerWorld implements World {
             storage.save(dimension, chunk);
         }
         dirty.clear();
+    }
+
+    public void addViewer(ChunkViewSource viewer) {
+        viewers.add(viewer);
+    }
+
+    public void removeViewer(ChunkViewSource viewer) {
+        viewers.remove(viewer);
+    }
+
+    public int unloadUnusedChunks() {
+        if (loaded.isEmpty()) {
+            return 0;
+        }
+        Set<Long> wanted = new HashSet<>();
+        for (ChunkViewSource viewer : viewers) {
+            viewer.collectViewedChunks(wanted::add);
+        }
+
+        int unloaded = 0;
+        for (Long k : loaded.keySet()) {
+            if (wanted.contains(k) || dirty.contains(k)) {
+                continue;
+            }
+            if (loaded.remove(k) != null) {
+                unloaded++;
+            }
+        }
+        return unloaded;
     }
 
     public void unloadChunk(int chunkX, int chunkZ) throws IOException {

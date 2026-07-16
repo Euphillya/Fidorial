@@ -7,6 +7,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetChunkCacheCenterPacket;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
+import fr.euphyllia.fidorial.server.world.ChunkViewSource;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import org.slf4j.Logger;
@@ -15,8 +16,9 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.LongConsumer;
 
-public final class ChunkViewTracker {
+public final class ChunkViewTracker implements ChunkViewSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChunkViewTracker.class);
 
@@ -47,6 +49,14 @@ public final class ChunkViewTracker {
 
     private static long key(int chunkX, int chunkZ) {
         return ((long) chunkZ << 32) | (chunkX & 0xFFFFFFFFL);
+    }
+
+    private static void emit(Set<Long> source, LongConsumer keys) {
+        for (long key : source) {
+            int cx = (int) key;
+            int cz = (int) (key >> 32);
+            keys.accept(ServerWorld.chunkKey(cx, cz));
+        }
     }
 
     public void init(ChunkPos center) {
@@ -138,6 +148,18 @@ public final class ChunkViewTracker {
     public ChunkPos center() {
         synchronized (lock) {
             return new ChunkPos(centerX, centerZ);
+        }
+    }
+
+    public ServerWorld world() {
+        return world;
+    }
+
+    @Override
+    public void collectViewedChunks(LongConsumer keys) {
+        synchronized (lock) {
+            emit(sent, keys);
+            emit(pending, keys);
         }
     }
 

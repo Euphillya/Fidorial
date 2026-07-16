@@ -76,6 +76,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void onDisconnect() {
+        if (chunkView != null) {
+            chunkView.world().removeViewer(chunkView);
+            chunkView = null;
+        }
         if (ticket != null) {
             server.regionizer().removeTicket(worldId(), ticket);
             ticket = null;
@@ -144,6 +148,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         this.chunkView = new ChunkViewTracker(connection, server.chunkWorker(), world,
                 new ChunkNetworkSerializer(server.blockStateRegistry(), biome), config.sendDistance());
         this.ticket = spawnChunk;
+        world.addViewer(chunkView);
         server.regionizer().addTicket(worldId(), ticket);
         chunkView.init(spawnChunk);
     }
