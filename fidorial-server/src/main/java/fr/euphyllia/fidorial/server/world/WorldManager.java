@@ -27,6 +27,7 @@ public final class WorldManager implements AutoCloseable {
     private final BlockStateRegistry blockStates;
     private final int minY;
     private final int height;
+    private volatile ChunkGenerator defaultGenerator;
 
     private WorldManager(WorldPaths paths, LevelData levelData, ChunkStorage storage,
                          BlockStateRegistry blockStates, int minY, int height) {
@@ -64,8 +65,15 @@ public final class WorldManager implements AutoCloseable {
                 k -> new ServerWorld(dim, storage, generator, blockStates, minY, height));
     }
 
+    public void setDefaultGenerator(ChunkGenerator generator) {
+        this.defaultGenerator = generator;
+    }
+
     public ServerWorld overworld() {
-        return registerDimension(Dimension.OVERWORLD, FlatChunkGenerator.cobblestone(minY, height));
+        ChunkGenerator generator = defaultGenerator != null
+                ? defaultGenerator
+                : FlatChunkGenerator.cobblestone(minY, height);
+        return registerDimension(Dimension.OVERWORLD, generator);
     }
 
     public Collection<ServerWorld> worlds() {

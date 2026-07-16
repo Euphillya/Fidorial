@@ -24,7 +24,6 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.*;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
-import fr.euphyllia.fidorial.server.world.FlatWorld;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import org.slf4j.Logger;
@@ -60,7 +59,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
 
         ServerWorld world = server.worldManager().overworld();
-        Location spawn = new Location(FlatWorld.SPAWN_X, FlatWorld.SPAWN_Y, FlatWorld.SPAWN_Z, 0f, 0f);
+        Location spawn = new Location(config.spawnX(), config.spawnY(), config.spawnZ(), 0f, 0f);
         this.player = createPlayer(world, spawn);
         connection.setPlayer(player);
         world.addEntity(player);

@@ -1,0 +1,43 @@
+package fr.euphyllia.fidorial.server.world;
+
+import fr.euphyllia.fidorial.api.service.ServiceRegistry;
+import fr.euphyllia.fidorial.api.world.generation.WorldGenerator;
+import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ServiceBackedChunkGenerator implements ChunkGenerator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBackedChunkGenerator.class);
+    private static final String DEFAULT_BIOME = "minecraft:plains";
+
+    private final ServiceRegistry services;
+    private final ChunkGenerator fallback;
+    private final int minY;
+    private final int height;
+
+    public ServiceBackedChunkGenerator(ServiceRegistry services, ChunkGenerator fallback,
+                                       int minY, int height) {
+        this.services = services;
+        this.fallback = fallback;
+        this.minY = minY;
+        this.height = height;
+    }
+
+    @Override
+    public ChunkColumn generate(int chunkX, int chunkZ) {
+        WorldGenerator custom = services.find(WorldGenerator.class).orElse(null);
+        if (custom == null) {
+            return fallback.generate(chunkX, chunkZ);
+        }
+
+        PluginGeneratedChunk chunk = new PluginGeneratedChunk(chunkX, chunkZ, minY, height, DEFAULT_BIOME);
+        try {
+            custom.generate(chunk);
+            return chunk.column();
+        } catch (Exception e) {
+            LOGGER.error("Le WorldGenerator {} a echoue, retour au generateur par defaut", custom.getClass().getName(), e);
+            return fallback.generate(chunkX, chunkZ);
+        }
+    }
+}

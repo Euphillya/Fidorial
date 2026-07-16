@@ -7,10 +7,10 @@ import java.util.UUID;
 
 public interface PlayerDataStorage {
 
-    record PlayerData(GameMode gameMode) {
-    }
-
     PlayerData load(UUID uuid, PlayerData defaults) throws IOException;
 
     void save(UUID uuid, PlayerData data) throws IOException;
+
+    record PlayerData(GameMode gameMode) {
+    }
 }

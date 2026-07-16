@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server;
 
 import fr.euphyllia.fidorial.api.entity.GameMode;
+import fr.euphyllia.fidorial.server.world.WorldConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Properties;
 
 public record ServerConfig(int port,
@@ -21,7 +23,10 @@ public record ServerConfig(int port,
                            int autoSaveSeconds,
                            int regionWorkers,
                            int chunkWorkers,
-                           GameMode defaultGameMode) {
+                           GameMode defaultGameMode,
+                           double spawnX,
+                           double spawnY,
+                           double spawnZ) {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerConfig.class);
     private static final String DEFAULT_FILE = "fidorial.properties";
@@ -49,7 +54,8 @@ public record ServerConfig(int port,
                 5,
                 Math.max(2, cpus / 2),
                 Math.max(2, cpus / 2),
-                GameMode.SURVIVAL);
+                GameMode.SURVIVAL,
+                WorldConstants.DEFAULT_SPAWN_X, WorldConstants.DEFAULT_SPAWN_Y, WorldConstants.DEFAULT_SPAWN_Z);
     }
 
     public static ServerConfig load() throws IOException {
@@ -78,7 +84,10 @@ public record ServerConfig(int port,
                 readInt(props, "auto-save-seconds", defaults.autoSaveSeconds()),
                 readInt(props, "region-workers", defaults.regionWorkers()),
                 readInt(props, "chunk-workers", defaults.chunkWorkers()),
-                readGameMode(props, "default-game-mode", defaults.defaultGameMode()));
+                readGameMode(props, "default-game-mode", defaults.defaultGameMode()),
+                readDouble(props, "spawn-x", defaults.spawnX()),
+                readDouble(props, "spawn-y", defaults.spawnY()),
+                readDouble(props, "spawn-z", defaults.spawnZ()));
         LOGGER.info("Configuration chargee depuis {}", file);
         return config;
     }
@@ -92,6 +101,19 @@ public record ServerConfig(int port,
             return Integer.parseInt(raw.strip());
         } catch (NumberFormatException e) {
             LOGGER.warn("{} = '{}' illisible, valeur par defaut {} utilisee", key, raw, fallback);
+            return fallback;
+        }
+    }
+
+    private static double readDouble(Properties props, String key, double fallback) {
+        String raw = props.getProperty(key);
+        if (raw == null || raw.isBlank()) {
+            return fallback;
+        }
+        try {
+            return Double.parseDouble(raw.strip());
+        } catch (NumberFormatException e) {
+            LOGGER.warn("{} = '{}' invalide, valeur par defaut {} utilisee", key, raw, fallback);
             return fallback;
         }
     }
@@ -126,7 +148,10 @@ public record ServerConfig(int port,
         props.setProperty("auto-save-seconds", Integer.toString(autoSaveSeconds));
         props.setProperty("region-workers", Integer.toString(regionWorkers));
         props.setProperty("chunk-workers", Integer.toString(chunkWorkers));
-        props.setProperty("default-game-mode", defaultGameMode.name().toLowerCase(java.util.Locale.ROOT));
+        props.setProperty("default-game-mode", defaultGameMode.name().toLowerCase(Locale.ROOT));
+        props.setProperty("spawn-x", Double.toString(spawnX));
+        props.setProperty("spawn-y", Double.toString(spawnY));
+        props.setProperty("spawn-z", Double.toString(spawnZ));
         try (OutputStream out = Files.newOutputStream(file)) {
             props.store(out, "Configuration Fidorial");
         }

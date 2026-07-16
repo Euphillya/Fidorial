@@ -41,10 +41,7 @@ import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
-import fr.euphyllia.fidorial.server.world.BlockEditService;
-import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
-import fr.euphyllia.fidorial.server.world.FlatWorld;
-import fr.euphyllia.fidorial.server.world.WorldManager;
+import fr.euphyllia.fidorial.server.world.*;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import org.slf4j.Logger;
@@ -188,6 +185,9 @@ public final class FidorialServer implements Server {
     private void openWorlds() throws IOException {
         worldManager = WorldManager.openOrCreate(config.worldPath(), blockStateRegistry,
                 FlatWorld.MIN_Y, FlatWorld.HEIGHT);
+        worldManager.setDefaultGenerator(new ServiceBackedChunkGenerator(services, FlatChunkGenerator.cobblestone(
+                WorldConstants.MIN_Y, WorldConstants.HEIGHT),
+                WorldConstants.MIN_Y, WorldConstants.HEIGHT));
         fluidEngine = new FluidEngine(worldManager, regionizer, blockStateRegistry, this::broadcast);
         weatherEngine = new WeatherEngine(worldManager.levelData(), this::broadcast);
         weatherEngine.start();
