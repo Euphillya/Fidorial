@@ -48,6 +48,7 @@ fidorial-server/world/
 fidorial-server/faststats/
 fidorial-server/plugins/
 fidorial-server/fidorial.properties
+fidorial-server/ops.json
 
 # Ré-inclure uniquement le générateur
 !tool/registry-generator/
