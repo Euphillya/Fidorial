@@ -1,50 +1,41 @@
 package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.api.registry.Key;
-import fr.euphyllia.fidorial.api.world.block.Blocks;
+import fr.euphyllia.fidorial.api.world.block.BlockData;
+import fr.euphyllia.fidorial.api.world.block.BlockRegistry;
+import fr.euphyllia.fidorial.api.world.block.BlockType;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 
-import java.util.HashMap;
 import java.util.Map;
 
-public final class BlockStateRegistry {
+
+public record BlockStateRegistry(BlockRegistry registry) {
 
     private static final int AIR_BLOCK = 0;
 
-    private final Map<BlockState, Integer> ids = new HashMap<>();
-    private final Map<Integer, BlockState> states = new HashMap<>();
-
-    public BlockStateRegistry() {
-        for (Blocks block : Blocks.values()) {
-            register(BlockState.of(block.key().asString()), block.networkId());
-        }
-        registerFluidLevels(Blocks.WATER);
-        registerFluidLevels(Blocks.LAVA);
-    }
-
-    public void register(BlockState state, int networkId) {
-        ids.put(state, networkId);
-        states.putIfAbsent(networkId, state);
-    }
-
-    private void registerFluidLevels(Blocks fluid) {
-        String name = fluid.key().asString();
-        int base = fluid.networkId();
-        for (int level = 0; level <= 15; level++) {
-            register(new BlockState(name, Map.of("level", String.valueOf(level))), base + level);
-        }
-    }
-
     public int networkId(BlockState state) {
-        return ids.getOrDefault(state, AIR_BLOCK);
+        BlockData data = resolve(state);
+        return data == null ? AIR_BLOCK : data.networkId();
     }
 
     public BlockState byId(int networkId) {
-        return states.getOrDefault(networkId, BlockState.AIR);
+        BlockData data = registry.fromNetworkId(networkId);
+        if (data == null) {
+            return BlockState.AIR;
+        }
+        return new BlockState(data.key().asString(), data.propertyMap());
     }
 
     public boolean contains(BlockState state) {
-        return ids.containsKey(state);
+        return resolve(state) != null;
+    }
+
+    private BlockData resolve(BlockState state) {
+        BlockType type = registry.type(Key.parse(state.name())).orElse(null);
+        if (type == null) {
+            return null;
+        }
+        return type.dataOrNull(state.properties());
     }
 
     public BlockState blockForItem(Key itemId) {
@@ -53,11 +44,11 @@ public final class BlockStateRegistry {
         }
 
         if (itemId.asString().equals("minecraft:water_bucket")) {
-            return new BlockState(Blocks.WATER.key().asString(), Map.of("level", "0"));
+            return new BlockState("minecraft:water", Map.of("level", "0"));
         }
 
         if (itemId.asString().equals("minecraft:lava_bucket")) {
-            return new BlockState(Blocks.LAVA.key().asString(), Map.of("level", "0"));
+            return new BlockState("minecraft:lava", Map.of("level", "0"));
         }
 
         BlockState candidate = BlockState.of(itemId.asString());

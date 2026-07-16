@@ -1,14 +1,7 @@
 package fr.euphyllia.fidorial.server.command;
 
 import fr.euphyllia.fidorial.api.command.CommandSender;
-import fr.euphyllia.fidorial.api.permission.Permissible;
-import fr.euphyllia.fidorial.api.permission.PermissibleBase;
-import fr.euphyllia.fidorial.api.permission.PermissibleBaseHolder;
-import fr.euphyllia.fidorial.api.permission.PermissionService;
-import fr.euphyllia.fidorial.api.permission.Permission;
-import fr.euphyllia.fidorial.api.permission.PermissionAttachment;
-import fr.euphyllia.fidorial.api.permission.PermissionAttachmentInfo;
-import fr.euphyllia.fidorial.api.permission.ServerOperator;
+import fr.euphyllia.fidorial.api.permission.*;
 import fr.euphyllia.fidorial.api.plugin.Plugin;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.chat.MiniText;

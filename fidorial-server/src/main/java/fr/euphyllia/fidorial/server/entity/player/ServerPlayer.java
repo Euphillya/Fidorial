@@ -4,17 +4,11 @@ import fr.euphyllia.fidorial.api.entity.GameMode;
 import fr.euphyllia.fidorial.api.entity.Player;
 import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.api.inventory.PlayerInventory;
-import fr.euphyllia.fidorial.api.permission.PermissibleBase;
-import fr.euphyllia.fidorial.api.permission.PermissibleBaseHolder;
-import fr.euphyllia.fidorial.api.permission.PermissionService;
-import fr.euphyllia.fidorial.api.permission.Permission;
-import fr.euphyllia.fidorial.api.permission.PermissionAttachment;
-import fr.euphyllia.fidorial.api.permission.PermissionAttachmentInfo;
-import fr.euphyllia.fidorial.api.permission.ServerOperator;
+import fr.euphyllia.fidorial.api.permission.*;
 import fr.euphyllia.fidorial.api.plugin.Plugin;
-import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.api.world.Location;
 import fr.euphyllia.fidorial.api.world.World;
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
@@ -46,19 +40,6 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         this.connection = connection;
         this.perm = new PermissibleBase(new PlayerOperator(), this,
                 FidorialServer.getInstance().plugins());
-    }
-
-    private final class PlayerOperator implements ServerOperator {
-
-        @Override
-        public boolean isOp() {
-            return FidorialServer.getInstance().operators().isOp(profile.uuid());
-        }
-
-        @Override
-        public void setOp(boolean value) {
-            FidorialServer.getInstance().operators().setOp(profile.uuid(), profile.name(), value);
-        }
     }
 
     @Override
@@ -209,5 +190,18 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     public int nextTeleportId() {
         return ++lastTeleportId;
+    }
+
+    private final class PlayerOperator implements ServerOperator {
+
+        @Override
+        public boolean isOp() {
+            return FidorialServer.getInstance().operators().isOp(profile.uuid());
+        }
+
+        @Override
+        public void setOp(boolean value) {
+            FidorialServer.getInstance().operators().setOp(profile.uuid(), profile.name(), value);
+        }
     }
 }

@@ -1,1 +1,0 @@
-package fr.euphyllia.fidorial.api.world.block.data;

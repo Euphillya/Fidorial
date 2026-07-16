@@ -18,6 +18,7 @@ import fr.euphyllia.fidorial.api.storage.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.api.storage.player.PlayerInventoryStorage;
 import fr.euphyllia.fidorial.api.text.TextFormatter;
 import fr.euphyllia.fidorial.api.world.World;
+import fr.euphyllia.fidorial.api.world.block.Blocks;
 import fr.euphyllia.fidorial.api.world.fluid.FluidManager;
 import fr.euphyllia.fidorial.api.world.weather.WeatherManager;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
@@ -46,6 +47,7 @@ import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
 import fr.euphyllia.fidorial.server.world.*;
+import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import org.slf4j.Logger;
@@ -73,7 +75,8 @@ public final class FidorialServer implements Server {
 
     private final KeyPair keyPair = EncryptionUtils.generateServerKeyPair();
     private final MojangSessionService sessionService = new MojangSessionService();
-    private final BlockStateRegistry blockStateRegistry = new BlockStateRegistry();
+    private final VanillaBlockRegistry blockRegistry = bootstrapBlocks();
+    private final BlockStateRegistry blockStateRegistry = new BlockStateRegistry(blockRegistry);
     private final EntityIdAllocator entityIds = new EntityIdAllocator();
     private final SimpleEventBus events = new SimpleEventBus();
     private final ServiceRegistry services = new SimpleServiceRegistry();
@@ -103,6 +106,13 @@ public final class FidorialServer implements Server {
 
     public static FidorialServer getInstance() {
         return instance;
+    }
+
+    private static VanillaBlockRegistry bootstrapBlocks() {
+        VanillaBlockRegistry registry = new VanillaBlockRegistry();
+        Blocks.bootstrap(registry);
+        LOGGER.info("Loaded {} block types from vanilla report", registry.types().size());
+        return registry;
     }
 
     public void start() throws Exception {

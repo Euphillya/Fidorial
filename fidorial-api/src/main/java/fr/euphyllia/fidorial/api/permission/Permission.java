@@ -56,72 +56,6 @@ public class Permission {
         recalculatePermissibles();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Map<String, Boolean> getChildren() {
-        return children;
-    }
-
-    public PermissionDefault getDefault() {
-        return defaultValue;
-    }
-
-    public void setDefault(PermissionDefault value) {
-        Objects.requireNonNull(value, "value");
-        this.defaultValue = value;
-        recalculatePermissibles();
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String value) {
-        this.description = value == null ? "" : value;
-    }
-
-    public Set<Permissible> getPermissibles() {
-        if (manager == null) {
-            return Set.of();
-        }
-        return manager.getPermissionSubscriptions(name);
-    }
-
-    public void recalculatePermissibles() {
-        if (manager != null) {
-            manager.recalculatePermissionDefaults(this);
-            for (Permissible permissible : getPermissibles()) {
-                permissible.recalculatePermissions();
-            }
-        }
-    }
-
-    public Permission addParent(String name, boolean value) {
-        if (manager == null) {
-            throw new IllegalStateException(
-                    "Permission '" + this.name + "' non enregistree aupres d'un PluginManager");
-        }
-        String lname = name.toLowerCase(Locale.ROOT);
-        Permission perm = manager.getPermission(lname);
-        if (perm == null) {
-            perm = new Permission(lname);
-            manager.addPermission(perm);
-        }
-        addParent(perm, value);
-        return perm;
-    }
-
-    public void addParent(Permission perm, boolean value) {
-        perm.getChildren().put(getName(), value);
-        perm.recalculatePermissibles();
-    }
-
-    public void attach(PluginManager manager) {
-        this.manager = manager;
-    }
-
     public static List<Permission> loadPermissions(Map<?, ?> data, PermissionDefault def) {
         List<Permission> result = new ArrayList<>();
         for (Map.Entry<?, ?> entry : data.entrySet()) {
@@ -195,6 +129,72 @@ public class Permission {
             }
         }
         return children;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Map<String, Boolean> getChildren() {
+        return children;
+    }
+
+    public PermissionDefault getDefault() {
+        return defaultValue;
+    }
+
+    public void setDefault(PermissionDefault value) {
+        Objects.requireNonNull(value, "value");
+        this.defaultValue = value;
+        recalculatePermissibles();
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String value) {
+        this.description = value == null ? "" : value;
+    }
+
+    public Set<Permissible> getPermissibles() {
+        if (manager == null) {
+            return Set.of();
+        }
+        return manager.getPermissionSubscriptions(name);
+    }
+
+    public void recalculatePermissibles() {
+        if (manager != null) {
+            manager.recalculatePermissionDefaults(this);
+            for (Permissible permissible : getPermissibles()) {
+                permissible.recalculatePermissions();
+            }
+        }
+    }
+
+    public Permission addParent(String name, boolean value) {
+        if (manager == null) {
+            throw new IllegalStateException(
+                    "Permission '" + this.name + "' non enregistree aupres d'un PluginManager");
+        }
+        String lname = name.toLowerCase(Locale.ROOT);
+        Permission perm = manager.getPermission(lname);
+        if (perm == null) {
+            perm = new Permission(lname);
+            manager.addPermission(perm);
+        }
+        addParent(perm, value);
+        return perm;
+    }
+
+    public void addParent(Permission perm, boolean value) {
+        perm.getChildren().put(getName(), value);
+        perm.recalculatePermissibles();
+    }
+
+    public void attach(PluginManager manager) {
+        this.manager = manager;
     }
 
     @Override

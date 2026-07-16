@@ -27,12 +27,12 @@ public class PermissionAttachment {
         return permissible;
     }
 
-    public void setRemovalCallback(PermissionRemovedExecutor ex) {
-        this.removed = ex;
-    }
-
     public PermissionRemovedExecutor getRemovalCallback() {
         return removed;
+    }
+
+    public void setRemovalCallback(PermissionRemovedExecutor ex) {
+        this.removed = ex;
     }
 
     public Map<String, Boolean> getPermissions() {

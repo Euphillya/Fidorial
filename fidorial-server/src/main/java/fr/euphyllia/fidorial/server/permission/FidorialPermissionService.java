@@ -1,13 +1,7 @@
 package fr.euphyllia.fidorial.server.permission;
 
 import fr.euphyllia.fidorial.api.Server;
-import fr.euphyllia.fidorial.api.permission.Permissible;
-import fr.euphyllia.fidorial.api.permission.PermissibleBase;
-import fr.euphyllia.fidorial.api.permission.PermissibleBaseHolder;
-import fr.euphyllia.fidorial.api.permission.Permission;
-import fr.euphyllia.fidorial.api.permission.PermissionAttachmentInfo;
-import fr.euphyllia.fidorial.api.permission.PermissionDefault;
-import fr.euphyllia.fidorial.api.permission.PermissionService;
+import fr.euphyllia.fidorial.api.permission.*;
 import fr.euphyllia.fidorial.api.plugin.PluginManager;
 
 import java.util.Locale;

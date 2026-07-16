@@ -60,7 +60,7 @@ public class PermissibleBase implements Permissible {
         String lname = name.toLowerCase(Locale.ROOT);
         PermissionAttachmentInfo info = permissions.get(lname);
         if (info != null) {
-            return info.getValue();
+            return info.value();
         }
         Permission perm = pluginManager.getPermission(lname);
         PermissionDefault def = perm == null ? Permission.DEFAULT_PERMISSION : perm.getDefault();
@@ -73,7 +73,7 @@ public class PermissibleBase implements Permissible {
         String lname = perm.getName().toLowerCase(Locale.ROOT);
         PermissionAttachmentInfo info = permissions.get(lname);
         if (info != null) {
-            return info.getValue();
+            return info.value();
         }
         return perm.getDefault().getValue(isOp());
     }
