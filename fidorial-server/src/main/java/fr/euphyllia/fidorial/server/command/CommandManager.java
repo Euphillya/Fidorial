@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.command;
 
 import fr.euphyllia.fidorial.api.command.CommandExecutor;
+import fr.euphyllia.fidorial.api.command.CommandRegistry;
 import fr.euphyllia.fidorial.api.command.CommandSender;
 import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TpsCommand;
@@ -13,7 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class CommandManager {
+public final class CommandManager implements CommandRegistry {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
 
@@ -30,8 +31,19 @@ public final class CommandManager {
         register("gm", new GameModeCommand());
     }
 
+    @Override
     public void register(String name, CommandExecutor executor) {
         commands.put(name.toLowerCase(Locale.ROOT), executor);
+    }
+
+    @Override
+    public boolean unregister(String name) {
+        return commands.remove(name.toLowerCase(Locale.ROOT)) != null;
+    }
+
+    @Override
+    public boolean isRegistered(String name) {
+        return commands.containsKey(name.toLowerCase(Locale.ROOT));
     }
 
     public void dispatch(CommandSender sender, String line) {

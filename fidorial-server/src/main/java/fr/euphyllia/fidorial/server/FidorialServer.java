@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server;
 import dev.faststats.ErrorTracker;
 import dev.faststats.Metrics;
 import fr.euphyllia.fidorial.api.Server;
+import fr.euphyllia.fidorial.api.command.CommandRegistry;
 import fr.euphyllia.fidorial.api.entity.Player;
 import fr.euphyllia.fidorial.api.event.EventBus;
 import fr.euphyllia.fidorial.api.event.server.ServerStartedEvent;
@@ -330,6 +331,11 @@ public final class FidorialServer implements Server {
     }
 
     public CommandManager commandManager() {
+        return commandManager;
+    }
+
+    @Override
+    public CommandRegistry commands() {
         return commandManager;
     }
 

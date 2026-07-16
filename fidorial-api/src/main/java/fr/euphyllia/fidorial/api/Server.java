@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.api;
 
+import fr.euphyllia.fidorial.api.command.CommandRegistry;
 import fr.euphyllia.fidorial.api.entity.Player;
 import fr.euphyllia.fidorial.api.event.EventBus;
 import fr.euphyllia.fidorial.api.plugin.PluginManager;
@@ -19,6 +20,8 @@ public interface Server {
     int protocolVersion();
 
     RegionizedScheduler scheduler();
+
+    CommandRegistry commands();
 
     EventBus events();
 

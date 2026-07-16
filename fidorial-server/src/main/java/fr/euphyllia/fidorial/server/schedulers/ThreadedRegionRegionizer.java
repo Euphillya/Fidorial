@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.schedulers;
 
 import fr.euphyllia.fidorial.api.scheduler.RegionTickHandler;
+import fr.euphyllia.fidorial.api.scheduler.RegionTps;
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
 import fr.euphyllia.fidorial.api.world.ChunkPos;
 import org.slf4j.Logger;
@@ -139,7 +140,8 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
     }
 
     public record RegionTpsSnapshot(String world, int sectionX, int sectionZ,
-                                    double tps, double msptAvg, int queuedTasks, int tickets) {
+                                    double tps, double msptAvg, int queuedTasks, int tickets)
+            implements RegionTps {
 
         public int originChunkX() {
             return sectionX << SECTION_SHIFT;
