@@ -1,9 +1,19 @@
-# Fidorial
-
-[English](#english) | [Français](#français)
-
-[![Servers & Players](https://faststats.dev/embed/default:d01e30ea-8ddc-40f6-b773-24d369336950:servers-and-players.svg?w=960&h=340&theme=dark)](https://faststats.dev/project/fidorial/minecraft-plugin)
-
+<div align="center">
+  # Fidorial
+  
+  [English](#english) | [Français](#français)
+  
+  
+  [![VERSION](https://img.shields.io/badge/Minecraft-26.2-blue.svg)](https://github.com/Euphillya/Fidorial)
+  [![Java](https://img.shields.io/badge/Java-25+-orange.svg)](https://www.oracle.com/java/)
+  [![License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/Euphillya/Fidorial/blob/master/LICENCE)
+  [![Servers](https://img.shields.io/endpoint?url=https%3A%2F%2Ffaststats.dev%2Fapi%2Fshields%2Ffidorial%3Fmetric%3Dservers&style=flat)](https://faststats.dev/project/fidorial)
+  [![Total downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Ffaststats.dev%2Fapi%2Fshields%2Ffidorial%3Fmetric%3Ddownloads&style=flat)](https://faststats.dev/project/fidorial)
+  
+  [Documentation](https://fidorial.euphyllia.moe) • [GitHub](https://github.com/Euphillya/Fidorial) • [Discord](https://discord.gg/uUJQEB7XNN)
+  
+  [![Servers & Players](https://faststats.dev/embed/default:d01e30ea-8ddc-40f6-b773-24d369336950:servers-and-players.svg?w=960&h=340&theme=dark)](https://faststats.dev/project/fidorial/minecraft-plugin)
+</div>
 ---
 
 ## English
