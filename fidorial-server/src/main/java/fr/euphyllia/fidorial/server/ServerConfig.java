@@ -26,7 +26,8 @@ public record ServerConfig(int port,
                            GameMode defaultGameMode,
                            double spawnX,
                            double spawnY,
-                           double spawnZ) {
+                           double spawnZ,
+                           String motd) {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerConfig.class);
     private static final String DEFAULT_FILE = "fidorial.properties";
@@ -55,7 +56,8 @@ public record ServerConfig(int port,
                 Math.max(2, cpus / 2),
                 Math.max(2, cpus / 2),
                 GameMode.SURVIVAL,
-                WorldConstants.DEFAULT_SPAWN_X, WorldConstants.DEFAULT_SPAWN_Y, WorldConstants.DEFAULT_SPAWN_Z);
+                WorldConstants.DEFAULT_SPAWN_X, WorldConstants.DEFAULT_SPAWN_Y, WorldConstants.DEFAULT_SPAWN_Z,
+                "");
     }
 
     public static ServerConfig load() throws IOException {
@@ -87,7 +89,8 @@ public record ServerConfig(int port,
                 readGameMode(props, "default-game-mode", defaults.defaultGameMode()),
                 readDouble(props, "spawn-x", defaults.spawnX()),
                 readDouble(props, "spawn-y", defaults.spawnY()),
-                readDouble(props, "spawn-z", defaults.spawnZ()));
+                readDouble(props, "spawn-z", defaults.spawnZ()),
+                readString(props, "motd", "<red>Fidorial <white>| <blue>Alternative Minecraft Server"));
         LOGGER.info("Configuration chargee depuis {}", file);
         return config;
     }
@@ -116,6 +119,14 @@ public record ServerConfig(int port,
             LOGGER.warn("{} = '{}' invalide, valeur par defaut {} utilisee", key, raw, fallback);
             return fallback;
         }
+    }
+
+    private static String readString(Properties props, String key, String fallback) {
+        String raw = props.getProperty(key);
+        if (raw == null || raw.isBlank()) {
+            return fallback;
+        }
+        return raw;
     }
 
     private static GameMode readGameMode(Properties props, String key, GameMode fallback) {
@@ -152,6 +163,7 @@ public record ServerConfig(int port,
         props.setProperty("spawn-x", Double.toString(spawnX));
         props.setProperty("spawn-y", Double.toString(spawnY));
         props.setProperty("spawn-z", Double.toString(spawnZ));
+        props.setProperty("motd", motd);
         try (OutputStream out = Files.newOutputStream(file)) {
             props.store(out, "Configuration Fidorial");
         }

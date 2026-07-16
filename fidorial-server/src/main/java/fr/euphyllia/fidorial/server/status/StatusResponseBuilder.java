@@ -1,8 +1,16 @@
 package fr.euphyllia.fidorial.server.status;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.chat.MiniText;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
+import fr.euphyllia.fidorial.server.world.nbt.Nbt;
+import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import fr.euphyllia.fidorial.server.world.nbt.NbtList;
+import fr.euphyllia.fidorial.server.world.nbt.NbtString;
 
 public final class StatusResponseBuilder {
 
@@ -23,13 +31,42 @@ public final class StatusResponseBuilder {
         players.addProperty("online", FidorialServer.getInstance().playerCount());
 
         JsonObject description = new JsonObject();
-        description.addProperty("text", "Fidorial | serveur regionalise from scratch");
+        Nbt motdComponent = MiniText.parse(FidorialServer.getInstance().config().motd());
+        if (motdComponent instanceof NbtCompound || motdComponent instanceof NbtString) {
+            JsonElement jsonElement = nbtToJsonElement(motdComponent);
+            if (jsonElement.isJsonObject()) {
+                description = jsonElement.getAsJsonObject();
+            } else {
+                description.addProperty("text", jsonElement.getAsString());
+            }
+        }
 
         JsonObject root = new JsonObject();
         root.add("version", version);
-        root.add("players", players);
+        root.add(" ", players);
         root.add("description", description);
         root.addProperty("enforcesSecureChat", false);
         return root.toString();
+    }
+
+    public static JsonElement nbtToJsonElement(Nbt nbt) {
+        if (nbt instanceof NbtString(String value)) {
+            return new JsonPrimitive(value);
+        }
+        if (nbt instanceof NbtCompound comp) {
+            JsonObject obj = new JsonObject();
+            for (String key : comp.tags().keySet()) {
+                obj.add(key, nbtToJsonElement(comp.get(key)));
+            }
+            return obj;
+        }
+        if (nbt instanceof NbtList list) {
+            JsonArray arr = new JsonArray();
+            for (int i = 0; i < list.size(); i++) {
+                arr.add(nbtToJsonElement(list.get(i)));
+            }
+            return arr;
+        }
+        return new JsonPrimitive(nbt.toString());
     }
 }
