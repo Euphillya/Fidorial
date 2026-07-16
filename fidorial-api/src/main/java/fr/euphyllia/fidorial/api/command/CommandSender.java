@@ -1,6 +1,8 @@
 package fr.euphyllia.fidorial.api.command;
 
-public interface CommandSender {
+import fr.euphyllia.fidorial.api.permission.Permissible;
+
+public interface CommandSender extends Permissible {
 
     String name();
 

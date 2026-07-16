@@ -8,6 +8,7 @@ import fr.euphyllia.fidorial.api.entity.Player;
 import fr.euphyllia.fidorial.api.event.EventBus;
 import fr.euphyllia.fidorial.api.event.server.ServerStartedEvent;
 import fr.euphyllia.fidorial.api.event.server.ServerStoppingEvent;
+import fr.euphyllia.fidorial.api.permission.PermissionService;
 import fr.euphyllia.fidorial.api.plugin.PluginManager;
 import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
@@ -31,6 +32,9 @@ import fr.euphyllia.fidorial.server.event.SimpleEventBus;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.NettyServer;
+import fr.euphyllia.fidorial.server.permission.DefaultPermissions;
+import fr.euphyllia.fidorial.server.permission.FidorialPermissionService;
+import fr.euphyllia.fidorial.server.permission.OperatorList;
 import fr.euphyllia.fidorial.server.plugin.JavaPluginManager;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
@@ -48,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.KeyPair;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -88,6 +93,7 @@ public final class FidorialServer implements Server {
     private WeatherEngine weatherEngine;
     private BlockEditService blockEdits;
     private JavaPluginManager pluginManager;
+    private OperatorList operators;
     private NettyServer network;
     private FidorialContext metrics;
 
@@ -172,6 +178,8 @@ public final class FidorialServer implements Server {
         protocolMap = ProtocolMap.load();
         registries = Registries.load();
         commandManager = new CommandManager();
+        operators = new OperatorList(Path.of("ops.json"));
+        operators.load();
         miniTextFormatter = new MiniTextFormatter();
         defaultInventoryStorage = new NbtPlayerInventoryStorage(config.worldPath().resolve("player"), false);
         defaultPlayerDataStorage = new NbtPlayerDataStorage(config.worldPath().resolve("player"), false);
@@ -198,6 +206,7 @@ public final class FidorialServer implements Server {
     }
 
     private void registerDefaultServices() {
+        services.register(PermissionService.class, new FidorialPermissionService(this), this, ServicePriority.LOWEST);
         services.register(FluidManager.class, fluidEngine, this, ServicePriority.LOWEST);
         services.register(WeatherManager.class, weatherEngine, this, ServicePriority.LOWEST);
         services.register(BlockEditService.class, blockEdits, this, ServicePriority.LOWEST);
@@ -209,6 +218,7 @@ public final class FidorialServer implements Server {
 
     private void loadPlugins() throws IOException {
         pluginManager = new JavaPluginManager(this, events, services, config.pluginsPath());
+        DefaultPermissions.registerCorePermissions(pluginManager);
         pluginManager.loadAll();
     }
 
@@ -264,7 +274,10 @@ public final class FidorialServer implements Server {
         return services;
     }
 
-    @Override
+    public OperatorList operators() {
+        return operators;
+    }
+
     public PluginManager plugins() {
         return pluginManager;
     }
@@ -283,7 +296,7 @@ public final class FidorialServer implements Server {
     public Collection<? extends Player> onlinePlayers() {
         return connections.stream()
                 .map(ClientConnection::player)
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .map(p -> (Player) p)
                 .toList();
     }

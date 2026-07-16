@@ -87,6 +87,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (player != null) {
             server.events().post(new PlayerQuitEvent(player));
             server.worldManager().overworld().removeEntity(player);
+            player.clearPermissions();
             player.remove();
         }
     }

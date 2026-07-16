@@ -3,6 +3,9 @@ package fr.euphyllia.fidorial.server.plugin;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import fr.euphyllia.fidorial.api.Server;
+import fr.euphyllia.fidorial.api.permission.Permissible;
+import fr.euphyllia.fidorial.api.permission.Permission;
+import fr.euphyllia.fidorial.api.permission.PermissionDefault;
 import fr.euphyllia.fidorial.api.plugin.Plugin;
 import fr.euphyllia.fidorial.api.plugin.PluginContext;
 import fr.euphyllia.fidorial.api.plugin.PluginManager;
@@ -21,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public final class JavaPluginManager implements PluginManager, AutoCloseable {
@@ -36,11 +40,19 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
 
     private final Map<String, Loaded> plugins = new LinkedHashMap<>();
 
+    private final Map<String, Permission> permissions = new ConcurrentHashMap<>();
+    private final Map<Boolean, Set<Permission>> defaultPerms = new ConcurrentHashMap<>();
+    private final Map<String, Map<Permissible, Boolean>> permSubs = new ConcurrentHashMap<>();
+    private final Map<Boolean, Map<Permissible, Boolean>> defSubs = new ConcurrentHashMap<>();
+    private final Map<String, List<Permission>> pluginPermissions = new ConcurrentHashMap<>();
+
     public JavaPluginManager(Server server, SimpleEventBus events, ServiceRegistry services, Path pluginsFolder) {
         this.server = server;
         this.events = events;
         this.services = services;
         this.pluginsFolder = pluginsFolder;
+        this.defaultPerms.put(Boolean.TRUE, new LinkedHashSet<>());
+        this.defaultPerms.put(Boolean.FALSE, new LinkedHashSet<>());
     }
 
     private static void closeQuietly(URLClassLoader classLoader) {
@@ -95,6 +107,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                 loaded.enabled = false;
                 events.unsubscribeAll(loaded.plugin);
                 services.unregisterAll(loaded.plugin);
+                removePluginPermissions(loaded.meta.id());
             }
         }
     }
@@ -127,6 +140,189 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             }
         }
         plugins.clear();
+    }
+
+    @Override
+    public Permission getPermission(String name) {
+        return name == null ? null : permissions.get(name.toLowerCase(Locale.ROOT));
+    }
+
+    @Override
+    public void addPermission(Permission perm) {
+        Objects.requireNonNull(perm, "perm");
+        String name = perm.getName().toLowerCase(Locale.ROOT);
+        if (permissions.putIfAbsent(name, perm) != null) {
+            throw new IllegalArgumentException("La permission '" + name + "' est deja definie");
+        }
+        perm.attach(this);
+        calculatePermissionDefault(perm);
+    }
+
+    @Override
+    public void removePermission(Permission perm) {
+        Objects.requireNonNull(perm, "perm");
+        removePermission(perm.getName());
+    }
+
+    @Override
+    public void removePermission(String name) {
+        Objects.requireNonNull(name, "name");
+        Permission perm = permissions.remove(name.toLowerCase(Locale.ROOT));
+        if (perm != null) {
+            synchronized (defaultPerms) {
+                defaultPerms.get(Boolean.TRUE).remove(perm);
+                defaultPerms.get(Boolean.FALSE).remove(perm);
+            }
+            dirtyPermissibles(perm.getDefault());
+        }
+    }
+
+    @Override
+    public Set<Permission> getDefaultPermissions(boolean op) {
+        synchronized (defaultPerms) {
+            return new LinkedHashSet<>(defaultPerms.get(op));
+        }
+    }
+
+    @Override
+    public void recalculatePermissionDefaults(Permission perm) {
+        if (perm != null && permissions.containsKey(perm.getName().toLowerCase(Locale.ROOT))) {
+            synchronized (defaultPerms) {
+                defaultPerms.get(Boolean.TRUE).remove(perm);
+                defaultPerms.get(Boolean.FALSE).remove(perm);
+            }
+            calculatePermissionDefault(perm);
+        }
+    }
+
+    private void calculatePermissionDefault(Permission perm) {
+        synchronized (defaultPerms) {
+            if (perm.getDefault().getValue(true)) {
+                defaultPerms.get(Boolean.TRUE).add(perm);
+            }
+            if (perm.getDefault().getValue(false)) {
+                defaultPerms.get(Boolean.FALSE).add(perm);
+            }
+        }
+        dirtyPermissibles(perm.getDefault());
+    }
+
+    private void dirtyPermissibles(PermissionDefault def) {
+        if (def.getValue(true)) {
+            for (Permissible permissible : getDefaultPermSubscriptions(true)) {
+                permissible.recalculatePermissions();
+            }
+        }
+        if (def.getValue(false)) {
+            for (Permissible permissible : getDefaultPermSubscriptions(false)) {
+                permissible.recalculatePermissions();
+            }
+        }
+    }
+
+    @Override
+    public void subscribeToPermission(String permission, Permissible permissible) {
+        String name = permission.toLowerCase(Locale.ROOT);
+        permSubs.computeIfAbsent(name, k -> Collections.synchronizedMap(new WeakHashMap<>()))
+                .put(permissible, Boolean.TRUE);
+    }
+
+    @Override
+    public void unsubscribeFromPermission(String permission, Permissible permissible) {
+        String name = permission.toLowerCase(Locale.ROOT);
+        Map<Permissible, Boolean> map = permSubs.get(name);
+        if (map != null) {
+            map.remove(permissible);
+            if (map.isEmpty()) {
+                permSubs.remove(name, map);
+            }
+        }
+    }
+
+    @Override
+    public Set<Permissible> getPermissionSubscriptions(String permission) {
+        Map<Permissible, Boolean> map = permSubs.get(permission.toLowerCase(Locale.ROOT));
+        if (map == null) {
+            return Set.of();
+        }
+        synchronized (map) {
+            return new HashSet<>(map.keySet());
+        }
+    }
+
+    @Override
+    public void subscribeToDefaultPerms(boolean op, Permissible permissible) {
+        defSubs.computeIfAbsent(op, k -> Collections.synchronizedMap(new WeakHashMap<>()))
+                .put(permissible, Boolean.TRUE);
+    }
+
+    @Override
+    public void unsubscribeFromDefaultPerms(boolean op, Permissible permissible) {
+        Map<Permissible, Boolean> map = defSubs.get(op);
+        if (map != null) {
+            map.remove(permissible);
+        }
+    }
+
+    @Override
+    public Set<Permissible> getDefaultPermSubscriptions(boolean op) {
+        Map<Permissible, Boolean> map = defSubs.get(op);
+        if (map == null) {
+            return Set.of();
+        }
+        synchronized (map) {
+            return new HashSet<>(map.keySet());
+        }
+    }
+
+    @Override
+    public Set<Permission> getPermissions() {
+        return new HashSet<>(permissions.values());
+    }
+
+    private void registerDescriptorPermissions(PluginMeta meta) {
+        if (meta.permissions().isEmpty()) {
+            return;
+        }
+        PermissionDefault def = PermissionDefault.getByName(meta.defaultPermission());
+        if (def == null) {
+            def = Permission.DEFAULT_PERMISSION;
+        }
+        List<Permission> registered = new ArrayList<>();
+        for (Map.Entry<String, Map<String, Object>> entry : meta.permissions().entrySet()) {
+            try {
+                List<Permission> inline = new ArrayList<>();
+                Permission perm = Permission.loadPermission(entry.getKey(), entry.getValue(), def, inline);
+                for (Permission child : inline) {
+                    safeAdd(child, registered, meta);
+                }
+                safeAdd(perm, registered, meta);
+            } catch (Exception e) {
+                LOGGER.error("Permission '{}' du plugin {} invalide", entry.getKey(), meta.id(), e);
+            }
+        }
+        if (!registered.isEmpty()) {
+            pluginPermissions.put(meta.id(), registered);
+        }
+    }
+
+    private void safeAdd(Permission perm, List<Permission> registered, PluginMeta meta) {
+        try {
+            addPermission(perm);
+            registered.add(perm);
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("Le plugin {} tente de redefinir la permission '{}', ignoree",
+                    meta.id(), perm.getName());
+        }
+    }
+
+    private void removePluginPermissions(String pluginId) {
+        List<Permission> registered = pluginPermissions.remove(pluginId);
+        if (registered != null) {
+            for (Permission perm : registered) {
+                removePermission(perm);
+            }
+        }
     }
 
     private Optional<Candidate> readCandidate(Path jar) {
@@ -166,6 +362,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             Plugin plugin = (Plugin) mainClass.getDeclaredConstructor().newInstance();
             PluginContext context = new SimplePluginContext(
                     meta, server, events, services, pluginsFolder.resolve(meta.id()));
+            registerDescriptorPermissions(meta);
             events.withOwner(plugin, () -> plugin.onLoad(context));
             plugins.put(meta.id(), new Loaded(meta, plugin, candidate.classLoader));
         } catch (Throwable t) {

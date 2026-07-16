@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.api.command.CommandExecutor;
 import fr.euphyllia.fidorial.api.command.CommandRegistry;
 import fr.euphyllia.fidorial.api.command.CommandSender;
 import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
+import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TpsCommand;
 import fr.euphyllia.fidorial.server.command.defaults.WeatherCommand;
 import org.slf4j.Logger;
@@ -29,6 +30,8 @@ public final class CommandManager implements CommandRegistry {
         register("weather", new WeatherCommand());
         register("gamemode", new GameModeCommand());
         register("gm", new GameModeCommand());
+        register("op", new OpCommand(true));
+        register("deop", new OpCommand(false));
     }
 
     @Override

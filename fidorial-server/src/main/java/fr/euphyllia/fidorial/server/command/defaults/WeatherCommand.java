@@ -25,6 +25,10 @@ public final class WeatherCommand implements CommandExecutor {
 
     @Override
     public void execute(CommandSender sender, String label, String[] args) {
+        if (!sender.hasPermission("fidorial.command.weather")) {
+            sender.sendMessage("Vous n'avez pas la permission d'utiliser cette commande.");
+            return;
+        }
         WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
         if (weather == null) {
             sender.sendMessage("Le moteur meteo n'est pas encore demarre.");

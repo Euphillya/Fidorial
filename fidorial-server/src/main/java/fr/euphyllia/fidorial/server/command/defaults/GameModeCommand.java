@@ -19,6 +19,10 @@ public final class GameModeCommand implements CommandExecutor {
 
     @Override
     public void execute(CommandSender sender, String label, String[] args) {
+        if (!sender.hasPermission("fidorial.command.gamemode")) {
+            sender.sendMessage("Vous n'avez pas la permission d'utiliser cette commande.");
+            return;
+        }
         if (args.length == 0) {
             if (sender instanceof Player self) {
                 sender.sendMessage("Mode de jeu actuel : " + describe(self.gameMode()));

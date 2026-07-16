@@ -14,6 +14,10 @@ public final class TpsCommand implements CommandExecutor {
 
     @Override
     public void execute(CommandSender sender, String label, String[] args) {
+        if (!sender.hasPermission("fidorial.command.tps")) {
+            sender.sendMessage("Vous n'avez pas la permission d'utiliser cette commande.");
+            return;
+        }
         List<RegionTpsSnapshot> snapshots =
                 FidorialServer.getInstance().regionizer().tpsSnapshots();
 
