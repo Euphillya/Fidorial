@@ -3,9 +3,11 @@ package fr.euphyllia.fidorial.server.network.listener;
 import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.api.event.player.BlockBreakEvent;
 import fr.euphyllia.fidorial.api.event.player.BlockPlaceEvent;
+import fr.euphyllia.fidorial.api.event.player.PlayerChatEvent;
 import fr.euphyllia.fidorial.api.event.player.PlayerJoinEvent;
 import fr.euphyllia.fidorial.api.event.player.PlayerQuitEvent;
 import fr.euphyllia.fidorial.api.registry.Key;
+import fr.euphyllia.fidorial.api.text.TextFormatter;
 import fr.euphyllia.fidorial.api.world.BlockFace;
 import fr.euphyllia.fidorial.api.world.BlockPos;
 import fr.euphyllia.fidorial.api.world.ChunkPos;
@@ -197,6 +199,27 @@ public final class PlayPacketHandler implements PlayPacketListener {
     @Override
     public void handleChatCommand(ServerboundChatCommandPacket packet) {
         server.commandManager().dispatch(player, packet.command());
+    }
+
+    @Override
+    public void handleChat(ServerboundChatPacket packet) {
+        if (player == null) {
+            return;
+        }
+        String message = packet.message().trim();
+        if (message.isEmpty()) {
+            return;
+        }
+
+        String formatted = "\\<" + player.name() + "> " + message;
+
+        PlayerChatEvent event = server.events().post(new PlayerChatEvent(player, formatted));
+        if (event.isCancelled()) {
+            return;
+        }
+
+        LOGGER.debug("<{}> {}", player.name(), event.message());
+        server.broadcast(new ClientboundSystemChatPacket(event.message(), false));
     }
 
     @Override

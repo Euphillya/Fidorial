@@ -68,6 +68,8 @@ public class ServerboundPackets {
                 ServerboundClientInformationPacket::read);
         register(ConnectionState.PLAY, PlayServerboundPackets.CHAT_COMMAND,
                 ServerboundChatCommandPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.CHAT,
+                ServerboundChatPacket::read);
     }
 
     private ServerboundPackets() {

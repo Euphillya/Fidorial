@@ -34,6 +34,7 @@ offer, with a clean, regionized, multithreaded foundation designed for it from d
   `<hover:show_text:'...'>`, `<insertion:'...'>`). Messages are serialized as native NBT text components for clients
   and rendered with ANSI colors in the console. Exposed to plugins through the `TextFormatter` service.
   See [Text formatting](#text-formatting)
+- - **In-game chat** — enables player interaction and supports **Rich text formatting**
 - **Weather engine** — vanilla-style rain and thunder cycle with randomized durations, broadcast to all players and
   synced to anyone joining mid-storm. Weather state is persisted in `level.dat` using the vanilla NBT keys, so it
   survives restarts. Controllable in game or from the console with `/weather`, and replaceable by plugins through the
@@ -268,6 +269,7 @@ départ.
   (`<click:run_command:'/spawn'>`, `<hover:show_text:'...'>`, `<insertion:'...'>`). Les messages sont sérialisés en
   composants texte NBT natifs pour les clients et rendus en couleurs ANSI dans la console. Exposé aux plugins via le
   service `TextFormatter`. Voir [Formatage de texte](#formatage-de-texte)
+- **Chat en jeu** — permet d'interagir entre joueur et supportant le **Formatage de texte riche**
 - **Moteur météo** — cycle pluie/orage à la vanilla avec durées aléatoires, diffusé à tous les joueurs et synchronisé
   pour quiconque se connecte en pleine averse. L'état météo est persisté dans le `level.dat` avec les clés NBT vanilla,
   il survit donc aux redémarrages. Contrôlable en jeu ou depuis la console avec `/weather`, et remplaçable par un plugin

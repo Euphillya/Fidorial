@@ -26,4 +26,6 @@ public interface PlayPacketListener extends PacketListener {
     void handleClientInformation(ServerboundClientInformationPacket packet);
 
     void handleChatCommand(ServerboundChatCommandPacket packet);
+
+    void handleChat(ServerboundChatPacket packet);
 }
