@@ -1,5 +1,5 @@
 <div align="center">
-  # Fidorial
+  <h1> Fidorial</h1>
   
   [English](#english) | [Français](#français)
   
@@ -14,6 +14,7 @@
   
   [![Servers & Players](https://faststats.dev/embed/default:d01e30ea-8ddc-40f6-b773-24d369336950:servers-and-players.svg?w=960&h=340&theme=dark)](https://faststats.dev/project/fidorial/minecraft-plugin)
 </div>
+
 ---
 
 ## English
