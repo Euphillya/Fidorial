@@ -185,6 +185,7 @@ public final class FidorialServer implements Server {
     private void openWorlds() throws IOException {
         worldManager = WorldManager.openOrCreate(config.worldPath(), blockStateRegistry,
                 FlatWorld.MIN_Y, FlatWorld.HEIGHT);
+        worldManager.setChunkLoader(chunkWorker);
         worldManager.setDefaultGenerator(new ServiceBackedChunkGenerator(services, FlatChunkGenerator.cobblestone(
                 WorldConstants.MIN_Y, WorldConstants.HEIGHT),
                 WorldConstants.MIN_Y, WorldConstants.HEIGHT));

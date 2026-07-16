@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.world;
 import fr.euphyllia.fidorial.api.entity.Entity;
 import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.world.BlockPos;
+import fr.euphyllia.fidorial.api.world.Chunk;
 import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityManager;
@@ -14,6 +15,7 @@ import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ServerWorld implements World {
@@ -29,6 +31,7 @@ public final class ServerWorld implements World {
     private final Map<Long, ChunkColumn> loaded = new ConcurrentHashMap<>();
     private final Set<Long> dirty = ConcurrentHashMap.newKeySet();
     private final Set<ChunkViewSource> viewers = ConcurrentHashMap.newKeySet();
+    private volatile AsyncChunkLoader chunkLoader;
 
     public ServerWorld(Dimension dimension, ChunkStorage storage, ChunkGenerator generator,
                        BlockStateRegistry blockStates, int minY, int height) {
@@ -69,6 +72,37 @@ public final class ServerWorld implements World {
     @Override
     public int height() {
         return height;
+    }
+
+    public void setChunkLoader(AsyncChunkLoader loader) {
+        this.chunkLoader = loader;
+    }
+
+    @Override
+    public CompletableFuture<Chunk> getChunkAsync(int chunkX, int chunkZ) {
+        ChunkColumn cached = loaded.get(key(chunkX, chunkZ));
+        if (cached != null) {
+            return CompletableFuture.completedFuture(wrap(cached));
+        }
+        AsyncChunkLoader loader = this.chunkLoader;
+        if (loader == null) {
+            try {
+                return CompletableFuture.completedFuture(wrap(getChunk(chunkX, chunkZ)));
+            } catch (IOException e) {
+                return CompletableFuture.failedFuture(e);
+            }
+        }
+        return loader.loadAsync(this, chunkX, chunkZ).thenApply(this::wrap);
+    }
+
+    @Override
+    public Chunk getChunkIfLoaded(int chunkX, int chunkZ) {
+        ChunkColumn cached = loaded.get(key(chunkX, chunkZ));
+        return cached == null ? null : wrap(cached);
+    }
+
+    private ServerChunk wrap(ChunkColumn column) {
+        return new ServerChunk(this, column, blockStates);
     }
 
     @Override

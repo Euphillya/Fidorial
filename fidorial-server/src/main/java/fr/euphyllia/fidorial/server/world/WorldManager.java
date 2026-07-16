@@ -28,6 +28,7 @@ public final class WorldManager implements AutoCloseable {
     private final int minY;
     private final int height;
     private volatile ChunkGenerator defaultGenerator;
+    private volatile AsyncChunkLoader chunkLoader;
 
     private WorldManager(WorldPaths paths, LevelData levelData, ChunkStorage storage,
                          BlockStateRegistry blockStates, int minY, int height) {
@@ -63,6 +64,13 @@ public final class WorldManager implements AutoCloseable {
     public ServerWorld registerDimension(Dimension dim, ChunkGenerator generator) {
         return worlds.computeIfAbsent(dim.id(),
                 k -> new ServerWorld(dim, storage, generator, blockStates, minY, height));
+    }
+
+    public void setChunkLoader(AsyncChunkLoader loader) {
+        this.chunkLoader = loader;
+        for (ServerWorld world : worlds.values()) {
+            world.setChunkLoader(loader);
+        }
     }
 
     public void setDefaultGenerator(ChunkGenerator generator) {

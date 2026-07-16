@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.schedulers;
 
+import fr.euphyllia.fidorial.server.world.AsyncChunkLoader;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import org.slf4j.Logger;
@@ -10,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ThreadedChunkWorker {
+public class ThreadedChunkWorker implements AsyncChunkLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadedChunkWorker.class);
 
@@ -29,6 +30,7 @@ public class ThreadedChunkWorker {
         return world.dimension().id() + ":" + chunkX + "," + chunkZ;
     }
 
+    @Override
     public CompletableFuture<ChunkColumn> loadAsync(ServerWorld world, int chunkX, int chunkZ) {
         String key = key(world, chunkX, chunkZ);
         return inFlight.computeIfAbsent(key, k ->
