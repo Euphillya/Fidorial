@@ -24,6 +24,7 @@ tasks.named<JavaExec>("run") {
     classpath(sourceSets.main.map { it.runtimeClasspath })
     workingDir = project.file("run")
     workingDir.mkdirs()
+    dependsOn(":fidorial-test-plugin:build")
 }
 
 tasks.shadowJar {

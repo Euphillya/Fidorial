@@ -1,0 +1,19 @@
+{
+  "id": "test-plugin",
+  "name": "TestPlugin",
+  "version": "0.1.0",
+  "main": "fr.euphyllia.fidorial.testplugin.TestPlugin",
+  "authors": ["Euphyllia"],
+  "depends": [],
+  "defaultPermission": "op",
+  "permissions": {
+    "testplugin.use": {
+      "description": "Autorise la commande /apitest",
+      "default": "true"
+    },
+    "testplugin.admin": {
+      "description": "Acces aux sous-commandes sensibles",
+      "default": "op"
+    }
+  }
+}
