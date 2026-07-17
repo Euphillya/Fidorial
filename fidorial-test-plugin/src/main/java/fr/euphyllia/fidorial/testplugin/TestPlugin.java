@@ -13,6 +13,9 @@ import fr.euphyllia.fidorial.api.scheduler.RegionTps;
 import fr.euphyllia.fidorial.api.service.ServicePriority;
 import fr.euphyllia.fidorial.api.world.ChunkPos;
 import fr.euphyllia.fidorial.api.world.World;
+import fr.euphyllia.fidorial.api.world.generation.WorldGenerator;
+import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
+import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -22,17 +25,25 @@ import java.util.stream.Collectors;
 
 public final class TestPlugin implements Plugin {
 
+    private static final long SEED = 20260716L;
+    private static final int BASE_HEIGHT = 64;
+    private static final int AMPLITUDE = 24;
+    private static final int SEA_LEVEL = 60;
+    private final AtomicLong eventCount = new AtomicLong();
     private PluginContext context;
     private Logger logger;
     private Server server;
-
-    private final AtomicLong eventCount = new AtomicLong();
+    private volatile PregenTask task;
 
     @Override
     public void onLoad(PluginContext context) {
         this.context = context;
         this.logger = context.logger();
         this.server = context.server();
+
+        context.services().register(WorldGenerator.class,
+                new HillsGenerator(SEED, BASE_HEIGHT, AMPLITUDE, SEA_LEVEL), this);
+        context.logger().info("Generateur de collines enregistre (seed={})", SEED);
 
         logger.info("[TestPlugin] onLoad OK - id={} version={} dataFolder={}",
                 context.meta().id(), context.meta().version(), context.dataFolder());
@@ -117,6 +128,18 @@ public final class TestPlugin implements Plugin {
     }
 
     private void registerCommands() {
+        server.commands().register("pregen", (sender, label, args) -> {
+            if (args.length == 0) {
+                sender.sendMessage("Usage : /" + label + " start <rayon> [centreX centreZ] | stop | status");
+                return;
+            }
+            switch (args[0].toLowerCase(Locale.ROOT)) {
+                case "start" -> start(sender, args);
+                case "stop" -> stop(sender);
+                case "status" -> status(sender);
+                default -> sender.sendMessage("Sous-commande inconnue : " + args[0]);
+            }
+        });
         server.commands().register("apitest", (sender, label, args) -> {
             if (!sender.hasPermission("testplugin.use")) {
                 sender.sendMessage("[TestPlugin] Permission testplugin.use manquante.");
@@ -211,5 +234,80 @@ public final class TestPlugin implements Plugin {
                 + " | testplugin.admin=" + sender.hasPermission("testplugin.admin"));
         sender.sendMessage("[TestPlugin] Permissions connues du serveur : "
                 + server.plugins().getPermissions().size());
+    }
+
+    private void start(CommandSender sender, String[] args) {
+        PregenTask running = task;
+        if (running != null && running.isRunning()) {
+            sender.sendMessage("<red>Une pre-generation est deja en cours :</red> " + running.status());
+            return;
+        }
+        if (args.length < 2) {
+            sender.sendMessage("Usage : /pregen start <rayon> [centreX centreZ]");
+            return;
+        }
+
+        int radius;
+        try {
+            radius = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage("<red>Rayon invalide : " + args[1] + "</red>");
+            return;
+        }
+
+        int centerX = 0;
+        int centerZ = 0;
+        World world = null;
+
+        if (args.length >= 4) {
+            try {
+                centerX = Integer.parseInt(args[2]);
+                centerZ = Integer.parseInt(args[3]);
+                world = null;
+            } catch (NumberFormatException e) {
+                sender.sendMessage("<red>Centre invalide : " + args[2] + " " + args[3] + "</red>");
+                return;
+            }
+        } else if (sender instanceof Player player) {
+            // centre par defaut : la position du joueur
+            var chunk = player.chunk();
+            centerX = chunk.x();
+            centerZ = chunk.z();
+            world = player.world();
+        }
+        if (world == null) return;
+
+        int total = (2 * radius + 1) * (2 * radius + 1);
+        sender.sendMessage("Pre-generation de " + total + " chunks (rayon " + radius
+                + " autour de " + centerX + "," + centerZ + ")...");
+
+        task = new PregenTask(world, context.logger(), centerX, centerZ, radius,
+                message -> {
+                    context.logger().info("[Pregen] {}", message);
+                    try {
+                        sender.sendMessage("<gray>[Pregen]</gray> " + message);
+                    } catch (Exception ignored) {
+                    }
+                });
+        task.start();
+    }
+
+    private void stop(CommandSender sender) {
+        PregenTask running = task;
+        if (running == null || !running.isRunning()) {
+            sender.sendMessage("<red>Aucune pre-generation en cours.</red>");
+            return;
+        }
+        running.cancel();
+        sender.sendMessage("Arret de la pre-generation demande.");
+    }
+
+    private void status(CommandSender sender) {
+        PregenTask running = task;
+        if (running == null || !running.isRunning()) {
+            sender.sendMessage("Aucune pre-generation en cours.");
+            return;
+        }
+        sender.sendMessage("Pre-generation : " + running.status());
     }
 }
