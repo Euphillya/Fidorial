@@ -5,10 +5,7 @@ import fr.euphyllia.fidorial.api.permission.*;
 import fr.euphyllia.fidorial.api.plugin.Plugin;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.language.LanguageManager;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,11 +78,7 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
     // to revisit once we shitch to a terminal lib like JNI with TerminalConsoleAppender for colors
     @Override
     public void sendMessage(final Component message) {
-        if (message instanceof TranslatableComponent) {
-            System.out.println(PlainTextComponentSerializer.plainText().serialize(LanguageManager.render(message, locale())));
-            return;
-        }
-        System.out.println(PlainTextComponentSerializer.plainText().serialize(message));
+        System.out.println(PlainTextComponentSerializer.plainText().serialize(LanguageManager.render(message, locale())));
     }
 
     @Override

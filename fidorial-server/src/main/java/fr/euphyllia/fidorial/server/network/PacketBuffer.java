@@ -168,10 +168,10 @@ public final class PacketBuffer {
     }
 
     private static Nbt convert(String json) {
-        return convert(JsonParser.parseString(json));
+        return convert(JsonParser.parseString(json), null);
     }
 
-    private static Nbt convert(JsonElement element) {
+    private static Nbt convert(JsonElement element, String parentKey) {
         // shouldn't EVER happen
         if (element.isJsonNull()) {
             throw new IllegalArgumentException("JSON null cannot be represented as NBT");
@@ -181,7 +181,7 @@ public final class PacketBuffer {
             NbtCompound compound = new NbtCompound();
 
             for (var entry : element.getAsJsonObject().entrySet()) {
-                compound.put(entry.getKey(), convert(entry.getValue()));
+                compound.put(entry.getKey(), convert(entry.getValue(), entry.getKey()));
             }
 
             return compound;
@@ -191,7 +191,17 @@ public final class PacketBuffer {
             NbtList list = new NbtList();
 
             for (JsonElement child : element.getAsJsonArray()) {
-                list.add(convert(child));
+                // nested
+                if ("extra".equals(parentKey)
+                        && child.isJsonPrimitive()
+                        && child.getAsJsonPrimitive().isString()) {
+
+                    NbtCompound text = new NbtCompound();
+                    text.putString("text", child.getAsString());
+                    list.add(text);
+                } else {
+                    list.add(convert(child, parentKey));
+                }
             }
 
             return list;
