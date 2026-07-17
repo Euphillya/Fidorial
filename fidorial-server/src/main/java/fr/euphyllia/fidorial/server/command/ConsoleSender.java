@@ -78,15 +78,14 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
         return this.locale;
     }
 
-    // to revisit both once we shitch to a terminal lib like JNI with TerminalConsoleAppender for colors
+    // to revisit once we shitch to a terminal lib like JNI with TerminalConsoleAppender for colors
     @Override
     public void sendMessage(final Component message) {
+        if (message instanceof TranslatableComponent) {
+            System.out.println(PlainTextComponentSerializer.plainText().serialize(LanguageManager.render(message, locale())));
+            return;
+        }
         System.out.println(PlainTextComponentSerializer.plainText().serialize(message));
-    }
-
-    @Override
-    public void sendMessage(final TranslatableComponent message) {
-        System.out.println(PlainTextComponentSerializer.plainText().serialize(LanguageManager.render(message, locale())));
     }
 
     @Override

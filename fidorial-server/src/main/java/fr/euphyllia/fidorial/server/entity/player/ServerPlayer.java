@@ -174,12 +174,11 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     @Override
     public void sendMessage(final Component message) {
+        if (message instanceof TranslatableComponent) {
+            connection.send(new ClientboundSystemChatPacket(LanguageManager.render(message, locale()), false));
+            return;
+        }
         connection.send(new ClientboundSystemChatPacket(message, false));
-    }
-
-    @Override
-    public void sendMessage(final TranslatableComponent message) {
-        connection.send(new ClientboundSystemChatPacket(LanguageManager.render(message, locale()), false));
     }
 
     @Override
