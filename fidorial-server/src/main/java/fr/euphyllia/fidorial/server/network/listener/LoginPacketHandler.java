@@ -67,12 +67,12 @@ public final class LoginPacketHandler implements LoginPacketListener {
     public void handleCustomQueryAnswer(ServerboundCustomQueryAnswerPacket packet) {
         if (server.config().proxyMode() != ServerConfig.ProxyMode.VELOCITY
                 || packet.transactionId() != velocityTransactionId) {
-            LOGGER.trace("custom_query_answer inattendu (id {}) ignore", packet.transactionId());
+            LOGGER.trace("unexpected custom_query_answer (id {}) ignore", packet.transactionId());
             return;
         }
         velocityTransactionId = -1;
         if (!packet.understood()) {
-            disconnect("Ce serveur n'accepte que les connexions via le proxy Velocity");
+            disconnect("This server only accepts connections via the Velocity proxy.");
             return;
         }
         try {
@@ -81,13 +81,13 @@ public final class LoginPacketHandler implements LoginPacketListener {
             connection.setForwardedAddress(data.remoteAddress());
             connection.setUsername(data.profile().name());
             this.pendingUsername = data.profile().name();
-            LOGGER.info("Joueur transmis par Velocity : {} ({}) depuis {}",
+            LOGGER.info("Player transferred by Velocity: {} ({}) from {}",
                     data.profile().name(), data.profile().uuid(), data.remoteAddress());
             enableCompression();
             sendLoginSuccess(data.profile());
         } catch (VelocityForwarding.ForwardingException e) {
-            LOGGER.warn("Forwarding Velocity refuse pour {} : {}", pendingUsername, e.getMessage());
-            disconnect("Donnees de forwarding Velocity invalides");
+            LOGGER.warn("Forwarding Velocity refuses for {}: {}", pendingUsername, e.getMessage());
+            disconnect("Invalid Velocity forwarding data");
         }
     }
 
