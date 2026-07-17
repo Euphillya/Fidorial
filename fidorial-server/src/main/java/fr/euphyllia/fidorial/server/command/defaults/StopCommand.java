@@ -13,8 +13,9 @@ public class StopCommand implements CommandExecutor {
             sender.sendMessage(Component.translatable("command.error.nopermission"));
             return;
         }
-        FidorialServer.getInstance().audiences().forEach(audience -> audience.sendMessage(Component.text("Disabling server...")));
+        FidorialServer.getInstance().audiences().forEach(audience ->
+                audience.sendMessage(Component.translatable("command.stop.disabling")));
         FidorialServer.getInstance().shutdown();
-        sender.sendMessage(Component.text("Server stopped"));
+        sender.sendMessage(Component.translatable("command.stop.stopped"));
     }
 }

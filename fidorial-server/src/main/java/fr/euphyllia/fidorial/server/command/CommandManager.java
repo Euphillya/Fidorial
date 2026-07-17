@@ -60,14 +60,14 @@ public final class CommandManager implements CommandRegistry {
 
         CommandExecutor executor = commands.get(label);
         if (executor == null) {
-            sender.sendMessage(Component.text("Commande inconnue : /" + label));
+            sender.sendMessage(Component.translatable("command.error.unknown", Component.text(label)));
             return;
         }
         try {
             executor.execute(sender, label, args);
         } catch (Throwable t) {
             LOGGER.error("Erreur pendant /{} (emise par {})", label, sender.name(), t);
-            sender.sendMessage(Component.text("Une erreur est survenue pendant /" + label));
+            sender.sendMessage(Component.translatable("command.error.exception", Component.text(label)));
         }
     }
 

@@ -16,11 +16,11 @@ import java.util.Locale;
  */
 public final class WeatherCommand implements CommandExecutor {
 
-    private static String describe(Weather w) {
+    private static Component describe(Weather w) {
         return switch (w) {
-            case CLEAR -> "beau temps";
-            case RAIN -> "pluie";
-            case THUNDER -> "orage";
+            case CLEAR -> Component.translatable("weather.clear");
+            case RAIN -> Component.translatable("weather.rain");
+            case THUNDER -> Component.translatable("weather.thunder");
         };
     }
 
@@ -32,12 +32,12 @@ public final class WeatherCommand implements CommandExecutor {
         }
         WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
         if (weather == null) {
-            sender.sendMessage(Component.text("Le moteur meteo n'est pas encore demarre."));
+            sender.sendMessage(Component.translatable("command.weather.notstarted"));
             return;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(Component.text("Meteo actuelle : " + describe(weather.weather())));
+            sender.sendMessage(Component.translatable("command.weather.current", describe(weather.weather())));
             return;
         }
 
@@ -47,11 +47,11 @@ public final class WeatherCommand implements CommandExecutor {
             case "rain", "pluie" -> target = Weather.RAIN;
             case "thunder", "storm", "orage" -> target = Weather.THUNDER;
             case "get" -> {
-                sender.sendMessage(Component.translatable("command.weather.current", Component.text(describe(weather.weather()))));
+                sender.sendMessage(Component.translatable("command.weather.current", describe(weather.weather())));
                 return;
             }
             default -> {
-                sender.sendMessage(Component.text("Usage : /" + label + " [clear|rain|thunder] [duree en secondes]"));
+                sender.sendMessage(Component.translatable("command.weather.usage", Component.text(label)));
                 return;
             }
         }
@@ -61,13 +61,17 @@ public final class WeatherCommand implements CommandExecutor {
             try {
                 durationTicks = Math.multiplyExact(Integer.parseInt(args[1]), 20);
             } catch (NumberFormatException | ArithmeticException e) {
-                sender.sendMessage(Component.text("Duree invalide : " + args[1]));
+                sender.sendMessage(Component.translatable("command.weather.invalidduration", Component.text(args[1])));
                 return;
             }
         }
 
         weather.setWeather(target, durationTicks);
-        sender.sendMessage(Component.text("Meteo changee : " + describe(target)
-                + (durationTicks > 0 ? " pendant " + (durationTicks / 20) + " s" : "")));
+        if (durationTicks > 0) {
+            sender.sendMessage(Component.translatable("command.weather.changed.duration",
+                    describe(target), Component.text(durationTicks / 20)));
+        } else {
+            sender.sendMessage(Component.translatable("command.weather.changed", describe(target)));
+        }
     }
 }

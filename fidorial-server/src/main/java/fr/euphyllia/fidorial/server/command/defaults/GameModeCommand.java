@@ -9,12 +9,12 @@ import net.kyori.adventure.text.Component;
 
 public final class GameModeCommand implements CommandExecutor {
 
-    private static String describe(GameMode mode) {
+    private static Component describe(GameMode mode) {
         return switch (mode) {
-            case SURVIVAL -> "survie";
-            case CREATIVE -> "créatif";
-            case ADVENTURE -> "aventure";
-            case SPECTATOR -> "spectateur";
+            case SURVIVAL -> Component.translatable("gamemode.survival");
+            case CREATIVE -> Component.translatable("gamemode.creative");
+            case ADVENTURE -> Component.translatable("gamemode.adventure");
+            case SPECTATOR -> Component.translatable("gamemode.spectator");
         };
     }
 
@@ -26,17 +26,16 @@ public final class GameModeCommand implements CommandExecutor {
         }
         if (args.length == 0) {
             if (sender instanceof Player self) {
-                sender.sendMessage(Component.text("Mode de jeu actuel : " + describe(self.gameMode())));
+                sender.sendMessage(Component.translatable("command.gamemode.current", describe(self.gameMode())));
             } else {
-                sender.sendMessage(Component.text("Usage : /" + label + " <survival|creative|adventure|spectator> [joueur]"));
+                sender.sendMessage(Component.translatable("command.gamemode.usage", Component.text(label)));
             }
             return;
         }
 
         GameMode mode = GameMode.byName(args[0]);
         if (mode == null) {
-            sender.sendMessage(Component.text("Mode de jeu inconnu : " + args[0]
-                    + " (survival, creative, adventure, spectator)"));
+            sender.sendMessage(Component.translatable("command.gamemode.unknown", Component.text(args[0])));
             return;
         }
 
@@ -44,20 +43,21 @@ public final class GameModeCommand implements CommandExecutor {
         if (args.length >= 2) {
             target = findPlayer(args[1]);
             if (target == null) {
-                sender.sendMessage(Component.text("Joueur introuvable : " + args[1]));
+                sender.sendMessage(Component.translatable("command.error.playernotfound", Component.text(args[1])));
                 return;
             }
         } else if (sender instanceof Player self) {
             target = self;
         } else {
-            sender.sendMessage(Component.text("Depuis la console : /" + label + " <mode> <joueur>"));
+            sender.sendMessage(Component.translatable("command.gamemode.console", Component.text(label)));
             return;
         }
 
         target.setGameMode(mode);
-        target.sendMessage(Component.text("Mode de jeu changé : " + describe(mode)));
+        target.sendMessage(Component.translatable("command.gamemode.changed.self", describe(mode)));
         if (target != sender) {
-            sender.sendMessage(Component.text("Mode de jeu de " + target.name() + " changé : " + describe(mode)));
+            sender.sendMessage(Component.translatable("command.gamemode.changed.other",
+                    Component.text(target.name()), describe(mode)));
         }
     }
 

@@ -23,7 +23,7 @@ public final class TpsCommand implements CommandExecutor {
                 FidorialServer.getInstance().regionizer().tpsSnapshots();
 
         if (snapshots.isEmpty()) {
-            sender.sendMessage(Component.text("Aucune region active (ou pas encore assez de ticks mesures)."));
+            sender.sendMessage(Component.translatable("command.tps.noregion"));
             return;
         }
 
@@ -34,21 +34,32 @@ public final class TpsCommand implements CommandExecutor {
             sumTps += s.tps();
         }
 
-        sender.sendMessage(Component.text(String.format(Locale.ROOT,
-                "Regions actives : %d | TPS min : %.1f | TPS moyen : %.1f",
-                snapshots.size(), worstTps, sumTps / snapshots.size())));
+        sender.sendMessage(Component.translatable("command.tps.summary",
+                Component.text(snapshots.size()),
+                Component.text(format1(worstTps)),
+                Component.text(format1(sumTps / snapshots.size()))));
 
         int shown = Math.min(snapshots.size(), MAX_LINES);
         for (int i = 0; i < shown; i++) {
             RegionTpsSnapshot s = snapshots.get(i);
-            sender.sendMessage(Component.text(String.format(Locale.ROOT,
-                    " - %s [%d,%d] (chunks %d,%d) : %.1f TPS, %.2f ms/tick, %d tache(s), %d ticket(s)",
-                    s.world(), s.sectionX(), s.sectionZ(),
-                    s.originChunkX(), s.originChunkZ(),
-                    s.tps(), s.msptAvg(), s.queuedTasks(), s.tickets())));
+            sender.sendMessage(Component.translatable("command.tps.line",
+                    Component.text(s.world()),
+                    Component.text(s.sectionX()),
+                    Component.text(s.sectionZ()),
+                    Component.text(s.originChunkX()),
+                    Component.text(s.originChunkZ()),
+                    Component.text(format1(s.tps())),
+                    Component.text(String.format(Locale.ROOT, "%.2f", s.msptAvg())),
+                    Component.text(s.queuedTasks()),
+                    Component.text(s.tickets())));
         }
         if (snapshots.size() > shown) {
-            sender.sendMessage(Component.text("   ... et " + (snapshots.size() - shown) + " autre(s) region(s)"));
+            sender.sendMessage(Component.translatable("command.tps.more",
+                    Component.text(snapshots.size() - shown)));
         }
+    }
+
+    private static String format1(double value) {
+        return String.format(Locale.ROOT, "%.1f", value);
     }
 }

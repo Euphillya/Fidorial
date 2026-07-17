@@ -26,25 +26,22 @@ public final class OpCommand implements CommandExecutor {
             return;
         }
         if (args.length != 1) {
-            sender.sendMessage(Component.text("Usage : /" + label + " <joueur>"));
+            sender.sendMessage(Component.translatable("command.op.usage", Component.text(label)));
             return;
         }
         Player target = FidorialServer.getInstance().player(args[0]).orElse(null);
         if (target == null) {
-            sender.sendMessage(Component.text("Joueur introuvable : " + args[0]));
+            sender.sendMessage(Component.translatable("command.error.playernotfound", Component.text(args[0])));
             return;
         }
         if (target.isOp() == grant) {
-            sender.sendMessage(Component.text(target.name() + (grant
-                    ? " est deja operateur." : " n'est pas operateur.")));
+            sender.sendMessage(Component.translatable(grant ? "command.op.already" : "command.op.not",
+                    Component.text(target.name())));
             return;
         }
         target.setOp(grant);
-        sender.sendMessage(Component.text(grant
-                ? target.name() + " est maintenant operateur."
-                : target.name() + " n'est plus operateur."));
-        target.sendMessage(Component.text(grant
-                ? "Vous etes maintenant operateur."
-                : "Vous n'etes plus operateur."));
+        sender.sendMessage(Component.translatable(grant ? "command.op.granted.other" : "command.op.revoked.other",
+                Component.text(target.name())));
+        target.sendMessage(Component.translatable(grant ? "command.op.granted.self" : "command.op.revoked.self"));
     }
 }
