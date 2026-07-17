@@ -33,16 +33,30 @@ public class ThreadedChunkWorker implements AsyncChunkLoader {
     @Override
     public CompletableFuture<ChunkColumn> loadAsync(ServerWorld world, int chunkX, int chunkZ) {
         String key = key(world, chunkX, chunkZ);
-        return inFlight.computeIfAbsent(key, k ->
-                CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return world.getChunk(chunkX, chunkZ);
-                    } catch (IOException e) {
-                        throw new RuntimeException(
-                                "Chargement du chunk " + chunkX + "," + chunkZ + " impossible", e);
-                    }
-                }, workers).whenComplete((_, _) -> inFlight.remove(key))
-        );
+
+        CompletableFuture<ChunkColumn> promise = new CompletableFuture<>();
+        CompletableFuture<ChunkColumn> existing = inFlight.putIfAbsent(key, promise);
+        if (existing != null) {
+            return existing;
+        }
+
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                return world.getChunk(chunkX, chunkZ);
+            } catch (IOException e) {
+                throw new RuntimeException(
+                        "Chargement du chunk " + chunkX + "," + chunkZ + " impossible", e);
+            }
+        }, workers).whenComplete((chunk, error) -> {
+            inFlight.remove(key, promise);
+            if (error != null) {
+                promise.completeExceptionally(error);
+            } else {
+                promise.complete(chunk);
+            }
+        });
+
+        return promise;
     }
 
     public void shutdown() {
