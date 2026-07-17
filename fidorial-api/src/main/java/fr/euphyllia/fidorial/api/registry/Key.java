@@ -31,14 +31,14 @@ public record Key(String namespace, String value) implements net.kyori.adventure
         if (index.isPresent()) {
             final int indexValue = index.getAsInt();
             if (indexValue == -1) {
-                throw new RuntimeException(String.format(
+                throw new IllegalArgumentException(String.format(
                         "'%s' is not a valid value for %s",
                         checkPart,
                         name
                 ));
             } else {
                 final char character = checkPart.charAt(indexValue);
-                throw new RuntimeException(String.format(
+                throw new IllegalArgumentException(String.format(
                         "Non " + pattern + " character in %s of Key[%s] at index %d ('%s', bytes: %s)",
                         name,
                         asString(namespace, value),
