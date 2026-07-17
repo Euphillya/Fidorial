@@ -14,6 +14,8 @@ import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
+
 public final class ConfigurationPacketHandler implements ConfigurationPacketListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationPacketHandler.class);
@@ -73,6 +75,9 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
 
     @Override
     public void handleClientInformation(ServerboundClientInformationPacket packet) {
+        connection.setLocale(Locale.forLanguageTag(
+                packet.language().replace('_', '-')
+        ));
         connection.setDisplayedSkinParts(packet.displayedSkinParts());
     }
 }

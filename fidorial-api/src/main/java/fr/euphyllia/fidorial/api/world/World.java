@@ -1,15 +1,16 @@
 package fr.euphyllia.fidorial.api.world;
 
 import fr.euphyllia.fidorial.api.entity.Entity;
-import fr.euphyllia.fidorial.api.registry.Key;
+
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
+import net.kyori.adventure.key.Keyed;
 
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public interface World {
-
-    Key key();
+public interface World extends Keyed /* ForwardingAudience */ { // make it extend when we have enough features
 
     int minY();
 
@@ -40,4 +41,7 @@ public interface World {
     Entity entity(UUID uuid);
 
     Entity entity(int entityId);
+
+    // to remove once we extend forwarding audience
+    Iterable<? extends Audience> audiences();
 }

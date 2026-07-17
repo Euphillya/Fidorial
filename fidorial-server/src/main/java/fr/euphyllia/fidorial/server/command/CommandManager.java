@@ -3,10 +3,8 @@ package fr.euphyllia.fidorial.server.command;
 import fr.euphyllia.fidorial.api.command.CommandExecutor;
 import fr.euphyllia.fidorial.api.command.CommandRegistry;
 import fr.euphyllia.fidorial.api.command.CommandSender;
-import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
-import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
-import fr.euphyllia.fidorial.server.command.defaults.TpsCommand;
-import fr.euphyllia.fidorial.server.command.defaults.WeatherCommand;
+import fr.euphyllia.fidorial.server.command.defaults.*;
+import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +30,7 @@ public final class CommandManager implements CommandRegistry {
         register("gm", new GameModeCommand());
         register("op", new OpCommand(true));
         register("deop", new OpCommand(false));
+        register("stop", new StopCommand());
     }
 
     @Override
@@ -61,14 +60,14 @@ public final class CommandManager implements CommandRegistry {
 
         CommandExecutor executor = commands.get(label);
         if (executor == null) {
-            sender.sendMessage("Commande inconnue : /" + label);
+            sender.sendMessage(Component.text("Commande inconnue : /" + label));
             return;
         }
         try {
             executor.execute(sender, label, args);
         } catch (Throwable t) {
             LOGGER.error("Erreur pendant /{} (emise par {})", label, sender.name(), t);
-            sender.sendMessage("Une erreur est survenue pendant /" + label);
+            sender.sendMessage(Component.text("Une erreur est survenue pendant /" + label));
         }
     }
 

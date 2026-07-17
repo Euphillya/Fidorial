@@ -1,11 +1,14 @@
 package fr.euphyllia.fidorial.server.world.nbt;
 
+import org.jspecify.annotations.NonNull;
+
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 
-public final class NbtCompound implements Nbt {
+public final class NbtCompound implements Nbt, Iterable<Nbt> {
 
     private final Map<String, Nbt> tags = new LinkedHashMap<>();
 
@@ -127,5 +130,14 @@ public final class NbtCompound implements Nbt {
 
     public NbtList getList(String key) {
         return get(key) instanceof NbtList l ? l : null;
+    }
+
+    @Override
+    public @NonNull Iterator<Nbt> iterator() {
+        return tags.values().iterator();
+    }
+
+    public Set<Map.Entry<String, Nbt>> entrySet() {
+        return tags.entrySet();
     }
 }

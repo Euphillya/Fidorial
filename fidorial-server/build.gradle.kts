@@ -1,6 +1,6 @@
 plugins {
     application
-    id("com.gradleup.shadow") version "9.2.2"
+    id("com.gradleup.shadow") version "9.5.1"
 }
 
 dependencies {
@@ -19,7 +19,11 @@ application {
 }
 
 tasks.named<JavaExec>("run") {
+    description = "Spin up a test server without assembling a jar"
     standardInput = System.`in`
+    classpath(sourceSets.main.map { it.runtimeClasspath })
+    workingDir = project.file("run")
+    workingDir.mkdirs()
     dependsOn(":fidorial-test-plugin:build")
 }
 

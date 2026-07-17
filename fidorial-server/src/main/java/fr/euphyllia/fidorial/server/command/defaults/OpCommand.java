@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.api.command.CommandExecutor;
 import fr.euphyllia.fidorial.api.command.CommandSender;
 import fr.euphyllia.fidorial.api.entity.Player;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import net.kyori.adventure.text.Component;
 
 /**
  * /op <joueur>   -> promeut un joueur operateur
@@ -21,29 +22,29 @@ public final class OpCommand implements CommandExecutor {
     public void execute(CommandSender sender, String label, String[] args) {
         String permission = grant ? "fidorial.command.op" : "fidorial.command.deop";
         if (!sender.hasPermission(permission)) {
-            sender.sendMessage("Vous n'avez pas la permission d'utiliser cette commande.");
+            sender.sendMessage(Component.translatable("command.error.nopermission"));
             return;
         }
         if (args.length != 1) {
-            sender.sendMessage("Usage : /" + label + " <joueur>");
+            sender.sendMessage(Component.text("Usage : /" + label + " <joueur>"));
             return;
         }
         Player target = FidorialServer.getInstance().player(args[0]).orElse(null);
         if (target == null) {
-            sender.sendMessage("Joueur introuvable : " + args[0]);
+            sender.sendMessage(Component.text("Joueur introuvable : " + args[0]));
             return;
         }
         if (target.isOp() == grant) {
-            sender.sendMessage(target.name() + (grant
-                    ? " est deja operateur." : " n'est pas operateur."));
+            sender.sendMessage(Component.text(target.name() + (grant
+                    ? " est deja operateur." : " n'est pas operateur.")));
             return;
         }
         target.setOp(grant);
-        sender.sendMessage(grant
+        sender.sendMessage(Component.text(grant
                 ? target.name() + " est maintenant operateur."
-                : target.name() + " n'est plus operateur.");
-        target.sendMessage(grant
+                : target.name() + " n'est plus operateur."));
+        target.sendMessage(Component.text(grant
                 ? "Vous etes maintenant operateur."
-                : "Vous n'etes plus operateur.");
+                : "Vous n'etes plus operateur."));
     }
 }

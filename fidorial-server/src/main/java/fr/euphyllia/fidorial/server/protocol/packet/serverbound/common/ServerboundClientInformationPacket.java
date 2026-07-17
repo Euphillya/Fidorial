@@ -7,15 +7,15 @@ import fr.euphyllia.fidorial.server.protocol.packet.listener.ConfigurationPacket
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
 
 
-public record ServerboundClientInformationPacket(int displayedSkinParts) implements ServerboundPacket {
+public record ServerboundClientInformationPacket(String language, int displayedSkinParts) implements ServerboundPacket {
 
     public static ServerboundClientInformationPacket read(PacketBuffer buf) {
-        buf.readString(16);
+        String language = buf.readString(16);
         buf.readByte();
         buf.readVarInt();
         buf.readBoolean();
         int skinParts = buf.readUByte();
-        return new ServerboundClientInformationPacket(skinParts);
+        return new ServerboundClientInformationPacket(language, skinParts);
     }
 
     @Override

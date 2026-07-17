@@ -3,18 +3,25 @@ package fr.euphyllia.fidorial.server.command;
 import fr.euphyllia.fidorial.api.command.CommandSender;
 import fr.euphyllia.fidorial.api.permission.*;
 import fr.euphyllia.fidorial.api.plugin.Plugin;
+import fr.euphyllia.fidorial.api.translation.TranslationStore;
 import fr.euphyllia.fidorial.server.FidorialServer;
-import fr.euphyllia.fidorial.server.chat.MiniText;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.Set;
 
 public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
 
     public static final ConsoleSender INSTANCE = new ConsoleSender();
 
+    private Locale locale = TranslationStore.defaultLocale();
+
     private static final Logger LOGGER = LoggerFactory.getLogger("Console");
+
+    private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
 
     private static final ServerOperator CONSOLE_OP = new ServerOperator() {
         @Override
@@ -56,8 +63,24 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
     }
 
     @Override
-    public void sendMessage(String message) {
-        System.out.println(MiniText.toAnsi(message));
+    public void setLocale(final String language) {
+        this.locale = Locale.forLanguageTag(language);
+    }
+
+    @Override
+    public void setLocale(final Locale locale) {
+        this.locale = locale;
+    }
+
+    @Override
+    public Locale locale() {
+        return this.locale;
+    }
+
+    // to revisit once we switch to a terminal lib like JNI with TerminalConsoleAppender for colors
+    @Override
+    public void sendMessage(final Component message) {
+        System.out.println(PLAIN_TEXT_SERIALIZER.serialize(TranslationStore.render(message, locale())));
     }
 
     @Override

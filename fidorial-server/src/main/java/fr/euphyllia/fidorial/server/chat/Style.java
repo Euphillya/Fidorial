@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.chat;
 import java.util.HashSet;
 import java.util.Set;
 
+// should prob get replaced in favour of components
 public record Style(
         String color,
         Set<String> decorations,

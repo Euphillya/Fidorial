@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.api.command.CommandExecutor;
 import fr.euphyllia.fidorial.api.command.CommandSender;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer.RegionTpsSnapshot;
+import net.kyori.adventure.text.Component;
 
 import java.util.List;
 import java.util.Locale;
@@ -15,14 +16,14 @@ public final class TpsCommand implements CommandExecutor {
     @Override
     public void execute(CommandSender sender, String label, String[] args) {
         if (!sender.hasPermission("fidorial.command.tps")) {
-            sender.sendMessage("Vous n'avez pas la permission d'utiliser cette commande.");
+            sender.sendMessage(Component.translatable("command.error.nopermission"));
             return;
         }
         List<RegionTpsSnapshot> snapshots =
                 FidorialServer.getInstance().regionizer().tpsSnapshots();
 
         if (snapshots.isEmpty()) {
-            sender.sendMessage("Aucune region active (ou pas encore assez de ticks mesures).");
+            sender.sendMessage(Component.text("Aucune region active (ou pas encore assez de ticks mesures)."));
             return;
         }
 
@@ -33,21 +34,21 @@ public final class TpsCommand implements CommandExecutor {
             sumTps += s.tps();
         }
 
-        sender.sendMessage(String.format(Locale.ROOT,
+        sender.sendMessage(Component.text(String.format(Locale.ROOT,
                 "Regions actives : %d | TPS min : %.1f | TPS moyen : %.1f",
-                snapshots.size(), worstTps, sumTps / snapshots.size()));
+                snapshots.size(), worstTps, sumTps / snapshots.size())));
 
         int shown = Math.min(snapshots.size(), MAX_LINES);
         for (int i = 0; i < shown; i++) {
             RegionTpsSnapshot s = snapshots.get(i);
-            sender.sendMessage(String.format(Locale.ROOT,
+            sender.sendMessage(Component.text(String.format(Locale.ROOT,
                     " - %s [%d,%d] (chunks %d,%d) : %.1f TPS, %.2f ms/tick, %d tache(s), %d ticket(s)",
                     s.world(), s.sectionX(), s.sectionZ(),
                     s.originChunkX(), s.originChunkZ(),
-                    s.tps(), s.msptAvg(), s.queuedTasks(), s.tickets()));
+                    s.tps(), s.msptAvg(), s.queuedTasks(), s.tickets())));
         }
         if (snapshots.size() > shown) {
-            sender.sendMessage("   ... et " + (snapshots.size() - shown) + " autre(s) region(s)");
+            sender.sendMessage(Component.text("   ... et " + (snapshots.size() - shown) + " autre(s) region(s)"));
         }
     }
 }

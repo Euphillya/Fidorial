@@ -16,20 +16,21 @@ import fr.euphyllia.fidorial.api.service.ServicePriority;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
 import fr.euphyllia.fidorial.api.storage.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.api.storage.player.PlayerInventoryStorage;
-import fr.euphyllia.fidorial.api.text.TextFormatter;
+import fr.euphyllia.fidorial.api.translation.TranslationStore;
 import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.api.world.block.Blocks;
 import fr.euphyllia.fidorial.api.world.fluid.FluidManager;
 import fr.euphyllia.fidorial.api.world.weather.WeatherManager;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
-import fr.euphyllia.fidorial.server.chat.MiniTextFormatter;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleCommandReader;
+import fr.euphyllia.fidorial.server.command.ConsoleSender;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStorage;
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
+import fr.euphyllia.fidorial.server.translation.BuiltInTranslationStore;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.NettyServer;
@@ -81,11 +82,11 @@ public final class FidorialServer implements Server {
     private final SimpleEventBus events = new SimpleEventBus();
     private final ServiceRegistry services = new SimpleServiceRegistry();
     private final Set<ClientConnection> connections = ConcurrentHashMap.newKeySet();
+    private final BuiltInTranslationStore builtInTranslationStore = new BuiltInTranslationStore();
 
     private ProtocolMap protocolMap;
     private Registries registries;
     private CommandManager commandManager;
-    private MiniTextFormatter miniTextFormatter;
     private ThreadedRegionRegionizer regionizer;
     private ThreadedChunkWorker chunkWorker;
     private ScheduledExecutorService autoSave;
@@ -99,6 +100,7 @@ public final class FidorialServer implements Server {
     private OperatorList operators;
     private NettyServer network;
     private FidorialContext metrics;
+    private ConsoleSender console;
 
     public FidorialServer(ServerConfig config) {
         this.config = config;
@@ -131,6 +133,8 @@ public final class FidorialServer implements Server {
             loadPlugins();
             openNetwork();
             startAutoSave();
+            console = ConsoleSender.INSTANCE;
+            console.setLocale(Locale.getDefault());
             new ConsoleCommandReader(commandManager, running::get).start();
             pluginManager.enableAll();
             events.post(new ServerStartedEvent(this));
@@ -174,6 +178,7 @@ public final class FidorialServer implements Server {
             if (metrics != null) metrics.shutdown();
         });
         LOGGER.info("Arret termine");
+        System.exit(0);
     }
 
     private void startMetrics() {
@@ -187,10 +192,10 @@ public final class FidorialServer implements Server {
     private void loadData() {
         protocolMap = ProtocolMap.load();
         registries = Registries.load();
+        TranslationStore.setStore(builtInTranslationStore);
         commandManager = new CommandManager();
         operators = new OperatorList(Path.of("ops.json"));
         operators.load();
-        miniTextFormatter = new MiniTextFormatter();
         defaultInventoryStorage = new NbtPlayerInventoryStorage(config.worldPath().resolve("player"), false);
         defaultPlayerDataStorage = new NbtPlayerDataStorage(config.worldPath().resolve("player"), false);
     }
@@ -221,7 +226,6 @@ public final class FidorialServer implements Server {
         services.register(WeatherManager.class, weatherEngine, this, ServicePriority.LOWEST);
         services.register(BlockEditService.class, blockEdits, this, ServicePriority.LOWEST);
         services.register(CommandManager.class, commandManager, this, ServicePriority.LOWEST);
-        services.register(TextFormatter.class, miniTextFormatter, this, ServicePriority.LOWEST);
         services.register(PlayerInventoryStorage.class, defaultInventoryStorage, this, ServicePriority.LOWEST);
         services.register(PlayerDataStorage.class, defaultPlayerDataStorage, this, ServicePriority.LOWEST);
     }
@@ -257,6 +261,20 @@ public final class FidorialServer implements Server {
         } catch (Throwable t) {
             LOGGER.error("Arret du sous-systeme '{}' en erreur", what, t);
         }
+    }
+
+    private Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
+
+    private void invalidateAudiences() {
+        adventure$audiences = null;
+    }
+
+    @Override
+    public Iterable<? extends net.kyori.adventure.audience.Audience> audiences() {
+        if (this.adventure$audiences == null) {
+            this.adventure$audiences = com.google.common.collect.Iterables.concat(java.util.Collections.singleton(console), onlinePlayers());
+        }
+        return this.adventure$audiences;
     }
 
     @Override
@@ -397,10 +415,12 @@ public final class FidorialServer implements Server {
 
     public void addPlayerConnection(ClientConnection connection) {
         connections.add(connection);
+        invalidateAudiences();
     }
 
     public void removePlayerConnection(ClientConnection connection) {
         connections.remove(connection);
+        invalidateAudiences();
     }
 
     public void broadcast(ClientboundPacket packet) {
@@ -411,6 +431,11 @@ public final class FidorialServer implements Server {
 
     public int playerCount() {
         return connections.size();
+    }
+
+    @Override
+    public TranslationStore translationStore() {
+        return TranslationStore.current();
     }
 
     @FunctionalInterface

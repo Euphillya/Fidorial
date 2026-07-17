@@ -1,9 +1,10 @@
 package fr.euphyllia.fidorial.server.world.nbt;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public final class NbtList implements Nbt {
+public final class NbtList implements Nbt, Iterable<Nbt> {
 
     private final List<Nbt> items = new ArrayList<>();
     private NbtType elementType = NbtType.END;
@@ -57,5 +58,10 @@ public final class NbtList implements Nbt {
 
     public NbtList addInt(int v) {
         return add(new NbtInt(v));
+    }
+
+    @Override
+    public Iterator<Nbt> iterator() {
+        return items.iterator();
     }
 }

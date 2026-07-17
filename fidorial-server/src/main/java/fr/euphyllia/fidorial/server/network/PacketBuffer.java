@@ -1,8 +1,10 @@
 package fr.euphyllia.fidorial.server.network;
 
 import fr.euphyllia.fidorial.api.world.BlockPos;
+import fr.euphyllia.fidorial.server.world.nbt.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
+import net.kyori.adventure.text.Component;
 
 import java.util.UUID;
 
@@ -149,6 +151,15 @@ public final class PacketBuffer {
     public PacketBuffer writeByteArray(byte[] data) {
         VarInts.writeByteArray(buf, data);
         return this;
+    }
+
+    public PacketBuffer writeComponent(Component message) {
+        VarInts.writeComponent(buf, message);
+        return this;
+    }
+
+    public Component readComponent(int maxLength) {
+        return VarInts.readComponent(buf, maxLength);
     }
 
     public PacketBuffer writeRawBytes(byte[] data) {

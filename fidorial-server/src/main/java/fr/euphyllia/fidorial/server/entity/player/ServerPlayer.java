@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.api.inventory.PlayerInventory;
 import fr.euphyllia.fidorial.api.permission.*;
 import fr.euphyllia.fidorial.api.plugin.Plugin;
+import fr.euphyllia.fidorial.api.translation.TranslationStore;
 import fr.euphyllia.fidorial.api.world.Location;
 import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.server.FidorialServer;
@@ -16,7 +17,9 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerAbilitiesPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerInfoGameModePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
+import net.kyori.adventure.text.Component;
 
+import java.util.Locale;
 import java.util.Set;
 
 public final class ServerPlayer extends AbstractEntity implements Player, PermissibleBaseHolder {
@@ -31,6 +34,8 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     private volatile int selectedSlot;
     private volatile int lastTeleportId;
 
+    private Locale locale;
+
     public ServerPlayer(int entityId, PlayerProfile profile, PlayerInventory inventory,
                         GameMode gameMode, ClientConnection connection, World world, Location location) {
         super(entityId, profile.uuid(), EntityTypes.PLAYER, world, location);
@@ -38,6 +43,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         this.inventory = inventory;
         this.gameMode = gameMode;
         this.connection = connection;
+        this.locale = connection.locale();
         this.perm = new PermissibleBase(new PlayerOperator(), this,
                 FidorialServer.getInstance().plugins());
     }
@@ -151,8 +157,23 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     @Override
-    public void sendMessage(String message) {
-        connection.send(new ClientboundSystemChatPacket(message, false));
+    public void setLocale(final String language) {
+        this.locale = Locale.forLanguageTag(language.replace('_', '-'));
+    }
+
+    @Override
+    public void setLocale(final Locale locale) {
+        this.locale = locale;
+    }
+
+    @Override
+    public Locale locale() {
+        return this.locale;
+    }
+
+    @Override
+    public void sendMessage(final Component message) {
+        connection.send(new ClientboundSystemChatPacket(TranslationStore.render(message, locale()), false));
     }
 
     @Override
