@@ -20,6 +20,7 @@ application {
 
 tasks.named<JavaExec>("run") {
     standardInput = System.`in`
+    dependsOn(":fidorial-test-plugin:build")
 }
 
 tasks.shadowJar {
