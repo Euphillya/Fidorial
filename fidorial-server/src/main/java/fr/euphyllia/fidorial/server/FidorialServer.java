@@ -264,6 +264,10 @@ public final class FidorialServer implements Server {
 
     private Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
 
+    private void invalidateAudiences() {
+        adventure$audiences = null;
+    }
+
     @Override
     public Iterable<? extends net.kyori.adventure.audience.Audience> audiences() {
         if (this.adventure$audiences == null) {
@@ -410,10 +414,12 @@ public final class FidorialServer implements Server {
 
     public void addPlayerConnection(ClientConnection connection) {
         connections.add(connection);
+        invalidateAudiences();
     }
 
     public void removePlayerConnection(ClientConnection connection) {
         connections.remove(connection);
+        invalidateAudiences();
     }
 
     public void broadcast(ClientboundPacket packet) {

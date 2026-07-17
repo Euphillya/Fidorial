@@ -3,7 +3,6 @@ package fr.euphyllia.fidorial.api.entity;
 import fr.euphyllia.fidorial.api.command.CommandSender;
 import fr.euphyllia.fidorial.api.inventory.PlayerInventory;
 
-import java.util.Locale;
 import java.util.UUID;
 
 public interface Player extends LivingEntity, CommandSender {

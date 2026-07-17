@@ -20,7 +20,7 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
 
     public static final ConsoleSender INSTANCE = new ConsoleSender();
 
-    private Locale locale;
+    private Locale locale = LanguageManager.DEFAULT_LOCALE;
 
     private static final Logger LOGGER = LoggerFactory.getLogger("Console");
 

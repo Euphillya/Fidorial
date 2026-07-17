@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.api.world;
 
 import fr.euphyllia.fidorial.api.entity.Entity;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.key.Keyed;
 
@@ -40,4 +41,7 @@ public interface World extends Keyed /* ForwardingAudience */ { // make it exten
     Entity entity(UUID uuid);
 
     Entity entity(int entityId);
+
+    // to remove once we extend forwarding audience
+    Iterable<? extends Audience> audiences();
 }

@@ -7,10 +7,12 @@ import fr.euphyllia.fidorial.api.world.Chunk;
 import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityManager;
+import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
+import net.kyori.adventure.audience.Audience;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -140,10 +142,12 @@ public final class ServerWorld implements World {
 
     public void addEntity(AbstractEntity entity) {
         entities.add(entity);
+        invalidateAudiences();
     }
 
     public void removeEntity(AbstractEntity entity) {
         entities.remove(entity);
+        invalidateAudiences();
     }
 
     public ChunkColumn getChunk(int chunkX, int chunkZ) throws IOException {
@@ -252,5 +256,22 @@ public final class ServerWorld implements World {
 
     public int loadedCount() {
         return loaded.size();
+    }
+
+    private Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
+
+    private void invalidateAudiences() {
+        adventure$audiences = null;
+    }
+
+    @Override
+    public Iterable<? extends Audience> audiences() {
+        if (adventure$audiences == null) {
+            adventure$audiences = this.entities().stream()
+                    .filter(ServerPlayer.class::isInstance)
+                    .map(ServerPlayer.class::cast)
+                    .toList();
+        }
+        return adventure$audiences;
     }
 }

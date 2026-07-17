@@ -21,7 +21,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 
 public final class ServerPlayer extends AbstractEntity implements Player, PermissibleBaseHolder {
