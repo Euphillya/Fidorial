@@ -6,19 +6,18 @@ import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.api.inventory.PlayerInventory;
 import fr.euphyllia.fidorial.api.permission.*;
 import fr.euphyllia.fidorial.api.plugin.Plugin;
+import fr.euphyllia.fidorial.api.translation.TranslationStore;
 import fr.euphyllia.fidorial.api.world.Location;
 import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
-import fr.euphyllia.fidorial.server.language.LanguageManager;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerAbilitiesPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerInfoGameModePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TranslatableComponent;
 
 import java.util.Locale;
 import java.util.Set;
@@ -174,7 +173,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     @Override
     public void sendMessage(final Component message) {
-        connection.send(new ClientboundSystemChatPacket(LanguageManager.render(message, locale()), false));
+        connection.send(new ClientboundSystemChatPacket(TranslationStore.render(message, locale()), false));
     }
 
     @Override

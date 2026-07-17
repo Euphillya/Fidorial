@@ -7,6 +7,7 @@ import fr.euphyllia.fidorial.api.plugin.PluginManager;
 import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
+import fr.euphyllia.fidorial.api.translation.TranslationStore;
 import fr.euphyllia.fidorial.api.world.World;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
@@ -49,6 +50,8 @@ public interface Server /* extends ForwardingAudience */ { // we need more funct
     boolean isRunning();
 
     void shutdown();
+
+    TranslationStore translationStore();
 
     // remove once we extend ForwardingAudience
 

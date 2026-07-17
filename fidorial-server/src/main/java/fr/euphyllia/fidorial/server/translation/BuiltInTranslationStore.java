@@ -1,8 +1,9 @@
-package fr.euphyllia.fidorial.server.language;
+package fr.euphyllia.fidorial.server.translation;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import fr.euphyllia.fidorial.api.registry.Key;
+import fr.euphyllia.fidorial.api.translation.TranslationStore;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.Main;
 import net.kyori.adventure.text.Component;
@@ -15,26 +16,24 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-public final class LanguageManager {
+public final class BuiltInTranslationStore implements TranslationStore {
 
     private static final Gson GSON = new Gson();
     private static final Type LANGUAGE_TYPE = new TypeToken<Map<String, String>>() {}.getType();
-    private final MiniMessageTranslationStore miniMessageStore = MiniMessageTranslationStore.create(Key.minecraft("translations"));
+    private MiniMessageTranslationStore miniMessageStore;
 
-    public static final Locale DEFAULT_LOCALE = Locale.US;
+    private static final Locale DEFAULT_LOCALE = Locale.US;
 
     private static final Set<Locale> SUPPORTED_LOCALES = Set.of(
             Locale.FRANCE,
             Locale.US
     );
 
-    public void loadBuiltin() {
+    private void loadBuiltin() {
         Map<Locale, String> languages = Map.of(
                 Locale.FRANCE, "languages/fr_fr.json",
                 Locale.US, "languages/en_us.json"
@@ -56,7 +55,6 @@ public final class LanguageManager {
                 FidorialServer.LOGGER.error("Couldn't load language {}", entry.getKey(), ex);
             }
         }
-        install();
     }
 
     private void load(final Locale locale, final Reader reader) throws IOException {
@@ -67,17 +65,35 @@ public final class LanguageManager {
         miniMessageStore.registerAll(locale, entries);
     }
 
-    public void install() {
-        GlobalTranslator.translator()
-                .addSource(miniMessageStore);
+    @Override
+    public void load() {
+        if (miniMessageStore != null) {
+            unload();
+        }
+
+        miniMessageStore = MiniMessageTranslationStore.create(Key.minecraft("translations"));
+        loadBuiltin();
+        GlobalTranslator.translator().addSource(miniMessageStore);
     }
 
-    public static GlobalTranslator translator() {
-        return GlobalTranslator.translator();
+    @Override
+    public void unload() {
+        if (miniMessageStore == null) {
+            return;
+        }
+
+        GlobalTranslator.translator().removeSource(miniMessageStore);
+        miniMessageStore = null;
     }
 
-    public static Component render(final Component component, final Locale locale) {
+    @Override
+    public Component renderComponent(Component component, Locale locale) {
         return GlobalTranslator.render(component, resolveLocale(locale));
+    }
+
+    @Override
+    public Locale getDefaultLocale() {
+        return DEFAULT_LOCALE;
     }
 
     private static Locale resolveLocale(final Locale locale) {

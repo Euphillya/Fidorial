@@ -14,6 +14,7 @@ import java.util.UUID;
 
 public final class PacketBuffer {
 
+    private static final GsonComponentSerializer GSON_COMPONENT_SERIALIZER = GsonComponentSerializer.gson();
     private final ByteBuf buf;
 
     public PacketBuffer(ByteBuf buf) {
@@ -163,7 +164,7 @@ public final class PacketBuffer {
     }
 
     public void writeComponent(Component component) {
-        final String deserialized = GsonComponentSerializer.gson().serialize(component);
+        final String deserialized = GSON_COMPONENT_SERIALIZER.serialize(component);
         writeRawBytes(NbtIo.writeNetworkToBytes(convert(deserialized)));
     }
 

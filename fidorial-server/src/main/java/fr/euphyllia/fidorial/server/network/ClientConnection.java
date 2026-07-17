@@ -2,10 +2,10 @@ package fr.euphyllia.fidorial.server.network;
 
 import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.api.storage.player.PlayerDataStorage;
+import fr.euphyllia.fidorial.api.translation.TranslationStore;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
-import fr.euphyllia.fidorial.server.language.LanguageManager;
 import fr.euphyllia.fidorial.server.network.codec.CipherDecoder;
 import fr.euphyllia.fidorial.server.network.codec.CipherEncoder;
 import fr.euphyllia.fidorial.server.network.codec.CompressionDecoder;
@@ -51,7 +51,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     private PlayerProfile profile;
     private ServerPlayer player;
     private int displayedSkinParts = 0x7F; // toutes les couches activees par defaut
-    private Locale locale = LanguageManager.DEFAULT_LOCALE;
+    private Locale locale = TranslationStore.defaultLocale();
     private ScheduledFuture<?> keepAliveTask;
 
     public ClientConnection(FidorialServer server) {

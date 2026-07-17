@@ -16,6 +16,7 @@ import fr.euphyllia.fidorial.api.service.ServicePriority;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
 import fr.euphyllia.fidorial.api.storage.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.api.storage.player.PlayerInventoryStorage;
+import fr.euphyllia.fidorial.api.translation.TranslationStore;
 import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.api.world.block.Blocks;
 import fr.euphyllia.fidorial.api.world.fluid.FluidManager;
@@ -29,7 +30,7 @@ import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStorage;
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
-import fr.euphyllia.fidorial.server.language.LanguageManager;
+import fr.euphyllia.fidorial.server.translation.BuiltInTranslationStore;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.NettyServer;
@@ -81,7 +82,7 @@ public final class FidorialServer implements Server {
     private final SimpleEventBus events = new SimpleEventBus();
     private final ServiceRegistry services = new SimpleServiceRegistry();
     private final Set<ClientConnection> connections = ConcurrentHashMap.newKeySet();
-    private final LanguageManager languageManager = new LanguageManager();
+    private final BuiltInTranslationStore builtInTranslationStore = new BuiltInTranslationStore();
 
     private ProtocolMap protocolMap;
     private Registries registries;
@@ -191,7 +192,7 @@ public final class FidorialServer implements Server {
     private void loadData() {
         protocolMap = ProtocolMap.load();
         registries = Registries.load();
-        languageManager.loadBuiltin();
+        TranslationStore.setStore(builtInTranslationStore);
         commandManager = new CommandManager();
         operators = new OperatorList(Path.of("ops.json"));
         operators.load();
@@ -432,8 +433,9 @@ public final class FidorialServer implements Server {
         return connections.size();
     }
 
-    public LanguageManager languageManager() {
-        return languageManager;
+    @Override
+    public TranslationStore translationStore() {
+        return TranslationStore.current();
     }
 
     @FunctionalInterface
