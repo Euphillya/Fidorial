@@ -27,6 +27,7 @@ import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -234,19 +235,20 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (player == null) {
             return;
         }
-        String message = packet.message().trim();
-        if (message.isEmpty()) {
+        Component message = packet.message();
+        if (message.equals(Component.empty())) {
             return;
         }
 
-        Component formatted = Component.text("\\<" + player.name() + "> " + message);
+        Component formatted = Component.text("\\<" + player.name() + "> ")
+                .append(message);
 
         PlayerChatEvent event = server.events().post(new PlayerChatEvent(player, formatted));
         if (event.isCancelled()) {
             return;
         }
 
-        LOGGER.debug("<{}> {}", player.name(), event.message());
+        LOGGER.debug("<{}> {}", player.name(), PlainTextComponentSerializer.plainText().serialize(event.message()));
         server.broadcast(new ClientboundSystemChatPacket(event.message(), false));
     }
 

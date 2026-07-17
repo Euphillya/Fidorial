@@ -4,13 +4,14 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
+import net.kyori.adventure.text.Component;
 
-public record ServerboundChatPacket(String message) implements ServerboundPacket {
+public record ServerboundChatPacket(Component message) implements ServerboundPacket {
 
-    private static final int MAX_LENGTH = 256;
+    private static final int MAX_LENGTH = 65536;
 
     public static ServerboundChatPacket read(PacketBuffer buf) {
-        return new ServerboundChatPacket(buf.readString(MAX_LENGTH));
+        return new ServerboundChatPacket(buf.readComponent(MAX_LENGTH));
     }
 
     @Override

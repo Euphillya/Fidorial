@@ -1,20 +1,15 @@
 package fr.euphyllia.fidorial.server.network;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import fr.euphyllia.fidorial.api.world.BlockPos;
 import fr.euphyllia.fidorial.server.world.nbt.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 import java.util.UUID;
 
 public final class PacketBuffer {
 
-    private static final GsonComponentSerializer GSON_COMPONENT_SERIALIZER = GsonComponentSerializer.gson();
     private final ByteBuf buf;
 
     public PacketBuffer(ByteBuf buf) {
@@ -158,79 +153,18 @@ public final class PacketBuffer {
         return this;
     }
 
-    public PacketBuffer writeRawBytes(byte[] data) {
-        buf.writeBytes(data);
+    public PacketBuffer writeComponent(Component message) {
+        VarInts.writeComponent(buf, message);
         return this;
     }
 
-    public void writeComponent(Component component) {
-        final String deserialized = GSON_COMPONENT_SERIALIZER.serialize(component);
-        writeRawBytes(NbtIo.writeNetworkToBytes(convert(deserialized)));
+    public Component readComponent(int maxLength) {
+        return VarInts.readComponent(buf, maxLength);
     }
 
-    private static Nbt convert(String json) {
-        return convert(JsonParser.parseString(json), null);
-    }
-
-    private static Nbt convert(JsonElement element, String parentKey) {
-        // shouldn't EVER happen
-        if (element.isJsonNull()) {
-            throw new IllegalArgumentException("JSON null cannot be represented as NBT");
-        }
-
-        if (element.isJsonObject()) {
-            NbtCompound compound = new NbtCompound();
-
-            for (var entry : element.getAsJsonObject().entrySet()) {
-                compound.put(entry.getKey(), convert(entry.getValue(), entry.getKey()));
-            }
-
-            return compound;
-        }
-
-        if (element.isJsonArray()) {
-            NbtList list = new NbtList();
-
-            for (JsonElement child : element.getAsJsonArray()) {
-                // nested
-                if ("extra".equals(parentKey)
-                        && child.isJsonPrimitive()
-                        && child.getAsJsonPrimitive().isString()) {
-
-                    NbtCompound text = new NbtCompound();
-                    text.putString("text", child.getAsString());
-                    list.add(text);
-                } else {
-                    list.add(convert(child, parentKey));
-                }
-            }
-
-            return list;
-        }
-
-        JsonPrimitive primitive = element.getAsJsonPrimitive();
-
-        if (primitive.isBoolean()) {
-            return new NbtByte((byte) (primitive.getAsBoolean() ? 1 : 0));
-        }
-
-        if (primitive.isNumber()) {
-            String value = primitive.getAsString();
-
-            if (value.contains(".") || value.contains("e") || value.contains("E")) {
-                return new NbtDouble(Double.parseDouble(value));
-            }
-
-            long l = Long.parseLong(value);
-
-            if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
-                return new NbtInt((int) l);
-            }
-
-            return new NbtLong(l);
-        }
-
-        return new NbtString(primitive.getAsString());
+    public PacketBuffer writeRawBytes(byte[] data) {
+        buf.writeBytes(data);
+        return this;
     }
 
     public UUID readUuid() {
