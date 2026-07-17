@@ -51,6 +51,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     private PlayerProfile profile;
     private ServerPlayer player;
     private int displayedSkinParts = 0x7F; // toutes les couches activees par defaut
+    private String forwardedAddress;
     private Locale locale = TranslationStore.defaultLocale();
     private ScheduledFuture<?> keepAliveTask;
 
@@ -219,6 +220,14 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String forwardedAddress() {
+        return forwardedAddress;
+    }
+
+    public void setForwardedAddress(String forwardedAddress) {
+        this.forwardedAddress = forwardedAddress;
     }
 
     public PlayerProfile profile() {
