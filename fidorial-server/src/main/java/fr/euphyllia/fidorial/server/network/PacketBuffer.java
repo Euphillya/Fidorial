@@ -167,27 +167,28 @@ public final class PacketBuffer {
         writeRawBytes(NbtIo.writeNetworkToBytes(convert(deserialized)));
     }
 
-
     private static Nbt convert(String json) {
         return convert(JsonParser.parseString(json));
     }
 
     private static Nbt convert(JsonElement element) {
+        // shouldn't EVER happen
+        if (element.isJsonNull()) {
+            throw new IllegalArgumentException("JSON null cannot be represented as NBT");
+        }
+
         if (element.isJsonObject()) {
             NbtCompound compound = new NbtCompound();
 
             for (var entry : element.getAsJsonObject().entrySet()) {
-                compound.put(
-                        entry.getKey(),
-                        convert(entry.getValue())
-                );
+                compound.put(entry.getKey(), convert(entry.getValue()));
             }
 
             return compound;
         }
 
         if (element.isJsonArray()) {
-            NbtList list = new NbtList(NbtType.COMPOUND);
+            NbtList list = new NbtList();
 
             for (JsonElement child : element.getAsJsonArray()) {
                 list.add(convert(child));
@@ -203,13 +204,19 @@ public final class PacketBuffer {
         }
 
         if (primitive.isNumber()) {
-            Number number = primitive.getAsNumber();
+            String value = primitive.getAsString();
 
-            if (number instanceof Integer) {
-                return new NbtInt(number.intValue());
+            if (value.contains(".") || value.contains("e") || value.contains("E")) {
+                return new NbtDouble(Double.parseDouble(value));
             }
 
-            return new NbtDouble(number.doubleValue());
+            long l = Long.parseLong(value);
+
+            if (l >= Integer.MIN_VALUE && l <= Integer.MAX_VALUE) {
+                return new NbtInt((int) l);
+            }
+
+            return new NbtLong(l);
         }
 
         return new NbtString(primitive.getAsString());
