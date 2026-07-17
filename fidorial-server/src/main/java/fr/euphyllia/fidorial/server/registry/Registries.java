@@ -11,9 +11,10 @@ public final class Registries {
     }
 
     public static Registries load() {
+        RegistryDataLoader data = RegistryDataLoader.load();
         return new Registries(
-                RegistryHolder.of(GeneratedRegistryData.dynamic()),
-                RegistryHolder.of(GeneratedRegistryData.frozen()));
+                RegistryHolder.of(data.dynamic()),
+                RegistryHolder.of(data.frozen()));
     }
 
     public RegistryHolder dynamic() {

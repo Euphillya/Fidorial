@@ -1,7 +1,6 @@
 package fr.euphyllia.fidorial.server.network;
 
 import fr.euphyllia.fidorial.api.world.BlockPos;
-import fr.euphyllia.fidorial.server.world.nbt.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.text.Component;

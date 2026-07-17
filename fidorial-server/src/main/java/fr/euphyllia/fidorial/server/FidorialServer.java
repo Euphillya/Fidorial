@@ -30,7 +30,6 @@ import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStorage;
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
-import fr.euphyllia.fidorial.server.translation.BuiltInTranslationStore;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.NettyServer;
@@ -47,6 +46,7 @@ import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
+import fr.euphyllia.fidorial.server.translation.BuiltInTranslationStore;
 import fr.euphyllia.fidorial.server.world.*;
 import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
@@ -101,6 +101,7 @@ public final class FidorialServer implements Server {
     private NettyServer network;
     private FidorialContext metrics;
     private ConsoleSender console;
+    private Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
 
     public FidorialServer(ServerConfig config) {
         this.config = config;
@@ -262,8 +263,6 @@ public final class FidorialServer implements Server {
             LOGGER.error("Arret du sous-systeme '{}' en erreur", what, t);
         }
     }
-
-    private Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
 
     private void invalidateAudiences() {
         adventure$audiences = null;

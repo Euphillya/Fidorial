@@ -23,15 +23,30 @@ import java.util.Set;
 public final class BuiltInTranslationStore implements TranslationStore {
 
     private static final Gson GSON = new Gson();
-    private static final Type LANGUAGE_TYPE = new TypeToken<Map<String, String>>() {}.getType();
-    private MiniMessageTranslationStore miniMessageStore;
-
+    private static final Type LANGUAGE_TYPE = new TypeToken<Map<String, String>>() {
+    }.getType();
     private static final Locale DEFAULT_LOCALE = Locale.US;
-
     private static final Set<Locale> SUPPORTED_LOCALES = Set.of(
             Locale.FRANCE,
             Locale.US
     );
+    private MiniMessageTranslationStore miniMessageStore;
+
+    private static Locale resolveLocale(final Locale locale) {
+        if (locale == null) {
+            return DEFAULT_LOCALE;
+        }
+
+        if (SUPPORTED_LOCALES.contains(locale)) {
+            return locale;
+        }
+
+        return SUPPORTED_LOCALES.stream()
+                .filter(supported -> supported.getLanguage()
+                        .equals(locale.getLanguage()))
+                .findFirst()
+                .orElse(DEFAULT_LOCALE);
+    }
 
     private void loadBuiltin() {
         Map<Locale, String> languages = Map.of(
@@ -94,21 +109,5 @@ public final class BuiltInTranslationStore implements TranslationStore {
     @Override
     public Locale getDefaultLocale() {
         return DEFAULT_LOCALE;
-    }
-
-    private static Locale resolveLocale(final Locale locale) {
-        if (locale == null) {
-            return DEFAULT_LOCALE;
-        }
-
-        if (SUPPORTED_LOCALES.contains(locale)) {
-            return locale;
-        }
-
-        return SUPPORTED_LOCALES.stream()
-                .filter(supported -> supported.getLanguage()
-                        .equals(locale.getLanguage()))
-                .findFirst()
-                .orElse(DEFAULT_LOCALE);
     }
 }

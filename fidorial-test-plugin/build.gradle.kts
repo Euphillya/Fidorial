@@ -9,7 +9,7 @@ tasks.jar {
 
 val deployToRun by tasks.registering(Copy::class) {
     from(tasks.jar)
-    into(rootProject.layout.projectDirectory.dir("fidorial-server/plugins"))
+    into(rootProject.layout.projectDirectory.dir("fidorial-server/run/plugins"))
 }
 
 tasks.build {

@@ -34,6 +34,7 @@ public final class ServerWorld implements World {
     private final Set<Long> dirty = ConcurrentHashMap.newKeySet();
     private final Set<ChunkViewSource> viewers = ConcurrentHashMap.newKeySet();
     private volatile AsyncChunkLoader chunkLoader;
+    private Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
 
     public ServerWorld(Dimension dimension, ChunkStorage storage, ChunkGenerator generator,
                        BlockStateRegistry blockStates, int minY, int height) {
@@ -257,8 +258,6 @@ public final class ServerWorld implements World {
     public int loadedCount() {
         return loaded.size();
     }
-
-    private Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
 
     private void invalidateAudiences() {
         adventure$audiences = null;

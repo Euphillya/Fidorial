@@ -16,13 +16,8 @@ import java.util.Set;
 public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
 
     public static final ConsoleSender INSTANCE = new ConsoleSender();
-
-    private Locale locale = TranslationStore.defaultLocale();
-
     private static final Logger LOGGER = LoggerFactory.getLogger("Console");
-
     private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
-
     private static final ServerOperator CONSOLE_OP = new ServerOperator() {
         @Override
         public boolean isOp() {
@@ -34,7 +29,7 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
             throw new UnsupportedOperationException("Impossible de changer le statut op de la console");
         }
     };
-
+    private Locale locale = TranslationStore.defaultLocale();
     private volatile PermissibleBase perm;
 
     private ConsoleSender() {
