@@ -4,6 +4,8 @@ gson = "2.11.0"
 slf4j = "2.0.16"
 logback = "1.5.12"
 faststats = "0.27.2"
+adventure = "5.2.0"
+guava = "33.6.0-jre"
 
 [libraries]
 netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
@@ -12,3 +14,13 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 faststats-core = { module = "dev.faststats.metrics:core", version.ref = "faststats" }
 faststats-config = { module = "dev.faststats.metrics:config", version.ref = "faststats" }
+adventure-bom = { module = "net.kyori:adventure-bom", version.ref = "adventure" }
+adventure-api = { module = "net.kyori:adventure-api" }
+adventure-key = { module = "net.kyori:adventure-key" }
+adventure-text-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson" }
+adventure-text-serializer-plain = { module = "net.kyori:adventure-text-serializer-plain" }
+adventure-text-minimessage = { module = "net.kyori:adventure-text-minimessage" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+
+[bundles]
+adventure = [ "adventure-api", "adventure-key", "adventure-text-serializer-plain", "adventure-text-serializer-gson", "adventure-text-minimessage" ]

@@ -2,14 +2,15 @@ package fr.euphyllia.fidorial.api.event.player;
 
 import fr.euphyllia.fidorial.api.entity.Player;
 import fr.euphyllia.fidorial.api.event.Cancellable;
+import net.kyori.adventure.text.Component;
 
 public class PlayerChatEvent implements PlayerEvent, Cancellable {
 
     private final Player player;
-    private String message;
+    private Component message;
     private boolean cancelled;
 
-    public PlayerChatEvent(Player player, String message) {
+    public PlayerChatEvent(Player player, Component message) {
         this.player = player;
         this.message = message;
     }
@@ -19,11 +20,11 @@ public class PlayerChatEvent implements PlayerEvent, Cancellable {
         return player;
     }
 
-    public String message() {
+    public Component message() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(Component message) {
         this.message = message;
     }
 

@@ -26,9 +26,11 @@ import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.UUID;
 
 public final class PlayPacketHandler implements PlayPacketListener {
@@ -178,8 +180,12 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleClientInformation(ServerboundClientInformationPacket packet) {
+        connection.setLocale(Locale.forLanguageTag(
+                packet.language().replace('_', '-')
+        ));
         connection.setDisplayedSkinParts(packet.displayedSkinParts());
         if (player != null) {
+            player.setLocale(packet.language());
             connection.send(new ClientboundSetEntityDataPacket(
                     player.entityId(), packet.displayedSkinParts()));
         }
@@ -233,7 +239,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             return;
         }
 
-        String formatted = "\\<" + player.name() + "> " + message;
+        Component formatted = Component.text("\\<" + player.name() + "> " + message);
 
         PlayerChatEvent event = server.events().post(new PlayerChatEvent(player, formatted));
         if (event.isCancelled()) {

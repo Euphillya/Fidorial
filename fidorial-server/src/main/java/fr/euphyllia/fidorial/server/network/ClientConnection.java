@@ -5,6 +5,7 @@ import fr.euphyllia.fidorial.api.storage.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.euphyllia.fidorial.server.language.LanguageManager;
 import fr.euphyllia.fidorial.server.network.codec.CipherDecoder;
 import fr.euphyllia.fidorial.server.network.codec.CipherEncoder;
 import fr.euphyllia.fidorial.server.network.codec.CompressionDecoder;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import java.security.GeneralSecurityException;
+import java.util.Locale;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +51,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     private PlayerProfile profile;
     private ServerPlayer player;
     private int displayedSkinParts = 0x7F; // toutes les couches activees par defaut
+    private Locale locale = LanguageManager.DEFAULT_LOCALE;
     private ScheduledFuture<?> keepAliveTask;
 
     public ClientConnection(FidorialServer server) {
@@ -232,6 +235,14 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
 
     public void setDisplayedSkinParts(int displayedSkinParts) {
         this.displayedSkinParts = displayedSkinParts;
+    }
+
+    public Locale locale() {
+        return locale;
+    }
+
+    public void setLocale(final Locale locale) {
+        this.locale = locale;
     }
 
     public ServerPlayer player() {

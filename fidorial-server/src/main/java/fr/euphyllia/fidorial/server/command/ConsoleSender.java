@@ -4,15 +4,23 @@ import fr.euphyllia.fidorial.api.command.CommandSender;
 import fr.euphyllia.fidorial.api.permission.*;
 import fr.euphyllia.fidorial.api.plugin.Plugin;
 import fr.euphyllia.fidorial.server.FidorialServer;
-import fr.euphyllia.fidorial.server.chat.MiniText;
+import fr.euphyllia.fidorial.server.language.LanguageManager;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.Set;
 
 public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
 
     public static final ConsoleSender INSTANCE = new ConsoleSender();
+
+    private Locale locale;
 
     private static final Logger LOGGER = LoggerFactory.getLogger("Console");
 
@@ -56,8 +64,29 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
     }
 
     @Override
-    public void sendMessage(String message) {
-        System.out.println(MiniText.toAnsi(message));
+    public void setLocale(final String language) {
+        this.locale = Locale.forLanguageTag(language);
+    }
+
+    @Override
+    public void setLocale(final Locale locale) {
+        this.locale = locale;
+    }
+
+    @Override
+    public Locale locale() {
+        return this.locale;
+    }
+
+    // to revisit both once we shitch to a terminal lib like JNI with TerminalConsoleAppender for colors
+    @Override
+    public void sendMessage(final Component message) {
+        System.out.println(PlainTextComponentSerializer.plainText().serialize(message));
+    }
+
+    @Override
+    public void sendMessage(final TranslatableComponent message) {
+        System.out.println(PlainTextComponentSerializer.plainText().serialize(LanguageManager.render(message, locale())));
     }
 
     @Override

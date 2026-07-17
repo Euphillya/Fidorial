@@ -6,6 +6,7 @@ build/
 .kotlin
 
 ### IntelliJ IDEA ###
+.idea/*
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
@@ -44,6 +45,7 @@ bin/
 
 ## Other files to ignore
 tool/*
+fidorial-server/run
 fidorial-server/world/
 fidorial-server/faststats/
 fidorial-server/plugins/

@@ -11,6 +11,8 @@ import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtList;
 import fr.euphyllia.fidorial.server.world.nbt.NbtString;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 public final class StatusResponseBuilder {
 
@@ -31,14 +33,12 @@ public final class StatusResponseBuilder {
         players.addProperty("online", FidorialServer.getInstance().playerCount());
 
         JsonObject description = new JsonObject();
-        Nbt motdComponent = MiniText.parse(FidorialServer.getInstance().config().motd());
-        if (motdComponent instanceof NbtCompound || motdComponent instanceof NbtString) {
-            JsonElement jsonElement = nbtToJsonElement(motdComponent);
-            if (jsonElement.isJsonObject()) {
-                description = jsonElement.getAsJsonObject();
-            } else {
-                description.addProperty("text", jsonElement.getAsString());
-            }
+        Component motdComponent = MiniText.miniMessage().deserialize(FidorialServer.getInstance().config().motd());
+        JsonElement jsonElement = componentToJsonElement(motdComponent);
+        if (jsonElement.isJsonObject()) {
+            description = jsonElement.getAsJsonObject();
+        } else {
+            description.addProperty("text", jsonElement.getAsString());
         }
 
         JsonObject root = new JsonObject();
@@ -68,5 +68,10 @@ public final class StatusResponseBuilder {
             return arr;
         }
         return new JsonPrimitive(nbt.toString());
+    }
+
+    public static JsonElement componentToJsonElement(Component component) {
+        return GsonComponentSerializer.gson()
+                .serializeToTree(component);
     }
 }

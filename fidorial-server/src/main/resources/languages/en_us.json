@@ -1,0 +1,4 @@
+{
+  "command.weather.current" : "Current weather : <arg:0>",
+  "command.error.nopermission" : "<red>You don't have the permission to run this command."
+}

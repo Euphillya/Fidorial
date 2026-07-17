@@ -1,8 +1,14 @@
 package fr.euphyllia.fidorial.server.network;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import fr.euphyllia.fidorial.api.world.BlockPos;
+import fr.euphyllia.fidorial.server.world.nbt.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 import java.util.UUID;
 
@@ -154,6 +160,59 @@ public final class PacketBuffer {
     public PacketBuffer writeRawBytes(byte[] data) {
         buf.writeBytes(data);
         return this;
+    }
+
+    public void writeComponent(Component component) {
+        final String deserialized = GsonComponentSerializer.gson().serialize(component);
+        writeRawBytes(NbtIo.writeNetworkToBytes(convert(deserialized)));
+    }
+
+
+    private static Nbt convert(String json) {
+        return convert(JsonParser.parseString(json));
+    }
+
+    private static Nbt convert(JsonElement element) {
+        if (element.isJsonObject()) {
+            NbtCompound compound = new NbtCompound();
+
+            for (var entry : element.getAsJsonObject().entrySet()) {
+                compound.put(
+                        entry.getKey(),
+                        convert(entry.getValue())
+                );
+            }
+
+            return compound;
+        }
+
+        if (element.isJsonArray()) {
+            NbtList list = new NbtList(NbtType.COMPOUND);
+
+            for (JsonElement child : element.getAsJsonArray()) {
+                list.add(convert(child));
+            }
+
+            return list;
+        }
+
+        JsonPrimitive primitive = element.getAsJsonPrimitive();
+
+        if (primitive.isBoolean()) {
+            return new NbtByte((byte) (primitive.getAsBoolean() ? 1 : 0));
+        }
+
+        if (primitive.isNumber()) {
+            Number number = primitive.getAsNumber();
+
+            if (number instanceof Integer) {
+                return new NbtInt(number.intValue());
+            }
+
+            return new NbtDouble(number.doubleValue());
+        }
+
+        return new NbtString(primitive.getAsString());
     }
 
     public UUID readUuid() {
