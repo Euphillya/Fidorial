@@ -44,4 +44,10 @@ public interface World extends Keyed /* ForwardingAudience */ { // make it exten
 
     // to remove once we extend forwarding audience
     Iterable<? extends Audience> audiences();
+
+    CompletableFuture<Boolean> unloadChunkAsync(int chunkX, int chunkZ);
+
+    default CompletableFuture<Boolean> unloadChunkAsync(ChunkPos pos) {
+        return unloadChunkAsync(pos.x(), pos.z());
+    }
 }

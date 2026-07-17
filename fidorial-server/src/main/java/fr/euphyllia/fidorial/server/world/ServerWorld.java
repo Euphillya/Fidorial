@@ -273,4 +273,29 @@ public final class ServerWorld implements World {
         }
         return adventure$audiences;
     }
+
+    @Override
+    public CompletableFuture<Boolean> unloadChunkAsync(int chunkX, int chunkZ) {
+        long k = key(chunkX, chunkZ);
+        if (!loaded.containsKey(k)) {
+            return CompletableFuture.completedFuture(false);
+        }
+
+        Set<Long> wanted = new HashSet<>();
+        for (ChunkViewSource viewer : viewers) {
+            viewer.collectViewedChunks(wanted::add);
+        }
+        if (wanted.contains(k)) {
+            return CompletableFuture.completedFuture(false);
+        }
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                unloadChunk(chunkX, chunkZ);
+                return true;
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
 }
