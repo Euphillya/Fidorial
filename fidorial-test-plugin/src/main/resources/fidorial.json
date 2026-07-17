@@ -3,7 +3,9 @@
   "name": "TestPlugin",
   "version": "0.1.0",
   "main": "fr.euphyllia.fidorial.testplugin.TestPlugin",
-  "authors": ["Euphyllia"],
+  "authors": [
+    "Euphyllia"
+  ],
   "depends": [],
   "defaultPermission": "op",
   "permissions": {

@@ -16,6 +16,9 @@ import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.api.world.generation.WorldGenerator;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
 import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -29,6 +32,10 @@ public final class TestPlugin implements Plugin {
     private static final int BASE_HEIGHT = 64;
     private static final int AMPLITUDE = 24;
     private static final int SEA_LEVEL = 60;
+
+    private static final MiniMessage MM = MiniMessage.miniMessage();
+    private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
+
     private final AtomicLong eventCount = new AtomicLong();
     private PluginContext context;
     private Logger logger;
@@ -66,6 +73,14 @@ public final class TestPlugin implements Plugin {
         server.commands().unregister("apitest");
     }
 
+    private void msg(CommandSender sender, String miniMessageText) {
+        sender.sendMessage(MM.deserialize(miniMessageText));
+    }
+
+    private void msg(Player player, String miniMessageText) {
+        player.sendMessage(MM.deserialize(miniMessageText));
+    }
+
     private void registerServices() {
         AtomicLong counter = new AtomicLong();
         CounterService impl = new CounterService() {
@@ -97,7 +112,7 @@ public final class TestPlugin implements Plugin {
         events.subscribe(PlayerJoinEvent.class, e -> {
             eventCount.incrementAndGet();
             logger.info("[TestPlugin][event] join de {}", e.player().name());
-            e.player().sendMessage("[TestPlugin] Bienvenue " + e.player().name()
+            msg(e.player(), "[TestPlugin] Bienvenue " + e.player().name()
                     + " ! Tape /apitest pour tester l'API.");
         });
 
@@ -108,11 +123,12 @@ public final class TestPlugin implements Plugin {
 
         events.subscribe(PlayerChatEvent.class, EventPriority.HIGH, e -> {
             eventCount.incrementAndGet();
-            if (e.message().equalsIgnoreCase("!cancel")) {
+            String raw = PLAIN.serialize(e.message());
+            if (raw.equalsIgnoreCase("!cancel")) {
                 e.setCancelled(true);
-                e.player().sendMessage("[TestPlugin] Message annule (test Cancellable OK).");
-            } else if (e.message().startsWith("!upper ")) {
-                e.setMessage(e.message().substring(7).toUpperCase(Locale.ROOT));
+                msg(e.player(), "[TestPlugin] Message annule (test Cancellable OK).");
+            } else if (raw.startsWith("!upper ")) {
+                e.setMessage(Component.text(raw.substring(7).toUpperCase(Locale.ROOT)));
             }
         });
 
@@ -130,19 +146,20 @@ public final class TestPlugin implements Plugin {
     private void registerCommands() {
         server.commands().register("pregen", (sender, label, args) -> {
             if (args.length == 0) {
-                sender.sendMessage("Usage : /" + label + " start <rayon> [centreX centreZ] | stop | status");
+                msg(sender, "Usage : /" + label + " start <rayon> [centreX centreZ] | stop | status");
                 return;
             }
             switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "start" -> start(sender, args);
                 case "stop" -> stop(sender);
                 case "status" -> status(sender);
-                default -> sender.sendMessage("Sous-commande inconnue : " + args[0]);
+                default -> msg(sender, "Sous-commande inconnue : " + args[0]);
             }
         });
+
         server.commands().register("apitest", (sender, label, args) -> {
             if (!sender.hasPermission("testplugin.use")) {
-                sender.sendMessage("[TestPlugin] Permission testplugin.use manquante.");
+                msg(sender, "[TestPlugin] Permission testplugin.use manquante.");
                 return;
             }
             String sub = args.length == 0 ? "help" : args[0].toLowerCase(Locale.ROOT);
@@ -157,16 +174,17 @@ public final class TestPlugin implements Plugin {
                 default -> help(sender);
             }
         });
+
         logger.info("[TestPlugin] Commande /apitest enregistree = {}",
                 server.commands().isRegistered("apitest"));
     }
 
     private void help(CommandSender sender) {
-        sender.sendMessage("[TestPlugin] /apitest <info|tps|worlds|players|service|schedule|perms>");
+        msg(sender, "[TestPlugin] /apitest <info|tps|worlds|players|service|schedule|perms>");
     }
 
     private void info(CommandSender sender) {
-        sender.sendMessage("[TestPlugin] MC " + server.minecraftVersion()
+        msg(sender, "[TestPlugin] MC " + server.minecraftVersion()
                 + " | protocole " + server.protocolVersion()
                 + " | running=" + server.isRunning()
                 + " | plugins charges=" + server.plugins().loaded().size()
@@ -176,11 +194,11 @@ public final class TestPlugin implements Plugin {
     private void tps(CommandSender sender) {
         List<? extends RegionTps> snapshots = server.scheduler().tpsSnapshots();
         if (snapshots.isEmpty()) {
-            sender.sendMessage("[TestPlugin] Aucune region active.");
+            msg(sender, "[TestPlugin] Aucune region active.");
             return;
         }
         for (RegionTps tps : snapshots) {
-            sender.sendMessage(String.format(Locale.ROOT,
+            msg(sender, String.format(Locale.ROOT,
                     "[TestPlugin] %s section(%d,%d) tps=%.1f mspt=%.2f queued=%d",
                     tps.world(), tps.sectionX(), tps.sectionZ(),
                     tps.tps(), tps.msptAvg(), tps.queuedTasks()));
@@ -191,59 +209,59 @@ public final class TestPlugin implements Plugin {
         String names = server.worlds().stream()
                 .map(w -> w.key().toString())
                 .collect(Collectors.joining(", "));
-        sender.sendMessage("[TestPlugin] " + server.worlds().size() + " monde(s) : " + names);
+        msg(sender, "[TestPlugin] " + server.worlds().size() + " monde(s) : " + names);
     }
 
     private void players(CommandSender sender) {
         var players = server.onlinePlayers();
         String names = players.stream().map(Player::name).collect(Collectors.joining(", "));
-        sender.sendMessage("[TestPlugin] " + players.size() + " joueur(s) : "
+        msg(sender, "[TestPlugin] " + players.size() + " joueur(s) : "
                 + (names.isEmpty() ? "(aucun)" : names));
     }
 
     private void service(CommandSender sender) {
         var found = server.services().find(CounterService.class);
         if (found.isEmpty()) {
-            sender.sendMessage("[TestPlugin] ECHEC : CounterService introuvable !");
+            msg(sender, "<red>[TestPlugin] ECHEC : CounterService introuvable !</red>");
             return;
         }
         long value = found.get().increment();
-        sender.sendMessage("[TestPlugin] ServiceRegistry OK, compteur = " + value);
+        msg(sender, "[TestPlugin] ServiceRegistry OK, compteur = " + value);
     }
 
     private void schedule(CommandSender sender) {
         World world = server.worlds().stream().findFirst().orElse(null);
         if (world == null) {
-            sender.sendMessage("[TestPlugin] Aucun monde disponible pour tester le scheduler.");
+            msg(sender, "[TestPlugin] Aucun monde disponible pour tester le scheduler.");
             return;
         }
         ChunkPos spawnChunk = new ChunkPos(0, 0);
         String worldName = world.key().value();
-        sender.sendMessage("[TestPlugin] Tache planifiee dans 40 ticks (~2s)...");
+        msg(sender, "[TestPlugin] Tache planifiee dans 40 ticks (~2s)...");
         server.scheduler().executeDelayed(worldName, spawnChunk, () -> {
             boolean owned = server.scheduler().isOwnedByCurrentThread(worldName, spawnChunk);
-            sender.sendMessage("[TestPlugin] Scheduler OK ! ownedByCurrentThread=" + owned);
+            msg(sender, "[TestPlugin] Scheduler OK ! ownedByCurrentThread=" + owned);
             logger.info("[TestPlugin] tache differee executee (owned={})", owned);
         }, 40L);
     }
 
     private void perms(CommandSender sender) {
-        sender.sendMessage("[TestPlugin] " + sender.name()
+        msg(sender, "[TestPlugin] " + sender.name()
                 + " | console=" + sender.isConsole()
                 + " | testplugin.use=" + sender.hasPermission("testplugin.use")
                 + " | testplugin.admin=" + sender.hasPermission("testplugin.admin"));
-        sender.sendMessage("[TestPlugin] Permissions connues du serveur : "
+        msg(sender, "[TestPlugin] Permissions connues du serveur : "
                 + server.plugins().getPermissions().size());
     }
 
     private void start(CommandSender sender, String[] args) {
         PregenTask running = task;
         if (running != null && running.isRunning()) {
-            sender.sendMessage("<red>Une pre-generation est deja en cours :</red> " + running.status());
+            msg(sender, "<red>Une pre-generation est deja en cours :</red> " + running.status());
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage("Usage : /pregen start <rayon> [centreX centreZ]");
+            msg(sender, "Usage : /pregen start <rayon> [centreX centreZ]");
             return;
         }
 
@@ -251,7 +269,7 @@ public final class TestPlugin implements Plugin {
         try {
             radius = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
-            sender.sendMessage("<red>Rayon invalide : " + args[1] + "</red>");
+            msg(sender, "<red>Rayon invalide : " + args[1] + "</red>");
             return;
         }
 
@@ -263,9 +281,8 @@ public final class TestPlugin implements Plugin {
             try {
                 centerX = Integer.parseInt(args[2]);
                 centerZ = Integer.parseInt(args[3]);
-                world = null;
             } catch (NumberFormatException e) {
-                sender.sendMessage("<red>Centre invalide : " + args[2] + " " + args[3] + "</red>");
+                msg(sender, "<red>Centre invalide : " + args[2] + " " + args[3] + "</red>");
                 return;
             }
         } else if (sender instanceof Player player) {
@@ -275,17 +292,19 @@ public final class TestPlugin implements Plugin {
             centerZ = chunk.z();
             world = player.world();
         }
-        if (world == null) return;
-
+        if (world == null) {
+            msg(sender, "<red>Aucun monde cible (lance la commande en jeu ou precise le centre).</red>");
+            return;
+        }
         int total = (2 * radius + 1) * (2 * radius + 1);
-        sender.sendMessage("Pre-generation de " + total + " chunks (rayon " + radius
+        msg(sender, "Pre-generation de " + total + " chunks (rayon " + radius
                 + " autour de " + centerX + "," + centerZ + ")...");
 
         task = new PregenTask(world, context.logger(), centerX, centerZ, radius,
                 message -> {
                     context.logger().info("[Pregen] {}", message);
                     try {
-                        sender.sendMessage("<gray>[Pregen]</gray> " + message);
+                        msg(sender, "<gray>[Pregen]</gray> " + message);
                     } catch (Exception ignored) {
                     }
                 });
@@ -295,19 +314,19 @@ public final class TestPlugin implements Plugin {
     private void stop(CommandSender sender) {
         PregenTask running = task;
         if (running == null || !running.isRunning()) {
-            sender.sendMessage("<red>Aucune pre-generation en cours.</red>");
+            msg(sender, "<red>Aucune pre-generation en cours.</red>");
             return;
         }
         running.cancel();
-        sender.sendMessage("Arret de la pre-generation demande.");
+        msg(sender, "Arret de la pre-generation demande.");
     }
 
     private void status(CommandSender sender) {
         PregenTask running = task;
         if (running == null || !running.isRunning()) {
-            sender.sendMessage("Aucune pre-generation en cours.");
+            msg(sender, "Aucune pre-generation en cours.");
             return;
         }
-        sender.sendMessage("Pre-generation : " + running.status());
+        msg(sender, "Pre-generation : " + running.status());
     }
 }
