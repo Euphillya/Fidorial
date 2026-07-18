@@ -249,6 +249,8 @@ public final class FidorialServer implements Server {
         autoSave.scheduleAtFixedRate(() -> {
             try {
                 worldManager.saveDirty();
+                int n = worldManager.unloadUnusedChunks();
+                if (n > 0) LOGGER.debug("{} chunks décharges", n);
             } catch (IOException e) {
                 LOGGER.error("Sauvegarde periodique impossible", e);
             } catch (Throwable t) {

@@ -7,6 +7,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.Serverbou
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundFinishConfigurationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundSelectKnownPacksPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.handshake.ServerboundIntentionPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundCustomQueryAnswerPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundHelloPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundKeyPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundLoginAcknowledgedPacket;
@@ -36,6 +37,8 @@ public class ServerboundPackets {
                 ServerboundHelloPacket::read);
         register(ConnectionState.LOGIN, LoginServerboundPackets.KEY,
                 ServerboundKeyPacket::read);
+        register(ConnectionState.LOGIN, LoginServerboundPackets.CUSTOM_QUERY_ANSWER,
+                ServerboundCustomQueryAnswerPacket::read);
         register(ConnectionState.LOGIN, LoginServerboundPackets.LOGIN_ACKNOWLEDGED,
                 ServerboundLoginAcknowledgedPacket::read);
 

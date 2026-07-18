@@ -4,14 +4,18 @@ import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.GameProfile;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.ServerConfig;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.ConnectionState;
+import fr.euphyllia.fidorial.server.network.proxy.VelocityForwarding;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundCustomQueryPacket;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundHelloPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundLoginCompressionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundLoginDisconnectPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundLoginFinishedPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.LoginPacketListener;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundCustomQueryAnswerPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundHelloPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundKeyPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundLoginAcknowledgedPacket;
@@ -21,6 +25,7 @@ import javax.crypto.SecretKey;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
@@ -33,6 +38,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
 
     private byte[] verifyToken;
     private String pendingUsername;
+    private int velocityTransactionId = -1;
 
     public LoginPacketHandler(ClientConnection connection) {
         this.connection = connection;
@@ -43,7 +49,46 @@ public final class LoginPacketHandler implements LoginPacketListener {
     public void handleHello(ServerboundHelloPacket packet) {
         this.pendingUsername = packet.username();
         connection.setUsername(pendingUsername);
-        sendEncryptionRequest();
+        if (server.config().proxyMode() == ServerConfig.ProxyMode.VELOCITY) {
+            sendVelocityForwardingRequest();
+        } else {
+            sendEncryptionRequest();
+        }
+    }
+
+    private void sendVelocityForwardingRequest() {
+        this.velocityTransactionId = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
+        byte[] requestedVersion = {(byte) VelocityForwarding.MAX_SUPPORTED_VERSION};
+        connection.send(new ClientboundCustomQueryPacket(
+                velocityTransactionId, VelocityForwarding.CHANNEL, requestedVersion));
+    }
+
+    @Override
+    public void handleCustomQueryAnswer(ServerboundCustomQueryAnswerPacket packet) {
+        if (server.config().proxyMode() != ServerConfig.ProxyMode.VELOCITY
+                || packet.transactionId() != velocityTransactionId) {
+            LOGGER.trace("unexpected custom_query_answer (id {}) ignore", packet.transactionId());
+            return;
+        }
+        velocityTransactionId = -1;
+        if (!packet.understood()) {
+            disconnect("This server only accepts connections via the Velocity proxy.");
+            return;
+        }
+        try {
+            VelocityForwarding.ForwardedData data =
+                    VelocityForwarding.decode(packet.payload(), server.config().velocitySecret());
+            connection.setForwardedAddress(data.remoteAddress());
+            connection.setUsername(data.profile().name());
+            this.pendingUsername = data.profile().name();
+            LOGGER.info("Player transferred by Velocity: {} ({}) from {}",
+                    data.profile().name(), data.profile().uuid(), data.remoteAddress());
+            enableCompression();
+            sendLoginSuccess(data.profile());
+        } catch (VelocityForwarding.ForwardingException e) {
+            LOGGER.warn("Forwarding Velocity refuses for {}: {}", pendingUsername, e.getMessage());
+            disconnect("Invalid Velocity forwarding data");
+        }
     }
 
     private void sendEncryptionRequest() {

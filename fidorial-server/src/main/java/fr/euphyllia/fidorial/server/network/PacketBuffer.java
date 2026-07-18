@@ -152,6 +152,12 @@ public final class PacketBuffer {
         return VarInts.readByteArray(buf, maxLength);
     }
 
+    public byte[] readRemainingBytes() {
+        byte[] data = new byte[buf.readableBytes()];
+        buf.readBytes(data);
+        return data;
+    }
+
     public PacketBuffer writeByteArray(byte[] data) {
         VarInts.writeByteArray(buf, data);
         return this;

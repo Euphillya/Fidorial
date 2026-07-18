@@ -28,7 +28,9 @@ public record ServerConfig(int port,
                            double spawnX,
                            double spawnY,
                            double spawnZ,
-                           String motd) {
+                           String motd,
+                           ProxyMode proxyMode,
+                           String velocitySecret) {
 
     private static final ComponentLogger LOGGER = getLogger(ServerConfig.class);
     private static final String DEFAULT_FILE = "fidorial.properties";
@@ -40,6 +42,24 @@ public record ServerConfig(int port,
         if (sendDistance > viewDistance) {
             throw new IllegalArgumentException(
                     "send-distance (" + sendDistance + ") > view-distance (" + viewDistance + ")");
+        }
+        if (proxyMode == ProxyMode.VELOCITY && (velocitySecret == null || velocitySecret.isBlank())) {
+            throw new IllegalArgumentException(
+                    "proxy-mode=velocity requires velocity-secret (the content of the proxy's forwarding.secret file)");
+        }
+    }
+
+    public enum ProxyMode {
+        NONE,
+        VELOCITY;
+
+        static ProxyMode byName(String raw) {
+            for (ProxyMode mode : values()) {
+                if (mode.name().equalsIgnoreCase(raw)) {
+                    return mode;
+                }
+            }
+            return null;
         }
     }
 
@@ -58,6 +78,8 @@ public record ServerConfig(int port,
                 Math.max(2, cpus / 2),
                 GameMode.SURVIVAL,
                 WorldConstants.DEFAULT_SPAWN_X, WorldConstants.DEFAULT_SPAWN_Y, WorldConstants.DEFAULT_SPAWN_Z,
+                "",
+                ProxyMode.NONE,
                 "");
     }
 
@@ -91,7 +113,9 @@ public record ServerConfig(int port,
                 readDouble(props, "spawn-x", defaults.spawnX()),
                 readDouble(props, "spawn-y", defaults.spawnY()),
                 readDouble(props, "spawn-z", defaults.spawnZ()),
-                readString(props, "motd", "<red>Fidorial <white>| <blue>Alternative Minecraft Server"));
+                readString(props, "motd", "<red>Fidorial <white>| <blue>Alternative Minecraft Server"),
+                readProxyMode(props, "proxy-mode", defaults.proxyMode()),
+                readString(props, "velocity-secret", "").strip());
         LOGGER.info("Configuration chargee depuis {}", file);
         return config;
     }
@@ -104,7 +128,7 @@ public record ServerConfig(int port,
         try {
             return Integer.parseInt(raw.strip());
         } catch (NumberFormatException e) {
-            LOGGER.warn("{} = '{}' illisible, valeur par defaut {} utilisee", key, raw, fallback);
+            LOGGER.warn("{} = '{}' unreadable, default value {} used", key, raw, fallback);
             return fallback;
         }
     }
@@ -117,7 +141,7 @@ public record ServerConfig(int port,
         try {
             return Double.parseDouble(raw.strip());
         } catch (NumberFormatException e) {
-            LOGGER.warn("{} = '{}' invalide, valeur par defaut {} utilisee", key, raw, fallback);
+            LOGGER.warn("{} = '{}' invalid, default value {} used", key, raw, fallback);
             return fallback;
         }
     }
@@ -137,7 +161,21 @@ public record ServerConfig(int port,
         }
         GameMode mode = GameMode.byName(raw.strip());
         if (mode == null) {
-            LOGGER.warn("{} = '{}' inconnu, valeur par defaut {} utilisee", key, raw, fallback);
+            LOGGER.warn("{} = '{}' unknown, default value {} used", key, raw, fallback);
+            return fallback;
+        }
+        return mode;
+    }
+
+    private static ProxyMode readProxyMode(Properties props, String key, ProxyMode fallback) {
+        String raw = props.getProperty(key);
+        if (raw == null || raw.isBlank()) {
+            return fallback;
+        }
+        ProxyMode mode = ProxyMode.byName(raw.strip());
+        if (mode == null) {
+            LOGGER.warn("{} = '{}' unknown (expected: none, velocity), default value {} used",
+                    key, raw, fallback);
             return fallback;
         }
         return mode;
@@ -165,6 +203,8 @@ public record ServerConfig(int port,
         props.setProperty("spawn-y", Double.toString(spawnY));
         props.setProperty("spawn-z", Double.toString(spawnZ));
         props.setProperty("motd", motd);
+        props.setProperty("proxy-mode", proxyMode.name().toLowerCase(Locale.ROOT));
+        props.setProperty("velocity-secret", velocitySecret == null ? "" : velocitySecret);
         try (OutputStream out = Files.newOutputStream(file)) {
             props.store(out, "Configuration Fidorial");
         }

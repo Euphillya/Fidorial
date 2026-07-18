@@ -129,13 +129,15 @@ public class PregenTask {
             return new CompletableFuture<>();
         }
 
-        return world.getChunkAsync(chunkX, chunkZ).whenComplete((ignored, error) -> {
-            inFlight.release();
-            if (error != null) {
-                failed.incrementAndGet();
-                logger.warn("Pre-generation du chunk {},{} impossible", chunkX, chunkZ, error);
-            }
-            done.incrementAndGet();
-        });
+        return world.getChunkAsync(chunkX, chunkZ)
+                .thenCompose(c -> world.unloadChunkAsync(chunkX, chunkZ).thenApply(x -> c))
+                .whenComplete((ignored, error) -> {
+                    inFlight.release();
+                    if (error != null) {
+                        failed.incrementAndGet();
+                        logger.warn("Pre-generation du chunk {},{} impossible", chunkX, chunkZ, error);
+                    }
+                    done.incrementAndGet();
+                });
     }
 }
