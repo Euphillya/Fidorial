@@ -28,8 +28,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build + tests
-        run: ./gradlew build --no-daemon
+      - name: Build + checks
+        run: ./gradlew check build --no-daemon
 
       - name: Fat jar (shadowJar)
         run: ./gradlew :fidorial-server:shadowJar --no-daemon
