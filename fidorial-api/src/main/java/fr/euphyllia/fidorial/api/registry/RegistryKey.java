@@ -1,6 +1,8 @@
 package fr.euphyllia.fidorial.api.registry;
 
 import fr.euphyllia.fidorial.api.registry.data.*;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.KeyPattern;
 
 import java.util.Objects;
 
@@ -39,8 +41,8 @@ public record RegistryKey<T>(Key key) {
         Objects.requireNonNull(key, "key");
     }
 
-    private static <T> RegistryKey<T> of(String path) {
-        return new RegistryKey<>(Key.minecraft(path));
+    private static <T> RegistryKey<T> of(@KeyPattern String path) {
+        return new RegistryKey<>(Key.key(path));
     }
 
     @Override

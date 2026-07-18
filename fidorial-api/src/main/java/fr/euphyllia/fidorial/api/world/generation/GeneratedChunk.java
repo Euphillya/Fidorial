@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.api.world.generation;
 
-import fr.euphyllia.fidorial.api.registry.Key;
+import net.kyori.adventure.key.Key;
 
 public interface GeneratedChunk {
 

@@ -10,7 +10,6 @@ import fr.euphyllia.fidorial.api.event.server.ServerStartedEvent;
 import fr.euphyllia.fidorial.api.event.server.ServerStoppingEvent;
 import fr.euphyllia.fidorial.api.permission.PermissionService;
 import fr.euphyllia.fidorial.api.plugin.PluginManager;
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
 import fr.euphyllia.fidorial.api.service.ServicePriority;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
@@ -57,6 +56,7 @@ import fr.euphyllia.fidorial.server.world.*;
 import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;

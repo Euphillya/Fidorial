@@ -1,11 +1,11 @@
 package fr.euphyllia.fidorial.server.entity;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import net.kyori.adventure.key.Key;
 
 public class ItemStack {
 
-    private static final Key AIR = Key.minecraft("air");
+    private static final Key AIR = Key.key("air");
     public static final ItemStack EMPTY = new ItemStack(AIR, 0);
     private final Key id;
     private final Integer count;
@@ -19,6 +19,7 @@ public class ItemStack {
         return new ItemStack(key, stack);
     }
 
+    @SuppressWarnings("PatternValidation")
     public static ItemStack fromNbt(NbtCompound tag) {
         if (tag == null) {
             return EMPTY;
@@ -28,7 +29,7 @@ public class ItemStack {
         if (id.isBlank() || count <= 0) {
             return EMPTY;
         }
-        return new ItemStack(Key.parse(id), count);
+        return new ItemStack(Key.key(id), count);
     }
 
     public boolean isEmpty() {

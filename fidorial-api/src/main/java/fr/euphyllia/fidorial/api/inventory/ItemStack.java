@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.api.inventory;
 
 import fr.euphyllia.fidorial.api.attribute.AttributeModifier;
-import fr.euphyllia.fidorial.api.registry.Key;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public final class ItemStack {
 
-    private static final Key AIR = Key.minecraft("air");
+    private static final Key AIR = Key.key("air");
     public static final ItemStack EMPTY = new ItemStack(AIR, 0);
 
     private final Key id;

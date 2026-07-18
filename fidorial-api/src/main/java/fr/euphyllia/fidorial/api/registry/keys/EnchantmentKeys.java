@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.Enchantment;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:enchantment} registry.
@@ -57,7 +57,7 @@ public final class EnchantmentKeys {
     private EnchantmentKeys() {
     }
 
-    private static TypedKey<Enchantment> create(String value) {
-        return TypedKey.create(RegistryKey.ENCHANTMENT, Key.minecraft(value));
+    private static TypedKey<Enchantment> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.ENCHANTMENT, value);
     }
 }

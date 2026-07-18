@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.api.world.block;
 
-import fr.euphyllia.fidorial.api.registry.Key;
+import net.kyori.adventure.key.Key;
 
 public final class Blocks {
 

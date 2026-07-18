@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.TrimMaterial;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:trim_material} registry.
@@ -25,7 +25,7 @@ public final class TrimMaterialKeys {
     private TrimMaterialKeys() {
     }
 
-    private static TypedKey<TrimMaterial> create(String value) {
-        return TypedKey.create(RegistryKey.TRIM_MATERIAL, Key.minecraft(value));
+    private static TypedKey<TrimMaterial> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.TRIM_MATERIAL, value);
     }
 }

@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.api.attribute;
 
-import fr.euphyllia.fidorial.api.registry.Key;
+import net.kyori.adventure.key.Key;
 
 import java.util.Locale;
 import java.util.Objects;

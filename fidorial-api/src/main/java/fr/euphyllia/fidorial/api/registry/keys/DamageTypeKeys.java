@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.DamageType;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:damage_type} registry.
@@ -65,7 +65,7 @@ public final class DamageTypeKeys {
     private DamageTypeKeys() {
     }
 
-    private static TypedKey<DamageType> create(String value) {
-        return TypedKey.create(RegistryKey.DAMAGE_TYPE, Key.minecraft(value));
+    private static TypedKey<DamageType> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.DAMAGE_TYPE, value);
     }
 }

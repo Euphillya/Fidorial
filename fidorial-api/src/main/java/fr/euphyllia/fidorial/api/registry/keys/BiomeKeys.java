@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.Biome;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:worldgen/biome} registry.
@@ -80,7 +80,7 @@ public final class BiomeKeys {
     private BiomeKeys() {
     }
 
-    private static TypedKey<Biome> create(String value) {
-        return TypedKey.create(RegistryKey.BIOME, Key.minecraft(value));
+    private static TypedKey<Biome> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.BIOME, value);
     }
 }

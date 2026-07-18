@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.Instrument;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:instrument} registry.
@@ -22,7 +22,7 @@ public final class InstrumentKeys {
     private InstrumentKeys() {
     }
 
-    private static TypedKey<Instrument> create(String value) {
-        return TypedKey.create(RegistryKey.INSTRUMENT, Key.minecraft(value));
+    private static TypedKey<Instrument> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.INSTRUMENT, value);
     }
 }

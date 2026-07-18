@@ -1,7 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.mob;
 
 import fr.euphyllia.fidorial.api.entity.EntityType;
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.world.Location;
 import fr.euphyllia.fidorial.api.world.World;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
@@ -13,6 +12,7 @@ import fr.euphyllia.fidorial.server.entity.mob.misc.SnowGolem;
 import fr.euphyllia.fidorial.server.entity.mob.misc.Villager;
 import fr.euphyllia.fidorial.server.entity.mob.monster.*;
 import fr.euphyllia.fidorial.server.entity.mob.water_creature.*;
+import net.kyori.adventure.key.Key;
 
 import java.util.Map;
 import java.util.Set;

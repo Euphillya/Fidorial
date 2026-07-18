@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.JukeboxSong;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:jukebox_song} registry.
@@ -36,7 +36,7 @@ public final class JukeboxSongKeys {
     private JukeboxSongKeys() {
     }
 
-    private static TypedKey<JukeboxSong> create(String value) {
-        return TypedKey.create(RegistryKey.JUKEBOX_SONG, Key.minecraft(value));
+    private static TypedKey<JukeboxSong> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.JUKEBOX_SONG, value);
     }
 }

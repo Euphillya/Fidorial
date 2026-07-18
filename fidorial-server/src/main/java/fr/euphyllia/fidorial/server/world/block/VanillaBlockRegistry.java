@@ -1,11 +1,11 @@
 package fr.euphyllia.fidorial.server.world.block;
 
 import com.google.gson.stream.JsonReader;
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.world.block.BlockData;
 import fr.euphyllia.fidorial.api.world.block.BlockProperty;
 import fr.euphyllia.fidorial.api.world.block.BlockRegistry;
 import fr.euphyllia.fidorial.api.world.block.BlockType;
+import net.kyori.adventure.key.Key;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,11 +42,12 @@ public final class VanillaBlockRegistry implements BlockRegistry {
         return ordinal;
     }
 
+    @SuppressWarnings("PatternValidation")
     private void load(InputStream input) throws IOException {
         try (JsonReader reader = new JsonReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
             reader.beginObject();
             while (reader.hasNext()) {
-                register(readBlock(Key.parse(reader.nextName()), reader));
+                register(readBlock(Key.key(reader.nextName()), reader));
             }
             reader.endObject();
         }

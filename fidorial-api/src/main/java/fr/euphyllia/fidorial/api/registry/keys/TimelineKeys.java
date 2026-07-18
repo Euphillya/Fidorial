@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.Timeline;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:timeline} registry.
@@ -18,7 +18,7 @@ public final class TimelineKeys {
     private TimelineKeys() {
     }
 
-    private static TypedKey<Timeline> create(String value) {
-        return TypedKey.create(RegistryKey.TIMELINE, Key.minecraft(value));
+    private static TypedKey<Timeline> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.TIMELINE, value);
     }
 }

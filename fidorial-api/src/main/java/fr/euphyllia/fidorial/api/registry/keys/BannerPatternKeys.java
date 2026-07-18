@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.BannerPattern;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:banner_pattern} registry.
@@ -57,7 +57,7 @@ public final class BannerPatternKeys {
     private BannerPatternKeys() {
     }
 
-    private static TypedKey<BannerPattern> create(String value) {
-        return TypedKey.create(RegistryKey.BANNER_PATTERN, Key.minecraft(value));
+    private static TypedKey<BannerPattern> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.BANNER_PATTERN, value);
     }
 }

@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.Item;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:item} registry.
@@ -1551,7 +1551,7 @@ public final class ItemKeys {
     private ItemKeys() {
     }
 
-    private static TypedKey<Item> create(String value) {
-        return TypedKey.create(RegistryKey.ITEM, Key.minecraft(value));
+    private static TypedKey<Item> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.ITEM, value);
     }
 }

@@ -1,11 +1,11 @@
 package fr.euphyllia.fidorial.api.world.fluid;
 
-import fr.euphyllia.fidorial.api.registry.Key;
+import net.kyori.adventure.key.Key;
 
 public enum FluidType {
 
-    WATER(Key.minecraft("water"), 5, 1, 7, true),
-    LAVA(Key.minecraft("lava"), 30, 2, 6, false);
+    WATER(Key.key("water"), 5, 1, 7, true),
+    LAVA(Key.key("lava"), 30, 2, 6, false);
 
     private final Key blockKey;
     private final int tickDelay;

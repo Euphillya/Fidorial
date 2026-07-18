@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.world;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.world.block.BlockData;
 import fr.euphyllia.fidorial.api.world.block.BlockRegistry;
 import fr.euphyllia.fidorial.api.world.block.BlockType;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import net.kyori.adventure.key.Key;
 
 import java.util.Map;
 
@@ -30,8 +30,9 @@ public record BlockStateRegistry(BlockRegistry registry) {
         return resolve(state) != null;
     }
 
+    @SuppressWarnings("PatternValidation")
     private BlockData resolve(BlockState state) {
-        BlockType type = registry.type(Key.parse(state.name())).orElse(null);
+        BlockType type = registry.type(Key.key(state.name())).orElse(null);
         if (type == null) {
             return null;
         }

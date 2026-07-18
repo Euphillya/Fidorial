@@ -1,5 +1,8 @@
 package fr.euphyllia.fidorial.api.registry;
 
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.KeyPattern;
+
 import java.util.Objects;
 
 public record TypedKey<T>(RegistryKey<T> registry, Key key) {
@@ -13,8 +16,8 @@ public record TypedKey<T>(RegistryKey<T> registry, Key key) {
         return new TypedKey<>(registry, key);
     }
 
-    public static <T> TypedKey<T> create(RegistryKey<T> registry, String key) {
-        return new TypedKey<>(registry, Key.parse(key));
+    public static <T> TypedKey<T> create(RegistryKey<T> registry, @KeyPattern String key) {
+        return new TypedKey<>(registry, Key.key(key));
     }
 
     @Override
