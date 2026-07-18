@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 
-@SuppressWarnings("PatternValidation")
 public final class EntityTypes {
 
     private static final String RESOURCE = "/data/entity_types.json.gz";
@@ -23,7 +22,7 @@ public final class EntityTypes {
     static {
         loadVanillaTypes();
     }
-    
+
     public static final EntityType ACACIA_BOAT = vanilla("acacia_boat");
     public static final EntityType ACACIA_CHEST_BOAT = vanilla("acacia_chest_boat");
     public static final EntityType ALLAY = vanilla("allay");
@@ -183,6 +182,11 @@ public final class EntityTypes {
     public static final EntityType PLAYER = vanilla("player");
     public static final EntityType FISHING_BOBBER = vanilla("fishing_bobber");
 
+    private EntityTypes() {
+    }
+
+    @SuppressWarnings("PatternValidation")
+    private static void loadVanillaTypes() {
         try (InputStream raw = EntityTypes.class.getResourceAsStream(RESOURCE)) {
             if (raw == null) {
                 throw new IllegalStateException("Missing resource " + RESOURCE);
