@@ -11,14 +11,15 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.Se
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundSelectKnownPacksPacket;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.Locale;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class ConfigurationPacketHandler implements ConfigurationPacketListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationPacketHandler.class);
+    private static final ComponentLogger LOGGER = getLogger(ConfigurationPacketHandler.class);
 
     private final ClientConnection connection;
     private final FidorialServer server;

@@ -27,16 +27,16 @@ import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.Locale;
 import java.util.UUID;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class PlayPacketHandler implements PlayPacketListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PlayPacketHandler.class);
+    private static final ComponentLogger LOGGER = getLogger(PlayPacketHandler.class);
 
     private final ClientConnection connection;
     private final FidorialServer server;
@@ -248,7 +248,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             return;
         }
 
-        LOGGER.debug("<{}> {}", player.name(), PlainTextComponentSerializer.plainText().serialize(event.message()));
+        LOGGER.debug(Component.text("<" + player.name() + ">").appendSpace().append(event.message()));
         server.broadcast(new ClientboundSystemChatPacket(event.message(), false));
     }
 

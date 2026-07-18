@@ -1,5 +1,5 @@
 [versions]
-netty = "4.1.115.Final"
+netty = "4.2.16.Final"
 gson = "2.11.0"
 slf4j = "2.0.16"
 logback = "1.5.12"
@@ -19,8 +19,15 @@ adventure-api = { module = "net.kyori:adventure-api" }
 adventure-key = { module = "net.kyori:adventure-key" }
 adventure-text-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson" }
 adventure-text-serializer-plain = { module = "net.kyori:adventure-text-serializer-plain" }
+adventure-text-serializer-ansi = { module = "net.kyori:adventure-text-serializer-ansi" }
 adventure-text-minimessage = { module = "net.kyori:adventure-text-minimessage" }
+adventure-text-logger-slf4j = { module = "net.kyori:adventure-text-logger-slf4j" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 
 [bundles]
-adventure = [ "adventure-api", "adventure-key", "adventure-text-serializer-plain", "adventure-text-serializer-gson", "adventure-text-minimessage" ]
+adventure = [
+    "adventure-api", "adventure-key",
+    "adventure-text-serializer-gson",
+    "adventure-text-minimessage",
+    "adventure-text-logger-slf4j"
+]

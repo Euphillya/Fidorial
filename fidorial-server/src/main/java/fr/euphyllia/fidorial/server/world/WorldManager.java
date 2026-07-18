@@ -6,8 +6,7 @@ import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
 import fr.euphyllia.fidorial.server.world.storage.WorldPaths;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,9 +15,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class WorldManager implements AutoCloseable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WorldManager.class);
+    private static final ComponentLogger LOGGER = getLogger(WorldManager.class);
 
     private final WorldPaths paths;
     private final LevelData levelData;

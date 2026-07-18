@@ -14,8 +14,7 @@ import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
 import java.util.Map;
@@ -23,9 +22,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class FluidEngine implements FluidManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FluidEngine.class);
+    private static final ComponentLogger LOGGER = getLogger(FluidEngine.class);
 
     private static final BlockState OBSIDIAN = BlockState.of("minecraft:obsidian");
     private static final BlockState COBBLESTONE = BlockState.of("minecraft:cobblestone");

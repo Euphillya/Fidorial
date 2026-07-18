@@ -23,8 +23,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -33,9 +32,11 @@ import java.util.Locale;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClientConnection.class);
+    private static final ComponentLogger LOGGER = getLogger(ClientConnection.class);
 
     private static final int KEEP_ALIVE_INTERVAL_SECONDS = 10;
 

@@ -4,8 +4,7 @@ import fr.euphyllia.fidorial.api.scheduler.RegionTickHandler;
 import fr.euphyllia.fidorial.api.scheduler.RegionTps;
 import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
 import fr.euphyllia.fidorial.api.world.ChunkPos;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -14,9 +13,11 @@ import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class ThreadedRegionRegionizer implements RegionizedScheduler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadedRegionRegionizer.class);
+    private static final ComponentLogger LOGGER = getLogger(ThreadedRegionRegionizer.class);
     private static final long TICK_PERIOD_MS = 50L;
     /**
      * Number of consecutive empty ticks before an idle region is destroyed.

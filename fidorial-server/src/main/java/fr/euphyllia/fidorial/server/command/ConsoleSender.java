@@ -6,18 +6,17 @@ import fr.euphyllia.fidorial.api.plugin.Plugin;
 import fr.euphyllia.fidorial.api.translation.TranslationStore;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.Locale;
 import java.util.Set;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
 
     public static final ConsoleSender INSTANCE = new ConsoleSender();
-    private static final Logger LOGGER = LoggerFactory.getLogger("Console");
-    private static final PlainTextComponentSerializer PLAIN_TEXT_SERIALIZER = PlainTextComponentSerializer.plainText();
+    private static final ComponentLogger LOGGER = getLogger("Console");
     private static final ServerOperator CONSOLE_OP = new ServerOperator() {
         @Override
         public boolean isOp() {
@@ -72,10 +71,9 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
         return this.locale;
     }
 
-    // to revisit once we switch to a terminal lib like JNI with TerminalConsoleAppender for colors
     @Override
     public void sendMessage(final Component message) {
-        System.out.println(PLAIN_TEXT_SERIALIZER.serialize(TranslationStore.render(message, locale())));
+        LOGGER.info(TranslationStore.render(message, locale()));
     }
 
     @Override

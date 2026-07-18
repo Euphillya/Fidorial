@@ -10,17 +10,18 @@ import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ChunkViewSource;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.LongConsumer;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class ChunkViewTracker implements ChunkViewSource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChunkViewTracker.class);
+    private static final ComponentLogger LOGGER = getLogger(ChunkViewTracker.class);
 
     private final ClientConnection connection;
     private final ThreadedChunkWorker chunkWorker;

@@ -2,8 +2,7 @@ package fr.euphyllia.fidorial.server;
 
 import fr.euphyllia.fidorial.api.entity.GameMode;
 import fr.euphyllia.fidorial.server.world.WorldConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Properties;
+
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public record ServerConfig(int port,
                            boolean onlineMode,
@@ -31,7 +32,7 @@ public record ServerConfig(int port,
                            ProxyMode proxyMode,
                            String velocitySecret) {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServerConfig.class);
+    private static final ComponentLogger LOGGER = getLogger(ServerConfig.class);
     private static final String DEFAULT_FILE = "fidorial.properties";
 
     public ServerConfig {

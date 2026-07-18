@@ -3,8 +3,7 @@ package fr.euphyllia.fidorial.server.permission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -15,9 +14,11 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public class OperatorList {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OperatorList.class);
+    private static final ComponentLogger LOGGER = getLogger(OperatorList.class);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private final Path file;

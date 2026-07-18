@@ -5,8 +5,7 @@ import fr.euphyllia.fidorial.api.storage.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,9 +17,11 @@ import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public class NbtPlayerDataStorage implements PlayerDataStorage {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NbtPlayerDataStorage.class);
+    private static final ComponentLogger LOGGER = getLogger(NbtPlayerDataStorage.class);
     private static final String ROOT_NAME = "PlayerData";
 
     private final Path dataDir;

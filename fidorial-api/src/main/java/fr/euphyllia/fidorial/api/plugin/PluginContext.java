@@ -3,7 +3,7 @@ package fr.euphyllia.fidorial.api.plugin;
 import fr.euphyllia.fidorial.api.Server;
 import fr.euphyllia.fidorial.api.event.EventBus;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
-import org.slf4j.Logger;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.nio.file.Path;
 
@@ -17,7 +17,7 @@ public interface PluginContext {
 
     ServiceRegistry services();
 
-    Logger logger();
+    ComponentLogger logger();
 
     Path dataFolder();
 }

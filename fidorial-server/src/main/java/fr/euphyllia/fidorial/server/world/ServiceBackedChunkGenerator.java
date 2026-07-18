@@ -3,12 +3,13 @@ package fr.euphyllia.fidorial.server.world;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
 import fr.euphyllia.fidorial.api.world.generation.WorldGenerator;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public class ServiceBackedChunkGenerator implements ChunkGenerator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBackedChunkGenerator.class);
+    private static final ComponentLogger LOGGER = getLogger(ServiceBackedChunkGenerator.class);
     private static final String DEFAULT_BIOME = "minecraft:plains";
 
     private final ServiceRegistry services;

@@ -5,13 +5,14 @@ import fr.euphyllia.fidorial.api.event.EventBus;
 import fr.euphyllia.fidorial.api.plugin.PluginContext;
 import fr.euphyllia.fidorial.api.plugin.PluginMeta;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 final class SimplePluginContext implements PluginContext {
 
@@ -20,7 +21,7 @@ final class SimplePluginContext implements PluginContext {
     private final EventBus events;
     private final ServiceRegistry services;
     private final Path dataFolder;
-    private final Logger logger;
+    private final ComponentLogger logger;
 
     SimplePluginContext(PluginMeta meta, Server server, EventBus events,
                         ServiceRegistry services, Path dataFolder) {
@@ -29,7 +30,7 @@ final class SimplePluginContext implements PluginContext {
         this.events = events;
         this.services = services;
         this.dataFolder = dataFolder;
-        this.logger = LoggerFactory.getLogger("plugin/" + meta.id());
+        this.logger = getLogger("plugin/" + meta.id());
     }
 
     @Override
@@ -53,7 +54,7 @@ final class SimplePluginContext implements PluginContext {
     }
 
     @Override
-    public Logger logger() {
+    public ComponentLogger logger() {
         return logger;
     }
 

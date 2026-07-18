@@ -5,8 +5,7 @@ import fr.euphyllia.fidorial.api.world.weather.WeatherManager;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,9 +13,11 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class WeatherEngine implements WeatherManager, AutoCloseable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WeatherEngine.class);
+    private static final ComponentLogger LOGGER = getLogger(WeatherEngine.class);
 
     private static final int RAIN_MIN = 12_000, RAIN_BOUND = 24_000;        // 10 a 20 min
     private static final int CLEAR_MIN = 12_000, CLEAR_BOUND = 180_000;     // 10 min a 2 h 30

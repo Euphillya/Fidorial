@@ -7,14 +7,15 @@ import fr.euphyllia.fidorial.server.world.chunk.ChunkSection;
 import fr.euphyllia.fidorial.server.world.chunk.PalettedContainer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.Arrays;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class ChunkNetworkSerializer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChunkNetworkSerializer.class);
+    private static final ComponentLogger LOGGER = getLogger(ChunkNetworkSerializer.class);
 
     private final BlockStateRegistry blockRegistry;
     private final int biomeNetworkId;

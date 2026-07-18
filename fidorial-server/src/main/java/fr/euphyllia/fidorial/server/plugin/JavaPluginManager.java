@@ -12,8 +12,7 @@ import fr.euphyllia.fidorial.api.plugin.PluginManager;
 import fr.euphyllia.fidorial.api.plugin.PluginMeta;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,9 +26,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class JavaPluginManager implements PluginManager, AutoCloseable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JavaPluginManager.class);
+    private static final ComponentLogger LOGGER = getLogger(JavaPluginManager.class);
     private static final String DESCRIPTOR = "fidorial.json";
     private static final Gson GSON = new Gson();
 

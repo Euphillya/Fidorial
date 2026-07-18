@@ -2,14 +2,13 @@ package fr.euphyllia.fidorial.api.permission;
 
 import fr.euphyllia.fidorial.api.plugin.Plugin;
 import fr.euphyllia.fidorial.api.plugin.PluginManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.*;
 
 public class PermissibleBase implements Permissible {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PermissibleBase.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(PermissibleBase.class);
 
     private final ServerOperator opable;
     private final Permissible parent;

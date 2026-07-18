@@ -11,7 +11,8 @@ dependencies {
     implementation(libs.slf4j.api)
     implementation(libs.faststats.config)
     implementation(libs.faststats.core)
-    runtimeOnly(libs.logback.classic)
+    implementation(libs.adventure.text.serializer.ansi)
+    implementation(libs.logback.classic)
 }
 
 application {
