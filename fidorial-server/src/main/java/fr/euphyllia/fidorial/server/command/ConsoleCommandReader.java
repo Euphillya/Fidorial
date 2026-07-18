@@ -1,7 +1,6 @@
 package fr.euphyllia.fidorial.server.command;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,9 +9,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public class ConsoleCommandReader {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleCommandReader.class);
+    private static final ComponentLogger LOGGER = getLogger(ConsoleCommandReader.class);
 
     private final CommandManager commandManager;
     private final BooleanSupplier serverRunning;

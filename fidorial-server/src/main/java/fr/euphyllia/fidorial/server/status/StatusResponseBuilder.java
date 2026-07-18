@@ -3,10 +3,11 @@ package fr.euphyllia.fidorial.server.status;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.euphyllia.fidorial.server.FidorialServer;
-import fr.euphyllia.fidorial.server.chat.MiniText;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.MINI_MESSAGE;
 
 public final class StatusResponseBuilder {
 
@@ -27,7 +28,7 @@ public final class StatusResponseBuilder {
         players.addProperty("online", FidorialServer.getInstance().playerCount());
 
         JsonObject description = new JsonObject();
-        Component motdComponent = MiniText.miniMessage().deserialize(FidorialServer.getInstance().config().motd());
+        Component motdComponent = MINI_MESSAGE.deserialize(FidorialServer.getInstance().config().motd());
         JsonElement jsonElement = componentToJsonElement(motdComponent);
         if (jsonElement.isJsonObject()) {
             description = jsonElement.getAsJsonObject();

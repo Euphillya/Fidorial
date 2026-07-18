@@ -3,17 +3,18 @@ package fr.euphyllia.fidorial.server.schedulers;
 import fr.euphyllia.fidorial.server.world.AsyncChunkLoader;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public class ThreadedChunkWorker implements AsyncChunkLoader {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadedChunkWorker.class);
+    private static final ComponentLogger LOGGER = getLogger(ThreadedChunkWorker.class);
 
     private final ScheduledExecutorService workers;
 

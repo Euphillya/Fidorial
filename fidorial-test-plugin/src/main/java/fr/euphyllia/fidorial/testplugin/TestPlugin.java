@@ -17,9 +17,9 @@ import fr.euphyllia.fidorial.api.world.generation.WorldGenerator;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
 import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Locale;
@@ -38,7 +38,7 @@ public final class TestPlugin implements Plugin {
 
     private final AtomicLong eventCount = new AtomicLong();
     private PluginContext context;
-    private Logger logger;
+    private ComponentLogger logger;
     private Server server;
     private volatile PregenTask task;
 

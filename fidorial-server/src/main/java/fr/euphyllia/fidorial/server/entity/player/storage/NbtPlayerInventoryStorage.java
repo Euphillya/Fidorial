@@ -2,8 +2,7 @@ package fr.euphyllia.fidorial.server.entity.player.storage;
 
 import fr.euphyllia.fidorial.api.inventory.PlayerInventory;
 import fr.euphyllia.fidorial.api.storage.player.PlayerInventoryStorage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,10 +14,11 @@ import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public class NbtPlayerInventoryStorage implements PlayerInventoryStorage {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NbtPlayerInventoryStorage.class);
+    private static final ComponentLogger LOGGER = getLogger(NbtPlayerInventoryStorage.class);
 
     private final Path inventoriesDir;
     private final boolean gzip;

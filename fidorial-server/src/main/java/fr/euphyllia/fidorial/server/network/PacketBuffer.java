@@ -2,9 +2,9 @@ package fr.euphyllia.fidorial.server.network;
 
 import fr.euphyllia.fidorial.api.world.BlockPos;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.text.Component;
 
+import java.util.BitSet;
 import java.util.UUID;
 
 public final class PacketBuffer {
@@ -32,25 +32,23 @@ public final class PacketBuffer {
         return this;
     }
 
-    public long readVarLong() {
-        long value = 0;
-        int position = 0;
-        byte current;
-        do {
-            current = buf.readByte();
-            value |= (long) (current & 0x7F) << position;
-            position += 7;
-            if (position >= 64) throw new DecoderException("VarLong trop grand");
-        } while ((current & 0x80) != 0);
-        return value;
+    public BitSet readFixedBitSet(int bits) {
+        int bytes = (bits + 7) / 8;
+
+        byte[] data = new byte[bytes];
+        buf.readBytes(data);
+
+        return BitSet.valueOf(data);
     }
 
-    public PacketBuffer writeVarLong(long value) {
-        while ((value & ~0x7FL) != 0) {
-            buf.writeByte((int) ((value & 0x7F) | 0x80));
-            value >>>= 7;
-        }
-        buf.writeByte((int) value);
+    public PacketBuffer writeFixedBitSet(BitSet bitSet, int bits) {
+        int bytes = (bits + 7) / 8;
+        byte[] data = new byte[bytes];
+
+        byte[] source = bitSet.toByteArray();
+        System.arraycopy(source, 0, data, 0, Math.min(source.length, data.length));
+
+        buf.writeBytes(data);
         return this;
     }
 
@@ -144,6 +142,13 @@ public final class PacketBuffer {
     }
 
     public byte[] readByteArray(int maxLength) {
+        return VarInts.readByteArray(buf, maxLength);
+    }
+
+    public byte[] readOptionalByteArray(int maxLength) {
+        if (!readBoolean()) {
+            return null;
+        }
         return VarInts.readByteArray(buf, maxLength);
     }
 

@@ -15,18 +15,18 @@ import fr.euphyllia.fidorial.server.protocol.packet.listener.LoginPacketListener
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundHelloPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundKeyPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundLoginAcknowledgedPacket;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import javax.crypto.SecretKey;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public final class LoginPacketHandler implements LoginPacketListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoginPacketHandler.class);
+    private static final ComponentLogger LOGGER = getLogger(LoginPacketHandler.class);
 
     private final ClientConnection connection;
     private final FidorialServer server;

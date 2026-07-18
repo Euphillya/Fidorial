@@ -4,8 +4,7 @@ import fr.euphyllia.fidorial.api.event.Event;
 import fr.euphyllia.fidorial.api.event.EventBus;
 import fr.euphyllia.fidorial.api.event.EventPriority;
 import fr.euphyllia.fidorial.api.event.Subscription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,10 +14,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public final class SimpleEventBus implements EventBus {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleEventBus.class);
+    private static final ComponentLogger LOGGER = getLogger(SimpleEventBus.class);
 
     private final Map<Class<?>, List<Registration<?>>> byType = new ConcurrentHashMap<>();
     private final Map<Class<?>, List<Registration<?>>> resolved = new ConcurrentHashMap<>();

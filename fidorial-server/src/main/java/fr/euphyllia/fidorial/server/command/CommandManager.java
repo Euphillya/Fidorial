@@ -5,17 +5,18 @@ import fr.euphyllia.fidorial.api.command.CommandRegistry;
 import fr.euphyllia.fidorial.api.command.CommandSender;
 import fr.euphyllia.fidorial.server.command.defaults.*;
 import net.kyori.adventure.text.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class CommandManager implements CommandRegistry {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommandManager.class);
+    private static final ComponentLogger LOGGER = getLogger(CommandManager.class);
 
     private final Map<String, CommandExecutor> commands = new ConcurrentHashMap<>();
 

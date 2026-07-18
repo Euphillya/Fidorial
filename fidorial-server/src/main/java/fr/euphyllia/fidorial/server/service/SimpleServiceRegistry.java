@@ -2,15 +2,16 @@ package fr.euphyllia.fidorial.server.service;
 
 import fr.euphyllia.fidorial.api.service.ServicePriority;
 import fr.euphyllia.fidorial.api.service.ServiceRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class SimpleServiceRegistry implements ServiceRegistry {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleServiceRegistry.class);
+    private static final ComponentLogger LOGGER = getLogger(SimpleServiceRegistry.class);
 
     private final Map<Class<?>, List<Provider<?>>> providers = new ConcurrentHashMap<>();
 

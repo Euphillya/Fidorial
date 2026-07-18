@@ -2,7 +2,7 @@ package fr.euphyllia.fidorial.testplugin.pregen;
 
 import fr.euphyllia.fidorial.api.world.Chunk;
 import fr.euphyllia.fidorial.api.world.World;
-import org.slf4j.Logger;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -18,7 +18,7 @@ public class PregenTask {
     private static final long REPORT_PERIOD_MS = 5_000;
 
     private final World world;
-    private final Logger logger;
+    private final ComponentLogger logger;
     private final int centerX;
     private final int centerZ;
     private final int radius;
@@ -33,7 +33,7 @@ public class PregenTask {
     private volatile boolean finished;
     private Thread thread;
 
-    public PregenTask(World world, Logger logger,
+    public PregenTask(World world, ComponentLogger logger,
                       int centerX, int centerZ, int radius, Consumer<String> progressListener) {
         this.world = world;
         this.logger = logger;

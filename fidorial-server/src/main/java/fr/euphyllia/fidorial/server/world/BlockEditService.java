@@ -2,14 +2,15 @@ package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.api.world.BlockPos;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class BlockEditService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BlockEditService.class);
+    private static final ComponentLogger LOGGER = getLogger(BlockEditService.class);
 
     private final BlockStateRegistry blockRegistry;
     private final BlockChangeBroadcaster broadcaster;
