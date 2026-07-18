@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.CatVariant;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:cat_variant} registry.
@@ -25,7 +25,7 @@ public final class CatVariantKeys {
     private CatVariantKeys() {
     }
 
-    private static TypedKey<CatVariant> create(String value) {
-        return TypedKey.create(RegistryKey.CAT_VARIANT, Key.minecraft(value));
+    private static TypedKey<CatVariant> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.CAT_VARIANT, value);
     }
 }

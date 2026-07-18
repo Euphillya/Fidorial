@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.api.world.block;
 
-import fr.euphyllia.fidorial.api.registry.Key;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.KeyPattern;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -11,8 +12,8 @@ public interface BlockRegistry {
 
     Optional<BlockType> type(Key key);
 
-    default Optional<BlockType> type(String key) {
-        return type(Key.parse(key));
+    default Optional<BlockType> type(@KeyPattern String key) {
+        return type(Key.key(key));
     }
 
     BlockData fromNetworkId(int networkId);
@@ -21,6 +22,7 @@ public interface BlockRegistry {
 
     Collection<BlockType> types();
 
+    @SuppressWarnings("PatternValidation")
     default BlockData parse(String input) {
         String name = input;
         Map<String, String> values = Map.of();

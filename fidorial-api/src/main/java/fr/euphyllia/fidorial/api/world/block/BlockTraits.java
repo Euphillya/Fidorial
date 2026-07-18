@@ -1,11 +1,11 @@
 package fr.euphyllia.fidorial.api.world.block;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.world.block.data.*;
 import fr.euphyllia.fidorial.api.world.block.data.type.Door;
 import fr.euphyllia.fidorial.api.world.block.data.type.NoteBlock;
 import fr.euphyllia.fidorial.api.world.block.data.type.Slab;
 import fr.euphyllia.fidorial.api.world.block.data.type.Stairs;
+import net.kyori.adventure.key.Key;
 
 import java.util.ArrayList;
 import java.util.List;

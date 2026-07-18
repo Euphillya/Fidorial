@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.FrogVariant;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:frog_variant} registry.
@@ -17,7 +17,7 @@ public final class FrogVariantKeys {
     private FrogVariantKeys() {
     }
 
-    private static TypedKey<FrogVariant> create(String value) {
-        return TypedKey.create(RegistryKey.FROG_VARIANT, Key.minecraft(value));
+    private static TypedKey<FrogVariant> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.FROG_VARIANT, value);
     }
 }

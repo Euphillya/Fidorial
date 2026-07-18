@@ -1,7 +1,6 @@
 package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.api.entity.Entity;
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.world.BlockPos;
 import fr.euphyllia.fidorial.api.world.Chunk;
 import fr.euphyllia.fidorial.api.world.World;
@@ -13,6 +12,7 @@ import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.key.Key;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -64,7 +64,7 @@ public final class ServerWorld implements World {
 
     @Override
     public Key key() {
-        return Key.parse(dimension.id());
+        return Key.key(dimension.id());
     }
 
     @Override

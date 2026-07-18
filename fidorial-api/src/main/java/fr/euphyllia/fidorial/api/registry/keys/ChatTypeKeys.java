@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.ChatType;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:chat_type} registry.
@@ -21,7 +21,7 @@ public final class ChatTypeKeys {
     private ChatTypeKeys() {
     }
 
-    private static TypedKey<ChatType> create(String value) {
-        return TypedKey.create(RegistryKey.CHAT_TYPE, Key.minecraft(value));
+    private static TypedKey<ChatType> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.CHAT_TYPE, value);
     }
 }

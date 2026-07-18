@@ -2,9 +2,9 @@ package fr.euphyllia.fidorial.server.entity.player.storage;
 
 import fr.euphyllia.fidorial.api.inventory.ItemStack;
 import fr.euphyllia.fidorial.api.inventory.PlayerInventory;
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.nbt.*;
+import net.kyori.adventure.key.Key;
 
 import java.io.IOException;
 
@@ -22,6 +22,7 @@ public final class PlayerInventoryCodec {
         return tag;
     }
 
+    @SuppressWarnings("PatternValidation")
     public static ItemStack itemFromNbt(NbtCompound tag) {
         if (tag == null) {
             return ItemStack.EMPTY;
@@ -31,7 +32,7 @@ public final class PlayerInventoryCodec {
         if (id.isBlank() || count <= 0) {
             return ItemStack.EMPTY;
         }
-        return new ItemStack(Key.parse(id), count);
+        return new ItemStack(Key.key(id), count);
     }
 
     public static NbtList inventoryToNbt(PlayerInventory inventory) {

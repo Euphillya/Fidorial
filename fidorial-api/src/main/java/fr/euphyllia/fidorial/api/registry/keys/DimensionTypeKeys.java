@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.DimensionType;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:dimension_type} registry.
@@ -18,7 +18,7 @@ public final class DimensionTypeKeys {
     private DimensionTypeKeys() {
     }
 
-    private static TypedKey<DimensionType> create(String value) {
-        return TypedKey.create(RegistryKey.DIMENSION_TYPE, Key.minecraft(value));
+    private static TypedKey<DimensionType> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.DIMENSION_TYPE, value);
     }
 }

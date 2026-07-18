@@ -2,10 +2,10 @@ package fr.euphyllia.fidorial.server.translation;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.translation.TranslationStore;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.Main;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationStore;
 import net.kyori.adventure.translation.GlobalTranslator;
@@ -86,7 +86,7 @@ public final class BuiltInTranslationStore implements TranslationStore {
             unload();
         }
 
-        miniMessageStore = MiniMessageTranslationStore.create(Key.minecraft("translations"));
+        miniMessageStore = MiniMessageTranslationStore.create(Key.key("translations"));
         loadBuiltin();
         GlobalTranslator.translator().addSource(miniMessageStore);
     }

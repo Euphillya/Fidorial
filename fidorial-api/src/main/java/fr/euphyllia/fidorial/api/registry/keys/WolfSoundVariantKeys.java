@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.WolfSoundVariant;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:wolf_sound_variant} registry.
@@ -21,7 +21,7 @@ public final class WolfSoundVariantKeys {
     private WolfSoundVariantKeys() {
     }
 
-    private static TypedKey<WolfSoundVariant> create(String value) {
-        return TypedKey.create(RegistryKey.WOLF_SOUND_VARIANT, Key.minecraft(value));
+    private static TypedKey<WolfSoundVariant> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.WOLF_SOUND_VARIANT, value);
     }
 }

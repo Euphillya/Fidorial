@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.world;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.world.generation.GeneratedChunk;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkSection;
+import net.kyori.adventure.key.Key;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

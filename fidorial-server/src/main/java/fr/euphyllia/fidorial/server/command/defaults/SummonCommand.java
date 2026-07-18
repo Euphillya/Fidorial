@@ -3,7 +3,6 @@ package fr.euphyllia.fidorial.server.command.defaults;
 import fr.euphyllia.fidorial.api.command.CommandExecutor;
 import fr.euphyllia.fidorial.api.command.CommandSender;
 import fr.euphyllia.fidorial.api.entity.EntityType;
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.world.Location;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
@@ -11,6 +10,7 @@ import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.euphyllia.fidorial.server.entity.mob.Mobs;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 
 import java.util.Locale;
@@ -18,6 +18,7 @@ import java.util.Locale;
 public final class SummonCommand implements CommandExecutor {
 
     @Override
+    @SuppressWarnings("PatternValidation")
     public void execute(CommandSender sender, String label, String[] args) {
         if (!sender.hasPermission("fidorial.command.summon")) {
             sender.sendMessage(Component.translatable("command.error.nopermission"));
@@ -45,7 +46,7 @@ public final class SummonCommand implements CommandExecutor {
             return;
         }
 
-        Key key = Key.parse(args[0].toLowerCase(Locale.ROOT));
+        Key key = Key.key(args[0].toLowerCase(Locale.ROOT));
         EntityType type = EntityTypes.get(key);
         if (type == null) {
             sender.sendMessage(Component.translatable("command.summon.unknown", Component.text(key.asString())));

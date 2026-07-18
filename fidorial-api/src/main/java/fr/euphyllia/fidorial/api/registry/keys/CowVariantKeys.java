@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.CowVariant;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:cow_variant} registry.
@@ -17,7 +17,7 @@ public final class CowVariantKeys {
     private CowVariantKeys() {
     }
 
-    private static TypedKey<CowVariant> create(String value) {
-        return TypedKey.create(RegistryKey.COW_VARIANT, Key.minecraft(value));
+    private static TypedKey<CowVariant> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.COW_VARIANT, value);
     }
 }

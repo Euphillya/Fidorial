@@ -2,7 +2,8 @@ package fr.euphyllia.fidorial.server.entity;
 
 import com.google.gson.stream.JsonReader;
 import fr.euphyllia.fidorial.api.entity.EntityType;
-import fr.euphyllia.fidorial.api.registry.Key;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.KeyPattern;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -182,6 +183,11 @@ public final class EntityTypes {
         Map<Key, EntityType> tempTypes = new ConcurrentHashMap<>();
         Map<Key, Integer> tempNetworkIds = new ConcurrentHashMap<>();
 
+    private EntityTypes() {
+    }
+
+    @SuppressWarnings("PatternValidation")
+    private static void loadVanillaTypes() {
         try (InputStream raw = EntityTypes.class.getResourceAsStream(RESOURCE)) {
             if (raw == null) {
                 throw new IllegalStateException("Missing resource " + RESOURCE);
@@ -190,7 +196,7 @@ public final class EntityTypes {
                     new GZIPInputStream(raw), StandardCharsets.UTF_8))) {
                 reader.beginObject();
                 while (reader.hasNext()) {
-                    Key key = Key.parse(reader.nextName());
+                    Key key = Key.key(reader.nextName());
                     int networkId = reader.nextInt();
 
                     EntityType type = new EntityType(
@@ -378,8 +384,8 @@ public final class EntityTypes {
         FISHING_BOBBER = vanilla("fishing_bobber");
     }
 
-    private static EntityType vanilla(String name) {
-        EntityType type = BY_KEY.get(Key.minecraft(name));
+    private static EntityType vanilla(@KeyPattern String name) {
+        EntityType type = BY_KEY.get(Key.key(name));
         if (type == null) {
             throw new IllegalStateException("Vanilla type absent from " + RESOURCE + " : " + name);
         }

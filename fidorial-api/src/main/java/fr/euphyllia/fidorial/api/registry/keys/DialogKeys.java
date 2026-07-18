@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.api.registry.keys;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.registry.RegistryKey;
 import fr.euphyllia.fidorial.api.registry.TypedKey;
 import fr.euphyllia.fidorial.api.registry.data.Dialog;
+import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:dialog} registry.
@@ -17,7 +17,7 @@ public final class DialogKeys {
     private DialogKeys() {
     }
 
-    private static TypedKey<Dialog> create(String value) {
-        return TypedKey.create(RegistryKey.DIALOG, Key.minecraft(value));
+    private static TypedKey<Dialog> create(@KeyPattern String value) {
+        return TypedKey.create(RegistryKey.DIALOG, value);
     }
 }

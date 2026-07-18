@@ -5,7 +5,6 @@ import fr.euphyllia.fidorial.api.entity.PlayerProfile;
 import fr.euphyllia.fidorial.api.event.player.*;
 import fr.euphyllia.fidorial.api.inventory.ItemStack;
 import fr.euphyllia.fidorial.api.inventory.PlayerInventory;
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.storage.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.api.world.BlockFace;
 import fr.euphyllia.fidorial.api.world.BlockPos;
@@ -27,6 +26,7 @@ import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
@@ -214,6 +214,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     @Override
+    @SuppressWarnings("PatternValidation")
     public void handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket packet) {
         if (player.gameMode() != GameMode.CREATIVE) {
             LOGGER.debug("{} envoie un paquet creatif hors mode creatif (ignore)", player.name());
@@ -233,7 +234,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             return;
         }
         player.inventory().set(slot, new ItemStack(
-                Key.parse(items.entries().get(packet.itemId())), packet.count()));
+                Key.key(items.entries().get(packet.itemId())), packet.count()));
     }
 
     @Override

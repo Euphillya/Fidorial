@@ -1,21 +1,21 @@
 package fr.euphyllia.fidorial.testplugin.terrain;
 
-import fr.euphyllia.fidorial.api.registry.Key;
 import fr.euphyllia.fidorial.api.world.generation.GeneratedChunk;
 import fr.euphyllia.fidorial.api.world.generation.WorldGenerator;
+import net.kyori.adventure.key.Key;
 
 public final class HillsGenerator implements WorldGenerator {
 
-    private static final Key BEDROCK = Key.minecraft("bedrock");
-    private static final Key STONE = Key.minecraft("stone");
-    private static final Key DIRT = Key.minecraft("dirt");
-    private static final Key GRASS_BLOCK = Key.minecraft("grass_block");
-    private static final Key SAND = Key.minecraft("sand");
-    private static final Key WATER = Key.minecraft("water");
+    private static final Key BEDROCK = Key.key("bedrock");
+    private static final Key STONE = Key.key("stone");
+    private static final Key DIRT = Key.key("dirt");
+    private static final Key GRASS_BLOCK = Key.key("grass_block");
+    private static final Key SAND = Key.key("sand");
+    private static final Key WATER = Key.key("water");
 
-    private static final Key BIOME_PLAINS = Key.minecraft("plains");
-    private static final Key BIOME_BEACH = Key.minecraft("beach");
-    private static final Key BIOME_RIVER = Key.minecraft("river");
+    private static final Key BIOME_PLAINS = Key.key("plains");
+    private static final Key BIOME_BEACH = Key.key("beach");
+    private static final Key BIOME_RIVER = Key.key("river");
 
     /**
      * Hauteur de base du terrain.
