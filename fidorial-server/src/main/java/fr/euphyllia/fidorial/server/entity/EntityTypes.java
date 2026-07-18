@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.entity;
 
 import com.google.gson.stream.JsonReader;
-import fr.euphyllia.fidorial.api.entity.EntityType;
+import fr.fidorial.entity.EntityType;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 

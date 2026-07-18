@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.adventure.providers;
 
-import fr.euphyllia.fidorial.api.translation.TranslationStore;
+import fr.fidorial.translation.TranslationStore;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.kyori.adventure.text.logger.slf4j.ComponentLoggerProvider;

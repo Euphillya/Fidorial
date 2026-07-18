@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 
-import fr.euphyllia.fidorial.api.world.Location;
+import fr.fidorial.world.Location;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;

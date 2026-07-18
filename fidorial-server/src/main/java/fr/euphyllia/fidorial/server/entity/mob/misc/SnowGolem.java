@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.entity.mob.misc;
 
-import fr.euphyllia.fidorial.api.world.Location;
-import fr.euphyllia.fidorial.api.world.World;
+import fr.fidorial.world.Location;
+import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;
 

@@ -2,7 +2,7 @@ package fr.euphyllia.fidorial.server.translation;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import fr.euphyllia.fidorial.api.translation.TranslationStore;
+import fr.fidorial.translation.TranslationStore;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.Main;
 import net.kyori.adventure.key.Key;

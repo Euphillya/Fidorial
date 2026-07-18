@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.entity.ai;
 
-import fr.euphyllia.fidorial.api.entity.ai.Path;
-import fr.euphyllia.fidorial.api.world.BlockPos;
+import fr.fidorial.entity.ai.Path;
+import fr.fidorial.world.BlockPos;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 
 import java.util.*;

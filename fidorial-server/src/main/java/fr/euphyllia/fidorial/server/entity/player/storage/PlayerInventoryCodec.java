@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.entity.player.storage;
 
-import fr.euphyllia.fidorial.api.inventory.ItemStack;
-import fr.euphyllia.fidorial.api.inventory.PlayerInventory;
+import fr.fidorial.inventory.ItemStack;
+import fr.fidorial.inventory.PlayerInventory;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.nbt.*;
 import net.kyori.adventure.key.Key;

@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.world;
 
-import fr.euphyllia.fidorial.api.world.block.BlockData;
-import fr.euphyllia.fidorial.api.world.block.BlockRegistry;
-import fr.euphyllia.fidorial.api.world.block.BlockType;
+import fr.fidorial.world.block.BlockData;
+import fr.fidorial.world.block.BlockRegistry;
+import fr.fidorial.world.block.BlockType;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import net.kyori.adventure.key.Key;
 

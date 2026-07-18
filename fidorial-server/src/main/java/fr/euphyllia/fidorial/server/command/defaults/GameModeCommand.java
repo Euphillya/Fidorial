@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import fr.euphyllia.fidorial.api.command.CommandExecutor;
-import fr.euphyllia.fidorial.api.command.CommandSender;
-import fr.euphyllia.fidorial.api.entity.GameMode;
-import fr.euphyllia.fidorial.api.entity.Player;
+import fr.fidorial.command.CommandExecutor;
+import fr.fidorial.command.CommandSender;
+import fr.fidorial.entity.GameMode;
+import fr.fidorial.entity.Player;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import net.kyori.adventure.text.Component;
 

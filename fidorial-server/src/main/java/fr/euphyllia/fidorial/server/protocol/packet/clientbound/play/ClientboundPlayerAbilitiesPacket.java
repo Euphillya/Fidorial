@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 
-import fr.euphyllia.fidorial.api.entity.GameMode;
+import fr.fidorial.entity.GameMode;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;

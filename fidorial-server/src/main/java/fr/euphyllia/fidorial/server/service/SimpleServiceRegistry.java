@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.service;
 
-import fr.euphyllia.fidorial.api.service.ServicePriority;
-import fr.euphyllia.fidorial.api.service.ServiceRegistry;
+import fr.fidorial.service.ServicePriority;
+import fr.fidorial.service.ServiceRegistry;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.*;

@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import fr.euphyllia.fidorial.api.command.CommandExecutor;
-import fr.euphyllia.fidorial.api.command.CommandSender;
-import fr.euphyllia.fidorial.api.entity.EntityType;
-import fr.euphyllia.fidorial.api.world.Location;
+import fr.fidorial.command.CommandExecutor;
+import fr.fidorial.command.CommandSender;
+import fr.fidorial.entity.EntityType;
+import fr.fidorial.world.Location;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;

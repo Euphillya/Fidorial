@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.ai;
 
-import fr.euphyllia.fidorial.api.entity.ai.Goal;
+import fr.fidorial.entity.ai.Goal;
 
 import java.util.ArrayList;
 import java.util.Comparator;

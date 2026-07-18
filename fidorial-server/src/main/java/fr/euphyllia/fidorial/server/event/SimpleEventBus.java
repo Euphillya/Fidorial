@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.event;
 
-import fr.euphyllia.fidorial.api.event.Event;
-import fr.euphyllia.fidorial.api.event.EventBus;
-import fr.euphyllia.fidorial.api.event.EventPriority;
-import fr.euphyllia.fidorial.api.event.Subscription;
+import fr.fidorial.event.Event;
+import fr.fidorial.event.EventBus;
+import fr.fidorial.event.EventPriority;
+import fr.fidorial.event.Subscription;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.ArrayList;

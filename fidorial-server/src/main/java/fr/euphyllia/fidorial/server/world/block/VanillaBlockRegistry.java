@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.world.block;
 
 import com.google.gson.stream.JsonReader;
-import fr.euphyllia.fidorial.api.world.block.BlockData;
-import fr.euphyllia.fidorial.api.world.block.BlockProperty;
-import fr.euphyllia.fidorial.api.world.block.BlockRegistry;
-import fr.euphyllia.fidorial.api.world.block.BlockType;
+import fr.fidorial.world.block.BlockData;
+import fr.fidorial.world.block.BlockProperty;
+import fr.fidorial.world.block.BlockRegistry;
+import fr.fidorial.world.block.BlockType;
 import net.kyori.adventure.key.Key;
 
 import java.io.IOException;

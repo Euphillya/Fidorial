@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.network.listener;
 
-import fr.euphyllia.fidorial.api.entity.PlayerProfile;
+import fr.fidorial.entity.PlayerProfile;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.GameProfile;
 import fr.euphyllia.fidorial.server.FidorialServer;

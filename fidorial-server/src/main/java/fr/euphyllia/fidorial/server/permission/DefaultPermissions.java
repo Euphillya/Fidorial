@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.permission;
 
-import fr.euphyllia.fidorial.api.permission.Permission;
-import fr.euphyllia.fidorial.api.permission.PermissionDefault;
-import fr.euphyllia.fidorial.api.plugin.PluginManager;
+import fr.fidorial.permission.Permission;
+import fr.fidorial.permission.PermissionDefault;
+import fr.fidorial.plugin.PluginManager;
 
 public class DefaultPermissions {
 

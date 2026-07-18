@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.entity.player.storage;
 
-import fr.euphyllia.fidorial.api.entity.GameMode;
-import fr.euphyllia.fidorial.api.storage.player.PlayerDataStorage;
+import fr.fidorial.entity.GameMode;
+import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;

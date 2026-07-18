@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity;
 
-import fr.euphyllia.fidorial.api.scheduler.RegionTickHandler;
+import fr.fidorial.scheduler.RegionTickHandler;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;

@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity;
 
-import fr.euphyllia.fidorial.api.world.ChunkPos;
+import fr.fidorial.world.ChunkPos;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 
 import java.util.*;

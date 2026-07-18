@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.network.session;
 
-import fr.euphyllia.fidorial.api.world.ChunkPos;
+import fr.fidorial.world.ChunkPos;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundForgetLevelChunkPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundLevelChunkWithLightPacket;
