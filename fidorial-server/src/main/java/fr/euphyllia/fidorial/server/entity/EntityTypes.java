@@ -4,10 +4,8 @@ import com.google.gson.stream.JsonReader;
 import fr.euphyllia.fidorial.api.entity.EntityType;
 import fr.euphyllia.fidorial.api.registry.Key;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,12 +16,6 @@ public final class EntityTypes {
     private static final String RESOURCE = "/data/entity_types.json.gz";
 
     private static final Map<Key, EntityType> BY_KEY = new ConcurrentHashMap<>();
-    private static final Map<Key, Integer> NETWORK_IDS = new ConcurrentHashMap<>();
-
-    static {
-        loadVanillaTypes();
-    }
-
     public static final EntityType ACACIA_BOAT = vanilla("acacia_boat");
     public static final EntityType ACACIA_CHEST_BOAT = vanilla("acacia_chest_boat");
     public static final EntityType ALLAY = vanilla("allay");
@@ -182,6 +174,11 @@ public final class EntityTypes {
     public static final EntityType ZOMBIFIED_PIGLIN = vanilla("zombified_piglin");
     public static final EntityType PLAYER = vanilla("player");
     public static final EntityType FISHING_BOBBER = vanilla("fishing_bobber");
+    private static final Map<Key, Integer> NETWORK_IDS = new ConcurrentHashMap<>();
+
+    static {
+        loadVanillaTypes();
+    }
 
     private EntityTypes() {
     }
@@ -196,28 +193,21 @@ public final class EntityTypes {
                 reader.beginObject();
                 while (reader.hasNext()) {
                     Key key = Key.parse(reader.nextName());
-                    int networkId = -1;
-                    EntityType.Category category = null;
-                    float width = 0f;
-                    float height = 0f;
-                    reader.beginObject();
-                    while (reader.hasNext()) {
-                        switch (reader.nextName()) {
-                            case "id" -> networkId = reader.nextInt();
-                            case "category" -> category = EntityType.Category.valueOf(reader.nextString());
-                            case "width" -> width = (float) reader.nextDouble();
-                            case "height" -> height = (float) reader.nextDouble();
-                            default -> reader.skipValue();
-                        }
-                    }
-                    reader.endObject();
-                    register(new EntityType(key, category, width, height));
+                    int networkId = reader.nextInt();
+
+                    EntityType type = new EntityType(
+                            key,
+                            EntityType.Category.MISC, // Todo : Need replace
+                            0.6f,
+                            1.8f
+                    );
+                    register(type);
                     NETWORK_IDS.put(key, networkId);
                 }
                 reader.endObject();
             }
-        } catch (IOException exception) {
-            throw new UncheckedIOException("Failed to load " + RESOURCE, exception);
+        } catch (Exception e) {
+            throw new RuntimeException("Error loading entity types", e);
         }
     }
 

@@ -28,6 +28,8 @@ import fr.euphyllia.fidorial.server.command.ConsoleCommandReader;
 import fr.euphyllia.fidorial.server.command.ConsoleSender;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
+import fr.euphyllia.fidorial.server.entity.EntityTickHandler;
+import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStorage;
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
@@ -46,6 +48,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundRemoveEntitiesPacket;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.euphyllia.fidorial.server.schedulers.AiWorkers;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
@@ -134,6 +137,7 @@ public final class FidorialServer implements Server {
             loadData();
             startSchedulers();
             openWorlds();
+            regionizer.registerTickHandler(new EntityTickHandler(worldManager));
             registerDefaultServices();
             loadPlugins();
             openNetwork();
@@ -167,6 +171,7 @@ public final class FidorialServer implements Server {
         closeQuietly("auto-save", () -> {
             if (autoSave != null) autoSave.shutdownNow();
         });
+        closeQuietly("ia", AiWorkers::shutdown);
         closeQuietly("regions", () -> {
             if (regionizer != null) regionizer.shutdown();
         });
@@ -423,12 +428,18 @@ public final class FidorialServer implements Server {
             throw new IllegalArgumentException("Entite sans monde serveur : " + entity);
         }
         world.addEntity(entity);
+        if (entity instanceof Mob) {
+            regionizer.addTicket(world.dimension().id(), entity.chunk());
+        }
         broadcast(ClientboundAddEntityPacket.of(entity));
     }
 
     public void despawnEntity(AbstractEntity entity) {
         if (entity.world() instanceof ServerWorld world) {
             world.removeEntity(entity);
+            if (entity instanceof Mob) {
+                regionizer.removeTicket(world.dimension().id(), entity.chunk());
+            }
         }
         entity.remove();
         broadcast(new ClientboundRemoveEntitiesPacket(entity.entityId()));

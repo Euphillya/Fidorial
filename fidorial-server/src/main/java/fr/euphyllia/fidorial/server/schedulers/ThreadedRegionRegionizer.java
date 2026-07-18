@@ -17,6 +17,7 @@ import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public final class ThreadedRegionRegionizer implements RegionizedScheduler {
 
+    public static final int SECTION_SHIFT = 5;
     private static final ComponentLogger LOGGER = getLogger(ThreadedRegionRegionizer.class);
     private static final long TICK_PERIOD_MS = 50L;
     /**
@@ -24,8 +25,6 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
      * At 20 TPS this corresponds to ~1 minute of inactivity.
      */
     private static final int MAX_EMPTY_TICKS = 20 * 60;
-
-    private static final int SECTION_SHIFT = 5;
     private static final int TPS_SAMPLE_SIZE = 100; // ~5 s a 20 TPS
     private final ScheduledExecutorService workers;
     private final ConcurrentMap<RegionKey, Region> regions = new ConcurrentHashMap<>();
