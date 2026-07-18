@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 
+@SuppressWarnings("PatternValidation")
 public final class EntityTypes {
 
     private static final String RESOURCE = "/data/entity_types.json.gz";
@@ -183,11 +184,6 @@ public final class EntityTypes {
         Map<Key, EntityType> tempTypes = new ConcurrentHashMap<>();
         Map<Key, Integer> tempNetworkIds = new ConcurrentHashMap<>();
 
-    private EntityTypes() {
-    }
-
-    @SuppressWarnings("PatternValidation")
-    private static void loadVanillaTypes() {
         try (InputStream raw = EntityTypes.class.getResourceAsStream(RESOURCE)) {
             if (raw == null) {
                 throw new IllegalStateException("Missing resource " + RESOURCE);
