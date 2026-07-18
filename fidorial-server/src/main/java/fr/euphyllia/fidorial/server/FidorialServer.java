@@ -26,6 +26,7 @@ import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleCommandReader;
 import fr.euphyllia.fidorial.server.command.ConsoleSender;
+import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStorage;
@@ -40,7 +41,9 @@ import fr.euphyllia.fidorial.server.plugin.JavaPluginManager;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundAddEntityPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundBlockUpdatePacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundRemoveEntitiesPacket;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
@@ -413,6 +416,22 @@ public final class FidorialServer implements Server {
 
     public EntityIdAllocator entityIds() {
         return entityIds;
+    }
+
+    public void spawnEntity(AbstractEntity entity) {
+        if (!(entity.world() instanceof ServerWorld world)) {
+            throw new IllegalArgumentException("Entite sans monde serveur : " + entity);
+        }
+        world.addEntity(entity);
+        broadcast(ClientboundAddEntityPacket.of(entity));
+    }
+
+    public void despawnEntity(AbstractEntity entity) {
+        if (entity.world() instanceof ServerWorld world) {
+            world.removeEntity(entity);
+        }
+        entity.remove();
+        broadcast(new ClientboundRemoveEntitiesPacket(entity.entityId()));
     }
 
     public void addPlayerConnection(ClientConnection connection) {

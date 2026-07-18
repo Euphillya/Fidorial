@@ -1,0 +1,17 @@
+package fr.euphyllia.fidorial.server.entity.mob.creature;
+
+import fr.euphyllia.fidorial.api.world.Location;
+import fr.euphyllia.fidorial.api.world.World;
+import fr.euphyllia.fidorial.server.entity.EntityTypes;
+import fr.euphyllia.fidorial.server.entity.mob.Mob;
+
+import java.util.UUID;
+
+public final class SulfurCube extends Mob {
+
+    public static final float MAX_HEALTH = 8f;
+
+    public SulfurCube(int entityId, World world, Location location) {
+        super(entityId, UUID.randomUUID(), EntityTypes.SULFUR_CUBE, world, location, MAX_HEALTH);
+    }
+}

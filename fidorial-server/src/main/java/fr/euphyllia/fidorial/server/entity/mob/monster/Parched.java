@@ -1,0 +1,17 @@
+package fr.euphyllia.fidorial.server.entity.mob.monster;
+
+import fr.euphyllia.fidorial.api.world.Location;
+import fr.euphyllia.fidorial.api.world.World;
+import fr.euphyllia.fidorial.server.entity.EntityTypes;
+import fr.euphyllia.fidorial.server.entity.mob.Mob;
+
+import java.util.UUID;
+
+public final class Parched extends Mob {
+
+    public static final float MAX_HEALTH = 16f;
+
+    public Parched(int entityId, World world, Location location) {
+        super(entityId, UUID.randomUUID(), EntityTypes.PARCHED, world, location, MAX_HEALTH);
+    }
+}

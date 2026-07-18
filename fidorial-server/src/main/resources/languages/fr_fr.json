@@ -41,5 +41,12 @@
 
   "weather.clear" : "beau temps",
   "weather.rain" : "pluie",
-  "weather.thunder" : "orage"
+  "weather.thunder" : "orage",
+
+  "command.summon.badcoords" : "Coordonnées invalides.",
+  "command.summon.console" : "Depuis la console, les coordonnées sont requises : /<arg:0> <type> <x> <y> <z>",
+  "command.summon.done" : "Un <arg:0> a été invoqué (entité #<arg:1>).",
+  "command.summon.notmob" : "<arg:0> n'est pas (encore) un mob invocable.",
+  "command.summon.unknown" : "Type d'entité inconnu : <arg:0>",
+  "command.summon.usage" : "Utilisation : /<arg:0> <type> [x y z]"
 }

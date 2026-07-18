@@ -13,6 +13,7 @@ import fr.euphyllia.fidorial.api.world.ChunkPos;
 import fr.euphyllia.fidorial.api.world.Location;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.ServerConfig;
+import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.player.InventorySlots;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
@@ -70,6 +71,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         sendLoginSequence(dynamic);
         openChunkView(world, dynamic, spawn.chunk());
         spawnPlayer(spawn);
+        sendExistingEntities(world);
 
         connection.startKeepAlive();
         server.addPlayerConnection(connection);
@@ -92,6 +94,15 @@ public final class PlayPacketHandler implements PlayPacketListener {
             server.worldManager().overworld().removeEntity(player);
             player.clearPermissions();
             player.remove();
+        }
+    }
+
+    private void sendExistingEntities(ServerWorld world) {
+        for (var entity : world.entityManager().all()) {
+            if (entity instanceof ServerPlayer || !EntityTypes.hasNetworkId(entity.type())) {
+                continue;
+            }
+            connection.send(ClientboundAddEntityPacket.of(entity));
         }
     }
 

@@ -177,6 +177,48 @@ public final class PacketBuffer {
         return this;
     }
 
+    public PacketBuffer writeAngle(float degrees) {
+        buf.writeByte((int) (degrees * 256f / 360f));
+        return this;
+    }
+
+    private static final double LP_VEC3_ABS_MAX = 1.7179869183E10;
+    private static final double LP_VEC3_ABS_MIN = 3.051944088384301E-5;
+    private static final double LP_VEC3_MAX_QUANTIZED = 32766.0;
+
+    public PacketBuffer writeLpVec3(double x, double y, double z) {
+        x = lpSanitize(x);
+        y = lpSanitize(y);
+        z = lpSanitize(z);
+        double max = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
+        if (max < LP_VEC3_ABS_MIN) {
+            buf.writeByte(0);
+            return this;
+        }
+        long scale = (long) Math.ceil(max);
+        boolean continuation = (scale & 0b11L) != scale;
+        long flags = continuation ? (scale & 0b11L) | 0b100L : scale;
+        long packed = flags
+                | lpPack(x / scale) << 3
+                | lpPack(y / scale) << 18
+                | lpPack(z / scale) << 33;
+        buf.writeByte((int) packed);
+        buf.writeByte((int) (packed >> 8));
+        buf.writeInt((int) (packed >> 16));
+        if (continuation) {
+            writeVarInt((int) (scale >> 2));
+        }
+        return this;
+    }
+
+    private static double lpSanitize(double value) {
+        return Double.isNaN(value) ? 0.0 : Math.clamp(value, -LP_VEC3_ABS_MAX, LP_VEC3_ABS_MAX);
+    }
+
+    private static long lpPack(double value) {
+        return Math.round((value * 0.5 + 0.5) * LP_VEC3_MAX_QUANTIZED);
+    }
+
     public UUID readUuid() {
         return new UUID(buf.readLong(), buf.readLong());
     }

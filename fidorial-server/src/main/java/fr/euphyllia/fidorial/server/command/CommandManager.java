@@ -32,6 +32,7 @@ public final class CommandManager implements CommandRegistry {
         register("op", new OpCommand(true));
         register("deop", new OpCommand(false));
         register("stop", new StopCommand());
+        register("summon", new SummonCommand());
     }
 
     @Override

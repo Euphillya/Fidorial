@@ -41,5 +41,11 @@
 
   "weather.clear" : "clear",
   "weather.rain" : "rain",
-  "weather.thunder" : "thunder"
+  "weather.thunder" : "thunder",
+
+  "command.summon.console" : "From the console, coordinates are required: /<arg:0> <type> <x> <y> <z>",
+  "command.summon.done" : "Summoned a <arg:0> (entity #<arg:1>).",
+  "command.summon.notmob" : "<arg:0> is not a summonable mob (yet).",
+  "command.summon.unknown" : "Unknown entity type: <arg:0>",
+  "command.summon.usage" : "Usage: /<arg:0> <type> [x y z]"
 }
