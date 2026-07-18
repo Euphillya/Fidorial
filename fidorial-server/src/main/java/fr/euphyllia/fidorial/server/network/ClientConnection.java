@@ -195,7 +195,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        LOGGER.debug("Connexion fermee ({})", cause.toString());
+        LOGGER.debug("Connexion closed", cause);
         ctx.close();
     }
 
