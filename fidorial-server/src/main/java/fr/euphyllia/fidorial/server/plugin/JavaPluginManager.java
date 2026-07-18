@@ -2,15 +2,15 @@ package fr.euphyllia.fidorial.server.plugin;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import fr.euphyllia.fidorial.api.Server;
-import fr.euphyllia.fidorial.api.permission.Permissible;
-import fr.euphyllia.fidorial.api.permission.Permission;
-import fr.euphyllia.fidorial.api.permission.PermissionDefault;
-import fr.euphyllia.fidorial.api.plugin.Plugin;
-import fr.euphyllia.fidorial.api.plugin.PluginContext;
-import fr.euphyllia.fidorial.api.plugin.PluginManager;
-import fr.euphyllia.fidorial.api.plugin.PluginMeta;
-import fr.euphyllia.fidorial.api.service.ServiceRegistry;
+import fr.fidorial.Server;
+import fr.fidorial.permission.Permissible;
+import fr.fidorial.permission.Permission;
+import fr.fidorial.permission.PermissionDefault;
+import fr.fidorial.plugin.Plugin;
+import fr.fidorial.plugin.PluginContext;
+import fr.fidorial.plugin.PluginManager;
+import fr.fidorial.plugin.PluginMeta;
+import fr.fidorial.service.ServiceRegistry;
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 

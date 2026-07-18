@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.world;
 
-import fr.euphyllia.fidorial.api.world.Chunk;
-import fr.euphyllia.fidorial.api.world.World;
+import fr.fidorial.world.Chunk;
+import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 

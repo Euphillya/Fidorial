@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.schedulers;
 
-import fr.euphyllia.fidorial.api.scheduler.RegionTickHandler;
-import fr.euphyllia.fidorial.api.scheduler.RegionTps;
-import fr.euphyllia.fidorial.api.scheduler.RegionizedScheduler;
-import fr.euphyllia.fidorial.api.world.ChunkPos;
+import fr.fidorial.scheduler.RegionTickHandler;
+import fr.fidorial.scheduler.RegionTps;
+import fr.fidorial.scheduler.RegionizedScheduler;
+import fr.fidorial.world.ChunkPos;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.ArrayList;

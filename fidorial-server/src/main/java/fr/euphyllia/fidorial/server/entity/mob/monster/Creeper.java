@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.entity.mob.monster;
 
-import fr.euphyllia.fidorial.api.entity.ai.Goal;
-import fr.euphyllia.fidorial.api.world.Location;
-import fr.euphyllia.fidorial.api.world.World;
+import fr.fidorial.entity.ai.Goal;
+import fr.fidorial.world.Location;
+import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.ai.goal.ChaseTargetGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.LookAtTargetGoal;

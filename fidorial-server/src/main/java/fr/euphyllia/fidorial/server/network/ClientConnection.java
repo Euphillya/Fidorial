@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.network;
 
-import fr.euphyllia.fidorial.api.entity.PlayerProfile;
-import fr.euphyllia.fidorial.api.storage.player.PlayerDataStorage;
-import fr.euphyllia.fidorial.api.translation.TranslationStore;
+import fr.fidorial.entity.PlayerProfile;
+import fr.fidorial.storage.player.PlayerDataStorage;
+import fr.fidorial.translation.TranslationStore;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;

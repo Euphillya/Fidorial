@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.entity.mob;
 
-import fr.euphyllia.fidorial.api.entity.EntityType;
-import fr.euphyllia.fidorial.api.world.Location;
-import fr.euphyllia.fidorial.api.world.World;
+import fr.fidorial.entity.EntityType;
+import fr.fidorial.world.Location;
+import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.mob.ambient.Bat;
 import fr.euphyllia.fidorial.server.entity.mob.creature.*;

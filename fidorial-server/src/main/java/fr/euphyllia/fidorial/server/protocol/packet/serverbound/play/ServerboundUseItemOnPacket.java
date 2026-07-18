@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.protocol.packet.serverbound.play;
 
-import fr.euphyllia.fidorial.api.world.BlockPos;
+import fr.fidorial.world.BlockPos;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;

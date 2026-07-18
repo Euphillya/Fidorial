@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.testplugin.terrain;
 
-import fr.euphyllia.fidorial.api.world.generation.GeneratedChunk;
-import fr.euphyllia.fidorial.api.world.generation.WorldGenerator;
+import fr.fidorial.world.generation.GeneratedChunk;
+import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
 
 public final class HillsGenerator implements WorldGenerator {

@@ -1,9 +1,16 @@
 package fr.euphyllia.fidorial.server.command;
 
-import fr.euphyllia.fidorial.api.command.CommandSender;
-import fr.euphyllia.fidorial.api.permission.*;
-import fr.euphyllia.fidorial.api.plugin.Plugin;
-import fr.euphyllia.fidorial.api.translation.TranslationStore;
+import fr.fidorial.command.CommandSender;
+import fr.fidorial.permission.Permissible;
+import fr.fidorial.permission.PermissibleBase;
+import fr.fidorial.permission.PermissibleBaseHolder;
+import fr.fidorial.permission.Permission;
+import fr.fidorial.permission.PermissionAttachment;
+import fr.fidorial.permission.PermissionAttachmentInfo;
+import fr.fidorial.permission.PermissionService;
+import fr.fidorial.permission.ServerOperator;
+import fr.fidorial.plugin.Plugin;
+import fr.fidorial.translation.TranslationStore;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;

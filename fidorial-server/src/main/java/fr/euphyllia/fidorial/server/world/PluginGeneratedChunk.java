@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.world;
 
-import fr.euphyllia.fidorial.api.world.generation.GeneratedChunk;
+import fr.fidorial.world.generation.GeneratedChunk;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkSection;

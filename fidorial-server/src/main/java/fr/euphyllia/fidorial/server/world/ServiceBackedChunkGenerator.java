@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.world;
 
-import fr.euphyllia.fidorial.api.service.ServiceRegistry;
-import fr.euphyllia.fidorial.api.world.generation.WorldGenerator;
+import fr.fidorial.service.ServiceRegistry;
+import fr.fidorial.world.generation.WorldGenerator;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 

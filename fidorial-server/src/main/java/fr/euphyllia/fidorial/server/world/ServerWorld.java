@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.world;
 
-import fr.euphyllia.fidorial.api.entity.Entity;
-import fr.euphyllia.fidorial.api.world.BlockPos;
-import fr.euphyllia.fidorial.api.world.Chunk;
-import fr.euphyllia.fidorial.api.world.World;
+import fr.fidorial.entity.Entity;
+import fr.fidorial.world.BlockPos;
+import fr.fidorial.world.Chunk;
+import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityManager;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;

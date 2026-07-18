@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.entity;
 
-import fr.euphyllia.fidorial.api.entity.Entity;
-import fr.euphyllia.fidorial.api.entity.EntityType;
-import fr.euphyllia.fidorial.api.world.Location;
-import fr.euphyllia.fidorial.api.world.World;
+import fr.fidorial.entity.Entity;
+import fr.fidorial.entity.EntityType;
+import fr.fidorial.world.Location;
+import fr.fidorial.world.World;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;

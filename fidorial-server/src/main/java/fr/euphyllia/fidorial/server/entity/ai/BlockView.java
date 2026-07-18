@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.ai;
 
-import fr.euphyllia.fidorial.api.world.Chunk;
+import fr.fidorial.world.Chunk;
 import fr.euphyllia.fidorial.server.world.ServerChunk;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;

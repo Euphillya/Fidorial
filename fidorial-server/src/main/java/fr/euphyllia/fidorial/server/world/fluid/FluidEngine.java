@@ -1,11 +1,11 @@
 package fr.euphyllia.fidorial.server.world.fluid;
 
-import fr.euphyllia.fidorial.api.world.BlockFace;
-import fr.euphyllia.fidorial.api.world.BlockPos;
-import fr.euphyllia.fidorial.api.world.ChunkPos;
-import fr.euphyllia.fidorial.api.world.fluid.FluidManager;
-import fr.euphyllia.fidorial.api.world.fluid.FluidState;
-import fr.euphyllia.fidorial.api.world.fluid.FluidType;
+import fr.fidorial.world.BlockFace;
+import fr.fidorial.world.BlockPos;
+import fr.fidorial.world.ChunkPos;
+import fr.fidorial.world.fluid.FluidManager;
+import fr.fidorial.world.fluid.FluidState;
+import fr.fidorial.world.fluid.FluidType;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundBlockUpdatePacket;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;

@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.entity.mob;
 
-import fr.euphyllia.fidorial.api.entity.EntityType;
-import fr.euphyllia.fidorial.api.entity.GameMode;
-import fr.euphyllia.fidorial.api.world.ChunkPos;
-import fr.euphyllia.fidorial.api.world.Location;
-import fr.euphyllia.fidorial.api.world.World;
+import fr.fidorial.entity.EntityType;
+import fr.fidorial.entity.GameMode;
+import fr.fidorial.world.ChunkPos;
+import fr.fidorial.world.Location;
+import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.ai.BlockView;
 import fr.euphyllia.fidorial.server.entity.ai.GoalSelector;

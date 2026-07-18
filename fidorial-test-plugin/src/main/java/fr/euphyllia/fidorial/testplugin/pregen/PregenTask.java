@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.testplugin.pregen;
 
-import fr.euphyllia.fidorial.api.world.Chunk;
-import fr.euphyllia.fidorial.api.world.World;
+import fr.fidorial.world.Chunk;
+import fr.fidorial.world.World;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.concurrent.CompletableFuture;

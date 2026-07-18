@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.plugin;
 
-import fr.euphyllia.fidorial.api.Server;
-import fr.euphyllia.fidorial.api.event.EventBus;
-import fr.euphyllia.fidorial.api.plugin.PluginContext;
-import fr.euphyllia.fidorial.api.plugin.PluginMeta;
-import fr.euphyllia.fidorial.api.service.ServiceRegistry;
+import fr.fidorial.Server;
+import fr.fidorial.event.EventBus;
+import fr.fidorial.plugin.PluginContext;
+import fr.fidorial.plugin.PluginMeta;
+import fr.fidorial.service.ServiceRegistry;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
