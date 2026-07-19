@@ -17,8 +17,8 @@ public final class Main {
             Runtime.getRuntime().addShutdownHook(
                     new Thread(server::shutdown, "fidorial-shutdown"));
             server.start();
-        } catch (Exception e) {
-            LOGGER.error("Fidorial n'a pas pu demarrer", e);
+        } catch (Throwable t) {
+            LOGGER.error("Fidorial n'a pas pu demarrer", t);
             System.exit(1);
         }
     }

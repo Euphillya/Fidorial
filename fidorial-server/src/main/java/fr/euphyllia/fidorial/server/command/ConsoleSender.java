@@ -21,7 +21,6 @@ import java.util.Set;
 import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
-    public static final ConsoleSender INSTANCE = new ConsoleSender();
     private static final ComponentLogger LOGGER = getLogger("Console");
     private static final ServerOperator CONSOLE_OP = new ServerOperator() {
         @Override
@@ -34,10 +33,11 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
             throw new UnsupportedOperationException("Impossible de changer le statut op de la console");
         }
     };
-    private Locale locale = TranslationStore.defaultLocale();
-    private final PermissibleBase perm = new PermissibleBase(CONSOLE_OP, this, FidorialServer.getInstance().plugins());
+    private Locale locale = Locale.US;
+    private final PermissibleBase perm;
 
-    private ConsoleSender() {
+    public ConsoleSender(FidorialServer server) {
+        this.perm = new PermissibleBase(CONSOLE_OP, this, server.plugins());
     }
 
     @Override

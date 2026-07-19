@@ -68,7 +68,6 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.util.Collection;
@@ -90,15 +89,7 @@ public final class FidorialServer implements Server {
     public static final ComponentLogger LOGGER = getLogger(FidorialServer.class);
     private static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware();
 
-    private static final FidorialServer instance;
-
-    static {
-        try {
-            instance = new FidorialServer();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
+    private static @Nullable FidorialServer instance;
 
     private final ServerConfig config = ServerConfig.load();
     private final AtomicBoolean running = new AtomicBoolean(false);
@@ -139,14 +130,18 @@ public final class FidorialServer implements Server {
             .errorTrackerService(ERROR_TRACKER)
             .metrics(Metrics.Factory::create)
             .create();
-    private final ConsoleSender console = ConsoleSender.INSTANCE;
+    private final ConsoleSender console = new ConsoleSender(this);
     private @Nullable Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
 
     public FidorialServer() throws IOException {
+        if (instance != null) {
+            throw new IllegalStateException("FidorialServer is already initialized");
+        }
+        instance = this;
     }
 
     public static FidorialServer getInstance() {
-        return instance;
+        return Objects.requireNonNull(instance, "FidorialServer is not initialized");
     }
 
     private static VanillaBlockRegistry bootstrapBlocks() {
@@ -391,6 +386,10 @@ public final class FidorialServer implements Server {
 
     public BlockStateRegistry blockStateRegistry() {
         return blockStateRegistry;
+    }
+
+    public ConsoleSender getConsole() {
+        return console;
     }
 
     public WeatherEngine weatherEngine() {
