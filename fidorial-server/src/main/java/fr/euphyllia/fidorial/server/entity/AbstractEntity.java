@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class AbstractEntity implements Entity {
 
     private final int entityId;
-    private final UUID uuid;
+    private UUID uuid;
     private final EntityType type;
     private final AtomicBoolean removed = new AtomicBoolean(false);
 
@@ -35,6 +35,10 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public UUID uuid() {
         return uuid;
+    }
+
+    public final void restoreUuid(final UUID uuid) {
+        this.uuid = uuid;
     }
 
     @Override
