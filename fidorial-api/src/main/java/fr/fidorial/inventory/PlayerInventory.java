@@ -1,5 +1,7 @@
 package fr.fidorial.inventory;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 
 public class PlayerInventory {
@@ -27,7 +29,7 @@ public class PlayerInventory {
         return slots[slot];
     }
 
-    public void set(int slot, ItemStack stack) {
+    public void set(int slot, @Nullable ItemStack stack) {
         checkSlot(slot);
         slots[slot] = stack == null ? ItemStack.EMPTY : stack;
     }
@@ -50,7 +52,7 @@ public class PlayerInventory {
     }
 
 
-    public void setAllItems(ItemStack[] contents) {
+    public void setAllItems(ItemStack @Nullable [] contents) {
         if (contents == null) {
             return;
         }

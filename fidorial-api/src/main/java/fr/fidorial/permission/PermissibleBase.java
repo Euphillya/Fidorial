@@ -3,6 +3,7 @@ package fr.fidorial.permission;
 import fr.fidorial.plugin.Plugin;
 import fr.fidorial.plugin.PluginManager;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -20,7 +21,7 @@ public class PermissibleBase implements Permissible {
         this(opable, null, pluginManager);
     }
 
-    public PermissibleBase(ServerOperator opable, Permissible parent, PluginManager pluginManager) {
+    public PermissibleBase(ServerOperator opable, @Nullable Permissible parent, PluginManager pluginManager) {
         this.opable = opable;
         this.parent = parent == null ? this : parent;
         this.pluginManager = Objects.requireNonNull(pluginManager, "pluginManager");
@@ -29,14 +30,11 @@ public class PermissibleBase implements Permissible {
 
     @Override
     public boolean isOp() {
-        return opable != null && opable.isOp();
+        return opable.isOp();
     }
 
     @Override
     public void setOp(boolean value) {
-        if (opable == null) {
-            throw new UnsupportedOperationException("Impossible de changer le statut op de cet objet");
-        }
         opable.setOp(value);
         recalculatePermissions();
     }
@@ -144,7 +142,7 @@ public class PermissibleBase implements Permissible {
     }
 
     private void calculateChildPermissions(Map<String, Boolean> children, boolean invert,
-                                           PermissionAttachment attachment) {
+                                           @Nullable PermissionAttachment attachment) {
         for (Map.Entry<String, Boolean> entry : children.entrySet()) {
             String name = entry.getKey();
             String lname = name.toLowerCase(Locale.ROOT);

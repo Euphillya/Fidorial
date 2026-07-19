@@ -24,6 +24,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
@@ -41,10 +42,10 @@ public final class TestPlugin implements Plugin {
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
 
     private final AtomicLong eventCount = new AtomicLong();
-    private PluginContext context;
-    private ComponentLogger logger;
-    private Server server;
-    private volatile PregenTask task;
+    private @Nullable PluginContext context;
+    private @Nullable ComponentLogger logger;
+    private @Nullable Server server;
+    private volatile @Nullable PregenTask task;
 
     @Override
     public void onLoad(PluginContext context) {

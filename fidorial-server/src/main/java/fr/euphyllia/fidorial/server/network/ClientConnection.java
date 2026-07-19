@@ -1,8 +1,5 @@
 package fr.euphyllia.fidorial.server.network;
 
-import fr.fidorial.entity.PlayerProfile;
-import fr.fidorial.storage.player.PlayerDataStorage;
-import fr.fidorial.translation.TranslationStore;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
@@ -10,7 +7,11 @@ import fr.euphyllia.fidorial.server.network.codec.CipherDecoder;
 import fr.euphyllia.fidorial.server.network.codec.CipherEncoder;
 import fr.euphyllia.fidorial.server.network.codec.CompressionDecoder;
 import fr.euphyllia.fidorial.server.network.codec.CompressionEncoder;
-import fr.euphyllia.fidorial.server.network.listener.*;
+import fr.euphyllia.fidorial.server.network.listener.ConfigurationPacketHandler;
+import fr.euphyllia.fidorial.server.network.listener.HandshakePacketHandler;
+import fr.euphyllia.fidorial.server.network.listener.LoginPacketHandler;
+import fr.euphyllia.fidorial.server.network.listener.PlayPacketHandler;
+import fr.euphyllia.fidorial.server.network.listener.StatusPacketHandler;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
@@ -18,12 +19,16 @@ import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundLoginDisconnectPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundKeepAlivePacket;
+import fr.fidorial.entity.PlayerProfile;
+import fr.fidorial.storage.player.PlayerDataStorage;
+import fr.fidorial.translation.TranslationStore;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -48,13 +53,13 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     private PacketListener listener;
 
     private int clientProtocol;
-    private String username;
-    private PlayerProfile profile;
-    private ServerPlayer player;
+    private @Nullable String username;
+    private @Nullable PlayerProfile profile;
+    private @Nullable ServerPlayer player;
     private int displayedSkinParts = 0x7F; // toutes les couches activees par defaut
-    private String forwardedAddress;
+    private @Nullable String forwardedAddress;
     private Locale locale = TranslationStore.defaultLocale();
-    private ScheduledFuture<?> keepAliveTask;
+    private @Nullable ScheduledFuture<?> keepAliveTask;
 
     public ClientConnection(FidorialServer server) {
         this.server = server;
@@ -164,12 +169,10 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         if (keepAliveTask != null) {
             keepAliveTask.cancel(false);
         }
-        if (listener != null) {
-            try {
-                listener.onDisconnect();
-            } catch (Throwable t) {
-                LOGGER.error("Erreur pendant onDisconnect", t);
-            }
+        try {
+            listener.onDisconnect();
+        } catch (Throwable t) {
+            LOGGER.error("Erreur pendant onDisconnect", t);
         }
         server.removePlayerConnection(this);
         saveInventoryOnDisconnect();
@@ -215,7 +218,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         this.clientProtocol = clientProtocol;
     }
 
-    public String username() {
+    public @Nullable String username() {
         return username;
     }
 
@@ -223,7 +226,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         this.username = username;
     }
 
-    public String forwardedAddress() {
+    public @Nullable String forwardedAddress() {
         return forwardedAddress;
     }
 
@@ -231,7 +234,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         this.forwardedAddress = forwardedAddress;
     }
 
-    public PlayerProfile profile() {
+    public @Nullable PlayerProfile profile() {
         return profile;
     }
 
@@ -255,7 +258,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         this.locale = locale;
     }
 
-    public ServerPlayer player() {
+    public @Nullable ServerPlayer player() {
         return player;
     }
 

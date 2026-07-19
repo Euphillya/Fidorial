@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.entity;
 import fr.fidorial.entity.EntityType;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -196,7 +197,7 @@ public final class EntityTypes {
         return type;
     }
 
-    public static EntityType get(Key key) {
+    public static @Nullable EntityType get(Key key) {
         return BY_KEY.get(key);
     }
 

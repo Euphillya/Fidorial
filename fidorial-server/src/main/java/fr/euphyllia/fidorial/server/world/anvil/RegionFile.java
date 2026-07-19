@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.world.anvil;
 
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
+import org.jspecify.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -67,7 +68,7 @@ public final class RegionFile implements Closeable {
         return offsets[i] != 0 && sectorCounts[i] != 0;
     }
 
-    public NbtCompound readChunk(int chunkX, int chunkZ) throws IOException {
+    public @Nullable NbtCompound readChunk(int chunkX, int chunkZ) throws IOException {
         int i = RegionConstants.headerIndex(chunkX, chunkZ);
         if (offsets[i] == 0 || sectorCounts[i] == 0) return null;
 

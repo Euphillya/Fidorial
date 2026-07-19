@@ -13,6 +13,7 @@ import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -33,8 +34,8 @@ public final class ServerWorld implements World {
     private final Map<Long, ChunkColumn> loaded = new ConcurrentHashMap<>();
     private final Set<Long> dirty = ConcurrentHashMap.newKeySet();
     private final Set<ChunkViewSource> viewers = ConcurrentHashMap.newKeySet();
-    private volatile AsyncChunkLoader chunkLoader;
-    private Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
+    private volatile @Nullable AsyncChunkLoader chunkLoader;
+    private @Nullable Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
 
     public ServerWorld(Dimension dimension, ChunkStorage storage, ChunkGenerator generator,
                        BlockStateRegistry blockStates, int minY, int height) {
@@ -99,7 +100,7 @@ public final class ServerWorld implements World {
     }
 
     @Override
-    public Chunk getChunkIfLoaded(int chunkX, int chunkZ) {
+    public @Nullable Chunk getChunkIfLoaded(int chunkX, int chunkZ) {
         ChunkColumn cached = loaded.get(key(chunkX, chunkZ));
         return cached == null ? null : wrap(cached);
     }

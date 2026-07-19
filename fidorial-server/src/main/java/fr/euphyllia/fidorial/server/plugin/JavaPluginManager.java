@@ -13,6 +13,7 @@ import fr.fidorial.plugin.PluginMeta;
 import fr.fidorial.service.ServiceRegistry;
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +57,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         this.defaultPerms.put(Boolean.FALSE, new LinkedHashSet<>());
     }
 
-    private static void closeQuietly(URLClassLoader classLoader) {
+    private static void closeQuietly(@Nullable URLClassLoader classLoader) {
         if (classLoader == null) {
             return;
         }
@@ -144,7 +145,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
     }
 
     @Override
-    public Permission getPermission(String name) {
+    public @Nullable Permission getPermission(@Nullable String name) {
         return name == null ? null : permissions.get(name.toLowerCase(Locale.ROOT));
     }
 
@@ -186,7 +187,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
     }
 
     @Override
-    public void recalculatePermissionDefaults(Permission perm) {
+    public void recalculatePermissionDefaults(@Nullable Permission perm) {
         if (perm != null && permissions.containsKey(perm.getName().toLowerCase(Locale.ROOT))) {
             synchronized (defaultPerms) {
                 defaultPerms.get(Boolean.TRUE).remove(perm);

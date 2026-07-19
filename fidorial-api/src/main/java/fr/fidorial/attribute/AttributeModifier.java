@@ -1,6 +1,7 @@
 package fr.fidorial.attribute;
 
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -47,7 +48,7 @@ public record AttributeModifier(
             return serializedName;
         }
 
-        public static Operation byName(String name) {
+        public static Operation byName(@Nullable String name) {
             if (name == null) {
                 return ADD_VALUE;
             }

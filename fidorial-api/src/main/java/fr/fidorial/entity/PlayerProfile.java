@@ -6,7 +6,7 @@ import java.util.UUID;
 public record PlayerProfile(UUID uuid, String name, List<Property> properties) {
 
     public PlayerProfile {
-        properties = properties == null ? List.of() : List.copyOf(properties);
+        properties = List.copyOf(properties);
     }
 
     public PlayerProfile(UUID uuid, String name) {

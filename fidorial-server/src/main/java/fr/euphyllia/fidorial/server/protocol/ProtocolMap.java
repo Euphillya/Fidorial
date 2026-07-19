@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fr.euphyllia.fidorial.server.network.ConnectionState;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -51,7 +52,7 @@ public final class ProtocolMap {
         }
     }
 
-    private static Map<String, Integer> parse(JsonObject stateJson, String direction) {
+    private static Map<String, Integer> parse(@Nullable JsonObject stateJson, String direction) {
         if (stateJson == null || !stateJson.has(direction)) return Map.of();
         Map<String, Integer> byName = new HashMap<>();
         for (var entry : stateJson.getAsJsonObject(direction).entrySet()) {
@@ -105,7 +106,7 @@ public final class ProtocolMap {
         return id;
     }
 
-    public String serverboundName(ConnectionState state, int id) {
+    public @Nullable String serverboundName(ConnectionState state, int id) {
         return dir(state, false).byId().get(id);
     }
 

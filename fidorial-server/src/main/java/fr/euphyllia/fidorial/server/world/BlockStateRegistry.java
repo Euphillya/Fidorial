@@ -5,6 +5,7 @@ import fr.fidorial.world.block.BlockRegistry;
 import fr.fidorial.world.block.BlockType;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
@@ -31,7 +32,7 @@ public record BlockStateRegistry(BlockRegistry registry) {
     }
 
     @SuppressWarnings("PatternValidation")
-    private BlockData resolve(BlockState state) {
+    private @Nullable BlockData resolve(BlockState state) {
         BlockType type = registry.type(Key.key(state.name())).orElse(null);
         if (type == null) {
             return null;
@@ -39,7 +40,7 @@ public record BlockStateRegistry(BlockRegistry registry) {
         return type.dataOrNull(state.properties());
     }
 
-    public BlockState blockForItem(Key itemId) {
+    public @Nullable BlockState blockForItem(@Nullable Key itemId) {
         if (itemId == null) {
             return null;
         }

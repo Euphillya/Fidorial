@@ -2,6 +2,7 @@ package fr.fidorial.plugin;
 
 import fr.fidorial.permission.Permissible;
 import fr.fidorial.permission.Permission;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -15,7 +16,8 @@ public interface PluginManager {
 
     boolean isEnabled(String id);
 
-    Permission getPermission(String name);
+    @Nullable
+    Permission getPermission(@Nullable String name);
 
     void addPermission(Permission perm);
 
@@ -25,7 +27,7 @@ public interface PluginManager {
 
     Set<Permission> getDefaultPermissions(boolean op);
 
-    void recalculatePermissionDefaults(Permission perm);
+    void recalculatePermissionDefaults(@Nullable Permission perm);
 
     void subscribeToPermission(String permission, Permissible permissible);
 

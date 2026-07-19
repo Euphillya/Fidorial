@@ -17,6 +17,7 @@ import fr.fidorial.world.block.data.type.NoteBlock;
 import fr.fidorial.world.block.data.type.Slab;
 import fr.fidorial.world.block.data.type.Stairs;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +93,7 @@ public class BlockTraits {
         return traits;
     }
 
-    private static BlockProperty find(List<BlockProperty> properties, String name) {
+    private static @Nullable BlockProperty find(List<BlockProperty> properties, String name) {
         for (BlockProperty property : properties) {
             if (property.name().equals(name)) {
                 return property;
