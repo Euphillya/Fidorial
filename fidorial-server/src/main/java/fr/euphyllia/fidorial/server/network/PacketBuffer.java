@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.network;
 import fr.fidorial.world.BlockPos;
 import io.netty.buffer.ByteBuf;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.BitSet;
 import java.util.UUID;
@@ -145,7 +146,7 @@ public final class PacketBuffer {
         return VarInts.readByteArray(buf, maxLength);
     }
 
-    public byte[] readOptionalByteArray(int maxLength) {
+    public byte @Nullable [] readOptionalByteArray(int maxLength) {
         if (!readBoolean()) {
             return null;
         }

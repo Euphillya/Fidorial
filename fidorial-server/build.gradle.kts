@@ -13,7 +13,6 @@ dependencies {
     implementation(libs.faststats.core)
     implementation(libs.adventure.text.serializer.ansi)
     implementation(libs.logback.classic)
-    annotationProcessor(libs.jspecify)
 }
 
 application {

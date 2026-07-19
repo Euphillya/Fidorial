@@ -305,7 +305,7 @@ public final class TestPlugin implements Plugin {
         msg(sender, "Pre-generation de " + total + " chunks (rayon " + radius
                 + " autour de " + centerX + "," + centerZ + ")...");
 
-        task = new PregenTask(world, context.logger(), centerX, centerZ, radius,
+        var pregenTask = new PregenTask(world, context.logger(), centerX, centerZ, radius,
                 message -> {
                     context.logger().info("[Pregen] {}", message);
                     try {
@@ -313,7 +313,8 @@ public final class TestPlugin implements Plugin {
                     } catch (Exception ignored) {
                     }
                 });
-        task.start();
+        task = pregenTask;
+        pregenTask.start();
     }
 
     private void stop(CommandSender sender) {

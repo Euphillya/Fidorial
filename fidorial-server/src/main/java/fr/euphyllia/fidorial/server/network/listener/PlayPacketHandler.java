@@ -33,6 +33,7 @@ import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.UUID;
@@ -47,9 +48,9 @@ public final class PlayPacketHandler implements PlayPacketListener {
     private final FidorialServer server;
     private final ServerConfig config;
 
-    private ServerPlayer player;
-    private ChunkViewTracker chunkView;
-    private ChunkPos ticket;
+    private @Nullable ServerPlayer player;
+    private @Nullable ChunkViewTracker chunkView;
+    private @Nullable ChunkPos ticket;
 
     public PlayPacketHandler(ClientConnection connection) {
         this.connection = connection;

@@ -11,6 +11,7 @@ import fr.euphyllia.fidorial.server.world.ChunkViewSource;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -126,7 +127,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
                 .whenComplete((column, error) -> onLoaded(cx, cz, column, error));
     }
 
-    private void onLoaded(int cx, int cz, ChunkColumn column, Throwable error) {
+    private void onLoaded(int cx, int cz, ChunkColumn column, @Nullable Throwable error) {
         long key = key(cx, cz);
         synchronized (lock) {
             pending.remove(key);

@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import org.jspecify.annotations.Nullable;
+
 public final class ChunkColumn {
 
     private final int chunkX;
@@ -87,7 +89,7 @@ public final class ChunkColumn {
         this.status = s;
     }
 
-    private ChunkSection sectionForY(int worldY) {
+    private @Nullable ChunkSection sectionForY(int worldY) {
         int idx = (worldY >> 4) - minSectionY;
         if (idx < 0 || idx >= sectionCount) return null;
         return sections[idx];

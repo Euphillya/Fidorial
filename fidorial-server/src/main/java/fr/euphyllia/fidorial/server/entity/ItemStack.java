@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.entity;
 
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 public class ItemStack {
 
@@ -20,7 +21,7 @@ public class ItemStack {
     }
 
     @SuppressWarnings("PatternValidation")
-    public static ItemStack fromNbt(NbtCompound tag) {
+    public static ItemStack fromNbt(@Nullable NbtCompound tag) {
         if (tag == null) {
             return EMPTY;
         }

@@ -19,7 +19,7 @@ public final class RegionFile implements Closeable {
     private final int[] offsets = new int[RegionConstants.CHUNKS_PER_REGION];
     private final int[] sectorCounts = new int[RegionConstants.CHUNKS_PER_REGION];
     private final int[] timestamps = new int[RegionConstants.CHUNKS_PER_REGION];
-    private boolean[] usedSectors;
+    private boolean @Nullable [] usedSectors;
 
     public RegionFile(Path path) throws IOException {
         Files.createDirectories(path.getParent());
@@ -143,6 +143,9 @@ public final class RegionFile implements Closeable {
     }
 
     private void freeSectors(int start, int count) {
+        if (usedSectors == null) {
+            return;
+        }
         for (int s = 0; s < count; s++) {
             int sector = start + s;
             if (sector >= RegionConstants.HEADER_SECTORS && sector < usedSectors.length) {
@@ -154,21 +157,23 @@ public final class RegionFile implements Closeable {
     private int allocateSectors(int count) throws IOException {
         int run = 0;
         int start = RegionConstants.HEADER_SECTORS;
-        for (int s = RegionConstants.HEADER_SECTORS; s < usedSectors.length; s++) {
-            if (!usedSectors[s]) {
-                if (run == 0) start = s;
-                if (++run == count) {
-                    for (int k = 0; k < count; k++) usedSectors[start + k] = true;
-                    return start;
+        if (usedSectors != null) {
+            for (int s = RegionConstants.HEADER_SECTORS; s < usedSectors.length; s++) {
+                if (!usedSectors[s]) {
+                    if (run == 0) start = s;
+                    if (++run == count) {
+                        for (int k = 0; k < count; k++) usedSectors[start + k] = true;
+                        return start;
+                    }
+                } else {
+                    run = 0;
                 }
-            } else {
-                run = 0;
             }
         }
         // Pas assez d'espace : on ajoute des secteurs à la fin.
-        int newStart = usedSectors.length;
+        int newStart = usedSectors != null ? usedSectors.length : 0;
         int newLength = newStart + count;
-        usedSectors = Arrays.copyOf(usedSectors, newLength);
+        usedSectors = Arrays.copyOf(usedSectors != null ? usedSectors : new boolean[newLength], newLength);
         for (int k = 0; k < count; k++) usedSectors[newStart + k] = true;
         raf.setLength((long) newLength * RegionConstants.SECTOR_BYTES);
         return newStart;

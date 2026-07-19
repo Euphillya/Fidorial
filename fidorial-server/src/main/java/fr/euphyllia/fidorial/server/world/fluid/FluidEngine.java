@@ -15,6 +15,7 @@ import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Map;
@@ -101,7 +102,7 @@ public final class FluidEngine implements FluidManager {
     @Override
     public void scheduleUpdate(String world, int x, int y, int z) {
         FluidState state = fluidAt(world, x, y, z);
-        if (!state.isEmpty()) {
+        if (state.type() != null) {
             schedule(world, x, y, z, state.type().tickDelay());
         }
     }
@@ -161,14 +162,17 @@ public final class FluidEngine implements FluidManager {
         }
 
         // 3) Écoulement vertical prioritaire, sinon étalement horizontal.
-        if (!flowDown(world, worldName, x, y, z, type)) {
+        if (type != null && !flowDown(world, worldName, x, y, z, type)) {
             spreadHorizontally(world, worldName, x, y, z, self);
         }
     }
 
-    private FluidState recomputeLevel(ServerWorld world, String worldName,
+    private @Nullable FluidState recomputeLevel(ServerWorld world, String worldName,
                                       int x, int y, int z, FluidState self) throws IOException {
         FluidType type = self.type();
+        if (type == null) {
+            return null;
+        }
         FluidState above = FluidBlockCodec.fromBlock(world.getBlock(x, y + 1, z));
         boolean fedFromAbove = above.type() == type;
 
@@ -262,6 +266,9 @@ public final class FluidEngine implements FluidManager {
     private void spreadHorizontally(ServerWorld world, String worldName,
                                     int x, int y, int z, FluidState self) throws IOException {
         FluidType type = self.type();
+        if (type == null) {
+            return;
+        }
         int spreadLevel = self.effectiveLevel() + type.dropOff();
         if (spreadLevel > type.maxSpreadLevel()) {
             return;
@@ -314,7 +321,7 @@ public final class FluidEngine implements FluidManager {
         return true;
     }
 
-    private ServerWorld worldByName(String name) {
+    private @Nullable ServerWorld worldByName(@Nullable String name) {
         if (name == null || Dimension.OVERWORLD.id().equals(name)) {
             return worlds.overworld();
         }

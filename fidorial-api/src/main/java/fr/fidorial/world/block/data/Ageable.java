@@ -15,6 +15,9 @@ public interface Ageable extends BlockData {
 
     default int getMaximumAge() {
         BlockProperty property = type().property("age");
+        if (property == null) {
+            throw new IllegalStateException("Cannot determine maximum age");
+        }
         return Integer.parseInt(property.values().getLast());
     }
 }

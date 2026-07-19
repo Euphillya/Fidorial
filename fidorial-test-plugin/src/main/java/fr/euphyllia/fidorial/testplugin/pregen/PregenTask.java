@@ -31,7 +31,15 @@ public class PregenTask {
     private final long startedAt = System.currentTimeMillis();
     private volatile boolean cancelled;
     private volatile boolean finished;
-    private Thread thread;
+    private final Thread thread = Thread.ofPlatform()
+            .name("fidorial-pregen")
+            .unstarted(() -> {
+                try {
+                    run();
+                } catch (ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
     public PregenTask(World world, ComponentLogger logger,
                       int centerX, int centerZ, int radius, Consumer<String> progressListener) {
@@ -45,22 +53,12 @@ public class PregenTask {
     }
 
     public void start() {
-        thread = Thread.ofPlatform().name("fidorial-pregen").start(() -> {
-            try {
-                run();
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        thread.start();
     }
 
     public void cancel() {
         cancelled = true;
-        if (thread != null) {
-            thread.interrupt();
-        }
+        thread.interrupt();
     }
 
     public boolean isRunning() {

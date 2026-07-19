@@ -4,6 +4,7 @@ import fr.fidorial.scheduler.RegionTickHandler;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,7 +40,7 @@ public final class EntityTickHandler implements RegionTickHandler {
         }
     }
 
-    private ServerWorld worldById(String id) {
+    private @Nullable ServerWorld worldById(String id) {
         ServerWorld cached = worldsById.get(id);
         if (cached != null) {
             return cached;
