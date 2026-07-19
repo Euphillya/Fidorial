@@ -179,6 +179,32 @@ public abstract class PathfinderMob extends Mob {
         this.moveSpeed = speed;
     }
 
+    public final double velocityX() {
+        return this.velocityX;
+    }
+
+    public final double velocityY() {
+        return this.velocityY;
+    }
+
+    public final double velocityZ() {
+        return this.velocityZ;
+    }
+
+    public final void setVelocity(double x, double y, double z) {
+        this.velocityX = x;
+        this.velocityY = y;
+        this.velocityZ = z;
+    }
+
+    public final boolean onGround() {
+        return this.onGround;
+    }
+
+    public final void setOnGround(boolean onGround) {
+        this.onGround = onGround;
+    }
+
     public final Navigation navigation() {
         return navigation;
     }
