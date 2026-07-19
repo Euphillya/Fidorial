@@ -43,6 +43,7 @@ import fr.euphyllia.fidorial.server.world.ServiceBackedChunkGenerator;
 import fr.euphyllia.fidorial.server.world.WorldConstants;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
+import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.Server;
@@ -205,6 +206,23 @@ public final class FidorialServer implements Server {
 
     private void openWorlds() {
         worldManager.setChunkLoader(chunkWorker);
+        worldManager.setEntityBridge(entityIds::allocate, new EntitySpawnBridge() {
+            @Override
+            public void onEntityAppear(AbstractEntity entity) {
+                if (entity instanceof Mob && entity.world() instanceof ServerWorld world) {
+                    regionizer.addTicket(world.dimension().id(), entity.chunk());
+                }
+                broadcast(ClientboundAddEntityPacket.of(entity));
+            }
+
+            @Override
+            public void onEntityDisappear(AbstractEntity entity) {
+                if (entity instanceof Mob && entity.world() instanceof ServerWorld world) {
+                    regionizer.removeTicket(world.dimension().id(), entity.chunk());
+                }
+                broadcast(new ClientboundRemoveEntitiesPacket(entity.entityId()));
+            }
+        });
         worldManager.setDefaultGenerator(new ServiceBackedChunkGenerator(services, FlatChunkGenerator.cobblestone(
                 WorldConstants.MIN_Y, WorldConstants.HEIGHT),
                 WorldConstants.MIN_Y, WorldConstants.HEIGHT));
