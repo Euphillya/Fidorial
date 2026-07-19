@@ -10,13 +10,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
-public class AiWorkers {
+public class AiWorker {
 
-    private static final ComponentLogger LOGGER = getLogger(AiWorkers.class);
+    private static final ComponentLogger LOGGER = getLogger(AiWorker.class);
 
     private final ExecutorService workers;
 
-    public AiWorkers(int workerThreads) {
+    public AiWorker(int workerThreads) {
         AtomicInteger id = new AtomicInteger();
         this.workers = Executors.newFixedThreadPool(workerThreads, r -> {
             Thread thread = new Thread(r, "fidorial-ai-worker-" + id.incrementAndGet());

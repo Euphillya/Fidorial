@@ -1,9 +1,10 @@
 package fr.euphyllia.fidorial.server.entity.ai;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.fidorial.entity.ai.Path;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
-import fr.euphyllia.fidorial.server.schedulers.AiWorkers;
+import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -58,7 +59,7 @@ public class Navigation {
                 (int) Math.floor(from.y()), (int) Math.floor(from.z()));
         requestedGoal = goal;
         lastRequestTick = age;
-        requestInFlight = AiWorkers.submit(() ->
+        requestInFlight = FidorialServer.getInstance().aiWorker().submit(() ->
                 pendingResult.set(new PathResult(AStarPathfinder.find(world, start, goal, MAX_NODES))));
     }
 
