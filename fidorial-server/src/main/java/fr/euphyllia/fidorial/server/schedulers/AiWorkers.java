@@ -10,43 +10,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
-
 public class AiWorkers {
 
     private static final ComponentLogger LOGGER = getLogger(AiWorkers.class);
-    private static volatile ExecutorService executor;
 
-    private AiWorkers() {
+    private final ExecutorService workers;
+
+    public AiWorkers(int workerThreads) {
+        AtomicInteger id = new AtomicInteger();
+        this.workers = Executors.newFixedThreadPool(workerThreads, r -> {
+            Thread thread = new Thread(r, "fidorial-ai-worker-" + id.incrementAndGet());
+            thread.setDaemon(true);
+            return thread;
+        });
+        LOGGER.info("AI pool started with {} workers", workerThreads);
     }
 
-    private static ExecutorService executor() {
-        ExecutorService current = executor;
-        if (current == null) {
-            synchronized (AiWorkers.class) {
-                current = executor;
-                if (current == null) {
-                    int threads = Math.max(1, Runtime.getRuntime().availableProcessors() / 4);
-                    AtomicInteger id = new AtomicInteger();
-                    current = Executors.newFixedThreadPool(threads, task -> {
-                        Thread thread = new Thread(task, "fidorial-ai-worker-" + id.incrementAndGet());
-                        thread.setDaemon(true);
-                        return thread;
-                    });
-                    executor = current;
-                    LOGGER.info("Pool IA demarre avec {} workers", threads);
-                }
-            }
-        }
-        return current;
-    }
-
-    public static boolean submit(Runnable task) {
+    public boolean submit(Runnable task) {
         try {
-            executor().execute(() -> {
+            workers.execute(() -> {
                 try {
                     task.run();
                 } catch (Throwable t) {
-                    LOGGER.error("Erreur dans une tache IA", t);
+                    LOGGER.error("Error in an AI task", t);
                 }
             });
             return true;
@@ -55,19 +41,16 @@ public class AiWorkers {
         }
     }
 
-    public static void shutdown() {
-        ExecutorService current = executor;
-        if (current == null) {
-            return;
-        }
-        current.shutdown();
+    public void shutdown() {
+        workers.shutdown();
         try {
-            if (!current.awaitTermination(2, TimeUnit.SECONDS)) {
-                current.shutdownNow();
+            if (!workers.awaitTermination(5, TimeUnit.SECONDS)) {
+                workers.shutdownNow();
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            current.shutdownNow();
+            workers.shutdownNow();
         }
+        LOGGER.info("AI workers stopped");
     }
 }

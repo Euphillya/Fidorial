@@ -24,7 +24,7 @@ public class ThreadedChunkWorker implements AsyncChunkLoader {
         AtomicInteger id = new AtomicInteger();
         this.workers = Executors.newScheduledThreadPool(workerThreads,
                 r -> new Thread(r, "fidorial-chunk-worker-" + id.incrementAndGet()));
-        LOGGER.info("Pool chunk demarre avec {} workers", workerThreads);
+        LOGGER.info("Chunk pool started with {} workers", workerThreads);
     }
 
     private static String key(ServerWorld world, int chunkX, int chunkZ) {
@@ -70,6 +70,6 @@ public class ThreadedChunkWorker implements AsyncChunkLoader {
             workers.shutdownNow();
             Thread.currentThread().interrupt();
         }
-        LOGGER.info("Chunk workers arrêtés");
+        LOGGER.info("Chunk workers stopped");
     }
 }
