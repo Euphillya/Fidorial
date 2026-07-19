@@ -1,4 +1,7 @@
-module fr.euphyllia.fidorial {
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
+module fr.fidorial {
     exports fr.fidorial.attribute;
     exports fr.fidorial.command;
     exports fr.fidorial.entity.ai;
@@ -25,9 +28,11 @@ module fr.euphyllia.fidorial {
     exports fr.fidorial.world;
     exports fr.fidorial;
 
+    requires com.google.common;
     requires net.kyori.adventure.api;
     requires net.kyori.adventure.key;
     requires net.kyori.adventure.text.logger.slf4j;
 
     requires static org.jetbrains.annotations;
+    requires static org.jspecify;
 }
