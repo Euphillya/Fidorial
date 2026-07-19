@@ -23,12 +23,9 @@ public abstract class DownloadServerJarTask extends DefaultTask {
     public abstract RegularFileProperty getServerJar();
 
     @TaskAction
-    public void download() {
+    public void download() throws IOException {
 
-        try {
-            final ServerDownload serverDownload = fetchServerDownload(getMinecraftVersion().get());
-        } catch(final IOException e) {
-            throw new RuntimeException(e);
-        }
+
+        final ServerDownload serverDownload = fetchServerDownload(getMinecraftVersion().get());
     }
 }
