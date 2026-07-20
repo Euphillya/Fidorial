@@ -4,7 +4,14 @@ import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
 import org.jspecify.annotations.Nullable;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -19,7 +26,7 @@ public final class RegionFile implements Closeable {
     private final int[] offsets = new int[RegionConstants.CHUNKS_PER_REGION];
     private final int[] sectorCounts = new int[RegionConstants.CHUNKS_PER_REGION];
     private final int[] timestamps = new int[RegionConstants.CHUNKS_PER_REGION];
-    private boolean @Nullable [] usedSectors;
+    private boolean[] usedSectors = new boolean[0];
 
     public RegionFile(Path path) throws IOException {
         Files.createDirectories(path.getParent());
@@ -143,9 +150,6 @@ public final class RegionFile implements Closeable {
     }
 
     private void freeSectors(int start, int count) {
-        if (usedSectors == null) {
-            return;
-        }
         for (int s = 0; s < count; s++) {
             int sector = start + s;
             if (sector >= RegionConstants.HEADER_SECTORS && sector < usedSectors.length) {
@@ -157,23 +161,21 @@ public final class RegionFile implements Closeable {
     private int allocateSectors(int count) throws IOException {
         int run = 0;
         int start = RegionConstants.HEADER_SECTORS;
-        if (usedSectors != null) {
-            for (int s = RegionConstants.HEADER_SECTORS; s < usedSectors.length; s++) {
-                if (!usedSectors[s]) {
-                    if (run == 0) start = s;
-                    if (++run == count) {
-                        for (int k = 0; k < count; k++) usedSectors[start + k] = true;
-                        return start;
-                    }
-                } else {
-                    run = 0;
+        for (int s = RegionConstants.HEADER_SECTORS; s < usedSectors.length; s++) {
+            if (!usedSectors[s]) {
+                if (run == 0) start = s;
+                if (++run == count) {
+                    for (int k = 0; k < count; k++) usedSectors[start + k] = true;
+                    return start;
                 }
+            } else {
+                run = 0;
             }
         }
         // Pas assez d'espace : on ajoute des secteurs à la fin.
-        int newStart = usedSectors != null ? usedSectors.length : 0;
+        int newStart = usedSectors.length;
         int newLength = newStart + count;
-        usedSectors = Arrays.copyOf(usedSectors != null ? usedSectors : new boolean[newLength], newLength);
+        usedSectors = Arrays.copyOf(usedSectors, newLength);
         for (int k = 0; k < count; k++) usedSectors[newStart + k] = true;
         raf.setLength((long) newLength * RegionConstants.SECTOR_BYTES);
         return newStart;
