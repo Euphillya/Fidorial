@@ -36,4 +36,7 @@ tasks.shadowJar {
     archiveBaseName.set("Fidorial")
     archiveClassifier.set("")
     mergeServiceFiles()
+    filesMatching("META-INF/services/**") {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
 }
