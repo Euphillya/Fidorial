@@ -59,7 +59,7 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
         }
         for (Registry reg : dynamic.all()) {
             if (reg.name().contains("minecraft:enchantment")) {
-                continue;
+                continue; // should be sent but we dont have exclusive_set tags
             }
             connection.send(new ClientboundRegistryDataPacket(reg.name(), reg.entries()));
         }

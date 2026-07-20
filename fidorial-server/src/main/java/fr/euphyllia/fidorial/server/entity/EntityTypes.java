@@ -8,16 +8,21 @@ import net.kyori.adventure.key.KeyPattern;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 
 public final class EntityTypes {
 
-    private static final String RESOURCE = "/data/entity_types.json.gz";
+    private static final String RESOURCE =
+            "/data/entity_types.json.gz";
 
-    private static final Map<Key, EntityType> BY_KEY = new ConcurrentHashMap<>();
-    private static final Map<Key, Integer> NETWORK_IDS = new ConcurrentHashMap<>();
+    private static final Map<Key, EntityType> TYPES =
+            new HashMap<>();
+
+    private static final Map<Key, Integer> NETWORK_IDS =
+            new HashMap<>();
 
     static {
         loadVanillaTypes();
@@ -185,64 +190,93 @@ public final class EntityTypes {
     private EntityTypes() {
     }
 
-    @SuppressWarnings("PatternValidation")
     private static void loadVanillaTypes() {
-        try (InputStream raw = EntityTypes.class.getResourceAsStream(RESOURCE)) {
+
+        try (InputStream raw =
+                     EntityTypes.class.getResourceAsStream(RESOURCE)) {
+
             if (raw == null) {
-                throw new IllegalStateException("Missing resource " + RESOURCE);
+                throw new IllegalStateException(
+                        "Missing resource " + RESOURCE
+                );
             }
-            try (JsonReader reader = new JsonReader(new InputStreamReader(
-                    new GZIPInputStream(raw), StandardCharsets.UTF_8))) {
+
+            try (JsonReader reader =
+                         new JsonReader(
+                                 new InputStreamReader(
+                                         new GZIPInputStream(raw),
+                                         StandardCharsets.UTF_8
+                                 )
+                         )) {
+
                 reader.beginObject();
+
                 while (reader.hasNext()) {
-                    Key key = Key.key(reader.nextName());
+
+                    String rawName = reader.nextName();
+
+                    Key key = rawName.indexOf(':') == -1
+                            ? Key.key(Key.MINECRAFT_NAMESPACE, rawName)
+                            : Key.key(rawName);
+
                     int networkId = reader.nextInt();
 
                     EntityType type = new EntityType(
                             key,
-                            EntityType.Category.MISC, // Todo : Need replace
+                            EntityType.Category.MISC,
                             0.6f,
                             1.8f
                     );
-                    register(type);
+
+                    TYPES.put(key, type);
                     NETWORK_IDS.put(key, networkId);
                 }
+
                 reader.endObject();
             }
+
         } catch (Exception e) {
-            throw new RuntimeException("Error loading entity types", e);
+            throw new RuntimeException(
+                    "Failed loading entity types",
+                    e
+            );
         }
     }
 
-    private static EntityType vanilla(@KeyPattern String name) {
-        EntityType type = BY_KEY.get(Key.key(name));
+
+    private static EntityType vanilla(
+            @KeyPattern String name
+    ) {
+        Key key = name.indexOf(':') == -1
+                ? Key.key(Key.MINECRAFT_NAMESPACE, name)
+                : Key.key(name);
+
+        EntityType type = TYPES.get(key);
+
         if (type == null) {
-            throw new IllegalStateException("Vanilla type absent from " + RESOURCE + " : " + name);
+            throw new IllegalStateException(
+                    "Missing entity type " + key
+            );
         }
+
         return type;
     }
 
-    public static EntityType register(EntityType type) {
-        EntityType previous = BY_KEY.putIfAbsent(type.key(), type);
-        if (previous != null) {
-            throw new IllegalStateException("Entity type already registered : " + type.key());
-        }
-        return type;
+
+    public static Iterable<EntityType> values() {
+        return TYPES.values();
     }
 
-    public static EntityType get(Key key) {
-        return BY_KEY.get(key);
-    }
 
     public static int networkId(EntityType type) {
         Integer id = NETWORK_IDS.get(type.key());
-        if (id == null) {
-            throw new IllegalStateException("No network ID for the entity type " + type.key());
-        }
-        return id;
-    }
 
-    public static boolean hasNetworkId(EntityType type) {
-        return NETWORK_IDS.containsKey(type.key());
+        if (id == null) {
+            throw new IllegalStateException(
+                    "No network ID for " + type.key()
+            );
+        }
+
+        return id;
     }
 }

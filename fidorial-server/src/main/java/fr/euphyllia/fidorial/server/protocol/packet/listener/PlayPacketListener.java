@@ -19,6 +19,10 @@ public interface PlayPacketListener extends PacketListener {
 
     void handlePlayerAction(ServerboundPlayerActionPacket packet);
 
+    void handleCommandSuggestion(ServerboundCommandSuggestionPacket packet);
+
+    void handlePlayerAbilities(ServerboundPlayerAbilitiesPacket packet);
+
     void handleMovePlayerPos(ServerboundMovePlayerPosPacket packet);
 
     void handleMovePlayerPosRot(ServerboundMovePlayerPosRotPacket packet);

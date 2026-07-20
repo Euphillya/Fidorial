@@ -1,47 +1,93 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import fr.fidorial.command.CommandExecutor;
-import fr.fidorial.command.CommandSender;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestions;
+import fr.fidorial.command.CommandTree;
+import fr.fidorial.command.CommandSource;
+import fr.fidorial.command.argument.ArgumentTypes;
+import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.entity.Player;
-import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.fidorial.entity.PlayerProfile;
 import net.kyori.adventure.text.Component;
 
-/**
- * /op <joueur>   -> promeut un joueur operateur
- * /deop <joueur> -> retrograde un joueur
- */
-public final class OpCommand implements CommandExecutor {
+import java.util.Collection;
+import java.util.List;
 
-    private final boolean grant;
+public final class OpCommand {
 
-    public OpCommand(boolean grant) {
-        this.grant = grant;
+    private OpCommand() {
     }
 
-    @Override
-    public void execute(CommandSender sender, String label, String[] args) {
-        String permission = grant ? "fidorial.command.op" : "fidorial.command.deop";
-        if (!sender.hasPermission(permission)) {
-            sender.sendMessage(Component.translatable("command.error.nopermission"));
-            return;
+    public static CommandTree createOp() {
+        return create("op", true);
+    }
+
+    public static CommandTree createDeop() {
+        return create("deop", false);
+    }
+
+    private static CommandTree create(String name, boolean grant) {
+        return new CommandTree(
+                CommandTree.literal(name)
+                        .requires(source -> source.sender().hasPermission(
+                                grant ? "fidorial.command.op" : "fidorial.command.deop"
+                        ))
+                        .then(CommandTree.argument("player", ArgumentTypes.playerProfiles())
+                                .suggests((ctx, builder) ->
+                                        ArgumentTypes.playerProfiles()
+                                                .listSuggestions(ctx, builder)
+                                                .thenApply(suggestions -> new Suggestions(
+                                                        suggestions.getRange(),
+                                                        suggestions.getList().stream()
+                                                                .filter(suggestion -> ctx.getSource().server().onlinePlayers().stream()
+                                                                        .filter(player -> player.name().equalsIgnoreCase(suggestion.getText()))
+                                                                        .anyMatch(player -> player.isOp() != grant))
+                                                                .toList()
+                                                ))
+                                )
+                                .executes(context -> execute(context, grant)))
+        );
+    }
+
+    private static int execute(
+            CommandContext<CommandSource> context,
+            boolean grant
+    ) throws CommandSyntaxException {
+
+        PlayerProfileListResolver resolver = context.getArgument("player", PlayerProfileListResolver.class);
+        Collection<PlayerProfile> targets = resolver.resolve(context.getSource());
+
+        for (PlayerProfile targetProfile : targets) {
+            final List<? extends Player> players = context.getSource().server().onlinePlayers().stream()
+                    .filter(player -> player.uuid().equals(targetProfile.uuid()))
+                    .toList();
+
+            if (players.isEmpty()) {
+                continue;
+            }
+
+            for (Player target : players) {
+
+                target.setOp(grant);
+
+                target.sendMessage(Component.translatable(
+                        grant
+                                ? "command.op.granted.self"
+                                : "command.op.revoked.self"
+                ));
+
+                context.getSource().sender().sendMessage(
+                        Component.translatable(
+                                grant
+                                        ? "command.op.granted.other"
+                                        : "command.op.revoked.other",
+                                Component.text(target.name())
+                        )
+                );
+            }
         }
-        if (args.length != 1) {
-            sender.sendMessage(Component.translatable("command.op.usage", Component.text(label)));
-            return;
-        }
-        Player target = FidorialServer.getInstance().player(args[0]).orElse(null);
-        if (target == null) {
-            sender.sendMessage(Component.translatable("command.error.playernotfound", Component.text(args[0])));
-            return;
-        }
-        if (target.isOp() == grant) {
-            sender.sendMessage(Component.translatable(grant ? "command.op.already" : "command.op.not",
-                    Component.text(target.name())));
-            return;
-        }
-        target.setOp(grant);
-        sender.sendMessage(Component.translatable(grant ? "command.op.granted.other" : "command.op.revoked.other",
-                Component.text(target.name())));
-        target.sendMessage(Component.translatable(grant ? "command.op.granted.self" : "command.op.revoked.self"));
+        return Command.SINGLE_SUCCESS;
     }
 }

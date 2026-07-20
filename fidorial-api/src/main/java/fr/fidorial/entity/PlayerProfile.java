@@ -13,6 +13,10 @@ public record PlayerProfile(UUID uuid, String name, List<Property> properties) {
         this(uuid, name, List.of());
     }
 
+    public PlayerProfile(PlayerProfileMeta meta) {
+        this(meta.id(), meta.name(), List.of());
+    }
+
     public record Property(String name, String value, String signature) {
     }
 }

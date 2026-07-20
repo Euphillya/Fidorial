@@ -73,6 +73,8 @@ public class ServerboundPackets {
                 ServerboundChatCommandPacket::read);
         register(ConnectionState.PLAY, PlayServerboundPackets.CHAT,
                 ServerboundChatPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.COMMAND_SUGGESTION,
+                ServerboundCommandSuggestionPacket::read);
     }
 
     private ServerboundPackets() {

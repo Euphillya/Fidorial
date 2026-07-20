@@ -38,7 +38,7 @@ public class ConsoleCommandReader {
             String line;
             while (serverRunning.getAsBoolean() && (line = reader.readLine()) != null) {
                 if (line.isBlank()) continue;
-                commandManager.dispatch(ConsoleSender.INSTANCE, line);
+                commandManager.dispatchAsync(ConsoleSender.INSTANCE, line);
             }
         } catch (IOException e) {
             LOGGER.warn("Lecture de la console interrompue : {}", e.getMessage());

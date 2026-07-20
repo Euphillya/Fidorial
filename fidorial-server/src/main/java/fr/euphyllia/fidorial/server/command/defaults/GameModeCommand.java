@@ -1,13 +1,21 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import fr.fidorial.command.CommandExecutor;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import fr.fidorial.command.CommandSource;
+import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.CommandSender;
+import fr.fidorial.command.argument.ArgumentTypes;
+import fr.fidorial.command.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import net.kyori.adventure.text.Component;
 
-public final class GameModeCommand implements CommandExecutor {
+import java.util.List;
+
+public final class GameModeCommand {
 
     private static Component describe(GameMode mode) {
         return switch (mode) {
@@ -18,50 +26,81 @@ public final class GameModeCommand implements CommandExecutor {
         };
     }
 
-    @Override
-    public void execute(CommandSender sender, String label, String[] args) {
-        if (!sender.hasPermission("fidorial.command.gamemode")) {
-            sender.sendMessage(Component.translatable("command.error.nopermission"));
-            return;
-        }
-        if (args.length == 0) {
-            if (sender instanceof Player self) {
-                sender.sendMessage(Component.translatable("command.gamemode.current", describe(self.gameMode())));
-            } else {
-                sender.sendMessage(Component.translatable("command.gamemode.usage", Component.text(label)));
-            }
-            return;
-        }
-
-        GameMode mode = GameMode.byName(args[0]);
-        if (mode == null) {
-            sender.sendMessage(Component.translatable("command.gamemode.unknown", Component.text(args[0])));
-            return;
-        }
-
-        Player target;
-        if (args.length >= 2) {
-            target = findPlayer(args[1]);
-            if (target == null) {
-                sender.sendMessage(Component.translatable("command.error.playernotfound", Component.text(args[1])));
-                return;
-            }
-        } else if (sender instanceof Player self) {
-            target = self;
-        } else {
-            sender.sendMessage(Component.translatable("command.gamemode.console", Component.text(label)));
-            return;
-        }
-
-        target.setGameMode(mode);
-        target.sendMessage(Component.translatable("command.gamemode.changed.self", describe(mode)));
-        if (target != sender) {
-            sender.sendMessage(Component.translatable("command.gamemode.changed.other",
-                    Component.text(target.name()), describe(mode)));
-        }
+    public static CommandTree create() {
+        var command = CommandTree.literal("gamemode")
+                .requires(src -> src.sender().hasPermission("fidorial.command.gamemode"))
+                .then(CommandTree.argument("gamemode", ArgumentTypes.gameMode())
+                        .executes(GameModeCommand::executeSelf)
+                        .then(CommandTree.argument("target", ArgumentTypes.players())
+                                .executes(GameModeCommand::executeTarget)))
+                .build();
+        return new CommandTree(command);
     }
 
-    private Player findPlayer(String name) {
-        return FidorialServer.getInstance().player(name).orElse(null);
+    private static int executeSelf(
+            CommandContext<CommandSource> context
+    ) {
+        if (!(context.getSource().sender() instanceof Player sender)) {
+            context.getSource().sender().sendMessage(
+                    Component.translatable("command.gamemode.console")
+            );
+            return Command.SINGLE_SUCCESS;
+        }
+
+        return change(
+                context,
+                List.of(sender)
+        );
+    }
+
+
+    private static int executeTarget(
+            CommandContext<CommandSource> context
+    ) throws CommandSyntaxException {
+
+        var resolver = context.getArgument("target", PlayerSelectorArgumentResolver.class);
+
+        List<Player> targets = resolver.resolve(context.getSource());
+
+        return change(
+                context,
+                targets
+        );
+    }
+
+
+    private static int change(
+            CommandContext<CommandSource> context,
+            List<Player> targets
+    ) {
+
+        GameMode mode = context.getArgument(
+                "gamemode",
+                GameMode.class
+        );
+
+
+        for (Player target : targets) {
+            target.setGameMode(mode);
+
+            target.sendMessage(
+                    Component.translatable(
+                            "command.gamemode.changed.self",
+                            describe(mode)
+                    )
+            );
+
+            if (context.getSource().sender() != target) {
+                context.getSource().sender().sendMessage(
+                        Component.translatable(
+                                "command.gamemode.changed.other",
+                                Component.text(target.name()),
+                                describe(mode)
+                        )
+                );
+            }
+        }
+
+        return Command.SINGLE_SUCCESS;
     }
 }

@@ -24,9 +24,13 @@ public class DefaultPermissions {
         child(manager, commands, "gamemode", "Permet de changer de mode de jeu", PermissionDefault.OP);
         child(manager, commands, "op", "Permet de promouvoir un operateur", PermissionDefault.OP);
         child(manager, commands, "deop", "Permet de retrograder un operateur", PermissionDefault.OP);
+        child(manager, commands, "stop", "Idk what french says", PermissionDefault.OP);
+        Permission selector = register(manager, new Permission("minecraft.command.selector",
+                "Permet d'utiliser les selecteurs d'entites (@a, @p, @e, @s)", PermissionDefault.OP));
 
         root.recalculatePermissibles();
         commands.recalculatePermissibles();
+        selector.recalculatePermissibles();
     }
 
     private static void child(PluginManager manager, Permission parent,

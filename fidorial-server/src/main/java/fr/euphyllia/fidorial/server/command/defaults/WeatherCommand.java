@@ -1,77 +1,92 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import fr.fidorial.command.CommandExecutor;
-import fr.fidorial.command.CommandSender;
-import fr.fidorial.world.weather.Weather;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import fr.fidorial.command.CommandTree;
+import fr.fidorial.command.CommandSource;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
+import fr.fidorial.command.argument.ArgumentTypes;
+import fr.fidorial.world.weather.Weather;
 import net.kyori.adventure.text.Component;
-
-import java.util.Locale;
 
 /**
  * /weather                     -> affiche la meteo courante
  * /weather clear|rain|thunder  -> change la meteo (duree aleatoire vanilla)
- * /weather rain 300            -> change la meteo pour 300 secondes
+ * /weather rain 300s            -> change la meteo pour 300 secondes
  */
-public final class WeatherCommand implements CommandExecutor {
+public final class WeatherCommand {
 
-    private static Component describe(Weather w) {
-        return switch (w) {
+    private WeatherCommand() {}
+
+    private static Component describe(Weather weather) {
+        return switch (weather) {
             case CLEAR -> Component.translatable("weather.clear");
             case RAIN -> Component.translatable("weather.rain");
             case THUNDER -> Component.translatable("weather.thunder");
         };
     }
 
-    @Override
-    public void execute(CommandSender sender, String label, String[] args) {
-        if (!sender.hasPermission("fidorial.command.weather")) {
-            sender.sendMessage(Component.translatable("command.error.nopermission"));
-            return;
-        }
+    public static CommandTree create() {
+        LiteralCommandNode<CommandSource> command =
+                CommandTree.literal("weather")
+                        .requires(source -> source.sender().hasPermission("fidorial.command.weather"))
+                        .then(CommandTree.literal("get")
+                                .executes(WeatherCommand::get)
+                        )
+                        .then(weather("clear", Weather.CLEAR))
+                        .then(weather("rain", Weather.RAIN))
+                        .then(weather("thunder", Weather.THUNDER))
+                        .build();
+        return new CommandTree(command);
+    }
+
+    private static LiteralCommandNode<CommandSource> weather(String name, Weather weather) {
+        return CommandTree.literal(name)
+                .executes(context ->
+                        set(context.getSource(), weather, 0))
+                .then(CommandTree.argument("duration", ArgumentTypes.time(0)
+                ).executes(context ->
+                        set(context.getSource(), weather, context.getArgument("duration", Integer.class)))
+                )
+                .build();
+    }
+
+
+    private static int get(CommandContext<CommandSource> context) {
         WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
         if (weather == null) {
-            sender.sendMessage(Component.translatable("command.weather.notstarted"));
-            return;
+            context.getSource().sender().sendMessage(
+                    Component.translatable("command.weather.notstarted"));
+            return Command.SINGLE_SUCCESS;
         }
 
-        if (args.length == 0) {
-            sender.sendMessage(Component.translatable("command.weather.current", describe(weather.weather())));
-            return;
-        }
+        context.getSource().sender().sendMessage(
+                Component.translatable("command.weather.current", describe(weather.weather())));
+        return Command.SINGLE_SUCCESS;
+    }
 
-        Weather target;
-        switch (args[0].toLowerCase(Locale.ROOT)) {
-            case "clear", "sun", "beau" -> target = Weather.CLEAR;
-            case "rain", "pluie" -> target = Weather.RAIN;
-            case "thunder", "storm", "orage" -> target = Weather.THUNDER;
-            case "get" -> {
-                sender.sendMessage(Component.translatable("command.weather.current", describe(weather.weather())));
-                return;
-            }
-            default -> {
-                sender.sendMessage(Component.translatable("command.weather.usage", Component.text(label)));
-                return;
-            }
-        }
 
-        int durationTicks = 0;
-        if (args.length >= 2) {
-            try {
-                durationTicks = Math.multiplyExact(Integer.parseInt(args[1]), 20);
-            } catch (NumberFormatException | ArithmeticException e) {
-                sender.sendMessage(Component.translatable("command.weather.invalidduration", Component.text(args[1])));
-                return;
-            }
+    private static int set(
+            CommandSource source,
+            Weather target,
+            int durationTicks
+    ) {
+        WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
+        if (weather == null) {
+            source.sender().sendMessage(Component.translatable("command.weather.notstarted"));
+            return Command.SINGLE_SUCCESS;
         }
 
         weather.setWeather(target, durationTicks);
+
         if (durationTicks > 0) {
-            sender.sendMessage(Component.translatable("command.weather.changed.duration",
-                    describe(target), Component.text(durationTicks / 20)));
+            source.sender().sendMessage(Component.translatable("command.weather.changed.duration", describe(target),
+                            Component.text(durationTicks / 20)));
         } else {
-            sender.sendMessage(Component.translatable("command.weather.changed", describe(target)));
+            source.sender().sendMessage(Component.translatable("command.weather.changed", describe(target)));
         }
+        return Command.SINGLE_SUCCESS;
     }
 }

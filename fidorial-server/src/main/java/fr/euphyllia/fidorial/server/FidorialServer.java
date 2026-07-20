@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server;
 
 import dev.faststats.ErrorTracker;
 import dev.faststats.Metrics;
+import fr.euphyllia.fidorial.server.entity.EntityManager;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.entity.Player;
@@ -86,6 +87,7 @@ public final class FidorialServer implements Server {
     private final VanillaBlockRegistry blockRegistry = bootstrapBlocks();
     private final BlockStateRegistry blockStateRegistry = new BlockStateRegistry(blockRegistry);
     private final EntityIdAllocator entityIds = new EntityIdAllocator();
+    private final EntityManager entityManager = new EntityManager();
     private final SimpleEventBus events = new SimpleEventBus();
     private final ServiceRegistry services = new SimpleServiceRegistry();
     private final Set<ClientConnection> connections = ConcurrentHashMap.newKeySet();
@@ -423,26 +425,49 @@ public final class FidorialServer implements Server {
         return entityIds;
     }
 
+    public EntityManager entityManager() {
+        return entityManager;
+    }
+
     public void spawnEntity(AbstractEntity entity) {
         if (!(entity.world() instanceof ServerWorld world)) {
             throw new IllegalArgumentException("Entite sans monde serveur : " + entity);
         }
+
         world.addEntity(entity);
+        entityManager.add(entity);
+
         if (entity instanceof Mob) {
-            regionizer.addTicket(world.dimension().id(), entity.chunk());
+            regionizer.addTicket(
+                    world.dimension().id(),
+                    entity.chunk()
+            );
         }
+
         broadcast(ClientboundAddEntityPacket.of(entity));
     }
 
     public void despawnEntity(AbstractEntity entity) {
         if (entity.world() instanceof ServerWorld world) {
             world.removeEntity(entity);
+
             if (entity instanceof Mob) {
-                regionizer.removeTicket(world.dimension().id(), entity.chunk());
+                regionizer.removeTicket(
+                        world.dimension().id(),
+                        entity.chunk()
+                );
             }
         }
+
+        entityManager.remove(entity);
+
         entity.remove();
-        broadcast(new ClientboundRemoveEntitiesPacket(entity.entityId()));
+
+        broadcast(
+                new ClientboundRemoveEntitiesPacket(
+                        entity.entityId()
+                )
+        );
     }
 
     public void addPlayerConnection(ClientConnection connection) {

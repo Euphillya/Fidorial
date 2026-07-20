@@ -30,4 +30,8 @@ module fr.euphyllia.fidorial {
     requires net.kyori.adventure.text.logger.slf4j;
 
     requires static org.jetbrains.annotations;
+    requires com.google.common;
+    requires com.mojang.brigadier;
+    requires net.kyori.adventure.text.minimessage;
+    requires com.google.gson;
 }

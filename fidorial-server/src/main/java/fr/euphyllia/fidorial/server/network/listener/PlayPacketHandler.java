@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.network.listener;
 
+import fr.euphyllia.fidorial.server.registry.entity.EntityTypeRegistry;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.event.player.BlockBreakEvent;
@@ -9,6 +10,7 @@ import fr.fidorial.event.player.PlayerJoinEvent;
 import fr.fidorial.event.player.PlayerQuitEvent;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.world.BlockFace;
 import fr.fidorial.world.BlockPos;
@@ -16,7 +18,6 @@ import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.ServerConfig;
-import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.player.InventorySlots;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
@@ -103,7 +104,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     private void sendExistingEntities(ServerWorld world) {
         for (var entity : world.entityManager().all()) {
-            if (entity instanceof ServerPlayer || !EntityTypes.hasNetworkId(entity.type())) {
+            EntityTypeRegistry registry =
+                    (EntityTypeRegistry) server.registries()
+                            .registry(RegistryKey.ENTITY_TYPE);
+            if (entity instanceof ServerPlayer || !registry.hasNetworkId(entity.type())) {
                 continue;
             }
             connection.send(ClientboundAddEntityPacket.of(entity));
@@ -157,6 +161,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(player.gameMode()));
         connection.send(new ClientboundSetEntityDataPacket(
                 player.entityId(), connection.displayedSkinParts()));
+        player.recalculatePermissions();
         connection.send(new ClientboundGameEventPacket(
                 ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         server.weatherEngine().syncTo(connection::send);
@@ -243,7 +248,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleChatCommand(ServerboundChatCommandPacket packet) {
-        server.commandManager().dispatch(player, packet.command());
+        server.commandManager().dispatchAsync(player, packet.command());
     }
 
     @Override
@@ -307,6 +312,50 @@ public final class PlayPacketHandler implements PlayPacketListener {
             }
         }
         connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
+    }
+
+    @Override
+    public void handleCommandSuggestion(ServerboundCommandSuggestionPacket packet) {
+        String input = packet.text();
+        boolean slash = input.startsWith("/");
+
+        if (slash) {
+            input = input.substring(1);
+        }
+
+        int offset = slash ? 1 : 0;
+
+        server.commandManager()
+                .offerBrigadierSuggestions(player, input)
+                .thenAccept(suggestions -> {
+
+                    var entries = suggestions.getList()
+                            .stream()
+                            .map(suggestion ->
+                                    new ClientboundCommandSuggestionsPacket.Entry(
+                                            suggestion.getText(),
+                                            suggestion.getTooltip()
+                                    )
+                            )
+                            .toList();
+
+                    connection.send(
+                            new ClientboundCommandSuggestionsPacket(
+                                    packet.id(),
+                                    suggestions.getRange().getStart() + offset,
+                                    suggestions.getRange().getLength(),
+                                    entries
+                            )
+                    );
+                    System.out.println(suggestions.getRange());
+                });
+    }
+
+    @Override
+    public void handlePlayerAbilities(ServerboundPlayerAbilitiesPacket packet) {
+        ServerPlayer player = connection.player();
+
+        player.setFlying(packet.isFlying());
     }
 
     private boolean instantMine(BlockPos position) {

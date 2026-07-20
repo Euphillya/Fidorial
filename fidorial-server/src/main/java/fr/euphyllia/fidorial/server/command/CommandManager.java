@@ -1,76 +1,334 @@
 package fr.euphyllia.fidorial.server.command;
 
-import fr.fidorial.command.CommandExecutor;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.tree.CommandNode;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import fr.euphyllia.fidorial.server.adventure.brigadier.FidorialTranslatableMessage;
+import fr.euphyllia.fidorial.server.command.brigadier.InternalCommandMeta;
+import fr.fidorial.command.CommandTree;
+import fr.fidorial.command.CommandMeta;
 import fr.fidorial.command.CommandRegistry;
-import fr.fidorial.command.CommandSender;
+import fr.fidorial.command.CommandSource;
 import fr.euphyllia.fidorial.server.command.defaults.*;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.convert;
 
 public final class CommandManager implements CommandRegistry {
-
-    private static final ComponentLogger LOGGER = getLogger(CommandManager.class);
-
-    private final Map<String, CommandExecutor> commands = new ConcurrentHashMap<>();
+    private final @GuardedBy("lock") CommandDispatcher<CommandSource> dispatcher;
+    private final ReadWriteLock lock;
+    private final Map<String, CommandMeta> metaByAlias = new ConcurrentHashMap<>();
+    private final Map<String, RegisteredCommand> commands = new ConcurrentHashMap<>();
 
     public CommandManager() {
+        this.lock = new ReentrantReadWriteLock();
+        this.dispatcher = new CommandDispatcher<>();
+
         registerDefaults();
     }
 
     private void registerDefaults() {
-        register("tps", new TpsCommand());
-        register("weather", new WeatherCommand());
-        register("gamemode", new GameModeCommand());
-        register("gm", new GameModeCommand());
-        register("op", new OpCommand(true));
-        register("deop", new OpCommand(false));
-        register("stop", new StopCommand());
-        register("summon", new SummonCommand());
+        register(metaBuilder("weather")
+                .aliases("w")
+                .description(Component.translatable("command.weather.description"))
+                .usage(Component.text("/weather <clear|rain|thunder>"))
+                .build(), WeatherCommand.create());
+        register(metaBuilder("stop").aliases("s").build(), StopCommand.create());
+        register(metaBuilder("op").build(), OpCommand.createOp());
+        register(metaBuilder("deop").build(), OpCommand.createDeop());
+        register(metaBuilder("summon").build(), SummonCommand.create());
+        register(metaBuilder("gamemode").aliases("gm").build(), GameModeCommand.create());
+        register(metaBuilder("tps").build(), TpsCommand.create());
     }
 
     @Override
-    public void register(String name, CommandExecutor executor) {
-        commands.put(name.toLowerCase(Locale.ROOT), executor);
+    public CommandMeta.Builder metaBuilder(String alias) {
+        Preconditions.checkNotNull(alias, "alias");
+        return new InternalCommandMeta.Builder(alias);
     }
 
     @Override
-    public boolean unregister(String name) {
-        return commands.remove(name.toLowerCase(Locale.ROOT)) != null;
+    public CommandMeta.Builder metaBuilder(CommandTree command) {
+        Preconditions.checkNotNull(command, "command");
+        return new InternalCommandMeta.Builder(command.node().getName());
     }
 
     @Override
-    public boolean isRegistered(String name) {
-        return commands.containsKey(name.toLowerCase(Locale.ROOT));
+    public void register(CommandMeta meta, CommandTree command) {
+        lock.writeLock().lock();
+        try {
+            RegisteredCommand registered = new RegisteredCommand(command, meta);
+
+            for (String alias : meta.aliases()) {
+                metaByAlias.put(alias.toLowerCase(Locale.ROOT), meta);
+                commands.put(alias.toLowerCase(Locale.ROOT), registered);
+
+                CommandNode<CommandSource> node;
+
+                if (alias.equalsIgnoreCase(command.node().getName())) {
+                    node = command.node();
+                } else {
+                    node = cloneLiteral(alias, command.node());
+                }
+                dispatcher.getRoot().addChild(node);
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
-    public void dispatch(CommandSender sender, String line) {
-        if (line == null) return;
-        String trimmed = line.strip();
-        if (trimmed.startsWith("/")) trimmed = trimmed.substring(1);
-        if (trimmed.isEmpty()) return;
+    private static LiteralCommandNode<CommandSource> cloneLiteral(
+            String name,
+            LiteralCommandNode<CommandSource> original
+    ) {
+        LiteralArgumentBuilder<CommandSource> builder =
+                LiteralArgumentBuilder.<CommandSource>literal(name)
+                        .requires(original.getRequirement());
 
-        String[] parts = trimmed.split("\\s+");
-        String label = parts[0].toLowerCase(Locale.ROOT);
-        String[] args = Arrays.copyOfRange(parts, 1, parts.length);
+        if (original.getCommand() != null) {
+            builder.executes(original.getCommand());
+        }
 
-        CommandExecutor executor = commands.get(label);
-        if (executor == null) {
-            sender.sendMessage(Component.translatable("command.error.unknown", Component.text(label)));
+        for (CommandNode<CommandSource> child : original.getChildren()) {
+            builder.then(cloneNode(child));
+        }
+
+        return builder.build();
+    }
+
+    private static <S> CommandNode<S> cloneNode(CommandNode<S> node) {
+        ArgumentBuilder<S, ?> builder = node.createBuilder();
+
+        for (CommandNode<S> child : node.getChildren()) {
+            builder.then(cloneNode(child));
+        }
+
+        return builder.build();
+    }
+
+    @Override
+    public void unregister(String alias) {
+        Preconditions.checkNotNull(alias, "alias");
+        lock.writeLock().lock();
+        try {
+            metaByAlias.remove(alias.toLowerCase(Locale.ROOT));
+            commands.remove(alias.toLowerCase(Locale.ROOT));
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public void unregister(CommandMeta meta) {
+        Preconditions.checkNotNull(meta, "meta");
+        lock.writeLock().lock();
+        try {
+            for (String alias : meta.aliases()) {
+                metaByAlias.remove(alias.toLowerCase(Locale.ROOT));
+                commands.remove(alias.toLowerCase(Locale.ROOT));
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public CommandMeta commandMeta(String alias) {
+        return metaByAlias.get(alias.toLowerCase(Locale.ROOT));
+    }
+
+    @Override
+    public CompletableFuture<Boolean> dispatchAsync(CommandSource source, String cmdLine) {
+        return CompletableFuture.supplyAsync(() -> {
+            // dirty cuz vanilla brigadier doesnt allow child removal wtf
+            String root = cmdLine.strip();
+
+            int space = root.indexOf(' ');
+            if (space != -1) {
+                root = root.substring(0, space);
+            }
+
+            root = root.toLowerCase(Locale.ROOT);
+
+            if (!metaByAlias.containsKey(root)) {
+                return false;
+            }
+
+            ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
+
+            CommandSyntaxException exception = getParseException(parse, source.sender().isConsole());
+
+            if (exception != null) {
+                source.sender().sendMessage(
+                        convert(exception.getRawMessage()).color(NamedTextColor.RED)
+                );
+
+                sendContext(source, exception, cmdLine, source.sender().isConsole());
+                return false;
+            }
+
+            try {
+                int result = dispatcher.execute(parse);
+                return result == 1;
+            } catch (CommandSyntaxException e) {
+                source.sender().sendMessage(
+                        convert(e.getRawMessage()).color(NamedTextColor.RED)
+                );
+                return false;
+            }
+        });
+    }
+
+    private static boolean hasExecutableNode(ParseResults<CommandSource> parse) {
+        return parse.getContext()
+                .getNodes()
+                .stream()
+                .anyMatch(node -> node.getNode().getCommand() != null);
+    }
+
+    private static CommandSyntaxException getParseException(ParseResults<CommandSource> parse, boolean isConsole) {
+        if (!parse.getExceptions().isEmpty()) {
+            return parse.getExceptions().values().iterator().next();
+        }
+
+        if (parse.getContext().getNodes().isEmpty()) {
+            return unknownCommand(parse, isConsole);
+        }
+
+        if (parse.getReader().canRead()) {
+            return new CommandSyntaxException(
+                    CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument(),
+                    isConsole ?
+                            new FidorialTranslatableMessage("console.command.unknown.argument")
+                            : new FidorialTranslatableMessage("command.unknown.argument"),
+                    parse.getReader().getString(),
+                    parse.getReader().getCursor()
+            );
+        }
+
+        if (!hasExecutableNode(parse)) {
+            return new CommandSyntaxException(
+                    CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand(),
+                    isConsole ?
+                            new FidorialTranslatableMessage("console.command.unknown.command")
+                            : new FidorialTranslatableMessage("command.unknown.command"),
+                    parse.getReader().getString(),
+                    parse.getReader().getCursor()
+            );
+        }
+
+        return null;
+    }
+
+    private static CommandSyntaxException unknownCommand(ParseResults<CommandSource> parse, boolean isConsole) {
+        return new CommandSyntaxException(
+                CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand(),
+                isConsole ?
+                        new FidorialTranslatableMessage("console.command.unknown.command")
+                        : new FidorialTranslatableMessage("command.unknown.command"),
+                parse.getReader().getString(),
+                parse.getReader().getCursor()
+        );
+    }
+
+    private void sendContext(CommandSource source, CommandSyntaxException exception, String command, boolean isConsole) {
+
+        if (exception.getInput() == null || exception.getCursor() < 0) {
             return;
         }
-        try {
-            executor.execute(sender, label, args);
-        } catch (Throwable t) {
-            LOGGER.error("Erreur pendant /{} (emise par {})", label, sender.name(), t);
-            sender.sendMessage(Component.translatable("command.error.exception", Component.text(label)));
+
+        int cursor = Math.min(exception.getInput().length(), exception.getCursor());
+
+        Component context = Component.empty()
+                .color(NamedTextColor.GRAY)
+                .clickEvent(
+                        ClickEvent.suggestCommand("/" + command)
+                );
+
+        if (cursor > 10) {
+            context = context.append(Component.text("..."));
         }
+
+        int start = Math.max(0, cursor - 10);
+
+        context = context.append(
+                Component.text(
+                        exception.getInput().substring(start, cursor)
+                )
+        );
+
+        if (cursor < exception.getInput().length()) {
+            context = context.append(
+                    Component.text(exception.getInput().substring(cursor))
+                            .color(NamedTextColor.RED)
+                            .decorate(TextDecoration.UNDERLINED)
+            );
+        }
+
+        context = context.append(
+                isConsole ? Component.translatable("console.command.context.here") : Component.translatable("command.context.here")
+                        .color(NamedTextColor.RED)
+                        .decorate(TextDecoration.ITALIC)
+        );
+
+        source.sender().sendMessage(context);
     }
 
+    @Override
+    public CompletableFuture<List<String>> offerSuggestions(CommandSource source, String cmdLine) {
+        return offerBrigadierSuggestions(source, cmdLine)
+                .thenApply(suggestions -> Lists.transform(suggestions.getList(), suggestion -> suggestion != null ? suggestion.getText() : null));
+    }
+
+    @Override
+    public CompletableFuture<Suggestions> offerBrigadierSuggestions(
+            CommandSource source,
+            String cmdLine
+    ) {
+        ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
+        return dispatcher.getCompletionSuggestions(parse);
+    }
+
+    @Override
+    public boolean hasCommand(String alias) {
+        return metaByAlias.containsKey(alias.toLowerCase(Locale.ROOT));
+    }
+
+    @Override
+    public boolean hasCommand(String alias, CommandSource source) {
+        CommandNode<CommandSource> node =
+                dispatcher.getRoot().getChild(alias.toLowerCase(Locale.ROOT));
+        return node != null && node.canUse(source);
+    }
+
+    @Override
+    public Collection<String> aliases() {
+        return Collections.unmodifiableSet(metaByAlias.keySet());
+    }
+
+    public CommandDispatcher<CommandSource> dispatcher() {
+        return dispatcher;
+    }
+
+    public record RegisteredCommand(
+            CommandTree tree,
+            CommandMeta meta
+    ) {}
 }

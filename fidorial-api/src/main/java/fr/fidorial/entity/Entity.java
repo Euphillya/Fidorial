@@ -1,12 +1,13 @@
 package fr.fidorial.entity;
 
+import fr.fidorial.command.CommandSource;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 
 import java.util.UUID;
 
-public interface Entity {
+public interface Entity extends CommandSource {
 
     int entityId();
 
@@ -25,4 +26,12 @@ public interface Entity {
     boolean isRemoved();
 
     void remove();
+
+    default double distanceSquared(Location other) {
+        double dx = location().x() - other.x();
+        double dy = location().y() - other.y();
+        double dz = location().z() - other.z();
+
+        return dx * dx + dy * dy + dz * dz;
+    }
 }

@@ -1,6 +1,9 @@
 package fr.euphyllia.fidorial.server.command;
 
+import fr.fidorial.Server;
 import fr.fidorial.command.CommandSender;
+import fr.fidorial.command.CommandSource;
+import fr.fidorial.entity.Entity;
 import fr.fidorial.permission.Permissible;
 import fr.fidorial.permission.PermissibleBase;
 import fr.fidorial.permission.PermissibleBaseHolder;
@@ -12,18 +15,20 @@ import fr.fidorial.permission.ServerOperator;
 import fr.fidorial.plugin.Plugin;
 import fr.fidorial.translation.TranslationStore;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.fidorial.world.Location;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Set;
 
 import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
-public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
+public class ConsoleSender implements CommandSender, PermissibleBaseHolder, CommandSource {
 
     public static final ConsoleSender INSTANCE = new ConsoleSender();
-    private static final ComponentLogger LOGGER = getLogger("Console");
+    public static final ComponentLogger LOGGER = getLogger("Console");
     private static final ServerOperator CONSOLE_OP = new ServerOperator() {
         @Override
         public boolean isOp() {
@@ -58,22 +63,14 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
         return local;
     }
 
-    @Override
-    public String name() {
-        return "Console";
-    }
-
-    @Override
     public void setLocale(final String language) {
         this.locale = Locale.forLanguageTag(language);
     }
 
-    @Override
     public void setLocale(final Locale locale) {
         this.locale = locale;
     }
 
-    @Override
     public Locale locale() {
         return this.locale;
     }
@@ -81,6 +78,11 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
     @Override
     public void sendMessage(final Component message) {
         LOGGER.info(TranslationStore.render(message, locale()));
+    }
+
+    @Override
+    public String name() {
+        return "Console";
     }
 
     @Override
@@ -196,5 +198,25 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
             throw new IllegalStateException("Serveur non demarre : permissions indisponibles");
         }
         return p;
+    }
+
+    @Override
+    public Location location() {
+        return null;
+    }
+
+    @Override
+    public CommandSender sender() {
+        return this;
+    }
+
+    @Override
+    public @Nullable Entity executor() {
+        return null;
+    }
+
+    @Override
+    public FidorialServer server() {
+        return FidorialServer.getInstance();
     }
 }

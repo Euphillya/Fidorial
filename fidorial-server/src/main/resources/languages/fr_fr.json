@@ -4,6 +4,10 @@
   "command.error.unknown" : "Commande inconnue : /<arg:0>",
   "command.error.exception" : "Une erreur est survenue pendant /<arg:0>",
 
+  "console.command.unknown.command" : "Commande inconnue ou incomplète. Voir l'erreur ci-dessous",
+  "console.command.unknown.argument" : "Incorrect argument for command",
+  "console.command.context.here" : "<red><italic><-- [ICI]",
+
   "command.gamemode.current" : "Mode de jeu actuel : <arg:0>",
   "command.gamemode.usage" : "Usage : /<arg:0> <survival|creative|adventure|spectator> [joueur]",
   "command.gamemode.unknown" : "Mode de jeu inconnu : <arg:0> (survival, creative, adventure, spectator)",

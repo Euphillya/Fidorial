@@ -1,21 +1,26 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import fr.fidorial.command.CommandExecutor;
-import fr.fidorial.command.CommandSender;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import fr.fidorial.command.CommandTree;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.fidorial.command.CommandSource;
 import net.kyori.adventure.text.Component;
 
-public class StopCommand implements CommandExecutor {
+public class StopCommand {
+    public static CommandTree create() {
+        LiteralCommandNode<CommandSource> command = CommandTree.literal("stop")
+                .requires(source -> source.sender().hasPermission("fidorial.command.stop"))
+                .executes(StopCommand::stop)
+                .build();
+        return new CommandTree(command);
+    }
 
-    @Override
-    public void execute(CommandSender sender, String label, String[] args) {
-        if (!sender.hasPermission("fidorial.command.stop")) {
-            sender.sendMessage(Component.translatable("command.error.nopermission"));
-            return;
-        }
+    private static int stop(CommandContext<CommandSource> context) {
         FidorialServer.getInstance().audiences().forEach(audience ->
                 audience.sendMessage(Component.translatable("command.stop.disabling")));
         FidorialServer.getInstance().shutdown();
-        sender.sendMessage(Component.translatable("command.stop.stopped"));
+        return Command.SINGLE_SUCCESS;
     }
 }

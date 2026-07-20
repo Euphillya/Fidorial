@@ -1,11 +1,15 @@
 package fr.fidorial.entity;
 
 import fr.fidorial.command.CommandSender;
+import fr.fidorial.command.CommandSource;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.permission.Permissible;
 
 import java.util.UUID;
 
-public interface Player extends LivingEntity, CommandSender {
+public interface Player extends LivingEntity, Permissible, CommandSource, CommandSender {
+
+    void refreshCommands();
 
     PlayerProfile profile();
 

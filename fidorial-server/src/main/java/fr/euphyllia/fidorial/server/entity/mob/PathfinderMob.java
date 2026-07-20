@@ -67,7 +67,8 @@ public abstract class PathfinderMob extends Mob {
         return (ServerWorld) world();
     }
 
-    protected final FidorialServer server() {
+    @Override
+    public final FidorialServer server() {
         return FidorialServer.getInstance();
     }
 

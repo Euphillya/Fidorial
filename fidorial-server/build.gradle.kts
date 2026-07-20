@@ -13,6 +13,7 @@ dependencies {
     implementation(libs.faststats.core)
     implementation(libs.adventure.text.serializer.ansi)
     implementation(libs.logback.classic)
+    implementation(libs.adventure.text.serializer.plain)
 }
 
 application {
