@@ -97,7 +97,9 @@ public final class Creeper extends PathfinderMob {
         @Override
         public boolean shouldContinue() {
             ServerPlayer target = target();
-            return target != null && distanceSqTo(target) <= DEFUSE_RANGE_SQ;
+            return target != null
+                    && distanceSqTo(target) <= DEFUSE_RANGE_SQ
+                    && hasLineOfSightTo(target);
         }
 
         @Override
