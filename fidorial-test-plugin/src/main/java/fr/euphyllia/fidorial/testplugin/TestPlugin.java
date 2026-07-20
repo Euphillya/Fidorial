@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.testplugin;
 
+import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
+import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.entity.Player;
@@ -10,16 +12,16 @@ import fr.fidorial.event.player.PlayerChatEvent;
 import fr.fidorial.event.player.PlayerJoinEvent;
 import fr.fidorial.event.player.PlayerQuitEvent;
 import fr.fidorial.event.server.ServerStartedEvent;
+import fr.fidorial.event.server.ServerStatusRequestEvent;
 import fr.fidorial.event.server.ServerStoppingEvent;
 import fr.fidorial.plugin.Plugin;
 import fr.fidorial.plugin.PluginContext;
 import fr.fidorial.scheduler.RegionTps;
 import fr.fidorial.service.ServicePriority;
+import fr.fidorial.status.ServerStatus;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.World;
 import fr.fidorial.world.generation.WorldGenerator;
-import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
-import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
@@ -31,6 +33,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -109,6 +112,16 @@ public final class TestPlugin implements Plugin {
 
     private void registerEvents() {
         var events = context.events();
+
+        events.subscribe(ServerStatusRequestEvent.class, event -> {
+            event.setStatus(event.getStatus().toBuilder()
+                    .description(Component.text("HELLO!!!"))
+                    .samplePlayer(new ServerStatus.SamplePlayer("test", UUID.randomUUID()))
+                    .maxPlayers(-999)
+                    .players(999)
+                    .version(new ServerStatus.Version("§aIDK §cXOXO", event.getStatus().version().protocolVersion()))
+                    .build());
+        });
 
         events.subscribe(ServerStartedEvent.class, e ->
                 logger.info("[TestPlugin][event] ServerStartedEvent recu, version MC {}",

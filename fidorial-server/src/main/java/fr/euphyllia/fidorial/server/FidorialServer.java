@@ -2,6 +2,27 @@ package fr.euphyllia.fidorial.server;
 
 import dev.faststats.ErrorTracker;
 import dev.faststats.Metrics;
+import fr.euphyllia.fidorial.server.schedulers.AiWorker;
+import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
+import fr.fidorial.Server;
+import fr.fidorial.command.CommandRegistry;
+import fr.fidorial.entity.Player;
+import fr.fidorial.event.EventBus;
+import fr.fidorial.event.server.ServerStartedEvent;
+import fr.fidorial.event.server.ServerStoppingEvent;
+import fr.fidorial.permission.PermissionService;
+import fr.fidorial.plugin.PluginManager;
+import fr.fidorial.scheduler.RegionizedScheduler;
+import fr.fidorial.service.ServicePriority;
+import fr.fidorial.service.ServiceRegistry;
+import fr.fidorial.status.ServerStatus;
+import fr.fidorial.storage.player.PlayerDataStorage;
+import fr.fidorial.storage.player.PlayerInventoryStorage;
+import fr.fidorial.translation.TranslationStore;
+import fr.fidorial.world.World;
+import fr.fidorial.world.block.Blocks;
+import fr.fidorial.world.fluid.FluidManager;
+import fr.fidorial.world.weather.WeatherManager;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
@@ -29,41 +50,14 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundRemoveEntitiesPacket;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
-import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
 import fr.euphyllia.fidorial.server.translation.BuiltInTranslationStore;
-import fr.euphyllia.fidorial.server.world.BlockEditService;
-import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
-import fr.euphyllia.fidorial.server.world.FlatChunkGenerator;
-import fr.euphyllia.fidorial.server.world.FlatWorld;
-import fr.euphyllia.fidorial.server.world.ServerWorld;
-import fr.euphyllia.fidorial.server.world.ServiceBackedChunkGenerator;
-import fr.euphyllia.fidorial.server.world.WorldConstants;
-import fr.euphyllia.fidorial.server.world.WorldManager;
+import fr.euphyllia.fidorial.server.world.*;
 import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
-import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
-import fr.fidorial.Server;
-import fr.fidorial.command.CommandRegistry;
-import fr.fidorial.entity.Player;
-import fr.fidorial.event.EventBus;
-import fr.fidorial.event.server.ServerStartedEvent;
-import fr.fidorial.event.server.ServerStoppingEvent;
-import fr.fidorial.permission.PermissionService;
-import fr.fidorial.plugin.PluginManager;
-import fr.fidorial.scheduler.RegionizedScheduler;
-import fr.fidorial.service.ServicePriority;
-import fr.fidorial.service.ServiceRegistry;
-import fr.fidorial.storage.player.PlayerDataStorage;
-import fr.fidorial.storage.player.PlayerInventoryStorage;
-import fr.fidorial.translation.TranslationStore;
-import fr.fidorial.world.World;
-import fr.fidorial.world.block.Blocks;
-import fr.fidorial.world.fluid.FluidManager;
-import fr.fidorial.world.weather.WeatherManager;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
@@ -71,18 +65,14 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.KeyPair;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.MINI_MESSAGE;
 import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public final class FidorialServer implements Server {
@@ -296,6 +286,19 @@ public final class FidorialServer implements Server {
     @Override
     public EventBus events() {
         return events;
+    }
+
+    @Override
+    public ServerStatus status() {
+        return ServerStatus.builder()
+                .description(MINI_MESSAGE.deserialize(config.motd()))
+                .maxPlayers(100) // todo: add config option
+                .players(playerCount())
+                .version(new ServerStatus.Version(
+                        "Fidorial " + ProtocolConstants.MINECRAFT_VERSION,
+                        ProtocolConstants.PROTOCOL_VERSION
+                ))
+                .build();
     }
 
     @Override

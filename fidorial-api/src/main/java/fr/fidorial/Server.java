@@ -6,6 +6,7 @@ import fr.fidorial.event.EventBus;
 import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.scheduler.RegionizedScheduler;
 import fr.fidorial.service.ServiceRegistry;
+import fr.fidorial.status.ServerStatus;
 import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.World;
 import net.kyori.adventure.audience.Audience;
@@ -16,7 +17,11 @@ import net.kyori.adventure.pointer.Pointers;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -31,6 +36,8 @@ public interface Server /* extends ForwardingAudience */ { // we need more funct
     CommandRegistry commands();
 
     EventBus events();
+
+    ServerStatus status();
 
     ServiceRegistry services();
 
