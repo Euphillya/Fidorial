@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server;
 import dev.faststats.ErrorTracker;
 import dev.faststats.Metrics;
 import fr.euphyllia.fidorial.server.entity.EntityManager;
+import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.entity.Player;
@@ -48,7 +49,6 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundRemoveEntitiesPacket;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
-import fr.euphyllia.fidorial.server.schedulers.AiWorkers;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
@@ -96,9 +96,12 @@ public final class FidorialServer implements Server {
     private ProtocolMap protocolMap;
     private Registries registries;
     private CommandManager commandManager;
+
     private ThreadedRegionRegionizer regionizer;
     private ThreadedChunkWorker chunkWorker;
+    private AiWorker aiWorker;
     private ScheduledExecutorService autoSave;
+
     private NbtPlayerInventoryStorage defaultInventoryStorage;
     private NbtPlayerDataStorage defaultPlayerDataStorage;
     private WorldManager worldManager;
@@ -173,7 +176,9 @@ public final class FidorialServer implements Server {
         closeQuietly("auto-save", () -> {
             if (autoSave != null) autoSave.shutdownNow();
         });
-        closeQuietly("ia", AiWorkers::shutdown);
+        closeQuietly("ia", () -> {
+            if (aiWorker != null) aiWorker.shutdown();
+        });
         closeQuietly("regions", () -> {
             if (regionizer != null) regionizer.shutdown();
         });
@@ -215,6 +220,7 @@ public final class FidorialServer implements Server {
     private void startSchedulers() {
         regionizer = new ThreadedRegionRegionizer(config.regionWorkers());
         chunkWorker = new ThreadedChunkWorker(config.chunkWorkers());
+        aiWorker = new AiWorker(config.aiWorkers());
     }
 
     private void openWorlds() throws IOException {
@@ -386,6 +392,10 @@ public final class FidorialServer implements Server {
 
     public ThreadedChunkWorker chunkWorker() {
         return chunkWorker;
+    }
+
+    public AiWorker aiWorker() {
+        return aiWorker;
     }
 
     public CommandManager commandManager() {

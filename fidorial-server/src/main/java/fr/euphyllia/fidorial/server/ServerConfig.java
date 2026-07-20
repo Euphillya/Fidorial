@@ -24,6 +24,7 @@ public record ServerConfig(int port,
                            int autoSaveSeconds,
                            int regionWorkers,
                            int chunkWorkers,
+                           int aiWorkers,
                            GameMode defaultGameMode,
                            double spawnX,
                            double spawnY,
@@ -75,7 +76,8 @@ public record ServerConfig(int port,
                 Path.of("plugins"),
                 5,
                 Math.max(2, cpus / 2),
-                Math.max(2, cpus / 2),
+                Math.max(2, cpus / 8),
+                Math.max(2, cpus / 8),
                 GameMode.SURVIVAL,
                 WorldConstants.DEFAULT_SPAWN_X, WorldConstants.DEFAULT_SPAWN_Y, WorldConstants.DEFAULT_SPAWN_Z,
                 "",
@@ -109,6 +111,7 @@ public record ServerConfig(int port,
                 readInt(props, "auto-save-seconds", defaults.autoSaveSeconds()),
                 readInt(props, "region-workers", defaults.regionWorkers()),
                 readInt(props, "chunk-workers", defaults.chunkWorkers()),
+                readInt(props, "ai-workers", defaults.chunkWorkers()),
                 readGameMode(props, "default-game-mode", defaults.defaultGameMode()),
                 readDouble(props, "spawn-x", defaults.spawnX()),
                 readDouble(props, "spawn-y", defaults.spawnY()),
@@ -198,6 +201,7 @@ public record ServerConfig(int port,
         props.setProperty("auto-save-seconds", Integer.toString(autoSaveSeconds));
         props.setProperty("region-workers", Integer.toString(regionWorkers));
         props.setProperty("chunk-workers", Integer.toString(chunkWorkers));
+        props.setProperty("ai-workers", Integer.toString(aiWorkers));
         props.setProperty("default-game-mode", defaultGameMode.name().toLowerCase(Locale.ROOT));
         props.setProperty("spawn-x", Double.toString(spawnX));
         props.setProperty("spawn-y", Double.toString(spawnY));

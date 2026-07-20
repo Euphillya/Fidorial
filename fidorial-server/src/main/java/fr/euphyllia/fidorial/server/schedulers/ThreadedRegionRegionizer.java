@@ -34,7 +34,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
         AtomicInteger id = new AtomicInteger();
         this.workers = Executors.newScheduledThreadPool(workerThreads,
                 r -> new Thread(r, "fidorial-region-worker-" + id.incrementAndGet()));
-        LOGGER.info("Pool regional demarre avec {} workers", workerThreads);
+        LOGGER.info("Region pool started with {} workers", workerThreads);
     }
 
     @Override
@@ -110,7 +110,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
         Region region = new Region(key);
         region.future = workers.scheduleAtFixedRate(
                 region::tick, 0, TICK_PERIOD_MS, TimeUnit.MILLISECONDS);
-        LOGGER.debug("Region creee : {}", key);
+        LOGGER.debug("Region created: {}", key);
         return region;
     }
 
@@ -132,7 +132,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
             if (region.tasks.isEmpty() && region.tickets.get() == 0
                     && region.emptyTicks.get() >= MAX_EMPTY_TICKS) {
                 region.future.cancel(false);
-                LOGGER.debug("Region supprimee : {}", region.key);
+                LOGGER.debug("Region removed: {}", region.key);
                 return null;
             }
             return region;
@@ -221,7 +221,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
                         try {
                             t.task.run();
                         } catch (Throwable ex) {
-                            LOGGER.error("Erreur dans une tache de {}", key, ex);
+                            LOGGER.error("Error in a task of {}", key, ex);
                         }
                     } else {
                         tasks.add(t);
@@ -232,7 +232,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
                     try {
                         handler.tick(key.world(), key.sectionX(), key.sectionZ(), currentTick);
                     } catch (Throwable ex) {
-                        LOGGER.error("Erreur dans un tick handler de {}", key, ex);
+                        LOGGER.error("Error in a tick handler of {}", key, ex);
                     }
                 }
 

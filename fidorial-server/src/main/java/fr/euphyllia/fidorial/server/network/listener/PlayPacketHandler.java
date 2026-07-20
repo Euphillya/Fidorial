@@ -347,7 +347,6 @@ public final class PlayPacketHandler implements PlayPacketListener {
                                     entries
                             )
                     );
-                    System.out.println(suggestions.getRange());
                 });
     }
 
