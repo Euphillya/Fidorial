@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.mob.monster;
 
+import fr.euphyllia.fidorial.server.world.Explosion;
 import fr.fidorial.entity.ai.Goal;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
@@ -61,7 +62,7 @@ public final class Creeper extends PathfinderMob {
         Location center = location();
         setPrimed(false);
         server().despawnEntity(this);
-        LOGGER.debug(Component.text("Macron... putain. EXPLOSION !")); // Todo : Replace Macron for real explosion
+        Explosion.explode(serverWorld(), center, EXPLOSION_POWER, this);
     }
 
     @Override
