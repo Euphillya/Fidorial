@@ -5,6 +5,7 @@ import fr.fidorial.inventory.PlayerInventory;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.nbt.*;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -23,7 +24,7 @@ public final class PlayerInventoryCodec {
     }
 
     @SuppressWarnings("PatternValidation")
-    public static ItemStack itemFromNbt(NbtCompound tag) {
+    public static ItemStack itemFromNbt(@Nullable NbtCompound tag) {
         if (tag == null) {
             return ItemStack.EMPTY;
         }
@@ -49,7 +50,7 @@ public final class PlayerInventoryCodec {
         return list;
     }
 
-    public static void loadInventoryFromNbt(PlayerInventory inventory, NbtList list) {
+    public static void loadInventoryFromNbt(PlayerInventory inventory, @Nullable NbtList list) {
         inventory.clear();
         if (list == null) {
             return;
@@ -59,7 +60,7 @@ public final class PlayerInventoryCodec {
                 continue;
             }
             int slot = entry.getByte("Slot") & 0xFF;
-            if (slot < 0 || slot >= inventory.size()) {
+            if (slot >= inventory.size()) {
                 continue;
             }
             inventory.set(slot, itemFromNbt(entry));

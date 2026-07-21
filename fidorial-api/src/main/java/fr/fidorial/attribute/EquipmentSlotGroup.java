@@ -1,5 +1,7 @@
 package fr.fidorial.attribute;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
 public enum EquipmentSlotGroup {
@@ -31,7 +33,7 @@ public enum EquipmentSlotGroup {
         return serializedName;
     }
 
-    public static EquipmentSlotGroup byName(String name) {
+    public static EquipmentSlotGroup byName(@Nullable String name) {
         if (name == null) {
             return ANY;
         }

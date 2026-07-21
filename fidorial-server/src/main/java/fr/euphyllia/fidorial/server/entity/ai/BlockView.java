@@ -4,6 +4,7 @@ import fr.fidorial.world.Chunk;
 import fr.euphyllia.fidorial.server.world.ServerChunk;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
@@ -16,7 +17,7 @@ public class BlockView {
     private BlockView() {
     }
 
-    public static BlockState blockAt(ServerWorld world, int x, int y, int z) {
+    public static @Nullable BlockState blockAt(ServerWorld world, int x, int y, int z) {
         if (y < world.minY() || y >= world.minY() + world.height()) {
             return BlockState.AIR;
         }

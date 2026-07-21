@@ -51,7 +51,6 @@ public final class CommandManager implements CommandRegistry {
     }
 
     public void dispatch(CommandSender sender, String line) {
-        if (line == null) return;
         String trimmed = line.strip();
         if (trimmed.startsWith("/")) trimmed = trimmed.substring(1);
         if (trimmed.isEmpty()) return;

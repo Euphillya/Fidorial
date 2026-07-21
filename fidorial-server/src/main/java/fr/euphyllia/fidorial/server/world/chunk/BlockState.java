@@ -9,7 +9,7 @@ public record BlockState(String name, Map<String, String> properties) {
     public static final BlockState AIR = of("minecraft:air");
 
     public BlockState {
-        properties = properties == null || properties.isEmpty()
+        properties = properties.isEmpty()
                 ? Collections.emptyMap()
                 : Collections.unmodifiableMap(new TreeMap<>(properties));
     }

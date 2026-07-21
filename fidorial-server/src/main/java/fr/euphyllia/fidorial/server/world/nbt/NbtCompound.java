@@ -1,12 +1,11 @@
 package fr.euphyllia.fidorial.server.world.nbt;
 
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-
 
 public final class NbtCompound implements Nbt, Iterable<Nbt> {
 
@@ -124,16 +123,16 @@ public final class NbtCompound implements Nbt, Iterable<Nbt> {
         return get(key) instanceof NbtByteArray(byte[] value) ? value : new byte[0];
     }
 
-    public NbtCompound getCompound(String key) {
+    public @Nullable NbtCompound getCompound(String key) {
         return get(key) instanceof NbtCompound c ? c : null;
     }
 
-    public NbtList getList(String key) {
+    public @Nullable NbtList getList(String key) {
         return get(key) instanceof NbtList l ? l : null;
     }
 
     @Override
-    public @NonNull Iterator<Nbt> iterator() {
+    public Iterator<Nbt> iterator() {
         return tags.values().iterator();
     }
 

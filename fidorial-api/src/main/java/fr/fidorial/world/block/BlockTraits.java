@@ -1,22 +1,12 @@
 package fr.fidorial.world.block;
 
 import fr.fidorial.world.block.data.*;
-import fr.fidorial.world.block.data.Ageable;
-import fr.fidorial.world.block.data.Bisected;
-import fr.fidorial.world.block.data.Directional;
-import fr.fidorial.world.block.data.Levelled;
-import fr.fidorial.world.block.data.Lightable;
-import fr.fidorial.world.block.data.Openable;
-import fr.fidorial.world.block.data.Orientable;
-import fr.fidorial.world.block.data.Powerable;
-import fr.fidorial.world.block.data.Rotatable;
-import fr.fidorial.world.block.data.Snowable;
-import fr.fidorial.world.block.data.Waterlogged;
 import fr.fidorial.world.block.data.type.Door;
 import fr.fidorial.world.block.data.type.NoteBlock;
 import fr.fidorial.world.block.data.type.Slab;
 import fr.fidorial.world.block.data.type.Stairs;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +82,7 @@ public class BlockTraits {
         return traits;
     }
 
-    private static BlockProperty find(List<BlockProperty> properties, String name) {
+    private static @Nullable BlockProperty find(List<BlockProperty> properties, String name) {
         for (BlockProperty property : properties) {
             if (property.name().equals(name)) {
                 return property;

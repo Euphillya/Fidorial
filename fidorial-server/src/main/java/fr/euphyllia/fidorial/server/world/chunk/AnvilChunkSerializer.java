@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
 import fr.euphyllia.fidorial.server.world.nbt.*;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +121,7 @@ public class AnvilChunkSerializer {
         return chunk;
     }
 
-    private ChunkSection sectionFromNbt(NbtCompound c, BlockState defaultBlock, String defaultBiome) {
+    private @Nullable ChunkSection sectionFromNbt(NbtCompound c, BlockState defaultBlock, String defaultBiome) {
         if (!c.contains("Y")) return null;
         int sectionY = c.getByte("Y");
 

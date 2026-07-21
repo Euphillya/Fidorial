@@ -134,7 +134,7 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
             case CLEAR -> {
                 setRaining(false);
                 setThundering(false);
-                level.clearWeatherTime = durationTicks > 0 ? durationTicks : 0;
+                level.clearWeatherTime = Math.max(durationTicks, 0);
                 level.rainTime = durationTicks > 0 ? 0 : nextClearDuration();
                 level.thunderTime = durationTicks > 0 ? 0 : nextThunderOffDuration();
             }

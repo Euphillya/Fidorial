@@ -1,6 +1,7 @@
 package fr.fidorial.translation;
 
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -12,10 +13,6 @@ public interface TranslationStore {
      * @param store new {@link TranslationStore}
      */
     static void setStore(TranslationStore store) {
-        if (store == null) {
-            throw new IllegalArgumentException("TranslationStore cannot be null");
-        }
-
         TranslationStore previous = current();
 
         store.load();
@@ -65,6 +62,6 @@ public interface TranslationStore {
 
     final class Holder {
         private Holder() {}
-        private static volatile TranslationStore INSTANCE;
+        private static volatile @Nullable TranslationStore INSTANCE;
     }
 }

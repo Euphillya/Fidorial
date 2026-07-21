@@ -14,6 +14,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.Serverboun
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.*;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundPingRequestPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundStatusRequestPacket;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -82,7 +83,7 @@ public class ServerboundPackets {
         READERS.computeIfAbsent(state, s -> new HashMap<>()).put(name, reader);
     }
 
-    public static ServerboundPacket decode(ConnectionState state, String name, PacketBuffer buf) {
+    public static @Nullable ServerboundPacket decode(ConnectionState state, String name, PacketBuffer buf) {
         Reader reader = READERS.getOrDefault(state, Map.of()).get(name);
         return reader == null ? null : reader.read(buf);
     }

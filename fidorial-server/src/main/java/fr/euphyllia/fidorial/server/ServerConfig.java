@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server;
 import fr.fidorial.entity.GameMode;
 import fr.euphyllia.fidorial.server.world.WorldConstants;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +32,7 @@ public record ServerConfig(int port,
                            double spawnZ,
                            String motd,
                            ProxyMode proxyMode,
-                           String velocitySecret) {
+                           @Nullable String velocitySecret) {
 
     private static final ComponentLogger LOGGER = getLogger(ServerConfig.class);
     private static final String DEFAULT_FILE = "fidorial.properties";
@@ -54,7 +55,7 @@ public record ServerConfig(int port,
         NONE,
         VELOCITY;
 
-        static ProxyMode byName(String raw) {
+        static @Nullable ProxyMode byName(String raw) {
             for (ProxyMode mode : values()) {
                 if (mode.name().equalsIgnoreCase(raw)) {
                     return mode;

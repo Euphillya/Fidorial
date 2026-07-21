@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.command;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.fidorial.command.CommandSender;
-import fr.fidorial.permission.Permissible;
 import fr.fidorial.permission.PermissibleBase;
 import fr.fidorial.permission.PermissibleBaseHolder;
 import fr.fidorial.permission.Permission;
@@ -11,9 +11,9 @@ import fr.fidorial.permission.PermissionService;
 import fr.fidorial.permission.ServerOperator;
 import fr.fidorial.plugin.Plugin;
 import fr.fidorial.translation.TranslationStore;
-import fr.euphyllia.fidorial.server.FidorialServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Set;
@@ -21,8 +21,6 @@ import java.util.Set;
 import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
-
-    public static final ConsoleSender INSTANCE = new ConsoleSender();
     private static final ComponentLogger LOGGER = getLogger("Console");
     private static final ServerOperator CONSOLE_OP = new ServerOperator() {
         @Override
@@ -35,27 +33,11 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
             throw new UnsupportedOperationException("Impossible de changer le statut op de la console");
         }
     };
-    private Locale locale = TranslationStore.defaultLocale();
-    private volatile PermissibleBase perm;
+    private Locale locale = Locale.US;
+    private final PermissibleBase perm;
 
-    private ConsoleSender() {
-    }
-
-    private Permissible perm() {
-        PermissibleBase local = perm;
-        if (local == null) {
-            synchronized (this) {
-                if (perm == null) {
-                    FidorialServer server = FidorialServer.getInstance();
-                    if (server == null || server.plugins() == null) {
-                        return null;
-                    }
-                    perm = new PermissibleBase(CONSOLE_OP, this, server.plugins());
-                }
-                local = perm;
-            }
-        }
-        return local;
+    public ConsoleSender(FidorialServer server) {
+        this.perm = new PermissibleBase(CONSOLE_OP, this, server.plugins());
     }
 
     @Override
@@ -90,15 +72,11 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
 
     @Override
     public PermissibleBase permissionBase() {
-        perm();
         return perm;
     }
 
-    private PermissionService service() {
+    private @Nullable PermissionService service() {
         FidorialServer server = FidorialServer.getInstance();
-        if (server == null || server.services() == null) {
-            return null;
-        }
         return server.services().find(PermissionService.class).orElse(null);
     }
 
@@ -118,8 +96,7 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
         if (service != null) {
             return service.isPermissionSet(this, name);
         }
-        Permissible p = perm();
-        return p != null && p.isPermissionSet(name);
+        return perm.isPermissionSet(name);
     }
 
     @Override
@@ -128,8 +105,7 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
         if (service != null) {
             return service.isPermissionSet(this, permission);
         }
-        Permissible p = perm();
-        return p != null && p.isPermissionSet(permission);
+        return perm.isPermissionSet(permission);
     }
 
     @Override
@@ -138,8 +114,7 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
         if (service != null) {
             return service.hasPermission(this, name);
         }
-        Permissible p = perm();
-        return p == null || p.hasPermission(name);
+        return perm.hasPermission(name);
     }
 
     @Override
@@ -148,23 +123,22 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
         if (service != null) {
             return service.hasPermission(this, permission);
         }
-        Permissible p = perm();
-        return p == null || p.hasPermission(permission);
+        return perm.hasPermission(permission);
     }
 
     @Override
     public PermissionAttachment addAttachment(Plugin plugin) {
-        return require().addAttachment(plugin);
+        return perm.addAttachment(plugin);
     }
 
     @Override
     public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value) {
-        return require().addAttachment(plugin, name, value);
+        return perm.addAttachment(plugin, name, value);
     }
 
     @Override
     public void removeAttachment(PermissionAttachment attachment) {
-        require().removeAttachment(attachment);
+        perm.removeAttachment(attachment);
     }
 
     @Override
@@ -174,10 +148,7 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
             service.recalculate(this);
             return;
         }
-        Permissible p = perm();
-        if (p != null) {
-            p.recalculatePermissions();
-        }
+        perm.recalculatePermissions();
     }
 
     @Override
@@ -186,15 +157,6 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder {
         if (service != null) {
             return service.effectivePermissions(this);
         }
-        Permissible p = perm();
-        return p == null ? Set.of() : p.getEffectivePermissions();
-    }
-
-    private Permissible require() {
-        Permissible p = perm();
-        if (p == null) {
-            throw new IllegalStateException("Serveur non demarre : permissions indisponibles");
-        }
-        return p;
+        return perm.getEffectivePermissions();
     }
 }

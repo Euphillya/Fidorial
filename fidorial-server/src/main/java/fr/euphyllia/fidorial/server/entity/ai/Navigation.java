@@ -4,8 +4,8 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.fidorial.entity.ai.Path;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
-import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,11 +19,11 @@ public class Navigation {
     private static final int MAX_NODES = 768;
 
     private final ServerWorld world;
-    private final AtomicReference<PathResult> pendingResult = new AtomicReference<>();
+    private final AtomicReference<@Nullable PathResult> pendingResult = new AtomicReference<>();
 
-    private Path path;
+    private @Nullable Path path;
     private int waypointIndex;
-    private BlockPos requestedGoal;
+    private @Nullable BlockPos requestedGoal;
 
     private long age;
     private long lastRequestTick = -REPATH_COOLDOWN_TICKS;
@@ -103,7 +103,7 @@ public class Navigation {
         }
     }
 
-    public BlockPos currentWaypoint() {
+    public @Nullable BlockPos currentWaypoint() {
         if (path == null || waypointIndex >= path.waypoints().size()) {
             return null;
         }
@@ -122,6 +122,6 @@ public class Navigation {
         lastDistanceSq = Double.MAX_VALUE;
     }
 
-    private record PathResult(Path path) {
+    private record PathResult(@Nullable Path path) {
     }
 }

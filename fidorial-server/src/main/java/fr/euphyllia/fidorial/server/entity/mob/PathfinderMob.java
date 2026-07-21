@@ -12,6 +12,7 @@ import fr.euphyllia.fidorial.server.entity.ai.Navigation;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.*;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -31,7 +32,7 @@ public abstract class PathfinderMob extends Mob {
     protected final GoalSelector goals = new GoalSelector();
     protected final Navigation navigation;
 
-    private ServerPlayer target;
+    private @Nullable ServerPlayer target;
     private double velocityX;
     private double velocityY;
     private double velocityZ;
@@ -154,7 +155,7 @@ public abstract class PathfinderMob extends Mob {
         return player.world() == world() && distanceSqTo(player) <= maxDistSq;
     }
 
-    public final ServerPlayer target() {
+    public final @Nullable ServerPlayer target() {
         return target;
     }
 

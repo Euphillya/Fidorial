@@ -4,10 +4,14 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.network.codec.FrameDecoder;
 import fr.euphyllia.fidorial.server.network.codec.FrameEncoder;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.jspecify.annotations.Nullable;
 
 public final class NettyServer {
 
@@ -15,7 +19,7 @@ public final class NettyServer {
     private final int port;
     private final MultiThreadIoEventLoopGroup bossGroup = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory());
     private final MultiThreadIoEventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
-    private Channel channel;
+    private @Nullable Channel channel;
 
     public NettyServer(FidorialServer server, int port) {
         this.server = server;

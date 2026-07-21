@@ -6,6 +6,7 @@ import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 public final class GameModeCommand implements CommandExecutor {
 
@@ -61,7 +62,7 @@ public final class GameModeCommand implements CommandExecutor {
         }
     }
 
-    private Player findPlayer(String name) {
+    private @Nullable Player findPlayer(String name) {
         return FidorialServer.getInstance().player(name).orElse(null);
     }
 }

@@ -7,6 +7,7 @@ dependencies {
     api(platform(libs.adventure.bom))
     api(libs.bundles.adventure)
     api(libs.guava)
+    api(libs.jspecify)
 }
 
 java {

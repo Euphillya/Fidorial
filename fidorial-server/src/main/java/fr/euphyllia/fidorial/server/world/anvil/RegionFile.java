@@ -2,8 +2,16 @@ package fr.euphyllia.fidorial.server.world.anvil;
 
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
+import org.jspecify.annotations.Nullable;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -18,7 +26,7 @@ public final class RegionFile implements Closeable {
     private final int[] offsets = new int[RegionConstants.CHUNKS_PER_REGION];
     private final int[] sectorCounts = new int[RegionConstants.CHUNKS_PER_REGION];
     private final int[] timestamps = new int[RegionConstants.CHUNKS_PER_REGION];
-    private boolean[] usedSectors;
+    private boolean[] usedSectors = new boolean[0];
 
     public RegionFile(Path path) throws IOException {
         Files.createDirectories(path.getParent());
@@ -67,7 +75,7 @@ public final class RegionFile implements Closeable {
         return offsets[i] != 0 && sectorCounts[i] != 0;
     }
 
-    public NbtCompound readChunk(int chunkX, int chunkZ) throws IOException {
+    public @Nullable NbtCompound readChunk(int chunkX, int chunkZ) throws IOException {
         int i = RegionConstants.headerIndex(chunkX, chunkZ);
         if (offsets[i] == 0 || sectorCounts[i] == 0) return null;
 

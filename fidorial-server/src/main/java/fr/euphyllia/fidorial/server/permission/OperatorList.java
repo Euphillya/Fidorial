@@ -38,9 +38,7 @@ public class OperatorList {
             operators.clear();
             if (entries != null) {
                 for (Entry entry : entries) {
-                    if (entry != null && entry.uuid != null) {
-                        operators.put(entry.uuid, entry);
-                    }
+                    operators.put(entry.uuid, entry);
                 }
             }
             LOGGER.info("{} operateur(s) charge(s)", operators.size());
@@ -58,7 +56,7 @@ public class OperatorList {
     }
 
     public boolean isOp(UUID uuid) {
-        return uuid != null && operators.containsKey(uuid);
+        return operators.containsKey(uuid);
     }
 
     public boolean setOp(UUID uuid, String name, boolean value) {

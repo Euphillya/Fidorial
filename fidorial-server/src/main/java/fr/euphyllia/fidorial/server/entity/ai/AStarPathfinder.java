@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.entity.ai;
 import fr.fidorial.entity.ai.Path;
 import fr.fidorial.world.BlockPos;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -15,7 +16,7 @@ public class AStarPathfinder {
     }
 
 
-    public static Path find(ServerWorld world, BlockPos start, BlockPos goal, int maxNodes) {
+    public static @Nullable Path find(ServerWorld world, BlockPos start, BlockPos goal, int maxNodes) {
         BlockPos from = snapToGround(world, start);
         BlockPos to = snapToGround(world, goal);
         if (from == null) {
@@ -109,7 +110,7 @@ public class AStarPathfinder {
                 && BlockView.isSolidGround(world, x, y - 1, z);
     }
 
-    private static BlockPos snapToGround(ServerWorld world, BlockPos pos) {
+    private static @Nullable BlockPos snapToGround(ServerWorld world, BlockPos pos) {
         for (int dy = 0; dy >= -MAX_DROP; dy--) {
             if (isStandable(world, pos.x(), pos.y() + dy, pos.z())) {
                 return new BlockPos(pos.x(), pos.y() + dy, pos.z());
@@ -137,7 +138,7 @@ public class AStarPathfinder {
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
-    private static Path buildPath(Node end, boolean reachedGoal) {
+    private static @Nullable Path buildPath(Node end, boolean reachedGoal) {
         List<BlockPos> waypoints = new ArrayList<>();
         for (Node node = end; node.parent != null; node = node.parent) {
             waypoints.add(new BlockPos(node.x, node.y, node.z));
@@ -158,11 +159,11 @@ public class AStarPathfinder {
         final int y;
         final int z;
         final double h;
-        Node parent;
+        @Nullable Node parent;
         double g;
         boolean closed;
 
-        Node(int x, int y, int z, Node parent, double g, double h) {
+        Node(int x, int y, int z, @Nullable Node parent, double g, double h) {
             this.x = x;
             this.y = y;
             this.z = z;

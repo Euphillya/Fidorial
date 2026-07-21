@@ -31,10 +31,6 @@ public final class WeatherCommand implements CommandExecutor {
             return;
         }
         WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
-        if (weather == null) {
-            sender.sendMessage(Component.translatable("command.weather.notstarted"));
-            return;
-        }
 
         if (args.length == 0) {
             sender.sendMessage(Component.translatable("command.weather.current", describe(weather.weather())));

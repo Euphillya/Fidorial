@@ -5,6 +5,7 @@ import fr.fidorial.scheduler.RegionTps;
 import fr.fidorial.scheduler.RegionizedScheduler;
 import fr.fidorial.world.ChunkPos;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -130,7 +131,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
         regions.compute(region.key, (k, existing) -> {
             if (existing != region) return existing;
             if (region.tasks.isEmpty() && region.tickets.get() == 0
-                    && region.emptyTicks.get() >= MAX_EMPTY_TICKS) {
+                    && region.emptyTicks.get() >= MAX_EMPTY_TICKS && region.future != null) {
                 region.future.cancel(false);
                 LOGGER.debug("Region removed: {}", region.key);
                 return null;
@@ -169,8 +170,8 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
         private final Object tpsLock = new Object();
         private final long[] tickEndNanos = new long[TPS_SAMPLE_SIZE];
         private final long[] tickDurationNanos = new long[TPS_SAMPLE_SIZE];
-        volatile Thread tickingThread;
-        ScheduledFuture<?> future;
+        volatile @Nullable Thread tickingThread;
+        @Nullable ScheduledFuture<?> future;
         long currentTick;
         private int sampleIndex;
         private int sampleCount;
@@ -179,6 +180,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
             this.key = key;
         }
 
+        @Nullable
         RegionTpsSnapshot snapshot() {
             synchronized (tpsLock) {
                 if (sampleCount < 2) return null;

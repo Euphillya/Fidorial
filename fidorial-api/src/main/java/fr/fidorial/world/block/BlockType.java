@@ -1,11 +1,16 @@
 package fr.fidorial.world.block;
 
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class BlockType {
 
@@ -14,7 +19,7 @@ public final class BlockType {
     private final int[] stateIds;
     private final int defaultOrdinal;
     private final Class<?>[] interfaces;
-    private final BlockData defaultData;
+    private final @Nullable BlockData defaultData;
 
     private BlockType(Key key, List<BlockProperty> properties, int[] stateIds, int defaultOrdinal,
                       List<Class<? extends BlockData>> traits) {
@@ -61,7 +66,7 @@ public final class BlockType {
         return properties;
     }
 
-    public BlockProperty property(String name) {
+    public @Nullable BlockProperty property(String name) {
         for (BlockProperty property : properties) {
             if (property.name().equals(name)) {
                 return property;
@@ -82,7 +87,7 @@ public final class BlockType {
         return List.of(interfaces);
     }
 
-    public BlockData defaultData() {
+    public @Nullable BlockData defaultData() {
         return defaultData;
     }
 
@@ -93,7 +98,7 @@ public final class BlockType {
         return createData(ordinal);
     }
 
-    public BlockData data(Map<String, String> values) {
+    public @Nullable BlockData data(@Nullable Map<String, String> values) {
         if (values == null || values.isEmpty()) {
             return defaultData;
         }
@@ -104,7 +109,7 @@ public final class BlockType {
         return stateAt(ordinal);
     }
 
-    public BlockData dataOrNull(Map<String, String> values) {
+    public @Nullable BlockData dataOrNull(Map<String, String> values) {
         try {
             return data(values);
         } catch (IllegalArgumentException exception) {
@@ -117,7 +122,7 @@ public final class BlockType {
                 BlockType.class.getClassLoader(), interfaces, new DataHandler(this, ordinal));
     }
 
-    private String value(int ordinal, String propertyName) {
+    private @Nullable String value(int ordinal, String propertyName) {
         int radix = 1;
         for (int i = properties.size() - 1; i >= 0; i--) {
             BlockProperty property = properties.get(i);
@@ -149,8 +154,8 @@ public final class BlockType {
         throw new IllegalArgumentException("Unknown property '" + propertyName + "' for block '" + key.asString() + "'");
     }
 
-    private Map<String, String> valuesOf(int ordinal) {
-        Map<String, String> map = new LinkedHashMap<>();
+    private Map<String, @Nullable String> valuesOf(int ordinal) {
+        Map<String, @Nullable String> map = new LinkedHashMap<>();
         for (BlockProperty property : properties) {
             map.put(property.name(), value(ordinal, property.name()));
         }
@@ -174,7 +179,7 @@ public final class BlockType {
 
     private record DataHandler(BlockType type, int ordinal) implements InvocationHandler {
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        public @Nullable Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             if (method.isDefault()) {
                 return InvocationHandler.invokeDefault(proxy, method, args);
             }
@@ -191,7 +196,7 @@ public final class BlockType {
             };
         }
 
-        private boolean equalsData(Object other) {
+        private boolean equalsData(@Nullable Object other) {
             if (other == null) return false;
             return Proxy.isProxyClass(other.getClass())
                     && Proxy.getInvocationHandler(other) instanceof DataHandler(BlockType type1, int ordinal1)
@@ -205,7 +210,7 @@ public final class BlockType {
         private final Key key;
         private final List<BlockProperty> properties = new ArrayList<>();
         private final List<Class<? extends BlockData>> extraTraits = new ArrayList<>();
-        private int[] stateIds;
+        private int @Nullable [] stateIds;
         private int fixedStateId = -1;
         private Map<String, String> defaultValues = Map.of();
 

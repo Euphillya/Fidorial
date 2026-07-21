@@ -18,6 +18,7 @@ import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -42,10 +43,10 @@ public final class ServerWorld implements World {
     private final Set<Long> dirty = ConcurrentHashMap.newKeySet();
     private final Set<Long> entitiesLoaded = ConcurrentHashMap.newKeySet();
     private final Set<ChunkViewSource> viewers = ConcurrentHashMap.newKeySet();
-    private volatile AsyncChunkLoader chunkLoader;
-    private volatile IntSupplier entityIdSupplier;
-    private volatile EntitySpawnBridge entityBridge;
-    private Iterable<? extends Audience> adventure$audiences;
+    private volatile @Nullable AsyncChunkLoader chunkLoader;
+    private volatile @Nullable IntSupplier entityIdSupplier;
+    private volatile @Nullable EntitySpawnBridge entityBridge;
+    private @Nullable Iterable<? extends Audience> adventure$audiences;
 
     public ServerWorld(Dimension dimension, ChunkStorage storage,
                        EntityRegionStorage entityStorage, AnvilEntitySerializer entitySerializer,
@@ -119,7 +120,7 @@ public final class ServerWorld implements World {
     }
 
     @Override
-    public Chunk getChunkIfLoaded(int chunkX, int chunkZ) {
+    public @Nullable Chunk getChunkIfLoaded(int chunkX, int chunkZ) {
         ChunkColumn cached = loaded.get(key(chunkX, chunkZ));
         return cached == null ? null : wrap(cached);
     }

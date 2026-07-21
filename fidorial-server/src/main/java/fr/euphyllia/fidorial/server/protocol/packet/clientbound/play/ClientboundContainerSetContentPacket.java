@@ -49,7 +49,7 @@ public record ClientboundContainerSetContentPacket(
     }
 
     private void writeSlot(PacketBuffer buf, ItemStack stack) {
-        if (stack == null || stack.isEmpty()) {
+        if (stack.isEmpty()) {
             buf.writeVarInt(0);                   // count 0 => slot vide
             return;
         }
@@ -61,6 +61,6 @@ public record ClientboundContainerSetContentPacket(
 
     private int itemNetworkId(ItemStack stack) {
         int id = frozen.networkId("minecraft:item", stack.id().asString());
-        return id < 0 ? 0 : id;                   // 0 = air en secours
+        return Math.max(id, 0);                   // 0 = air en secours
     }
 }

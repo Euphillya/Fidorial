@@ -1,6 +1,7 @@
 package fr.fidorial.permission;
 
 import fr.fidorial.plugin.Plugin;
+import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -12,7 +13,7 @@ public class PermissionAttachment {
     private final Plugin plugin;
     private final Permissible permissible;
     private final Map<String, Boolean> permissions = new LinkedHashMap<>();
-    private PermissionRemovedExecutor removed;
+    private @Nullable PermissionRemovedExecutor removed;
 
     public PermissionAttachment(Plugin plugin, Permissible permissible) {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
@@ -27,7 +28,7 @@ public class PermissionAttachment {
         return permissible;
     }
 
-    public PermissionRemovedExecutor getRemovalCallback() {
+    public @Nullable PermissionRemovedExecutor getRemovalCallback() {
         return removed;
     }
 

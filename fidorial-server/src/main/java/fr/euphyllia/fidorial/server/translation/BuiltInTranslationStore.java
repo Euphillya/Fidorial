@@ -9,6 +9,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationStore;
 import net.kyori.adventure.translation.GlobalTranslator;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,9 +31,9 @@ public final class BuiltInTranslationStore implements TranslationStore {
             Locale.FRANCE,
             Locale.US
     );
-    private MiniMessageTranslationStore miniMessageStore;
+    private final MiniMessageTranslationStore miniMessageStore = MiniMessageTranslationStore.create(Key.key("translations"));
 
-    private static Locale resolveLocale(final Locale locale) {
+    private static Locale resolveLocale(@Nullable final Locale locale) {
         if (locale == null) {
             return DEFAULT_LOCALE;
         }
@@ -82,23 +83,15 @@ public final class BuiltInTranslationStore implements TranslationStore {
 
     @Override
     public void load() {
-        if (miniMessageStore != null) {
-            unload();
-        }
+        unload();
 
-        miniMessageStore = MiniMessageTranslationStore.create(Key.key("translations"));
         loadBuiltin();
         GlobalTranslator.translator().addSource(miniMessageStore);
     }
 
     @Override
     public void unload() {
-        if (miniMessageStore == null) {
-            return;
-        }
-
         GlobalTranslator.translator().removeSource(miniMessageStore);
-        miniMessageStore = null;
     }
 
     @Override

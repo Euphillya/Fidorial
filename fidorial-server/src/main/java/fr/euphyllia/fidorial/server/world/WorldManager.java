@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
 import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.storage.*;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,10 +31,10 @@ public final class WorldManager implements AutoCloseable {
     private final BlockStateRegistry blockStates;
     private final int minY;
     private final int height;
-    private volatile ChunkGenerator defaultGenerator;
-    private volatile AsyncChunkLoader chunkLoader;
-    private volatile IntSupplier entityIdSupplier;
-    private volatile EntitySpawnBridge entityBridge;
+    private volatile @Nullable ChunkGenerator defaultGenerator;
+    private volatile @Nullable AsyncChunkLoader chunkLoader;
+    private volatile @Nullable IntSupplier entityIdSupplier;
+    private volatile @Nullable EntitySpawnBridge entityBridge;
 
     private WorldManager(WorldPaths paths, LevelData levelData, ChunkStorage storage,
                          EntityRegionStorage entityStorage, AnvilEntitySerializer entitySerializer,
@@ -107,8 +108,8 @@ public final class WorldManager implements AutoCloseable {
     }
 
     public ServerWorld overworld() {
-        ChunkGenerator generator = defaultGenerator != null
-                ? defaultGenerator
+        ChunkGenerator chunkGenerator = defaultGenerator;
+        ChunkGenerator generator = chunkGenerator != null ? chunkGenerator
                 : FlatChunkGenerator.cobblestone(minY, height);
         return registerDimension(Dimension.OVERWORLD, generator);
     }

@@ -24,6 +24,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerInfoGameModePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Set;
@@ -59,7 +60,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         return perm;
     }
 
-    private PermissionService permissionService() {
+    private @Nullable PermissionService permissionService() {
         return FidorialServer.getInstance().services()
                 .find(PermissionService.class).orElse(null);
     }
@@ -194,7 +195,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     @Override
     public void setGameMode(GameMode gameMode) {
-        if (gameMode == null || gameMode == this.gameMode) {
+        if (gameMode == this.gameMode) {
             return;
         }
         this.gameMode = gameMode;
@@ -216,7 +217,9 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     public int nextTeleportId() {
-        return ++lastTeleportId;
+        var id = lastTeleportId;
+        lastTeleportId = id + 1;
+        return lastTeleportId;
     }
 
     private final class PlayerOperator implements ServerOperator {

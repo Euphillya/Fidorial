@@ -1,10 +1,12 @@
 package fr.fidorial.world.block;
 
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.KeyPattern;
+import org.jspecify.annotations.Nullable;
 
 public final class Blocks {
 
-    private static volatile BlockRegistry registry;
+    private static volatile @Nullable BlockRegistry registry;
 
     private Blocks() {
     }
@@ -24,16 +26,16 @@ public final class Blocks {
         return current;
     }
 
-    public static BlockType type(String key) {
+    public static @Nullable BlockType type(@KeyPattern String key) {
         return registry().type(key).orElse(null);
     }
 
-    public static BlockType type(Key key) {
+    public static @Nullable BlockType type(Key key) {
         return registry().type(key).orElse(null);
     }
 
 
-    public static BlockData data(String input) {
+    public static @Nullable BlockData data(String input) {
         return registry().parse(input);
     }
 }
