@@ -22,7 +22,7 @@ final class SimpleServerStatus implements ServerStatus {
             final Version version,
             @Nullable final Favicon favicon,
             final List<SamplePlayer> samplePlayers,
-            boolean enforceSecureChat,
+            final boolean enforceSecureChat,
             final int maxPlayers,
             final int players
     ) {
@@ -136,7 +136,7 @@ final class SimpleServerStatus implements ServerStatus {
         }
 
         @Override
-        public ServerStatus.Builder enforceSecureChat(boolean enforceSecureChat) {
+        public ServerStatus.Builder enforceSecureChat(final boolean enforceSecureChat) {
             this.enforceSecureChat = enforceSecureChat;
             return this;
         }

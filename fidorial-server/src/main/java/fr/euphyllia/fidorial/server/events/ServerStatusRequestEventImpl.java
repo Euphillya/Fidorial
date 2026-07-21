@@ -16,7 +16,7 @@ public final class ServerStatusRequestEventImpl implements ServerStatusRequestEv
     }
 
     @Override
-    public void status(ServerStatus status) {
+    public void status(final ServerStatus status) {
         this.status = status;
     }
 }

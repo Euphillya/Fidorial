@@ -208,7 +208,7 @@ public final class FidorialServer implements Server {
     }
 
     private @Nullable Favicon loadFavicon() {
-        var serverIcon = Path.of("server-icon.png");
+        final Path serverIcon = Path.of("server-icon.png");
         if (Files.isRegularFile(serverIcon)) try {
             return Favicon.read(serverIcon);
         } catch (Exception e) {
