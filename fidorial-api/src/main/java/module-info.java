@@ -27,6 +27,7 @@ module fr.fidorial {
     exports fr.fidorial.world.weather;
     exports fr.fidorial.world;
     exports fr.fidorial;
+    exports fr.fidorial.sound;
 
     requires com.google.common;
     requires net.kyori.adventure.api;

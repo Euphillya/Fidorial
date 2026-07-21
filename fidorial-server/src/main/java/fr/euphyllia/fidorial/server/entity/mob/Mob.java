@@ -1,10 +1,13 @@
 package fr.euphyllia.fidorial.server.entity.mob;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.entity.LivingEntity;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.sound.Sound;
 
 import java.util.UUID;
 
@@ -39,5 +42,11 @@ public abstract class Mob extends AbstractEntity implements LivingEntity {
 
     protected void onDeath() {
         remove();
+    }
+
+    protected final void playSound(Sound.Type type, Sound.Source source, float volume, float pitch) {
+        Location loc = location();
+        FidorialServer.getInstance().broadcast(new ClientboundSoundPacket(
+                Sound.sound(type, source, volume, pitch), loc.x(), loc.y(), loc.z()));
     }
 }

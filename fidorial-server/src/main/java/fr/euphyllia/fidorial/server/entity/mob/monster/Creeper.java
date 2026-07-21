@@ -9,8 +9,10 @@ import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundCreeperStatePacket;
 import fr.euphyllia.fidorial.server.world.Explosion;
 import fr.fidorial.entity.ai.Goal;
+import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.UUID;
@@ -67,6 +69,7 @@ public final class Creeper extends PathfinderMob {
     @Override
     protected void onDeath() {
         setPrimed(false);
+        playSound(SoundEvents.CREEPER_DEATH, Sound.Source.HOSTILE, 1.0f, 1.0f);
         super.onDeath();
     }
 
@@ -76,6 +79,20 @@ public final class Creeper extends PathfinderMob {
         }
         this.primed = primed;
         server().broadcast(new ClientboundCreeperStatePacket(entityId(), primed));
+        if (primed) {
+            playSound(SoundEvents.CREEPER_PRIMED, Sound.Source.HOSTILE, 1.0f, 0.5f);
+        }
+    }
+
+    public void hurt(float amount) {
+        if (isRemoved() || isDead()) {
+            return;
+        }
+        float remaining = health() - amount;
+        if (remaining > 0f) {
+            playSound(SoundEvents.CREEPER_HURT, Sound.Source.HOSTILE, 1.0f, 1.0f);
+        }
+        setHealth(remaining);
     }
 
     private final class SwellGoal implements Goal {
