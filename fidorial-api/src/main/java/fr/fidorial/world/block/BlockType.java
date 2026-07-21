@@ -21,13 +21,8 @@ public final class BlockType {
     private final Class<?>[] interfaces;
     private final @Nullable BlockData defaultData;
 
-    private BlockType(
-            Key key,
-            List<BlockProperty> properties,
-            int[] stateIds,
-            int defaultOrdinal,
-            List<Class<? extends BlockData>> traits
-    ) {
+    private BlockType(Key key, List<BlockProperty> properties, int[] stateIds, int defaultOrdinal,
+                      List<Class<? extends BlockData>> traits) {
         this.key = key;
         this.properties = List.copyOf(properties);
         int expected = 1;
@@ -35,8 +30,8 @@ public final class BlockType {
             expected *= property.values().size();
         }
         if (stateIds.length != expected) {
-            throw new IllegalArgumentException(
-                    "Block '" + key.asString() + "' expects " + expected + " states but got " + stateIds.length);
+            throw new IllegalArgumentException("Block '" + key.asString() + "' expects " + expected
+                    + " states but got " + stateIds.length);
         }
         if (defaultOrdinal < 0 || defaultOrdinal >= expected) {
             throw new IllegalArgumentException("Default ordinal out of range for '" + key.asString() + "'");
@@ -123,8 +118,8 @@ public final class BlockType {
     }
 
     private BlockData createData(int ordinal) {
-        return (BlockData)
-                Proxy.newProxyInstance(BlockType.class.getClassLoader(), interfaces, new DataHandler(this, ordinal));
+        return (BlockData) Proxy.newProxyInstance(
+                BlockType.class.getClassLoader(), interfaces, new DataHandler(this, ordinal));
     }
 
     private @Nullable String value(int ordinal, String propertyName) {
@@ -148,16 +143,15 @@ public final class BlockType {
             if (property.name().equals(propertyName)) {
                 int index = property.indexOf(value);
                 if (index < 0) {
-                    throw new IllegalArgumentException("Invalid value '" + value + "' for property '" + propertyName
-                            + "' of block '" + key.asString() + "'");
+                    throw new IllegalArgumentException("Invalid value '" + value + "' for property '"
+                            + propertyName + "' of block '" + key.asString() + "'");
                 }
                 int current = (ordinal / radix) % size;
                 return ordinal + (index - current) * radix;
             }
             radix *= size;
         }
-        throw new IllegalArgumentException(
-                "Unknown property '" + propertyName + "' for block '" + key.asString() + "'");
+        throw new IllegalArgumentException("Unknown property '" + propertyName + "' for block '" + key.asString() + "'");
     }
 
     private Map<String, @Nullable String> valuesOf(int ordinal) {
@@ -280,4 +274,5 @@ public final class BlockType {
             return type;
         }
     }
+
 }

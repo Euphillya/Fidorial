@@ -16,7 +16,6 @@ import fr.fidorial.registry.Registry;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.world.World;
-import fr.fidorial.world.block.BlockData;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -97,14 +96,15 @@ public final class ArgumentTypes {
     }
 
     /**
-     * A blockdata argument which will provide rich parsing for specifying
+     * A block state argument which will provide rich parsing for specifying
      * the specific block variant and then the block entity NBT if applicable.
      *
      * @return argument
      */
-    public static ArgumentType<BlockData> blockData() {
-        return provider().blockData();
-    }
+    //public static ArgumentType<BlockState> blockState() {
+        //return provider().blockState();
+    //}
+
     /**
      * An ItemStack argument which provides rich parsing for
      * specifying item material and item NBT information.

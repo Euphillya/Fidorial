@@ -16,8 +16,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.ComponentArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.HexColorArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.NamedColorArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.StyleArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgumentInternal;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
@@ -52,7 +54,6 @@ import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.world.World;
-import fr.fidorial.world.block.BlockData;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -66,9 +67,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-/**
- * TODO: Eventually convert all nulls to proper argument types.
- */
 public class ArgumentProviderImpl implements ArgumentProvider {
     @Override
     public ArgumentType<EntitySelectorArgumentResolver> entity() {
@@ -97,12 +95,12 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<BlockPosResolver> blockPosition() {
-        return BlockPositionArgument.blockPosition();
+        return this.wrap(BlockPositionArgument.blockPosition());
     }
 
     @Override
     public ArgumentType<AngleResolver> angle() {
-        return AngleArgument.angle();
+        return this.wrap(AngleArgument.angle());
     }
 
     @Override
@@ -123,7 +121,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<NamedTextColor> namedColor() {
-        return NamedColorArgument.namedColor();
+        return this.wrap(NamedColorArgument.namedColor());
     }
 
     @Override
@@ -133,12 +131,12 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<Component> component() {
-        return null;
+        return this.wrap(ComponentArgument.textComponent());
     }
 
     @Override
     public ArgumentType<Style> style() {
-        return null;
+        return this.wrap(StyleArgument.style());
     }
 
     @Override
@@ -219,17 +217,17 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<GameMode> gameMode() {
-        return GameModeArgument.gameMode();
+        return this.wrap(GameModeArgument.gameMode());
     }
 
     @Override
     public ArgumentType<UUID> uuid() {
-        return UuidArgument.uuid();
+        return this.wrap(UuidArgument.uuid());
     }
 
     @Override
     public ArgumentType<Integer> time(int minTicks) {
-        return TimeArgument.time(minTicks);
+        return this.wrap(TimeArgument.time(minTicks));
     }
 
     @Override
@@ -253,10 +251,10 @@ public class ArgumentProviderImpl implements ArgumentProvider {
         });
     }
 
-    @Override
-    public ArgumentType<BlockData> blockData() {
-        return null;
-    }
+    //@Override
+    //public ArgumentType<BlockState> blockState() {
+        //return null;
+    //}
 
     @Override
     public ArgumentType<PositionResolver> position() {

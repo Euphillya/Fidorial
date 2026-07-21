@@ -34,6 +34,7 @@ public final class Blocks {
         return registry().type(key).orElse(null);
     }
 
+
     public static @Nullable BlockData data(String input) {
         return registry().parse(input);
     }

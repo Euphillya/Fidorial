@@ -15,7 +15,6 @@ import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.world.World;
-import fr.fidorial.world.block.BlockData;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -30,9 +29,7 @@ import java.util.UUID;
 @ApiStatus.Internal
 public interface ArgumentProvider {
 
-    Optional<ArgumentProvider> PROVIDER = ServiceLoader.load(
-                    ArgumentProvider.class, ArgumentProvider.class.getClassLoader())
-            .findFirst();
+    Optional<ArgumentProvider> PROVIDER = ServiceLoader.load(ArgumentProvider.class, ArgumentProvider.class.getClassLoader()).findFirst();
 
     static ArgumentProvider provider() {
         return PROVIDER.orElseThrow();
@@ -98,7 +95,7 @@ public interface ArgumentProvider {
 
     ArgumentType<PlayerProfileListResolver> playerProfiles();
 
-    ArgumentType<BlockData> blockData();
+    //ArgumentType<BlockState> blockState();
 
     ArgumentType<PositionResolver> position();
 }

@@ -17,7 +17,8 @@ public interface BlockRegistry {
         return type(Key.key(key));
     }
 
-    @Nullable BlockData fromNetworkId(int networkId);
+    @Nullable
+    BlockData fromNetworkId(int networkId);
 
     void register(BlockType type);
 
@@ -41,8 +42,7 @@ public interface BlockRegistry {
                     if (eq < 0) {
                         throw new IllegalArgumentException("Invalid property '" + pair + "' in '" + input + "'");
                     }
-                    values.put(
-                            pair.substring(0, eq).trim(), pair.substring(eq + 1).trim());
+                    values.put(pair.substring(0, eq).trim(), pair.substring(eq + 1).trim());
                 }
             }
         }
