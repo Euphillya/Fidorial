@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.faststats.ErrorTracker;
 import dev.faststats.Metrics;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
@@ -7,6 +8,7 @@ import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleCommandReader;
 import fr.euphyllia.fidorial.server.command.ConsoleSender;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.builtin.TranslatableExceptions;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypes;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
@@ -208,6 +210,7 @@ public final class FidorialServer implements Server {
 
     private void loadData() {
         TranslationStore.setStore(builtInTranslationStore);
+        CommandSyntaxException.BUILT_IN_EXCEPTIONS = new TranslatableExceptions();
         ArgumentTypes.bootstrap();
         commandManager = new CommandManager();
         operators.load();
