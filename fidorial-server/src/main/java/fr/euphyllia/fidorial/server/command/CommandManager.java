@@ -13,11 +13,11 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.adventure.brigadier.FidorialTranslatableMessage;
 import fr.euphyllia.fidorial.server.command.brigadier.InternalCommandMeta;
-import fr.fidorial.command.CommandTree;
+import fr.euphyllia.fidorial.server.command.defaults.*;
 import fr.fidorial.command.CommandMeta;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.command.CommandSource;
-import fr.euphyllia.fidorial.server.command.defaults.*;
+import fr.fidorial.command.CommandTree;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -45,11 +45,13 @@ public final class CommandManager implements CommandRegistry {
     }
 
     private void registerDefaults() {
-        register(metaBuilder("weather")
-                .aliases("w")
-                .description(Component.translatable("command.weather.description"))
-                .usage(Component.text("/weather <clear|rain|thunder>"))
-                .build(), WeatherCommand.create());
+        register(
+                metaBuilder("weather")
+                        .aliases("w")
+                        .description(Component.translatable("command.weather.description"))
+                        .usage(Component.text("/weather <clear|rain|thunder>"))
+                        .build(),
+                WeatherCommand.create());
         register(metaBuilder("stop").aliases("s").build(), StopCommand.create());
         register(metaBuilder("op").build(), OpCommand.createOp());
         register(metaBuilder("deop").build(), OpCommand.createDeop());
@@ -99,8 +101,7 @@ public final class CommandManager implements CommandRegistry {
             LiteralCommandNode<CommandSource> original
     ) {
         LiteralArgumentBuilder<CommandSource> builder =
-                LiteralArgumentBuilder.<CommandSource>literal(name)
-                        .requires(original.getRequirement());
+                LiteralArgumentBuilder.<CommandSource>literal(name).requires(original.getRequirement());
 
         if (original.getCommand() != null) {
             builder.executes(original.getCommand());
@@ -157,15 +158,13 @@ public final class CommandManager implements CommandRegistry {
     @Override
     public CompletableFuture<Boolean> dispatchAsync(CommandSource source, String cmdLine) {
         return CompletableFuture.supplyAsync(() -> {
-
             ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
 
-            CommandSyntaxException exception = getParseException(parse, source.sender().isConsole());
+            CommandSyntaxException exception =
+                    getParseException(parse, source.sender().isConsole());
 
             if (exception != null) {
-                source.sender().sendMessage(
-                        convert(exception.getRawMessage()).color(NamedTextColor.RED)
-                );
+                source.sender().sendMessage(convert(exception.getRawMessage()).color(NamedTextColor.RED));
 
                 sendContext(source, exception, cmdLine, source.sender().isConsole());
                 return false;
@@ -190,18 +189,14 @@ public final class CommandManager implements CommandRegistry {
                 int result = dispatcher.execute(parse);
                 return result == 1;
             } catch (CommandSyntaxException e) {
-                source.sender().sendMessage(
-                        convert(e.getRawMessage()).color(NamedTextColor.RED)
-                );
+                source.sender().sendMessage(convert(e.getRawMessage()).color(NamedTextColor.RED));
                 return false;
             }
         });
     }
 
     private static boolean hasExecutableNode(ParseResults<CommandSource> parse) {
-        return parse.getContext()
-                .getNodes()
-                .stream()
+        return parse.getContext().getNodes().stream()
                 .anyMatch(node -> node.getNode().getCommand() != null);
     }
 
@@ -217,23 +212,21 @@ public final class CommandManager implements CommandRegistry {
         if (parse.getReader().canRead()) {
             return new CommandSyntaxException(
                     CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument(),
-                    isConsole ?
-                            new FidorialTranslatableMessage("console.command.unknown.argument")
+                    isConsole
+                            ? new FidorialTranslatableMessage("console.command.unknown.argument")
                             : new FidorialTranslatableMessage("command.unknown.argument"),
                     parse.getReader().getString(),
-                    parse.getReader().getCursor()
-            );
+                    parse.getReader().getCursor());
         }
 
         if (!hasExecutableNode(parse)) {
             return new CommandSyntaxException(
                     CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand(),
-                    isConsole ?
-                            new FidorialTranslatableMessage("console.command.unknown.command")
+                    isConsole
+                            ? new FidorialTranslatableMessage("console.command.unknown.command")
                             : new FidorialTranslatableMessage("command.unknown.command"),
                     parse.getReader().getString(),
-                    parse.getReader().getCursor()
-            );
+                    parse.getReader().getCursor());
         }
 
         return null;
@@ -242,15 +235,19 @@ public final class CommandManager implements CommandRegistry {
     private static CommandSyntaxException unknownCommand(ParseResults<CommandSource> parse, boolean isConsole) {
         return new CommandSyntaxException(
                 CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand(),
-                isConsole ?
-                        new FidorialTranslatableMessage("console.command.unknown.command")
+                isConsole
+                        ? new FidorialTranslatableMessage("console.command.unknown.command")
                         : new FidorialTranslatableMessage("command.unknown.command"),
                 parse.getReader().getString(),
-                parse.getReader().getCursor()
-        );
+                parse.getReader().getCursor());
     }
 
-    private void sendContext(CommandSource source, CommandSyntaxException exception, String command, boolean isConsole) {
+    private void sendContext(
+            CommandSource source,
+            CommandSyntaxException exception,
+            String command,
+            boolean isConsole
+    ) {
 
         if (exception.getInput() == null || exception.getCursor() < 0) {
             return;
@@ -258,11 +255,8 @@ public final class CommandManager implements CommandRegistry {
 
         int cursor = Math.min(exception.getInput().length(), exception.getCursor());
 
-        Component context = Component.empty()
-                .color(NamedTextColor.GRAY)
-                .clickEvent(
-                        ClickEvent.suggestCommand("/" + command)
-                );
+        Component context =
+                Component.empty().color(NamedTextColor.GRAY).clickEvent(ClickEvent.suggestCommand("/" + command));
 
         if (cursor > 10) {
             context = context.append(Component.text("..."));
@@ -270,25 +264,20 @@ public final class CommandManager implements CommandRegistry {
 
         int start = Math.max(0, cursor - 10);
 
-        context = context.append(
-                Component.text(
-                        exception.getInput().substring(start, cursor)
-                )
-        );
+        context = context.append(Component.text(exception.getInput().substring(start, cursor)));
 
         if (cursor < exception.getInput().length()) {
-            context = context.append(
-                    Component.text(exception.getInput().substring(cursor))
-                            .color(NamedTextColor.RED)
-                            .decorate(TextDecoration.UNDERLINED)
-            );
+            context = context.append(Component.text(exception.getInput().substring(cursor))
+                    .color(NamedTextColor.RED)
+                    .decorate(TextDecoration.UNDERLINED));
         }
 
         context = context.append(
-                isConsole ? Component.translatable("console.command.context.here") : Component.translatable("command.context.here")
-                        .color(NamedTextColor.RED)
-                        .decorate(TextDecoration.ITALIC)
-        );
+                isConsole
+                        ? Component.translatable("console.command.context.here")
+                        : Component.translatable("command.context.here")
+                                .color(NamedTextColor.RED)
+                                .decorate(TextDecoration.ITALIC));
 
         source.sender().sendMessage(context);
     }
@@ -296,14 +285,12 @@ public final class CommandManager implements CommandRegistry {
     @Override
     public CompletableFuture<List<String>> offerSuggestions(CommandSource source, String cmdLine) {
         return offerBrigadierSuggestions(source, cmdLine)
-                .thenApply(suggestions -> Lists.transform(suggestions.getList(), suggestion -> suggestion != null ? suggestion.getText() : null));
+                .thenApply(suggestions -> Lists.transform(
+                        suggestions.getList(), suggestion -> suggestion != null ? suggestion.getText() : null));
     }
 
     @Override
-    public CompletableFuture<Suggestions> offerBrigadierSuggestions(
-            CommandSource source,
-            String cmdLine
-    ) {
+    public CompletableFuture<Suggestions> offerBrigadierSuggestions(CommandSource source, String cmdLine) {
         ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
         return dispatcher.getCompletionSuggestions(parse);
     }
@@ -315,8 +302,7 @@ public final class CommandManager implements CommandRegistry {
 
     @Override
     public boolean hasCommand(String alias, CommandSource source) {
-        CommandNode<CommandSource> node =
-                dispatcher.getRoot().getChild(alias.toLowerCase(Locale.ROOT));
+        CommandNode<CommandSource> node = dispatcher.getRoot().getChild(alias.toLowerCase(Locale.ROOT));
         return node != null && node.canUse(source);
     }
 
@@ -329,8 +315,6 @@ public final class CommandManager implements CommandRegistry {
         return dispatcher;
     }
 
-    public record RegisteredCommand(
-            CommandTree tree,
-            CommandMeta meta
-    ) {}
+    public record RegisteredCommand(CommandTree tree, CommandMeta meta) {
+    }
 }

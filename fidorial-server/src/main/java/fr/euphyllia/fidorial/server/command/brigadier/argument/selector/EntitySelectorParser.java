@@ -7,7 +7,6 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntitySelector;
-import fr.fidorial.command.MessageComponentSerializer;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.Player;
 import net.kyori.adventure.text.Component;
@@ -21,33 +20,25 @@ import java.util.function.Predicate;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-
 public final class EntitySelectorParser {
 
     public static final SimpleCommandExceptionType ERROR_EXPECTED_END_OF_OPTIONS = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.unterminated"))
-    );
+            MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.unterminated")));
     public static final DynamicCommandExceptionType ERROR_EXPECTED_OPTION_VALUE = new DynamicCommandExceptionType(
-            name ->  MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.valueless").append(Component.text(name.toString())))
-    );
+            name -> MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.valueless")
+                    .append(Component.text(name.toString()))));
     private int startPosition;
     private SuggestionProvider suggestions = SuggestionProvider.NONE;
 
     @FunctionalInterface
     private interface SuggestionProvider {
-        CompletableFuture<Suggestions> apply(
-                SuggestionsBuilder builder,
-                Consumer<SuggestionsBuilder> names
-        );
+        CompletableFuture<Suggestions> apply(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names);
 
         SuggestionProvider NONE = (b, n) -> b.buildFuture();
     }
 
     private static final SimpleCommandExceptionType INVALID =
-            new SimpleCommandExceptionType(
-                    MSG_SERIALIZER.serialize(Component.translatable("argument.entity.invalid"))
-            );
-
+            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.entity.invalid")));
 
     private final StringReader reader;
 
@@ -70,19 +61,13 @@ public final class EntitySelectorParser {
     private String targetName;
     private UUID targetUuid;
 
-    private EntitySelector.SortType sort =
-            EntitySelector.SortType.ARBITRARY;
+    private EntitySelector.SortType sort = EntitySelector.SortType.ARBITRARY;
 
-    private final List<Predicate<Entity>> predicates =
-            new ArrayList<>();
+    private final List<Predicate<Entity>> predicates = new ArrayList<>();
 
-
-    public EntitySelectorParser(
-            StringReader reader
-    ) {
+    public EntitySelectorParser(StringReader reader) {
         this.reader = reader;
     }
-
 
     public EntitySelector parse() throws CommandSyntaxException {
         startPosition = reader.getCursor();
@@ -98,7 +83,6 @@ public final class EntitySelectorParser {
 
         return buildSelector();
     }
-
 
     private void parseSelector() throws CommandSyntaxException {
 
@@ -157,7 +141,6 @@ public final class EntitySelectorParser {
         }
     }
 
-
     private void parseArguments() throws CommandSyntaxException {
 
         suggestions = this::suggestOptionsKey;
@@ -168,7 +151,7 @@ public final class EntitySelectorParser {
             int start = reader.getCursor();
             String key = reader.readString();
 
-            //Option option = EntitySelectorOptions.get(key);
+            // Option option = EntitySelectorOptions.get(key);
 
             reader.skipWhitespace();
 
@@ -182,7 +165,7 @@ public final class EntitySelectorParser {
 
             suggestions = SuggestionProvider.NONE;
 
-            //option.parse(this); // reads directly from the StringReader
+            // option.parse(this); // reads directly from the StringReader
 
             reader.skipWhitespace();
 
@@ -199,26 +182,12 @@ public final class EntitySelectorParser {
         }
     }
 
-
-
-    private void apply(
-            String key,
-            String value
-    ) throws CommandSyntaxException {
-
+    private void apply(String key, String value) throws CommandSyntaxException {
 
         switch (key) {
+            case "limit" -> maxResults = Integer.parseInt(value);
 
-
-            case "limit" -> maxResults =
-                    Integer.parseInt(value);
-
-
-            case "sort" -> sort =
-                    EntitySelector.SortType.valueOf(
-                            value.toUpperCase()
-                    );
-
+            case "sort" -> sort = EntitySelector.SortType.valueOf(value.toUpperCase());
 
             case "x" -> x = Double.parseDouble(value);
 
@@ -226,29 +195,18 @@ public final class EntitySelectorParser {
 
             case "z" -> z = Double.parseDouble(value);
 
-
-
             case "distance" -> {
-
                 String[] split = value.split("\\.\\.");
 
                 if (split.length == 1) {
                     minDistance = Double.parseDouble(split[0]);
                     maxDistance = minDistance;
-                }
-                else {
-                    minDistance =
-                            split[0].isEmpty()
-                                    ? null
-                                    : Double.parseDouble(split[0]);
+                } else {
+                    minDistance = split[0].isEmpty() ? null : Double.parseDouble(split[0]);
 
-                    maxDistance =
-                            split[1].isEmpty()
-                                    ? null
-                                    : Double.parseDouble(split[1]);
+                    maxDistance = split[1].isEmpty() ? null : Double.parseDouble(split[1]);
                 }
             }
-
 
             case "dx" -> dx = Integer.parseInt(value);
 
@@ -256,103 +214,60 @@ public final class EntitySelectorParser {
 
             case "dz" -> dz = Integer.parseInt(value);
 
-
-
             case "type" -> {
-
                 boolean inverted = value.startsWith("!");
 
-                String type =
-                        inverted
-                                ? value.substring(1)
-                                : value;
-
+                String type = inverted ? value.substring(1) : value;
 
                 predicates.add(entity -> {
-
-                    boolean result =
-                            entity.type()
-                                    .key()
-                                    .value()
-                                    .equals(type);
+                    boolean result = entity.type().key().value().equals(type);
 
                     return inverted != result;
                 });
             }
-
 
             case "name" -> {
-
                 boolean inverted = value.startsWith("!");
 
-                String name =
-                        inverted
-                                ? value.substring(1)
-                                : value;
-
+                String name = inverted ? value.substring(1) : value;
 
                 predicates.add(entity -> {
-
                     boolean result =
-                            entity instanceof Player player
-                                    && player.name()
-                                    .equalsIgnoreCase(name);
+                            entity instanceof Player player && player.name().equalsIgnoreCase(name);
 
                     return inverted != result;
                 });
             }
-
 
             case "gamemode" -> {
-
                 boolean inverted = value.startsWith("!");
 
-                String mode =
-                        inverted
-                                ? value.substring(1)
-                                : value;
-
+                String mode = inverted ? value.substring(1) : value;
 
                 predicates.add(entity -> {
+                    if (!(entity instanceof Player player)) return false;
 
-                    if (!(entity instanceof Player player))
-                        return false;
-
-                    boolean result =
-                            player.gameMode()
-                                    .name()
-                                    .equalsIgnoreCase(mode);
+                    boolean result = player.gameMode().name().equalsIgnoreCase(mode);
 
                     return inverted != result;
                 });
             }
 
-
             case "tag" -> {
-
                 boolean inverted = value.startsWith("!");
 
-                String tag =
-                        inverted
-                                ? value.substring(1)
-                                : value;
-
+                String tag = inverted ? value.substring(1) : value;
 
                 predicates.add(_ -> {
-
                     boolean result = false; // we dont have tags yet
 
                     return inverted != result;
                 });
             }
 
-
-            default ->
-                    throw INVALID.create();
+            default -> throw INVALID.create();
         }
     }
-
-
 
     private void parseNameOrUuid() throws CommandSyntaxException {
 
@@ -392,18 +307,14 @@ public final class EntitySelectorParser {
                 dz,
                 sort,
                 targetName,
-                targetUuid
-        );
+                targetUuid);
     }
 
     public CompletableFuture<Suggestions> fillSuggestions(
             SuggestionsBuilder builder,
             Consumer<SuggestionsBuilder> names
     ) {
-        return suggestions.apply(
-                builder.createOffset(reader.getCursor()),
-                names
-        );
+        return suggestions.apply(builder.createOffset(reader.getCursor()), names);
     }
 
     private CompletableFuture<Suggestions> suggestNameOrSelector(
@@ -484,10 +395,7 @@ public final class EntitySelectorParser {
         return builder.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestName(
-            SuggestionsBuilder builder,
-            Consumer<SuggestionsBuilder> names
-    ) {
+    private CompletableFuture<Suggestions> suggestName(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
         SuggestionsBuilder sub = builder.createOffset(startPosition);
         names.accept(sub);
         return builder.add(sub).buildFuture();
@@ -506,15 +414,13 @@ public final class EntitySelectorParser {
 
             for (char e : end) {
                 if (c == e) {
-                    return reader.getString()
-                            .substring(start, reader.getCursor());
+                    return reader.getString().substring(start, reader.getCursor());
                 }
             }
 
             reader.skip();
         }
 
-        return reader.getString()
-                .substring(start);
+        return reader.getString().substring(start);
     }
 }

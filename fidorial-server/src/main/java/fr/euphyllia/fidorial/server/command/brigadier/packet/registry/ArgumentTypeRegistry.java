@@ -13,8 +13,10 @@ public final class ArgumentTypeRegistry {
     private ArgumentTypeRegistry() {
     }
 
-    public static <A extends ArgumentType<?>, S extends ArgumentTypeRegistrar.Spec<A>>
-    void register(Class<? extends A> type, ArgumentTypeRegistrar<A, S> registrar) {
+    public static <A extends ArgumentType<?>, S extends ArgumentTypeRegistrar.Spec<A>> void register(
+            Class<? extends A> type,
+            ArgumentTypeRegistrar<A, S> registrar
+    ) {
         REGISTRARS.put(type, registrar);
     }
 
@@ -26,8 +28,7 @@ public final class ArgumentTypeRegistry {
 
         if (registrar == null) {
             throw new IllegalArgumentException(
-                    "Unknown argument type: " + argument.getClass().getName()
-            );
+                    "Unknown argument type: " + argument.getClass().getName());
         }
 
         return (ArgumentTypeRegistrar<A, ?>) registrar;

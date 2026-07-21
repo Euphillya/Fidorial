@@ -32,9 +32,6 @@ public record PlayerProfileMeta(UUID id, String name) {
     }
 
     public static PlayerProfileMeta createOffline(String name) {
-        return new PlayerProfileMeta(
-                UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes()),
-                name
-        );
+        return new PlayerProfileMeta(UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes()), name);
     }
 }

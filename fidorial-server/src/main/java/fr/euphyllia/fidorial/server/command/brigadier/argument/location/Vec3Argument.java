@@ -20,11 +20,7 @@ import java.util.concurrent.CompletableFuture;
 
 public final class Vec3Argument implements ArgumentType<PositionResolver> {
 
-    private static final Collection<String> EXAMPLES = List.of(
-            "0 0 0",
-            "~ ~ ~",
-            "~1 ~ ~-5"
-    );
+    private static final Collection<String> EXAMPLES = List.of("0 0 0", "~ ~ ~", "~1 ~ ~-5");
 
     private final boolean centerCorrect;
 
@@ -36,18 +32,12 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
         return new Vec3Argument(true);
     }
 
-    public static Location getPosition(
-            CommandContext<CommandSource> context,
-            String name
-    ) {
-        return context.getArgument(name, PositionResolver.class)
-                .resolve(context.getSource());
+    public static Location getPosition(CommandContext<CommandSource> context, String name) {
+        return context.getArgument(name, PositionResolver.class).resolve(context.getSource());
     }
 
-
     @Override
-    public PositionResolver parse(StringReader reader)
-            throws CommandSyntaxException {
+    public PositionResolver parse(StringReader reader) throws CommandSyntaxException {
 
         Coordinate x = Coordinate.parse(reader);
         reader.expect(' ');
@@ -56,7 +46,6 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
         Coordinate z = Coordinate.parse(reader);
 
         return source -> {
-
             Location origin = source.location();
 
             double px = x.resolve(origin.x());
@@ -68,29 +57,17 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
                 pz += 0.5;
             }
 
-            return new Location(
-                    px,
-                    py,
-                    pz,
-                    origin.yaw(),
-                    origin.pitch()
-            );
+            return new Location(px, py, pz, origin.yaw(), origin.pitch());
         };
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(
-            CommandContext<S> context,
-            SuggestionsBuilder builder
-    ) {
-        if (context.getSource() instanceof CommandSource source
-                && source.sender() instanceof ServerPlayer player) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+        if (context.getSource() instanceof CommandSource source && source.sender() instanceof ServerPlayer player) {
 
             String remaining = builder.getRemaining();
 
-            int spaces = (int) remaining.chars()
-                    .filter(c -> c == ' ')
-                    .count();
+            int spaces = (int) remaining.chars().filter(c -> c == ' ').count();
 
             Location loc = source.location();
 
@@ -103,12 +80,7 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
                     if (relative) {
                         coordinateBuilder.suggest("~ ~ ~");
                     } else {
-                        coordinateBuilder.suggest(String.format(
-                                "%.2f %.2f %.2f",
-                                loc.x(),
-                                loc.y(),
-                                loc.z()
-                        ));
+                        coordinateBuilder.suggest(String.format("%.2f %.2f %.2f", loc.x(), loc.y(), loc.z()));
                     }
                 }
 
@@ -116,11 +88,7 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
                     if (relative) {
                         coordinateBuilder.suggest("~ ~");
                     } else {
-                        coordinateBuilder.suggest(String.format(
-                                "%.2f %.2f",
-                                loc.y(),
-                                loc.z()
-                        ));
+                        coordinateBuilder.suggest(String.format("%.2f %.2f", loc.y(), loc.z()));
                     }
                 }
 
@@ -128,10 +96,7 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
                     if (relative) {
                         coordinateBuilder.suggest("~");
                     } else {
-                        coordinateBuilder.suggest(String.format(
-                                "%.2f",
-                                loc.z()
-                        ));
+                        coordinateBuilder.suggest(String.format("%.2f", loc.z()));
                     }
                 }
             }
@@ -160,14 +125,9 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
         return EXAMPLES;
     }
 
+    private record Coordinate(double value, boolean relative) {
 
-    private record Coordinate(
-            double value,
-            boolean relative
-    ) {
-
-        static Coordinate parse(StringReader reader)
-                throws CommandSyntaxException {
+        static Coordinate parse(StringReader reader) throws CommandSyntaxException {
 
             boolean relative = false;
 
@@ -185,7 +145,6 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
             return new Coordinate(value, relative);
         }
 
-
         double resolve(double origin) {
             return relative ? origin + value : value;
         }
@@ -198,7 +157,8 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
     public static final class Info implements ArgumentTypeRegistrar<Vec3Argument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {}
+        public void serialize(Spec spec, PacketBuffer buf) {
+        }
 
         @Override
         public Spec deserialize(PacketBuffer buf) {
@@ -206,15 +166,15 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {}
+        public void serializeJson(Spec spec, JsonObject json) {
+        }
 
         @Override
         public Spec access(Vec3Argument argument) {
             return new Spec();
         }
 
-        public record Spec()
-                implements ArgumentTypeRegistrar.Spec<Vec3Argument> {
+        public record Spec() implements ArgumentTypeRegistrar.Spec<Vec3Argument> {
 
             @Override
             public Vec3Argument instantiate() {

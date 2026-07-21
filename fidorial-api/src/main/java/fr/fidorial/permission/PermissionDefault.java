@@ -1,11 +1,12 @@
 package fr.fidorial.permission;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 public enum PermissionDefault {
-
     TRUE("true"),
     FALSE("false"),
     OP("op", "isop", "operator", "isoperator"),
@@ -27,7 +28,7 @@ public enum PermissionDefault {
         this.names = names;
     }
 
-    public static PermissionDefault getByName(String name) {
+    public static @Nullable PermissionDefault getByName(@Nullable String name) {
         if (name == null) {
             return null;
         }
@@ -47,5 +48,4 @@ public enum PermissionDefault {
     public String toString() {
         return names[0];
     }
-
 }

@@ -30,5 +30,4 @@ public interface Player extends LivingEntity, Permissible, CommandSource, Comman
     GameMode gameMode();
 
     void setGameMode(GameMode gameMode);
-
 }

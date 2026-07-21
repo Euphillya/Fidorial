@@ -2,6 +2,7 @@ package fr.fidorial.world.block;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -16,14 +17,14 @@ public interface BlockRegistry {
         return type(Key.key(key));
     }
 
-    BlockData fromNetworkId(int networkId);
+    @Nullable BlockData fromNetworkId(int networkId);
 
     void register(BlockType type);
 
     Collection<BlockType> types();
 
     @SuppressWarnings("PatternValidation")
-    default BlockData parse(String input) {
+    default @Nullable BlockData parse(String input) {
         String name = input;
         Map<String, String> values = Map.of();
         int bracket = input.indexOf('[');
@@ -40,7 +41,8 @@ public interface BlockRegistry {
                     if (eq < 0) {
                         throw new IllegalArgumentException("Invalid property '" + pair + "' in '" + input + "'");
                     }
-                    values.put(pair.substring(0, eq).trim(), pair.substring(eq + 1).trim());
+                    values.put(
+                            pair.substring(0, eq).trim(), pair.substring(eq + 1).trim());
                 }
             }
         }

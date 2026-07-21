@@ -30,16 +30,9 @@ public final class Registries {
 
         EntityTypeRegistry entityTypes = new EntityTypeRegistry();
 
-        registries.put(
-                RegistryKey.ENTITY_TYPE,
-                entityTypes
-        );
+        registries.put(RegistryKey.ENTITY_TYPE, entityTypes);
 
-        return new Registries(
-                RegistryHolder.of(data.dynamic()),
-                RegistryHolder.of(data.frozen()),
-                registries
-        );
+        return new Registries(RegistryHolder.of(data.dynamic()), RegistryHolder.of(data.frozen()), registries);
     }
 
     public RegistryHolder dynamic() {
@@ -52,13 +45,10 @@ public final class Registries {
 
     @SuppressWarnings("unchecked")
     public <T> Registry<T> registry(RegistryKey<T> key) {
-        Registry<T> registry =
-                (Registry<T>) typedRegistries.get(key);
+        Registry<T> registry = (Registry<T>) typedRegistries.get(key);
 
         if (registry == null) {
-            throw new IllegalArgumentException(
-                    "Unknown registry: " + key
-            );
+            throw new IllegalArgumentException("Unknown registry: " + key);
         }
 
         return registry;

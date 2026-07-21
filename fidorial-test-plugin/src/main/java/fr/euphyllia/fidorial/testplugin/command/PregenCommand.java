@@ -3,14 +3,14 @@ package fr.euphyllia.fidorial.testplugin.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import fr.fidorial.command.CommandTree;
+import fr.euphyllia.fidorial.testplugin.TestPlugin;
+import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
+import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.world.World;
-import fr.euphyllia.fidorial.testplugin.TestPlugin;
-import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
 import net.kyori.adventure.text.Component;
 
 public final class PregenCommand {
@@ -28,17 +28,9 @@ public final class PregenCommand {
                                 .executes(ctx -> startDefault(plugin, ctx))
                                 .then(CommandTree.argument("centerX", IntegerArgumentType.integer())
                                         .then(CommandTree.argument("centerZ", IntegerArgumentType.integer())
-                                                .executes(ctx -> startCentered(plugin, ctx))
-                                        )
-                                )
-                        )
-                )
-                .then(CommandTree.literal("stop")
-                        .executes(ctx -> stopCommand(plugin, ctx))
-                )
-                .then(CommandTree.literal("status")
-                        .executes(ctx -> statusCommand(plugin, ctx))
-                );
+                                                .executes(ctx -> startCentered(plugin, ctx))))))
+                .then(CommandTree.literal("stop").executes(ctx -> stopCommand(plugin, ctx)))
+                .then(CommandTree.literal("status").executes(ctx -> statusCommand(plugin, ctx)));
 
         return new CommandTree(command);
     }
@@ -70,17 +62,10 @@ public final class PregenCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        PregenTask task = new PregenTask(
-                world,
-                plugin.logger,
-                cx,
-                cz,
-                radius,
-                message -> {
-                    plugin.logger.info("[Pregen] {}", message);
-                    msg(sender, "<gray>[Pregen]</gray> " + message);
-                }
-        );
+        PregenTask task = new PregenTask(world, plugin.logger, cx, cz, radius, message -> {
+            plugin.logger.info("[Pregen] {}", message);
+            msg(sender, "<gray>[Pregen]</gray> " + message);
+        });
 
         plugin.setTask(task);
         task.start();
@@ -117,17 +102,10 @@ public final class PregenCommand {
 
         msg(sender, "Pre-generation de " + total + " chunks (rayon " + radius + ")...");
 
-        PregenTask task = new PregenTask(
-                world,
-                plugin.logger,
-                centerX,
-                centerZ,
-                radius,
-                message -> {
-                    plugin.logger.info("[Pregen] {}", message);
-                    msg(sender, "<gray>[Pregen]</gray> " + message);
-                }
-        );
+        PregenTask task = new PregenTask(world, plugin.logger, centerX, centerZ, radius, message -> {
+            plugin.logger.info("[Pregen] {}", message);
+            msg(sender, "<gray>[Pregen]</gray> " + message);
+        });
 
         plugin.setTask(task);
         task.start();

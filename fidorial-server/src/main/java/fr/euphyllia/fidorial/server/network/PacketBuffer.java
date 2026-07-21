@@ -5,6 +5,7 @@ import fr.fidorial.world.BlockPos;
 import io.netty.buffer.ByteBuf;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.BitSet;
 import java.util.UUID;
@@ -164,7 +165,7 @@ public final class PacketBuffer {
         return VarInts.readByteArray(buf, maxLength);
     }
 
-    public byte[] readOptionalByteArray(int maxLength) {
+    public byte @Nullable [] readOptionalByteArray(int maxLength) {
         if (!readBoolean()) {
             return null;
         }
@@ -217,10 +218,7 @@ public final class PacketBuffer {
         long scale = (long) Math.ceil(max);
         boolean continuation = (scale & 0b11L) != scale;
         long flags = continuation ? (scale & 0b11L) | 0b100L : scale;
-        long packed = flags
-                | lpPack(x / scale) << 3
-                | lpPack(y / scale) << 18
-                | lpPack(z / scale) << 33;
+        long packed = flags | lpPack(x / scale) << 3 | lpPack(y / scale) << 18 | lpPack(z / scale) << 33;
         buf.writeByte((int) packed);
         buf.writeByte((int) (packed >> 8));
         buf.writeInt((int) (packed >> 16));
@@ -257,9 +255,7 @@ public final class PacketBuffer {
     }
 
     public PacketBuffer writePosition(int x, int y, int z) {
-        long packed = ((long) (x & 0x3FFFFFF) << 38)
-                | ((long) (z & 0x3FFFFFF) << 12)
-                | (y & 0xFFF);
+        long packed = ((long) (x & 0x3FFFFFF) << 38) | ((long) (z & 0x3FFFFFF) << 12) | (y & 0xFFF);
         buf.writeLong(packed);
         return this;
     }

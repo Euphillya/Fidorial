@@ -27,17 +27,13 @@ public final class CommandTreeSerializer {
 
     private static final CommandSource NO_PERMISSION_SOURCE = PermissionlessCommandSource.instance();
 
-    private CommandTreeSerializer() {}
+    private CommandTreeSerializer() {
+    }
 
-
-    public static void write(
-            PacketBuffer buf,
-            RootCommandNode<CommandSource> root
-    ) {
+    public static void write(PacketBuffer buf, RootCommandNode<CommandSource> root) {
         List<CommandNode<CommandSource>> nodes = enumerate(root);
 
-        Map<CommandNode<CommandSource>, Integer> ids =
-                new IdentityHashMap<>();
+        Map<CommandNode<CommandSource>, Integer> ids = new IdentityHashMap<>();
 
         for (int i = 0; i < nodes.size(); i++) {
             ids.put(nodes.get(i), i);
@@ -45,26 +41,19 @@ public final class CommandTreeSerializer {
 
         buf.writeVarInt(nodes.size());
 
-
         for (CommandNode<CommandSource> node : nodes) {
             writeNode(buf, node, ids);
         }
 
-
         buf.writeVarInt(ids.get(root));
     }
 
-
-    private static List<CommandNode<CommandSource>> enumerate(
-            RootCommandNode<CommandSource> root
-    ) {
+    private static List<CommandNode<CommandSource>> enumerate(RootCommandNode<CommandSource> root) {
         List<CommandNode<CommandSource>> nodes = new ArrayList<>();
 
-        Map<CommandNode<CommandSource>, Integer> ids =
-                new IdentityHashMap<>();
+        Map<CommandNode<CommandSource>, Integer> ids = new IdentityHashMap<>();
 
-        Queue<CommandNode<CommandSource>> queue =
-                new ArrayDeque<>();
+        Queue<CommandNode<CommandSource>> queue = new ArrayDeque<>();
 
         queue.add(root);
 
@@ -88,7 +77,6 @@ public final class CommandTreeSerializer {
         return nodes;
     }
 
-
     private static void writeNode(
             PacketBuffer buf,
             CommandNode<CommandSource> node,
@@ -97,19 +85,15 @@ public final class CommandTreeSerializer {
 
         int flags = 0;
 
-
         if (node instanceof LiteralCommandNode<?>) {
             flags |= TYPE_LITERAL;
-        }
-        else if (node instanceof ArgumentCommandNode<?, ?>) {
+        } else if (node instanceof ArgumentCommandNode<?, ?>) {
             flags |= TYPE_ARGUMENT;
         }
-
 
         if (node.getCommand() != null) {
             flags |= FLAG_EXECUTABLE;
         }
-
 
         if (node.getRedirect() != null) {
             flags |= FLAG_REDIRECT;
@@ -119,45 +103,30 @@ public final class CommandTreeSerializer {
             flags |= FLAG_RESTRICTED;
         }
 
-
-        if (node instanceof ArgumentCommandNode<?, ?> argument
-                && argument.getCustomSuggestions() != null) {
+        if (node instanceof ArgumentCommandNode<?, ?> argument && argument.getCustomSuggestions() != null) {
             flags |= FLAG_CUSTOM_SUGGESTIONS;
         }
 
         buf.writeByte(flags);
 
-        int[] children = node.getChildren()
-                .stream()
+        int[] children = node.getChildren().stream()
                 .filter(ids::containsKey)
                 .mapToInt(ids::get)
                 .toArray();
 
-
         buf.writeVarIntArray(children);
 
-
         if ((flags & FLAG_REDIRECT) != 0) {
-            buf.writeVarInt(
-                    ids.get(node.getRedirect())
-            );
+            buf.writeVarInt(ids.get(node.getRedirect()));
         }
 
-        System.out.printf(
-                "NODE %s flags=%02x children=%s%n",
-                node.getName(),
-                flags,
-                Arrays.toString(children)
-        );
+        System.out.printf("NODE %s flags=%02x children=%s%n", node.getName(), flags, Arrays.toString(children));
         switch (node) {
             case LiteralCommandNode<?> literal -> buf.writeString(literal.getLiteral());
             case ArgumentCommandNode<?, ?> argument -> {
                 buf.writeString(argument.getName());
 
-                writeArgumentType(
-                        buf,
-                        argument.getType()
-                );
+                writeArgumentType(buf, argument.getType());
 
                 if (argument.getCustomSuggestions() != null) {
                     int before = buf.nettyBuf().writerIndex();
@@ -172,14 +141,12 @@ public final class CommandTreeSerializer {
                     }
                     System.out.println();
 
-                    System.out.println(
-                            "flags=" + flags +
-                                    " arg=" + argument.getName() +
-                                    " suggestions=" + argument.getCustomSuggestions() != null
-                    );
+                    System.out.println("flags=" + flags + " arg="
+                                    + argument.getName() + " suggestions="
+                                    + argument.getCustomSuggestions()
+                            != null);
                 }
             }
-
 
             default -> {
                 // root has no payload
@@ -187,12 +154,8 @@ public final class CommandTreeSerializer {
         }
     }
 
-    public static RootCommandNode<CommandSource> filter(
-            RootCommandNode<CommandSource> root,
-            CommandSource source
-    ) {
-        Map<CommandNode<CommandSource>, CommandNode<CommandSource>> converted =
-                new IdentityHashMap<>();
+    public static RootCommandNode<CommandSource> filter(RootCommandNode<CommandSource> root, CommandSource source) {
+        Map<CommandNode<CommandSource>, CommandNode<CommandSource>> converted = new IdentityHashMap<>();
 
         RootCommandNode<CommandSource> result = new RootCommandNode<>();
         converted.put(root, result);
@@ -216,9 +179,7 @@ public final class CommandTreeSerializer {
             var builder = child.createBuilder();
 
             if (child.getRedirect() != null) {
-                builder.redirect(
-                        converted.get(child.getRedirect())
-                );
+                builder.redirect(converted.get(child.getRedirect()));
             }
 
             CommandNode<CommandSource> copy = builder.build();
@@ -230,16 +191,12 @@ public final class CommandTreeSerializer {
         }
     }
 
-    private static void writeArgumentType(
-            PacketBuffer buf,
-            ArgumentType<?> argument
-    ) {
+    private static void writeArgumentType(PacketBuffer buf, ArgumentType<?> argument) {
         int start = buf.nettyBuf().writerIndex();
 
         ArgumentType<?> vanilla = unwrap(argument);
 
-        ArgumentTypeRegistrar registrar =
-                ArgumentTypeRegistry.registrar(vanilla);
+        ArgumentTypeRegistrar registrar = ArgumentTypeRegistry.registrar(vanilla);
 
         int id = NetworkArgumentIds.getId(registrar);
 
@@ -249,8 +206,7 @@ public final class CommandTreeSerializer {
 
         int end = buf.nettyBuf().writerIndex();
 
-        System.out.println(vanilla.getClass().getSimpleName()
-                + " wrote " + (end - start) + " bytes");
+        System.out.println(vanilla.getClass().getSimpleName() + " wrote " + (end - start) + " bytes");
 
         for (int i = start; i < end; i++) {
             System.out.printf("%02x ", buf.nettyBuf().getByte(i));

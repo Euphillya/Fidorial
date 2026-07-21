@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,14 +14,13 @@ public final class PalettedContainer<T> {
     private final int[] data;
     private final int minBits;
 
-
     public PalettedContainer(int size, int minBits, T fill) {
         this.data = new int[size];
         this.minBits = minBits;
         indexOf(fill);
     }
 
-    public static <T> PalettedContainer<T> fromNbt(int size, int minBits, List<T> palette, long[] data) {
+    public static <T> PalettedContainer<T> fromNbt(int size, int minBits, List<T> palette, long @Nullable [] data) {
         PalettedContainer<T> c = new PalettedContainer<>(size, minBits, palette.getFirst());
         for (int i = 1; i < palette.size(); i++) {
             c.indexOf(palette.get(i));
@@ -61,7 +62,7 @@ public final class PalettedContainer<T> {
         return BitPacking.bitsFor(palette.size(), minBits);
     }
 
-    public long[] packedData() {
+    public long @Nullable [] packedData() {
         if (isSingleValue()) return null;
         return BitPacking.pack(data, bitsPerEntry());
     }

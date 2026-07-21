@@ -23,33 +23,18 @@ import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventur
 
 public record TimeArgument(int minimum) implements ArgumentType<Integer> {
 
-    private static final Collection<String> EXAMPLES =
-            Arrays.asList("0d", "0s", "0t", "0");
+    private static final Collection<String> EXAMPLES = Arrays.asList("0d", "0s", "0t", "0");
 
-    private static final SimpleCommandExceptionType ERROR_INVALID_UNIT =
-            new SimpleCommandExceptionType(
-                    MSG_SERIALIZER.serialize(
-                            Component.translatable(
-                                    "argument.time.invalid_unit"
-                            )
-                    )
-            );
+    private static final SimpleCommandExceptionType ERROR_INVALID_UNIT = new SimpleCommandExceptionType(
+            MSG_SERIALIZER.serialize(Component.translatable("argument.time.invalid_unit")));
 
     private static final Dynamic2CommandExceptionType ERROR_TICK_COUNT_TOO_LOW =
-            new Dynamic2CommandExceptionType(
-                    (value, limit) ->
-                            MSG_SERIALIZER.serialize(
-                                    Component.translatable(
-                                            "argument.time.tick_count_too_low",
-                                            Component.text(limit.toString()),
-                                            Component.text(value.toString())
-                                    )
-                            )
-            );
+            new Dynamic2CommandExceptionType((value, limit) -> MSG_SERIALIZER.serialize(Component.translatable(
+                    "argument.time.tick_count_too_low",
+                    Component.text(limit.toString()),
+                    Component.text(value.toString()))));
 
-
-    private static final Map<String, Integer> UNITS =
-            new LinkedHashMap<>();
+    private static final Map<String, Integer> UNITS = new LinkedHashMap<>();
 
     static {
         UNITS.put("d", 24000);
@@ -58,20 +43,16 @@ public record TimeArgument(int minimum) implements ArgumentType<Integer> {
         UNITS.put("", 1);
     }
 
-
     public static TimeArgument time() {
         return new TimeArgument(0);
     }
-
 
     public static TimeArgument time(int minimum) {
         return new TimeArgument(minimum);
     }
 
-
     @Override
-    public Integer parse(StringReader reader)
-            throws CommandSyntaxException {
+    public Integer parse(StringReader reader) throws CommandSyntaxException {
 
         float value = reader.readFloat();
 
@@ -83,28 +64,18 @@ public record TimeArgument(int minimum) implements ArgumentType<Integer> {
             throw ERROR_INVALID_UNIT.createWithContext(reader);
         }
 
-
         int ticks = Math.round(value * factor);
 
         if (ticks < minimum) {
-            throw ERROR_TICK_COUNT_TOO_LOW.createWithContext(
-                    reader,
-                    ticks,
-                    minimum
-            );
+            throw ERROR_TICK_COUNT_TOO_LOW.createWithContext(reader, ticks, minimum);
         }
 
         return ticks;
     }
 
-
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(
-            CommandContext<S> context,
-            SuggestionsBuilder builder
-    ) {
-        StringReader reader =
-                new StringReader(builder.getRemaining());
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+        StringReader reader = new StringReader(builder.getRemaining());
 
         try {
             reader.readFloat();
@@ -112,10 +83,7 @@ public record TimeArgument(int minimum) implements ArgumentType<Integer> {
             return builder.buildFuture();
         }
 
-        SuggestionsBuilder offset =
-                builder.createOffset(
-                        builder.getStart() + reader.getCursor()
-                );
+        SuggestionsBuilder offset = builder.createOffset(builder.getStart() + reader.getCursor());
 
         for (String unit : UNITS.keySet()) {
             offset.suggest(unit);
@@ -123,7 +91,6 @@ public record TimeArgument(int minimum) implements ArgumentType<Integer> {
 
         return offset.buildFuture();
     }
-
 
     @Override
     public Collection<String> getExamples() {
@@ -137,34 +104,27 @@ public record TimeArgument(int minimum) implements ArgumentType<Integer> {
             buf.writeInt(spec.minimum());
         }
 
-
         @Override
         public Spec deserialize(PacketBuffer buf) {
             return new Spec(buf.readInt());
         }
-
 
         @Override
         public void serializeJson(Spec spec, JsonObject json) {
             json.addProperty("min", spec.minimum());
         }
 
-
         @Override
         public Spec access(TimeArgument argument) {
             return new Spec(argument.minimum());
         }
 
-
-        public record Spec(int minimum)
-                implements ArgumentTypeRegistrar.Spec<TimeArgument> {
-
+        public record Spec(int minimum) implements ArgumentTypeRegistrar.Spec<TimeArgument> {
 
             @Override
             public TimeArgument instantiate() {
                 return TimeArgument.time(minimum);
             }
-
 
             @Override
             public ArgumentTypeRegistrar<TimeArgument, ?> type() {

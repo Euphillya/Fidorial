@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import org.jspecify.annotations.Nullable;
+
 public final class ChunkColumn {
 
     private final int chunkX;
@@ -14,8 +16,7 @@ public final class ChunkColumn {
     private long lastUpdate;
     private String status = "minecraft:full";
 
-    public ChunkColumn(int chunkX, int chunkZ, int minY, int height,
-                       BlockState fillBlock, String fillBiome) {
+    public ChunkColumn(int chunkX, int chunkZ, int minY, int height, BlockState fillBlock, String fillBiome) {
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
         this.minY = minY;
@@ -87,12 +88,11 @@ public final class ChunkColumn {
         this.status = s;
     }
 
-    private ChunkSection sectionForY(int worldY) {
+    private @Nullable ChunkSection sectionForY(int worldY) {
         int idx = (worldY >> 4) - minSectionY;
         if (idx < 0 || idx >= sectionCount) return null;
         return sections[idx];
     }
-
 
     public void setBlock(int localX, int worldY, int localZ, BlockState state) {
         ChunkSection s = sectionForY(worldY);

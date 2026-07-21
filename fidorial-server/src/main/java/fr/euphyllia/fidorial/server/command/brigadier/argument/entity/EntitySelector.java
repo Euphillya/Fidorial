@@ -19,7 +19,6 @@ public final class EntitySelector {
         RANDOM
     }
 
-
     private final int maxResults;
     private boolean includesEntities;
     private final boolean selfSelector;
@@ -42,7 +41,6 @@ public final class EntitySelector {
 
     private String targetName;
     private UUID targetUuid;
-
 
     public EntitySelector(
             int maxResults,
@@ -84,35 +82,27 @@ public final class EntitySelector {
         this.targetUuid = targetUuid;
     }
 
-
     public int maxResults() {
         return maxResults;
     }
-
 
     public boolean includesEntities() {
         return includesEntities;
     }
 
-
     public boolean selfSelector() {
         return selfSelector;
     }
-
 
     public boolean usesSelector() {
         return usesSelector;
     }
 
-
-    public Entity findSingleEntity(
-            CommandSource source
-    ) throws CommandSyntaxException {
+    public Entity findSingleEntity(CommandSource source) throws CommandSyntaxException {
 
         checkPermissions(source);
 
-        Collection<? extends Entity> entities =
-                findEntities(source);
+        Collection<? extends Entity> entities = findEntities(source);
 
         if (entities.isEmpty()) {
             throw EntityArgument.NO_ENTITIES_FOUND.create();
@@ -125,15 +115,11 @@ public final class EntitySelector {
         return entities.iterator().next();
     }
 
-
-    public Player findSinglePlayer(
-            CommandSource source
-    ) throws CommandSyntaxException {
+    public Player findSinglePlayer(CommandSource source) throws CommandSyntaxException {
 
         checkPermissions(source);
 
-        List<Player> players =
-                findPlayers(source);
+        List<Player> players = findPlayers(source);
 
         if (players.isEmpty()) {
             throw EntityArgument.NO_PLAYERS_FOUND.create();
@@ -146,10 +132,7 @@ public final class EntitySelector {
         return players.getFirst();
     }
 
-
-    public Collection<? extends Entity> findEntities(
-            CommandSource source
-    ) throws CommandSyntaxException {
+    public Collection<? extends Entity> findEntities(CommandSource source) throws CommandSyntaxException {
 
         checkPermissions(source);
 
@@ -157,21 +140,16 @@ public final class EntitySelector {
         Collection<? extends Entity> entities;
 
         if (targetUuid != null) {
-            Optional<? extends Entity> entity =
-                    server.entityManager()
-                            .all()
-                            .stream()
-                            .filter(e -> e.uuid().equals(targetUuid))
-                            .findFirst();
+            Optional<? extends Entity> entity = server.entityManager().all().stream()
+                    .filter(e -> e.uuid().equals(targetUuid))
+                    .findFirst();
 
             if (entity.isPresent()) {
                 Entity found = entity.get();
 
                 includesEntities = !(found instanceof Player);
 
-                entities = includesEntities
-                        ? List.of(found)
-                        : server.onlinePlayers();
+                entities = includesEntities ? List.of(found) : server.onlinePlayers();
 
             } else {
                 includesEntities = false;
@@ -193,7 +171,6 @@ public final class EntitySelector {
             entities = server.onlinePlayers();
         }
 
-
         List<Entity> result = entities.stream()
                 .filter(it -> matches(it, source))
                 .map(Entity.class::cast)
@@ -201,14 +178,10 @@ public final class EntitySelector {
 
         sort(result, source);
 
-        return result.stream()
-                .limit(maxResults)
-                .toList();
+        return result.stream().limit(maxResults).toList();
     }
 
-
-    public List<Player> findPlayers(CommandSource source)
-            throws CommandSyntaxException {
+    public List<Player> findPlayers(CommandSource source) throws CommandSyntaxException {
 
         Collection<? extends Entity> entities = findEntities(source);
 
@@ -229,11 +202,9 @@ public final class EntitySelector {
         return players;
     }
 
-
     private boolean matches(Entity entity, CommandSource source) {
 
-        if (targetUuid != null &&
-                !entity.uuid().equals(targetUuid)) {
+        if (targetUuid != null && !entity.uuid().equals(targetUuid)) {
             return false;
         }
 
@@ -258,13 +229,11 @@ public final class EntitySelector {
         if (minDistance != null || maxDistance != null) {
             double distance = entity.distanceSquared(source.location());
 
-            if (minDistance != null &&
-                    distance < minDistance * minDistance) {
+            if (minDistance != null && distance < minDistance * minDistance) {
                 return false;
             }
 
-            if (maxDistance != null &&
-                    distance > maxDistance * maxDistance) {
+            if (maxDistance != null && distance > maxDistance * maxDistance) {
                 return false;
             }
         }
@@ -274,77 +243,45 @@ public final class EntitySelector {
             double ey = entity.location().y();
             double ez = entity.location().z();
 
-
-            if (dx != null &&
-                    (ex < x || ex > x + dx)) {
+            if (dx != null && (ex < x || ex > x + dx)) {
                 return false;
             }
 
-
-            if (dy != null &&
-                    (ey < y || ey > y + dy)) {
+            if (dy != null && (ey < y || ey > y + dy)) {
                 return false;
             }
 
-
-            return dz == null ||
-                    (!(ez < z) && !(ez > z + dz));
+            return dz == null || (!(ez < z) && !(ez > z + dz));
         }
-
 
         return true;
     }
 
-
-    private void sort(
-            List<? extends Entity> entities,
-            CommandSource source
-    ) {
+    private void sort(List<? extends Entity> entities, CommandSource source) {
 
         switch (sort) {
-
-            case NEAREST ->
-                    entities.sort(
-                            Comparator.comparingDouble(
-                                    e -> e.distanceSquared(source.location())
-                            )
-                    );
-
+            case NEAREST -> entities.sort(Comparator.comparingDouble(e -> e.distanceSquared(source.location())));
 
             case FURTHEST ->
-                    entities.sort(
-                            Comparator.comparingDouble(
-                                    (Entity e) ->
-                                            e.distanceSquared(source.location())
-                            ).reversed()
-                    );
+                entities.sort(Comparator.comparingDouble((Entity e) -> e.distanceSquared(source.location()))
+                        .reversed());
 
+            case RANDOM -> Collections.shuffle(entities);
 
-            case RANDOM ->
-                    Collections.shuffle(entities);
-
-
-            case ARBITRARY ->
-            {}
+            case ARBITRARY -> {
+            }
         }
     }
 
-
-    private void checkPermissions(
-            CommandSource source
-    ) throws CommandSyntaxException {
+    private void checkPermissions(CommandSource source) throws CommandSyntaxException {
 
         if (!usesSelector) {
             return;
         }
 
+        if (!source.sender().hasPermission("minecraft.command.selector")) {
 
-        if (!source.sender()
-                .hasPermission("minecraft.command.selector")) {
-
-            throw EntityArgument
-                    .SELECTORS_NOT_PERMITTED
-                    .create();
+            throw EntityArgument.SELECTORS_NOT_PERMITTED.create();
         }
     }
 }

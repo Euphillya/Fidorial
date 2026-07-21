@@ -21,7 +21,9 @@ public interface MessageComponentSerializer extends ComponentSerializer<Componen
      */
     static MessageComponentSerializer message() {
         final class Holder {
-            static final Optional<MessageComponentSerializer> PROVIDER = ServiceLoader.load(MessageComponentSerializer.class, MessageComponentSerializer.class.getClassLoader()).findFirst();
+            static final Optional<MessageComponentSerializer> PROVIDER = ServiceLoader.load(
+                            MessageComponentSerializer.class, MessageComponentSerializer.class.getClassLoader())
+                    .findFirst();
         }
         return Holder.PROVIDER.orElseThrow();
     }

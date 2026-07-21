@@ -13,10 +13,13 @@ public class DefaultPermissions {
     }
 
     public static void registerCorePermissions(PluginManager manager) {
-        Permission root = register(manager, new Permission(ROOT,
-                "Donne acces a toutes les fonctionnalites de Fidorial", PermissionDefault.FALSE));
-        Permission commands = register(manager, new Permission(COMMAND_ROOT,
-                "Donne acces a toutes les commandes de Fidorial", PermissionDefault.FALSE));
+        Permission root = register(
+                manager,
+                new Permission(ROOT, "Donne acces a toutes les fonctionnalites de Fidorial", PermissionDefault.FALSE));
+        Permission commands = register(
+                manager,
+                new Permission(
+                        COMMAND_ROOT, "Donne acces a toutes les commandes de Fidorial", PermissionDefault.FALSE));
         commands.addParent(root, true);
 
         child(manager, commands, "tps", "Permet de consulter les TPS", PermissionDefault.OP);
@@ -25,18 +28,26 @@ public class DefaultPermissions {
         child(manager, commands, "op", "Permet de promouvoir un operateur", PermissionDefault.OP);
         child(manager, commands, "deop", "Permet de retrograder un operateur", PermissionDefault.OP);
         child(manager, commands, "stop", "Idk what french says", PermissionDefault.OP);
-        Permission selector = register(manager, new Permission("minecraft.command.selector",
-                "Permet d'utiliser les selecteurs d'entites (@a, @p, @e, @s)", PermissionDefault.OP));
+        Permission selector = register(
+                manager,
+                new Permission(
+                        "minecraft.command.selector",
+                        "Permet d'utiliser les selecteurs d'entites (@a, @p, @e, @s)",
+                        PermissionDefault.OP));
 
         root.recalculatePermissibles();
         commands.recalculatePermissibles();
         selector.recalculatePermissibles();
     }
 
-    private static void child(PluginManager manager, Permission parent,
-                              String name, String description, PermissionDefault def) {
-        Permission perm = register(manager,
-                new Permission(COMMAND_ROOT + "." + name, description, def));
+    private static void child(
+            PluginManager manager,
+            Permission parent,
+            String name,
+            String description,
+            PermissionDefault def
+    ) {
+        Permission perm = register(manager, new Permission(COMMAND_ROOT + "." + name, description, def));
         perm.addParent(parent, true);
     }
 

@@ -1,7 +1,6 @@
 package fr.fidorial.command;
 
 import com.mojang.brigadier.tree.CommandNode;
-import fr.fidorial.command.CommandSource;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
@@ -12,14 +11,12 @@ public interface CommandMeta {
     /**
      * Returns the description shown in command help.
      */
-    @Nullable
-    Component description();
+    @Nullable Component description();
 
     /**
      * Returns the usage text shown in command help.
      */
-    @Nullable
-    Component usage();
+    @Nullable Component usage();
 
     /**
      * Returns aliases used to invoke this command.
@@ -34,9 +31,7 @@ public interface CommandMeta {
     /**
      * Returns the plugin that registered this command.
      */
-    @Nullable
-    Object plugin();
-
+    @Nullable Object plugin();
 
     interface Builder {
 

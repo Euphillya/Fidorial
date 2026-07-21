@@ -30,34 +30,18 @@ public final class EntityArgumentInternal {
     }
 
     public static ArgumentType<EntitySelector> player(Predicate<Player> filter) {
-        return new EntityArgument(
-                true,
-                true,
-                entity -> entity instanceof Player player && filter.test(player)
-        );
+        return new EntityArgument(true, true, entity -> entity instanceof Player player && filter.test(player));
     }
 
     public static ArgumentType<EntitySelector> players(Predicate<Player> filter) {
-        return new EntityArgument(
-                false,
-                true,
-                entity -> entity instanceof Player player && filter.test(player)
-        );
+        return new EntityArgument(false, true, entity -> entity instanceof Player player && filter.test(player));
     }
 
     public static ArgumentType<EntitySelector> entity(Predicate<Entity> filter) {
-        return new EntityArgument(
-                true,
-                false,
-                filter
-        );
+        return new EntityArgument(true, false, filter);
     }
 
     public static ArgumentType<EntitySelector> entities(Predicate<Entity> filter) {
-        return new EntityArgument(
-                false,
-                false,
-                filter
-        );
+        return new EntityArgument(false, false, filter);
     }
 }

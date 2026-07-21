@@ -37,16 +37,12 @@ public final class PermissionlessCommandSender implements CommandSender {
 
     @Override
     public PermissionAttachment addAttachment(Plugin plugin) {
-        throw new UnsupportedOperationException(
-                "Cannot add permissions to PermissionlessSender"
-        );
+        throw new UnsupportedOperationException("Cannot add permissions to PermissionlessSender");
     }
 
     @Override
     public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value) {
-        throw new UnsupportedOperationException(
-                "Cannot add permissions to PermissionlessSender"
-        );
+        throw new UnsupportedOperationException("Cannot add permissions to PermissionlessSender");
     }
 
     @Override
@@ -81,8 +77,6 @@ public final class PermissionlessCommandSender implements CommandSender {
 
     @Override
     public void setOp(boolean value) {
-        throw new UnsupportedOperationException(
-                "Cannot op PermissionlessSender"
-        );
+        throw new UnsupportedOperationException("Cannot op PermissionlessSender");
     }
 }

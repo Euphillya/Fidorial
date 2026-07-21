@@ -3,10 +3,10 @@ package fr.euphyllia.fidorial.server.command.defaults;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import fr.fidorial.command.CommandTree;
-import fr.fidorial.command.CommandSource;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
+import fr.fidorial.command.CommandSource;
+import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.world.weather.Weather;
 import net.kyori.adventure.text.Component;
@@ -18,7 +18,8 @@ import net.kyori.adventure.text.Component;
  */
 public final class WeatherCommand {
 
-    private WeatherCommand() {}
+    private WeatherCommand() {
+    }
 
     private static Component describe(Weather weather) {
         return switch (weather) {
@@ -56,12 +57,6 @@ public final class WeatherCommand {
 
     private static int get(CommandContext<CommandSource> context) {
         WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
-        if (weather == null) {
-            context.getSource().sender().sendMessage(
-                    Component.translatable("command.weather.notstarted"));
-            return Command.SINGLE_SUCCESS;
-        }
-
         context.getSource().sender().sendMessage(
                 Component.translatable("command.weather.current", describe(weather.weather())));
         return Command.SINGLE_SUCCESS;
@@ -74,11 +69,6 @@ public final class WeatherCommand {
             int durationTicks
     ) {
         WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
-        if (weather == null) {
-            source.sender().sendMessage(Component.translatable("command.weather.notstarted"));
-            return Command.SINGLE_SUCCESS;
-        }
-
         weather.setWeather(target, durationTicks);
 
         if (durationTicks > 0) {

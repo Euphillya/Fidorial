@@ -1,9 +1,9 @@
 package fr.fidorial.world.fluid;
 
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 public enum FluidType {
-
     WATER(Key.key("water"), 5, 1, 7, true),
     LAVA(Key.key("lava"), 30, 2, 6, false);
 
@@ -21,7 +21,7 @@ public enum FluidType {
         this.canFormSources = canFormSources;
     }
 
-    public static FluidType byBlockKey(String key) {
+    public static @Nullable FluidType byBlockKey(String key) {
         for (FluidType type : values()) {
             if (type.blockKey.asString().equals(key)) {
                 return type;

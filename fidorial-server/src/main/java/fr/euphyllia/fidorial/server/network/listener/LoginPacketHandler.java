@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.network.listener;
 
-import fr.fidorial.entity.PlayerProfile;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.GameProfile;
 import fr.euphyllia.fidorial.server.FidorialServer;
@@ -8,8 +7,8 @@ import fr.euphyllia.fidorial.server.ServerConfig;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.ConnectionState;
 import fr.euphyllia.fidorial.server.network.proxy.VelocityForwarding;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundCustomQueryPacket;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundCustomQueryPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundHelloPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundLoginCompressionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundLoginDisconnectPacket;
@@ -19,7 +18,9 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.Serverboun
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundHelloPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundKeyPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundLoginAcknowledgedPacket;
+import fr.fidorial.entity.PlayerProfile;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import javax.crypto.SecretKey;
 import java.util.Arrays;
@@ -36,8 +37,8 @@ public final class LoginPacketHandler implements LoginPacketListener {
     private final ClientConnection connection;
     private final FidorialServer server;
 
-    private byte[] verifyToken;
-    private String pendingUsername;
+    private byte @Nullable [] verifyToken;
+    private @Nullable String pendingUsername;
     private int velocityTransactionId = -1;
 
     public LoginPacketHandler(ClientConnection connection) {
@@ -59,8 +60,8 @@ public final class LoginPacketHandler implements LoginPacketListener {
     private void sendVelocityForwardingRequest() {
         this.velocityTransactionId = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
         byte[] requestedVersion = {(byte) VelocityForwarding.MAX_SUPPORTED_VERSION};
-        connection.send(new ClientboundCustomQueryPacket(
-                velocityTransactionId, VelocityForwarding.CHANNEL, requestedVersion));
+        connection.send(
+                new ClientboundCustomQueryPacket(velocityTransactionId, VelocityForwarding.CHANNEL, requestedVersion));
     }
 
     @Override
@@ -68,6 +69,10 @@ public final class LoginPacketHandler implements LoginPacketListener {
         if (server.config().proxyMode() != ServerConfig.ProxyMode.VELOCITY
                 || packet.transactionId() != velocityTransactionId) {
             LOGGER.trace("unexpected custom_query_answer (id {}) ignore", packet.transactionId());
+            return;
+        }
+        if (server.config().velocitySecret() == null) {
+            LOGGER.error("Velocity secret is not configured");
             return;
         }
         velocityTransactionId = -1;
@@ -81,8 +86,11 @@ public final class LoginPacketHandler implements LoginPacketListener {
             connection.setForwardedAddress(data.remoteAddress());
             connection.setUsername(data.profile().name());
             this.pendingUsername = data.profile().name();
-            LOGGER.info("Player transferred by Velocity: {} ({}) from {}",
-                    data.profile().name(), data.profile().uuid(), data.remoteAddress());
+            LOGGER.info(
+                    "Player transferred by Velocity: {} ({}) from {}",
+                    data.profile().name(),
+                    data.profile().uuid(),
+                    data.remoteAddress());
             enableCompression();
             sendLoginSuccess(data.profile());
         } catch (VelocityForwarding.ForwardingException e) {
@@ -109,7 +117,8 @@ public final class LoginPacketHandler implements LoginPacketListener {
             SecretKey key = EncryptionUtils.toAesKey(sharedSecret);
             connection.installEncryption(key);
 
-            String serverHash = EncryptionUtils.computeServerHash("", sharedSecret, server.keyPair().getPublic());
+            String serverHash = EncryptionUtils.computeServerHash(
+                    "", sharedSecret, server.keyPair().getPublic());
             String username = pendingUsername;
             Thread.startVirtualThread(() -> authenticate(username, serverHash));
         } catch (Exception e) {

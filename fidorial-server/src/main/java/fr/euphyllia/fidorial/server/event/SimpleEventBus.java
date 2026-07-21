@@ -5,6 +5,7 @@ import fr.fidorial.event.EventBus;
 import fr.fidorial.event.EventPriority;
 import fr.fidorial.event.Subscription;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,7 +24,7 @@ public final class SimpleEventBus implements EventBus {
     private final Map<Class<?>, List<Registration<?>>> byType = new ConcurrentHashMap<>();
     private final Map<Class<?>, List<Registration<?>>> resolved = new ConcurrentHashMap<>();
 
-    private final ThreadLocal<Object> owner = new ThreadLocal<>();
+    private final ThreadLocal<@Nullable Object> owner = new ThreadLocal<>();
 
     @Override
     public <E extends Event> Subscription subscribe(Class<E> type, EventPriority priority, Consumer<E> listener) {
@@ -43,8 +44,11 @@ public final class SimpleEventBus implements EventBus {
             try {
                 ((Registration<E>) registration).listener.accept(event);
             } catch (Throwable t) {
-                LOGGER.error("Listener en erreur sur {} (proprietaire : {})",
-                        event.getClass().getSimpleName(), registration.owner, t);
+                LOGGER.error(
+                        "Listener en erreur sur {} (proprietaire : {})",
+                        event.getClass().getSimpleName(),
+                        registration.owner,
+                        t);
             }
         }
         return event;
@@ -87,7 +91,7 @@ public final class SimpleEventBus implements EventBus {
         });
     }
 
-    private void collect(Class<?> type, List<Registration<?>> out) {
+    private void collect(@Nullable Class<?> type, List<Registration<?>> out) {
         if (type == null || !Event.class.isAssignableFrom(type)) {
             return;
         }
@@ -96,6 +100,7 @@ public final class SimpleEventBus implements EventBus {
             out.addAll(direct);
         }
         collect(type.getSuperclass(), out);
+
         for (Class<?> itf : type.getInterfaces()) {
             collect(itf, out);
         }
@@ -106,10 +111,10 @@ public final class SimpleEventBus implements EventBus {
         private final Class<E> type;
         private final EventPriority priority;
         private final Consumer<E> listener;
-        private final Object owner;
+        private final @Nullable Object owner;
         private volatile boolean active = true;
 
-        Registration(Class<E> type, EventPriority priority, Consumer<E> listener, Object owner) {
+        Registration(Class<E> type, EventPriority priority, Consumer<E> listener, @Nullable Object owner) {
             this.type = type;
             this.priority = priority;
             this.listener = listener;
@@ -132,6 +137,16 @@ public final class SimpleEventBus implements EventBus {
                 registrations.remove(this);
             }
             resolved.clear();
+        }
+
+        @Override
+        public String toString() {
+            return "Registration{" + "type="
+                    + type + ", priority="
+                    + priority + ", listener="
+                    + listener + ", owner="
+                    + owner + ", active="
+                    + active + '}';
         }
     }
 }

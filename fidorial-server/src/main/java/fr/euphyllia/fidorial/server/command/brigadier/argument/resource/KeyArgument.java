@@ -20,11 +20,7 @@ public final class KeyArgument implements ArgumentType<Key> {
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "012");
 
     public static final SimpleCommandExceptionType ERROR_INVALID_KEY =
-            new SimpleCommandExceptionType(
-                    MSG_SERIALIZER.serialize(
-                            Component.translatable("argument.id.invalid")
-                    )
-            );
+            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.id.invalid")));
 
     public static KeyArgument key() {
         return new KeyArgument();
@@ -50,8 +46,7 @@ public final class KeyArgument implements ArgumentType<Key> {
     }
 
     private boolean isAllowedInKey(char c) {
-        return Character.isLetterOrDigit(c)
-                || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
+        return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
     }
 
     @Override
@@ -62,7 +57,8 @@ public final class KeyArgument implements ArgumentType<Key> {
     public static final class Info implements ArgumentTypeRegistrar<KeyArgument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {}
+        public void serialize(Spec spec, PacketBuffer buf) {
+        }
 
         @Override
         public Spec deserialize(PacketBuffer buf) {
@@ -70,7 +66,8 @@ public final class KeyArgument implements ArgumentType<Key> {
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {}
+        public void serializeJson(Spec spec, JsonObject json) {
+        }
 
         @Override
         public Spec access(KeyArgument argument) {

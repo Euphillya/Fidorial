@@ -10,10 +10,7 @@ public record ServerboundCommandSuggestionPacket(int id, String text) implements
     private static final int MAX_LENGTH = 32500;
 
     public static ServerboundCommandSuggestionPacket read(PacketBuffer buf) {
-        return new ServerboundCommandSuggestionPacket(
-                buf.readVarInt(),
-                buf.readString(MAX_LENGTH)
-        );
+        return new ServerboundCommandSuggestionPacket(buf.readVarInt(), buf.readString(MAX_LENGTH));
     }
 
     @Override

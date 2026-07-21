@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
 import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.storage.*;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,14 +31,21 @@ public final class WorldManager implements AutoCloseable {
     private final BlockStateRegistry blockStates;
     private final int minY;
     private final int height;
-    private volatile ChunkGenerator defaultGenerator;
-    private volatile AsyncChunkLoader chunkLoader;
-    private volatile IntSupplier entityIdSupplier;
-    private volatile EntitySpawnBridge entityBridge;
+    private volatile @Nullable ChunkGenerator defaultGenerator;
+    private volatile @Nullable AsyncChunkLoader chunkLoader;
+    private volatile @Nullable IntSupplier entityIdSupplier;
+    private volatile @Nullable EntitySpawnBridge entityBridge;
 
-    private WorldManager(WorldPaths paths, LevelData levelData, ChunkStorage storage,
-                         EntityRegionStorage entityStorage, AnvilEntitySerializer entitySerializer,
-                         BlockStateRegistry blockStates, int minY, int height) {
+    private WorldManager(
+            WorldPaths paths,
+            LevelData levelData,
+            ChunkStorage storage,
+            EntityRegionStorage entityStorage,
+            AnvilEntitySerializer entitySerializer,
+            BlockStateRegistry blockStates,
+            int minY,
+            int height
+    ) {
         this.paths = paths;
         this.levelData = levelData;
         this.storage = storage;
@@ -48,8 +56,8 @@ public final class WorldManager implements AutoCloseable {
         this.height = height;
     }
 
-    public static WorldManager openOrCreate(Path worldRoot, BlockStateRegistry blockStates,
-                                            int minY, int height) throws IOException {
+    public static WorldManager openOrCreate(Path worldRoot, BlockStateRegistry blockStates, int minY, int height)
+            throws IOException {
         WorldPaths paths = new WorldPaths(worldRoot, WorldPaths.Layout.MODERN);
 
         LevelData levelData;
@@ -63,20 +71,18 @@ public final class WorldManager implements AutoCloseable {
         }
 
         AnvilChunkSerializer serializer = new AnvilChunkSerializer();
-        ChunkStorage storage = new ChunkStorage(paths, serializer, minY, height,
-                BlockState.AIR, "minecraft:plains");
+        ChunkStorage storage = new ChunkStorage(paths, serializer, minY, height, BlockState.AIR, "minecraft:plains");
 
         EntityRegionStorage entityStorage = new EntityRegionStorage(paths);
         AnvilEntitySerializer entitySerializer = new AnvilEntitySerializer();
 
-        return new WorldManager(paths, levelData, storage, entityStorage, entitySerializer,
-                blockStates, minY, height);
+        return new WorldManager(paths, levelData, storage, entityStorage, entitySerializer, blockStates, minY, height);
     }
 
     public ServerWorld registerDimension(Dimension dim, ChunkGenerator generator) {
         return worlds.computeIfAbsent(dim.id(), k -> {
-            ServerWorld world = new ServerWorld(dim, storage, entityStorage, entitySerializer,
-                    generator, blockStates, minY, height);
+            ServerWorld world = new ServerWorld(
+                    dim, storage, entityStorage, entitySerializer, generator, blockStates, minY, height);
             if (chunkLoader != null) {
                 world.setChunkLoader(chunkLoader);
             }
@@ -107,9 +113,9 @@ public final class WorldManager implements AutoCloseable {
     }
 
     public ServerWorld overworld() {
-        ChunkGenerator generator = defaultGenerator != null
-                ? defaultGenerator
-                : FlatChunkGenerator.cobblestone(minY, height);
+        ChunkGenerator chunkGenerator = defaultGenerator;
+        ChunkGenerator generator =
+                chunkGenerator != null ? chunkGenerator : FlatChunkGenerator.cobblestone(minY, height);
         return registerDimension(Dimension.OVERWORLD, generator);
     }
 

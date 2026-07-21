@@ -1,8 +1,15 @@
 package fr.fidorial.permission;
 
 import fr.fidorial.plugin.PluginManager;
+import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public class Permission {
 
@@ -13,38 +20,42 @@ public class Permission {
     private PermissionDefault defaultValue = DEFAULT_PERMISSION;
     private String description;
 
-    private PluginManager manager;
+    private @Nullable PluginManager manager;
 
     public Permission(String name) {
         this(name, null, null, null);
     }
 
-    public Permission(String name, String description) {
+    public Permission(String name, @Nullable String description) {
         this(name, description, null, null);
     }
 
-    public Permission(String name, PermissionDefault defaultValue) {
+    public Permission(String name, @Nullable PermissionDefault defaultValue) {
         this(name, null, defaultValue, null);
     }
 
-    public Permission(String name, String description, PermissionDefault defaultValue) {
+    public Permission(String name, @Nullable String description, @Nullable PermissionDefault defaultValue) {
         this(name, description, defaultValue, null);
     }
 
-    public Permission(String name, Map<String, Boolean> children) {
+    public Permission(String name, @Nullable Map<String, Boolean> children) {
         this(name, null, null, children);
     }
 
-    public Permission(String name, String description, Map<String, Boolean> children) {
+    public Permission(String name, @Nullable String description, @Nullable Map<String, Boolean> children) {
         this(name, description, null, children);
     }
 
-    public Permission(String name, PermissionDefault defaultValue, Map<String, Boolean> children) {
+    public Permission(String name, @Nullable PermissionDefault defaultValue, @Nullable Map<String, Boolean> children) {
         this(name, null, defaultValue, children);
     }
 
-    public Permission(String name, String description, PermissionDefault defaultValue,
-                      Map<String, Boolean> children) {
+    public Permission(
+            String name,
+            @Nullable String description,
+            @Nullable PermissionDefault defaultValue,
+            @Nullable Map<String, Boolean> children
+    ) {
         this.name = Objects.requireNonNull(name, "name");
         this.description = description == null ? "" : description;
         if (defaultValue != null) {
@@ -68,8 +79,12 @@ public class Permission {
         return loadPermission(name, data, DEFAULT_PERMISSION, null);
     }
 
-    public static Permission loadPermission(String name, Map<?, ?> data,
-                                            PermissionDefault def, java.util.List<Permission> output) {
+    public static Permission loadPermission(
+            String name,
+            Map<?, ?> data,
+            PermissionDefault def,
+            java.util.@Nullable List<Permission> output
+    ) {
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(data, "data");
 
@@ -77,7 +92,8 @@ public class Permission {
         Map<String, Boolean> children = null;
 
         if (data.get("default") != null) {
-            PermissionDefault value = PermissionDefault.getByName(data.get("default").toString());
+            PermissionDefault value =
+                    PermissionDefault.getByName(data.get("default").toString());
             if (value == null) {
                 throw new IllegalArgumentException("'default' invalide pour " + name);
             }
@@ -104,9 +120,12 @@ public class Permission {
         return new Permission(name, desc, def, children);
     }
 
-    private static Map<String, Boolean> extractChildren(Map<?, ?> input, String name,
-                                                        PermissionDefault def,
-                                                        java.util.List<Permission> output) {
+    private static Map<String, Boolean> extractChildren(
+            Map<?, ?> input,
+            String name,
+            PermissionDefault def,
+            java.util.@Nullable List<Permission> output
+    ) {
         Map<String, Boolean> children = new LinkedHashMap<>();
         for (Map.Entry<?, ?> entry : input.entrySet()) {
             Object value = entry.getValue();
@@ -120,12 +139,10 @@ public class Permission {
                         output.add(perm);
                     }
                 } catch (Throwable t) {
-                    throw new IllegalArgumentException(
-                            "Enfant '" + entry.getKey() + "' de " + name + " invalide", t);
+                    throw new IllegalArgumentException("Enfant '" + entry.getKey() + "' de " + name + " invalide", t);
                 }
             } else {
-                throw new IllegalArgumentException(
-                        "Enfant '" + entry.getKey() + "' de " + name + " invalide");
+                throw new IllegalArgumentException("Enfant '" + entry.getKey() + "' de " + name + " invalide");
             }
         }
         return children;
@@ -153,7 +170,7 @@ public class Permission {
         return description;
     }
 
-    public void setDescription(String value) {
+    public void setDescription(@Nullable String value) {
         this.description = value == null ? "" : value;
     }
 
@@ -175,8 +192,7 @@ public class Permission {
 
     public Permission addParent(String name, boolean value) {
         if (manager == null) {
-            throw new IllegalStateException(
-                    "Permission '" + this.name + "' non enregistree aupres d'un PluginManager");
+            throw new IllegalStateException("Permission '" + this.name + "' non enregistree aupres d'un PluginManager");
         }
         String lname = name.toLowerCase(Locale.ROOT);
         Permission perm = manager.getPermission(lname);

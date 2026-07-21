@@ -18,7 +18,6 @@ public record FidorialTranslatableMessage(Component component) implements Messag
 
     @Override
     public String getString() {
-        return PlainTextComponentSerializer.plainText()
-                .serialize(component);
+        return PlainTextComponentSerializer.plainText().serialize(component);
     }
 }

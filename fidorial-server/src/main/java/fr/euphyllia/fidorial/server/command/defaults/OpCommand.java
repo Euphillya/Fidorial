@@ -4,8 +4,8 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
-import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.CommandSource;
+import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.entity.Player;
@@ -29,32 +29,24 @@ public final class OpCommand {
     }
 
     private static CommandTree create(String name, boolean grant) {
-        return new CommandTree(
-                CommandTree.literal(name)
-                        .requires(source -> source.sender().hasPermission(
-                                grant ? "fidorial.command.op" : "fidorial.command.deop"
-                        ))
-                        .then(CommandTree.argument("player", ArgumentTypes.playerProfiles())
-                                .suggests((ctx, builder) ->
-                                        ArgumentTypes.playerProfiles()
-                                                .listSuggestions(ctx, builder)
-                                                .thenApply(suggestions -> new Suggestions(
-                                                        suggestions.getRange(),
-                                                        suggestions.getList().stream()
-                                                                .filter(suggestion -> ctx.getSource().server().onlinePlayers().stream()
-                                                                        .filter(player -> player.name().equalsIgnoreCase(suggestion.getText()))
-                                                                        .anyMatch(player -> player.isOp() != grant))
-                                                                .toList()
-                                                ))
-                                )
-                                .executes(context -> execute(context, grant)))
-        );
+        return new CommandTree(CommandTree.literal(name)
+                .requires(source ->
+                        source.sender().hasPermission(grant ? "fidorial.command.op" : "fidorial.command.deop"))
+                .then(CommandTree.argument("player", ArgumentTypes.playerProfiles())
+                        .suggests((ctx, builder) -> ArgumentTypes.playerProfiles()
+                                .listSuggestions(ctx, builder)
+                                .thenApply(suggestions -> new Suggestions(
+                                        suggestions.getRange(),
+                                        suggestions.getList().stream()
+                                                .filter(suggestion -> ctx.getSource().server().onlinePlayers().stream()
+                                                        .filter(player ->
+                                                                player.name().equalsIgnoreCase(suggestion.getText()))
+                                                        .anyMatch(player -> player.isOp() != grant))
+                                                .toList())))
+                        .executes(context -> execute(context, grant))));
     }
 
-    private static int execute(
-            CommandContext<CommandSource> context,
-            boolean grant
-    ) throws CommandSyntaxException {
+    private static int execute(CommandContext<CommandSource> context, boolean grant) throws CommandSyntaxException {
 
         PlayerProfileListResolver resolver = context.getArgument("player", PlayerProfileListResolver.class);
         Collection<PlayerProfile> targets = resolver.resolve(context.getSource());
@@ -72,20 +64,14 @@ public final class OpCommand {
 
                 target.setOp(grant);
 
-                target.sendMessage(Component.translatable(
-                        grant
-                                ? "command.op.granted.self"
-                                : "command.op.revoked.self"
-                ));
+                target.sendMessage(
+                        Component.translatable(grant ? "command.op.granted.self" : "command.op.revoked.self"));
 
-                context.getSource().sender().sendMessage(
-                        Component.translatable(
-                                grant
-                                        ? "command.op.granted.other"
-                                        : "command.op.revoked.other",
-                                Component.text(target.name())
-                        )
-                );
+                context.getSource()
+                        .sender()
+                        .sendMessage(Component.translatable(
+                                grant ? "command.op.granted.other" : "command.op.revoked.other",
+                                Component.text(target.name())));
             }
         }
         return Command.SINGLE_SUCCESS;

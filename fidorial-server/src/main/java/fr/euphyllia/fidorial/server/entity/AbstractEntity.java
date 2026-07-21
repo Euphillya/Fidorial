@@ -11,7 +11,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
 public abstract class AbstractEntity implements Entity {
 
     private final int entityId;

@@ -54,36 +54,28 @@ import java.util.function.Function;
 public class ArgumentProviderImpl implements ArgumentProvider {
     @Override
     public ArgumentType<EntitySelectorArgumentResolver> entity() {
-        return this.wrap(EntityArgumentInternal.entity(), (result) -> source-> List.of(result.findSingleEntity(source)));
+        return this.wrap(
+                EntityArgumentInternal.entity(), (result) -> source -> List.of(result.findSingleEntity(source)));
     }
 
     @Override
     public ArgumentType<EntitySelectorArgumentResolver> entities() {
         return this.wrap(
                 EntityArgumentInternal.entities(),
-                result -> source -> result.findEntities(source)
-                        .stream()
+                result -> source -> result.findEntities(source).stream()
                         .map(Entity.class::cast)
-                        .toList()
-        );
+                        .toList());
     }
 
     @Override
     public ArgumentType<PlayerSelectorArgumentResolver> player() {
-        return this.wrap(
-                EntityArgumentInternal.player(),
-                result -> source -> List.of(result.findSinglePlayer(source))
-        );
+        return this.wrap(EntityArgumentInternal.player(), result -> source -> List.of(result.findSinglePlayer(source)));
     }
 
     @Override
     public ArgumentType<PlayerSelectorArgumentResolver> players() {
-        return this.wrap(
-                EntityArgumentInternal.players(),
-                result -> result::findPlayers
-        );
+        return this.wrap(EntityArgumentInternal.players(), result -> result::findPlayers);
     }
-
 
     @Override
     public ArgumentType<BlockPosResolver> blockPosition() {
@@ -202,9 +194,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public <T> ArgumentType<TypedKey<T>> resourceKey(final RegistryKey<T> registryKey) {
-        return this.wrap(
-                ResourceKeyArgument.resourceKey(registryKey),
-                internalRegistryKey -> internalRegistryKey);
+        return this.wrap(ResourceKeyArgument.resourceKey(registryKey), internalRegistryKey -> internalRegistryKey);
     }
 
     @Override
@@ -241,11 +231,17 @@ public class ArgumentProviderImpl implements ArgumentProvider {
         return new NativeWrapperArgumentType<>(base, converter);
     }
 
-    public static <A, M> List<A> transformUnmodifiable(final List<? extends M> nms, final Function<? super M, ? extends A> converter) {
+    public static <A, M> List<A> transformUnmodifiable(
+            final List<? extends M> nms,
+            final Function<? super M, ? extends A> converter
+    ) {
         return Collections.unmodifiableList(Lists.transform(nms, converter::apply));
     }
 
-    public static <A, M> Collection<A> transformUnmodifiable(final Collection<? extends M> nms, final Function<? super M, ? extends A> converter) {
+    public static <A, M> Collection<A> transformUnmodifiable(
+            final Collection<? extends M> nms,
+            final Function<? super M, ? extends A> converter
+    ) {
         return Collections.unmodifiableCollection(Collections2.transform(nms, converter::apply));
     }
 
@@ -279,7 +275,10 @@ public class ArgumentProviderImpl implements ArgumentProvider {
         }
 
         @Override
-        public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        public <S> CompletableFuture<Suggestions> listSuggestions(
+                final CommandContext<S> context,
+                final SuggestionsBuilder builder
+        ) {
             return this.vanilla.listSuggestions(context, builder);
         }
 

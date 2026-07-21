@@ -4,9 +4,9 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
-import java.util.List;
 
 /**
  * Handles the registration and execution of commands.

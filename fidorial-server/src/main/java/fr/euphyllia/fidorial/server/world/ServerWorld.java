@@ -1,23 +1,24 @@
 package fr.euphyllia.fidorial.server.world;
 
+import fr.euphyllia.fidorial.server.entity.AbstractEntity;
+import fr.euphyllia.fidorial.server.entity.EntityManager;
+import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
 import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
+import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import fr.euphyllia.fidorial.server.world.storage.EntityRegionStorage;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Chunk;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.World;
-import fr.euphyllia.fidorial.server.entity.AbstractEntity;
-import fr.euphyllia.fidorial.server.entity.EntityManager;
-import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
-import fr.euphyllia.fidorial.server.world.chunk.BlockState;
-import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
-import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
-import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -42,15 +43,21 @@ public final class ServerWorld implements World {
     private final Set<Long> dirty = ConcurrentHashMap.newKeySet();
     private final Set<Long> entitiesLoaded = ConcurrentHashMap.newKeySet();
     private final Set<ChunkViewSource> viewers = ConcurrentHashMap.newKeySet();
-    private volatile AsyncChunkLoader chunkLoader;
-    private volatile IntSupplier entityIdSupplier;
-    private volatile EntitySpawnBridge entityBridge;
-    private Iterable<? extends Audience> adventure$audiences;
+    private volatile @Nullable AsyncChunkLoader chunkLoader;
+    private volatile @Nullable IntSupplier entityIdSupplier;
+    private volatile @Nullable EntitySpawnBridge entityBridge;
+    private @Nullable Iterable<? extends Audience> adventure$audiences;
 
-    public ServerWorld(Dimension dimension, ChunkStorage storage,
-                       EntityRegionStorage entityStorage, AnvilEntitySerializer entitySerializer,
-                       ChunkGenerator generator,
-                       BlockStateRegistry blockStates, int minY, int height) {
+    public ServerWorld(
+            Dimension dimension,
+            ChunkStorage storage,
+            EntityRegionStorage entityStorage,
+            AnvilEntitySerializer entitySerializer,
+            ChunkGenerator generator,
+            BlockStateRegistry blockStates,
+            int minY,
+            int height
+    ) {
         this.dimension = dimension;
         this.storage = storage;
         this.entityStorage = entityStorage;
@@ -119,7 +126,7 @@ public final class ServerWorld implements World {
     }
 
     @Override
-    public Chunk getChunkIfLoaded(int chunkX, int chunkZ) {
+    public @Nullable Chunk getChunkIfLoaded(int chunkX, int chunkZ) {
         ChunkColumn cached = loaded.get(key(chunkX, chunkZ));
         return cached == null ? null : wrap(cached);
     }
@@ -179,7 +186,7 @@ public final class ServerWorld implements World {
         }
         ChunkColumn column;
         try {
-            column =  loaded.computeIfAbsent(k, ignored -> {
+            column = loaded.computeIfAbsent(k, ignored -> {
                 try {
                     ChunkColumn fromDisk = storage.load(dimension, chunkX, chunkZ);
                     if (fromDisk != null) {
@@ -226,8 +233,7 @@ public final class ServerWorld implements World {
             invalidateAudiences();
         } catch (IOException e) {
             entitiesLoaded.remove(k);
-            throw new UncheckedIOException(
-                    "Unable to load entities for chunk " + chunkX + "," + chunkZ, e);
+            throw new UncheckedIOException("Unable to load entities for chunk " + chunkX + "," + chunkZ, e);
         }
     }
 
@@ -346,8 +352,7 @@ public final class ServerWorld implements World {
                     unloadChunkEntities(cx, cz);
                 } catch (IOException exception) {
                     throw new UncheckedIOException(
-                            "Unloading entities from chunk " + cx + "," + cz + "failed.", exception
-                    );
+                            "Unloading entities from chunk " + cx + "," + cz + "failed.", exception);
                 }
             }
         }

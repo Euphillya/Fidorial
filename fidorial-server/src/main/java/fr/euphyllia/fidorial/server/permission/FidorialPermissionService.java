@@ -9,6 +9,7 @@ import fr.fidorial.permission.PermissionAttachmentInfo;
 import fr.fidorial.permission.PermissionDefault;
 import fr.fidorial.permission.PermissionService;
 import fr.fidorial.plugin.PluginManager;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -56,15 +57,13 @@ public final class FidorialPermissionService implements PermissionService {
         }
     }
 
-    private PermissibleBase base(Permissible permissible) {
-        return permissible instanceof PermissibleBaseHolder holder
-                ? holder.permissionBase() : null;
+    private @Nullable PermissibleBase base(Permissible permissible) {
+        return permissible instanceof PermissibleBaseHolder holder ? holder.permissionBase() : null;
     }
 
     private boolean defaultValue(String permission, boolean op) {
         PluginManager plugins = server.plugins();
-        Permission perm = plugins == null ? null
-                : plugins.getPermission(permission.toLowerCase(Locale.ROOT));
+        Permission perm = plugins.getPermission(permission.toLowerCase(Locale.ROOT));
         PermissionDefault def = perm == null ? Permission.DEFAULT_PERMISSION : perm.getDefault();
         return def.getValue(op);
     }

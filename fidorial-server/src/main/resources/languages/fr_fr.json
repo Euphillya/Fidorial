@@ -37,7 +37,6 @@
   "command.tps.more" : "   ... et <arg:0> autre(s) région(s)",
 
   "command.weather.current" : "Météo actuelle : <arg:0>",
-  "command.weather.notstarted" : "Le moteur météo n'est pas encore démarré.",
   "command.weather.usage" : "Usage : /<arg:0> [clear|rain|thunder] [durée en secondes]",
   "command.weather.invalidduration" : "Durée invalide : <arg:0>",
   "command.weather.changed" : "Météo changée : <arg:0>",

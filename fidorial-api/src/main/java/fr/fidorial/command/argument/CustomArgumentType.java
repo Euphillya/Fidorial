@@ -6,9 +6,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import org.jetbrains.annotations.ApiStatus;
+
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * An argument type that wraps around a native-to-vanilla argument type.
@@ -89,7 +90,10 @@ public interface CustomArgumentType<T, N> extends ArgumentType<T> {
      * @param <S> context type
      */
     @Override
-    default <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+    default <S> CompletableFuture<Suggestions> listSuggestions(
+            final CommandContext<S> context,
+            final SuggestionsBuilder builder
+    ) {
         return ArgumentType.super.listSuggestions(context, builder);
     }
 

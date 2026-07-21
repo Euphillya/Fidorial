@@ -6,7 +6,8 @@ import com.mojang.brigadier.arguments.StringArgumentType.StringType;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 
-public final class StringArgumentRegistrar implements ArgumentTypeRegistrar<StringArgumentType, StringArgumentRegistrar.Spec> {
+public final class StringArgumentRegistrar
+        implements ArgumentTypeRegistrar<StringArgumentType, StringArgumentRegistrar.Spec> {
 
     @Override
     public void serialize(Spec spec, PacketBuffer buf) {
@@ -21,11 +22,13 @@ public final class StringArgumentRegistrar implements ArgumentTypeRegistrar<Stri
 
     @Override
     public void serializeJson(Spec spec, JsonObject json) {
-        json.addProperty("type", switch (spec.stringType()) {
-            case SINGLE_WORD -> "word";
-            case QUOTABLE_PHRASE -> "phrase";
-            case GREEDY_PHRASE -> "greedy";
-        });
+        json.addProperty(
+                "type",
+                switch (spec.stringType()) {
+                    case SINGLE_WORD -> "word";
+                    case QUOTABLE_PHRASE -> "phrase";
+                    case GREEDY_PHRASE -> "greedy";
+                });
     }
 
     @Override

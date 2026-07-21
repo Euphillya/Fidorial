@@ -15,9 +15,8 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySe
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.entity.PlayerProfileMeta;
 import fr.fidorial.entity.Player;
-
+import fr.fidorial.entity.PlayerProfileMeta;
 import net.kyori.adventure.text.Component;
 
 import java.util.*;
@@ -28,19 +27,10 @@ import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventur
 public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument.Result> {
 
     public static final SimpleCommandExceptionType ERROR_UNKNOWN_PLAYER =
-            new SimpleCommandExceptionType(
-                    MSG_SERIALIZER
-                            .serialize(Component.translatable("argument.player.unknown"))
-            );
+            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.player.unknown")));
 
-
-    private static final Collection<String> EXAMPLES = List.of(
-            "Player",
-            "0123",
-            "dd12be42-52a9-4a91-a8a1-11c01849e498",
-            "@a"
-    );
-
+    private static final Collection<String> EXAMPLES =
+            List.of("Player", "0123", "dd12be42-52a9-4a91-a8a1-11c01849e498", "@a");
 
     public static PlayerProfileArgument playerProfile() {
         return new PlayerProfileArgument();
@@ -49,23 +39,17 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
     public PlayerProfileArgument() {
     }
 
-    public static Collection<PlayerProfileMeta> getPlayerProfiles(
-            CommandContext<CommandSource> context,
-            String name
-    ) throws CommandSyntaxException {
+    public static Collection<PlayerProfileMeta> getPlayerProfiles(CommandContext<CommandSource> context, String name)
+            throws CommandSyntaxException {
 
-        return context
-                .getArgument(name, Result.class)
-                .getNames(context.getSource());
+        return context.getArgument(name, Result.class).getNames(context.getSource());
     }
-
 
     @Override
     public Result parse(StringReader reader) throws CommandSyntaxException {
 
         if (reader.canRead() && reader.peek() == '@') {
-            EntitySelector selector =
-                    new EntitySelectorParser(reader).parse();
+            EntitySelector selector = new EntitySelectorParser(reader).parse();
 
             if (selector.includesEntities()) {
                 throw EntityArgument.ERROR_ONLY_PLAYERS_ALLOWED.create();
@@ -80,8 +64,7 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
             reader.skip();
         }
 
-        String name = reader.getString()
-                .substring(start, reader.getCursor());
+        String name = reader.getString().substring(start, reader.getCursor());
 
         return source -> {
             FidorialServer server = (FidorialServer) source.server();
@@ -92,69 +75,48 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
                 throw ERROR_UNKNOWN_PLAYER.create();
             }
 
-            return List.of(
-                    new PlayerProfileMeta(player.get().profile())
-            );
+            return List.of(new PlayerProfileMeta(player.get().profile()));
         };
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(
-            CommandContext<S> context,
-            SuggestionsBuilder builder
-    ) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
         if (!(context.getSource() instanceof CommandSource source)) {
             return Suggestions.empty();
         }
 
-        source.server()
-                .onlinePlayers()
-                .forEach(player ->
-                        builder.suggest(player.name())
-                );
+        source.server().onlinePlayers().forEach(player -> builder.suggest(player.name()));
 
         return builder.buildFuture();
     }
-
 
     @Override
     public Collection<String> getExamples() {
         return EXAMPLES;
     }
 
-
     @FunctionalInterface
     public interface Result {
 
-        Collection<PlayerProfileMeta> getNames(
-                CommandSource source
-        ) throws CommandSyntaxException;
+        Collection<PlayerProfileMeta> getNames(CommandSource source) throws CommandSyntaxException;
     }
-
 
     public static class SelectorResult implements Result {
 
         private final EntitySelector selector;
 
-
         public SelectorResult(EntitySelector selector) {
             this.selector = selector;
         }
 
-
         @Override
-        public Collection<PlayerProfileMeta> getNames(
-                CommandSource source
-        ) throws CommandSyntaxException {
+        public Collection<PlayerProfileMeta> getNames(CommandSource source) throws CommandSyntaxException {
 
-            List<Player> players =
-                    selector.findPlayers(source);
-
+            List<Player> players = selector.findPlayers(source);
 
             if (players.isEmpty()) {
                 throw EntityArgument.NO_PLAYERS_FOUND.create();
             }
-
 
             return players.stream()
                     .map(Player::profile)
@@ -166,17 +128,17 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
     public static final class Info implements ArgumentTypeRegistrar<PlayerProfileArgument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {}
-
+        public void serialize(Spec spec, PacketBuffer buf) {
+        }
 
         @Override
         public Spec deserialize(PacketBuffer buf) {
             return new Spec();
         }
 
-
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {}
+        public void serializeJson(Spec spec, JsonObject json) {
+        }
 
         @Override
         public Spec access(PlayerProfileArgument argument) {
@@ -189,7 +151,6 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
             public PlayerProfileArgument instantiate() {
                 return new PlayerProfileArgument();
             }
-
 
             @Override
             public ArgumentTypeRegistrar<PlayerProfileArgument, ?> type() {

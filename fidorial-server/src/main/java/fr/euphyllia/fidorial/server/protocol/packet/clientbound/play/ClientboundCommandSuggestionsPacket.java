@@ -4,16 +4,11 @@ import com.mojang.brigadier.Message;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
-import net.kyori.adventure.text.Component;
 
 import java.util.List;
 
-public record ClientboundCommandSuggestionsPacket(
-        int id,
-        int start,
-        int length,
-        List<Entry> entries
-) implements ClientboundPacket {
+public record ClientboundCommandSuggestionsPacket(int id, int start, int length, List<Entry> entries)
+        implements ClientboundPacket {
 
     @Override
     public String name() {
@@ -41,9 +36,6 @@ public record ClientboundCommandSuggestionsPacket(
         }
     }
 
-
-    public record Entry(
-            String text,
-            Message tooltip
-    ) {}
+    public record Entry(String text, Message tooltip) {
+    }
 }

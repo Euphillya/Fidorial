@@ -8,7 +8,8 @@ public final class BrigadierAdventureHelper {
 
     public static final MessageComponentSerializer MSG_SERIALIZER = MessageComponentSerializer.message();
 
-    private BrigadierAdventureHelper() {}
+    private BrigadierAdventureHelper() {
+    }
 
     public static Component convert(Message message) {
         if (message instanceof FidorialTranslatableMessage(Component component)) {

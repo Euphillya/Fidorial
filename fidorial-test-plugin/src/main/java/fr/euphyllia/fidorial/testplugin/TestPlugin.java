@@ -2,6 +2,8 @@ package fr.euphyllia.fidorial.testplugin;
 
 import fr.euphyllia.fidorial.testplugin.command.ApiTestCommand;
 import fr.euphyllia.fidorial.testplugin.command.PregenCommand;
+import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
+import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.command.CommandSender;
@@ -18,12 +20,11 @@ import fr.fidorial.plugin.Plugin;
 import fr.fidorial.plugin.PluginContext;
 import fr.fidorial.service.ServicePriority;
 import fr.fidorial.world.generation.WorldGenerator;
-import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
-import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
@@ -39,10 +40,10 @@ public final class TestPlugin implements Plugin {
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
 
     private final AtomicLong eventCount = new AtomicLong();
-    private PluginContext context;
-    public ComponentLogger logger;
-    public Server server;
-    private volatile PregenTask task;
+    private @Nullable PluginContext context;
+    public @Nullable ComponentLogger logger;
+    public @Nullable Server server;
+    private volatile @Nullable PregenTask task;
 
     public PregenTask getTask() {
         return task;
@@ -66,12 +67,15 @@ public final class TestPlugin implements Plugin {
         this.logger = context.logger();
         this.server = context.server();
 
-        context.services().register(WorldGenerator.class,
-                new HillsGenerator(SEED, BASE_HEIGHT, AMPLITUDE, SEA_LEVEL), this);
+        context.services()
+                .register(WorldGenerator.class, new HillsGenerator(SEED, BASE_HEIGHT, AMPLITUDE, SEA_LEVEL), this);
         context.logger().info("Generateur de collines enregistre (seed={})", SEED);
 
-        logger.info("[TestPlugin] onLoad OK - id={} version={} dataFolder={}",
-                context.meta().id(), context.meta().version(), context.dataFolder());
+        logger.info(
+                "[TestPlugin] onLoad OK - id={} version={} dataFolder={}",
+                context.meta().id(),
+                context.meta().version(),
+                context.dataFolder());
     }
 
     @Override
@@ -113,25 +117,26 @@ public final class TestPlugin implements Plugin {
             }
         };
         server.services().register(CounterService.class, impl, this, ServicePriority.NORMAL);
-        logger.info("[TestPlugin] ServiceRegistry: CounterService enregistre = {}",
+        logger.info(
+                "[TestPlugin] ServiceRegistry: CounterService enregistre = {}",
                 server.services().find(CounterService.class).isPresent());
     }
 
     private void registerEvents() {
         var events = context.events();
 
-        events.subscribe(ServerStartedEvent.class, e ->
-                logger.info("[TestPlugin][event] ServerStartedEvent recu, version MC {}",
+        events.subscribe(
+                ServerStartedEvent.class,
+                e -> logger.info(
+                        "[TestPlugin][event] ServerStartedEvent recu, version MC {}",
                         e.server().minecraftVersion()));
 
-        events.subscribe(ServerStoppingEvent.class, e ->
-                logger.info("[TestPlugin][event] ServerStoppingEvent recu"));
+        events.subscribe(ServerStoppingEvent.class, e -> logger.info("[TestPlugin][event] ServerStoppingEvent recu"));
 
         events.subscribe(PlayerJoinEvent.class, e -> {
             eventCount.incrementAndGet();
             logger.info("[TestPlugin][event] join de {}", e.player().name());
-            msg(e.player(), "[TestPlugin] Bienvenue " + e.player().name()
-                    + " ! Tape /apitest pour tester l'API.");
+            msg(e.player(), "[TestPlugin] Bienvenue " + e.player().name() + " ! Tape /apitest pour tester l'API.");
         });
 
         events.subscribe(PlayerQuitEvent.class, e -> {
@@ -163,13 +168,7 @@ public final class TestPlugin implements Plugin {
 
     private void registerCommands() {
         final CommandRegistry registry = server.commands();
-        registry.register(
-                registry.metaBuilder("pregen").build(),
-                new PregenCommand(this).create()
-        );
-        registry.register(
-                registry.metaBuilder("apitest").build(),
-                new ApiTestCommand(this).create()
-        );
+        registry.register(registry.metaBuilder("pregen").build(), new PregenCommand(this).create());
+        registry.register(registry.metaBuilder("apitest").build(), new ApiTestCommand(this).create());
     }
 }

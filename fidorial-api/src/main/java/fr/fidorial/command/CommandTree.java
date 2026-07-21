@@ -44,8 +44,7 @@ public record CommandTree(LiteralCommandNode<CommandSource> node) {
      * @param name the literal name.
      * @return a new LiteralArgumentBuilder.
      */
-    public static LiteralArgumentBuilder<CommandSource> literal(
-            final @NotNull String name) {
+    public static LiteralArgumentBuilder<CommandSource> literal(final @NotNull String name) {
         Preconditions.checkNotNull(name, "name");
         // Validation to avoid beginner's errors in case someone includes a space in the argument name
         Preconditions.checkArgument(name.indexOf(' ') == -1, "the argument name cannot contain spaces");
@@ -61,7 +60,9 @@ public record CommandTree(LiteralCommandNode<CommandSource> node) {
      * @return a new RequiredArgumentBuilder
      */
     public static <T> RequiredArgumentBuilder<CommandSource, T> argument(
-            final @NotNull String name, @NotNull final ArgumentType<T> argumentType) {
+            final @NotNull String name,
+            @NotNull final ArgumentType<T> argumentType
+    ) {
         Preconditions.checkNotNull(name, "name");
         Preconditions.checkNotNull(argumentType, "argument type");
 

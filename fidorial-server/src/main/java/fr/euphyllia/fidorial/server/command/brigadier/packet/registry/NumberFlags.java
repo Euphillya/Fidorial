@@ -4,7 +4,8 @@ public final class NumberFlags {
     private static final byte HAS_MIN = 0x01;
     private static final byte HAS_MAX = 0x02;
 
-    private NumberFlags() {}
+    private NumberFlags() {
+    }
 
     public static byte create(boolean hasMin, boolean hasMax) {
         byte flags = 0;

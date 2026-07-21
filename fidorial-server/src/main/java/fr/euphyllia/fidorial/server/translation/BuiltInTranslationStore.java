@@ -2,13 +2,14 @@ package fr.euphyllia.fidorial.server.translation;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import fr.fidorial.translation.TranslationStore;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.Main;
+import fr.fidorial.translation.TranslationStore;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationStore;
 import net.kyori.adventure.translation.GlobalTranslator;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,16 +24,13 @@ import java.util.Set;
 public final class BuiltInTranslationStore implements TranslationStore {
 
     private static final Gson GSON = new Gson();
-    private static final Type LANGUAGE_TYPE = new TypeToken<Map<String, String>>() {
-    }.getType();
+    private static final Type LANGUAGE_TYPE = new TypeToken<Map<String, String>>() {}.getType();
     private static final Locale DEFAULT_LOCALE = Locale.US;
-    private static final Set<Locale> SUPPORTED_LOCALES = Set.of(
-            Locale.FRANCE,
-            Locale.US
-    );
-    private MiniMessageTranslationStore miniMessageStore;
+    private static final Set<Locale> SUPPORTED_LOCALES = Set.of(Locale.FRANCE, Locale.US);
+    private final MiniMessageTranslationStore miniMessageStore =
+            MiniMessageTranslationStore.create(Key.key("translations"));
 
-    private static Locale resolveLocale(final Locale locale) {
+    private static Locale resolveLocale(@Nullable final Locale locale) {
         if (locale == null) {
             return DEFAULT_LOCALE;
         }
@@ -42,8 +40,7 @@ public final class BuiltInTranslationStore implements TranslationStore {
         }
 
         return SUPPORTED_LOCALES.stream()
-                .filter(supported -> supported.getLanguage()
-                        .equals(locale.getLanguage()))
+                .filter(supported -> supported.getLanguage().equals(locale.getLanguage()))
                 .findFirst()
                 .orElse(DEFAULT_LOCALE);
     }
@@ -51,12 +48,10 @@ public final class BuiltInTranslationStore implements TranslationStore {
     private void loadBuiltin() {
         Map<Locale, String> languages = Map.of(
                 Locale.FRANCE, "languages/fr_fr.json",
-                Locale.US, "languages/en_us.json"
-        );
+                Locale.US, "languages/en_us.json");
         for (Map.Entry<Locale, String> entry : languages.entrySet()) {
             try {
-                InputStream stream = Main.class.getClassLoader()
-                        .getResourceAsStream(entry.getValue());
+                InputStream stream = Main.class.getClassLoader().getResourceAsStream(entry.getValue());
 
                 if (stream == null) {
                     FidorialServer.LOGGER.warn("Missing builtin language: {}", entry.getValue());
@@ -82,23 +77,15 @@ public final class BuiltInTranslationStore implements TranslationStore {
 
     @Override
     public void load() {
-        if (miniMessageStore != null) {
-            unload();
-        }
+        unload();
 
-        miniMessageStore = MiniMessageTranslationStore.create(Key.key("translations"));
         loadBuiltin();
         GlobalTranslator.translator().addSource(miniMessageStore);
     }
 
     @Override
     public void unload() {
-        if (miniMessageStore == null) {
-            return;
-        }
-
         GlobalTranslator.translator().removeSource(miniMessageStore);
-        miniMessageStore = null;
     }
 
     @Override

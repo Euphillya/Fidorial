@@ -96,7 +96,6 @@ public final class ArgumentTypes {
         return provider().angle();
     }
 
-
     /**
      * A blockdata argument which will provide rich parsing for specifying
      * the specific block variant and then the block entity NBT if applicable.

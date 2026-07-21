@@ -1,10 +1,5 @@
 package fr.euphyllia.fidorial.server.entity.mob;
 
-import fr.fidorial.entity.EntityType;
-import fr.fidorial.entity.GameMode;
-import fr.fidorial.world.ChunkPos;
-import fr.fidorial.world.Location;
-import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.ai.BlockView;
 import fr.euphyllia.fidorial.server.entity.ai.GoalSelector;
@@ -12,6 +7,12 @@ import fr.euphyllia.fidorial.server.entity.ai.Navigation;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.*;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
+import fr.fidorial.entity.EntityType;
+import fr.fidorial.entity.GameMode;
+import fr.fidorial.world.ChunkPos;
+import fr.fidorial.world.Location;
+import fr.fidorial.world.World;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -31,7 +32,7 @@ public abstract class PathfinderMob extends Mob {
     protected final GoalSelector goals = new GoalSelector();
     protected final Navigation navigation;
 
-    private ServerPlayer target;
+    private @Nullable ServerPlayer target;
     private double velocityX;
     private double velocityY;
     private double velocityZ;
@@ -48,9 +49,7 @@ public abstract class PathfinderMob extends Mob {
     private float sentHeadYaw;
     private int ticksSinceSync;
 
-
-    protected PathfinderMob(int entityId, UUID uuid, EntityType type, World world,
-                            Location location, float maxHealth) {
+    protected PathfinderMob(int entityId, UUID uuid, EntityType type, World world, Location location, float maxHealth) {
         super(entityId, uuid, type, world, location, maxHealth);
         this.navigation = new Navigation(serverWorld());
         this.yaw = location.yaw();
@@ -122,9 +121,8 @@ public abstract class PathfinderMob extends Mob {
     }
 
     private void updateTarget() {
-        double bestDistSq = target != null && isValidTarget(target, dropRangeSq())
-                ? distanceSqTo(target)
-                : Double.MAX_VALUE;
+        double bestDistSq =
+                target != null && isValidTarget(target, dropRangeSq()) ? distanceSqTo(target) : Double.MAX_VALUE;
         ServerPlayer best = bestDistSq == Double.MAX_VALUE ? null : target;
 
         double acquireSq = followRange() * followRange();
@@ -155,7 +153,7 @@ public abstract class PathfinderMob extends Mob {
         return player.world() == world() && distanceSqTo(player) <= maxDistSq;
     }
 
-    public final ServerPlayer target() {
+    public final @Nullable ServerPlayer target() {
         return target;
     }
 
@@ -171,9 +169,8 @@ public abstract class PathfinderMob extends Mob {
     public final boolean hasLineOfSightTo(ServerPlayer player) {
         Location self = location();
         Location other = player.location();
-        return BlockView.hasLineOfSight(serverWorld(),
-                self.x(), self.y() + 1.2, self.z(),
-                other.x(), other.y() + 1.5, other.z());
+        return BlockView.hasLineOfSight(
+                serverWorld(), self.x(), self.y() + 1.2, self.z(), other.x(), other.y() + 1.5, other.z());
     }
 
     public final void setMoveSpeed(double speed) {
@@ -270,8 +267,7 @@ public abstract class PathfinderMob extends Mob {
             newZ = z;
         }
 
-        if ((blockedX || blockedZ) && onGround && velocityY <= 0.0
-                && !isBoxBlocked(x, y + 1.0, z)) {
+        if ((blockedX || blockedZ) && onGround && velocityY <= 0.0 && !isBoxBlocked(x, y + 1.0, z)) {
             velocityY = JUMP_VELOCITY;
         }
         if (blockedX) velocityX = 0.0;
@@ -299,8 +295,7 @@ public abstract class PathfinderMob extends Mob {
             onGround = isBoxBlocked(newX, newY - 0.001, newZ);
         }
 
-        if (newX != x || newY != y || newZ != z
-                || yaw != current.yaw() || pitch != current.pitch()) {
+        if (newX != x || newY != y || newZ != z || yaw != current.yaw() || pitch != current.pitch()) {
             setLocation(new Location(newX, newY, newZ, yaw, pitch));
         }
     }
@@ -315,9 +310,16 @@ public abstract class PathfinderMob extends Mob {
         ServerWorld world = serverWorld();
         for (int blockY = minBlockY; blockY <= maxBlockY; blockY++) {
             if (!BlockView.isPassable(world, (int) Math.floor(x - HALF_WIDTH), blockY, (int) Math.floor(z - HALF_WIDTH))
-                    || !BlockView.isPassable(world, (int) Math.floor(x + HALF_WIDTH), blockY, (int) Math.floor(z - HALF_WIDTH))
-                    || !BlockView.isPassable(world, (int) Math.floor(x - HALF_WIDTH), blockY, (int) Math.floor(z + HALF_WIDTH))
-                    || !BlockView.isPassable(world, (int) Math.floor(x + HALF_WIDTH), blockY, (int) Math.floor(z + HALF_WIDTH))) {
+                    || !BlockView.isPassable(
+                            world, (int) Math.floor(x + HALF_WIDTH), blockY, (int) Math.floor(z - HALF_WIDTH))
+                    || !BlockView.isPassable(
+                            world, (int) Math.floor(x - HALF_WIDTH), blockY, (int) Math.floor(z + HALF_WIDTH))
+                    || !BlockView.isPassable(
+                            world,
+                            (int) Math.floor(x + HALF_WIDTH),
+                            blockY,
+                            (int) Math.floor(z + HALF_WIDTH))
+                    ) {
                 return true;
             }
         }
@@ -339,10 +341,17 @@ public abstract class PathfinderMob extends Mob {
                 || Math.abs(dz) > MAX_RELATIVE_DELTA;
 
         if (needsAbsoluteSync && (moved || rotated || ticksSinceSync >= POSITION_SYNC_INTERVAL)) {
-            server().broadcast(new ClientboundEntityPositionSyncPacket(entityId(),
-                    current.x(), current.y(), current.z(),
-                    velocityX, velocityY, velocityZ,
-                    yaw, pitch, onGround));
+            server().broadcast(new ClientboundEntityPositionSyncPacket(
+                    entityId(),
+                    current.x(),
+                    current.y(),
+                    current.z(),
+                    velocityX,
+                    velocityY,
+                    velocityZ,
+                    yaw,
+                    pitch,
+                    onGround));
             sentX = current.x();
             sentY = current.y();
             sentZ = current.z();
@@ -354,8 +363,7 @@ public abstract class PathfinderMob extends Mob {
             short qy = (short) Math.round(dy * 4096.0);
             short qz = (short) Math.round(dz * 4096.0);
             if (rotated) {
-                server().broadcast(new ClientboundMoveEntityPosRotPacket(entityId(),
-                        qx, qy, qz, yaw, pitch, onGround));
+                server().broadcast(new ClientboundMoveEntityPosRotPacket(entityId(), qx, qy, qz, yaw, pitch, onGround));
                 sentYaw = yaw;
                 sentPitch = pitch;
             } else {

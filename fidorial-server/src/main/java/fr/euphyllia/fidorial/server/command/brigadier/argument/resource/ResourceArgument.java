@@ -26,23 +26,13 @@ import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventur
 
 public final class ResourceArgument<T> implements ArgumentType<T> {
 
-    private static final Collection<String> EXAMPLES = List.of(
-            "minecraft:zombie",
-            "zombie",
-            "foo:bar"
-    );
+    private static final Collection<String> EXAMPLES = List.of("minecraft:zombie", "zombie", "foo:bar");
 
     public static final Dynamic2CommandExceptionType ERROR_UNKNOWN_RESOURCE =
-            new Dynamic2CommandExceptionType(
-                    (id, registry) ->
-                            MSG_SERIALIZER.serialize(
-                                    Component.translatable(
-                                            "argument.resource.not_found",
-                                            Component.text(id.toString()),
-                                            Component.text(registry.toString())
-                                    )
-                            )
-            );
+            new Dynamic2CommandExceptionType((id, registry) -> MSG_SERIALIZER.serialize(Component.translatable(
+                    "argument.resource.not_found",
+                    Component.text(id.toString()),
+                    Component.text(registry.toString()))));
 
     private final RegistryKey<T> registryKey;
     private final Registry<T> registryLookup;
@@ -53,9 +43,7 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
     }
 
     public static <T> ResourceArgument<T> resource(RegistryKey<T> registryKey) {
-        Registry<T> registry = FidorialServer.getInstance()
-                .registries()
-                .registry(registryKey);
+        Registry<T> registry = FidorialServer.getInstance().registries().registry(registryKey);
         return new ResourceArgument<>(registryKey, registry);
     }
 
@@ -79,15 +67,14 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
         Key key = parseKey(input);
         TypedKey<T> typedKey = TypedKey.create(registryKey, key);
 
-        return registryLookup.find(typedKey)
+        return registryLookup
+                .find(typedKey)
                 .orElseThrow(() -> ERROR_UNKNOWN_RESOURCE.createWithContext(
-                        reader, key.asString(), registryKey.key().asString()
-                ));
+                        reader, key.asString(), registryKey.key().asString()));
     }
 
     private boolean isAllowedInKey(char c) {
-        return Character.isLetterOrDigit(c)
-                || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
+        return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
     }
 
     private Key parseKey(String input) {
@@ -98,17 +85,12 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(
-            CommandContext<S> context,
-            SuggestionsBuilder builder
-    ) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
         String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
 
         for (T value : registryLookup.values()) {
             String full = registryLookup.key(value).key().asString();
-            String path = full.startsWith("minecraft:")
-                    ? full.substring("minecraft:".length())
-                    : full;
+            String path = full.startsWith("minecraft:") ? full.substring("minecraft:".length()) : full;
 
             if (remaining.contains(":") ? full.contains(remaining) : path.contains(remaining)) {
                 builder.suggest(full);

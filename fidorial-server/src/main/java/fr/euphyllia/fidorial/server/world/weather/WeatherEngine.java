@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.world.weather;
 
-import fr.fidorial.world.weather.Weather;
-import fr.fidorial.world.weather.WeatherManager;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
+import fr.fidorial.world.weather.Weather;
+import fr.fidorial.world.weather.WeatherManager;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.concurrent.Executors;
@@ -19,9 +19,9 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
 
     private static final ComponentLogger LOGGER = getLogger(WeatherEngine.class);
 
-    private static final int RAIN_MIN = 12_000, RAIN_BOUND = 24_000;        // 10 a 20 min
-    private static final int CLEAR_MIN = 12_000, CLEAR_BOUND = 180_000;     // 10 min a 2 h 30
-    private static final int THUNDER_MIN = 3_600, THUNDER_BOUND = 15_600;   // 3 a 13 min
+    private static final int RAIN_MIN = 12_000, RAIN_BOUND = 24_000; // 10 a 20 min
+    private static final int CLEAR_MIN = 12_000, CLEAR_BOUND = 180_000; // 10 min a 2 h 30
+    private static final int THUNDER_MIN = 3_600, THUNDER_BOUND = 15_600; // 3 a 13 min
     private static final int THUNDER_OFF_MIN = 12_000, THUNDER_OFF_BOUND = 180_000;
 
     private final LevelData level;
@@ -60,13 +60,17 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
                 level.thunderTime = level.thundering ? nextThunderDuration() : nextThunderOffDuration();
             }
         }
-        ticker.scheduleAtFixedRate(() -> {
-            try {
-                tick();
-            } catch (Throwable t) {
-                LOGGER.error("Tick meteo en echec", t);
-            }
-        }, 50, 50, TimeUnit.MILLISECONDS);
+        ticker.scheduleAtFixedRate(
+                () -> {
+                    try {
+                        tick();
+                    } catch (Throwable t) {
+                        LOGGER.error("Tick meteo en echec", t);
+                    }
+                },
+                50,
+                50,
+                TimeUnit.MILLISECONDS);
         LOGGER.info("Meteo initiale : {}", weather());
     }
 
@@ -108,8 +112,7 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
         }
         level.raining = raining;
         broadcaster.accept(new ClientboundGameEventPacket(
-                raining ? ClientboundGameEventPacket.BEGIN_RAINING
-                        : ClientboundGameEventPacket.END_RAINING, 0f));
+                raining ? ClientboundGameEventPacket.BEGIN_RAINING : ClientboundGameEventPacket.END_RAINING, 0f));
         LOGGER.debug("Pluie : {}", raining);
     }
 
@@ -123,8 +126,8 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
             return;
         }
         level.thundering = thundering;
-        broadcaster.accept(new ClientboundGameEventPacket(
-                ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, thundering ? 1f : 0f));
+        broadcaster.accept(
+                new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, thundering ? 1f : 0f));
         LOGGER.debug("Orage : {}", thundering);
     }
 
@@ -134,7 +137,7 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
             case CLEAR -> {
                 setRaining(false);
                 setThundering(false);
-                level.clearWeatherTime = durationTicks > 0 ? durationTicks : 0;
+                level.clearWeatherTime = Math.max(durationTicks, 0);
                 level.rainTime = durationTicks > 0 ? 0 : nextClearDuration();
                 level.thunderTime = durationTicks > 0 ? 0 : nextThunderOffDuration();
             }
@@ -160,13 +163,10 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
         if (!level.raining) {
             return; // le client demarre au beau fixe par defaut
         }
-        target.accept(new ClientboundGameEventPacket(
-                ClientboundGameEventPacket.BEGIN_RAINING, 0f));
-        target.accept(new ClientboundGameEventPacket(
-                ClientboundGameEventPacket.RAIN_LEVEL_CHANGE, 1f));
+        target.accept(new ClientboundGameEventPacket(ClientboundGameEventPacket.BEGIN_RAINING, 0f));
+        target.accept(new ClientboundGameEventPacket(ClientboundGameEventPacket.RAIN_LEVEL_CHANGE, 1f));
         if (level.thundering) {
-            target.accept(new ClientboundGameEventPacket(
-                    ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, 1f));
+            target.accept(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, 1f));
         }
     }
 

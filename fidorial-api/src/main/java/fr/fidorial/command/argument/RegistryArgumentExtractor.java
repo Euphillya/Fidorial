@@ -21,7 +21,11 @@ public final class RegistryArgumentExtractor {
      * @throws IllegalArgumentException if the registry key doesn't match the typed key
      */
     @SuppressWarnings("unchecked")
-    public static <T, S> TypedKey<T> getTypedKey(final CommandContext<S> context, final RegistryKey<T> registryKey, final String name) {
+    public static <T, S> TypedKey<T> getTypedKey(
+            final CommandContext<S> context,
+            final RegistryKey<T> registryKey,
+            final String name
+    ) {
         final TypedKey<T> typedKey = context.getArgument(name, TypedKey.class);
         if (typedKey.registry().equals(registryKey)) {
             return typedKey;

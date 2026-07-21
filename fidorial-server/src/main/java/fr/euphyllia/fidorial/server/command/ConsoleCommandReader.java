@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.command;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.BufferedReader;
@@ -33,12 +34,11 @@ public class ConsoleCommandReader {
     }
 
     private void run() {
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
             String line;
             while (serverRunning.getAsBoolean() && (line = reader.readLine()) != null) {
                 if (line.isBlank()) continue;
-                commandManager.dispatchAsync(ConsoleSender.INSTANCE, line);
+                commandManager.dispatchAsync(FidorialServer.getInstance().getConsole(), line);
             }
         } catch (IOException e) {
             LOGGER.warn("Lecture de la console interrompue : {}", e.getMessage());

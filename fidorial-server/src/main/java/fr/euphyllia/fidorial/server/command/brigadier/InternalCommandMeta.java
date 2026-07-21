@@ -30,8 +30,7 @@ public final class InternalCommandMeta implements CommandMeta {
         public Builder(final String alias) {
             Preconditions.checkNotNull(alias, "alias");
 
-            this.aliases = ImmutableSet.<String>builder()
-                    .add(alias.toLowerCase(Locale.ENGLISH));
+            this.aliases = ImmutableSet.<String>builder().add(alias.toLowerCase(Locale.ENGLISH));
 
             this.hints = ImmutableList.builder();
 
@@ -94,20 +93,12 @@ public final class InternalCommandMeta implements CommandMeta {
         @Override
         public CommandMeta build() {
             return new InternalCommandMeta(
-                    this.aliases.build(),
-                    this.hints.build(),
-                    this.plugin,
-                    this.description,
-                    this.usage
-            );
+                    this.aliases.build(), this.hints.build(), this.plugin, this.description, this.usage);
         }
     }
 
-    private static CommandNode<CommandSource> copyForHinting(
-            final CommandNode<CommandSource> hint
-    ) {
-        final ArgumentBuilder<CommandSource, ?> builder = hint.createBuilder()
-                .requires(_ -> false);
+    private static CommandNode<CommandSource> copyForHinting(final CommandNode<CommandSource> hint) {
+        final ArgumentBuilder<CommandSource, ?> builder = hint.createBuilder().requires(_ -> false);
 
         for (final CommandNode<CommandSource> child : hint.getChildren()) {
             builder.then(copyForHinting(child));
@@ -116,12 +107,8 @@ public final class InternalCommandMeta implements CommandMeta {
         return builder.build();
     }
 
-    public static Stream<CommandNode<CommandSource>> copyHints(
-            final CommandMeta meta
-    ) {
-        return meta.hints()
-                .stream()
-                .map(InternalCommandMeta::copyForHinting);
+    public static Stream<CommandNode<CommandSource>> copyHints(final CommandMeta meta) {
+        return meta.hints().stream().map(InternalCommandMeta::copyForHinting);
     }
 
     private final Set<String> aliases;

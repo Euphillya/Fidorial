@@ -10,9 +10,7 @@ import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.command.argument.resolvers.PositionResolver;
 import fr.fidorial.command.argument.resolvers.selector.EntitySelectorArgumentResolver;
 import fr.fidorial.command.argument.resolvers.selector.PlayerSelectorArgumentResolver;
-import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
-import fr.fidorial.entity.Player;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
@@ -28,12 +26,13 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 @ApiStatus.Internal
 public interface ArgumentProvider {
 
-    Optional<ArgumentProvider> PROVIDER = ServiceLoader.load(ArgumentProvider.class, ArgumentProvider.class.getClassLoader()).findFirst();
+    Optional<ArgumentProvider> PROVIDER = ServiceLoader.load(
+                    ArgumentProvider.class, ArgumentProvider.class.getClassLoader())
+            .findFirst();
 
     static ArgumentProvider provider() {
         return PROVIDER.orElseThrow();

@@ -1,8 +1,9 @@
 package fr.euphyllia.fidorial.server.world.fluid;
 
+import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.world.fluid.FluidState;
 import fr.fidorial.world.fluid.FluidType;
-import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
@@ -14,7 +15,7 @@ public class FluidBlockCodec {
     private FluidBlockCodec() {
     }
 
-    public static FluidState fromBlock(BlockState block) {
+    public static FluidState fromBlock(@Nullable BlockState block) {
         if (block == null) {
             return FluidState.empty();
         }
@@ -37,12 +38,11 @@ public class FluidBlockCodec {
     }
 
     public static BlockState toBlock(FluidState state) {
-        if (state.isEmpty()) {
+        if (state.type() == null) {
             return BlockState.AIR;
         }
         int level = state.falling() ? FALLING_OFFSET : clamp(state.level());
-        return new BlockState(state.type().blockKey().asString(),
-                Map.of(LEVEL, String.valueOf(level)));
+        return new BlockState(state.type().blockKey().asString(), Map.of(LEVEL, String.valueOf(level)));
     }
 
     private static int clamp(int level) {

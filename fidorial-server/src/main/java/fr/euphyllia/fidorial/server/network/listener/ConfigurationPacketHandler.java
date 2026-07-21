@@ -33,14 +33,15 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
     public void onEnter() {
         LOGGER.info("{} entre en phase Configuration", connection.username());
         if (!server.protocolMap().isAvailable()) {
-            LOGGER.error("Table de protocole absente : impossible de configurer {}. "
-                    + "Lance tools/extract-protocol.sh.", connection.username());
+            LOGGER.error(
+                    "Table de protocole absente : impossible de configurer {}. " + "Lance tools/extract-protocol.sh.",
+                    connection.username());
             connection.close();
             return;
         }
         connection.send(new ClientboundBrandPacket("Fidorial"));
-        connection.send(new ClientboundSelectKnownPacksPacket(
-                "minecraft", "core", ProtocolConstants.MINECRAFT_VERSION));
+        connection.send(
+                new ClientboundSelectKnownPacksPacket("minecraft", "core", ProtocolConstants.MINECRAFT_VERSION));
     }
 
     @Override
@@ -76,9 +77,7 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
 
     @Override
     public void handleClientInformation(ServerboundClientInformationPacket packet) {
-        connection.setLocale(Locale.forLanguageTag(
-                packet.language().replace('_', '-')
-        ));
+        connection.setLocale(Locale.forLanguageTag(packet.language().replace('_', '-')));
         connection.setDisplayedSkinParts(packet.displayedSkinParts());
     }
 }

@@ -5,6 +5,7 @@ import fr.fidorial.scheduler.RegionTps;
 import fr.fidorial.scheduler.RegionizedScheduler;
 import fr.fidorial.world.ChunkPos;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,6 +26,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
      * At 20 TPS this corresponds to ~1 minute of inactivity.
      */
     private static final int MAX_EMPTY_TICKS = 20 * 60;
+
     private static final int TPS_SAMPLE_SIZE = 100; // ~5 s a 20 TPS
     private final ScheduledExecutorService workers;
     private final ConcurrentMap<RegionKey, Region> regions = new ConcurrentHashMap<>();
@@ -32,8 +34,8 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
 
     public ThreadedRegionRegionizer(int workerThreads) {
         AtomicInteger id = new AtomicInteger();
-        this.workers = Executors.newScheduledThreadPool(workerThreads,
-                r -> new Thread(r, "fidorial-region-worker-" + id.incrementAndGet()));
+        this.workers = Executors.newScheduledThreadPool(
+                workerThreads, r -> new Thread(r, "fidorial-region-worker-" + id.incrementAndGet()));
         LOGGER.info("Region pool started with {} workers", workerThreads);
     }
 
@@ -108,8 +110,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
 
     private Region createRegion(RegionKey key) {
         Region region = new Region(key);
-        region.future = workers.scheduleAtFixedRate(
-                region::tick, 0, TICK_PERIOD_MS, TimeUnit.MILLISECONDS);
+        region.future = workers.scheduleAtFixedRate(region::tick, 0, TICK_PERIOD_MS, TimeUnit.MILLISECONDS);
         LOGGER.debug("Region created: {}", key);
         return region;
     }
@@ -129,8 +130,10 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
     private void tryRemoveIdle(Region region) {
         regions.compute(region.key, (k, existing) -> {
             if (existing != region) return existing;
-            if (region.tasks.isEmpty() && region.tickets.get() == 0
-                    && region.emptyTicks.get() >= MAX_EMPTY_TICKS) {
+            if (region.tasks.isEmpty()
+                    && region.tickets.get() == 0
+                    && region.emptyTicks.get() >= MAX_EMPTY_TICKS
+                    && region.future != null) {
                 region.future.cancel(false);
                 LOGGER.debug("Region removed: {}", region.key);
                 return null;
@@ -139,8 +142,8 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
         });
     }
 
-    public record RegionTpsSnapshot(String world, int sectionX, int sectionZ,
-                                    double tps, double msptAvg, int queuedTasks, int tickets)
+    public record RegionTpsSnapshot(
+            String world, int sectionX, int sectionZ, double tps, double msptAvg, int queuedTasks, int tickets)
             implements RegionTps {
 
         public int originChunkX() {
@@ -169,8 +172,10 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
         private final Object tpsLock = new Object();
         private final long[] tickEndNanos = new long[TPS_SAMPLE_SIZE];
         private final long[] tickDurationNanos = new long[TPS_SAMPLE_SIZE];
-        volatile Thread tickingThread;
-        ScheduledFuture<?> future;
+        volatile @Nullable Thread tickingThread;
+
+        @Nullable ScheduledFuture<?> future;
+
         long currentTick;
         private int sampleIndex;
         private int sampleCount;
@@ -179,21 +184,25 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
             this.key = key;
         }
 
-        RegionTpsSnapshot snapshot() {
+        @Nullable RegionTpsSnapshot snapshot() {
             synchronized (tpsLock) {
                 if (sampleCount < 2) return null;
                 int newest = Math.floorMod(sampleIndex - 1, TPS_SAMPLE_SIZE);
-                int oldest = sampleCount < TPS_SAMPLE_SIZE
-                        ? 0
-                        : sampleIndex;
+                int oldest = sampleCount < TPS_SAMPLE_SIZE ? 0 : sampleIndex;
                 long elapsed = tickEndNanos[newest] - tickEndNanos[oldest];
                 if (elapsed <= 0) return null;
                 double tps = (sampleCount - 1) * 1_000_000_000.0 / elapsed;
                 long totalDuration = 0;
                 for (int i = 0; i < sampleCount; i++) totalDuration += tickDurationNanos[i];
                 double msptAvg = totalDuration / 1_000_000.0 / sampleCount;
-                return new RegionTpsSnapshot(key.world(), key.sectionX(), key.sectionZ(),
-                        Math.min(tps, 20.0), msptAvg, tasks.size(), tickets.get());
+                return new RegionTpsSnapshot(
+                        key.world(),
+                        key.sectionX(),
+                        key.sectionZ(),
+                        Math.min(tps, 20.0),
+                        msptAvg,
+                        tasks.size(),
+                        tickets.get());
             }
         }
 

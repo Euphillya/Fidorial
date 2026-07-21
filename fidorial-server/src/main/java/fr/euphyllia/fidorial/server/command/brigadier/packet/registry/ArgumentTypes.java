@@ -52,14 +52,11 @@ public final class ArgumentTypes {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private static void register(
-            Class<? extends ArgumentType> clazz,
-            ArgumentTypeRegistrar registrar,
-            int networkId
-    ) {
+    private static void register(Class<? extends ArgumentType> clazz, ArgumentTypeRegistrar registrar, int networkId) {
         ArgumentTypeRegistry.register(clazz, registrar);
         NetworkArgumentIds.register(networkId, registrar);
     }
 
-    public static void bootstrap() {}
+    public static void bootstrap() {
+    }
 }

@@ -5,10 +5,12 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 
-public final class BoolArgumentRegistrar implements ArgumentTypeRegistrar<BoolArgumentType, BoolArgumentRegistrar.Spec> {
+public final class BoolArgumentRegistrar
+        implements ArgumentTypeRegistrar<BoolArgumentType, BoolArgumentRegistrar.Spec> {
 
     @Override
-    public void serialize(Spec spec, PacketBuffer buf) {}
+    public void serialize(Spec spec, PacketBuffer buf) {
+    }
 
     @Override
     public Spec deserialize(PacketBuffer buf) {
@@ -16,7 +18,8 @@ public final class BoolArgumentRegistrar implements ArgumentTypeRegistrar<BoolAr
     }
 
     @Override
-    public void serializeJson(Spec spec, JsonObject json) {}
+    public void serializeJson(Spec spec, JsonObject json) {
+    }
 
     @Override
     public Spec access(BoolArgumentType argument) {

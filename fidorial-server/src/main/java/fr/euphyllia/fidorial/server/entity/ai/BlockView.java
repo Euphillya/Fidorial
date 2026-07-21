@@ -1,22 +1,22 @@
 package fr.euphyllia.fidorial.server.entity.ai;
 
-import fr.fidorial.world.Chunk;
 import fr.euphyllia.fidorial.server.world.ServerChunk;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.fidorial.world.Chunk;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
 public class BlockView {
 
     private static final Set<String> PASSABLE = Set.of( // Todo : Remplacer par key
-            "minecraft:water"
-    );
+            "minecraft:water");
 
     private BlockView() {
     }
 
-    public static BlockState blockAt(ServerWorld world, int x, int y, int z) {
+    public static @Nullable BlockState blockAt(ServerWorld world, int x, int y, int z) {
         if (y < world.minY() || y >= world.minY() + world.height()) {
             return BlockState.AIR;
         }
@@ -45,9 +45,15 @@ public class BlockView {
         return state != null && !isPassable(state);
     }
 
-    public static boolean hasLineOfSight(ServerWorld world,
-                                         double fromX, double fromY, double fromZ,
-                                         double toX, double toY, double toZ) {
+    public static boolean hasLineOfSight(
+            ServerWorld world,
+            double fromX,
+            double fromY,
+            double fromZ,
+            double toX,
+            double toY,
+            double toZ
+    ) {
         double dx = toX - fromX;
         double dy = toY - fromY;
         double dz = toZ - fromZ;

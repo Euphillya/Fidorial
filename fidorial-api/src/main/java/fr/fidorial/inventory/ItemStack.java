@@ -3,6 +3,7 @@ package fr.fidorial.inventory;
 import fr.fidorial.attribute.AttributeModifier;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +16,8 @@ public final class ItemStack {
 
     private final Key id;
     private final int count;
-    private final Component customName;
-    private final Component itemName;
+    private final @Nullable Component customName;
+    private final @Nullable Component itemName;
     private final List<Component> lore;
     private final List<AttributeModifier> attributeModifiers;
 
@@ -24,8 +25,14 @@ public final class ItemStack {
         this(id, count, null, null, List.of(), List.of());
     }
 
-    public ItemStack(Key id, int count, Component customName, Component itemName,
-                      List<Component> lore, List<AttributeModifier> attributeModifiers) {
+    public ItemStack(
+            Key id,
+            int count,
+            @Nullable Component customName,
+            @Nullable Component itemName,
+            List<Component> lore,
+            List<AttributeModifier> attributeModifiers
+    ) {
         this.id = Objects.requireNonNull(id, "id");
         this.count = count;
         this.customName = customName;
@@ -46,11 +53,11 @@ public final class ItemStack {
         return count;
     }
 
-    public Component customName() {
+    public @Nullable Component customName() {
         return customName;
     }
 
-    public Component itemName() {
+    public @Nullable Component itemName() {
         return itemName;
     }
 
@@ -83,8 +90,7 @@ public final class ItemStack {
     }
 
     public ItemStack withCount(int newCount) {
-        return newCount == count ? this
-                : new ItemStack(id, newCount, customName, itemName, lore, attributeModifiers);
+        return newCount == count ? this : new ItemStack(id, newCount, customName, itemName, lore, attributeModifiers);
     }
 
     public ItemStack withCustomName(Component name) {
@@ -95,9 +101,9 @@ public final class ItemStack {
         return new ItemStack(id, count, customName, name, lore, attributeModifiers);
     }
 
-    public ItemStack withLore(List<Component> newLore) {
-        return new ItemStack(id, count, customName, itemName,
-                newLore == null ? List.of() : newLore, attributeModifiers);
+    public ItemStack withLore(@Nullable List<Component> newLore) {
+        return new ItemStack(
+                id, count, customName, itemName, newLore == null ? List.of() : newLore, attributeModifiers);
     }
 
     public ItemStack withLoreLine(Component line) {
@@ -107,11 +113,9 @@ public final class ItemStack {
         return new ItemStack(id, count, customName, itemName, copy, attributeModifiers);
     }
 
-    public ItemStack withAttributeModifiers(List<AttributeModifier> modifiers) {
-        return new ItemStack(id, count, customName, itemName, lore,
-                modifiers == null ? List.of() : modifiers);
+    public ItemStack withAttributeModifiers(@Nullable List<AttributeModifier> modifiers) {
+        return new ItemStack(id, count, customName, itemName, lore, modifiers == null ? List.of() : modifiers);
     }
-
 
     public ItemStack withAttributeModifier(AttributeModifier modifier) {
         Objects.requireNonNull(modifier, "modifier");

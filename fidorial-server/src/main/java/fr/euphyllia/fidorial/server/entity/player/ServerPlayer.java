@@ -1,7 +1,10 @@
 package fr.euphyllia.fidorial.server.entity.player;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.entity.AbstractEntity;
+import fr.euphyllia.fidorial.server.entity.EntityTypes;
+import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.*;
-import fr.fidorial.Server;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
@@ -19,11 +22,8 @@ import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
-import fr.euphyllia.fidorial.server.FidorialServer;
-import fr.euphyllia.fidorial.server.entity.AbstractEntity;
-import fr.euphyllia.fidorial.server.entity.EntityTypes;
-import fr.euphyllia.fidorial.server.network.ClientConnection;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Set;
@@ -43,16 +43,23 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     private Locale locale;
 
-    public ServerPlayer(int entityId, PlayerProfile profile, PlayerInventory inventory,
-                        GameMode gameMode, ClientConnection connection, World world, Location location) {
+    public ServerPlayer(
+            int entityId,
+            PlayerProfile profile,
+            PlayerInventory inventory,
+            GameMode gameMode,
+            ClientConnection connection,
+            World world,
+            Location location
+    ) {
         super(entityId, profile.uuid(), EntityTypes.PLAYER, world, location);
         this.profile = profile;
         this.inventory = inventory;
         this.gameMode = gameMode;
         this.connection = connection;
         this.locale = connection.locale();
-        this.perm = new PermissibleBase(new PlayerOperator(), this,
-                FidorialServer.getInstance().plugins());
+        this.perm = new PermissibleBase(
+                new PlayerOperator(), this, FidorialServer.getInstance().plugins());
     }
 
     @Override
@@ -60,9 +67,11 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         return perm;
     }
 
-    private PermissionService permissionService() {
-        return FidorialServer.getInstance().services()
-                .find(PermissionService.class).orElse(null);
+    private @Nullable PermissionService permissionService() {
+        return FidorialServer.getInstance()
+                .services()
+                .find(PermissionService.class)
+                .orElse(null);
     }
 
     @Override
@@ -136,9 +145,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     @Override
     public void refreshCommands() {
         connection.send(new ClientboundCommandsPacket(
-                connection.server().commandManager().dispatcher(),
-                this
-        ));
+                connection.server().commandManager().dispatcher(), this));
     }
 
     @Override
@@ -171,11 +178,8 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     private boolean isOnGround() {
         Location loc = location();
 
-        BlockPos below = new BlockPos(
-                (int) Math.floor(loc.x()),
-                (int) Math.floor(loc.y() - 0.01),
-                (int) Math.floor(loc.z())
-        );
+        BlockPos below =
+                new BlockPos((int) Math.floor(loc.x()), (int) Math.floor(loc.y() - 0.01), (int) Math.floor(loc.z()));
 
         int stateId = world().getBlockStateId(below);
 
@@ -230,12 +234,11 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     @Override
     public void setGameMode(GameMode gameMode) {
-        if (gameMode == null || gameMode == this.gameMode) {
+        if (gameMode == this.gameMode) {
             return;
         }
         this.gameMode = gameMode;
-        connection.send(new ClientboundGameEventPacket(
-                ClientboundGameEventPacket.CHANGE_GAME_MODE, gameMode.id()));
+        connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, gameMode.id()));
         connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(gameMode));
         connection.server().broadcast(new ClientboundPlayerInfoGameModePacket(uuid(), gameMode.id()));
     }
@@ -252,7 +255,9 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     public int nextTeleportId() {
-        return ++lastTeleportId;
+        var id = lastTeleportId;
+        lastTeleportId = id + 1;
+        return lastTeleportId;
     }
 
     @Override

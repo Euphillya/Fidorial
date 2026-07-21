@@ -9,5 +9,4 @@ public interface EntityManager {
     Collection<? extends Player> players();
 
     Collection<? extends Entity> entities(EntityPredicate predicate);
-
 }

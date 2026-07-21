@@ -1,11 +1,5 @@
 package fr.euphyllia.fidorial.server.world.fluid;
 
-import fr.fidorial.world.BlockFace;
-import fr.fidorial.world.BlockPos;
-import fr.fidorial.world.ChunkPos;
-import fr.fidorial.world.fluid.FluidManager;
-import fr.fidorial.world.fluid.FluidState;
-import fr.fidorial.world.fluid.FluidType;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundBlockUpdatePacket;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
@@ -14,7 +8,14 @@ import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
+import fr.fidorial.world.BlockFace;
+import fr.fidorial.world.BlockPos;
+import fr.fidorial.world.ChunkPos;
+import fr.fidorial.world.fluid.FluidManager;
+import fr.fidorial.world.fluid.FluidState;
+import fr.fidorial.world.fluid.FluidType;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Map;
@@ -32,8 +33,8 @@ public final class FluidEngine implements FluidManager {
     private static final BlockState COBBLESTONE = BlockState.of("minecraft:cobblestone");
 
     private static final BlockFace[] HORIZONTAL = {
-            BlockFace.NORTH, BlockFace.SOUTH,
-            BlockFace.WEST, BlockFace.EAST
+        BlockFace.NORTH, BlockFace.SOUTH,
+        BlockFace.WEST, BlockFace.EAST
     };
 
     private final WorldManager worlds;
@@ -43,8 +44,12 @@ public final class FluidEngine implements FluidManager {
 
     private final Map<String, Set<Long>> pending = new ConcurrentHashMap<>();
 
-    public FluidEngine(WorldManager worlds, ThreadedRegionRegionizer regionizer,
-                       BlockStateRegistry blockRegistry, Consumer<ClientboundPacket> broadcaster) {
+    public FluidEngine(
+            WorldManager worlds,
+            ThreadedRegionRegionizer regionizer,
+            BlockStateRegistry blockRegistry,
+            Consumer<ClientboundPacket> broadcaster
+    ) {
         this.worlds = worlds;
         this.regionizer = regionizer;
         this.blockRegistry = blockRegistry;
@@ -101,7 +106,7 @@ public final class FluidEngine implements FluidManager {
     @Override
     public void scheduleUpdate(String world, int x, int y, int z) {
         FluidState state = fluidAt(world, x, y, z);
-        if (!state.isEmpty()) {
+        if (state.type() != null) {
             schedule(world, x, y, z, state.type().tickDelay());
         }
     }
@@ -120,14 +125,18 @@ public final class FluidEngine implements FluidManager {
         if (!set.add(key)) {
             return;
         }
-        regionizer.executeDelayed(world, ChunkPos.fromBlock(x, z), () -> {
-            set.remove(key);
-            try {
-                tick(world, x, y, z);
-            } catch (Throwable t) {
-                LOGGER.error("Tick fluide impossible en {},{},{}", x, y, z, t);
-            }
-        }, delayTicks);
+        regionizer.executeDelayed(
+                world,
+                ChunkPos.fromBlock(x, z),
+                () -> {
+                    set.remove(key);
+                    try {
+                        tick(world, x, y, z);
+                    } catch (Throwable t) {
+                        LOGGER.error("Tick fluide impossible en {},{},{}", x, y, z, t);
+                    }
+                },
+                delayTicks);
     }
 
     private void tick(String worldName, int x, int y, int z) throws IOException {
@@ -161,22 +170,30 @@ public final class FluidEngine implements FluidManager {
         }
 
         // 3) Écoulement vertical prioritaire, sinon étalement horizontal.
-        if (!flowDown(world, worldName, x, y, z, type)) {
+        if (type != null && !flowDown(world, worldName, x, y, z, type)) {
             spreadHorizontally(world, worldName, x, y, z, self);
         }
     }
 
-    private FluidState recomputeLevel(ServerWorld world, String worldName,
-                                      int x, int y, int z, FluidState self) throws IOException {
+    private @Nullable FluidState recomputeLevel(
+            ServerWorld world,
+            String worldName,
+            int x,
+            int y,
+            int z,
+            FluidState self
+    ) throws IOException {
         FluidType type = self.type();
+        if (type == null) {
+            return null;
+        }
         FluidState above = FluidBlockCodec.fromBlock(world.getBlock(x, y + 1, z));
         boolean fedFromAbove = above.type() == type;
 
         int best = Integer.MAX_VALUE;
         int adjacentSources = 0;
         for (BlockFace dir : HORIZONTAL) {
-            FluidState n = FluidBlockCodec.fromBlock(
-                    world.getBlock(x + dir.dx(), y, z + dir.dz()));
+            FluidState n = FluidBlockCodec.fromBlock(world.getBlock(x + dir.dx(), y, z + dir.dz()));
             if (n.type() == type) {
                 best = Math.min(best, n.effectiveLevel() + type.dropOff());
                 if (n.isSource()) {
@@ -189,8 +206,7 @@ public final class FluidEngine implements FluidManager {
         if (type.canFormSources() && adjacentSources >= 2) {
             BlockState belowBlock = world.getBlock(x, y - 1, z);
             FluidState belowFluid = FluidBlockCodec.fromBlock(belowBlock);
-            boolean supported = (!belowBlock.isAir() && belowFluid.isEmpty())
-                    || belowFluid.isSource();
+            boolean supported = (!belowBlock.isAir() && belowFluid.isEmpty()) || belowFluid.isSource();
             if (supported) {
                 return applyIfChanged(world, worldName, x, y, z, self, FluidState.source(type));
             }
@@ -211,9 +227,9 @@ public final class FluidEngine implements FluidManager {
         return applyIfChanged(world, worldName, x, y, z, self, wanted);
     }
 
-    private FluidState applyIfChanged(ServerWorld world, String worldName,
-                                      int x, int y, int z,
-                                      FluidState current, FluidState wanted) throws IOException {
+    private FluidState applyIfChanged(
+            ServerWorld world, String worldName, int x, int y, int z, FluidState current, FluidState wanted)
+            throws IOException {
         if (wanted.equals(current)) {
             return current;
         }
@@ -223,8 +239,8 @@ public final class FluidEngine implements FluidManager {
         return wanted;
     }
 
-    private boolean flowDown(ServerWorld world, String worldName,
-                             int x, int y, int z, FluidType type) throws IOException {
+    private boolean flowDown(ServerWorld world, String worldName, int x, int y, int z, FluidType type)
+            throws IOException {
         BlockState belowBlock = world.getBlock(x, y - 1, z);
         FluidState below = FluidBlockCodec.fromBlock(belowBlock);
 
@@ -259,9 +275,12 @@ public final class FluidEngine implements FluidManager {
         return false; // bloqué : étalement horizontal
     }
 
-    private void spreadHorizontally(ServerWorld world, String worldName,
-                                    int x, int y, int z, FluidState self) throws IOException {
+    private void spreadHorizontally(ServerWorld world, String worldName, int x, int y, int z, FluidState self)
+            throws IOException {
         FluidType type = self.type();
+        if (type == null) {
+            return;
+        }
         int spreadLevel = self.effectiveLevel() + type.dropOff();
         if (spreadLevel > type.maxSpreadLevel()) {
             return;
@@ -273,11 +292,9 @@ public final class FluidEngine implements FluidManager {
             FluidState target = FluidBlockCodec.fromBlock(targetBlock);
 
             boolean canFlow = targetBlock.isAir()
-                    || (target.type() == type && !target.isSource()
-                    && target.effectiveLevel() > spreadLevel);
+                    || (target.type() == type && !target.isSource() && target.effectiveLevel() > spreadLevel);
             if (canFlow) {
-                if (setAndBroadcast(world, tx, y, tz,
-                        FluidBlockCodec.toBlock(FluidState.flowing(type, spreadLevel)))) {
+                if (setAndBroadcast(world, tx, y, tz, FluidBlockCodec.toBlock(FluidState.flowing(type, spreadLevel)))) {
                     schedule(worldName, tx, y, tz, type.tickDelay());
                 }
             } else if (target.type() != null && target.type() != type) {
@@ -286,14 +303,14 @@ public final class FluidEngine implements FluidManager {
         }
     }
 
-
     private boolean touches(ServerWorld world, int x, int y, int z, FluidType other) throws IOException {
         if (FluidBlockCodec.fromBlock(world.getBlock(x, y + 1, z)).type() == other) {
             return true;
         }
         for (BlockFace dir : HORIZONTAL) {
-            if (FluidBlockCodec.fromBlock(
-                    world.getBlock(x + dir.dx(), y, z + dir.dz())).type() == other) {
+            if (FluidBlockCodec.fromBlock(world.getBlock(x + dir.dx(), y, z + dir.dz()))
+                            .type()
+                    == other) {
                 return true;
             }
         }
@@ -309,12 +326,11 @@ public final class FluidEngine implements FluidManager {
             LOGGER.error("Écriture du fluide impossible en {},{},{}", x, y, z, e);
             return false;
         }
-        broadcaster.accept(new ClientboundBlockUpdatePacket(
-                new BlockPos(x, y, z), blockRegistry.networkId(state)));
+        broadcaster.accept(new ClientboundBlockUpdatePacket(new BlockPos(x, y, z), blockRegistry.networkId(state)));
         return true;
     }
 
-    private ServerWorld worldByName(String name) {
+    private @Nullable ServerWorld worldByName(@Nullable String name) {
         if (name == null || Dimension.OVERWORLD.id().equals(name)) {
             return worlds.overworld();
         }

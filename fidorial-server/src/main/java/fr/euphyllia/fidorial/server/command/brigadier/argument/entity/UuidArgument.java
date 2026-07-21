@@ -21,28 +21,18 @@ import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventur
 
 public final class UuidArgument implements ArgumentType<UUID> {
 
-    private static final Collection<String> EXAMPLES = List.of(
-            "dd12be42-52a9-4a91-a8a1-11c01849e498"
-    );
+    private static final Collection<String> EXAMPLES = List.of("dd12be42-52a9-4a91-a8a1-11c01849e498");
 
-    private static final Pattern ALLOWED_CHARACTERS =
-            Pattern.compile("^([-A-Fa-f0-9]+)");
+    private static final Pattern ALLOWED_CHARACTERS = Pattern.compile("^([-A-Fa-f0-9]+)");
 
     private static final SimpleCommandExceptionType ERROR_INVALID_UUID =
-            new SimpleCommandExceptionType(
-                    MSG_SERIALIZER.serialize(
-                            Component.translatable("argument.uuid.invalid")
-                    )
-            );
+            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.uuid.invalid")));
 
     public static UuidArgument uuid() {
         return new UuidArgument();
     }
 
-    public static UUID getUuid(
-            CommandContext<CommandSource> context,
-            String name
-    ) {
+    public static UUID getUuid(CommandContext<CommandSource> context, String name) {
         return context.getArgument(name, UUID.class);
     }
 
@@ -50,9 +40,7 @@ public final class UuidArgument implements ArgumentType<UUID> {
     }
 
     @Override
-    public UUID parse(
-            StringReader reader
-    ) throws CommandSyntaxException {
+    public UUID parse(StringReader reader) throws CommandSyntaxException {
 
         String remaining = reader.getRemaining();
         Matcher matcher = ALLOWED_CHARACTERS.matcher(remaining);
@@ -64,7 +52,8 @@ public final class UuidArgument implements ArgumentType<UUID> {
                 UUID uuid = UUID.fromString(value);
                 reader.setCursor(reader.getCursor() + value.length());
                 return uuid;
-            } catch (IllegalArgumentException _) {}
+            } catch (IllegalArgumentException _) {
+            }
         }
 
         throw ERROR_INVALID_UUID.createWithContext(reader);
@@ -78,7 +67,8 @@ public final class UuidArgument implements ArgumentType<UUID> {
     public static final class Info implements ArgumentTypeRegistrar<UuidArgument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {}
+        public void serialize(Spec spec, PacketBuffer buf) {
+        }
 
         @Override
         public Spec deserialize(PacketBuffer buf) {
@@ -86,13 +76,13 @@ public final class UuidArgument implements ArgumentType<UUID> {
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {}
+        public void serializeJson(Spec spec, JsonObject json) {
+        }
 
         @Override
         public Spec access(UuidArgument argument) {
             return new Spec();
         }
-
 
         public record Spec() implements ArgumentTypeRegistrar.Spec<UuidArgument> {
 

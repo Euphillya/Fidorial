@@ -6,6 +6,7 @@ import fr.fidorial.world.block.BlockProperty;
 import fr.fidorial.world.block.BlockRegistry;
 import fr.fidorial.world.block.BlockType;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -132,7 +133,7 @@ public final class VanillaBlockRegistry implements BlockRegistry {
     }
 
     @Override
-    public BlockData fromNetworkId(int networkId) {
+    public @Nullable BlockData fromNetworkId(int networkId) {
         return byNetworkId.get(networkId);
     }
 

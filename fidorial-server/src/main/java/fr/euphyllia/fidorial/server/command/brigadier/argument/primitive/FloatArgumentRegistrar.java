@@ -6,7 +6,8 @@ import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTy
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.NumberFlags;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 
-public final class FloatArgumentRegistrar implements ArgumentTypeRegistrar<FloatArgumentType, FloatArgumentRegistrar.Spec> {
+public final class FloatArgumentRegistrar
+        implements ArgumentTypeRegistrar<FloatArgumentType, FloatArgumentRegistrar.Spec> {
 
     @Override
     public void serialize(Spec spec, PacketBuffer buf) {

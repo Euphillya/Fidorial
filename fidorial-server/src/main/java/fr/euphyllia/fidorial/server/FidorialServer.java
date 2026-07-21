@@ -2,35 +2,15 @@ package fr.euphyllia.fidorial.server;
 
 import dev.faststats.ErrorTracker;
 import dev.faststats.Metrics;
-import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypes;
-import fr.euphyllia.fidorial.server.entity.EntityManager;
-import fr.euphyllia.fidorial.server.schedulers.AiWorker;
-import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
-import fr.fidorial.Server;
-import fr.fidorial.command.CommandRegistry;
-import fr.fidorial.entity.Player;
-import fr.fidorial.event.EventBus;
-import fr.fidorial.event.server.ServerStartedEvent;
-import fr.fidorial.event.server.ServerStoppingEvent;
-import fr.fidorial.permission.PermissionService;
-import fr.fidorial.plugin.PluginManager;
-import fr.fidorial.scheduler.RegionizedScheduler;
-import fr.fidorial.service.ServicePriority;
-import fr.fidorial.service.ServiceRegistry;
-import fr.fidorial.storage.player.PlayerDataStorage;
-import fr.fidorial.storage.player.PlayerInventoryStorage;
-import fr.fidorial.translation.TranslationStore;
-import fr.fidorial.world.World;
-import fr.fidorial.world.block.Blocks;
-import fr.fidorial.world.fluid.FluidManager;
-import fr.fidorial.world.weather.WeatherManager;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleCommandReader;
 import fr.euphyllia.fidorial.server.command.ConsoleSender;
+import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypes;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
+import fr.euphyllia.fidorial.server.entity.EntityManager;
 import fr.euphyllia.fidorial.server.entity.EntityTickHandler;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
@@ -51,21 +31,54 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundRemoveEntitiesPacket;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
 import fr.euphyllia.fidorial.server.translation.BuiltInTranslationStore;
-import fr.euphyllia.fidorial.server.world.*;
+import fr.euphyllia.fidorial.server.world.BlockEditService;
+import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
+import fr.euphyllia.fidorial.server.world.FlatChunkGenerator;
+import fr.euphyllia.fidorial.server.world.FlatWorld;
+import fr.euphyllia.fidorial.server.world.ServerWorld;
+import fr.euphyllia.fidorial.server.world.ServiceBackedChunkGenerator;
+import fr.euphyllia.fidorial.server.world.WorldConstants;
+import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
+import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
+import fr.fidorial.Server;
+import fr.fidorial.command.CommandRegistry;
+import fr.fidorial.entity.Player;
+import fr.fidorial.event.EventBus;
+import fr.fidorial.event.server.ServerStartedEvent;
+import fr.fidorial.event.server.ServerStoppingEvent;
+import fr.fidorial.permission.PermissionService;
+import fr.fidorial.plugin.PluginManager;
+import fr.fidorial.scheduler.RegionizedScheduler;
+import fr.fidorial.service.ServicePriority;
+import fr.fidorial.service.ServiceRegistry;
+import fr.fidorial.storage.player.PlayerDataStorage;
+import fr.fidorial.storage.player.PlayerInventoryStorage;
+import fr.fidorial.translation.TranslationStore;
+import fr.fidorial.world.World;
+import fr.fidorial.world.block.Blocks;
+import fr.fidorial.world.fluid.FluidManager;
+import fr.fidorial.world.weather.WeatherManager;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.KeyPair;
-import java.util.*;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -79,9 +92,9 @@ public final class FidorialServer implements Server {
     public static final ComponentLogger LOGGER = getLogger(FidorialServer.class);
     private static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware();
 
-    private static volatile FidorialServer instance;
+    private static @Nullable FidorialServer instance;
 
-    private final ServerConfig config;
+    private final ServerConfig config = ServerConfig.load();
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     private final KeyPair keyPair = EncryptionUtils.generateServerKeyPair();
@@ -95,40 +108,55 @@ public final class FidorialServer implements Server {
     private final Set<ClientConnection> connections = ConcurrentHashMap.newKeySet();
     private final BuiltInTranslationStore builtInTranslationStore = new BuiltInTranslationStore();
 
-    private ProtocolMap protocolMap;
-    private Registries registries;
-    private CommandManager commandManager;
+    private final ProtocolMap protocolMap = ProtocolMap.load();
+    private final Registries registries = Registries.load();
+    private @Nullable CommandManager commandManager;
 
-    private ThreadedRegionRegionizer regionizer;
-    private ThreadedChunkWorker chunkWorker;
-    private AiWorker aiWorker;
-    private ScheduledExecutorService autoSave;
+    private final ThreadedRegionRegionizer regionizer = new ThreadedRegionRegionizer(config.regionWorkers());
+    private final ThreadedChunkWorker chunkWorker = new ThreadedChunkWorker(config.chunkWorkers());
+    private final AiWorker aiWorker = new AiWorker(config.aiWorkers());
+    private final ScheduledExecutorService autoSave = Executors.newSingleThreadScheduledExecutor(
+            r -> Thread.ofPlatform().name("fidorial-autosave").unstarted(r));
 
-    private NbtPlayerInventoryStorage defaultInventoryStorage;
-    private NbtPlayerDataStorage defaultPlayerDataStorage;
-    private WorldManager worldManager;
-    private FluidEngine fluidEngine;
-    private WeatherEngine weatherEngine;
-    private BlockEditService blockEdits;
-    private JavaPluginManager pluginManager;
-    private OperatorList operators;
-    private NettyServer network;
-    private FidorialContext metrics;
-    private ConsoleSender console;
-    private Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
+    private final NbtPlayerInventoryStorage defaultInventoryStorage =
+            new NbtPlayerInventoryStorage(config.worldPath().resolve("player"), false);
+    private final NbtPlayerDataStorage defaultPlayerDataStorage =
+            new NbtPlayerDataStorage(config.worldPath().resolve("player"), false);
+    private final WorldManager worldManager =
+            WorldManager.openOrCreate(config.worldPath(), blockStateRegistry, FlatWorld.MIN_Y, FlatWorld.HEIGHT);
+    private final FluidEngine fluidEngine =
+            new FluidEngine(worldManager, regionizer, blockStateRegistry, this::broadcast);
+    private final WeatherEngine weatherEngine = new WeatherEngine(worldManager.levelData(), this::broadcast);
+    private final BlockEditService blockEdits = new BlockEditService(
+            blockStateRegistry,
+            (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),
+            fluidEngine::notifyBlockChanged);
+    private final JavaPluginManager pluginManager = new JavaPluginManager(this, events, services, config.pluginsPath());
+    private final OperatorList operators = new OperatorList(Path.of("ops.json"));
+    private final NettyServer network = new NettyServer(this, config.port());
+    private final FidorialContext metrics = new FidorialContext.Factory("6c8c21fe427163e998ea50f54a0ce855")
+            .errorTrackerService(ERROR_TRACKER)
+            .metrics(Metrics.Factory::create)
+            .create();
+    private final ConsoleSender console = new ConsoleSender(this);
+    private @Nullable Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
 
-    public FidorialServer(ServerConfig config) {
-        this.config = config;
+    public FidorialServer() throws IOException {
+        if (instance != null) {
+            throw new IllegalStateException("FidorialServer is already initialized");
+        }
+        instance = this;
     }
 
     public static FidorialServer getInstance() {
-        return instance;
+        return Objects.requireNonNull(instance, "FidorialServer is not initialized");
     }
 
     private static VanillaBlockRegistry bootstrapBlocks() {
         VanillaBlockRegistry registry = new VanillaBlockRegistry();
         Blocks.bootstrap(registry);
-        LOGGER.info("Loaded {} block types from vanilla report", registry.types().size());
+        LOGGER.info(
+                "Loaded {} block types from vanilla report", registry.types().size());
         return registry;
     }
 
@@ -136,20 +164,16 @@ public final class FidorialServer implements Server {
         if (!running.compareAndSet(false, true)) {
             return;
         }
-        instance = this;
-        LOGGER.info("Demarrage de Fidorial (Minecraft {} / protocole {})",
-                minecraftVersion(), protocolVersion());
+        LOGGER.info("Demarrage de Fidorial (Minecraft {} / protocole {})", minecraftVersion(), protocolVersion());
         try {
-            startMetrics();
+            metrics.ready();
             loadData();
-            startSchedulers();
             openWorlds();
             regionizer.registerTickHandler(new EntityTickHandler(worldManager));
             registerDefaultServices();
             loadPlugins();
-            openNetwork();
+            network.bind();
             startAutoSave();
-            console = ConsoleSender.INSTANCE;
             console.setLocale(Locale.getDefault());
             new ConsoleCommandReader(commandManager, running::get).start();
             pluginManager.enableAll();
@@ -169,66 +193,27 @@ public final class FidorialServer implements Server {
         }
         LOGGER.info("Arret de Fidorial...");
         events.post(new ServerStoppingEvent(this));
-        closeQuietly("plugins", () -> {
-            if (pluginManager != null) pluginManager.close();
-        });
-        closeQuietly("reseau", () -> {
-            if (network != null) network.shutdown();
-        });
-        closeQuietly("auto-save", () -> {
-            if (autoSave != null) autoSave.shutdownNow();
-        });
-        closeQuietly("ia", () -> {
-            if (aiWorker != null) aiWorker.shutdown();
-        });
-        closeQuietly("regions", () -> {
-            if (regionizer != null) regionizer.shutdown();
-        });
-        closeQuietly("chunks", () -> {
-            if (chunkWorker != null) chunkWorker.shutdown();
-        });
-        closeQuietly("meteo", () -> {
-            if (weatherEngine != null) weatherEngine.close();
-        });
-        closeQuietly("monde", () -> {
-            if (worldManager != null) worldManager.close();
-        });
-        closeQuietly("metriques", () -> {
-            if (metrics != null) metrics.shutdown();
-        });
+        closeQuietly("plugins", pluginManager::close);
+        closeQuietly("reseau", network::shutdown);
+        closeQuietly("auto-save", autoSave::shutdownNow);
+        closeQuietly("ia", aiWorker::shutdown);
+        closeQuietly("regions", regionizer::shutdown);
+        closeQuietly("chunks", chunkWorker::shutdown);
+        closeQuietly("meteo", weatherEngine::close);
+        closeQuietly("monde", worldManager::close);
+        closeQuietly("metriques", metrics::shutdown);
         LOGGER.info("Arret termine");
         System.exit(0);
     }
 
-    private void startMetrics() {
-        metrics = new FidorialContext.Factory("6c8c21fe427163e998ea50f54a0ce855")
-                .errorTrackerService(ERROR_TRACKER)
-                .metrics(Metrics.Factory::create)
-                .create();
-        metrics.ready();
-    }
-
     private void loadData() {
-        protocolMap = ProtocolMap.load();
-        registries = Registries.load();
         TranslationStore.setStore(builtInTranslationStore);
         ArgumentTypes.bootstrap();
         commandManager = new CommandManager();
-        operators = new OperatorList(Path.of("ops.json"));
         operators.load();
-        defaultInventoryStorage = new NbtPlayerInventoryStorage(config.worldPath().resolve("player"), false);
-        defaultPlayerDataStorage = new NbtPlayerDataStorage(config.worldPath().resolve("player"), false);
     }
 
-    private void startSchedulers() {
-        regionizer = new ThreadedRegionRegionizer(config.regionWorkers());
-        chunkWorker = new ThreadedChunkWorker(config.chunkWorkers());
-        aiWorker = new AiWorker(config.aiWorkers());
-    }
-
-    private void openWorlds() throws IOException {
-        worldManager = WorldManager.openOrCreate(config.worldPath(), blockStateRegistry,
-                FlatWorld.MIN_Y, FlatWorld.HEIGHT);
+    private void openWorlds() {
         worldManager.setChunkLoader(chunkWorker);
         worldManager.setEntityBridge(entityIds::allocate, new EntitySpawnBridge() {
             @Override
@@ -247,15 +232,12 @@ public final class FidorialServer implements Server {
                 broadcast(new ClientboundRemoveEntitiesPacket(entity.entityId()));
             }
         });
-        worldManager.setDefaultGenerator(new ServiceBackedChunkGenerator(services, FlatChunkGenerator.cobblestone(
-                WorldConstants.MIN_Y, WorldConstants.HEIGHT),
-                WorldConstants.MIN_Y, WorldConstants.HEIGHT));
-        fluidEngine = new FluidEngine(worldManager, regionizer, blockStateRegistry, this::broadcast);
-        weatherEngine = new WeatherEngine(worldManager.levelData(), this::broadcast);
+        worldManager.setDefaultGenerator(new ServiceBackedChunkGenerator(
+                services,
+                FlatChunkGenerator.cobblestone(WorldConstants.MIN_Y, WorldConstants.HEIGHT),
+                WorldConstants.MIN_Y,
+                WorldConstants.HEIGHT));
         weatherEngine.start();
-        blockEdits = new BlockEditService(blockStateRegistry,
-                (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),
-                fluidEngine::notifyBlockChanged);
     }
 
     private void registerDefaultServices() {
@@ -269,30 +251,26 @@ public final class FidorialServer implements Server {
     }
 
     private void loadPlugins() throws IOException {
-        pluginManager = new JavaPluginManager(this, events, services, config.pluginsPath());
         DefaultPermissions.registerCorePermissions(pluginManager);
         pluginManager.loadAll();
     }
 
-    private void openNetwork() throws InterruptedException {
-        network = new NettyServer(this, config.port());
-        network.bind();
-    }
-
     private void startAutoSave() {
-        autoSave = Executors.newSingleThreadScheduledExecutor(
-                r -> Thread.ofPlatform().name("fidorial-autosave").unstarted(r));
-        autoSave.scheduleAtFixedRate(() -> {
-            try {
-                worldManager.saveDirty();
-                int n = worldManager.unloadUnusedChunks();
-                if (n > 0) LOGGER.debug("{} chunks décharges", n);
-            } catch (IOException e) {
-                LOGGER.error("Sauvegarde periodique impossible", e);
-            } catch (Throwable t) {
-                LOGGER.error("Sauvegarde periodique en echec inattendu", t);
-            }
-        }, config.autoSaveSeconds(), config.autoSaveSeconds(), TimeUnit.SECONDS);
+        autoSave.scheduleAtFixedRate(
+                () -> {
+                    try {
+                        worldManager.saveDirty();
+                        int n = worldManager.unloadUnusedChunks();
+                        if (n > 0) LOGGER.debug("{} chunks décharges", n);
+                    } catch (IOException e) {
+                        LOGGER.error("Sauvegarde periodique impossible", e);
+                    } catch (Throwable t) {
+                        LOGGER.error("Sauvegarde periodique en echec inattendu", t);
+                    }
+                },
+                config.autoSaveSeconds(),
+                config.autoSaveSeconds(),
+                TimeUnit.SECONDS);
     }
 
     private void closeQuietly(String what, ThrowingRunnable action) {
@@ -310,7 +288,8 @@ public final class FidorialServer implements Server {
     @Override
     public Iterable<? extends net.kyori.adventure.audience.Audience> audiences() {
         if (this.adventure$audiences == null) {
-            this.adventure$audiences = com.google.common.collect.Iterables.concat(java.util.Collections.singleton(console), onlinePlayers());
+            this.adventure$audiences = com.google.common.collect.Iterables.concat(
+                    java.util.Collections.singleton(console), onlinePlayers());
         }
         return this.adventure$audiences;
     }
@@ -350,7 +329,7 @@ public final class FidorialServer implements Server {
 
     @Override
     public Collection<? extends World> worlds() {
-        return worldManager == null ? List.of() : worldManager.worlds();
+        return worldManager.worlds();
     }
 
     @Override
@@ -374,7 +353,9 @@ public final class FidorialServer implements Server {
 
     @Override
     public Optional<? extends Player> player(String name) {
-        return onlinePlayers().stream().filter(p -> p.name().equalsIgnoreCase(name)).findFirst();
+        return onlinePlayers().stream()
+                .filter(p -> p.name().equalsIgnoreCase(name))
+                .findFirst();
     }
 
     @Override
@@ -443,6 +424,10 @@ public final class FidorialServer implements Server {
         return blockStateRegistry;
     }
 
+    public ConsoleSender getConsole() {
+        return console;
+    }
+
     public WeatherEngine weatherEngine() {
         return weatherEngine;
     }
@@ -468,10 +453,7 @@ public final class FidorialServer implements Server {
         entityManager.add(entity);
 
         if (entity instanceof Mob) {
-            regionizer.addTicket(
-                    world.dimension().id(),
-                    entity.chunk()
-            );
+            regionizer.addTicket(world.dimension().id(), entity.chunk());
         }
 
         broadcast(ClientboundAddEntityPacket.of(entity));
@@ -482,10 +464,7 @@ public final class FidorialServer implements Server {
             world.removeEntity(entity);
 
             if (entity instanceof Mob) {
-                regionizer.removeTicket(
-                        world.dimension().id(),
-                        entity.chunk()
-                );
+                regionizer.removeTicket(world.dimension().id(), entity.chunk());
             }
         }
 
@@ -493,11 +472,7 @@ public final class FidorialServer implements Server {
 
         entity.remove();
 
-        broadcast(
-                new ClientboundRemoveEntitiesPacket(
-                        entity.entityId()
-                )
-        );
+        broadcast(new ClientboundRemoveEntitiesPacket(entity.entityId()));
     }
 
     public void addPlayerConnection(ClientConnection connection) {

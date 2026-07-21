@@ -26,10 +26,7 @@ public interface CommandSender extends Audience, Permissible {
      * @param message MiniMessage content
      * @param resolvers resolvers to use
      */
-    default void sendRichMessage(
-            final @NotNull String message,
-            final @NotNull TagResolver @NotNull... resolvers
-    ) {
+    default void sendRichMessage(final @NotNull String message, final @NotNull TagResolver @NotNull ... resolvers) {
         this.sendMessage(MiniMessage.miniMessage().deserialize(message, this, resolvers));
     }
 
