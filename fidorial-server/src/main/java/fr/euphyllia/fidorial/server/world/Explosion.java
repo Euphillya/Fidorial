@@ -72,15 +72,19 @@ public final class Explosion {
     }
 
     private static void playExplosionSound(FidorialServer server, Location center) {
-        float pitch = (1.0f + (ThreadLocalRandom.current().nextFloat()
-                - ThreadLocalRandom.current().nextFloat()) * 0.2f) * 0.7f;
+        float pitch = (1.0f
+                        + (ThreadLocalRandom.current().nextFloat()
+                                        - ThreadLocalRandom.current().nextFloat())
+                                * 0.2f)
+                * 0.7f;
         server.broadcast(new ClientboundSoundPacket(
                 Sound.sound(SoundEvents.GENERIC_EXPLODE, Sound.Source.BLOCK, 4.0f, pitch),
-                center.x(), center.y(), center.z()));
+                center.x(),
+                center.y(),
+                center.z()));
     }
 
-    private static void destroyBlocks(FidorialServer server, ServerWorld world,
-                                      Location center, float power) {
+    private static void destroyBlocks(FidorialServer server, ServerWorld world, Location center, float power) {
         Set<BlockPos> toDestroy = collectExplodedBlocks(world, center, power);
         List<BlockPos> destroyed = new ArrayList<>(toDestroy.size());
 

@@ -51,8 +51,7 @@ public final class ApiTestCommand {
                                                 .executes(ApiTestCommand::soundPitch)))))
                 .then(literal("stopsound")
                         .executes(ApiTestCommand::stopAllSound)
-                        .then(argument("key", ArgumentTypes.key())
-                                .executes(ApiTestCommand::stopSound)))
+                        .then(argument("key", ArgumentTypes.key()).executes(ApiTestCommand::stopSound)))
                 .build();
 
         return new CommandTree(command);
@@ -91,14 +90,7 @@ public final class ApiTestCommand {
 
         player.playSound(Sound.sound(key, Sound.Source.MASTER, volume, pitch));
 
-        msg(player, "[TestPlugin] Played sound "
-                + key
-                + " (volume="
-                + volume
-                + ", pitch="
-                + pitch
-                + ")"
-        );
+        msg(player, "[TestPlugin] Played sound " + key + " (volume=" + volume + ", pitch=" + pitch + ")");
 
         return Command.SINGLE_SUCCESS;
     }
@@ -111,17 +103,14 @@ public final class ApiTestCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        player.playSound(Sound.sound(Key.key("minecraft", "entity.player.levelup"), Sound.Source.PLAYER, 1.0f, 1.0f)
-        );
+        player.playSound(Sound.sound(Key.key("minecraft", "entity.player.levelup"), Sound.Source.PLAYER, 1.0f, 1.0f));
 
         player.playSound(
                 Sound.sound(Key.key("minecraft", "entity.experience_orb.pickup"), Sound.Source.MASTER, 0.8f, 1.4f),
-                Sound.Emitter.self()
-        );
+                Sound.Emitter.self());
 
         player.playSound(
-                Sound.sound(Key.key("minecraft", "block.bell.use"), Sound.Source.BLOCK, 1.0f, 0.8f), 0.0, 64.0, 0.0
-        );
+                Sound.sound(Key.key("minecraft", "block.bell.use"), Sound.Source.BLOCK, 1.0f, 0.8f), 0.0, 64.0, 0.0);
 
         msg(player, "[TestPlugin] Sound demo executed.");
 
@@ -153,9 +142,7 @@ public final class ApiTestCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        player.stopSound(
-                SoundStop.all()
-        );
+        player.stopSound(SoundStop.all());
 
         msg(player, "[TestPlugin] Stopped all sounds.");
 
@@ -207,9 +194,7 @@ public final class ApiTestCommand {
         CommandSender sender = ctx.getSource().sender();
 
         String worlds =
-                plugin.server().worlds().stream()
-                        .map(w -> w.key().toString())
-                        .collect(Collectors.joining(", "));
+                plugin.server().worlds().stream().map(w -> w.key().toString()).collect(Collectors.joining(", "));
 
         msg(sender, "[TestPlugin] " + plugin.server().worlds().size() + " monde(s): " + worlds);
 
@@ -226,10 +211,7 @@ public final class ApiTestCommand {
                 "[TestPlugin] "
                         + players.size()
                         + " joueur(s): "
-                        + players.stream()
-                        .map(Player::name)
-                        .collect(Collectors.joining(", "))
-        );
+                        + players.stream().map(Player::name).collect(Collectors.joining(", ")));
 
         return Command.SINGLE_SUCCESS;
     }
@@ -262,11 +244,7 @@ public final class ApiTestCommand {
         plugin.server()
                 .scheduler()
                 .executeDelayed(
-                        world.key().value(),
-                        new ChunkPos(0, 0),
-                        () -> msg(sender, "[TestPlugin] Scheduler OK"),
-                        40L
-                );
+                        world.key().value(), new ChunkPos(0, 0), () -> msg(sender, "[TestPlugin] Scheduler OK"), 40L);
 
         return Command.SINGLE_SUCCESS;
     }
@@ -279,8 +257,7 @@ public final class ApiTestCommand {
                 sender.name()
                         + " | console=" + sender.isConsole()
                         + " | testplugin.use=" + sender.hasPermission("testplugin.use")
-                        + " | testplugin.admin=" + sender.hasPermission("testplugin.admin")
-        );
+                        + " | testplugin.admin=" + sender.hasPermission("testplugin.admin"));
 
         return Command.SINGLE_SUCCESS;
     }

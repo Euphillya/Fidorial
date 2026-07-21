@@ -24,7 +24,6 @@ public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
 
     private static final Collection<String> EXAMPLES = List.of("minecraft:zombie", "zombie", "foo:bar");
 
-
     private final RegistryKey<T> registryKey;
 
     private ResourceKeyArgument(RegistryKey<T> registryKey) {
@@ -83,8 +82,7 @@ public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
         Registry<T> registry = registry();
 
-        String remaining = builder.getRemaining()
-                .toLowerCase(Locale.ROOT);
+        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
 
         boolean hasNamespace = remaining.indexOf(':') >= 0;
 
@@ -101,8 +99,7 @@ public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
                     builder.suggest(full);
                 }
             } else {
-                if (matchesSubStr(remaining, namespace)
-                        || matchesSubStr(remaining, path)) {
+                if (matchesSubStr(remaining, namespace) || matchesSubStr(remaining, path)) {
                     builder.suggest(full);
                 }
             }

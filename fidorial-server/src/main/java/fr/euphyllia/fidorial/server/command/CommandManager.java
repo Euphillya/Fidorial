@@ -172,7 +172,11 @@ public final class CommandManager implements CommandRegistry {
             CommandSyntaxException exception = getParseException(parse);
 
             if (exception != null) {
-                source.sender().sendMessage(convert(exception.getRawMessage(), source.sender().isConsole()).color(NamedTextColor.RED));
+                source.sender()
+                        .sendMessage(convert(
+                                        exception.getRawMessage(),
+                                        source.sender().isConsole())
+                                .color(NamedTextColor.RED));
 
                 sendContext(source, exception, cmdLine, source.sender().isConsole());
                 return false;
@@ -197,7 +201,9 @@ public final class CommandManager implements CommandRegistry {
                 int result = dispatcher.execute(parse);
                 return result == 1;
             } catch (CommandSyntaxException e) {
-                source.sender().sendMessage(convert(e.getRawMessage(), source.sender().isConsole()).color(NamedTextColor.RED));
+                source.sender()
+                        .sendMessage(convert(e.getRawMessage(), source.sender().isConsole())
+                                .color(NamedTextColor.RED));
                 return false;
             }
         });
