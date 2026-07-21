@@ -6,7 +6,13 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -39,8 +45,8 @@ public final class EntitySelector {
 
     private final SortType sort;
 
-    private String targetName;
-    private UUID targetUuid;
+    private final String targetName;
+    private final UUID targetUuid;
 
     public EntitySelector(
             int maxResults,
@@ -204,18 +210,16 @@ public final class EntitySelector {
 
     private boolean matches(Entity entity, CommandSource source) {
 
-        if (targetUuid != null && !entity.uuid().equals(targetUuid)) {
+        if (!entity.uuid().equals(targetUuid)) {
             return false;
         }
 
-        if (targetName != null) {
-            if (!(entity instanceof Player player)) {
-                return false;
-            }
+        if (!(entity instanceof Player player)) {
+            return false;
+        }
 
-            if (!player.name().equalsIgnoreCase(targetName)) {
-                return false;
-            }
+        if (!player.name().equalsIgnoreCase(targetName)) {
+            return false;
         }
 
         for (Predicate<Entity> predicate : predicates) {
@@ -226,16 +230,14 @@ public final class EntitySelector {
             }
         }
 
-        if (minDistance != null || maxDistance != null) {
-            double distance = entity.distanceSquared(source.location());
+        double distance = entity.distanceSquared(source.location());
 
-            if (minDistance != null && distance < minDistance * minDistance) {
-                return false;
-            }
+        if (distance < minDistance * minDistance) {
+            return false;
+        }
 
-            if (maxDistance != null && distance > maxDistance * maxDistance) {
-                return false;
-            }
+        if (distance > maxDistance * maxDistance) {
+            return false;
         }
 
         if (dx != null || dy != null || dz != null) {

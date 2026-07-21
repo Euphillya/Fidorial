@@ -30,50 +30,41 @@ public final class WeatherCommand {
     }
 
     public static CommandTree create() {
-        LiteralCommandNode<CommandSource> command =
-                CommandTree.literal("weather")
-                        .requires(source -> source.sender().hasPermission("fidorial.command.weather"))
-                        .then(CommandTree.literal("get")
-                                .executes(WeatherCommand::get)
-                        )
-                        .then(weather("clear", Weather.CLEAR))
-                        .then(weather("rain", Weather.RAIN))
-                        .then(weather("thunder", Weather.THUNDER))
-                        .build();
+        LiteralCommandNode<CommandSource> command = CommandTree.literal("weather")
+                .requires(source -> source.sender().hasPermission("fidorial.command.weather"))
+                .then(CommandTree.literal("get").executes(WeatherCommand::get))
+                .then(weather("clear", Weather.CLEAR))
+                .then(weather("rain", Weather.RAIN))
+                .then(weather("thunder", Weather.THUNDER))
+                .build();
         return new CommandTree(command);
     }
 
     private static LiteralCommandNode<CommandSource> weather(String name, Weather weather) {
         return CommandTree.literal(name)
-                .executes(context ->
-                        set(context.getSource(), weather, 0))
-                .then(CommandTree.argument("duration", ArgumentTypes.time(0)
-                ).executes(context ->
-                        set(context.getSource(), weather, context.getArgument("duration", Integer.class)))
-                )
+                .executes(context -> set(context.getSource(), weather, 0))
+                .then(CommandTree.argument("duration", ArgumentTypes.time(0))
+                        .executes(context ->
+                                set(context.getSource(), weather, context.getArgument("duration", Integer.class))))
                 .build();
     }
 
-
     private static int get(CommandContext<CommandSource> context) {
         WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
-        context.getSource().sender().sendMessage(
-                Component.translatable("command.weather.current", describe(weather.weather())));
+        context.getSource()
+                .sender()
+                .sendMessage(Component.translatable("command.weather.current", describe(weather.weather())));
         return Command.SINGLE_SUCCESS;
     }
 
-
-    private static int set(
-            CommandSource source,
-            Weather target,
-            int durationTicks
-    ) {
+    private static int set(CommandSource source, Weather target, int durationTicks) {
         WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
         weather.setWeather(target, durationTicks);
 
         if (durationTicks > 0) {
-            source.sender().sendMessage(Component.translatable("command.weather.changed.duration", describe(target),
-                            Component.text(durationTicks / 20)));
+            source.sender()
+                    .sendMessage(Component.translatable(
+                            "command.weather.changed.duration", describe(target), Component.text(durationTicks / 20)));
         } else {
             source.sender().sendMessage(Component.translatable("command.weather.changed", describe(target)));
         }

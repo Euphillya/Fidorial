@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 
-import fr.fidorial.entity.GameMode;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import fr.fidorial.entity.GameMode;
 
 public record ClientboundPlayerAbilitiesPacket(byte flags, float flyingSpeed, float fovModifier)
         implements ClientboundPacket {
@@ -17,11 +17,12 @@ public record ClientboundPlayerAbilitiesPacket(byte flags, float flyingSpeed, fl
     private static final float DEFAULT_FOV_MODIFIER = 0.1f;
 
     public static ClientboundPlayerAbilitiesPacket forGameMode(GameMode mode) {
-        byte flags = switch (mode) {
-            case SURVIVAL, ADVENTURE -> 0;
-            case CREATIVE -> (byte) (INVULNERABLE | ALLOW_FLYING | CREATIVE_MODE);
-            case SPECTATOR -> (byte) (INVULNERABLE | FLYING | ALLOW_FLYING);
-        };
+        byte flags =
+                switch (mode) {
+                    case SURVIVAL, ADVENTURE -> 0;
+                    case CREATIVE -> (byte) (INVULNERABLE | ALLOW_FLYING | CREATIVE_MODE);
+                    case SPECTATOR -> (byte) (INVULNERABLE | FLYING | ALLOW_FLYING);
+                };
         return new ClientboundPlayerAbilitiesPacket(flags, DEFAULT_FLY_SPEED, DEFAULT_FOV_MODIFIER);
     }
 

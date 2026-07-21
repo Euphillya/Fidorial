@@ -1,7 +1,11 @@
 package fr.euphyllia.fidorial.server.entity.player.storage;
 
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
-import fr.euphyllia.fidorial.server.world.nbt.*;
+import fr.euphyllia.fidorial.server.world.nbt.Nbt;
+import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
+import fr.euphyllia.fidorial.server.world.nbt.NbtList;
+import fr.euphyllia.fidorial.server.world.nbt.NbtType;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
 import net.kyori.adventure.key.Key;

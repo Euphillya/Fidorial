@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.entity.ai.goal;
 
-import fr.fidorial.entity.ai.Goal;
 import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.fidorial.entity.ai.Goal;
 
 import java.util.concurrent.ThreadLocalRandom;
 

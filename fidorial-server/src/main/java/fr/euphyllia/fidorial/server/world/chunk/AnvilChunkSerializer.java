@@ -1,6 +1,10 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
-import fr.euphyllia.fidorial.server.world.nbt.*;
+import fr.euphyllia.fidorial.server.world.nbt.Nbt;
+import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import fr.euphyllia.fidorial.server.world.nbt.NbtList;
+import fr.euphyllia.fidorial.server.world.nbt.NbtString;
+import fr.euphyllia.fidorial.server.world.nbt.NbtType;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;

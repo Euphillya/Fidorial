@@ -1,8 +1,10 @@
 package fr.euphyllia.fidorial.server.command.brigadier.packet;
 
-import com.mojang.brigadier.arguments.*;
-import com.mojang.brigadier.tree.*;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.*;
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.tree.ArgumentCommandNode;
+import com.mojang.brigadier.tree.CommandNode;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.tree.RootCommandNode;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistry;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.NetworkArgumentIds;
@@ -10,7 +12,13 @@ import fr.euphyllia.fidorial.server.command.brigadier.packet.util.Permissionless
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 import static fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistry.unwrap;
 
@@ -129,22 +137,7 @@ public final class CommandTreeSerializer {
                 writeArgumentType(buf, argument.getType());
 
                 if (argument.getCustomSuggestions() != null) {
-                    int before = buf.nettyBuf().writerIndex();
-
                     buf.writeIdentifier("minecraft:ask_server");
-
-                    int after = buf.nettyBuf().writerIndex();
-
-                    System.out.println("Suggestion identifier:");
-                    for (int i = before; i < after; i++) {
-                        System.out.printf("%02x ", buf.nettyBuf().getByte(i));
-                    }
-                    System.out.println();
-
-                    System.out.println("flags=" + flags + " arg="
-                                    + argument.getName() + " suggestions="
-                                    + argument.getCustomSuggestions()
-                            != null);
                 }
             }
 

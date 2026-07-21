@@ -4,7 +4,11 @@ import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
 import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
-import fr.euphyllia.fidorial.server.world.storage.*;
+import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
+import fr.euphyllia.fidorial.server.world.storage.Dimension;
+import fr.euphyllia.fidorial.server.world.storage.EntityRegionStorage;
+import fr.euphyllia.fidorial.server.world.storage.LevelData;
+import fr.euphyllia.fidorial.server.world.storage.WorldPaths;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 

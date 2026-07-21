@@ -19,7 +19,9 @@ import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfileMeta;
 import net.kyori.adventure.text.Component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;

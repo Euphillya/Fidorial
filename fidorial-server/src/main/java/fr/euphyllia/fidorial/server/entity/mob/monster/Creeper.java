@@ -1,9 +1,5 @@
 package fr.euphyllia.fidorial.server.entity.mob.monster;
 
-import fr.euphyllia.fidorial.server.world.Explosion;
-import fr.fidorial.entity.ai.Goal;
-import fr.fidorial.world.Location;
-import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.ai.goal.ChaseTargetGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.LookAtTargetGoal;
@@ -11,7 +7,10 @@ import fr.euphyllia.fidorial.server.entity.ai.goal.RandomStrollGoal;
 import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundCreeperStatePacket;
-import net.kyori.adventure.text.Component;
+import fr.euphyllia.fidorial.server.world.Explosion;
+import fr.fidorial.entity.ai.Goal;
+import fr.fidorial.world.Location;
+import fr.fidorial.world.World;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.UUID;
@@ -89,17 +88,13 @@ public final class Creeper extends PathfinderMob {
         @Override
         public boolean canStart() {
             ServerPlayer target = target();
-            return target != null
-                    && distanceSqTo(target) <= SWELL_RANGE_SQ
-                    && hasLineOfSightTo(target);
+            return target != null && distanceSqTo(target) <= SWELL_RANGE_SQ && hasLineOfSightTo(target);
         }
 
         @Override
         public boolean shouldContinue() {
             ServerPlayer target = target();
-            return target != null
-                    && distanceSqTo(target) <= DEFUSE_RANGE_SQ
-                    && hasLineOfSightTo(target);
+            return target != null && distanceSqTo(target) <= DEFUSE_RANGE_SQ && hasLineOfSightTo(target);
         }
 
         @Override

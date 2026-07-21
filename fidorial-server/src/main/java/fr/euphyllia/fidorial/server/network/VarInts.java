@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.network;
 
 import com.google.gson.JsonElement;
-import fr.euphyllia.fidorial.server.world.nbt.*;
+import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.text.Component;

@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.world;
 
-import fr.fidorial.world.BlockPos;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.fidorial.world.BlockPos;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
@@ -16,9 +16,11 @@ public final class BlockEditService {
     private final BlockChangeBroadcaster broadcaster;
     private final FluidNotifier fluidNotifier;
 
-    public BlockEditService(BlockStateRegistry blockRegistry,
-                            BlockChangeBroadcaster broadcaster,
-                            FluidNotifier fluidNotifier) {
+    public BlockEditService(
+            BlockStateRegistry blockRegistry,
+            BlockChangeBroadcaster broadcaster,
+            FluidNotifier fluidNotifier
+    ) {
         this.blockRegistry = blockRegistry;
         this.broadcaster = broadcaster;
         this.fluidNotifier = fluidNotifier;

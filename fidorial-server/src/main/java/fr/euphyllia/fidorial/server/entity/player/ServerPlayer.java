@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.*;
 import fr.fidorial.command.CommandSender;
+import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfile;
@@ -22,6 +23,8 @@ import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
@@ -220,6 +223,33 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     @Override
     public void sendMessage(final Component message) {
         connection.send(new ClientboundSystemChatPacket(TranslationStore.render(message, locale()), false));
+    }
+
+    @Override
+    public void playSound(final Sound sound) {
+        final Location loc = location();
+        connection.send(new ClientboundSoundPacket(sound, loc.x(), loc.y(), loc.z()));
+    }
+
+    @Override
+    public void playSound(final Sound sound, final double x, final double y, final double z) {
+        connection.send(new ClientboundSoundPacket(sound, x, y, z));
+    }
+
+    @Override
+    public void playSound(final Sound sound, final Sound.Emitter emitter) {
+        if (emitter == Sound.Emitter.self()) {
+            connection.send(new ClientboundSoundEntityPacket(sound, entityId()));
+        } else if (emitter instanceof Entity entity) {
+            connection.send(new ClientboundSoundEntityPacket(sound, entity.entityId()));
+        } else {
+            playSound(sound);
+        }
+    }
+
+    @Override
+    public void stopSound(final SoundStop stop) {
+        connection.send(new ClientboundStopSoundPacket(stop.source(), stop.sound()));
     }
 
     @Override

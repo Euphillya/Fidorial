@@ -5,7 +5,11 @@ import fr.fidorial.entity.ai.Path;
 import fr.fidorial.world.BlockPos;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
 
 public class AStarPathfinder {
 

@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.testplugin.pregen;
 
-import fr.fidorial.entity.Player;
 import fr.fidorial.world.Chunk;
 import fr.fidorial.world.World;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;

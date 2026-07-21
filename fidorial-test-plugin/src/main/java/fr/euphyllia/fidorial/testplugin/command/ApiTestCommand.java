@@ -8,15 +8,21 @@ import fr.euphyllia.fidorial.testplugin.TestPlugin;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.CommandTree;
+import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.scheduler.RegionTps;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.World;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+
+import static fr.fidorial.command.CommandTree.argument;
 
 public final class ApiTestCommand {
 
@@ -35,6 +41,18 @@ public final class ApiTestCommand {
                 .then(literal("service").executes(ctx -> service(plugin, ctx)))
                 .then(literal("schedule").executes(ctx -> schedule(plugin, ctx)))
                 .then(literal("perms").executes(ApiTestCommand::perms))
+                .then(literal("sound")
+                        .executes(ApiTestCommand::soundDemo)
+                        .then(argument("key", ArgumentTypes.key())
+                                .executes(ApiTestCommand::soundDefault)
+                                .then(argument("volume", ArgumentTypes.floatArg())
+                                        .executes(ApiTestCommand::soundVolume)
+                                        .then(argument("pitch", ArgumentTypes.floatArg())
+                                                .executes(ApiTestCommand::soundPitch)))))
+                .then(literal("stopsound")
+                        .executes(ApiTestCommand::stopAllSound)
+                        .then(argument("key", ArgumentTypes.key())
+                                .executes(ApiTestCommand::stopSound)))
                 .build();
 
         return new CommandTree(command);
@@ -42,6 +60,106 @@ public final class ApiTestCommand {
 
     private static LiteralArgumentBuilder<CommandSource> literal(String name) {
         return CommandTree.literal(name);
+    }
+
+    private static int soundDefault(CommandContext<CommandSource> ctx) {
+        return playSound(ctx, 1.0f, 1.0f);
+    }
+
+    private static int soundVolume(CommandContext<CommandSource> ctx) {
+        Float volume = ctx.getArgument("volume", Float.class);
+
+        return playSound(ctx, volume, 1.0f);
+    }
+
+    private static int soundPitch(CommandContext<CommandSource> ctx) {
+        Float volume = ctx.getArgument("volume", Float.class);
+        Float pitch = ctx.getArgument("pitch", Float.class);
+
+        return playSound(ctx, volume, pitch);
+    }
+
+    private static int playSound(CommandContext<CommandSource> ctx, float volume, float pitch) {
+        CommandSender sender = ctx.getSource().sender();
+
+        if (!(sender instanceof Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        Key key = ctx.getArgument("key", Key.class);
+
+        player.playSound(Sound.sound(key, Sound.Source.MASTER, volume, pitch));
+
+        msg(player, "[TestPlugin] Played sound "
+                + key
+                + " (volume="
+                + volume
+                + ", pitch="
+                + pitch
+                + ")"
+        );
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int soundDemo(CommandContext<CommandSource> ctx) {
+        CommandSender sender = ctx.getSource().sender();
+
+        if (!(sender instanceof Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        player.playSound(Sound.sound(Key.key("minecraft", "entity.player.levelup"), Sound.Source.PLAYER, 1.0f, 1.0f)
+        );
+
+        player.playSound(
+                Sound.sound(Key.key("minecraft", "entity.experience_orb.pickup"), Sound.Source.MASTER, 0.8f, 1.4f),
+                Sound.Emitter.self()
+        );
+
+        player.playSound(
+                Sound.sound(Key.key("minecraft", "block.bell.use"), Sound.Source.BLOCK, 1.0f, 0.8f), 0.0, 64.0, 0.0
+        );
+
+        msg(player, "[TestPlugin] Sound demo executed.");
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int stopSound(CommandContext<CommandSource> ctx) {
+        CommandSender sender = ctx.getSource().sender();
+
+        if (!(sender instanceof Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        Key key = ctx.getArgument("key", Key.class);
+
+        player.stopSound(SoundStop.named(key));
+
+        msg(player, "[TestPlugin] Stopped sound " + key);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int stopAllSound(CommandContext<CommandSource> ctx) {
+        CommandSender sender = ctx.getSource().sender();
+
+        if (!(sender instanceof Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        player.stopSound(
+                SoundStop.all()
+        );
+
+        msg(player, "[TestPlugin] Stopped all sounds.");
+
+        return Command.SINGLE_SUCCESS;
     }
 
     private static int info(TestPlugin plugin, CommandContext<CommandSource> ctx) {
@@ -89,7 +207,9 @@ public final class ApiTestCommand {
         CommandSender sender = ctx.getSource().sender();
 
         String worlds =
-                plugin.server().worlds().stream().map(w -> w.key().toString()).collect(Collectors.joining(", "));
+                plugin.server().worlds().stream()
+                        .map(w -> w.key().toString())
+                        .collect(Collectors.joining(", "));
 
         msg(sender, "[TestPlugin] " + plugin.server().worlds().size() + " monde(s): " + worlds);
 
@@ -106,7 +226,10 @@ public final class ApiTestCommand {
                 "[TestPlugin] "
                         + players.size()
                         + " joueur(s): "
-                        + players.stream().map(Player::name).collect(Collectors.joining(", ")));
+                        + players.stream()
+                        .map(Player::name)
+                        .collect(Collectors.joining(", "))
+        );
 
         return Command.SINGLE_SUCCESS;
     }
@@ -139,7 +262,11 @@ public final class ApiTestCommand {
         plugin.server()
                 .scheduler()
                 .executeDelayed(
-                        world.key().value(), new ChunkPos(0, 0), () -> msg(sender, "[TestPlugin] Scheduler OK"), 40L);
+                        world.key().value(),
+                        new ChunkPos(0, 0),
+                        () -> msg(sender, "[TestPlugin] Scheduler OK"),
+                        40L
+                );
 
         return Command.SINGLE_SUCCESS;
     }
@@ -152,7 +279,8 @@ public final class ApiTestCommand {
                 sender.name()
                         + " | console=" + sender.isConsole()
                         + " | testplugin.use=" + sender.hasPermission("testplugin.use")
-                        + " | testplugin.admin=" + sender.hasPermission("testplugin.admin"));
+                        + " | testplugin.admin=" + sender.hasPermission("testplugin.admin")
+        );
 
         return Command.SINGLE_SUCCESS;
     }

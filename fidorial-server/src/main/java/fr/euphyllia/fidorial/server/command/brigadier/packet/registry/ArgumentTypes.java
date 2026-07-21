@@ -1,13 +1,24 @@
 package fr.euphyllia.fidorial.server.command.brigadier.packet.registry;
 
-import com.mojang.brigadier.arguments.*;
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.primitive.*;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.primitive.BoolArgumentRegistrar;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.primitive.DoubleArgumentRegistrar;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.primitive.FloatArgumentRegistrar;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.primitive.IntegerArgumentRegistrar;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.primitive.LongArgumentRegistrar;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.primitive.StringArgumentRegistrar;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.KeyArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceKeyArgument;

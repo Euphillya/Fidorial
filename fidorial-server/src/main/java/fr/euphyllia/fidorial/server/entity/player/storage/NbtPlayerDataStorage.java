@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.entity.player.storage;
 
-import fr.fidorial.entity.GameMode;
-import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
+import fr.fidorial.entity.GameMode;
+import fr.fidorial.storage.player.PlayerDataStorage;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.ByteArrayInputStream;
@@ -59,9 +59,7 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
 
         byte[] data = Files.readAllBytes(file);
 
-        boolean isGzip = data.length >= 2
-                && data[0] == (byte) 0x1F
-                && data[1] == (byte) 0x8B;
+        boolean isGzip = data.length >= 2 && data[0] == (byte) 0x1F && data[1] == (byte) 0x8B;
         if (isGzip) {
             data = gunzip(data);
         }
@@ -96,14 +94,11 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         Files.write(tmp, bytes);
         try {
-            Files.move(tmp, file,
-                    StandardCopyOption.REPLACE_EXISTING,
-                    StandardCopyOption.ATOMIC_MOVE);
+            Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException atomicFailure) {
             Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING);
         }
-        LOGGER.debug("Donnees de {} sauvegardées ({} octets{})",
-                uuid, bytes.length, gzip ? ", gzip" : "");
+        LOGGER.debug("Donnees de {} sauvegardées ({} octets{})", uuid, bytes.length, gzip ? ", gzip" : "");
     }
 
     public Path dataDir() {

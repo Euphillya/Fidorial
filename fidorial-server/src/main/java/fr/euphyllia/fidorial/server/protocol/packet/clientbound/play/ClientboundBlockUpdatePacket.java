@@ -1,12 +1,11 @@
 package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 
-import fr.fidorial.world.BlockPos;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import fr.fidorial.world.BlockPos;
 
-public record ClientboundBlockUpdatePacket(BlockPos pos, int blockStateId)
-        implements ClientboundPacket {
+public record ClientboundBlockUpdatePacket(BlockPos pos, int blockStateId) implements ClientboundPacket {
 
     @Override
     public String name() {

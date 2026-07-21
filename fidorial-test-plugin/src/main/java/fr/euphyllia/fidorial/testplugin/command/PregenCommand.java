@@ -13,7 +13,6 @@ import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.world.World;
 import net.kyori.adventure.text.Component;
-import org.jspecify.annotations.Nullable;
 
 public final class PregenCommand {
 
@@ -32,8 +31,9 @@ public final class PregenCommand {
                                 .then(CommandTree.argument("centerX", IntegerArgumentType.integer())
                                         .then(CommandTree.argument("centerZ", IntegerArgumentType.integer())
                                                 .executes(PregenCommand::startCentered)))))
-                .then(CommandTree.literal("stop").executes(PregenCommand::stopCommand)
-                    .requires(_ -> isTaskRunning()))
+                .then(CommandTree.literal("stop")
+                        .executes(PregenCommand::stopCommand)
+                        .requires(_ -> isTaskRunning()))
                 .then(CommandTree.literal("status").executes(PregenCommand::statusCommand));
 
         return new CommandTree(command);
@@ -68,10 +68,18 @@ public final class PregenCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        PregenTask task = new PregenTask(world, PregenCommand.plugin.logger, cx, cz, radius, message -> {
-            PregenCommand.plugin.logger.info("[Pregen] {}", message);
-            msg(sender, "<gray>[Pregen]</gray> " + message);
-        }, PregenCommand::resendCommands, PregenCommand::resendCommands);
+        PregenTask task = new PregenTask(
+                world,
+                PregenCommand.plugin.logger,
+                cx,
+                cz,
+                radius,
+                message -> {
+                    PregenCommand.plugin.logger.info("[Pregen] {}", message);
+                    msg(sender, "<gray>[Pregen]</gray> " + message);
+                },
+                PregenCommand::resendCommands,
+                PregenCommand::resendCommands);
 
         PregenCommand.plugin.setTask(task);
         task.start();
@@ -101,10 +109,18 @@ public final class PregenCommand {
 
         msg(sender, "Pre-generation de " + total + " chunks (rayon " + radius + ")...");
 
-        PregenTask task = new PregenTask(world, PregenCommand.plugin.logger, centerX, centerZ, radius, message -> {
-            PregenCommand.plugin.logger.info("[Pregen] {}", message);
-            msg(sender, "<gray>[Pregen]</gray> " + message);
-        }, PregenCommand::resendCommands, PregenCommand::resendCommands);
+        PregenTask task = new PregenTask(
+                world,
+                PregenCommand.plugin.logger,
+                centerX,
+                centerZ,
+                radius,
+                message -> {
+                    PregenCommand.plugin.logger.info("[Pregen] {}", message);
+                    msg(sender, "<gray>[Pregen]</gray> " + message);
+                },
+                PregenCommand::resendCommands,
+                PregenCommand::resendCommands);
 
         PregenCommand.plugin.setTask(task);
         task.start();

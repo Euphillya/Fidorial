@@ -1,11 +1,14 @@
 package fr.euphyllia.fidorial.server.entity;
 
-import fr.fidorial.world.ChunkPos;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
+import fr.fidorial.world.ChunkPos;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
 
 public final class EntityManager {
 
@@ -19,7 +22,8 @@ public final class EntityManager {
     }
 
     private static long sectionKey(ChunkPos pos) {
-        return sectionKey(pos.x() >> ThreadedRegionRegionizer.SECTION_SHIFT, pos.z() >> ThreadedRegionRegionizer.SECTION_SHIFT);
+        return sectionKey(
+                pos.x() >> ThreadedRegionRegionizer.SECTION_SHIFT, pos.z() >> ThreadedRegionRegionizer.SECTION_SHIFT);
     }
 
     private static long sectionKey(int sectionX, int sectionZ) {
@@ -31,7 +35,9 @@ public final class EntityManager {
         byUuid.put(entity.uuid(), entity);
         ChunkPos chunk = entity.chunk();
         byChunk.computeIfAbsent(key(chunk), k -> ConcurrentHashMap.newKeySet()).add(entity);
-        bySection.computeIfAbsent(sectionKey(chunk), k -> ConcurrentHashMap.newKeySet()).add(entity);
+        bySection
+                .computeIfAbsent(sectionKey(chunk), k -> ConcurrentHashMap.newKeySet())
+                .add(entity);
     }
 
     public void remove(AbstractEntity entity) {
@@ -65,7 +71,9 @@ public final class EntityManager {
                 set.remove(entity);
                 return set.isEmpty() ? null : set;
             });
-            bySection.computeIfAbsent(toSection, k -> ConcurrentHashMap.newKeySet()).add(entity);
+            bySection
+                    .computeIfAbsent(toSection, k -> ConcurrentHashMap.newKeySet())
+                    .add(entity);
         }
     }
 
