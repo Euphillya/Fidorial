@@ -196,9 +196,9 @@ public final class FidorialProtocolManager implements ProtocolManager {
     private record Registration(EventPriority priority, PacketListener listener) {
 
         Subscription handle(CopyOnWriteArrayList<Registration> owner) {
-                return new Handle(owner, this);
-            }
+            return new Handle(owner, this);
         }
+    }
 
     private static final class Handle implements Subscription {
         private final CopyOnWriteArrayList<Registration> owner;

@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 /**
  * <p>Replaces the contents of a container window. Sent by the server upon initialization of a container window or the player's inventory, and in response to state ID mismatches (see #Click Container ). See inventory windows for further information about how slots are indexed.
- Use Open Screen to open the container on the client.</p>
+ * Use Open Screen to open the container on the client.</p>
  *
  * <p><b>Packet ID:</b> Play = 18 (0x12)</p>
  * <p><b>Source:</b> <a href="https://minecraft.wiki/w/Java_Edition_protocol/Packets#Set_Container_Content">Set Container Content</a></p>

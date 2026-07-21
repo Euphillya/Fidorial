@@ -26,7 +26,8 @@ import fr.fidorial.world.BlockPos;
  *   </tbody>
  * </table>
  */
-public record ClientboundBlockDestructionPacket(int entityId, BlockPos location, int destroyStage) implements ClientboundPacket {
+public record ClientboundBlockDestructionPacket(int entityId, BlockPos location,
+                                                int destroyStage) implements ClientboundPacket {
 
     @Override
     public String name() {

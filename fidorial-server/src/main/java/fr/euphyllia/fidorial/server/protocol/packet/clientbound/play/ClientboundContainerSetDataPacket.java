@@ -23,7 +23,8 @@ import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
  *   </tbody>
  * </table>
  */
-public record ClientboundContainerSetDataPacket(int windowId, short property, short value) implements ClientboundPacket {
+public record ClientboundContainerSetDataPacket(int windowId, short property,
+                                                short value) implements ClientboundPacket {
 
     @Override
     public String name() {

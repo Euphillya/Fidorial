@@ -26,7 +26,8 @@ import fr.fidorial.world.BlockPos;
  *   </tbody>
  * </table>
  */
-public record ClientboundBlockEventPacket(BlockPos location, int actionIdByte1, int actionParameterByte2, int blockType) implements ClientboundPacket {
+public record ClientboundBlockEventPacket(BlockPos location, int actionIdByte1, int actionParameterByte2,
+                                          int blockType) implements ClientboundPacket {
 
     @Override
     public String name() {

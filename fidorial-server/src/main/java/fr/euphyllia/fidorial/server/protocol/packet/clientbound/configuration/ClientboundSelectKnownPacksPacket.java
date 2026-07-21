@@ -6,8 +6,8 @@ import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 
 /**
  * <p>Informs the client of which data packs are present on the server.
- The client is expected to respond with its own Known Packs (serverbound) packet containing the subset of packs also known to the client, in the same order as they were listed by the server.
- The vanilla server does not continue with Configuration until it receives a response.</p>
+ * The client is expected to respond with its own Known Packs (serverbound) packet containing the subset of packs also known to the client, in the same order as they were listed by the server.
+ * The vanilla server does not continue with Configuration until it receives a response.</p>
  *
  * <p><b>Packet ID:</b> Configuration = 14 (0x0E)</p>
  * <p><b>Source:</b> <a href="https://minecraft.wiki/w/Java_Edition_protocol/Packets#Known_Packs_(clientbound)">Known Packs (clientbound)</a></p>

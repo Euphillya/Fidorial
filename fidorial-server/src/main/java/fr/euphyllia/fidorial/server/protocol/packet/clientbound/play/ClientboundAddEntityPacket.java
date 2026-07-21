@@ -11,7 +11,7 @@ import java.util.UUID;
 
 /**
  * <p>Sent by the server to create an entity on the client, normally upon the entity spawning within or entering the player's view range. The local player entity is automatically created by the client, and must not be created explicitly using this packet. Doing so on the vanilla client will have strange consequences. When in online mode , the UUIDs must be valid and have valid skin blobs.
- In offline mode, the vanilla server uses UUID v3 and chooses the player's UUID by using the String OfflinePlayer:&lt;player name&gt; , encoding it in UTF-8 (and case-sensitive), then processes it with UUID.nameUUIDFromBytes . For NPCs UUID v2 should be used. Note: In an example UUID, xxxxxxxx-xxxx-Yxxx-xxxx-xxxxxxxxxxxx , the UUID version is specified by Y . So, for UUID v3, Y will always be 3 , and for UUID v2, Y will always be 2 .</p>
+ * In offline mode, the vanilla server uses UUID v3 and chooses the player's UUID by using the String OfflinePlayer:&lt;player name&gt; , encoding it in UTF-8 (and case-sensitive), then processes it with UUID.nameUUIDFromBytes . For NPCs UUID v2 should be used. Note: In an example UUID, xxxxxxxx-xxxx-Yxxx-xxxx-xxxxxxxxxxxx , the UUID version is specified by Y . So, for UUID v3, Y will always be 3 , and for UUID v2, Y will always be 2 .</p>
  *
  * <p><b>Packet ID:</b> Play = 1 (0x01)</p>
  * <p><b>Source:</b> <a href="https://minecraft.wiki/w/Java_Edition_protocol/Packets#Spawn_Entity">Spawn Entity</a></p>
