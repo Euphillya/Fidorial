@@ -20,6 +20,9 @@ import fr.fidorial.world.World;
 import fr.fidorial.world.generation.WorldGenerator;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
 import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -176,6 +179,8 @@ public final class TestPlugin implements Plugin {
                 case "service" -> service(sender);
                 case "schedule" -> schedule(sender);
                 case "perms" -> perms(sender);
+                case "sound" -> sound(sender, args);
+                case "stopsound" -> stopsound(sender, args);
                 default -> help(sender);
             }
         });
@@ -185,7 +190,7 @@ public final class TestPlugin implements Plugin {
     }
 
     private void help(CommandSender sender) {
-        msg(sender, "[TestPlugin] /apitest <info|tps|worlds|players|service|schedule|perms>");
+        msg(sender, "[TestPlugin] /apitest <info|tps|worlds|players|service|schedule|perms|sound|stopsound>");
     }
 
     private void info(CommandSender sender) {
@@ -334,5 +339,68 @@ public final class TestPlugin implements Plugin {
             return;
         }
         msg(sender, "Pre-generation : " + running.status());
+    }
+
+    private void sound(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game (sounds target a player).</red>");
+            return;
+        }
+
+        // /apitest sound <key> [volume] [pitch] -> play a specific sound at the player's position
+        if (args.length >= 2) {
+            String soundName = args[1].contains(":") ? args[1] : "minecraft:" + args[1];
+            float volume = parseFloat(args, 2, 1.0f);
+            float pitch = parseFloat(args, 3, 1.0f);
+            Sound custom = Sound.sound(Key.key(soundName), Sound.Source.MASTER, volume, pitch);
+            player.playSound(custom);
+            msg(player, "[TestPlugin] Played sound: " + soundName
+                    + " <gray>(vol=" + volume + " pitch=" + pitch + ")</gray>");
+            return;
+        }
+
+        // No argument: quick demo of the three playSound variants.
+        // 1) sound played at the player's current position
+        player.playSound(Sound.sound(
+                Key.key("minecraft", "entity.player.levelup"), Sound.Source.PLAYER, 1.0f, 1.0f));
+
+        // 2) sound attached to the player (follows them) via the self emitter
+        player.playSound(Sound.sound(
+                        Key.key("minecraft", "entity.experience_orb.pickup"), Sound.Source.MASTER, 0.8f, 1.4f),
+                Sound.Emitter.self());
+
+        // 3) sound at fixed coordinates (spawn 0,64,0)
+        player.playSound(Sound.sound(
+                        Key.key("minecraft", "block.bell.use"), Sound.Source.BLOCK, 1.0f, 0.8f),
+                0.0, 64.0, 0.0);
+
+        msg(player, "[TestPlugin] Sound demo: levelup (position), xp-pickup (follows the player), bell (spawn 0,64,0).");
+        msg(player, "<gray>Also: /apitest sound <key> [vol] [pitch] | /apitest stopsound [key]</gray>");
+    }
+
+    private void stopsound(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return;
+        }
+        if (args.length >= 2) {
+            String soundName = args[1].contains(":") ? args[1] : "minecraft:" + args[1];
+            player.stopSound(SoundStop.named(Key.key(soundName)));
+            msg(player, "[TestPlugin] Stopped sound: " + soundName);
+        } else {
+            player.stopSound(SoundStop.all());
+            msg(player, "[TestPlugin] Stopped all sounds.");
+        }
+    }
+
+    private float parseFloat(String[] args, int index, float def) {
+        if (index >= args.length) {
+            return def;
+        }
+        try {
+            return Float.parseFloat(args[index]);
+        } catch (NumberFormatException e) {
+            return def;
+        }
     }
 }

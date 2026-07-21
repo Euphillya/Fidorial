@@ -1,0 +1,35 @@
+package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
+
+import fr.euphyllia.fidorial.server.network.PacketBuffer;
+import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
+import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
+import org.jetbrains.annotations.Nullable;
+
+public record ClientboundStopSoundPacket(@Nullable Sound.Source source, @Nullable Key sound)
+        implements ClientboundPacket {
+
+    @Override
+    public String name() {
+        return PlayClientboundPackets.STOP_SOUND;
+    }
+
+    @Override
+    public void write(PacketBuffer buf) {
+        int flags = 0;
+        if (source != null) {
+            flags |= 0x01;
+        }
+        if (sound != null) {
+            flags |= 0x02;
+        }
+        buf.writeByte(flags);
+        if (source != null) {
+            buf.writeVarInt(source.ordinal());
+        }
+        if (sound != null) {
+            buf.writeIdentifier(sound.asString());
+        }
+    }
+}
