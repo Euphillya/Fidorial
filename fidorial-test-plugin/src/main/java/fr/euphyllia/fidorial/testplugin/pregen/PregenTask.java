@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.testplugin.pregen;
 
+import fr.fidorial.entity.Player;
 import fr.fidorial.world.Chunk;
 import fr.fidorial.world.World;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -30,6 +31,8 @@ public class PregenTask {
     private final long startedAt = System.currentTimeMillis();
     private volatile boolean cancelled;
     private volatile boolean finished;
+    private final Runnable onStart;
+    private final Runnable onFinish;
     private final Thread thread = Thread.ofPlatform().name("fidorial-pregen").unstarted(() -> {
         try {
             run();
@@ -44,7 +47,9 @@ public class PregenTask {
             int centerX,
             int centerZ,
             int radius,
-            Consumer<String> progressListener
+            Consumer<String> progressListener,
+            Runnable onStart,
+            Runnable onFinish
     ) {
         this.world = world;
         this.logger = logger;
@@ -53,14 +58,18 @@ public class PregenTask {
         this.radius = radius;
         this.total = (2 * radius + 1) * (2 * radius + 1);
         this.progressListener = progressListener;
+        this.onStart = onStart;
+        this.onFinish = onFinish;
     }
 
     public void start() {
+        onStart.run();
         thread.start();
     }
 
     public void cancel() {
         cancelled = true;
+        onFinish.run();
         thread.interrupt();
     }
 
@@ -110,6 +119,12 @@ public class PregenTask {
             thread.interrupt();
         }
         finished = true;
+
+        try {
+            onFinish.run();
+        } catch (Exception e) {
+            logger.warn("Erreur pendant le refresh des commandes", e);
+        }
 
         if (cancelled) {
             progressListener.accept("Pre-generation annulee apres " + done.get() + " chunks.");

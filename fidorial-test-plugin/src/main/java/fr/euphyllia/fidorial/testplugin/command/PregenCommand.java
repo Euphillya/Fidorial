@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import fr.euphyllia.fidorial.testplugin.TestPlugin;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
+import fr.fidorial.Server;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.CommandTree;
@@ -12,39 +13,44 @@ import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.world.World;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 public final class PregenCommand {
 
-    private final TestPlugin plugin;
+    private static TestPlugin plugin;
 
     public PregenCommand(TestPlugin plugin) {
-        this.plugin = plugin;
+        PregenCommand.plugin = plugin;
     }
 
     public CommandTree create() {
         var command = CommandTree.literal("pregen")
                 .then(CommandTree.literal("start")
+                        .requires(_ -> !isTaskRunning())
                         .then(CommandTree.argument("radius", ArgumentTypes.integer(1, Integer.MAX_VALUE))
-                                .executes(ctx -> startDefault(plugin, ctx))
+                                .executes(PregenCommand::startDefault)
                                 .then(CommandTree.argument("centerX", IntegerArgumentType.integer())
                                         .then(CommandTree.argument("centerZ", IntegerArgumentType.integer())
-                                                .executes(ctx -> startCentered(plugin, ctx))))))
-                .then(CommandTree.literal("stop").executes(ctx -> stopCommand(plugin, ctx)))
-                .then(CommandTree.literal("status").executes(ctx -> statusCommand(plugin, ctx)));
+                                                .executes(PregenCommand::startCentered)))))
+                .then(CommandTree.literal("stop").executes(PregenCommand::stopCommand)
+                    .requires(_ -> isTaskRunning()))
+                .then(CommandTree.literal("status").executes(PregenCommand::statusCommand));
 
         return new CommandTree(command);
     }
 
-    private static int startDefault(TestPlugin plugin, CommandContext<CommandSource> ctx) {
+    // helper for requires predicate
+    private static boolean isTaskRunning() {
+        try {
+            return plugin.getTask().isRunning();
+        } catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    private static int startDefault(CommandContext<CommandSource> ctx) {
         CommandSender sender = ctx.getSource().sender();
         int radius = IntegerArgumentType.getInteger(ctx, "radius");
-
-        PregenTask running = plugin.getTask();
-
-        if (running != null && running.isRunning()) {
-            msg(sender, "<red>Une pre-generation est deja en cours :</red> " + running.status());
-            return Command.SINGLE_SUCCESS;
-        }
 
         int cx = 0;
         int cz = 0;
@@ -62,30 +68,23 @@ public final class PregenCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        PregenTask task = new PregenTask(world, plugin.logger, cx, cz, radius, message -> {
-            plugin.logger.info("[Pregen] {}", message);
+        PregenTask task = new PregenTask(world, PregenCommand.plugin.logger, cx, cz, radius, message -> {
+            PregenCommand.plugin.logger.info("[Pregen] {}", message);
             msg(sender, "<gray>[Pregen]</gray> " + message);
-        });
+        }, PregenCommand::resendCommands, PregenCommand::resendCommands);
 
-        plugin.setTask(task);
+        PregenCommand.plugin.setTask(task);
         task.start();
 
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int startCentered(TestPlugin plugin, CommandContext<CommandSource> ctx) {
+    private static int startCentered(CommandContext<CommandSource> ctx) {
         CommandSender sender = ctx.getSource().sender();
 
         int radius = IntegerArgumentType.getInteger(ctx, "radius");
         int centerX = IntegerArgumentType.getInteger(ctx, "centerX");
         int centerZ = IntegerArgumentType.getInteger(ctx, "centerZ");
-
-        PregenTask running = plugin.getTask();
-
-        if (running != null && running.isRunning()) {
-            msg(sender, "<red>Une pre-generation est deja en cours :</red> " + running.status());
-            return Command.SINGLE_SUCCESS;
-        }
 
         World world = null;
 
@@ -102,26 +101,21 @@ public final class PregenCommand {
 
         msg(sender, "Pre-generation de " + total + " chunks (rayon " + radius + ")...");
 
-        PregenTask task = new PregenTask(world, plugin.logger, centerX, centerZ, radius, message -> {
-            plugin.logger.info("[Pregen] {}", message);
+        PregenTask task = new PregenTask(world, PregenCommand.plugin.logger, centerX, centerZ, radius, message -> {
+            PregenCommand.plugin.logger.info("[Pregen] {}", message);
             msg(sender, "<gray>[Pregen]</gray> " + message);
-        });
+        }, PregenCommand::resendCommands, PregenCommand::resendCommands);
 
-        plugin.setTask(task);
+        PregenCommand.plugin.setTask(task);
         task.start();
 
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int stopCommand(TestPlugin plugin, CommandContext<CommandSource> ctx) {
+    private static int stopCommand(CommandContext<CommandSource> ctx) {
         CommandSender sender = ctx.getSource().sender();
 
-        PregenTask task = plugin.getTask();
-
-        if (task == null || !task.isRunning()) {
-            msg(sender, "<red>Aucune pre-generation en cours.</red>");
-            return Command.SINGLE_SUCCESS;
-        }
+        PregenTask task = PregenCommand.plugin.getTask();
 
         task.cancel();
         msg(sender, "Arret de la pre-generation demande.");
@@ -129,12 +123,12 @@ public final class PregenCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int statusCommand(TestPlugin plugin, CommandContext<CommandSource> ctx) {
+    private static int statusCommand(CommandContext<CommandSource> ctx) {
         CommandSender sender = ctx.getSource().sender();
 
-        PregenTask task = plugin.getTask();
+        PregenTask task = PregenCommand.plugin.getTask();
 
-        if (task == null || !task.isRunning()) {
+        if (!task.isRunning()) {
             msg(sender, "Aucune pre-generation en cours.");
             return Command.SINGLE_SUCCESS;
         }
@@ -146,5 +140,12 @@ public final class PregenCommand {
 
     private static void msg(CommandSender sender, String message) {
         sender.sendMessage(Component.text(message));
+    }
+
+    public static void resendCommands() {
+        Server server = plugin.server();
+        for (Player player : server.onlinePlayers()) {
+            player.refreshCommands();
+        }
     }
 }
