@@ -5,7 +5,14 @@ import fr.fidorial.plugin.PluginManager;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public class PermissibleBase implements Permissible {
 
@@ -141,8 +148,11 @@ public class PermissibleBase implements Permissible {
         return new HashSet<>(permissions.values());
     }
 
-    private void calculateChildPermissions(Map<String, Boolean> children, boolean invert,
-                                           @Nullable PermissionAttachment attachment) {
+    private void calculateChildPermissions(
+            Map<String, Boolean> children,
+            boolean invert,
+            @Nullable PermissionAttachment attachment
+    ) {
         for (Map.Entry<String, Boolean> entry : children.entrySet()) {
             String name = entry.getKey();
             String lname = name.toLowerCase(Locale.ROOT);

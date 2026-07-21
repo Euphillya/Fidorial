@@ -6,8 +6,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.fidorial.world.BlockPos;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Packets#Block_Update
-public record ClientboundBlockUpdatePacket(BlockPos pos, int blockStateId)
-        implements ClientboundPacket {
+public record ClientboundBlockUpdatePacket(BlockPos pos, int blockStateId) implements ClientboundPacket {
 
     @Override
     public String name() {

@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Packets#Set_Entity_Metadata
-public record ClientboundSetEntityMetadataPacket(int entityId, List<Entry> metadata)
-        implements ClientboundPacket {
+public record ClientboundSetEntityMetadataPacket(int entityId, List<Entry> metadata) implements ClientboundPacket {
 
     private static final int METADATA_END = 0xFF;
 
@@ -30,7 +29,6 @@ public record ClientboundSetEntityMetadataPacket(int entityId, List<Entry> metad
     public static ClientboundSetEntityMetadataPacket of(int entityId, Entry... entries) {
         return new ClientboundSetEntityMetadataPacket(entityId, List.of(entries));
     }
-
 
     public record Entry(int index, int typeId, Consumer<PacketBuffer> valueWriter) {
         private static final int TYPE_BYTE = 0;
@@ -63,6 +61,5 @@ public record ClientboundSetEntityMetadataPacket(int entityId, List<Entry> metad
         public static Entry raw(int index, int typeId, Consumer<PacketBuffer> valueWriter) {
             return new Entry(index, typeId, valueWriter);
         }
-
     }
 }

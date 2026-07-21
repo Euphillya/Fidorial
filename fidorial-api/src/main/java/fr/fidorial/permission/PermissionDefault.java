@@ -7,7 +7,6 @@ import java.util.Locale;
 import java.util.Map;
 
 public enum PermissionDefault {
-
     TRUE("true"),
     FALSE("false"),
     OP("op", "isop", "operator", "isoperator"),
@@ -49,5 +48,4 @@ public enum PermissionDefault {
     public String toString() {
         return names[0];
     }
-
 }

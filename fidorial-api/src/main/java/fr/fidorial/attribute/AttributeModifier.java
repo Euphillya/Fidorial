@@ -6,8 +6,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 import java.util.Objects;
 
-public record AttributeModifier(
-        Key attribute, Key id, double amount, Operation operation, EquipmentSlotGroup slot) {
+public record AttributeModifier(Key attribute, Key id, double amount, Operation operation, EquipmentSlotGroup slot) {
 
     public AttributeModifier {
         Objects.requireNonNull(attribute, "attribute");
@@ -16,8 +15,13 @@ public record AttributeModifier(
         Objects.requireNonNull(slot, "slot");
     }
 
-    public static AttributeModifier of(Key attribute, Key id, double amount,
-                                       Operation operation, EquipmentSlotGroup slot) {
+    public static AttributeModifier of(
+            Key attribute,
+            Key id,
+            double amount,
+            Operation operation,
+            EquipmentSlotGroup slot
+    ) {
         return new AttributeModifier(attribute, id, amount, operation, slot);
     }
 
@@ -25,9 +29,7 @@ public record AttributeModifier(
         return new AttributeModifier(attribute, id, amount, operation, EquipmentSlotGroup.ANY);
     }
 
-
     public enum Operation {
-
         ADD_VALUE(0, "add_value"),
         ADD_MULTIPLIED_BASE(1, "add_multiplied_base"),
         ADD_MULTIPLIED_TOTAL(2, "add_multiplied_total");

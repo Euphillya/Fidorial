@@ -25,8 +25,14 @@ public final class ItemStack {
         this(id, count, null, null, List.of(), List.of());
     }
 
-    public ItemStack(Key id, int count, @Nullable Component customName, @Nullable Component itemName,
-                     List<Component> lore, List<AttributeModifier> attributeModifiers) {
+    public ItemStack(
+            Key id,
+            int count,
+            @Nullable Component customName,
+            @Nullable Component itemName,
+            List<Component> lore,
+            List<AttributeModifier> attributeModifiers
+    ) {
         this.id = Objects.requireNonNull(id, "id");
         this.count = count;
         this.customName = customName;
@@ -84,8 +90,7 @@ public final class ItemStack {
     }
 
     public ItemStack withCount(int newCount) {
-        return newCount == count ? this
-                : new ItemStack(id, newCount, customName, itemName, lore, attributeModifiers);
+        return newCount == count ? this : new ItemStack(id, newCount, customName, itemName, lore, attributeModifiers);
     }
 
     public ItemStack withCustomName(Component name) {
@@ -97,8 +102,8 @@ public final class ItemStack {
     }
 
     public ItemStack withLore(@Nullable List<Component> newLore) {
-        return new ItemStack(id, count, customName, itemName,
-                newLore == null ? List.of() : newLore, attributeModifiers);
+        return new ItemStack(
+                id, count, customName, itemName, newLore == null ? List.of() : newLore, attributeModifiers);
     }
 
     public ItemStack withLoreLine(Component line) {
@@ -109,10 +114,8 @@ public final class ItemStack {
     }
 
     public ItemStack withAttributeModifiers(@Nullable List<AttributeModifier> modifiers) {
-        return new ItemStack(id, count, customName, itemName, lore,
-                modifiers == null ? List.of() : modifiers);
+        return new ItemStack(id, count, customName, itemName, lore, modifiers == null ? List.of() : modifiers);
     }
-
 
     public ItemStack withAttributeModifier(AttributeModifier modifier) {
         Objects.requireNonNull(modifier, "modifier");

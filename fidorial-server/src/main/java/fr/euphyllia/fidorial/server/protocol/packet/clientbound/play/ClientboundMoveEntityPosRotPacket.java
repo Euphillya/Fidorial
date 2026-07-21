@@ -5,8 +5,8 @@ import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Packets#Update_Entity_Position_and_Rotation
-public record ClientboundMoveEntityPosRotPacket(int entityId, short deltaX, short deltaY, short deltaZ,
-                                                float yaw, float pitch, boolean onGround)
+public record ClientboundMoveEntityPosRotPacket(
+        int entityId, short deltaX, short deltaY, short deltaZ, float yaw, float pitch, boolean onGround)
         implements ClientboundPacket {
 
     @Override

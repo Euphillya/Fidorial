@@ -23,5 +23,4 @@ public interface Permissible extends ServerOperator {
     void recalculatePermissions();
 
     Set<PermissionAttachmentInfo> getEffectivePermissions();
-
 }

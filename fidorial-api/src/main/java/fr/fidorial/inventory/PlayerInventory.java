@@ -51,7 +51,6 @@ public class PlayerInventory {
         return Arrays.copyOf(slots, SIZE);
     }
 
-
     public void setAllItems(ItemStack @Nullable [] contents) {
         if (contents == null) {
             return;
@@ -62,5 +61,4 @@ public class PlayerInventory {
             set(slot, contents[slot]);
         }
     }
-
 }
