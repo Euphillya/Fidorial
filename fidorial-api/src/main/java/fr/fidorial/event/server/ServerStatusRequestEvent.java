@@ -5,7 +5,7 @@ import fr.fidorial.status.ServerStatus;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
-public class ServerStatusRequestEvent implements Event {
+public final class ServerStatusRequestEvent implements Event {
     private boolean cancelled;
     private ServerStatus status;
     // todo: expose client connection that requested the status
