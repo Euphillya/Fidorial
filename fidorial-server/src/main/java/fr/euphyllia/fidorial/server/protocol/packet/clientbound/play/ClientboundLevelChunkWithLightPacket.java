@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 
+// https://minecraft.wiki/w/Java_Edition_protocol/Packets#Chunk_Data_and_Update_Light
 public record ClientboundLevelChunkWithLightPacket(ChunkNetworkSerializer serializer,
                                                    ChunkColumn column) implements ClientboundPacket {
 

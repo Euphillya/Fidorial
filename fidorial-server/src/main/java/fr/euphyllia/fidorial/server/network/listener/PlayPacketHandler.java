@@ -15,7 +15,8 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerAbilitiesPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerInfoUpdatePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerPositionPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityDataPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket.Entry;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
@@ -175,8 +176,9 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.send(new ClientboundPlayerInfoUpdatePacket(
                 player.profile(), player.gameMode().id(), 0));
         connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(player.gameMode()));
-        connection.send(new ClientboundSetEntityDataPacket(
-                player.entityId(), connection.displayedSkinParts()));
+        connection.send(ClientboundSetEntityMetadataPacket.of(
+                player.entityId(),
+                Entry.ofByte(ServerPlayer.MD_DISPLAYED_SKIN_PARTS, connection.displayedSkinParts())));
         connection.send(new ClientboundGameEventPacket(
                 ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         server.weatherEngine().syncTo(connection::send);
@@ -222,8 +224,9 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.setDisplayedSkinParts(packet.displayedSkinParts());
         if (player != null) {
             player.setLocale(packet.language());
-            connection.send(new ClientboundSetEntityDataPacket(
-                    player.entityId(), packet.displayedSkinParts()));
+            connection.send(ClientboundSetEntityMetadataPacket.of(
+                    player.entityId(),
+                    Entry.ofByte(ServerPlayer.MD_DISPLAYED_SKIN_PARTS, packet.displayedSkinParts())));
         }
     }
 
