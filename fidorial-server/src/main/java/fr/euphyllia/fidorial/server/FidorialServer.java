@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server;
 
 import dev.faststats.ErrorTracker;
 import dev.faststats.Metrics;
+import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypes;
 import fr.euphyllia.fidorial.server.entity.EntityManager;
 import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.fidorial.Server;
@@ -210,6 +211,7 @@ public final class FidorialServer implements Server {
         protocolMap = ProtocolMap.load();
         registries = Registries.load();
         TranslationStore.setStore(builtInTranslationStore);
+        ArgumentTypes.bootstrap();
         commandManager = new CommandManager();
         operators = new OperatorList(Path.of("ops.json"));
         operators.load();

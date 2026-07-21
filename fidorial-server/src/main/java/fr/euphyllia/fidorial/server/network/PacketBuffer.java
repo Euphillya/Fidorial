@@ -1,7 +1,9 @@
 package fr.euphyllia.fidorial.server.network;
 
+import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.world.BlockPos;
 import io.netty.buffer.ByteBuf;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 
 import java.util.BitSet;
@@ -132,12 +134,29 @@ public final class PacketBuffer {
         return this;
     }
 
-    public String readIdentifier() {
-        return VarInts.readString(buf, 32767);
+    public PacketBuffer writeIdentifier(String identifier) {
+        Key.key(identifier); // for validation
+        VarInts.writeString(buf, identifier);
+        return this;
     }
 
-    public PacketBuffer writeIdentifier(String id) {
-        VarInts.writeString(buf, id);
+    public Key readKey() {
+        String read = this.readString(32767);
+        return Key.key(read);
+    }
+
+    public PacketBuffer writeKey(Key key) {
+        this.writeString(key.asString());
+        return this;
+    }
+
+    public <T> RegistryKey<T> readRegistryKey() {
+        Key key = this.readKey();
+        return RegistryKey.of(key);
+    }
+
+    public PacketBuffer writeRegistryKey(final RegistryKey<?> key) {
+        this.writeKey(key.key());
         return this;
     }
 

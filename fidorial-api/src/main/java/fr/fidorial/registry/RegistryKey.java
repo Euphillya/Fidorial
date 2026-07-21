@@ -74,6 +74,10 @@ public record RegistryKey<T>(Key key) {
         return new RegistryKey<>(Key.key(path));
     }
 
+    public static <T> RegistryKey<T> of(Key key) {
+        return new RegistryKey<>(key);
+    }
+
     @Override
     public String toString() {
         return "RegistryKey[" + key + "]";

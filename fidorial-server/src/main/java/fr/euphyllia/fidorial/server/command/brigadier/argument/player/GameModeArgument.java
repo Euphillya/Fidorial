@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.command.brigadier.argument.player;
 
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -7,6 +8,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
+import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.MessageComponentSerializer;
 import fr.fidorial.entity.GameMode;
 import net.kyori.adventure.text.Component;
@@ -36,6 +39,9 @@ public final class GameModeArgument implements ArgumentType<GameMode> {
 
     public static GameModeArgument gameMode() {
         return new GameModeArgument();
+    }
+
+    public GameModeArgument() {
     }
 
     @Override
@@ -70,5 +76,38 @@ public final class GameModeArgument implements ArgumentType<GameMode> {
     @Override
     public Collection<String> getExamples() {
         return EXAMPLES;
+    }
+
+    public static final class Info implements ArgumentTypeRegistrar<GameModeArgument, Info.Spec> {
+
+        @Override
+        public void serialize(Spec spec, PacketBuffer buf) {}
+
+        @Override
+        public Spec deserialize(PacketBuffer buf) {
+            return new Spec();
+        }
+
+        @Override
+        public void serializeJson(Spec spec, JsonObject json) {}
+
+        @Override
+        public Spec access(GameModeArgument argument) {
+            return new Spec();
+        }
+
+
+        public record Spec() implements ArgumentTypeRegistrar.Spec<GameModeArgument> {
+            @Override
+            public GameModeArgument instantiate() {
+                return new GameModeArgument();
+            }
+
+
+            @Override
+            public ArgumentTypeRegistrar<GameModeArgument, ?> type() {
+                return new Info();
+            }
+        }
     }
 }

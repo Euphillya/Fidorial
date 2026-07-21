@@ -1,12 +1,15 @@
 package fr.euphyllia.fidorial.server.command.brigadier.argument.location;
 
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.resolvers.PositionResolver;
 import fr.fidorial.world.Location;
@@ -185,6 +188,43 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
 
         double resolve(double origin) {
             return relative ? origin + value : value;
+        }
+    }
+
+    public boolean centerCorrect() {
+        return centerCorrect;
+    }
+
+    public static final class Info implements ArgumentTypeRegistrar<Vec3Argument, Info.Spec> {
+
+        @Override
+        public void serialize(Spec spec, PacketBuffer buf) {}
+
+        @Override
+        public Spec deserialize(PacketBuffer buf) {
+            return new Spec();
+        }
+
+        @Override
+        public void serializeJson(Spec spec, JsonObject json) {}
+
+        @Override
+        public Spec access(Vec3Argument argument) {
+            return new Spec();
+        }
+
+        public record Spec()
+                implements ArgumentTypeRegistrar.Spec<Vec3Argument> {
+
+            @Override
+            public Vec3Argument instantiate() {
+                return Vec3Argument.vec3();
+            }
+
+            @Override
+            public ArgumentTypeRegistrar<Vec3Argument, ?> type() {
+                return new Info();
+            }
         }
     }
 }

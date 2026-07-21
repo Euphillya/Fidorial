@@ -3,19 +3,16 @@ package fr.euphyllia.fidorial.server.command.brigadier.packet;
 import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.tree.*;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.*;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgumentType;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistry;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceKeyArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.NetworkArgumentIds;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.util.PermissionlessCommandSource;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
 
 import java.util.*;
+
+import static fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistry.unwrap;
 
 public final class CommandTreeSerializer {
 
@@ -29,24 +26,6 @@ public final class CommandTreeSerializer {
     private static final byte FLAG_RESTRICTED = 32;
 
     private static final CommandSource NO_PERMISSION_SOURCE = PermissionlessCommandSource.instance();
-
-    private record SerializerEntry(
-            Class<?> type,
-            ArgumentSerializer serializer
-    ) {}
-
-    private static final List<SerializerEntry> SERIALIZERS = List.of(
-            new SerializerEntry(StringArgumentType.class, CommandTreeSerializer::writeStringArgument),
-            new SerializerEntry(BoolArgumentType.class, CommandTreeSerializer::writeBoolArgument),
-            new SerializerEntry(IntegerArgumentType.class, CommandTreeSerializer::writeIntegerArgument),
-            new SerializerEntry(EntityArgumentType.class, CommandTreeSerializer::writeEntityArgument),
-            new SerializerEntry(PlayerProfileArgument.class, CommandTreeSerializer::writePlayerProfileArgument),
-            new SerializerEntry(Vec3Argument.class, CommandTreeSerializer::writeVec3Argument),
-            new SerializerEntry(GameModeArgument.class, CommandTreeSerializer::writeGameModeArgument),
-            new SerializerEntry(TimeArgument.class, CommandTreeSerializer::writeTimeArgument),
-            new SerializerEntry(ResourceKeyArgument.class, CommandTreeSerializer::writeResourceKeyArgument),
-            new SerializerEntry(UuidArgument.class, CommandTreeSerializer::writeUuidArgument)
-    );
 
     private CommandTreeSerializer() {}
 
@@ -164,6 +143,12 @@ public final class CommandTreeSerializer {
             );
         }
 
+        System.out.printf(
+                "NODE %s flags=%02x children=%s%n",
+                node.getName(),
+                flags,
+                Arrays.toString(children)
+        );
         switch (node) {
             case LiteralCommandNode<?> literal -> buf.writeString(literal.getLiteral());
             case ArgumentCommandNode<?, ?> argument -> {
@@ -175,8 +160,22 @@ public final class CommandTreeSerializer {
                 );
 
                 if (argument.getCustomSuggestions() != null) {
-                    buf.writeIdentifier(
-                            "minecraft:ask_server"
+                    int before = buf.nettyBuf().writerIndex();
+
+                    buf.writeIdentifier("minecraft:ask_server");
+
+                    int after = buf.nettyBuf().writerIndex();
+
+                    System.out.println("Suggestion identifier:");
+                    for (int i = before; i < after; i++) {
+                        System.out.printf("%02x ", buf.nettyBuf().getByte(i));
+                    }
+                    System.out.println();
+
+                    System.out.println(
+                            "flags=" + flags +
+                                    " arg=" + argument.getName() +
+                                    " suggestions=" + argument.getCustomSuggestions() != null
                     );
                 }
             }
@@ -231,177 +230,32 @@ public final class CommandTreeSerializer {
         }
     }
 
-    private static ArgumentType<?> unwrapArgumentType(ArgumentType<?> type) {
-        while (type instanceof ArgumentProviderImpl.NativeWrapperArgumentType<?, ?> wrapper) {
-            type = wrapper.vanillaArgumentType();
-        }
-
-        return type;
-    }
-
     private static void writeArgumentType(
             PacketBuffer buf,
-            ArgumentType<?> argumentType
+            ArgumentType<?> argument
     ) {
-        argumentType = unwrapArgumentType(argumentType);
+        int start = buf.nettyBuf().writerIndex();
 
-        for (SerializerEntry entry : SERIALIZERS) {
-            if (entry.type().isInstance(argumentType)) {
-                entry.serializer().write(buf, argumentType);
-                return;
-            }
+        ArgumentType<?> vanilla = unwrap(argument);
+
+        ArgumentTypeRegistrar registrar =
+                ArgumentTypeRegistry.registrar(vanilla);
+
+        int id = NetworkArgumentIds.getId(registrar);
+
+        buf.writeVarInt(id);
+
+        registrar.serialize(registrar.access(vanilla), buf);
+
+        int end = buf.nettyBuf().writerIndex();
+
+        System.out.println(vanilla.getClass().getSimpleName()
+                + " wrote " + (end - start) + " bytes");
+
+        for (int i = start; i < end; i++) {
+            System.out.printf("%02x ", buf.nettyBuf().getByte(i));
         }
-
-        throw new IllegalArgumentException(
-                "Unsupported argument: " + argumentType
-        );
-    }
-
-    private static void writeStringArgument(
-            PacketBuffer buf,
-            ArgumentType<?> rawArgument
-    ) {
-        StringArgumentType argument = (StringArgumentType) rawArgument;
-        buf.writeVarInt(
-                ArgumentTypeRegistry.STRING
-        );
-
-        buf.writeVarInt(
-                switch (argument.getType()) {
-                    case SINGLE_WORD -> 0;
-                    case QUOTABLE_PHRASE -> 1;
-                    case GREEDY_PHRASE -> 2;
-                }
-        );
-    }
-
-    private static void writeIntegerArgument(
-            PacketBuffer buf,
-            ArgumentType<?> rawArgument
-    ) {
-        IntegerArgumentType argument = (IntegerArgumentType) rawArgument;
-
-        buf.writeVarInt(ArgumentTypeRegistry.INTEGER);
-
-        int flags = 0;
-
-        if (argument.getMinimum() != Integer.MIN_VALUE) {
-            flags |= 1;
-        }
-
-        if (argument.getMaximum() != Integer.MAX_VALUE) {
-            flags |= 2;
-        }
-
-        buf.writeByte(flags);
-
-        if ((flags & 1) != 0) {
-            buf.writeInt(argument.getMinimum());
-        }
-
-        if ((flags & 2) != 0) {
-            buf.writeInt(argument.getMaximum());
-        }
-    }
-
-    private static void writeBoolArgument(
-            PacketBuffer buf,
-            ArgumentType<?> rawArgument_not_yet_implemented
-    ) {
-        buf.writeVarInt(
-                ArgumentTypeRegistry.BOOL
-        );
-    }
-
-    private static void writeEntityArgument(
-            PacketBuffer buf,
-            ArgumentType<?> rawArgument
-    ) {
-        EntityArgumentType argument = (EntityArgumentType) rawArgument;
-        buf.writeVarInt(
-                ArgumentTypeRegistry.ENTITY
-        );
-
-        int flags = 0;
-
-        if (argument.single()) {
-            flags |= 1;
-        }
-
-        if (argument.playersOnly()) {
-            flags |= 2;
-        }
-
-        buf.writeByte(flags);
-    }
-
-    private static void writePlayerProfileArgument(
-            PacketBuffer buf,
-            ArgumentType<?> rawArgument
-    ) {
-        buf.writeVarInt(
-                ArgumentTypeRegistry.PLAYER_PROFILE
-        );
-    }
-
-    private static void writeVec3Argument(
-            PacketBuffer buf,
-            ArgumentType<?> rawArgument
-    ) {
-        Vec3Argument argument =
-                (Vec3Argument) rawArgument;
-
-        buf.writeVarInt(
-                ArgumentTypeRegistry.VEC3
-        );
-    }
-
-    private static void writeGameModeArgument(
-            PacketBuffer buf,
-            ArgumentType<?> rawArgument
-    ) {
-        buf.writeVarInt(
-                ArgumentTypeRegistry.GAME_MODE
-        );
-    }
-
-    private static void writeTimeArgument(
-            PacketBuffer buf,
-            ArgumentType<?> rawArgument
-    ) {
-        TimeArgument argument =
-                (TimeArgument) rawArgument;
-
-        buf.writeVarInt(
-                ArgumentTypeRegistry.TIME
-        );
-
-        buf.writeInt(
-                argument.minimum()
-        );
-    }
-
-    private static void writeResourceKeyArgument(
-            PacketBuffer buf,
-            ArgumentType<?> rawArgument
-    ) {
-        ResourceKeyArgument<?> argument =
-                (ResourceKeyArgument<?>) rawArgument;
-
-        buf.writeVarInt(
-                ArgumentTypeRegistry.RESOURCE_KEY
-        );
-
-        buf.writeIdentifier(argument.registryKey().key().asString());
-    }
-
-    private static void writeUuidArgument(
-            PacketBuffer buf,
-            ArgumentType<?> rawArgument
-    ) {
-        buf.writeVarInt(
-                ArgumentTypeRegistry.UUID
-        );
+        System.out.println();
     }
 
     private static boolean isRestricted(CommandNode<CommandSource> node) {

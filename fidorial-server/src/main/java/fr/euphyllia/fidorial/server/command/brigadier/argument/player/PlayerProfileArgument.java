@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.command.brigadier.argument.player;
 
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -8,11 +9,12 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.FidorialServer;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgumentType;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntitySelector;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySelectorParser;
+import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
+import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.MessageComponentSerializer;
 import fr.fidorial.entity.PlayerProfileMeta;
 import fr.fidorial.entity.Player;
 
@@ -44,6 +46,8 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
         return new PlayerProfileArgument();
     }
 
+    public PlayerProfileArgument() {
+    }
 
     public static Collection<PlayerProfileMeta> getPlayerProfiles(
             CommandContext<CommandSource> context,
@@ -64,7 +68,7 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
                     new EntitySelectorParser(reader).parse();
 
             if (selector.includesEntities()) {
-                throw EntityArgumentType.ERROR_ONLY_PLAYERS_ALLOWED.create();
+                throw EntityArgument.ERROR_ONLY_PLAYERS_ALLOWED.create();
             }
 
             return new SelectorResult(selector);
@@ -148,7 +152,7 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
 
 
             if (players.isEmpty()) {
-                throw EntityArgumentType.NO_PLAYERS_FOUND.create();
+                throw EntityArgument.NO_PLAYERS_FOUND.create();
             }
 
 
@@ -156,6 +160,41 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
                     .map(Player::profile)
                     .map(PlayerProfileMeta::new)
                     .toList();
+        }
+    }
+
+    public static final class Info implements ArgumentTypeRegistrar<PlayerProfileArgument, Info.Spec> {
+
+        @Override
+        public void serialize(Spec spec, PacketBuffer buf) {}
+
+
+        @Override
+        public Spec deserialize(PacketBuffer buf) {
+            return new Spec();
+        }
+
+
+        @Override
+        public void serializeJson(Spec spec, JsonObject json) {}
+
+        @Override
+        public Spec access(PlayerProfileArgument argument) {
+            return new Spec();
+        }
+
+        public record Spec() implements ArgumentTypeRegistrar.Spec<PlayerProfileArgument> {
+
+            @Override
+            public PlayerProfileArgument instantiate() {
+                return new PlayerProfileArgument();
+            }
+
+
+            @Override
+            public ArgumentTypeRegistrar<PlayerProfileArgument, ?> type() {
+                return new Info();
+            }
         }
     }
 }

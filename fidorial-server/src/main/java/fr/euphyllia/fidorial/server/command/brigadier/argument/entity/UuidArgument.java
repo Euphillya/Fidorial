@@ -1,10 +1,13 @@
 package fr.euphyllia.fidorial.server.command.brigadier.argument.entity;
 
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
+import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
 import net.kyori.adventure.text.Component;
 
@@ -43,6 +46,9 @@ public final class UuidArgument implements ArgumentType<UUID> {
         return context.getArgument(name, UUID.class);
     }
 
+    public UuidArgument() {
+    }
+
     @Override
     public UUID parse(
             StringReader reader
@@ -67,5 +73,38 @@ public final class UuidArgument implements ArgumentType<UUID> {
     @Override
     public Collection<String> getExamples() {
         return EXAMPLES;
+    }
+
+    public static final class Info implements ArgumentTypeRegistrar<UuidArgument, Info.Spec> {
+
+        @Override
+        public void serialize(Spec spec, PacketBuffer buf) {}
+
+        @Override
+        public Spec deserialize(PacketBuffer buf) {
+            return new Spec();
+        }
+
+        @Override
+        public void serializeJson(Spec spec, JsonObject json) {}
+
+        @Override
+        public Spec access(UuidArgument argument) {
+            return new Spec();
+        }
+
+
+        public record Spec() implements ArgumentTypeRegistrar.Spec<UuidArgument> {
+
+            @Override
+            public UuidArgument instantiate() {
+                return new UuidArgument();
+            }
+
+            @Override
+            public ArgumentTypeRegistrar<UuidArgument, ?> type() {
+                return new Info();
+            }
+        }
     }
 }

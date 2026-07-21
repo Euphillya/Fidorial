@@ -115,11 +115,11 @@ public final class EntitySelector {
                 findEntities(source);
 
         if (entities.isEmpty()) {
-            throw EntityArgumentType.NO_ENTITIES_FOUND.create();
+            throw EntityArgument.NO_ENTITIES_FOUND.create();
         }
 
         if (entities.size() > 1) {
-            throw EntityArgumentType.ERROR_NOT_SINGLE_ENTITY.create();
+            throw EntityArgument.ERROR_NOT_SINGLE_ENTITY.create();
         }
 
         return entities.iterator().next();
@@ -136,11 +136,11 @@ public final class EntitySelector {
                 findPlayers(source);
 
         if (players.isEmpty()) {
-            throw EntityArgumentType.NO_PLAYERS_FOUND.create();
+            throw EntityArgument.NO_PLAYERS_FOUND.create();
         }
 
         if (players.size() > 1) {
-            throw EntityArgumentType.ERROR_NOT_SINGLE_PLAYER.create();
+            throw EntityArgument.ERROR_NOT_SINGLE_PLAYER.create();
         }
 
         return players.getFirst();
@@ -216,14 +216,14 @@ public final class EntitySelector {
 
         for (Entity entity : entities) {
             if (!(entity instanceof Player player)) {
-                throw EntityArgumentType.ERROR_ONLY_PLAYERS_ALLOWED.create();
+                throw EntityArgument.ERROR_ONLY_PLAYERS_ALLOWED.create();
             }
 
             players.add(player);
         }
 
         if (players.isEmpty()) {
-            throw EntityArgumentType.NO_PLAYERS_FOUND.create();
+            throw EntityArgument.NO_PLAYERS_FOUND.create();
         }
 
         return players;
@@ -342,7 +342,7 @@ public final class EntitySelector {
         if (!source.sender()
                 .hasPermission("minecraft.command.selector")) {
 
-            throw EntityArgumentType
+            throw EntityArgument
                     .SELECTORS_NOT_PERMITTED
                     .create();
         }

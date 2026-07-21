@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.command.brigadier.argument.resource;
 
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -8,7 +9,8 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.FidorialServer;
-import fr.fidorial.command.MessageComponentSerializer;
+import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
+import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.registry.Registry;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
@@ -22,8 +24,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public final class ResourceKeyArgument<T>
-        implements ArgumentType<TypedKey<T>> {
+public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
 
     private static final Collection<String> EXAMPLES = List.of(
             "minecraft:zombie",
@@ -174,5 +175,50 @@ public final class ResourceKeyArgument<T>
 
     public RegistryKey<T> registryKey() {
         return registryKey;
+    }
+
+    public static final class Info<T> implements ArgumentTypeRegistrar<ResourceKeyArgument<T>, Info<T>.Spec> {
+
+        @Override
+        public Spec access(ResourceKeyArgument<T> argument) {
+            return new Spec(argument.registryKey());
+        }
+
+        @Override
+        public void serialize(Spec spec, PacketBuffer buf) {
+            System.out.println("ResourceKey registry = "
+                    + spec.registryKey.key().asString());
+            buf.writeRegistryKey(spec.registryKey);
+        }
+
+        @Override
+        public Spec deserialize(PacketBuffer buf) {
+            Key key = buf.readKey();
+            return new Spec(RegistryKey.of(key));
+        }
+
+        @Override
+        public void serializeJson(Spec spec, JsonObject value) {
+            value.addProperty("registry", spec.registryKey.key().asString());
+        }
+
+        public final class Spec implements ArgumentTypeRegistrar.Spec<ResourceKeyArgument<T>> {
+
+            private final RegistryKey<T> registryKey;
+
+            public Spec(RegistryKey<T> registryKey) {
+                this.registryKey = registryKey;
+            }
+
+            @Override
+            public ResourceKeyArgument<T> instantiate() {
+                return ResourceKeyArgument.resourceKey(registryKey);
+            }
+
+            @Override
+            public ArgumentTypeRegistrar<ResourceKeyArgument<T>, ?> type() {
+                return Info.this;
+            }
+        }
     }
 }

@@ -8,7 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgumentInternal;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
@@ -52,13 +52,13 @@ import java.util.function.Function;
 public class ArgumentProviderImpl implements ArgumentProvider {
     @Override
     public ArgumentType<EntitySelectorArgumentResolver> entity() {
-        return this.wrap(EntityArgument.entity(), (result) -> source-> List.of(result.findSingleEntity(source)));
+        return this.wrap(EntityArgumentInternal.entity(), (result) -> source-> List.of(result.findSingleEntity(source)));
     }
 
     @Override
     public ArgumentType<EntitySelectorArgumentResolver> entities() {
         return this.wrap(
-                EntityArgument.entities(),
+                EntityArgumentInternal.entities(),
                 result -> source -> result.findEntities(source)
                         .stream()
                         .map(Entity.class::cast)
@@ -69,7 +69,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
     @Override
     public ArgumentType<PlayerSelectorArgumentResolver> player() {
         return this.wrap(
-                EntityArgument.player(),
+                EntityArgumentInternal.player(),
                 result -> source -> List.of(result.findSinglePlayer(source))
         );
     }
@@ -77,7 +77,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
     @Override
     public ArgumentType<PlayerSelectorArgumentResolver> players() {
         return this.wrap(
-                EntityArgument.players(),
+                EntityArgumentInternal.players(),
                 result -> result::findPlayers
         );
     }

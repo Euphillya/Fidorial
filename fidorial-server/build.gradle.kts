@@ -29,7 +29,7 @@ tasks.named<JavaExec>("run") {
 }
 
 tasks.named("run") {
-    dependsOn(":fidorial-test-plugin:build")
+    //dependsOn(":fidorial-test-plugin:build")
 }
 
 tasks.shadowJar {

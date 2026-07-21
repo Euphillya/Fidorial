@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.command.brigadier.argument.generic;
 
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -8,6 +9,8 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
+import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import net.kyori.adventure.text.Component;
 
 import java.util.Arrays;
@@ -18,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public final class TimeArgument implements ArgumentType<Integer> {
+public record TimeArgument(int minimum) implements ArgumentType<Integer> {
 
     private static final Collection<String> EXAMPLES =
             Arrays.asList("0d", "0s", "0t", "0");
@@ -53,14 +56,6 @@ public final class TimeArgument implements ArgumentType<Integer> {
         UNITS.put("s", 20);
         UNITS.put("t", 1);
         UNITS.put("", 1);
-    }
-
-
-    private final int minimum;
-
-
-    private TimeArgument(int minimum) {
-        this.minimum = minimum;
     }
 
 
@@ -135,7 +130,46 @@ public final class TimeArgument implements ArgumentType<Integer> {
         return EXAMPLES;
     }
 
-    public int minimum() {
-        return minimum;
+    public static final class Info implements ArgumentTypeRegistrar<TimeArgument, Info.Spec> {
+
+        @Override
+        public void serialize(Spec spec, PacketBuffer buf) {
+            buf.writeInt(spec.minimum());
+        }
+
+
+        @Override
+        public Spec deserialize(PacketBuffer buf) {
+            return new Spec(buf.readInt());
+        }
+
+
+        @Override
+        public void serializeJson(Spec spec, JsonObject json) {
+            json.addProperty("min", spec.minimum());
+        }
+
+
+        @Override
+        public Spec access(TimeArgument argument) {
+            return new Spec(argument.minimum());
+        }
+
+
+        public record Spec(int minimum)
+                implements ArgumentTypeRegistrar.Spec<TimeArgument> {
+
+
+            @Override
+            public TimeArgument instantiate() {
+                return TimeArgument.time(minimum);
+            }
+
+
+            @Override
+            public ArgumentTypeRegistrar<TimeArgument, ?> type() {
+                return new Info();
+            }
+        }
     }
 }
