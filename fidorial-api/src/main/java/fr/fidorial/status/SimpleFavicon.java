@@ -9,6 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 record SimpleFavicon(byte[] data) implements Favicon {
+    @Override
+    public byte[] data() {
+        return data.clone();
+    }
+
     public static Favicon read(final Path path) throws IOException {
         try (final InputStream stream = Files.newInputStream(path)) {
             return read(stream);
