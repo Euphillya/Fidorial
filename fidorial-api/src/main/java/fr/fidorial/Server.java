@@ -6,6 +6,7 @@ import fr.fidorial.event.EventBus;
 import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.scheduler.RegionizedScheduler;
 import fr.fidorial.service.ServiceRegistry;
+import fr.fidorial.status.Favicon;
 import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.World;
 import net.kyori.adventure.audience.Audience;
@@ -15,12 +16,26 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.pointer.Pointers;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public interface Server /* extends ForwardingAudience */ { // we need more functions in the server to implement all the overrides properly
+
+    /**
+     * Gets the server name.
+     *
+     * @return server name
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    String getName();
 
     String minecraftVersion();
 
@@ -31,6 +46,69 @@ public interface Server /* extends ForwardingAudience */ { // we need more funct
     CommandRegistry commands();
 
     EventBus events();
+
+    /**
+     * Gets the server's favicon shown in the status ping.
+     *
+     * @return the server favicon
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    Optional<Favicon> favicon();
+
+    /**
+     * Sets the server's favicon shown in the status ping.
+     *
+     * @param favicon the server favicon
+     * @since 0.1.0
+     */
+    @Contract(mutates = "this")
+    void favicon(Favicon favicon);
+
+    /**
+     * Gets the server description shown in the status ping.
+     *
+     * @return server description
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    Component description();
+
+    /**
+     * Sets the server description shown in the status ping.
+     *
+     * @param description server description
+     * @since 0.1.0
+     */
+    @Contract(mutates = "this")
+    void description(Component description);
+
+    /**
+     * Gets the maximum player count shown in the status ping.
+     *
+     * @return maximum player count
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    int maxPlayers();
+
+    /**
+     * Sets the maximum player count shown in the status ping.
+     *
+     * @param maxPlayers maximum player count
+     * @since 0.1.0
+     */
+    @Contract(mutates = "this")
+    void maxPlayers(int maxPlayers);
+
+    /**
+     * Gets the current online player count.
+     *
+     * @return online player count
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    int playerCount();
 
     ServiceRegistry services();
 

@@ -65,11 +65,11 @@ spotless {
     java {
         target("**/*.java")
 
-        palantirJavaFormat("2.96.0")
+        //palantirJavaFormat("2.96.0")
         forbidWildcardImports()
         formatAnnotations()
         removeUnusedImports()
-        custom("Wrap declaration parameters", WrapDeclarationParameters())
+        //custom("Wrap declaration parameters", WrapDeclarationParameters())
         replaceRegex("Expand empty code blocks", """(?m)^([ \t]*)(.+) \{\}$""", "$1$2 {\n$1}")
         replaceRegex(
             "Separate module requires static",

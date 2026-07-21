@@ -15,10 +15,12 @@ import fr.fidorial.event.player.PlayerChatEvent;
 import fr.fidorial.event.player.PlayerJoinEvent;
 import fr.fidorial.event.player.PlayerQuitEvent;
 import fr.fidorial.event.server.ServerStartedEvent;
+import fr.fidorial.event.server.ServerStatusRequestEvent;
 import fr.fidorial.event.server.ServerStoppingEvent;
 import fr.fidorial.plugin.Plugin;
 import fr.fidorial.plugin.PluginContext;
 import fr.fidorial.service.ServicePriority;
+import fr.fidorial.status.ServerStatus;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -27,6 +29,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class TestPlugin implements Plugin {
@@ -125,10 +128,22 @@ public final class TestPlugin implements Plugin {
     private void registerEvents() {
         var events = context.events();
 
-        events.subscribe(
-                ServerStartedEvent.class,
-                e -> logger.info(
-                        "[TestPlugin][event] ServerStartedEvent recu, version MC {}",
+        events.subscribe(ServerStatusRequestEvent.class, event -> {
+            event.status(event.status().toBuilder()
+                    .description(Component.text("HELLO!!!"))
+                    .enforceSecureChat(true)
+                    .samplePlayer(new ServerStatus.SamplePlayer("test", UUID.randomUUID()))
+                    .maxPlayers(-999)
+                    .players(999)
+                    .version(new ServerStatus.Version(
+                            "§aIDK §cXOXO",
+                            event.status().version().protocolVersion()
+                    ))
+                    .build());
+        });
+
+        events.subscribe(ServerStartedEvent.class, e ->
+                logger.info("[TestPlugin][event] ServerStartedEvent recu, version MC {}",
                         e.server().minecraftVersion()));
 
         events.subscribe(ServerStoppingEvent.class, e -> logger.info("[TestPlugin][event] ServerStoppingEvent recu"));

@@ -32,6 +32,7 @@ public record ServerConfig(
         double spawnY,
         double spawnZ,
         String motd,
+        int maxPlayers,
         ProxyMode proxyMode,
         @Nullable String velocitySecret
 ) {
@@ -86,19 +87,21 @@ public record ServerConfig(
                 WorldConstants.DEFAULT_SPAWN_Y,
                 WorldConstants.DEFAULT_SPAWN_Z,
                 "",
+                100,
                 ProxyMode.NONE,
                 "");
     }
 
     public static ServerConfig load() throws IOException {
-        return load(Path.of(DEFAULT_FILE));
+        Path file = Path.of(DEFAULT_FILE);
+        ServerConfig config = read(file);
+        config.write(file);
+        return config;
     }
 
-    public static ServerConfig load(Path file) throws IOException {
+    public static ServerConfig read(Path file) throws IOException {
         ServerConfig defaults = defaults();
         if (!Files.isRegularFile(file)) {
-            defaults.write(file);
-            LOGGER.info("{} cree avec les valeurs par defaut", file);
             return defaults;
         }
         Properties props = new Properties();
@@ -122,6 +125,7 @@ public record ServerConfig(
                 readDouble(props, "spawn-y", defaults.spawnY()),
                 readDouble(props, "spawn-z", defaults.spawnZ()),
                 readString(props, "motd", "<red>Fidorial <white>| <blue>Alternative Minecraft Server"),
+                readInt(props, "max-players", defaults.maxPlayers()),
                 readProxyMode(props, "proxy-mode", defaults.proxyMode()),
                 readString(props, "velocity-secret", "").strip());
         LOGGER.info("Configuration chargee depuis {}", file);
@@ -211,6 +215,7 @@ public record ServerConfig(
         props.setProperty("spawn-y", Double.toString(spawnY));
         props.setProperty("spawn-z", Double.toString(spawnZ));
         props.setProperty("motd", motd);
+        props.setProperty("max-players", Integer.toString(maxPlayers));
         props.setProperty("proxy-mode", proxyMode.name().toLowerCase(Locale.ROOT));
         props.setProperty("velocity-secret", velocitySecret == null ? "" : velocitySecret);
         try (OutputStream out = Files.newOutputStream(file)) {
