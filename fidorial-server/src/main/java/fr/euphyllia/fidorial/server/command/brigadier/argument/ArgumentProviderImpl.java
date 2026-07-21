@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.command.brigadier.argument;
 
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -28,6 +29,8 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Dimensio
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.range.MinMaxBounds;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.range.RangeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.KeyArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceKeyArgument;
@@ -35,6 +38,7 @@ import fr.fidorial.command.argument.ArgumentProvider;
 import fr.fidorial.command.argument.predicate.ItemStackPredicate;
 import fr.fidorial.command.argument.range.DoubleRangeProvider;
 import fr.fidorial.command.argument.range.IntegerRangeProvider;
+import fr.fidorial.command.argument.range.RangeProvider;
 import fr.fidorial.command.argument.resolvers.AngleResolver;
 import fr.fidorial.command.argument.resolvers.BlockPosResolver;
 import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
@@ -184,12 +188,26 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<IntegerRangeProvider> integerRange() {
-        return null;
+        return this.wrap(RangeArgument.intRange(), type -> ArgumentProviderImpl.convertToRange(type, range -> () -> range));
     }
 
     @Override
     public ArgumentType<DoubleRangeProvider> doubleRange() {
-        return null;
+        return this.wrap(RangeArgument.floatRange(), type -> ArgumentProviderImpl.convertToRange(type, range -> () -> range));
+    }
+
+    private static <C extends Number & Comparable<C>, T extends RangeProvider<C>> T convertToRange(
+            final MinMaxBounds<C> bounds, final Function<Range<C>, T> converter) {
+        if (bounds.isAny()) {
+            return converter.apply(Range.all());
+        } else if (bounds.min().isPresent() && bounds.max().isPresent()) {
+            return converter.apply(Range.closed(bounds.min().get(), bounds.max().get()));
+        } else if (bounds.max().isPresent()) {
+            return converter.apply(Range.atMost(bounds.max().get()));
+        } else if (bounds.min().isPresent()) {
+            return converter.apply(Range.atLeast(bounds.min().get()));
+        }
+        throw new IllegalStateException("This is a bug: " + bounds);
     }
 
     @Override

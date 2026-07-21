@@ -7,8 +7,10 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntitySelector;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.EntitySelectorOptions;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.InvertableSetOptionState;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.SetOnceOptionState;
 import fr.fidorial.entity.Entity;
-import fr.fidorial.entity.Player;
 import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
@@ -27,36 +29,39 @@ public final class EntitySelectorParser {
     public static final DynamicCommandExceptionType ERROR_EXPECTED_OPTION_VALUE = new DynamicCommandExceptionType(
             name -> MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.valueless")
                     .append(Component.text(name.toString()))));
-    private int startPosition;
-    private SuggestionProvider suggestions = SuggestionProvider.NONE;
-
-    @FunctionalInterface
-    private interface SuggestionProvider {
-        CompletableFuture<Suggestions> apply(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names);
-
-        SuggestionProvider NONE = (b, n) -> b.buildFuture();
-    }
+    public static final DynamicCommandExceptionType ERROR_UNKNOWN_OPTION = new DynamicCommandExceptionType(
+            name -> MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.unknown")
+                    .append(Component.text(name.toString()))));
+    public static final DynamicCommandExceptionType ERROR_INAPPLICABLE_OPTION = new DynamicCommandExceptionType(
+            name -> MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.inapplicable")
+                    .append(Component.text(name.toString()))));
 
     private static final SimpleCommandExceptionType INVALID =
             new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.entity.invalid")));
 
+    @FunctionalInterface
+    private interface SuggestionProvider {
+        CompletableFuture<Suggestions> apply(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names);
+        SuggestionProvider NONE = (b, n) -> b.buildFuture();
+    }
+
     private final StringReader reader;
+    private int startPosition;
+    private SuggestionProvider suggestions = SuggestionProvider.NONE;
 
     private int maxResults = 1;
     private boolean includesEntities;
     private boolean selfSelector;
     private boolean usesSelector;
 
-    private double x;
-    private double y;
-    private double z;
+    private Double x;
+    private Double y;
+    private Double z;
+    private Double deltaX;
+    private Double deltaY;
+    private Double deltaZ;
 
-    private Double minDistance;
-    private Double maxDistance;
-
-    private Integer dx;
-    private Integer dy;
-    private Integer dz;
+    private DoubleRange distance;
 
     private String targetName;
     private UUID targetUuid;
@@ -65,13 +70,19 @@ public final class EntitySelectorParser {
 
     private final List<Predicate<Entity>> predicates = new ArrayList<>();
 
+    private final InvertableSetOptionState nameOption = new InvertableSetOptionState();
+    private final SetOnceOptionState limitedOption = new SetOnceOptionState();
+    private final SetOnceOptionState sortedOption = new SetOnceOptionState();
+    private final InvertableSetOptionState gamemodeOption = new InvertableSetOptionState();
+    private final InvertableSetOptionState typeOption = new InvertableSetOptionState();
+
     public EntitySelectorParser(StringReader reader) {
         this.reader = reader;
+        EntitySelectorOptions.bootStrap();
     }
 
     public EntitySelector parse() throws CommandSyntaxException {
         startPosition = reader.getCursor();
-
         suggestions = this::suggestNameOrSelector;
 
         if (reader.canRead() && reader.peek() == '@') {
@@ -85,9 +96,7 @@ public final class EntitySelectorParser {
     }
 
     private void parseSelector() throws CommandSyntaxException {
-
         usesSelector = true;
-
         suggestions = this::suggestSelector;
 
         if (!reader.canRead()) {
@@ -95,40 +104,12 @@ public final class EntitySelectorParser {
         }
 
         switch (reader.read()) {
-            case 's' -> {
-                selfSelector = true;
-                includesEntities = false;
-                maxResults = 1;
-            }
-
-            case 'p' -> {
-                includesEntities = false;
-                maxResults = 1;
-                sort = EntitySelector.SortType.NEAREST;
-            }
-
-            case 'a' -> {
-                includesEntities = false;
-                maxResults = Integer.MAX_VALUE;
-            }
-
-            case 'e' -> {
-                includesEntities = true;
-                maxResults = Integer.MAX_VALUE;
-            }
-
-            case 'r' -> {
-                includesEntities = false;
-                maxResults = 1;
-                sort = EntitySelector.SortType.RANDOM;
-            }
-
-            case 'n' -> {
-                includesEntities = true;
-                maxResults = 1;
-                sort = EntitySelector.SortType.NEAREST;
-            }
-
+            case 's' -> { selfSelector = true; includesEntities = false; maxResults = 1; }
+            case 'p' -> { includesEntities = false; maxResults = 1; sort = EntitySelector.SortType.NEAREST; }
+            case 'a' -> { includesEntities = false; maxResults = Integer.MAX_VALUE; }
+            case 'e' -> { includesEntities = true; maxResults = Integer.MAX_VALUE; }
+            case 'r' -> { includesEntities = false; maxResults = 1; sort = EntitySelector.SortType.RANDOM; }
+            case 'n' -> { includesEntities = true; maxResults = 1; sort = EntitySelector.SortType.NEAREST; }
             default -> throw INVALID.create();
         }
 
@@ -142,8 +123,8 @@ public final class EntitySelectorParser {
     }
 
     private void parseArguments() throws CommandSyntaxException {
-
         suggestions = this::suggestOptionsKey;
+        reader.skipWhitespace();
 
         while (reader.canRead() && reader.peek() != ']') {
             reader.skipWhitespace();
@@ -151,7 +132,7 @@ public final class EntitySelectorParser {
             int start = reader.getCursor();
             String key = reader.readString();
 
-            // Option option = EntitySelectorOptions.get(key);
+            EntitySelectorOptions.Modifier modifier = EntitySelectorOptions.get(this, key, start);
 
             reader.skipWhitespace();
 
@@ -162,119 +143,37 @@ public final class EntitySelectorParser {
 
             reader.skip();
             reader.skipWhitespace();
-
             suggestions = SuggestionProvider.NONE;
 
-            // option.parse(this); // reads directly from the StringReader
+            modifier.handle(this);
 
             reader.skipWhitespace();
-
-            // suggestions = this::suggestOptionsNextOrClose;
+            suggestions = this::suggestOptionsNextOrClose;
 
             if (reader.canRead()) {
-                if (reader.peek() == ',') {
-                    reader.skip();
-                    // suggestions = this::suggestOptionsKey;
-                } else if (reader.peek() != ']') {
-                    throw ERROR_EXPECTED_END_OF_OPTIONS.createWithContext(reader);
+                if (reader.peek() != ',') {
+                    if (reader.peek() != ']') {
+                        throw ERROR_EXPECTED_END_OF_OPTIONS.createWithContext(reader);
+                    }
+                    break;
                 }
+                reader.skip();
+                suggestions = this::suggestOptionsKey;
             }
         }
-    }
 
-    private void apply(String key, String value) throws CommandSyntaxException {
-
-        switch (key) {
-            case "limit" -> maxResults = Integer.parseInt(value);
-
-            case "sort" -> sort = EntitySelector.SortType.valueOf(value.toUpperCase());
-
-            case "x" -> x = Double.parseDouble(value);
-
-            case "y" -> y = Double.parseDouble(value);
-
-            case "z" -> z = Double.parseDouble(value);
-
-            case "distance" -> {
-                String[] split = value.split("\\.\\.");
-
-                if (split.length == 1) {
-                    minDistance = Double.parseDouble(split[0]);
-                    maxDistance = minDistance;
-                } else {
-                    minDistance = split[0].isEmpty() ? null : Double.parseDouble(split[0]);
-
-                    maxDistance = split[1].isEmpty() ? null : Double.parseDouble(split[1]);
-                }
-            }
-
-            case "dx" -> dx = Integer.parseInt(value);
-
-            case "dy" -> dy = Integer.parseInt(value);
-
-            case "dz" -> dz = Integer.parseInt(value);
-
-            case "type" -> {
-                boolean inverted = value.startsWith("!");
-
-                String type = inverted ? value.substring(1) : value;
-
-                predicates.add(entity -> {
-                    boolean result = entity.type().key().value().equals(type);
-
-                    return inverted != result;
-                });
-            }
-
-            case "name" -> {
-                boolean inverted = value.startsWith("!");
-
-                String name = inverted ? value.substring(1) : value;
-
-                predicates.add(entity -> {
-                    boolean result =
-                            entity instanceof Player player && player.name().equalsIgnoreCase(name);
-
-                    return inverted != result;
-                });
-            }
-
-            case "gamemode" -> {
-                boolean inverted = value.startsWith("!");
-
-                String mode = inverted ? value.substring(1) : value;
-
-                predicates.add(entity -> {
-                    if (!(entity instanceof Player player)) return false;
-
-                    boolean result = player.gameMode().name().equalsIgnoreCase(mode);
-
-                    return inverted != result;
-                });
-            }
-
-            case "tag" -> {
-                boolean inverted = value.startsWith("!");
-
-                String tag = inverted ? value.substring(1) : value;
-
-                predicates.add(_ -> {
-                    boolean result = false; // we dont have tags yet
-
-                    return inverted != result;
-                });
-            }
-
-            default -> throw INVALID.create();
+        if (reader.canRead()) {
+            reader.skip();
+            suggestions = SuggestionProvider.NONE;
+        } else {
+            throw ERROR_EXPECTED_END_OF_OPTIONS.createWithContext(reader);
         }
     }
 
     private void parseNameOrUuid() throws CommandSyntaxException {
-
         suggestions = this::suggestName;
 
         String value = reader.readString();
-
         if (value.isEmpty()) {
             throw INVALID.create();
         }
@@ -297,103 +196,123 @@ public final class EntitySelectorParser {
                 selfSelector,
                 usesSelector,
                 predicates,
-                x,
-                y,
-                z,
-                minDistance,
-                maxDistance,
-                dx,
-                dy,
-                dz,
+                x, y, z,
+                distance,
+                deltaX, deltaY, deltaZ,
                 sort,
                 targetName,
                 targetUuid);
     }
 
-    public CompletableFuture<Suggestions> fillSuggestions(
-            SuggestionsBuilder builder,
-            Consumer<SuggestionsBuilder> names
-    ) {
+    public StringReader getReader() {
+        return reader;
+    }
+
+    public boolean isCurrentEntity() {
+        return selfSelector;
+    }
+
+    public void addPredicate(Predicate<Entity> predicate) {
+        predicates.add(predicate);
+    }
+
+    public boolean shouldInvertValue() {
+        reader.skipWhitespace();
+        if (reader.canRead() && reader.peek() == '!') {
+            reader.skip();
+            reader.skipWhitespace();
+            return true;
+        }
+        return false;
+    }
+
+    public void setSuggestions(SuggestionProviderLike provider) {
+        this.suggestions = provider::apply;
+    }
+
+    @FunctionalInterface
+    public interface SuggestionProviderLike {
+        CompletableFuture<Suggestions> apply(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names);
+    }
+
+    public DoubleRange getDistance() {
+        return distance;
+    }
+
+    public void setDistance(DoubleRange distance) {
+        this.distance = distance;
+    }
+
+    public Double getX() { return x; }
+    public Double getY() { return y; }
+    public Double getZ() { return z; }
+    public void setX(double x) { this.x = x; }
+    public void setY(double y) { this.y = y; }
+    public void setZ(double z) { this.z = z; }
+
+    public Double getDeltaX() { return deltaX; }
+    public Double getDeltaY() { return deltaY; }
+    public Double getDeltaZ() { return deltaZ; }
+    public void setDeltaX(double deltaX) { this.deltaX = deltaX; }
+    public void setDeltaY(double deltaY) { this.deltaY = deltaY; }
+    public void setDeltaZ(double deltaZ) { this.deltaZ = deltaZ; }
+
+    public void setMaxResults(int maxResults) {
+        this.maxResults = maxResults;
+    }
+
+    public void setIncludesEntities(boolean includesEntities) {
+        this.includesEntities = includesEntities;
+    }
+
+    public EntitySelector.SortType getOrder() {
+        return sort;
+    }
+
+    public void setOrder(EntitySelector.SortType sort) {
+        this.sort = sort;
+    }
+
+    public InvertableSetOptionState nameOption() { return nameOption; }
+    public SetOnceOptionState limitedOption() { return limitedOption; }
+    public SetOnceOptionState sortedOption() { return sortedOption; }
+    public InvertableSetOptionState gamemodeOption() { return gamemodeOption; }
+    public InvertableSetOptionState typeOption() { return typeOption; }
+
+    public CompletableFuture<Suggestions> fillSuggestions(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
         return suggestions.apply(builder.createOffset(reader.getCursor()), names);
     }
 
-    private CompletableFuture<Suggestions> suggestNameOrSelector(
-            SuggestionsBuilder builder,
-            Consumer<SuggestionsBuilder> names
-    ) {
+    private CompletableFuture<Suggestions> suggestNameOrSelector(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
         names.accept(builder);
-
-        builder.suggest("@p");
-        builder.suggest("@a");
-        builder.suggest("@r");
-        builder.suggest("@s");
-        builder.suggest("@e");
-        builder.suggest("@n");
-
+        builder.suggest("@p"); builder.suggest("@a"); builder.suggest("@r"); builder.suggest("@s"); builder.suggest("@e"); builder.suggest("@n");
         return builder.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestSelector(
-            SuggestionsBuilder builder,
-            Consumer<SuggestionsBuilder> names
-    ) {
+    private CompletableFuture<Suggestions> suggestSelector(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
         SuggestionsBuilder sub = builder.createOffset(builder.getStart() - 1);
-
-        sub.suggest("@p");
-        sub.suggest("@a");
-        sub.suggest("@r");
-        sub.suggest("@s");
-        sub.suggest("@e");
-
+        sub.suggest("@p"); sub.suggest("@a"); sub.suggest("@r"); sub.suggest("@s"); sub.suggest("@e"); sub.suggest("@n");
         builder.add(sub);
-
         return builder.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestOpenOptions(
-            SuggestionsBuilder builder,
-            Consumer<SuggestionsBuilder> names
-    ) {
+    private CompletableFuture<Suggestions> suggestOpenOptions(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
         builder.suggest("[");
         return builder.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestOptionsKey(
-            SuggestionsBuilder builder,
-            Consumer<SuggestionsBuilder> names
-    ) {
-        /*
-        builder.suggest("limit=");
-        builder.suggest("sort=");
-        builder.suggest("distance=");
-        builder.suggest("type=");
-        builder.suggest("gamemode=");
-        builder.suggest("name=");
-        builder.suggest("tag=");
-        builder.suggest("x=");
-        builder.suggest("y=");
-        builder.suggest("z=");
-        builder.suggest("dx=");
-        builder.suggest("dy=");
-        builder.suggest("dz=");
-        */
+    private CompletableFuture<Suggestions> suggestOptionsKey(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
+        EntitySelectorOptions.suggestNames(this, builder);
         return builder.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestOptionsKeyOrClose(
-            SuggestionsBuilder builder,
-            Consumer<SuggestionsBuilder> names
-    ) {
+    private CompletableFuture<Suggestions> suggestOptionsKeyOrClose(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
         builder.suggest("]");
         return suggestOptionsKey(builder, names);
     }
 
-    private CompletableFuture<Suggestions> suggestOptionsNextOrClose(
-            SuggestionsBuilder builder,
-            Consumer<SuggestionsBuilder> names
-    ) {
-        builder.suggest(",");
-        builder.suggest("]");
+    private CompletableFuture<Suggestions> suggestOptionsNextOrClose(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
+        builder.suggest(","); builder.suggest("]");
         return builder.buildFuture();
     }
 
@@ -401,28 +320,5 @@ public final class EntitySelectorParser {
         SuggestionsBuilder sub = builder.createOffset(startPosition);
         names.accept(sub);
         return builder.add(sub).buildFuture();
-    }
-
-    private String read(char... end) {
-
-        int start = reader.getCursor();
-
-        while (reader.canRead()) {
-            char c = reader.peek();
-
-            if (Character.isWhitespace(c)) {
-                break;
-            }
-
-            for (char e : end) {
-                if (c == e) {
-                    return reader.getString().substring(start, reader.getCursor());
-                }
-            }
-
-            reader.skip();
-        }
-
-        return reader.getString().substring(start);
     }
 }

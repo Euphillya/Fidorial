@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.command.brigadier.argument.entity;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.DoubleRange;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.Player;
@@ -19,10 +20,7 @@ import java.util.stream.Collectors;
 public final class EntitySelector {
 
     public enum SortType {
-        ARBITRARY,
-        NEAREST,
-        FURTHEST,
-        RANDOM
+        ARBITRARY, NEAREST, FURTHEST, RANDOM
     }
 
     private final int maxResults;
@@ -32,16 +30,15 @@ public final class EntitySelector {
 
     private final List<Predicate<Entity>> predicates;
 
-    private final double x;
-    private final double y;
-    private final double z;
+    private final Double x;
+    private final Double y;
+    private final Double z;
 
-    private final Double minDistance;
-    private final Double maxDistance;
+    private final DoubleRange distance;
 
-    private final Integer dx;
-    private final Integer dy;
-    private final Integer dz;
+    private final Double dx;
+    private final Double dy;
+    private final Double dz;
 
     private final SortType sort;
 
@@ -54,14 +51,13 @@ public final class EntitySelector {
             boolean selfSelector,
             boolean usesSelector,
             List<Predicate<Entity>> predicates,
-            double x,
-            double y,
-            double z,
-            Double minDistance,
-            Double maxDistance,
-            Integer dx,
-            Integer dy,
-            Integer dz,
+            Double x,
+            Double y,
+            Double z,
+            DoubleRange distance,
+            Double dx,
+            Double dy,
+            Double dz,
             SortType sort,
             String targetName,
             UUID targetUuid
@@ -71,18 +67,13 @@ public final class EntitySelector {
         this.selfSelector = selfSelector;
         this.usesSelector = usesSelector;
         this.predicates = predicates;
-
         this.x = x;
         this.y = y;
         this.z = z;
-
-        this.minDistance = minDistance;
-        this.maxDistance = maxDistance;
-
+        this.distance = distance;
         this.dx = dx;
         this.dy = dy;
         this.dz = dz;
-
         this.sort = sort;
         this.targetName = targetName;
         this.targetUuid = targetUuid;
@@ -105,7 +96,6 @@ public final class EntitySelector {
     }
 
     public Entity findSingleEntity(CommandSource source) throws CommandSyntaxException {
-
         checkPermissions(source);
 
         Collection<? extends Entity> entities = findEntities(source);
@@ -113,7 +103,6 @@ public final class EntitySelector {
         if (entities.isEmpty()) {
             throw EntityArgument.NO_ENTITIES_FOUND.create();
         }
-
         if (entities.size() > 1) {
             throw EntityArgument.ERROR_NOT_SINGLE_ENTITY.create();
         }
@@ -122,7 +111,6 @@ public final class EntitySelector {
     }
 
     public Player findSinglePlayer(CommandSource source) throws CommandSyntaxException {
-
         checkPermissions(source);
 
         List<Player> players = findPlayers(source);
@@ -130,7 +118,6 @@ public final class EntitySelector {
         if (players.isEmpty()) {
             throw EntityArgument.NO_PLAYERS_FOUND.create();
         }
-
         if (players.size() > 1) {
             throw EntityArgument.ERROR_NOT_SINGLE_PLAYER.create();
         }
@@ -139,7 +126,6 @@ public final class EntitySelector {
     }
 
     public Collection<? extends Entity> findEntities(CommandSource source) throws CommandSyntaxException {
-
         checkPermissions(source);
 
         FidorialServer server = (FidorialServer) source.server();
@@ -152,11 +138,8 @@ public final class EntitySelector {
 
             if (entity.isPresent()) {
                 Entity found = entity.get();
-
                 includesEntities = !(found instanceof Player);
-
                 entities = includesEntities ? List.of(found) : server.onlinePlayers();
-
             } else {
                 includesEntities = false;
                 entities = server.onlinePlayers();
@@ -188,16 +171,13 @@ public final class EntitySelector {
     }
 
     public List<Player> findPlayers(CommandSource source) throws CommandSyntaxException {
-
         Collection<? extends Entity> entities = findEntities(source);
-
         List<Player> players = new ArrayList<>();
 
         for (Entity entity : entities) {
             if (!(entity instanceof Player player)) {
                 throw EntityArgument.ERROR_ONLY_PLAYERS_ALLOWED.create();
             }
-
             players.add(player);
         }
 
@@ -209,54 +189,47 @@ public final class EntitySelector {
     }
 
     private boolean matches(Entity entity, CommandSource source) {
-        // those types ARE nullable!!!!!!!!!!
         if (targetUuid != null && !entity.uuid().equals(targetUuid)) {
             return false;
         }
 
         if (targetName != null) {
-            if (!(entity instanceof Player player)) {
-                return false;
-            }
-
-            if (!player.name().equalsIgnoreCase(targetName)) {
-                return false;
-            }
+            if (!(entity instanceof Player player)) return false;
+            if (!player.name().equalsIgnoreCase(targetName)) return false;
         }
 
         for (Predicate<Entity> predicate : predicates) {
-            if (!predicate.test(entity)) {
-                return false;
-            }
+            if (!predicate.test(entity)) return false;
         }
 
-        if (minDistance != null || maxDistance != null) {
-            double distance = entity.distanceSquared(source.location());
-
-            if (minDistance != null && distance < minDistance * minDistance) {
-                return false;
-            }
-
-            if (maxDistance != null && distance > maxDistance * maxDistance) {
-                return false;
-            }
+        if (distance != null) {
+            double distSqr = entity.distanceSquared(source.location());
+            if (!distance.matchesSqr(distSqr)) return false;
         }
 
         if (dx != null || dy != null || dz != null) {
+            double originX = x != null ? x : source.location().x();
+            double originY = y != null ? y : source.location().y();
+            double originZ = z != null ? z : source.location().z();
+
             double ex = entity.location().x();
             double ey = entity.location().y();
             double ez = entity.location().z();
 
-            if (dx != null && (ex < x || ex > x + dx)) {
-                return false;
+            if (dx != null) {
+                double lo = Math.min(originX, originX + dx);
+                double hi = Math.max(originX, originX + dx);
+                if (ex < lo || ex > hi) return false;
             }
-
-            if (dy != null && (ey < y || ey > y + dy)) {
-                return false;
+            if (dy != null) {
+                double lo = Math.min(originY, originY + dy);
+                double hi = Math.max(originY, originY + dy);
+                if (ey < lo || ey > hi) return false;
             }
-
-            if (dz != null && (ez < z || ez > z + dz)) {
-                return false;
+            if (dz != null) {
+                double lo = Math.min(originZ, originZ + dz);
+                double hi = Math.max(originZ, originZ + dz);
+                if (ez < lo || ez > hi) return false;
             }
         }
 
@@ -264,29 +237,18 @@ public final class EntitySelector {
     }
 
     private void sort(List<? extends Entity> entities, CommandSource source) {
-
         switch (sort) {
             case NEAREST -> entities.sort(Comparator.comparingDouble(e -> e.distanceSquared(source.location())));
-
-            case FURTHEST ->
-                entities.sort(Comparator.comparingDouble((Entity e) -> e.distanceSquared(source.location()))
-                        .reversed());
-
+            case FURTHEST -> entities.sort(
+                    Comparator.comparingDouble((Entity e) -> e.distanceSquared(source.location())).reversed());
             case RANDOM -> Collections.shuffle(entities);
-
-            case ARBITRARY -> {
-            }
+            case ARBITRARY -> { }
         }
     }
 
     private void checkPermissions(CommandSource source) throws CommandSyntaxException {
-
-        if (!usesSelector) {
-            return;
-        }
-
+        if (!usesSelector) return;
         if (!source.sender().hasPermission("minecraft.command.selector")) {
-
             throw EntityArgument.SELECTORS_NOT_PERMITTED.create();
         }
     }

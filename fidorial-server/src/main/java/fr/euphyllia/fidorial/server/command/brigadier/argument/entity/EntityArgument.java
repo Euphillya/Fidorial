@@ -18,6 +18,7 @@ import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
@@ -157,7 +158,35 @@ public final class EntityArgument implements ArgumentType<EntitySelector> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return Suggestions.empty();
+        if (!(context.getSource() instanceof CommandSource source)) {
+            return Suggestions.empty();
+        }
+
+        StringReader reader = new StringReader(builder.getInput());
+        reader.setCursor(builder.getStart());
+
+        EntitySelectorParser parser = new EntitySelectorParser(reader);
+
+        try {
+            parser.parse();
+        } catch (CommandSyntaxException ignored) {
+        }
+
+        return parser.fillSuggestions(builder, suggestionsBuilder -> {
+            Collection<String> playerNames = source.server().onlinePlayers().stream()
+                    .map(Player::name)
+                    .toList();
+
+            Iterable<String> suggestedNames = this.playersOnly
+                    ? playerNames
+                    : playerNames; // extend here in the future
+
+            for (String name : suggestedNames) {
+                if (name.toLowerCase(Locale.ROOT).startsWith(suggestionsBuilder.getRemaining().toLowerCase(Locale.ROOT))) {
+                    suggestionsBuilder.suggest(name);
+                }
+            }
+        });
     }
 
     @Override
