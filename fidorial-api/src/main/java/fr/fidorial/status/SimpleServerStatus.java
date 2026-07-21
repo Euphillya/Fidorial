@@ -17,12 +17,12 @@ final class SimpleServerStatus implements ServerStatus {
     private final int players;
 
     SimpleServerStatus(
-            Component description,
-            Version version,
-            @Nullable Favicon favicon,
-            List<SamplePlayer> samplePlayers,
-            int maxPlayers,
-            int players
+            final Component description,
+            final Version version,
+            @Nullable final Favicon favicon,
+            final List<SamplePlayer> samplePlayers,
+            final int maxPlayers,
+            final int players
     ) {
         this.description = description;
         this.version = version;
@@ -83,44 +83,44 @@ final class SimpleServerStatus implements ServerStatus {
         private int players = 0;
 
         @Override
-        public ServerStatus.Builder description(Component description) {
+        public ServerStatus.Builder description(final Component description) {
             this.description = description;
             return this;
         }
 
         @Override
-        public ServerStatus.Builder version(Version version) {
+        public ServerStatus.Builder version(final Version version) {
             this.version = version;
             return this;
         }
 
         @Override
-        public ServerStatus.Builder favicon(Favicon favicon) {
+        public ServerStatus.Builder favicon(final Favicon favicon) {
             this.favicon = favicon;
             return this;
         }
 
         @Override
-        public ServerStatus.Builder maxPlayers(int maxPlayers) {
+        public ServerStatus.Builder maxPlayers(final int maxPlayers) {
             this.maxPlayers = maxPlayers;
             return this;
         }
 
         @Override
-        public ServerStatus.Builder players(int players) {
+        public ServerStatus.Builder players(final int players) {
             this.players = players;
             return this;
         }
 
         @Override
-        public ServerStatus.Builder samplePlayers(List<SamplePlayer> samplePlayers) {
+        public ServerStatus.Builder samplePlayers(final List<SamplePlayer> samplePlayers) {
             this.samplePlayers.clear();
             this.samplePlayers.addAll(samplePlayers);
             return this;
         }
 
         @Override
-        public ServerStatus.Builder samplePlayer(SamplePlayer samplePlayer) {
+        public ServerStatus.Builder samplePlayer(final SamplePlayer samplePlayer) {
             this.samplePlayers.add(samplePlayer);
             return this;
         }

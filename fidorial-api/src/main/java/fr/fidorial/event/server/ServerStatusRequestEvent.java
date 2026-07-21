@@ -11,7 +11,7 @@ public class ServerStatusRequestEvent implements Event {
     // todo: expose client connection that requested the status
 
     @ApiStatus.Internal
-    public ServerStatusRequestEvent(ServerStatus status) {
+    public ServerStatusRequestEvent(final ServerStatus status) {
         this.status = status;
     }
 
@@ -21,7 +21,7 @@ public class ServerStatusRequestEvent implements Event {
     }
 
     @Contract(mutates = "this")
-    public void setStatus(ServerStatus status) {
+    public void setStatus(final ServerStatus status) {
         this.status = status;
     }
 }

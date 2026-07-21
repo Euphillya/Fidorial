@@ -15,21 +15,21 @@ public final class StatusPacketHandler implements StatusPacketListener {
 
     private final ClientConnection connection;
 
-    public StatusPacketHandler(ClientConnection connection) {
+    public StatusPacketHandler(final ClientConnection connection) {
         this.connection = connection;
     }
 
     @Override
-    public void handleStatusRequest(ServerboundStatusRequestPacket packet) {
-        ServerStatus status = FidorialServer.getInstance().status();
-        ServerStatusRequestEvent event = new ServerStatusRequestEvent(status);
+    public void handleStatusRequest(final ServerboundStatusRequestPacket packet) {
+        final ServerStatus status = FidorialServer.getInstance().status();
+        final ServerStatusRequestEvent event = new ServerStatusRequestEvent(status);
         FidorialServer.getInstance().events().post(event);
-        String json = StatusResponseBuilder.build(event.getStatus());
+        final String json = StatusResponseBuilder.build(event.getStatus());
         connection.send(new ClientboundStatusResponsePacket(json));
     }
 
     @Override
-    public void handlePingRequest(ServerboundPingRequestPacket packet) {
+    public void handlePingRequest(final ServerboundPingRequestPacket packet) {
         connection.sendAndClose(new ClientboundPongResponsePacket(packet.payload()));
     }
 }

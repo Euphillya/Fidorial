@@ -11,17 +11,17 @@ public sealed interface Favicon permits SimpleFavicon {
     byte[] data();
 
     @Contract(value = "_ -> new", pure = true)
-    static Favicon read(Path path) throws IOException {
+    static Favicon read(final Path path) throws IOException {
         return SimpleFavicon.read(path);
     }
 
     @Contract(value = "_ -> new", pure = true)
-    static Favicon read(InputStream stream) throws IOException {
+    static Favicon read(final InputStream stream) throws IOException {
         return SimpleFavicon.read(stream);
     }
 
     @Contract(value = "_ -> new", pure = true)
-    static Favicon of(BufferedImage image) throws IOException {
+    static Favicon of(final BufferedImage image) throws IOException {
         return SimpleFavicon.of(image);
     }
 }
