@@ -26,6 +26,7 @@ module fr.fidorial {
     exports fr.fidorial.world.generation;
     exports fr.fidorial.world.weather;
     exports fr.fidorial.world;
+    exports fr.fidorial.sound;
     exports fr.fidorial;
     exports fr.fidorial.command.argument;
     exports fr.fidorial.command.argument.resolvers.selector;

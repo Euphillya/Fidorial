@@ -9,10 +9,13 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundLevelEventPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMotionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetHealthPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.entity.GameMode;
+import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
+import net.kyori.adventure.sound.Sound;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,11 +66,21 @@ public final class Explosion {
 
     public static void explode(ServerWorld world, Location center, float power, AbstractEntity source) {
         FidorialServer server = FidorialServer.getInstance();
+        playExplosionSound(server, center);
         destroyBlocks(server, world, center, power);
         damageEntities(server, world, center, power, source);
     }
 
-    private static void destroyBlocks(FidorialServer server, ServerWorld world, Location center, float power) {
+    private static void playExplosionSound(FidorialServer server, Location center) {
+        float pitch = (1.0f + (ThreadLocalRandom.current().nextFloat()
+                - ThreadLocalRandom.current().nextFloat()) * 0.2f) * 0.7f;
+        server.broadcast(new ClientboundSoundPacket(
+                Sound.sound(SoundEvents.GENERIC_EXPLODE, Sound.Source.BLOCK, 4.0f, pitch),
+                center.x(), center.y(), center.z()));
+    }
+
+    private static void destroyBlocks(FidorialServer server, ServerWorld world,
+                                      Location center, float power) {
         Set<BlockPos> toDestroy = collectExplodedBlocks(world, center, power);
         List<BlockPos> destroyed = new ArrayList<>(toDestroy.size());
 
