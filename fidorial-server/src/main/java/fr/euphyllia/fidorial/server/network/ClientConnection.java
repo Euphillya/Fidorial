@@ -89,7 +89,25 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
             LOGGER.trace("{} : {} recu (non gere, ignore)", state, name);
             return;
         }
-        packet.handle(listener);
+        ServerboundPacket effective = server.protocol().fireServerbound(this, name, packet);
+        if (effective == null) {
+            return;
+        }
+        effective.handle(listener);
+    }
+
+    /**
+     * Injects an already-decoded serverbound packet into the processing pipeline, as if
+     * it came from the client. Used by the protocol API.
+     *
+     * @param name   resource key of the packet
+     * @param packet packet to handle
+     */
+    public void injectServerbound(String name, ServerboundPacket packet) {
+        ServerboundPacket effective = server.protocol().fireServerbound(this, name, packet);
+        if (effective != null) {
+            effective.handle(listener);
+        }
     }
 
     public void setState(ConnectionState newState) {
@@ -126,11 +144,15 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     }
 
     private ChannelFuture write(ClientboundPacket packet) {
+        ClientboundPacket effective = server.protocol().fireClientbound(this, packet);
+        if (effective == null) {
+            return ctx.newSucceededFuture();
+        }
         ByteBuf out = ctx.alloc().buffer();
         try {
             PacketBuffer p = new PacketBuffer(out);
-            p.writeVarInt(protocol.clientboundId(state, packet.name()));
-            packet.write(p);
+            p.writeVarInt(protocol.clientboundId(state, effective.name()));
+            effective.write(p);
         } catch (Throwable t) {
             out.release();
             throw t;

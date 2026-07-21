@@ -23,6 +23,7 @@ import fr.euphyllia.fidorial.server.permission.OperatorList;
 import fr.euphyllia.fidorial.server.plugin.JavaPluginManager;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
+import fr.euphyllia.fidorial.server.protocol.impl.FidorialProtocolManager;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundAddEntityPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundBlockUpdatePacket;
@@ -106,6 +107,7 @@ public final class FidorialServer implements Server {
     private final BuiltInTranslationStore builtInTranslationStore = new BuiltInTranslationStore();
 
     private final ProtocolMap protocolMap = ProtocolMap.load();
+    private final FidorialProtocolManager protocolManager = new FidorialProtocolManager();
     private final Registries registries = Registries.load();
     private final CommandManager commandManager = new CommandManager();
 
@@ -309,6 +311,11 @@ public final class FidorialServer implements Server {
 
     public PluginManager plugins() {
         return pluginManager;
+    }
+
+    @Override
+    public FidorialProtocolManager protocol() {
+        return protocolManager;
     }
 
     @Override
