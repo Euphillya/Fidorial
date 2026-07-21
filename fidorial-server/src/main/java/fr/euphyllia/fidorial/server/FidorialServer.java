@@ -205,7 +205,6 @@ public final class FidorialServer implements Server {
         closeQuietly("monde", worldManager::close);
         closeQuietly("metriques", metrics::shutdown);
         LOGGER.info("Arret termine");
-        System.exit(0);
     }
 
     private void loadData() {

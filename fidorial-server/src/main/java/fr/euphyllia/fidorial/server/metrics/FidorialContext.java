@@ -15,27 +15,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-
 public final class FidorialContext extends SimpleContext {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    private FidorialContext(
-            Factory factory,
-            LoggerFactory loggerFactory,
-            @Token String token
-    ) {
+    private FidorialContext(Factory factory, LoggerFactory loggerFactory, @Token String token) {
         super(
                 factory,
                 loggerFactory,
-                SimpleConfig.read(
-                        Path.of("faststats")
-                                .resolve("config.properties"),
-                        loggerFactory
-                ),
+                SimpleConfig.read(Path.of("faststats").resolve("config.properties"), loggerFactory),
                 "fidorial",
-                token
-        );
+                token);
 
         initializeServices(factory);
     }
@@ -62,12 +52,18 @@ public final class FidorialContext extends SimpleContext {
     }
 
     @Override
-    protected void scheduleAtFixedRate(final Runnable task, final long initialDelay, final long period, final TimeUnit unit) {
+    protected void scheduleAtFixedRate(
+            final Runnable task,
+            final long initialDelay,
+            final long period,
+            final TimeUnit unit
+    ) {
         scheduler.scheduleAtFixedRate(task, initialDelay, period, unit);
     }
 
     @Override
     public void shutdown() {
+        scheduler.shutdown();
         super.shutdown();
     }
 
@@ -81,28 +77,20 @@ public final class FidorialContext extends SimpleContext {
         @Override
         public FidorialContext create() {
             final var loggerFactory = new PlatformLoggerFactory((level, throwable, message) -> {
-
                 switch (level) {
-
                     case INFO -> {
-                        if (throwable == null)
-                            FidorialServer.LOGGER.info(message);
-                        else
-                            FidorialServer.LOGGER.info(message, throwable);
+                        if (throwable == null) FidorialServer.LOGGER.info(message);
+                        else FidorialServer.LOGGER.info(message, throwable);
                     }
 
                     case WARN -> {
-                        if (throwable == null)
-                            FidorialServer.LOGGER.warn(message);
-                        else
-                            FidorialServer.LOGGER.warn(message, throwable);
+                        if (throwable == null) FidorialServer.LOGGER.warn(message);
+                        else FidorialServer.LOGGER.warn(message, throwable);
                     }
 
                     case ERROR -> {
-                        if (throwable == null)
-                            FidorialServer.LOGGER.error(message);
-                        else
-                            FidorialServer.LOGGER.error(message, throwable);
+                        if (throwable == null) FidorialServer.LOGGER.error(message);
+                        else FidorialServer.LOGGER.error(message, throwable);
                     }
                 }
             });
