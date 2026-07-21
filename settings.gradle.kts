@@ -4,3 +4,5 @@ include("fidorial-api")
 include("fidorial-auth")
 include("fidorial-server")
 include("fidorial-test-plugin")
+
+include("fidorial-registry-generator")
