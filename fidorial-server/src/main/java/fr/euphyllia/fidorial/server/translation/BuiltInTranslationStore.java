@@ -2,9 +2,9 @@ package fr.euphyllia.fidorial.server.translation;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import fr.fidorial.translation.TranslationStore;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.Main;
+import fr.fidorial.translation.TranslationStore;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.translation.MiniMessageTranslationStore;

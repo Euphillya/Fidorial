@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.command.CommandExecutor;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.world.weather.Weather;
-import fr.euphyllia.fidorial.server.FidorialServer;
-import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import net.kyori.adventure.text.Component;
 
 import java.util.Locale;

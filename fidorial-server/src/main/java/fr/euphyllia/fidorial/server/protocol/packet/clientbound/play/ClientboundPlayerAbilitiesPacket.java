@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 
-import fr.fidorial.entity.GameMode;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import fr.fidorial.entity.GameMode;
 
 public record ClientboundPlayerAbilitiesPacket(byte flags, float flyingSpeed, float fovModifier)
         implements ClientboundPacket {

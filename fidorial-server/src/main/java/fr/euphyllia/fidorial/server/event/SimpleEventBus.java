@@ -97,7 +97,7 @@ public final class SimpleEventBus implements EventBus {
             out.addAll(direct);
         }
         collect(type.getSuperclass(), out);
-        
+
         for (Class<?> itf : type.getInterfaces()) {
             collect(itf, out);
         }

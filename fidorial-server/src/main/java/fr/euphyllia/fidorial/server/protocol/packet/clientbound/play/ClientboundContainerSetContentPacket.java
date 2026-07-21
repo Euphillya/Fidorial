@@ -1,11 +1,11 @@
 package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 
-import fr.fidorial.inventory.ItemStack;
-import fr.fidorial.inventory.PlayerInventory;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.fidorial.inventory.ItemStack;
+import fr.fidorial.inventory.PlayerInventory;
 
 import java.util.Arrays;
 

@@ -1,11 +1,5 @@
 package fr.euphyllia.fidorial.server.world.fluid;
 
-import fr.fidorial.world.BlockFace;
-import fr.fidorial.world.BlockPos;
-import fr.fidorial.world.ChunkPos;
-import fr.fidorial.world.fluid.FluidManager;
-import fr.fidorial.world.fluid.FluidState;
-import fr.fidorial.world.fluid.FluidType;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundBlockUpdatePacket;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
@@ -14,6 +8,12 @@ import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
+import fr.fidorial.world.BlockFace;
+import fr.fidorial.world.BlockPos;
+import fr.fidorial.world.ChunkPos;
+import fr.fidorial.world.fluid.FluidManager;
+import fr.fidorial.world.fluid.FluidState;
+import fr.fidorial.world.fluid.FluidType;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -168,7 +168,7 @@ public final class FluidEngine implements FluidManager {
     }
 
     private @Nullable FluidState recomputeLevel(ServerWorld world, String worldName,
-                                      int x, int y, int z, FluidState self) throws IOException {
+                                                int x, int y, int z, FluidState self) throws IOException {
         FluidType type = self.type();
         if (type == null) {
             return null;

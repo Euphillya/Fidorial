@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import fr.fidorial.command.CommandExecutor;
-import fr.fidorial.command.CommandSender;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer.RegionTpsSnapshot;
+import fr.fidorial.command.CommandExecutor;
+import fr.fidorial.command.CommandSender;
 import net.kyori.adventure.text.Component;
 
 import java.util.List;

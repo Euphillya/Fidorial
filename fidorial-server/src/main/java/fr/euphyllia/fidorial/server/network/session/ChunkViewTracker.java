@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.network.session;
 
-import fr.fidorial.world.ChunkPos;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundForgetLevelChunkPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundLevelChunkWithLightPacket;
@@ -10,6 +9,7 @@ import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ChunkViewSource;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import fr.fidorial.world.ChunkPos;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 

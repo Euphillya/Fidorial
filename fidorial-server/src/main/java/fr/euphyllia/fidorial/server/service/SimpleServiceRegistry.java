@@ -4,7 +4,11 @@ import fr.fidorial.service.ServicePriority;
 import fr.fidorial.service.ServiceRegistry;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;

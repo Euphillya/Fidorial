@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.world;
 
-import fr.fidorial.world.BlockPos;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.fidorial.world.BlockPos;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;

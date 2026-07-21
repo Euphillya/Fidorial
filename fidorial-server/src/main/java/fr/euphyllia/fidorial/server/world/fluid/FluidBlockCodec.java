@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.world.fluid;
 
+import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.world.fluid.FluidState;
 import fr.fidorial.world.fluid.FluidType;
-import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;

@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server;
 
-import fr.fidorial.entity.GameMode;
 import fr.euphyllia.fidorial.server.world.WorldConstants;
+import fr.fidorial.entity.GameMode;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 

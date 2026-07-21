@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 
-import fr.fidorial.entity.PlayerProfile;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import fr.fidorial.entity.PlayerProfile;
 
 public record ClientboundPlayerInfoUpdatePacket(PlayerProfile profile, int gameMode, int ping)
         implements ClientboundPacket {

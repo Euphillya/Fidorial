@@ -1,28 +1,34 @@
 package fr.euphyllia.fidorial.server.world;
 
+import fr.euphyllia.fidorial.server.entity.AbstractEntity;
+import fr.euphyllia.fidorial.server.entity.EntityManager;
+import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
 import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
+import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import fr.euphyllia.fidorial.server.world.storage.EntityRegionStorage;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Chunk;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.World;
-import fr.euphyllia.fidorial.server.entity.AbstractEntity;
-import fr.euphyllia.fidorial.server.entity.EntityManager;
-import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
-import fr.euphyllia.fidorial.server.world.chunk.BlockState;
-import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
-import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
-import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.IntSupplier;
@@ -180,7 +186,7 @@ public final class ServerWorld implements World {
         }
         ChunkColumn column;
         try {
-            column =  loaded.computeIfAbsent(k, ignored -> {
+            column = loaded.computeIfAbsent(k, ignored -> {
                 try {
                     ChunkColumn fromDisk = storage.load(dimension, chunkX, chunkZ);
                     if (fromDisk != null) {

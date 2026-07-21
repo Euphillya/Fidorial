@@ -1,6 +1,16 @@
 package fr.euphyllia.fidorial.server.entity.player;
 
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.*;
+import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.entity.AbstractEntity;
+import fr.euphyllia.fidorial.server.entity.EntityTypes;
+import fr.euphyllia.fidorial.server.network.ClientConnection;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerAbilitiesPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerInfoGameModePacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSoundEntityPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSoundPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundStopSoundPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
@@ -17,10 +27,6 @@ import fr.fidorial.plugin.Plugin;
 import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
-import fr.euphyllia.fidorial.server.FidorialServer;
-import fr.euphyllia.fidorial.server.entity.AbstractEntity;
-import fr.euphyllia.fidorial.server.entity.EntityTypes;
-import fr.euphyllia.fidorial.server.network.ClientConnection;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;

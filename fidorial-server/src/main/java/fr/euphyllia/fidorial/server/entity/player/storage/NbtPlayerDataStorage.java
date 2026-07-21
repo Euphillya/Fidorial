@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.entity.player.storage;
 
-import fr.fidorial.entity.GameMode;
-import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
+import fr.fidorial.entity.GameMode;
+import fr.fidorial.storage.player.PlayerDataStorage;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.ByteArrayInputStream;

@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.entity.mob;
 
+import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.entity.LivingEntity;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
-import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 
 import java.util.UUID;
 

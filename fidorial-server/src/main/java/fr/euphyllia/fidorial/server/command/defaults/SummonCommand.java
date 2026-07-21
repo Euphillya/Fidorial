@@ -1,15 +1,15 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import fr.fidorial.command.CommandExecutor;
-import fr.fidorial.command.CommandSender;
-import fr.fidorial.entity.EntityType;
-import fr.fidorial.world.Location;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.euphyllia.fidorial.server.entity.mob.Mobs;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
+import fr.fidorial.command.CommandExecutor;
+import fr.fidorial.command.CommandSender;
+import fr.fidorial.entity.EntityType;
+import fr.fidorial.world.Location;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 

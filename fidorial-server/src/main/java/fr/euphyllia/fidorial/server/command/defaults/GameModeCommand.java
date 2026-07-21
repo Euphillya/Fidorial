@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.fidorial.command.CommandExecutor;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
-import fr.euphyllia.fidorial.server.FidorialServer;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 

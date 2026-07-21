@@ -1,11 +1,11 @@
 package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 
-import fr.fidorial.world.Location;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import fr.fidorial.world.Location;
 
 import java.util.UUID;
 
@@ -15,7 +15,7 @@ public record ClientboundAddEntityPacket(int entityId, UUID uuid, int typeNetwor
                                          float pitch, float yaw, float headYaw,
                                          int data)
         implements ClientboundPacket {
-    
+
     public static ClientboundAddEntityPacket of(AbstractEntity entity) {
         Location location = entity.location();
         return new ClientboundAddEntityPacket(

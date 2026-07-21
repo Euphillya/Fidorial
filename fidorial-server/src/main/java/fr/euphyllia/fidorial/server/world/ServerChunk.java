@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.world;
 
-import fr.fidorial.world.Chunk;
-import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import fr.fidorial.world.Chunk;
+import fr.fidorial.world.World;
 
 public final class ServerChunk implements Chunk {
 

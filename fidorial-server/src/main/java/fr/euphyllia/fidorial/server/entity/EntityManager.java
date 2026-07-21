@@ -1,9 +1,13 @@
 package fr.euphyllia.fidorial.server.entity;
 
-import fr.fidorial.world.ChunkPos;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
+import fr.fidorial.world.ChunkPos;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 

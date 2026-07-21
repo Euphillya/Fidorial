@@ -7,7 +7,8 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 public final class AdventureHelper {
 
-    private AdventureHelper() {}
+    private AdventureHelper() {
+    }
 
     public static final GsonComponentSerializer GSON_SERIALIZER = GsonComponentSerializer.gson();
     public static final ANSIComponentSerializer ANSI_SERIALIZER = ANSIComponentSerializer.ansi();

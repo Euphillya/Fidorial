@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.world.weather;
 
-import fr.fidorial.world.weather.Weather;
-import fr.fidorial.world.weather.WeatherManager;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
+import fr.fidorial.world.weather.Weather;
+import fr.fidorial.world.weather.WeatherManager;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.concurrent.Executors;

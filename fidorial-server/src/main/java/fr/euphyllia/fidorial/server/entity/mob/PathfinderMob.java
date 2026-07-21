@@ -1,17 +1,21 @@
 package fr.euphyllia.fidorial.server.entity.mob;
 
-import fr.fidorial.entity.EntityType;
-import fr.fidorial.entity.GameMode;
-import fr.fidorial.world.ChunkPos;
-import fr.fidorial.world.Location;
-import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.ai.BlockView;
 import fr.euphyllia.fidorial.server.entity.ai.GoalSelector;
 import fr.euphyllia.fidorial.server.entity.ai.Navigation;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.*;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundEntityPositionSyncPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundMoveEntityPosPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundMoveEntityPosRotPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundMoveEntityRotPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundRotateHeadPacket;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
+import fr.fidorial.entity.EntityType;
+import fr.fidorial.entity.GameMode;
+import fr.fidorial.world.ChunkPos;
+import fr.fidorial.world.Location;
+import fr.fidorial.world.World;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;

@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.plugin;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import fr.euphyllia.fidorial.server.event.SimpleEventBus;
 import fr.fidorial.Server;
 import fr.fidorial.permission.Permissible;
 import fr.fidorial.permission.Permission;
@@ -11,7 +12,6 @@ import fr.fidorial.plugin.PluginContext;
 import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.plugin.PluginMeta;
 import fr.fidorial.service.ServiceRegistry;
-import fr.euphyllia.fidorial.server.event.SimpleEventBus;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -23,7 +23,20 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 

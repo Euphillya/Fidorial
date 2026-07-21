@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.entity;
 
-import fr.fidorial.scheduler.RegionTickHandler;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
+import fr.fidorial.scheduler.RegionTickHandler;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 

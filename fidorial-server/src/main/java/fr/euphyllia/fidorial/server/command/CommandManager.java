@@ -1,9 +1,14 @@
 package fr.euphyllia.fidorial.server.command;
 
+import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
+import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
+import fr.euphyllia.fidorial.server.command.defaults.StopCommand;
+import fr.euphyllia.fidorial.server.command.defaults.SummonCommand;
+import fr.euphyllia.fidorial.server.command.defaults.TpsCommand;
+import fr.euphyllia.fidorial.server.command.defaults.WeatherCommand;
 import fr.fidorial.command.CommandExecutor;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.command.CommandSender;
-import fr.euphyllia.fidorial.server.command.defaults.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 

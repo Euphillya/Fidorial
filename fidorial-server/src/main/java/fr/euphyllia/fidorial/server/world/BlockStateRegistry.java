@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.world;
 
+import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.world.block.BlockData;
 import fr.fidorial.world.block.BlockRegistry;
 import fr.fidorial.world.block.BlockType;
-import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
