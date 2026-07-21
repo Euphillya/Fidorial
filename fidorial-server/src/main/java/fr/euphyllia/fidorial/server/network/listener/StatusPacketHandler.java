@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.network.listener;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.events.ServerStatusRequestEventImpl;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.status.ClientboundPongResponsePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.status.ClientboundStatusResponsePacket;
@@ -22,9 +23,9 @@ public final class StatusPacketHandler implements StatusPacketListener {
     @Override
     public void handleStatusRequest(final ServerboundStatusRequestPacket packet) {
         final ServerStatus status = FidorialServer.getInstance().status();
-        final ServerStatusRequestEvent event = new ServerStatusRequestEvent(status);
+        final ServerStatusRequestEvent event = new ServerStatusRequestEventImpl(status);
         FidorialServer.getInstance().events().post(event);
-        final String json = StatusResponseBuilder.build(event.getStatus());
+        final String json = StatusResponseBuilder.build(event.status());
         connection.send(new ClientboundStatusResponsePacket(json));
     }
 

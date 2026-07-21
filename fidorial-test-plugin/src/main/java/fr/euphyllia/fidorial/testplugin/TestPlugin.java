@@ -114,12 +114,12 @@ public final class TestPlugin implements Plugin {
         var events = context.events();
 
         events.subscribe(ServerStatusRequestEvent.class, event -> {
-            event.setStatus(event.getStatus().toBuilder()
+            event.status(event.status().toBuilder()
                     .description(Component.text("HELLO!!!"))
                     .samplePlayer(new ServerStatus.SamplePlayer("test", UUID.randomUUID()))
                     .maxPlayers(-999)
                     .players(999)
-                    .version(new ServerStatus.Version("§aIDK §cXOXO", event.getStatus().version().protocolVersion()))
+                    .version(new ServerStatus.Version("§aIDK §cXOXO", event.status().version().protocolVersion()))
                     .build());
         });
 
