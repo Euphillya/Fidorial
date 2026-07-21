@@ -171,6 +171,122 @@ public final class ArgumentTypes {
     }
 
     /**
+     * A boolean argument.
+     *
+     * @return argument
+     */
+    public static ArgumentType<Boolean> bool() {
+        return provider().bool();
+    }
+
+    /**
+     * A single unquoted word string argument.
+     *
+     * @return argument
+     */
+    public static ArgumentType<String> word() {
+        return provider().word();
+    }
+
+    /**
+     * A string argument, either a single word or a quoted phrase.
+     *
+     * @return argument
+     */
+    public static ArgumentType<String> string() {
+        return provider().string();
+    }
+
+    /**
+     * A string argument that consumes the remainder of the input.
+     *
+     * @return argument
+     */
+    public static ArgumentType<String> greedyString() {
+        return provider().greedyString();
+    }
+
+    /**
+     * An unbounded integer argument.
+     *
+     * @return argument
+     */
+    public static ArgumentType<Integer> integer() {
+        return integer(Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+
+    /**
+     * An integer argument bounded between {@code min} and {@code max}, inclusive.
+     *
+     * @param min the minimum value, inclusive
+     * @param max the maximum value, inclusive
+     * @return argument
+     */
+    public static ArgumentType<Integer> integer(final int min, final int max) {
+        return provider().integer(min, max);
+    }
+
+    /**
+     * An unbounded long argument.
+     *
+     * @return argument
+     */
+    public static ArgumentType<Long> longArg() {
+        return longArg(Long.MIN_VALUE, Long.MAX_VALUE);
+    }
+
+    /**
+     * A long argument bounded between {@code min} and {@code max}, inclusive.
+     *
+     * @param min the minimum value, inclusive
+     * @param max the maximum value, inclusive
+     * @return argument
+     */
+    public static ArgumentType<Long> longArg(final long min, final long max) {
+        return provider().longArg(min, max);
+    }
+
+    /**
+     * An unbounded float argument.
+     *
+     * @return argument
+     */
+    public static ArgumentType<Float> floatArg() {
+        return floatArg(-Float.MAX_VALUE, Float.MAX_VALUE);
+    }
+
+    /**
+     * A float argument bounded between {@code min} and {@code max}, inclusive.
+     *
+     * @param min the minimum value, inclusive
+     * @param max the maximum value, inclusive
+     * @return argument
+     */
+    public static ArgumentType<Float> floatArg(final float min, final float max) {
+        return provider().floatArg(min, max);
+    }
+
+    /**
+     * An unbounded double argument.
+     *
+     * @return argument
+     */
+    public static ArgumentType<Double> doubleArg() {
+        return doubleArg(-Double.MAX_VALUE, Double.MAX_VALUE);
+    }
+
+    /**
+     * A double argument bounded between {@code min} and {@code max}, inclusive.
+     *
+     * @param min the minimum value, inclusive
+     * @param max the maximum value, inclusive
+     * @return argument
+     */
+    public static ArgumentType<Double> doubleArg(final double min, final double max) {
+        return provider().doubleArg(min, max);
+    }
+
+    /**
      * An inclusive range of integers that may be unbounded on either end.
      *
      * @return argument
@@ -249,7 +365,10 @@ public final class ArgumentTypes {
     }
 
     /**
-     * An argument for a typed key for a {@link Registry}.
+     * An argument for a typed key for a {@link Registry}, without resolving
+     * it against the registry at parse time. The referenced entry is not
+     * required to exist — validation/resolution is deferred to whoever
+     * consumes the argument.
      *
      * @param registryKey the registry's key
      * @return argument
@@ -260,10 +379,26 @@ public final class ArgumentTypes {
         return provider().resourceKey(registryKey);
     }
 
+    /**
+     * An argument for a value from a {@link Registry}, resolved against
+     * the registry at parse time. Parsing fails immediately if no entry
+     * with the given key exists in the registry, and suggestions are
+     * populated from the registry's current contents.
+     *
+     * @param registryKey the registry's key
+     * @return argument
+     * @param <T> the registry value type
+     */
     public static <T> ArgumentType<T> resource(final RegistryKey<T> registryKey) {
         return provider().resource(registryKey);
     }
 
+    /**
+     * A 3D position argument, accepting absolute, relative ({@code ~}),
+     * and mixed coordinates for x, y, and z.
+     *
+     * @return argument
+     */
     public static ArgumentType<PositionResolver> position() {
         return provider().position();
     }

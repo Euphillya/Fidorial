@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
+import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.testplugin.TestPlugin;
@@ -23,7 +24,7 @@ public final class PregenCommand {
     public CommandTree create() {
         var command = CommandTree.literal("pregen")
                 .then(CommandTree.literal("start")
-                        .then(CommandTree.argument("radius", IntegerArgumentType.integer(1))
+                        .then(CommandTree.argument("radius", ArgumentTypes.integer(1, Integer.MAX_VALUE))
                                 .executes(ctx -> startDefault(plugin, ctx))
                                 .then(CommandTree.argument("centerX", IntegerArgumentType.integer())
                                         .then(CommandTree.argument("centerZ", IntegerArgumentType.integer())

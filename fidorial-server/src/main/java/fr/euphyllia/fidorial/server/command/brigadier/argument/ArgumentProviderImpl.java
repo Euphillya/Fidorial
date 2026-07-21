@@ -3,7 +3,7 @@ package fr.euphyllia.fidorial.server.command.brigadier.argument;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
@@ -14,6 +14,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgum
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.KeyArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceKeyArgument;
 import fr.fidorial.command.argument.ArgumentProvider;
@@ -126,7 +127,47 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<Key> key() {
-        return null;
+        return this.wrap(KeyArgument.key());
+    }
+
+    @Override
+    public ArgumentType<String> word() {
+        return this.wrap(StringArgumentType.word());
+    }
+
+    @Override
+    public ArgumentType<String> string() {
+        return this.wrap(StringArgumentType.string());
+    }
+
+    @Override
+    public ArgumentType<String> greedyString() {
+        return this.wrap(StringArgumentType.greedyString());
+    }
+
+    @Override
+    public ArgumentType<Boolean> bool() {
+        return this.wrap(BoolArgumentType.bool());
+    }
+
+    @Override
+    public ArgumentType<Integer> integer(int min, int max) {
+        return this.wrap(IntegerArgumentType.integer(min, max));
+    }
+
+    @Override
+    public ArgumentType<Long> longArg(long min, long max) {
+        return this.wrap(LongArgumentType.longArg(min, max));
+    }
+
+    @Override
+    public ArgumentType<Float> floatArg(float min, float max) {
+        return this.wrap(FloatArgumentType.floatArg(min, max));
+    }
+
+    @Override
+    public ArgumentType<Double> doubleArg(double min, double max) {
+        return this.wrap(DoubleArgumentType.doubleArg(min, max));
     }
 
     @Override

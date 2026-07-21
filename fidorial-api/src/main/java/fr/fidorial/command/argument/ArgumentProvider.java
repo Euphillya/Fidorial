@@ -43,22 +43,6 @@ public interface ArgumentProvider {
 
     ArgumentType<PlayerSelectorArgumentResolver> player();
 
-    default ArgumentType<EntitySelectorArgumentResolver> entity(Predicate<Entity> filter) {
-        return entity();
-    }
-
-    default ArgumentType<PlayerSelectorArgumentResolver> player(Predicate<Player> filter) {
-        return player();
-    }
-
-    default ArgumentType<EntitySelectorArgumentResolver> entities(Predicate<Entity> filter) {
-        return entities();
-    }
-
-    default ArgumentType<PlayerSelectorArgumentResolver> players(Predicate<Player> filter) {
-        return players();
-    }
-
     ArgumentType<EntitySelectorArgumentResolver> entities();
 
     ArgumentType<PlayerSelectorArgumentResolver> players();
@@ -80,6 +64,22 @@ public interface ArgumentProvider {
     ArgumentType<Style> style();
 
     ArgumentType<Key> key();
+
+    ArgumentType<String> word();
+
+    ArgumentType<String> string();
+
+    ArgumentType<String> greedyString();
+
+    ArgumentType<Boolean> bool();
+
+    ArgumentType<Integer> integer(int min, int max);
+
+    ArgumentType<Long> longArg(long min, long max);
+
+    ArgumentType<Float> floatArg(float min, float max);
+
+    ArgumentType<Double> doubleArg(double min, double max);
 
     ArgumentType<IntegerRangeProvider> integerRange();
 
