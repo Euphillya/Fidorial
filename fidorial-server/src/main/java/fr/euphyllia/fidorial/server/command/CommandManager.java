@@ -11,7 +11,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import fr.euphyllia.fidorial.server.adventure.brigadier.FidorialTranslatableMessage;
 import fr.euphyllia.fidorial.server.command.brigadier.InternalCommandMeta;
 import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
@@ -27,6 +26,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +39,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.convert;
+import static fr.euphyllia.fidorial.server.command.brigadier.argument.builtin.TranslatableExceptions.DISPATCHER_UNKNOWN_ARGUMENT;
+import static fr.euphyllia.fidorial.server.command.brigadier.argument.builtin.TranslatableExceptions.DISPATCHER_UNKNOWN_COMMAND;
 
 public final class CommandManager implements CommandRegistry {
     private final @GuardedBy("lock") CommandDispatcher<CommandSource> dispatcher;
@@ -177,7 +179,6 @@ public final class CommandManager implements CommandRegistry {
                                         exception.getRawMessage(),
                                         source.sender().isConsole())
                                 .color(NamedTextColor.RED));
-
                 sendContext(source, exception, cmdLine, source.sender().isConsole());
                 return false;
             }
@@ -195,6 +196,12 @@ public final class CommandManager implements CommandRegistry {
                 root = root.toLowerCase(Locale.ROOT);
 
                 if (!metaByAlias.containsKey(root)) {
+                    CommandSyntaxException e = unknownCommand(parse);
+                    source.sender()
+                            .sendMessage(
+                                    convert(e.getRawMessage(), source.sender().isConsole())
+                                            .color(NamedTextColor.RED));
+                    sendContext(source, e, cmdLine, source.sender().isConsole());
                     return false;
                 }
 
@@ -214,7 +221,7 @@ public final class CommandManager implements CommandRegistry {
                 .anyMatch(node -> node.getNode().getCommand() != null);
     }
 
-    private static CommandSyntaxException getParseException(ParseResults<CommandSource> parse) {
+    private static @Nullable CommandSyntaxException getParseException(ParseResults<CommandSource> parse) {
         if (!parse.getExceptions().isEmpty()) {
             return parse.getExceptions().values().iterator().next();
         }
@@ -224,30 +231,18 @@ public final class CommandManager implements CommandRegistry {
         }
 
         if (parse.getReader().canRead()) {
-            return new CommandSyntaxException(
-                    CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument(),
-                    new FidorialTranslatableMessage("command.unknown.argument"),
-                    parse.getReader().getString(),
-                    parse.getReader().getCursor());
+            return DISPATCHER_UNKNOWN_ARGUMENT.createWithContext(parse.getReader());
         }
 
         if (!hasExecutableNode(parse)) {
-            return new CommandSyntaxException(
-                    CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand(),
-                    new FidorialTranslatableMessage("command.unknown.command"),
-                    parse.getReader().getString(),
-                    parse.getReader().getCursor());
+            return DISPATCHER_UNKNOWN_COMMAND.createWithContext(parse.getReader());
         }
 
         return null;
     }
 
     private static CommandSyntaxException unknownCommand(ParseResults<CommandSource> parse) {
-        return new CommandSyntaxException(
-                CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand(),
-                new FidorialTranslatableMessage("command.unknown.command"),
-                parse.getReader().getString(),
-                parse.getReader().getCursor());
+        return DISPATCHER_UNKNOWN_COMMAND.createWithContext(parse.getReader());
     }
 
     private void sendContext(

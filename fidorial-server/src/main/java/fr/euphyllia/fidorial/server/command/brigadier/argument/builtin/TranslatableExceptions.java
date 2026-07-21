@@ -91,10 +91,10 @@ public final class TranslatableExceptions implements BuiltInExceptionProvider {
     private static final DynamicCommandExceptionType READER_EXPECTED_SYMBOL = new DynamicCommandExceptionType(symbol ->
             MSG_SERIALIZER.serialize(Component.translatable("parsing.expected", Component.text(symbol.toString()))));
 
-    private static final SimpleCommandExceptionType DISPATCHER_UNKNOWN_COMMAND =
+    public static final SimpleCommandExceptionType DISPATCHER_UNKNOWN_COMMAND =
             new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("command.unknown.command")));
 
-    private static final SimpleCommandExceptionType DISPATCHER_UNKNOWN_ARGUMENT = new SimpleCommandExceptionType(
+    public static final SimpleCommandExceptionType DISPATCHER_UNKNOWN_ARGUMENT = new SimpleCommandExceptionType(
             MSG_SERIALIZER.serialize(Component.translatable("command.unknown.argument")));
 
     private static final SimpleCommandExceptionType DISPATCHER_EXPECTED_ARGUMENT_SEPARATOR =
