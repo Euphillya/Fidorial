@@ -269,6 +269,11 @@ public final class FidorialServer implements Server {
     }
 
     @Override
+    public String getName() {
+        return "Fidorial";
+    }
+
+    @Override
     public String minecraftVersion() {
         return ProtocolConstants.MINECRAFT_VERSION;
     }
