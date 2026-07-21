@@ -22,8 +22,6 @@ public final class SummonCommand {
         return new CommandTree(CommandTree.literal("summon")
                 .requires(source -> source.sender().hasPermission("fidorial.command.summon"))
                 .then(CommandTree.argument("entity", ArgumentTypes.resource(ENTITY_TYPE))
-                        // .suggests((ctx, builder) -> ArgumentTypes.resourceKey(ENTITY_TYPE).listSuggestions(ctx,
-                        // builder))
                         .executes(SummonCommand::executeSelf)
                         .then(CommandTree.argument("position", ArgumentTypes.position())
                                 .suggests((ctx, builder) ->

@@ -5,6 +5,11 @@ import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.Item;
 import net.kyori.adventure.key.KeyPattern;
 
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
 /**
  * Generated {@link TypedKey} constants for the {@code minecraft:item} registry.
  */
@@ -802,7 +807,8 @@ public final class ItemKeys {
     public static final TypedKey<Item> CRIMSON_BUTTON = create("crimson_button");
     public static final TypedKey<Item> WARPED_BUTTON = create("warped_button");
     public static final TypedKey<Item> STONE_PRESSURE_PLATE = create("stone_pressure_plate");
-    public static final TypedKey<Item> POLISHED_BLACKSTONE_PRESSURE_PLATE = create("polished_blackstone_pressure_plate");
+    public static final TypedKey<Item> POLISHED_BLACKSTONE_PRESSURE_PLATE =
+            create("polished_blackstone_pressure_plate");
     public static final TypedKey<Item> LIGHT_WEIGHTED_PRESSURE_PLATE = create("light_weighted_pressure_plate");
     public static final TypedKey<Item> HEAVY_WEIGHTED_PRESSURE_PLATE = create("heavy_weighted_pressure_plate");
     public static final TypedKey<Item> OAK_PRESSURE_PLATE = create("oak_pressure_plate");
@@ -1437,7 +1443,8 @@ public final class ItemKeys {
     public static final TypedKey<Item> POLISHED_BLACKSTONE_BRICKS = create("polished_blackstone_bricks");
     public static final TypedKey<Item> POLISHED_BLACKSTONE_BRICK_SLAB = create("polished_blackstone_brick_slab");
     public static final TypedKey<Item> POLISHED_BLACKSTONE_BRICK_STAIRS = create("polished_blackstone_brick_stairs");
-    public static final TypedKey<Item> CRACKED_POLISHED_BLACKSTONE_BRICKS = create("cracked_polished_blackstone_bricks");
+    public static final TypedKey<Item> CRACKED_POLISHED_BLACKSTONE_BRICKS =
+            create("cracked_polished_blackstone_bricks");
     public static final TypedKey<Item> RESPAWN_ANCHOR = create("respawn_anchor");
     public static final TypedKey<Item> CANDLE = create("candle");
     public static final TypedKey<Item> WHITE_CANDLE = create("white_candle");
@@ -1468,22 +1475,31 @@ public final class ItemKeys {
     public static final TypedKey<Item> FROGSPAWN = create("frogspawn");
     public static final TypedKey<Item> ECHO_SHARD = create("echo_shard");
     public static final TypedKey<Item> BRUSH = create("brush");
-    public static final TypedKey<Item> NETHERITE_UPGRADE_SMITHING_TEMPLATE = create("netherite_upgrade_smithing_template");
-    public static final TypedKey<Item> SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE = create("sentry_armor_trim_smithing_template");
+    public static final TypedKey<Item> NETHERITE_UPGRADE_SMITHING_TEMPLATE =
+            create("netherite_upgrade_smithing_template");
+    public static final TypedKey<Item> SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE =
+            create("sentry_armor_trim_smithing_template");
     public static final TypedKey<Item> DUNE_ARMOR_TRIM_SMITHING_TEMPLATE = create("dune_armor_trim_smithing_template");
-    public static final TypedKey<Item> COAST_ARMOR_TRIM_SMITHING_TEMPLATE = create("coast_armor_trim_smithing_template");
+    public static final TypedKey<Item> COAST_ARMOR_TRIM_SMITHING_TEMPLATE =
+            create("coast_armor_trim_smithing_template");
     public static final TypedKey<Item> WILD_ARMOR_TRIM_SMITHING_TEMPLATE = create("wild_armor_trim_smithing_template");
     public static final TypedKey<Item> WARD_ARMOR_TRIM_SMITHING_TEMPLATE = create("ward_armor_trim_smithing_template");
     public static final TypedKey<Item> EYE_ARMOR_TRIM_SMITHING_TEMPLATE = create("eye_armor_trim_smithing_template");
     public static final TypedKey<Item> VEX_ARMOR_TRIM_SMITHING_TEMPLATE = create("vex_armor_trim_smithing_template");
     public static final TypedKey<Item> TIDE_ARMOR_TRIM_SMITHING_TEMPLATE = create("tide_armor_trim_smithing_template");
-    public static final TypedKey<Item> SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE = create("snout_armor_trim_smithing_template");
+    public static final TypedKey<Item> SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE =
+            create("snout_armor_trim_smithing_template");
     public static final TypedKey<Item> RIB_ARMOR_TRIM_SMITHING_TEMPLATE = create("rib_armor_trim_smithing_template");
-    public static final TypedKey<Item> SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE = create("spire_armor_trim_smithing_template");
-    public static final TypedKey<Item> WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE = create("wayfinder_armor_trim_smithing_template");
-    public static final TypedKey<Item> SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE = create("shaper_armor_trim_smithing_template");
-    public static final TypedKey<Item> SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE = create("silence_armor_trim_smithing_template");
-    public static final TypedKey<Item> RAISER_ARMOR_TRIM_SMITHING_TEMPLATE = create("raiser_armor_trim_smithing_template");
+    public static final TypedKey<Item> SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE =
+            create("spire_armor_trim_smithing_template");
+    public static final TypedKey<Item> WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE =
+            create("wayfinder_armor_trim_smithing_template");
+    public static final TypedKey<Item> SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE =
+            create("shaper_armor_trim_smithing_template");
+    public static final TypedKey<Item> SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE =
+            create("silence_armor_trim_smithing_template");
+    public static final TypedKey<Item> RAISER_ARMOR_TRIM_SMITHING_TEMPLATE =
+            create("raiser_armor_trim_smithing_template");
     public static final TypedKey<Item> HOST_ARMOR_TRIM_SMITHING_TEMPLATE = create("host_armor_trim_smithing_template");
     public static final TypedKey<Item> FLOW_ARMOR_TRIM_SMITHING_TEMPLATE = create("flow_armor_trim_smithing_template");
     public static final TypedKey<Item> BOLT_ARMOR_TRIM_SMITHING_TEMPLATE = create("bolt_armor_trim_smithing_template");
@@ -1540,8 +1556,10 @@ public final class ItemKeys {
     public static final TypedKey<Item> OXIDIZED_COPPER_GOLEM_STATUE = create("oxidized_copper_golem_statue");
     public static final TypedKey<Item> WAXED_COPPER_GOLEM_STATUE = create("waxed_copper_golem_statue");
     public static final TypedKey<Item> WAXED_EXPOSED_COPPER_GOLEM_STATUE = create("waxed_exposed_copper_golem_statue");
-    public static final TypedKey<Item> WAXED_WEATHERED_COPPER_GOLEM_STATUE = create("waxed_weathered_copper_golem_statue");
-    public static final TypedKey<Item> WAXED_OXIDIZED_COPPER_GOLEM_STATUE = create("waxed_oxidized_copper_golem_statue");
+    public static final TypedKey<Item> WAXED_WEATHERED_COPPER_GOLEM_STATUE =
+            create("waxed_weathered_copper_golem_statue");
+    public static final TypedKey<Item> WAXED_OXIDIZED_COPPER_GOLEM_STATUE =
+            create("waxed_oxidized_copper_golem_statue");
     public static final TypedKey<Item> TRIAL_SPAWNER = create("trial_spawner");
     public static final TypedKey<Item> TRIAL_KEY = create("trial_key");
     public static final TypedKey<Item> OMINOUS_TRIAL_KEY = create("ominous_trial_key");
@@ -1553,5 +1571,23 @@ public final class ItemKeys {
 
     private static TypedKey<Item> create(@KeyPattern String value) {
         return TypedKey.create(RegistryKey.ITEM, value);
+    }
+
+    private static final List<TypedKey<Item>> VALUES = Arrays.stream(ItemKeys.class.getDeclaredFields())
+            .filter(field -> Modifier.isStatic(field.getModifiers()))
+            .filter(field -> field.getType() == TypedKey.class)
+            .map(field -> {
+                try {
+                    @SuppressWarnings("unchecked")
+                    TypedKey<Item> key = (TypedKey<Item>) field.get(null);
+                    return key;
+                } catch (IllegalAccessException e) {
+                    throw new AssertionError(e);
+                }
+            })
+            .toList();
+
+    public static Stream<TypedKey<Item>> values() {
+        return VALUES.stream();
     }
 }

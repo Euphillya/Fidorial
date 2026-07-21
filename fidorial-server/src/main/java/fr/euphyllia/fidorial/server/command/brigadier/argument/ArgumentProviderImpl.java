@@ -15,10 +15,15 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.HexColorArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.NamedColorArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgumentInternal;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.item.ItemArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.item.ItemPredicateArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.AngleArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.location.BlockPositionArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.DimensionArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
@@ -88,7 +93,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<BlockPosResolver> blockPosition() {
-        return null;
+        return BlockPositionArgument.blockPosition();
     }
 
     @Override
@@ -98,22 +103,28 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<ItemStack> itemStack() {
-        return null;
+        return this.wrap(ItemArgument.item(), result -> {
+            fr.euphyllia.fidorial.server.entity.ItemStack internal = result.createItemStack(1);
+            return new fr.fidorial.inventory.ItemStack(internal.id(), internal.count());
+        });
     }
 
     @Override
     public ArgumentType<ItemStackPredicate> itemStackPredicate() {
-        return null;
+        return this.wrap(
+                ItemPredicateArgument.itemPredicate(),
+                internalPredicate -> apiStack -> internalPredicate.test(
+                        fr.euphyllia.fidorial.server.entity.ItemStack.of(apiStack.id(), apiStack.count())));
     }
 
     @Override
     public ArgumentType<NamedTextColor> namedColor() {
-        return null;
+        return NamedColorArgument.namedColor();
     }
 
     @Override
     public ArgumentType<TextColor> hexColor() {
-        return null;
+        return this.wrap(HexColorArgument.hexColor(), TextColor::color);
     }
 
     @Override

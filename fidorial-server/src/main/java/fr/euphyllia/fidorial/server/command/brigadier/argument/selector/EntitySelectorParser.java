@@ -132,18 +132,18 @@ public final class EntitySelectorParser {
             default -> throw INVALID.create();
         }
 
-        suggestions = this::suggestOpenOptions;
+        // suggestions = this::suggestOpenOptions;
 
         if (reader.canRead() && reader.peek() == '[') {
             reader.skip();
-            suggestions = this::suggestOptionsKeyOrClose;
+            // suggestions = this::suggestOptionsKeyOrClose;
             parseArguments();
         }
     }
 
     private void parseArguments() throws CommandSyntaxException {
 
-        suggestions = this::suggestOptionsKey;
+        // suggestions = this::suggestOptionsKey;
 
         while (reader.canRead() && reader.peek() != ']') {
             reader.skipWhitespace();
@@ -169,12 +169,12 @@ public final class EntitySelectorParser {
 
             reader.skipWhitespace();
 
-            suggestions = this::suggestOptionsNextOrClose;
+            // suggestions = this::suggestOptionsNextOrClose;
 
             if (reader.canRead()) {
                 if (reader.peek() == ',') {
                     reader.skip();
-                    suggestions = this::suggestOptionsKey;
+                    // suggestions = this::suggestOptionsKey;
                 } else if (reader.peek() != ']') {
                     throw ERROR_EXPECTED_END_OF_OPTIONS.createWithContext(reader);
                 }
@@ -362,6 +362,7 @@ public final class EntitySelectorParser {
             SuggestionsBuilder builder,
             Consumer<SuggestionsBuilder> names
     ) {
+        /*
         builder.suggest("limit=");
         builder.suggest("sort=");
         builder.suggest("distance=");
@@ -375,6 +376,7 @@ public final class EntitySelectorParser {
         builder.suggest("dx=");
         builder.suggest("dy=");
         builder.suggest("dz=");
+        */
         return builder.buildFuture();
     }
 
