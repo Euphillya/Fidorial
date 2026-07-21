@@ -157,19 +157,6 @@ public final class CommandManager implements CommandRegistry {
     @Override
     public CompletableFuture<Boolean> dispatchAsync(CommandSource source, String cmdLine) {
         return CompletableFuture.supplyAsync(() -> {
-            // dirty cuz vanilla brigadier doesnt allow child removal wtf
-            String root = cmdLine.strip();
-
-            int space = root.indexOf(' ');
-            if (space != -1) {
-                root = root.substring(0, space);
-            }
-
-            root = root.toLowerCase(Locale.ROOT);
-
-            if (!metaByAlias.containsKey(root)) {
-                return false;
-            }
 
             ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
 
@@ -185,6 +172,21 @@ public final class CommandManager implements CommandRegistry {
             }
 
             try {
+                // dirty cuz vanilla brigadier doesnt allow child removal wtf
+                // also we do this here so real invalid entries fail in the console
+                String root = cmdLine.strip();
+
+                int space = root.indexOf(' ');
+                if (space != -1) {
+                    root = root.substring(0, space);
+                }
+
+                root = root.toLowerCase(Locale.ROOT);
+
+                if (!metaByAlias.containsKey(root)) {
+                    return false;
+                }
+
                 int result = dispatcher.execute(parse);
                 return result == 1;
             } catch (CommandSyntaxException e) {
