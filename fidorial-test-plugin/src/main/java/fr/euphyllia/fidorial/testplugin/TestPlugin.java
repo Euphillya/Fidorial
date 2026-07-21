@@ -116,6 +116,7 @@ public final class TestPlugin implements Plugin {
         events.subscribe(ServerStatusRequestEvent.class, event -> {
             event.status(event.status().toBuilder()
                     .description(Component.text("HELLO!!!"))
+                    .enforceSecureChat(true)
                     .samplePlayer(new ServerStatus.SamplePlayer("test", UUID.randomUUID()))
                     .maxPlayers(-999)
                     .players(999)

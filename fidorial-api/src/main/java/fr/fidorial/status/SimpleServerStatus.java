@@ -13,6 +13,7 @@ final class SimpleServerStatus implements ServerStatus {
     private final Component description;
     private final List<SamplePlayer> samplePlayers;
     private final Version version;
+    private final boolean enforceSecureChat;
     private final int maxPlayers;
     private final int players;
 
@@ -21,13 +22,15 @@ final class SimpleServerStatus implements ServerStatus {
             final Version version,
             @Nullable final Favicon favicon,
             final List<SamplePlayer> samplePlayers,
+            boolean enforceSecureChat,
             final int maxPlayers,
             final int players
     ) {
         this.description = description;
         this.version = version;
         this.favicon = favicon;
-        this.samplePlayers = samplePlayers;
+        this.samplePlayers = List.copyOf(samplePlayers);
+        this.enforceSecureChat = enforceSecureChat;
         this.maxPlayers = maxPlayers;
         this.players = players;
     }
@@ -63,9 +66,15 @@ final class SimpleServerStatus implements ServerStatus {
     }
 
     @Override
+    public boolean enforceSecureChat() {
+        return enforceSecureChat;
+    }
+
+    @Override
     public ServerStatus.Builder toBuilder() {
         return new Builder()
                 .description(description)
+                .enforceSecureChat(enforceSecureChat)
                 .favicon(favicon)
                 .maxPlayers(maxPlayers)
                 .players(players)
@@ -79,6 +88,7 @@ final class SimpleServerStatus implements ServerStatus {
         private @Nullable Favicon favicon = null;
         private Component description = Component.empty();
         private Version version = new Version("", -1);
+        private boolean enforceSecureChat = false;
         private int maxPlayers = 0;
         private int players = 0;
 
@@ -95,7 +105,7 @@ final class SimpleServerStatus implements ServerStatus {
         }
 
         @Override
-        public ServerStatus.Builder favicon(final Favicon favicon) {
+        public ServerStatus.Builder favicon(@Nullable final Favicon favicon) {
             this.favicon = favicon;
             return this;
         }
@@ -126,8 +136,22 @@ final class SimpleServerStatus implements ServerStatus {
         }
 
         @Override
+        public ServerStatus.Builder enforceSecureChat(boolean enforceSecureChat) {
+            this.enforceSecureChat = enforceSecureChat;
+            return this;
+        }
+
+        @Override
         public ServerStatus build() {
-            return new SimpleServerStatus(description, version, favicon, samplePlayers, maxPlayers, players);
+            return new SimpleServerStatus(
+                    description,
+                    version,
+                    favicon,
+                    samplePlayers,
+                    enforceSecureChat,
+                    maxPlayers,
+                    players
+            );
         }
     }
 }
