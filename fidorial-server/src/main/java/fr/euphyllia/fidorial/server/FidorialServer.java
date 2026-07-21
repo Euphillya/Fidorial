@@ -57,6 +57,7 @@ import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.scheduler.RegionizedScheduler;
 import fr.fidorial.service.ServicePriority;
 import fr.fidorial.service.ServiceRegistry;
+import fr.fidorial.status.Favicon;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.storage.player.PlayerInventoryStorage;
 import fr.fidorial.translation.TranslationStore;
@@ -65,10 +66,12 @@ import fr.fidorial.world.block.Blocks;
 import fr.fidorial.world.fluid.FluidManager;
 import fr.fidorial.world.weather.WeatherManager;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.util.Collection;
@@ -83,6 +86,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.MINI_MESSAGE;
 import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public final class FidorialServer implements Server {
@@ -133,6 +137,10 @@ public final class FidorialServer implements Server {
             .create();
     private final ConsoleSender console = new ConsoleSender(this);
     private @Nullable Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
+
+    private @Nullable Favicon favicon = loadFavicon();
+    private Component description = MINI_MESSAGE.deserialize(config.motd());
+    private int maxPlayers = config.maxPlayers();
 
     public FidorialServer() throws IOException {
         if (instance != null) {
@@ -197,6 +205,16 @@ public final class FidorialServer implements Server {
         closeQuietly("metriques", metrics::shutdown);
         LOGGER.info("Arret termine");
         System.exit(0);
+    }
+
+    private @Nullable Favicon loadFavicon() {
+        final Path serverIcon = Path.of("server-icon.png");
+        if (Files.isRegularFile(serverIcon)) try {
+            return Favicon.read(serverIcon);
+        } catch (Exception e) {
+            LOGGER.warn("Could not load server icon", e);
+        }
+        return null;
     }
 
     private void loadData() {
@@ -279,6 +297,11 @@ public final class FidorialServer implements Server {
     }
 
     @Override
+    public String getName() {
+        return "Fidorial";
+    }
+
+    @Override
     public String minecraftVersion() {
         return ProtocolConstants.MINECRAFT_VERSION;
     }
@@ -296,6 +319,36 @@ public final class FidorialServer implements Server {
     @Override
     public EventBus events() {
         return events;
+    }
+
+    @Override
+    public Optional<Favicon> favicon() {
+        return Optional.ofNullable(favicon);
+    }
+
+    @Override
+    public void favicon(final Favicon favicon) {
+        this.favicon = favicon;
+    }
+
+    @Override
+    public Component description() {
+        return description;
+    }
+
+    @Override
+    public void description(final Component description) {
+        this.description = description;
+    }
+
+    @Override
+    public int maxPlayers() {
+        return maxPlayers;
+    }
+
+    @Override
+    public void maxPlayers(final int maxPlayers) {
+        this.maxPlayers = maxPlayers;
     }
 
     @Override
@@ -337,7 +390,9 @@ public final class FidorialServer implements Server {
 
     @Override
     public Optional<? extends Player> player(String name) {
-        return onlinePlayers().stream().filter(p -> p.name().equalsIgnoreCase(name)).findFirst();
+        return onlinePlayers().stream()
+                .filter(p -> p.name().equalsIgnoreCase(name))
+                .findFirst();
     }
 
     @Override
@@ -460,6 +515,7 @@ public final class FidorialServer implements Server {
         }
     }
 
+    @Override
     public int playerCount() {
         return connections.size();
     }

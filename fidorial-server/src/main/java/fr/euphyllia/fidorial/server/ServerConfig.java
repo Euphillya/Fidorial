@@ -15,24 +15,27 @@ import java.util.Properties;
 
 import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
-public record ServerConfig(int port,
-                           boolean onlineMode,
-                           int viewDistance,
-                           int sendDistance,
-                           int compressionThreshold,
-                           Path worldPath,
-                           Path pluginsPath,
-                           int autoSaveSeconds,
-                           int regionWorkers,
-                           int chunkWorkers,
-                           int aiWorkers,
-                           GameMode defaultGameMode,
-                           double spawnX,
-                           double spawnY,
-                           double spawnZ,
-                           String motd,
-                           ProxyMode proxyMode,
-                           @Nullable String velocitySecret) {
+public record ServerConfig(
+        int port,
+        boolean onlineMode,
+        int viewDistance,
+        int sendDistance,
+        int compressionThreshold,
+        Path worldPath,
+        Path pluginsPath,
+        int autoSaveSeconds,
+        int regionWorkers,
+        int chunkWorkers,
+        int aiWorkers,
+        GameMode defaultGameMode,
+        double spawnX,
+        double spawnY,
+        double spawnZ,
+        String motd,
+        int maxPlayers,
+        ProxyMode proxyMode,
+        @Nullable String velocitySecret
+) {
 
     private static final ComponentLogger LOGGER = getLogger(ServerConfig.class);
     private static final String DEFAULT_FILE = "fidorial.properties";
@@ -80,21 +83,25 @@ public record ServerConfig(int port,
                 Math.max(2, cpus / 8),
                 Math.max(2, cpus / 8),
                 GameMode.SURVIVAL,
-                WorldConstants.DEFAULT_SPAWN_X, WorldConstants.DEFAULT_SPAWN_Y, WorldConstants.DEFAULT_SPAWN_Z,
+                WorldConstants.DEFAULT_SPAWN_X,
+                WorldConstants.DEFAULT_SPAWN_Y,
+                WorldConstants.DEFAULT_SPAWN_Z,
                 "",
+                100,
                 ProxyMode.NONE,
                 "");
     }
 
     public static ServerConfig load() throws IOException {
-        return load(Path.of(DEFAULT_FILE));
+        Path file = Path.of(DEFAULT_FILE);
+        ServerConfig config = read(file);
+        config.write(file);
+        return config;
     }
 
-    public static ServerConfig load(Path file) throws IOException {
+    public static ServerConfig read(Path file) throws IOException {
         ServerConfig defaults = defaults();
         if (!Files.isRegularFile(file)) {
-            defaults.write(file);
-            LOGGER.info("{} cree avec les valeurs par defaut", file);
             return defaults;
         }
         Properties props = new Properties();
@@ -118,6 +125,7 @@ public record ServerConfig(int port,
                 readDouble(props, "spawn-y", defaults.spawnY()),
                 readDouble(props, "spawn-z", defaults.spawnZ()),
                 readString(props, "motd", "<red>Fidorial <white>| <blue>Alternative Minecraft Server"),
+                readInt(props, "max-players", defaults.maxPlayers()),
                 readProxyMode(props, "proxy-mode", defaults.proxyMode()),
                 readString(props, "velocity-secret", "").strip());
         LOGGER.info("Configuration chargee depuis {}", file);
@@ -178,8 +186,7 @@ public record ServerConfig(int port,
         }
         ProxyMode mode = ProxyMode.byName(raw.strip());
         if (mode == null) {
-            LOGGER.warn("{} = '{}' unknown (expected: none, velocity), default value {} used",
-                    key, raw, fallback);
+            LOGGER.warn("{} = '{}' unknown (expected: none, velocity), default value {} used", key, raw, fallback);
             return fallback;
         }
         return mode;
@@ -208,6 +215,7 @@ public record ServerConfig(int port,
         props.setProperty("spawn-y", Double.toString(spawnY));
         props.setProperty("spawn-z", Double.toString(spawnZ));
         props.setProperty("motd", motd);
+        props.setProperty("max-players", Integer.toString(maxPlayers));
         props.setProperty("proxy-mode", proxyMode.name().toLowerCase(Locale.ROOT));
         props.setProperty("velocity-secret", velocitySecret == null ? "" : velocitySecret);
         try (OutputStream out = Files.newOutputStream(file)) {

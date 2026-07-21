@@ -17,6 +17,8 @@ module fr.fidorial {
     exports fr.fidorial.registry;
     exports fr.fidorial.scheduler;
     exports fr.fidorial.service;
+    exports fr.fidorial.sound;
+    exports fr.fidorial.status;
     exports fr.fidorial.storage.player;
     exports fr.fidorial.translation;
     exports fr.fidorial.world.block.data.type;
@@ -27,9 +29,9 @@ module fr.fidorial {
     exports fr.fidorial.world.weather;
     exports fr.fidorial.world;
     exports fr.fidorial;
-    exports fr.fidorial.sound;
 
     requires com.google.common;
+    requires java.desktop;
     requires net.kyori.adventure.api;
     requires net.kyori.adventure.key;
     requires net.kyori.adventure.text.logger.slf4j;
