@@ -56,7 +56,6 @@ public final class StatusResponseBuilder {
     }
 
     public static JsonElement componentToJsonElement(final Component component) {
-        return GsonComponentSerializer.gson()
-                .serializeToTree(component);
+        return GsonComponentSerializer.gson().serializeToTree(component);
     }
 }

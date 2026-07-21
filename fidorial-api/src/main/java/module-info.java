@@ -17,6 +17,7 @@ module fr.fidorial {
     exports fr.fidorial.registry;
     exports fr.fidorial.scheduler;
     exports fr.fidorial.service;
+    exports fr.fidorial.sound;
     exports fr.fidorial.status;
     exports fr.fidorial.storage.player;
     exports fr.fidorial.translation;
@@ -28,7 +29,6 @@ module fr.fidorial {
     exports fr.fidorial.world.weather;
     exports fr.fidorial.world;
     exports fr.fidorial;
-    exports fr.fidorial.sound;
 
     requires com.google.common;
     requires java.desktop;

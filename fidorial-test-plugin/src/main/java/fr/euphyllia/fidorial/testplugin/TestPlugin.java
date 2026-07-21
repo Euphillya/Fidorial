@@ -120,7 +120,10 @@ public final class TestPlugin implements Plugin {
                     .samplePlayer(new ServerStatus.SamplePlayer("test", UUID.randomUUID()))
                     .maxPlayers(-999)
                     .players(999)
-                    .version(new ServerStatus.Version("§aIDK §cXOXO", event.status().version().protocolVersion()))
+                    .version(new ServerStatus.Version(
+                            "§aIDK §cXOXO",
+                            event.status().version().protocolVersion()
+                    ))
                     .build());
         });
 

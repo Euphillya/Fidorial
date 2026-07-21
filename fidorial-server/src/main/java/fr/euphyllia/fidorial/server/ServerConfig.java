@@ -15,25 +15,27 @@ import java.util.Properties;
 
 import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
-public record ServerConfig(int port,
-                           boolean onlineMode,
-                           int viewDistance,
-                           int sendDistance,
-                           int compressionThreshold,
-                           Path worldPath,
-                           Path pluginsPath,
-                           int autoSaveSeconds,
-                           int regionWorkers,
-                           int chunkWorkers,
-                           int aiWorkers,
-                           GameMode defaultGameMode,
-                           double spawnX,
-                           double spawnY,
-                           double spawnZ,
-                           String motd,
-                           int maxPlayers,
-                           ProxyMode proxyMode,
-                           @Nullable String velocitySecret) {
+public record ServerConfig(
+        int port,
+        boolean onlineMode,
+        int viewDistance,
+        int sendDistance,
+        int compressionThreshold,
+        Path worldPath,
+        Path pluginsPath,
+        int autoSaveSeconds,
+        int regionWorkers,
+        int chunkWorkers,
+        int aiWorkers,
+        GameMode defaultGameMode,
+        double spawnX,
+        double spawnY,
+        double spawnZ,
+        String motd,
+        int maxPlayers,
+        ProxyMode proxyMode,
+        @Nullable String velocitySecret
+) {
 
     private static final ComponentLogger LOGGER = getLogger(ServerConfig.class);
     private static final String DEFAULT_FILE = "fidorial.properties";
@@ -81,7 +83,9 @@ public record ServerConfig(int port,
                 Math.max(2, cpus / 8),
                 Math.max(2, cpus / 8),
                 GameMode.SURVIVAL,
-                WorldConstants.DEFAULT_SPAWN_X, WorldConstants.DEFAULT_SPAWN_Y, WorldConstants.DEFAULT_SPAWN_Z,
+                WorldConstants.DEFAULT_SPAWN_X,
+                WorldConstants.DEFAULT_SPAWN_Y,
+                WorldConstants.DEFAULT_SPAWN_Z,
                 "",
                 100,
                 ProxyMode.NONE,
@@ -182,8 +186,7 @@ public record ServerConfig(int port,
         }
         ProxyMode mode = ProxyMode.byName(raw.strip());
         if (mode == null) {
-            LOGGER.warn("{} = '{}' unknown (expected: none, velocity), default value {} used",
-                    key, raw, fallback);
+            LOGGER.warn("{} = '{}' unknown (expected: none, velocity), default value {} used", key, raw, fallback);
             return fallback;
         }
         return mode;

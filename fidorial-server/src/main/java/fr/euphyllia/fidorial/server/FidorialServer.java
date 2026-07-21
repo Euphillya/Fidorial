@@ -390,7 +390,9 @@ public final class FidorialServer implements Server {
 
     @Override
     public Optional<? extends Player> player(String name) {
-        return onlinePlayers().stream().filter(p -> p.name().equalsIgnoreCase(name)).findFirst();
+        return onlinePlayers().stream()
+                .filter(p -> p.name().equalsIgnoreCase(name))
+                .findFirst();
     }
 
     @Override
