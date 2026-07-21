@@ -36,7 +36,7 @@ public final class SummonCommand {
                         .requires(source ->
                                 source.sender().hasPermission("fidorial.command.summon")
                         )
-                        .then(CommandTree.argument("entity", ArgumentTypes.resourceKey(ENTITY_TYPE))
+                        .then(CommandTree.argument("entity", ArgumentTypes.resource(ENTITY_TYPE))
                                 //.suggests((ctx, builder) -> ArgumentTypes.resourceKey(ENTITY_TYPE).listSuggestions(ctx, builder))
                                 .executes(SummonCommand::executeSelf)
                                 .then(CommandTree.argument("position", ArgumentTypes.position())
@@ -47,7 +47,7 @@ public final class SummonCommand {
         );
     }
 
-    private static int executeSelf(CommandContext<CommandSource> context) throws CommandSyntaxException {
+    private static int executeSelf(CommandContext<CommandSource> context) {
 
         if (!(context.getSource().sender() instanceof ServerPlayer player)) {
             context.getSource().sender().sendMessage(
@@ -66,7 +66,7 @@ public final class SummonCommand {
     }
 
 
-    private static int executeCoordinates(CommandContext<CommandSource> context) throws CommandSyntaxException {
+    private static int executeCoordinates(CommandContext<CommandSource> context) {
         Location location =
                 context.getArgument("position", PositionResolver.class)
                         .resolve(context.getSource());
@@ -84,21 +84,8 @@ public final class SummonCommand {
             CommandContext<CommandSource> context,
             ServerWorld world,
             Location location
-    ) throws CommandSyntaxException {
-        TypedKey<EntityType> key =
-                context.getArgument("entity", TypedKey.class);
-
-        EntityType entity =
-                FidorialServer.getInstance()
-                        .registries()
-                        .registry(ENTITY_TYPE)
-                        .find(key)
-                        .orElseThrow(() ->
-                                ERROR_UNKNOWN_RESOURCE.create(
-                                        key.key(),
-                                        key.registry().key().asString()
-                                )
-                        );
+    ) {
+        EntityType entity = context.getArgument("entity", EntityType.class);
 
         if (!Mobs.isMob(entity)) {
             context.getSource().sender().sendMessage(

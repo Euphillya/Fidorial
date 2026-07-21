@@ -260,6 +260,10 @@ public final class ArgumentTypes {
         return provider().resourceKey(registryKey);
     }
 
+    public static <T> ArgumentType<T> resource(final RegistryKey<T> registryKey) {
+        return provider().resource(registryKey);
+    }
+
     public static ArgumentType<PositionResolver> position() {
         return provider().position();
     }

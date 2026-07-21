@@ -14,6 +14,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgum
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceKeyArgument;
 import fr.fidorial.command.argument.ArgumentProvider;
 import fr.fidorial.command.argument.predicate.ItemStackPredicate;
@@ -163,6 +164,11 @@ public class ArgumentProviderImpl implements ArgumentProvider {
         return this.wrap(
                 ResourceKeyArgument.resourceKey(registryKey),
                 internalRegistryKey -> internalRegistryKey);
+    }
+
+    @Override
+    public <T> ArgumentType<T> resource(final RegistryKey<T> registryKey) {
+        return this.wrap(ResourceArgument.resource(registryKey));
     }
 
     @Override

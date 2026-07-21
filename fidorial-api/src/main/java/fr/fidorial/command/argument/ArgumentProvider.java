@@ -95,6 +95,8 @@ public interface ArgumentProvider {
 
     <T> ArgumentType<TypedKey<T>> resourceKey(RegistryKey<T> registryKey);
 
+    <T> ArgumentType<T> resource(RegistryKey<T> registryKey);
+
     ArgumentType<PlayerProfileListResolver> playerProfiles();
 
     ArgumentType<BlockData> blockData();

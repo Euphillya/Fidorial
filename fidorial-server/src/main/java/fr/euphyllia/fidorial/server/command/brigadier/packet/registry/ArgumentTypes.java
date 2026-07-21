@@ -7,6 +7,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgum
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceKeyArgument;
 
 public final class ArgumentTypes {
@@ -22,6 +23,7 @@ public final class ArgumentTypes {
     public static final Vec3Argument.Info VEC3 = new Vec3Argument.Info();
     public static final GameModeArgument.Info GAME_MODE = new GameModeArgument.Info();
     public static final TimeArgument.Info TIME = new TimeArgument.Info();
+    public static final ResourceArgument.Info<?> RESOURCE = new ResourceArgument.Info<>();
     public static final ResourceKeyArgument.Info<?> RESOURCE_KEY = new ResourceKeyArgument.Info<>();
     public static final UuidArgument.Info UUID = new UuidArgument.Info();
 
@@ -34,6 +36,7 @@ public final class ArgumentTypes {
         register(Vec3Argument.class, VEC3, 10);
         register(GameModeArgument.class, GAME_MODE, 42);
         register(TimeArgument.class, TIME, 43);
+        register(ResourceArgument.class, RESOURCE, 46);
         register(ResourceKeyArgument.class, RESOURCE_KEY, 47);
         register(UuidArgument.class, UUID, 56);
     }
