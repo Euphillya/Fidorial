@@ -1,7 +1,6 @@
 package fr.euphyllia.fidorial.testplugin.command;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import fr.euphyllia.fidorial.testplugin.CounterService;
 import fr.euphyllia.fidorial.testplugin.TestPlugin;
@@ -23,6 +22,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static fr.fidorial.command.CommandTree.argument;
+import static fr.fidorial.command.CommandTree.literal;
 
 public final class ApiTestCommand {
 
@@ -33,7 +33,7 @@ public final class ApiTestCommand {
     }
 
     public CommandTree create() {
-        var command = CommandTree.literal("apitest")
+        var command = literal("apitest")
                 .then(literal("info").executes(ctx -> info(plugin, ctx)))
                 .then(literal("tps").executes(ctx -> tps(plugin, ctx)))
                 .then(literal("worlds").executes(ctx -> worlds(plugin, ctx)))
@@ -55,10 +55,6 @@ public final class ApiTestCommand {
                 .build();
 
         return new CommandTree(command);
-    }
-
-    private static LiteralArgumentBuilder<CommandSource> literal(String name) {
-        return CommandTree.literal(name);
     }
 
     private static int soundDefault(CommandContext<CommandSource> ctx) {
