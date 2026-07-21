@@ -209,35 +209,37 @@ public final class EntitySelector {
     }
 
     private boolean matches(Entity entity, CommandSource source) {
-
-        if (!entity.uuid().equals(targetUuid)) {
+        // those types ARE nullable!!!!!!!!!!
+        if (targetUuid != null && !entity.uuid().equals(targetUuid)) {
             return false;
         }
 
-        if (!(entity instanceof Player player)) {
-            return false;
-        }
+        if (targetName != null) {
+            if (!(entity instanceof Player player)) {
+                return false;
+            }
 
-        if (!player.name().equalsIgnoreCase(targetName)) {
-            return false;
-        }
-
-        for (Predicate<Entity> predicate : predicates) {
-            boolean result = predicate.test(entity);
-
-            if (!result) {
+            if (!player.name().equalsIgnoreCase(targetName)) {
                 return false;
             }
         }
 
-        double distance = entity.distanceSquared(source.location());
-
-        if (distance < minDistance * minDistance) {
-            return false;
+        for (Predicate<Entity> predicate : predicates) {
+            if (!predicate.test(entity)) {
+                return false;
+            }
         }
 
-        if (distance > maxDistance * maxDistance) {
-            return false;
+        if (minDistance != null || maxDistance != null) {
+            double distance = entity.distanceSquared(source.location());
+
+            if (minDistance != null && distance < minDistance * minDistance) {
+                return false;
+            }
+
+            if (maxDistance != null && distance > maxDistance * maxDistance) {
+                return false;
+            }
         }
 
         if (dx != null || dy != null || dz != null) {
@@ -253,7 +255,9 @@ public final class EntitySelector {
                 return false;
             }
 
-            return dz == null || (!(ez < z) && !(ez > z + dz));
+            if (dz != null && (ez < z || ez > z + dz)) {
+                return false;
+            }
         }
 
         return true;
