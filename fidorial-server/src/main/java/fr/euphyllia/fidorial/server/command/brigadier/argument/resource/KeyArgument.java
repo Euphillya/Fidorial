@@ -35,14 +35,13 @@ public final class KeyArgument implements ArgumentType<Key> {
         }
 
         String input = reader.getString().substring(start, reader.getCursor());
-        String full = input.contains(":") ? input : "minecraft:" + input;
 
-        if (!Key.parseable(full)) {
+        if (!Key.parseable(input)) {
             reader.setCursor(start);
             throw ERROR_INVALID_KEY.createWithContext(reader);
         }
 
-        return Key.key(full);
+        return Key.key(input);
     }
 
     private boolean isAllowedInKey(char c) {
