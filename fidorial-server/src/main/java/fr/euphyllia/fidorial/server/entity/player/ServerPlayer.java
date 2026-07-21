@@ -41,6 +41,11 @@ import java.util.Set;
 
 public final class ServerPlayer extends AbstractEntity implements Player, PermissibleBaseHolder {
 
+    // https://minecraft.wiki/w/Java_Edition_protocol/Entity_metadata#Avatar
+    public static final int MD_MAIN_HAND = 15; // Main hand (0: left, 1: right)
+    public static final int MD_DISPLAYED_SKIN_PARTS =
+            16; // The Displayed Skin Parts bit mask that is sent in Client Information
+
     private final PlayerProfile profile;
     private final PlayerInventory inventory;
     private final ClientConnection connection;

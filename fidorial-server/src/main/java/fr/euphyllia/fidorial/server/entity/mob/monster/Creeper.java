@@ -6,7 +6,7 @@ import fr.euphyllia.fidorial.server.entity.ai.goal.LookAtTargetGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.RandomStrollGoal;
 import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundCreeperStatePacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket;
 import fr.euphyllia.fidorial.server.world.Explosion;
 import fr.fidorial.entity.ai.Goal;
 import fr.fidorial.sound.SoundEvents;
@@ -34,6 +34,10 @@ public final class Creeper extends PathfinderMob {
 
     private int swell;
     private boolean primed;
+
+    private static final int MD_STATE = 16;
+    private static final int MD_CHARGED = 17;
+    private static final int MD_IGNITED = 18;
 
     public Creeper(int entityId, World world, Location location) {
         super(entityId, UUID.randomUUID(), EntityTypes.CREEPER, world, location, MAX_HEALTH);
@@ -78,7 +82,8 @@ public final class Creeper extends PathfinderMob {
             return;
         }
         this.primed = primed;
-        server().broadcast(new ClientboundCreeperStatePacket(entityId(), primed));
+        server().broadcast(ClientboundSetEntityMetadataPacket.of(
+                entityId(), ClientboundSetEntityMetadataPacket.Entry.varInt(MD_STATE, primed ? 1 : -1)));
         if (primed) {
             playSound(SoundEvents.CREEPER_PRIMED, Sound.Source.HOSTILE, 1.0f, 0.5f);
         }

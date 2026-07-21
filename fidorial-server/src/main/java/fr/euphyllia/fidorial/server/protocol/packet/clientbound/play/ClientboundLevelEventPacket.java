@@ -5,6 +5,7 @@ import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.fidorial.world.BlockPos;
 
+// https://minecraft.wiki/w/Java_Edition_protocol/Packets#World_Event
 public record ClientboundLevelEventPacket(int event, BlockPos position, int data, boolean global)
         implements ClientboundPacket {
 

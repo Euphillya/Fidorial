@@ -5,6 +5,7 @@ import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.fidorial.entity.GameMode;
 
+// https://minecraft.wiki/w/Java_Edition_protocol/Packets#Player_Abilities_(clientbound)
 public record ClientboundPlayerAbilitiesPacket(byte flags, float flyingSpeed, float fovModifier)
         implements ClientboundPacket {
 

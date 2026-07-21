@@ -9,6 +9,7 @@ import fr.fidorial.inventory.PlayerInventory;
 
 import java.util.Arrays;
 
+// https://minecraft.wiki/w/Java_Edition_protocol/Packets#Set_Container_Content
 public record ClientboundContainerSetContentPacket(PlayerInventory inventory, RegistryHolder frozen)
         implements ClientboundPacket {
 
