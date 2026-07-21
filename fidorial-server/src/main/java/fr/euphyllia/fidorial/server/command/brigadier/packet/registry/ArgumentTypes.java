@@ -10,6 +10,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.location.AngleArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.location.DimensionArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
@@ -38,6 +40,8 @@ public final class ArgumentTypes {
     public static final EntityArgument.Info ENTITY = new EntityArgument.Info();
     public static final PlayerProfileArgument.Info PLAYER_PROFILE = new PlayerProfileArgument.Info();
     public static final Vec3Argument.Info VEC3 = new Vec3Argument.Info();
+    public static final AngleArgument.Info ANGLE = new AngleArgument.Info();
+    public static final DimensionArgument.Info WORLD = new DimensionArgument.Info();
     public static final GameModeArgument.Info GAME_MODE = new GameModeArgument.Info();
     public static final TimeArgument.Info TIME = new TimeArgument.Info();
     public static final ResourceArgument.Info<?> RESOURCE = new ResourceArgument.Info<>();
@@ -55,6 +59,8 @@ public final class ArgumentTypes {
         register(EntityArgument.class, ENTITY, 6);
         register(PlayerProfileArgument.class, PLAYER_PROFILE, 7);
         register(Vec3Argument.class, VEC3, 10);
+        register(AngleArgument.class, ANGLE, 28);
+        register(DimensionArgument.class, WORLD, 41);
         register(GameModeArgument.class, GAME_MODE, 42);
         register(TimeArgument.class, TIME, 43);
         register(ResourceArgument.class, RESOURCE, 46);

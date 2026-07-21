@@ -14,9 +14,12 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgumentInternal;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.location.AngleArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.location.DimensionArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
@@ -90,7 +93,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<AngleResolver> angle() {
-        return null;
+        return AngleArgument.angle();
     }
 
     @Override
@@ -180,7 +183,9 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<World> world() {
-        return null;
+        return this.wrap(
+                DimensionArgument.dimension(),
+                worldKey -> FidorialServer.getInstance().worldManager().world(worldKey));
     }
 
     @Override

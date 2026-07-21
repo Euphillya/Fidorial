@@ -9,6 +9,7 @@ import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import fr.euphyllia.fidorial.server.world.storage.EntityRegionStorage;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
 import fr.euphyllia.fidorial.server.world.storage.WorldPaths;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -129,6 +130,10 @@ public final class WorldManager implements AutoCloseable {
 
     public ServerWorld dimension(Dimension dim) {
         return worlds.get(dim.id());
+    }
+
+    public ServerWorld world(Key worldKey) {
+        return worlds.get(worldKey.asString());
     }
 
     public LevelData levelData() {
