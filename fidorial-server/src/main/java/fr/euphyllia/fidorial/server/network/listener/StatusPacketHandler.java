@@ -9,6 +9,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.listener.StatusPacketListene
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundPingRequestPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundStatusRequestPacket;
 import fr.euphyllia.fidorial.server.status.StatusResponseBuilder;
+import fr.fidorial.Server;
 import fr.fidorial.event.server.ServerStatusRequestEvent;
 import fr.fidorial.status.ServerStatus;
 
@@ -22,7 +23,17 @@ public final class StatusPacketHandler implements StatusPacketListener {
 
     @Override
     public void handleStatusRequest(final ServerboundStatusRequestPacket packet) {
-        final ServerStatus status = FidorialServer.getInstance().status();
+        final Server server = FidorialServer.getInstance();
+        final ServerStatus status = ServerStatus.builder()
+                .favicon(server.favicon().orElse(null))
+                .description(server.description())
+                .maxPlayers(server.maxPlayers())
+                .players(server.playerCount())
+                .version(new ServerStatus.Version(
+                        server.getName() + " " + server.minecraftVersion(),
+                        server.protocolVersion()
+                ))
+                .build();
         final ServerStatusRequestEvent event = new ServerStatusRequestEventImpl(status);
         FidorialServer.getInstance().events().post(event);
         final String json = StatusResponseBuilder.build(event.status());

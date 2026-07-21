@@ -6,7 +6,7 @@ import fr.fidorial.event.EventBus;
 import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.scheduler.RegionizedScheduler;
 import fr.fidorial.service.ServiceRegistry;
-import fr.fidorial.status.ServerStatus;
+import fr.fidorial.status.Favicon;
 import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.World;
 import net.kyori.adventure.audience.Audience;
@@ -47,7 +47,68 @@ public interface Server /* extends ForwardingAudience */ { // we need more funct
 
     EventBus events();
 
-    ServerStatus status();
+    /**
+     * Gets the server's favicon shown in the status ping.
+     *
+     * @return the server favicon
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    Optional<Favicon> favicon();
+
+    /**
+     * Sets the server's favicon shown in the status ping.
+     *
+     * @param favicon the server favicon
+     * @since 0.1.0
+     */
+    @Contract(mutates = "this")
+    void favicon(Favicon favicon);
+
+    /**
+     * Gets the server description shown in the status ping.
+     *
+     * @return server description
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    Component description();
+
+    /**
+     * Sets the server description shown in the status ping.
+     *
+     * @param description server description
+     * @since 0.1.0
+     */
+    @Contract(mutates = "this")
+    void description(Component description);
+
+    /**
+     * Gets the maximum player count shown in the status ping.
+     *
+     * @return maximum player count
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    int maxPlayers();
+
+    /**
+     * Sets the maximum player count shown in the status ping.
+     *
+     * @param maxPlayers maximum player count
+     * @since 0.1.0
+     */
+    @Contract(mutates = "this")
+    void maxPlayers(int maxPlayers);
+
+    /**
+     * Gets the current online player count.
+     *
+     * @return online player count
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    int playerCount();
 
     ServiceRegistry services();
 
