@@ -14,7 +14,6 @@ import fr.fidorial.command.CommandSource;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,7 +127,6 @@ public final class CommandTreeSerializer {
             buf.writeVarInt(ids.get(node.getRedirect()));
         }
 
-        System.out.printf("NODE %s flags=%02x children=%s%n", node.getName(), flags, Arrays.toString(children));
         switch (node) {
             case LiteralCommandNode<?> literal -> buf.writeString(literal.getLiteral());
             case ArgumentCommandNode<?, ?> argument -> {
@@ -185,26 +183,12 @@ public final class CommandTreeSerializer {
     }
 
     private static void writeArgumentType(PacketBuffer buf, ArgumentType<?> argument) {
-        int start = buf.nettyBuf().writerIndex();
-
         ArgumentType<?> vanilla = unwrap(argument);
-
         ArgumentTypeRegistrar registrar = ArgumentTypeRegistry.registrar(vanilla);
-
         int id = NetworkArgumentIds.getId(registrar);
-
         buf.writeVarInt(id);
 
         registrar.serialize(registrar.access(vanilla), buf);
-
-        int end = buf.nettyBuf().writerIndex();
-
-        System.out.println(vanilla.getClass().getSimpleName() + " wrote " + (end - start) + " bytes");
-
-        for (int i = start; i < end; i++) {
-            System.out.printf("%02x ", buf.nettyBuf().getByte(i));
-        }
-        System.out.println();
     }
 
     private static boolean isRestricted(CommandNode<CommandSource> node) {
