@@ -19,7 +19,7 @@ public sealed interface Favicon permits SimpleFavicon {
     /**
      * Gets the PNG-encoded favicon image data.
      *
-     * @return favicon data
+     * @return a clone of the favicon data
      * @since 0.1.0
      */
     @Contract(value = " -> new", pure = true)
