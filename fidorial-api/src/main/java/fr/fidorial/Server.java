@@ -4,6 +4,7 @@ import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.entity.Player;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.plugin.PluginManager;
+import fr.fidorial.protocol.ProtocolManager;
 import fr.fidorial.scheduler.RegionizedScheduler;
 import fr.fidorial.service.ServiceRegistry;
 import fr.fidorial.translation.TranslationStore;
@@ -35,6 +36,13 @@ public interface Server /* extends ForwardingAudience */ { // we need more funct
     ServiceRegistry services();
 
     PluginManager plugins();
+
+    /**
+     * Low-level protocol manager (packet interception, modification and injection)
+     *
+     * @return the server's {@link ProtocolManager}
+     */
+    ProtocolManager protocol();
 
     Collection<? extends World> worlds();
 
