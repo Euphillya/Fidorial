@@ -11,7 +11,7 @@ public final class MessageComponentSerializerImpl implements MessageComponentSer
 
     @Override
     public @NotNull Component deserialize(@NotNull Message input) {
-        return BrigadierAdventureHelper.convert(input);
+        return BrigadierAdventureHelper.convert(input, false);
     }
 
     @Override

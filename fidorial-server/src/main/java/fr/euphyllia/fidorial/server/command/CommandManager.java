@@ -169,11 +169,10 @@ public final class CommandManager implements CommandRegistry {
         return CompletableFuture.supplyAsync(() -> {
             ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
 
-            CommandSyntaxException exception =
-                    getParseException(parse, source.sender().isConsole());
+            CommandSyntaxException exception = getParseException(parse);
 
             if (exception != null) {
-                source.sender().sendMessage(convert(exception.getRawMessage()).color(NamedTextColor.RED));
+                source.sender().sendMessage(convert(exception.getRawMessage(), source.sender().isConsole()).color(NamedTextColor.RED));
 
                 sendContext(source, exception, cmdLine, source.sender().isConsole());
                 return false;
@@ -198,7 +197,7 @@ public final class CommandManager implements CommandRegistry {
                 int result = dispatcher.execute(parse);
                 return result == 1;
             } catch (CommandSyntaxException e) {
-                source.sender().sendMessage(convert(e.getRawMessage()).color(NamedTextColor.RED));
+                source.sender().sendMessage(convert(e.getRawMessage(), source.sender().isConsole()).color(NamedTextColor.RED));
                 return false;
             }
         });
@@ -209,21 +208,19 @@ public final class CommandManager implements CommandRegistry {
                 .anyMatch(node -> node.getNode().getCommand() != null);
     }
 
-    private static CommandSyntaxException getParseException(ParseResults<CommandSource> parse, boolean isConsole) {
+    private static CommandSyntaxException getParseException(ParseResults<CommandSource> parse) {
         if (!parse.getExceptions().isEmpty()) {
             return parse.getExceptions().values().iterator().next();
         }
 
         if (parse.getContext().getNodes().isEmpty()) {
-            return unknownCommand(parse, isConsole);
+            return unknownCommand(parse);
         }
 
         if (parse.getReader().canRead()) {
             return new CommandSyntaxException(
                     CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownArgument(),
-                    isConsole
-                            ? new FidorialTranslatableMessage("console.command.unknown.argument")
-                            : new FidorialTranslatableMessage("command.unknown.argument"),
+                    new FidorialTranslatableMessage("command.unknown.argument"),
                     parse.getReader().getString(),
                     parse.getReader().getCursor());
         }
@@ -231,9 +228,7 @@ public final class CommandManager implements CommandRegistry {
         if (!hasExecutableNode(parse)) {
             return new CommandSyntaxException(
                     CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand(),
-                    isConsole
-                            ? new FidorialTranslatableMessage("console.command.unknown.command")
-                            : new FidorialTranslatableMessage("command.unknown.command"),
+                    new FidorialTranslatableMessage("command.unknown.command"),
                     parse.getReader().getString(),
                     parse.getReader().getCursor());
         }
@@ -241,12 +236,10 @@ public final class CommandManager implements CommandRegistry {
         return null;
     }
 
-    private static CommandSyntaxException unknownCommand(ParseResults<CommandSource> parse, boolean isConsole) {
+    private static CommandSyntaxException unknownCommand(ParseResults<CommandSource> parse) {
         return new CommandSyntaxException(
                 CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand(),
-                isConsole
-                        ? new FidorialTranslatableMessage("console.command.unknown.command")
-                        : new FidorialTranslatableMessage("command.unknown.command"),
+                new FidorialTranslatableMessage("command.unknown.command"),
                 parse.getReader().getString(),
                 parse.getReader().getCursor());
     }
