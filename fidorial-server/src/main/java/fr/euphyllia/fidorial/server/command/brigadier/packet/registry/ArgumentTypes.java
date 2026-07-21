@@ -41,7 +41,7 @@ public final class ArgumentTypes {
     public static final PlayerProfileArgument.Info PLAYER_PROFILE = new PlayerProfileArgument.Info();
     public static final Vec3Argument.Info VEC3 = new Vec3Argument.Info();
     public static final AngleArgument.Info ANGLE = new AngleArgument.Info();
-    public static final DimensionArgument.Info WORLD = new DimensionArgument.Info();
+    public static final DimensionArgument.Info DIMENSION = new DimensionArgument.Info();
     public static final GameModeArgument.Info GAME_MODE = new GameModeArgument.Info();
     public static final TimeArgument.Info TIME = new TimeArgument.Info();
     public static final ResourceArgument.Info<?> RESOURCE = new ResourceArgument.Info<>();
@@ -60,7 +60,7 @@ public final class ArgumentTypes {
         register(PlayerProfileArgument.class, PLAYER_PROFILE, 7);
         register(Vec3Argument.class, VEC3, 10);
         register(AngleArgument.class, ANGLE, 28);
-        register(DimensionArgument.class, WORLD, 41);
+        register(DimensionArgument.class, DIMENSION, 41);
         register(GameModeArgument.class, GAME_MODE, 42);
         register(TimeArgument.class, TIME, 43);
         register(ResourceArgument.class, RESOURCE, 46);
