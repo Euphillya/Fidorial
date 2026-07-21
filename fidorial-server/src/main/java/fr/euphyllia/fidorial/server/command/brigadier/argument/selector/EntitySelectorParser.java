@@ -132,18 +132,18 @@ public final class EntitySelectorParser {
             default -> throw INVALID.create();
         }
 
-        // suggestions = this::suggestOpenOptions;
+        suggestions = this::suggestOpenOptions;
 
         if (reader.canRead() && reader.peek() == '[') {
             reader.skip();
-            // suggestions = this::suggestOptionsKeyOrClose;
+            suggestions = this::suggestOptionsKeyOrClose;
             parseArguments();
         }
     }
 
     private void parseArguments() throws CommandSyntaxException {
 
-        // suggestions = this::suggestOptionsKey;
+        suggestions = this::suggestOptionsKey;
 
         while (reader.canRead() && reader.peek() != ']') {
             reader.skipWhitespace();
