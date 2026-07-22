@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.world.Chunk;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class BlockView {
@@ -16,55 +17,54 @@ public class BlockView {
     private BlockView() {
     }
 
-    public static @Nullable BlockState blockAt(ServerWorld world, int x, int y, int z) {
+    public static @Nullable BlockState blockAt(final ServerWorld world, final int x, final int y, final int z) {
         if (y < world.minY() || y >= world.minY() + world.height()) {
             return BlockState.AIR;
         }
-        Chunk chunk = world.getChunkIfLoaded(x >> 4, z >> 4).orElseThrow();
-        if (!(chunk instanceof ServerChunk serverChunk)) {
-            return null;
-        }
-        return serverChunk.column().getBlock(x & 15, y, z & 15);
+        final Optional<Chunk> optionalChunk = world.getChunkIfLoaded(x >> 4, z >> 4);
+        if (optionalChunk.isEmpty()) return null;
+        final Chunk chunk = optionalChunk.get();
+        return chunk instanceof final ServerChunk serverChunk ? serverChunk.column().getBlock(x & 15, y, z & 15) : null;
     }
 
-    public static boolean isPassable(ServerWorld world, int x, int y, int z) {
-        BlockState state = blockAt(world, x, y, z);
+    public static boolean isPassable(final ServerWorld world, final int x, final int y, final int z) {
+        final BlockState state = blockAt(world, x, y, z);
         return state != null && isPassable(state);
     }
 
-    public static boolean isPassable(BlockState state) {
+    public static boolean isPassable(final BlockState state) {
         if (state.isAir()) {
             return true;
         }
-        String name = state.name();
+        final String name = state.name();
         return PASSABLE.contains(name);
     }
 
-    public static boolean isSolidGround(ServerWorld world, int x, int y, int z) {
-        BlockState state = blockAt(world, x, y, z);
+    public static boolean isSolidGround(final ServerWorld world, final int x, final int y, final int z) {
+        final BlockState state = blockAt(world, x, y, z);
         return state != null && !isPassable(state);
     }
 
     public static boolean hasLineOfSight(
-            ServerWorld world,
-            double fromX,
-            double fromY,
-            double fromZ,
-            double toX,
-            double toY,
-            double toZ
+            final ServerWorld world,
+            final double fromX,
+            final double fromY,
+            final double fromZ,
+            final double toX,
+            final double toY,
+            final double toZ
     ) {
-        double dx = toX - fromX;
-        double dy = toY - fromY;
-        double dz = toZ - fromZ;
-        double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        final double dx = toX - fromX;
+        final double dy = toY - fromY;
+        final double dz = toZ - fromZ;
+        final double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (distance < 1.0E-6 || distance > 32.0) {
             return distance <= 32.0;
         }
-        int steps = (int) Math.ceil(distance * 2.0);
-        double stepX = dx / steps;
-        double stepY = dy / steps;
-        double stepZ = dz / steps;
+        final int steps = (int) Math.ceil(distance * 2.0);
+        final double stepX = dx / steps;
+        final double stepY = dy / steps;
+        final double stepZ = dz / steps;
         double x = fromX;
         double y = fromY;
         double z = fromZ;
@@ -76,16 +76,17 @@ public class BlockView {
             x += stepX;
             y += stepY;
             z += stepZ;
-            int bx = (int) Math.floor(x);
-            int by = (int) Math.floor(y);
-            int bz = (int) Math.floor(z);
+            final int bx = (int) Math.floor(x);
+            final int by = (int) Math.floor(y);
+            final int bz = (int) Math.floor(z);
             if (bx == lastBx && by == lastBy && bz == lastBz) {
                 continue;
             }
             lastBx = bx;
             lastBy = by;
             lastBz = bz;
-            if (!isPassable(world, bx, by, bz)) {
+            final BlockState state = blockAt(world, bx, by, bz);
+            if (state != null && !isPassable(state)) {
                 return false;
             }
         }
