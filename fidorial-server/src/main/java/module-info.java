@@ -2,6 +2,8 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 module fr.fidorial.server {
+    exports fr.euphyllia.fidorial.server.event;
+
     requires ch.qos.logback.classic;
     requires ch.qos.logback.core;
     requires com.google.common;

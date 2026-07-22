@@ -9,6 +9,7 @@ guava = "33.6.0-jre"
 brigadier = "1.3.10"
 jspecify = "1.0.0"
 jline = "4.3.1"
+junit = "6.1.1"
 spotless = "8.8.0"
 spotless-lib = "4.8.0"
 shadow = "9.5.1"
@@ -36,6 +37,7 @@ guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 jline-ffm = { module = "org.jline:jline-terminal-ffm", version.ref = "jline" }
 jline-reader = { module = "org.jline:jline-reader", version.ref = "jline" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 spotless-lib = { module = "com.diffplug.spotless:spotless-lib", version.ref = "spotless-lib" }
 spotless-lib-extra = { module = "com.diffplug.spotless:spotless-lib-extra", version.ref = "spotless-lib" }
