@@ -8,6 +8,7 @@ import fr.fidorial.event.EventPriority;
 import fr.fidorial.event.Subscribe;
 import fr.fidorial.event.Subscription;
 import fr.fidorial.plugin.Plugin;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
@@ -32,8 +33,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
+
 public final class SimpleEventBus implements EventBus {
     private static final int PRIORITY_COUNT = EventPriority.values().length;
+    private static final ComponentLogger LOGGER = getLogger(SimpleEventBus.class);
 
     private final Map<Class<?>, DirectSubscribers> directSubscribers = new ConcurrentHashMap<>();
     private final Map<Class<?>, DispatchChain> resolvedChains = new ConcurrentHashMap<>();
@@ -123,7 +127,11 @@ public final class SimpleEventBus implements EventBus {
             if (subscribe == null) {
                 continue;
             }
-            subscriptions.add(registerAnnotatedMethod(instance, plugin, false, method, subscribe.priority()));
+            final Subscription subscription = registerAnnotatedMethod(instance, plugin, method, subscribe.priority());
+            if (subscription != null) subscriptions.add(subscription);
+        }
+        if (subscriptions.isEmpty()) {
+            noSubscribersRegistered(plugin, instance.getClass());
         }
         return List.copyOf(subscriptions);
     }
@@ -136,14 +144,21 @@ public final class SimpleEventBus implements EventBus {
             if (subscribe == null) {
                 continue;
             }
-            subscriptions.add(registerAnnotatedMethod(clazz, plugin, true, method, subscribe.priority()));
+            if (!Modifier.isStatic(method.getModifiers())) {
+                continue;
+            }
+            final Subscription subscription = registerAnnotatedMethod(clazz, plugin, method, subscribe.priority());
+            if (subscription != null) subscriptions.add(subscription);
+        }
+        if (subscriptions.isEmpty()) {
+            noSubscribersRegistered(plugin, clazz);
         }
         return List.copyOf(subscriptions);
     }
 
     @Override
     public void unsubscribeAll(final Plugin plugin) {
-        removeAll(registration -> registration.owner == plugin);
+        removeAll(registration -> registration.plugin == plugin);
     }
 
     @Override
@@ -177,51 +192,58 @@ public final class SimpleEventBus implements EventBus {
         }
     }
 
-    private Subscription registerAnnotatedMethod(
-            final Object receiverOwner,
-            final Plugin registrationOwner,
-            final boolean staticOnly,
+    private @Nullable Subscription registerAnnotatedMethod(
+            final Object instance,
+            final Plugin plugin,
             final Method method,
             final EventPriority priority) {
         if (method.getParameterCount() != 1) {
-            throw invalidSubscriber(method, "must have exactly one parameter");
-        }
-        if (!Modifier.isStatic(method.getModifiers()) && staticOnly) {
-            throw invalidSubscriber(method, "instance method cannot be registered from Class<?>");
+            invalidSubscriber(plugin, method, "must have exactly one parameter");
+            return null;
         }
         final Class<?> eventClass = method.getParameterTypes()[0];
-        final boolean async = validateReturnType(method, eventClass);
+        final Boolean async = validateReturnType(plugin, method, eventClass);
+        if (async == null) return null;
         final MethodHandle handle = methodHandle(method);
-        final Object receiver = Modifier.isStatic(method.getModifiers()) ? null : receiverOwner;
+        final Object receiver = Modifier.isStatic(method.getModifiers()) ? null : instance;
         if (async) {
             final AsyncEventHandler<Object> handler = event -> invokeAsync(handle, receiver, event);
-            return addRegistration(eventClass, registrationOwner, priority, true, handler, receiverOwner);
+            return addRegistration(eventClass, plugin, priority, true, handler, instance);
         }
         final EventHandler<Object> handler = event -> invokeSync(handle, receiver, event);
-        return addRegistration(eventClass, registrationOwner, priority, false, handler, receiverOwner);
+        return addRegistration(eventClass, plugin, priority, false, handler, instance);
     }
 
-    private static boolean validateReturnType(final Method method, final Class<?> eventClass) {
+    private static @Nullable Boolean validateReturnType(final Plugin plugin, final Method method, final Class<?> eventClass) {
         final Class<?> returnType = method.getReturnType();
         if (returnType == Void.TYPE) {
             return false;
         }
         if (!CompletionStage.class.isAssignableFrom(returnType)) {
-            throw invalidSubscriber(method, "must return void or CompletionStage");
+            invalidSubscriber(plugin, method, "must return void or CompletionStage");
+            return null;
         }
         final Type genericReturnType = method.getGenericReturnType();
         if (!(genericReturnType instanceof final ParameterizedType parameterizedType)) {
-            throw invalidSubscriber(method, "async return type must declare the event generic");
+            invalidSubscriber(plugin, method, "async return type must declare the event generic");
+            return null;
         }
         final Type actualType = parameterizedType.getActualTypeArguments()[0];
         if (actualType != eventClass) {
-            throw invalidSubscriber(method, "async return generic must match the event parameter");
+            invalidSubscriber(plugin, method, "async return generic must match the event parameter");
+            return null;
         }
         return true;
     }
 
-    private static IllegalArgumentException invalidSubscriber(final Method method, final String reason) {
-        return new IllegalArgumentException("Invalid @Subscribe method " + method + ": " + reason);
+    private static void invalidSubscriber(final Plugin plugin, final Method method, final String reason) {
+        // todo: use plugin logger
+        LOGGER.error("Invalid @Subscribe method {}", method, new IllegalStateException(reason));
+    }
+
+    private static void noSubscribersRegistered(final Plugin plugin, final Class<?> clazz) {
+        // todo: use plugin logger
+        LOGGER.warn("No @Subscribe methods registered from {}", clazz.getName(), new Exception());
     }
 
     private static MethodHandle methodHandle(final Method method) {
@@ -474,7 +496,7 @@ public final class SimpleEventBus implements EventBus {
         private final EventPriority priority;
         private final boolean async;
         private final Object handler;
-        private final Plugin owner;
+        private final Plugin plugin;
         private final Object target;
         private final AtomicBoolean active = new AtomicBoolean(true);
 
@@ -484,14 +506,14 @@ public final class SimpleEventBus implements EventBus {
                 final EventPriority priority,
                 final boolean async,
                 final Object handler,
-                final Plugin owner,
+                final Plugin plugin,
                 final Object target) {
             this.bus = bus;
             this.eventClass = eventClass;
             this.priority = priority;
             this.async = async;
             this.handler = handler;
-            this.owner = owner;
+            this.plugin = plugin;
             this.target = target;
         }
 
@@ -517,7 +539,7 @@ public final class SimpleEventBus implements EventBus {
                     + "eventClass=" + eventClass.getName()
                     + ", priority=" + priority
                     + ", async=" + async
-                    + ", owner=" + owner
+                    + ", plugin=" + plugin
                     + ", target=" + target
                     + '}';
         }
