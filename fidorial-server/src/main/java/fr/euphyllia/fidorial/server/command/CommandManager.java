@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.command;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -206,7 +207,7 @@ public final class CommandManager implements CommandRegistry {
                 }
 
                 int result = dispatcher.execute(parse);
-                return result == 1;
+                return result == Command.SINGLE_SUCCESS;
             } catch (CommandSyntaxException e) {
                 source.sender()
                         .sendMessage(convert(e.getRawMessage(), source.sender().isConsole())
