@@ -13,6 +13,9 @@ dependencies {
     implementation(libs.faststats.core)
     implementation(libs.adventure.text.serializer.ansi)
     implementation(libs.logback.classic)
+    runtimeOnly(libs.netty.epoll)
+    runtimeOnly(libs.netty.kqueue)
+    runtimeOnly(libs.netty.iouring)
 }
 
 application {

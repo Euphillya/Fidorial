@@ -24,4 +24,7 @@ module fr.fidorial.server {
 
     requires static org.jetbrains.annotations;
     requires static org.jspecify;
+    requires io.netty.transport.classes.epoll;
+    requires io.netty.transport.classes.kqueue;
+    requires io.netty.transport.classes.io_uring;
 }
