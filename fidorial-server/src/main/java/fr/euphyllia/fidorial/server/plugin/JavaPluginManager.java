@@ -2,8 +2,8 @@ package fr.euphyllia.fidorial.server.plugin;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import fr.euphyllia.fidorial.server.event.SimpleEventBus;
 import fr.fidorial.Server;
+import fr.fidorial.event.EventBus;
 import fr.fidorial.permission.Permissible;
 import fr.fidorial.permission.Permission;
 import fr.fidorial.permission.PermissionDefault;
@@ -47,7 +47,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
     private static final Gson GSON = new Gson();
 
     private final Server server;
-    private final SimpleEventBus events;
+    private final EventBus events;
     private final ServiceRegistry services;
     private final Path pluginsFolder;
 
@@ -59,7 +59,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
     private final Map<Boolean, Map<Permissible, Boolean>> defSubs = new ConcurrentHashMap<>();
     private final Map<String, List<Permission>> pluginPermissions = new ConcurrentHashMap<>();
 
-    public JavaPluginManager(Server server, SimpleEventBus events, ServiceRegistry services, Path pluginsFolder) {
+    public JavaPluginManager(Server server, EventBus events, ServiceRegistry services, Path pluginsFolder) {
         this.server = server;
         this.events = events;
         this.services = services;
@@ -96,7 +96,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
     public void enableAll() {
         for (Loaded loaded : plugins.values()) {
             try {
-                events.withOwner(loaded.plugin, loaded.plugin::onEnable);
+                loaded.plugin.onEnable();
                 loaded.enabled = true;
                 LOGGER.info("Plugin active : {} v{}", loaded.meta.name(), loaded.meta.version());
             } catch (Throwable t) {
@@ -374,9 +374,9 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             }
             Plugin plugin = (Plugin) mainClass.getDeclaredConstructor().newInstance();
             PluginContext context =
-                    new SimplePluginContext(meta, server, events, services, pluginsFolder.resolve(meta.id()));
+                    new SimplePluginContext(meta, server, plugin, services, pluginsFolder.resolve(meta.id()));
             registerDescriptorPermissions(meta);
-            events.withOwner(plugin, () -> plugin.onLoad(context));
+            plugin.onLoad(context);
             plugins.put(meta.id(), new Loaded(meta, plugin, candidate.classLoader));
         } catch (Throwable t) {
             LOGGER.error("Chargement de {} impossible", meta.id(), t);

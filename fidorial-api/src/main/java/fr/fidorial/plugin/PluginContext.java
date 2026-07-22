@@ -1,7 +1,6 @@
 package fr.fidorial.plugin;
 
 import fr.fidorial.Server;
-import fr.fidorial.event.EventBus;
 import fr.fidorial.service.ServiceRegistry;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
@@ -12,7 +11,7 @@ public interface PluginContext {
 
     Server server();
 
-    EventBus events();
+    PluginEventBus events();
 
     ServiceRegistry services();
 

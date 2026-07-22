@@ -1,8 +1,9 @@
 package fr.euphyllia.fidorial.server.plugin;
 
 import fr.fidorial.Server;
-import fr.fidorial.event.EventBus;
+import fr.fidorial.plugin.Plugin;
 import fr.fidorial.plugin.PluginContext;
+import fr.fidorial.plugin.PluginEventBus;
 import fr.fidorial.plugin.PluginMeta;
 import fr.fidorial.service.ServiceRegistry;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -16,16 +17,21 @@ final class SimplePluginContext implements PluginContext {
 
     private final PluginMeta meta;
     private final Server server;
-    private final EventBus events;
+    private final PluginEventBus events;
     private final ServiceRegistry services;
     private final Path dataFolder;
     private final ComponentLogger logger;
 
-    SimplePluginContext(PluginMeta meta, Server server, EventBus events,
-                        ServiceRegistry services, Path dataFolder) {
+    SimplePluginContext(
+            final PluginMeta meta,
+            final Server server,
+            final Plugin plugin,
+            final ServiceRegistry services,
+            final Path dataFolder
+    ) {
         this.meta = meta;
         this.server = server;
-        this.events = events;
+        this.events = new SimplePluginEventBus(server.events(), plugin);
         this.services = services;
         this.dataFolder = dataFolder;
         this.logger = ComponentLogger.logger("plugin/" + meta.id());
@@ -42,7 +48,7 @@ final class SimplePluginContext implements PluginContext {
     }
 
     @Override
-    public EventBus events() {
+    public PluginEventBus events() {
         return events;
     }
 
@@ -60,7 +66,7 @@ final class SimplePluginContext implements PluginContext {
     public Path dataFolder() {
         try {
             Files.createDirectories(dataFolder);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new UncheckedIOException("Dossier de donnees de " + meta.id() + " impossible a creer", e);
         }
         return dataFolder;
