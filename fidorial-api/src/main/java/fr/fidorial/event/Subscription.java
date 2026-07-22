@@ -1,13 +1,10 @@
 package fr.fidorial.event;
 
-public interface Subscription extends AutoCloseable {
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.NonExtendable
+public interface Subscription {
     boolean isActive();
 
     void unsubscribe();
-
-    @Override
-    default void close() {
-        unsubscribe();
-    }
 }
