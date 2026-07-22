@@ -68,11 +68,6 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder, Comm
     }
 
     @Override
-    public boolean isConsole() {
-        return true;
-    }
-
-    @Override
     public PermissibleBase permissionBase() {
         return perm;
     }

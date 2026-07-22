@@ -67,9 +67,11 @@ public class PermissibleBase implements Permissible {
         if (info != null) {
             return info.value();
         }
-        Permission perm = pluginManager.getPermission(lname).orElse(null);
-        PermissionDefault def = perm == null ? Permission.DEFAULT_PERMISSION : perm.getDefault();
-        return def.getValue(isOp());
+        return pluginManager
+                .getPermission(lname)
+                .map(Permission::getDefault)
+                .orElse(Permission.DEFAULT_PERMISSION)
+                .getValue(isOp());
     }
 
     @Override

@@ -66,11 +66,6 @@ public final class PermissionlessCommandSender implements CommandSender {
     }
 
     @Override
-    public boolean isConsole() {
-        return false;
-    }
-
-    @Override
     public boolean isOp() {
         return false;
     }

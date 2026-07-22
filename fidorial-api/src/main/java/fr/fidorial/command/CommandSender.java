@@ -31,6 +31,4 @@ public interface CommandSender extends Audience, Permissible {
     }
 
     String name();
-
-    boolean isConsole();
 }

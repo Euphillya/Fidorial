@@ -308,11 +308,6 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         return this;
     }
 
-    @Override
-    public boolean isConsole() {
-        return false;
-    }
-
     private final class PlayerOperator implements ServerOperator {
 
         @Override

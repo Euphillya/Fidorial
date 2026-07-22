@@ -28,7 +28,7 @@ public interface World extends Keyed /* ForwardingAudience */ { // make it exten
     }
 
     default boolean isChunkLoaded(int chunkX, int chunkZ) {
-        return getChunkIfLoaded(chunkX, chunkZ) != null;
+        return getChunkIfLoaded(chunkX, chunkZ).isPresent();
     }
 
     int getBlockStateId(BlockPos pos);

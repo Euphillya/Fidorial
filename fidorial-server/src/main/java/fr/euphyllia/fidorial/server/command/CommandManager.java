@@ -173,14 +173,15 @@ public final class CommandManager implements CommandRegistry {
             ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
 
             CommandSyntaxException exception = getParseException(parse);
+            boolean isConsole = source.sender() instanceof ConsoleSender;
 
             if (exception != null) {
                 source.sender()
                         .sendMessage(convert(
                                         exception.getRawMessage(),
-                                        source.sender().isConsole())
+                                        isConsole)
                                 .color(NamedTextColor.RED));
-                sendContext(source, exception, cmdLine, source.sender().isConsole());
+                sendContext(source, exception, cmdLine, isConsole);
                 return false;
             }
 
@@ -200,9 +201,9 @@ public final class CommandManager implements CommandRegistry {
                     CommandSyntaxException e = unknownCommand(parse);
                     source.sender()
                             .sendMessage(
-                                    convert(e.getRawMessage(), source.sender().isConsole())
+                                    convert(e.getRawMessage(), isConsole)
                                             .color(NamedTextColor.RED));
-                    sendContext(source, e, cmdLine, source.sender().isConsole());
+                    sendContext(source, e, cmdLine, isConsole);
                     return false;
                 }
 
@@ -210,7 +211,7 @@ public final class CommandManager implements CommandRegistry {
                 return result == Command.SINGLE_SUCCESS;
             } catch (CommandSyntaxException e) {
                 source.sender()
-                        .sendMessage(convert(e.getRawMessage(), source.sender().isConsole())
+                        .sendMessage(convert(e.getRawMessage(), isConsole)
                                 .color(NamedTextColor.RED));
                 return false;
             }

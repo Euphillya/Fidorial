@@ -251,7 +251,7 @@ public final class ApiTestCommand {
         msg(
                 sender,
                 sender.name()
-                        + " | console=" + sender.isConsole()
+                        + " | console=" + sender.name().equals("Console")
                         + " | testplugin.use=" + sender.hasPermission("testplugin.use")
                         + " | testplugin.admin=" + sender.hasPermission("testplugin.admin"));
 
