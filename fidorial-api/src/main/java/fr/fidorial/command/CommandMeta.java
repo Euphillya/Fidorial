@@ -1,6 +1,7 @@
 package fr.fidorial.command;
 
 import com.mojang.brigadier.tree.CommandNode;
+import fr.fidorial.plugin.Plugin;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
@@ -31,7 +32,7 @@ public interface CommandMeta {
     /**
      * Returns the plugin that registered this command.
      */
-    @Nullable Object plugin();
+    @Nullable Plugin plugin();
 
     interface Builder {
 
@@ -43,7 +44,7 @@ public interface CommandMeta {
 
         Builder hint(CommandNode<CommandSource> node);
 
-        Builder plugin(Object plugin);
+        Builder plugin(Plugin plugin);
 
         CommandMeta build();
     }

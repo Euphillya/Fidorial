@@ -3,9 +3,9 @@ package fr.fidorial.world;
 import fr.fidorial.entity.Entity;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Keyed;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -21,10 +21,10 @@ public interface World extends Keyed /* ForwardingAudience */ { // make it exten
         return getChunkAsync(pos.x(), pos.z());
     }
 
-    @Nullable Chunk getChunkIfLoaded(int chunkX, int chunkZ);
+    Optional<Chunk> getChunkIfLoaded(int chunkX, int chunkZ);
 
-    default @Nullable Chunk getChunkIfLoaded(ChunkPos pos) {
-        return getChunkIfLoaded(pos.x(), pos.z());
+    default Chunk getChunkIfLoaded(ChunkPos pos) {
+        return getChunkIfLoaded(pos.x(), pos.z()).orElseThrow();
     }
 
     default boolean isChunkLoaded(int chunkX, int chunkZ) {

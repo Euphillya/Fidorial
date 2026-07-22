@@ -52,7 +52,7 @@ public class DefaultPermissions {
     }
 
     private static Permission register(PluginManager manager, Permission perm) {
-        Permission existing = manager.getPermission(perm.getName());
+        Permission existing = manager.getPermission(perm.getName()).orElse(null);
         if (existing != null) {
             return existing;
         }

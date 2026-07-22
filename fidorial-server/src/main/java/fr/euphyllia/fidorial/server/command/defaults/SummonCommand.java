@@ -45,8 +45,7 @@ public final class SummonCommand {
     }
 
     private static int executeCoordinates(CommandContext<CommandSource> context) {
-        Location location =
-                context.getArgument("position", PositionResolver.class).resolve(context.getSource());
+        Location location = context.getArgument("position", PositionResolver.class).resolve(context.getSource());
 
         ServerWorld world = context.getSource().sender() instanceof ServerPlayer player
                         && player.world() instanceof ServerWorld serverWorld

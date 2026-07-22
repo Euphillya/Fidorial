@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 public class PermissibleBase implements Permissible {
@@ -66,7 +67,7 @@ public class PermissibleBase implements Permissible {
         if (info != null) {
             return info.value();
         }
-        Permission perm = pluginManager.getPermission(lname);
+        Permission perm = pluginManager.getPermission(lname).orElse(null);
         PermissionDefault def = perm == null ? Permission.DEFAULT_PERMISSION : perm.getDefault();
         return def.getValue(isOp());
     }
@@ -161,10 +162,9 @@ public class PermissibleBase implements Permissible {
             permissions.put(lname, new PermissionAttachmentInfo(parent, lname, attachment, value));
             pluginManager.subscribeToPermission(lname, parent);
 
-            Permission perm = pluginManager.getPermission(lname);
-            if (perm != null) {
-                calculateChildPermissions(perm.getChildren(), !value, attachment);
-            }
+            Optional<Permission> optionalPermission = pluginManager.getPermission(lname);
+            Permission perm = optionalPermission.orElseThrow();
+            calculateChildPermissions(perm.getChildren(), !value, attachment);
         }
     }
 

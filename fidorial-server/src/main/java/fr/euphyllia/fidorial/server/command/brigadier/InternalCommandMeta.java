@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import fr.fidorial.command.CommandMeta;
 import fr.fidorial.command.CommandSource;
+import fr.fidorial.plugin.Plugin;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
@@ -23,7 +24,7 @@ public final class InternalCommandMeta implements CommandMeta {
         private final ImmutableSet.Builder<String> aliases;
         private final ImmutableList.Builder<CommandNode<CommandSource>> hints;
 
-        private Object plugin;
+        private Plugin plugin;
         private Component description;
         private Component usage;
 
@@ -83,7 +84,7 @@ public final class InternalCommandMeta implements CommandMeta {
         }
 
         @Override
-        public CommandMeta.Builder plugin(final Object plugin) {
+        public CommandMeta.Builder plugin(final Plugin plugin) {
             Preconditions.checkNotNull(plugin, "plugin");
 
             this.plugin = plugin;
@@ -113,7 +114,7 @@ public final class InternalCommandMeta implements CommandMeta {
 
     private final Set<String> aliases;
     private final List<CommandNode<CommandSource>> hints;
-    private final Object plugin;
+    private final Plugin plugin;
 
     private final @Nullable Component description;
     private final @Nullable Component usage;
@@ -121,7 +122,7 @@ public final class InternalCommandMeta implements CommandMeta {
     private InternalCommandMeta(
             final Set<String> aliases,
             final List<CommandNode<CommandSource>> hints,
-            final @Nullable Object plugin,
+            final @Nullable Plugin plugin,
             final @Nullable Component description,
             final @Nullable Component usage
     ) {
@@ -153,7 +154,7 @@ public final class InternalCommandMeta implements CommandMeta {
     }
 
     @Override
-    public @Nullable Object plugin() {
+    public @Nullable Plugin plugin() {
         return this.plugin;
     }
 

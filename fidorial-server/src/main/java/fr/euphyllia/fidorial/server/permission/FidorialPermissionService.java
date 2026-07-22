@@ -63,7 +63,7 @@ public final class FidorialPermissionService implements PermissionService {
 
     private boolean defaultValue(String permission, boolean op) {
         PluginManager plugins = server.plugins();
-        Permission perm = plugins.getPermission(permission.toLowerCase(Locale.ROOT));
+        Permission perm = plugins.getPermission(permission.toLowerCase(Locale.ROOT)).orElse(null);
         PermissionDefault def = perm == null ? Permission.DEFAULT_PERMISSION : perm.getDefault();
         return def.getValue(op);
     }

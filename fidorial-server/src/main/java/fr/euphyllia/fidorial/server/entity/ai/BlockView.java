@@ -20,7 +20,7 @@ public class BlockView {
         if (y < world.minY() || y >= world.minY() + world.height()) {
             return BlockState.AIR;
         }
-        Chunk chunk = world.getChunkIfLoaded(x >> 4, z >> 4);
+        Chunk chunk = world.getChunkIfLoaded(x >> 4, z >> 4).orElseThrow();
         if (!(chunk instanceof ServerChunk serverChunk)) {
             return null;
         }

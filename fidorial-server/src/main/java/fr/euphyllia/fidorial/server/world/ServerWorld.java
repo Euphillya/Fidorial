@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -132,9 +133,9 @@ public final class ServerWorld implements World {
     }
 
     @Override
-    public @Nullable Chunk getChunkIfLoaded(int chunkX, int chunkZ) {
+    public Optional<Chunk> getChunkIfLoaded(int chunkX, int chunkZ) {
         ChunkColumn cached = loaded.get(key(chunkX, chunkZ));
-        return cached == null ? null : wrap(cached);
+        return Optional.of(wrap(cached));
     }
 
     private ServerChunk wrap(ChunkColumn column) {

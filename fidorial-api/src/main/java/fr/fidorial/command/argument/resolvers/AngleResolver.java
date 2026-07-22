@@ -3,15 +3,12 @@ package fr.fidorial.command.argument.resolvers;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fr.fidorial.command.CommandSource;
 import org.jetbrains.annotations.ApiStatus;
-import org.jspecify.annotations.NullMarked;
 
 /**
  * An {@link ArgumentResolver} capable of resolving
  * an angle value using a {@link CommandSource}.
  *
  */
-@ApiStatus.Experimental
-@NullMarked
 @ApiStatus.NonExtendable
 public interface AngleResolver {
 

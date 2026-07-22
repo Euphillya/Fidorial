@@ -158,8 +158,8 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
     }
 
     @Override
-    public @Nullable Permission getPermission(@Nullable String name) {
-        return name == null ? null : permissions.get(name.toLowerCase(Locale.ROOT));
+    public Optional<Permission> getPermission(@Nullable String name) {
+        return name == null ? Optional.empty() : Optional.ofNullable(permissions.get(name.toLowerCase(Locale.ROOT)));
     }
 
     @Override

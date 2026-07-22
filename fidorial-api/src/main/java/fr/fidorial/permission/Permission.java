@@ -195,7 +195,7 @@ public class Permission {
             throw new IllegalStateException("Permission '" + this.name + "' non enregistree aupres d'un PluginManager");
         }
         String lname = name.toLowerCase(Locale.ROOT);
-        Permission perm = manager.getPermission(lname);
+        Permission perm = manager.getPermission(lname).orElse(null);
         if (perm == null) {
             perm = new Permission(lname);
             manager.addPermission(perm);
