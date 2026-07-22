@@ -203,7 +203,7 @@ public final class EntitySelector {
         }
 
         if (distance != null) {
-            double distSqr = entity.distanceSquared(source.location());
+            double distSqr = entity.location().distanceSquared(source.location());
             if (!distance.matchesSqr(distSqr)) return false;
         }
 
@@ -238,9 +238,9 @@ public final class EntitySelector {
 
     private void sort(List<? extends Entity> entities, CommandSource source) {
         switch (sort) {
-            case NEAREST -> entities.sort(Comparator.comparingDouble(e -> e.distanceSquared(source.location())));
+            case NEAREST -> entities.sort(Comparator.comparingDouble(e -> e.location().distanceSquared(source.location())));
             case FURTHEST -> entities.sort(
-                    Comparator.comparingDouble((Entity e) -> e.distanceSquared(source.location())).reversed());
+                    Comparator.comparingDouble((Entity e) -> e.location().distanceSquared(source.location())).reversed());
             case RANDOM -> Collections.shuffle(entities);
             case ARBITRARY -> { }
         }

@@ -26,12 +26,4 @@ public interface Entity extends CommandSource {
     boolean isRemoved();
 
     void remove();
-
-    default double distanceSquared(Location other) {
-        double dx = location().x() - other.x();
-        double dy = location().y() - other.y();
-        double dz = location().z() - other.z();
-
-        return dx * dx + dy * dy + dz * dz;
-    }
 }
