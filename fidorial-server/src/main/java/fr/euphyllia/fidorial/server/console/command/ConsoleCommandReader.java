@@ -43,8 +43,7 @@ public class ConsoleCommandReader {
     }
 
     private void run() {
-        Supplier<CommandSource> consoleSource = () ->
-                new ConsoleCommandSource(FidorialServer.getInstance().getConsole());
+        Supplier<CommandSource> consoleSource = () -> FidorialServer.getInstance().getConsole();
 
         try (Terminal terminal = TerminalBuilder.builder().system(true).build()) {
             LineReader lineReader = LineReaderBuilder.builder()
