@@ -165,6 +165,10 @@ public abstract class PathfinderMob extends Mob {
         return target;
     }
 
+    public final void setTarget(final @Nullable ServerPlayer target) {
+        this.target = target;
+    }
+
     public final double distanceSqTo(final ServerPlayer player) {
         final Location self = location();
         final Location other = player.location();
@@ -336,7 +340,6 @@ public abstract class PathfinderMob extends Mob {
     protected void onStep() {
     }
 
-
     private boolean isBoxBlocked(final double x, final double y, final double z) {
         final int minBlockY = (int) Math.floor(y);
         final int maxBlockY = (int) Math.floor(y + height() - 0.01);
@@ -344,15 +347,15 @@ public abstract class PathfinderMob extends Mob {
         for (int blockY = minBlockY; blockY <= maxBlockY; blockY++) {
             if (!BlockView.isPassable(world, (int) Math.floor(x - HALF_WIDTH), blockY, (int) Math.floor(z - HALF_WIDTH))
                     || !BlockView.isPassable(
-                            world, (int) Math.floor(x + HALF_WIDTH), blockY, (int) Math.floor(z - HALF_WIDTH))
+                    world, (int) Math.floor(x + HALF_WIDTH), blockY, (int) Math.floor(z - HALF_WIDTH))
                     || !BlockView.isPassable(
-                            world, (int) Math.floor(x - HALF_WIDTH), blockY, (int) Math.floor(z + HALF_WIDTH))
+                    world, (int) Math.floor(x - HALF_WIDTH), blockY, (int) Math.floor(z + HALF_WIDTH))
                     || !BlockView.isPassable(
-                            world,
-                            (int) Math.floor(x + HALF_WIDTH),
-                            blockY,
-                            (int) Math.floor(z + HALF_WIDTH))
-                    ) {
+                    world,
+                    (int) Math.floor(x + HALF_WIDTH),
+                    blockY,
+                    (int) Math.floor(z + HALF_WIDTH))
+            ) {
                 return true;
             }
         }
