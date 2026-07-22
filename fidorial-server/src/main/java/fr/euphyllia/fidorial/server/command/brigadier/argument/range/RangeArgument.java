@@ -42,7 +42,6 @@ public interface RangeArgument<T extends MinMaxBounds<?>> extends com.mojang.bri
 
             @Override
             public void serialize(Spec spec, PacketBuffer buf) {
-                // no state to write
             }
 
             @Override
@@ -52,7 +51,6 @@ public interface RangeArgument<T extends MinMaxBounds<?>> extends com.mojang.bri
 
             @Override
             public void serializeJson(Spec spec, JsonObject json) {
-                // no state to write
             }
 
             @Override

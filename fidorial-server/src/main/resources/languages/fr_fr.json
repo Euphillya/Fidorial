@@ -50,5 +50,72 @@
   "command.summon.done" : "Un <arg:0> a été invoqué (entité #<arg:1>).",
   "command.summon.notmob" : "<arg:0> n'est pas (encore) un mob invocable.",
   "command.summon.unknown" : "Type d'entité inconnu : <arg:0>",
-  "command.summon.usage" : "Utilisation : /<arg:0> <type> [x y z]"
+  "command.summon.usage" : "Utilisation : /<arg:0> <type> [x y z]",
+
+  "console.argument.double.low": "Le double ne doit pas être inférieur à <arg:0> (valeur trouvée : <arg:1>)",
+  "console.argument.double.big": "Le double ne doit pas être supérieur à <arg:0> (valeur trouvée : <arg:1>)",
+  "console.argument.float.low": "Le flottant ne doit pas être inférieur à <arg:0> (valeur trouvée : <arg:1>)",
+  "console.argument.float.big": "Le flottant ne doit pas être supérieur à <arg:0> (valeur trouvée : <arg:1>)",
+  "console.argument.integer.low": "L'entier ne doit pas être inférieur à <arg:0> (valeur trouvée : <arg:1>)",
+  "console.argument.integer.big": "L'entier ne doit pas être supérieur à <arg:0> (valeur trouvée : <arg:1>)",
+  "console.argument.long.low": "La valeur de type long ne doit pas être inférieure à <arg:0> (valeur trouvée : <arg:1>)",
+  "console.argument.long.big": "La valeur de type long ne doit pas être supérieure à <arg:0> (valeur trouvée : <arg:1>)",
+  "console.argument.literal.incorrect": "Littéral \"<arg:0>\" attendu",
+
+  "console.parsing.quote.expected.start": "Guillemets attendus au début de la chaîne",
+  "console.parsing.quote.expected.end": "Chaîne non fermée par des guillemets",
+  "console.parsing.quote.escape": "Séquence d'échappement \"\\<arg:0>\" non valide dans une chaîne entre guillemets",
+  "console.parsing.bool.invalid": "Booléen non valide : <arg:0> (\"true\" ou \"false\" attendu)",
+  "console.parsing.int.invalid": "Entier non valide : <arg:0>",
+  "console.parsing.int.expected": "Entier attendu",
+  "console.parsing.long.invalid": "Valeur de type long non valide : <arg:0>",
+  "console.parsing.long.expected": "Valeur de type long attendue",
+  "console.parsing.double.invalid": "Double non valide : <arg:0>",
+  "console.parsing.double.expected": "Double attendu",
+  "console.parsing.float.invalid": "Flottant non valide : <arg:0>",
+  "console.parsing.float.expected": "Flottant attendu",
+  "console.parsing.bool.expected": "Booléen attendu",
+  "console.parsing.expected": "\"<arg:0>\" attendu",
+
+  "console.argument.component.invalid": "Composant de tchat non valide : <arg:0>",
+
+  "console.argument.entity.toomany": "Seulement une entité est autorisée, mais le sélecteur fourni en autorise plus d'une",
+  "console.argument.player.toomany": "Seulement un joueur est autorisé, mais le sélecteur fourni en autorise plus d'un",
+  "console.argument.player.entities": "Seuls les joueurs peuvent être affectés par cette commande, mais le sélecteur fourni inclut des entités",
+  "console.argument.entity.notfound.entity": "Aucune entité n'a été trouvée",
+  "console.argument.entity.notfound.player": "Aucun joueur n'a été trouvé",
+  "console.argument.entity.selector.not_allowed": "Sélecteur non autorisé",
+  "console.argument.entity.invalid": "Nom ou UUID non valide",
+
+  "console.argument.entity.options.unterminated": "Fin des options attendue",
+  "console.argument.entity.options.valueless": "Valeur attendue pour l'option \"<arg:0>\"",
+  "console.argument.entity.options.unknown": "Option inconnue : <arg:0>",
+  "console.argument.entity.options.inapplicable": "L'option \"<arg:0>\" n'est pas applicable ici",
+  "console.argument.entity.options.distance.negative": "La distance ne peut pas être négative",
+  "console.argument.entity.options.limit.toosmall": "La limite doit être d'au moins 1",
+  "console.argument.entity.options.sort.irreversible": "Type de tri inconnu ou non valide : <arg:0>",
+
+  "console.argument.time.invalid_unit": "Unité non valide",
+  "console.argument.time.tick_count_too_low": "Le nombre de ticks ne doit pas être inférieur à <arg:0> (valeur trouvée : <arg:1>)",
+
+  "console.argument.item.id.invalid": "Objet inconnu : <arg:0>",
+
+  "console.argument.player.unknown": "Ce joueur n'existe pas",
+
+  "console.argument.range.empty": "Valeur ou plage de valeurs attendue",
+  "console.argument.range.swapped": "Le minimum ne peut pas être plus grand que le maximum",
+
+  "console.argument.resource.not_found": "Impossible de trouver l'élément \"<arg:0>\" de type \"<arg:1>\"",
+
+  "console.argument.hexcolor.invalid": "Code de couleur hexadécimal non valide : <arg:0>",
+  "console.argument.color.invalid": "Couleur inconnue : <arg:0>",
+  "console.argument.style.invalid": "Style non valide : <arg:0>",
+  "console.argument.uuid.invalid": "UUID non valide",
+
+  "console.argument.angle.incomplete": "Incomplet (1 angle attendu)",
+  "console.argument.angle.invalid": "Angle non valide",
+
+  "console.argument.dimension.invalid": "Dimension inconnue : <arg:0>",
+  "console.argument.gamemode.invalid": "Mode de jeu inconnu : <arg:0>",
+  "console.argument.id.invalid": "ID non valide"
 }

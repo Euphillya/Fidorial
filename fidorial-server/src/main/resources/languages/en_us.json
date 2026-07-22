@@ -1,3 +1,4 @@
+
 {
   "command.error.nopermission" : "<red>You don't have the permission to run this command.",
   "command.error.playernotfound" : "Player not found: <arg:0>",
@@ -13,7 +14,7 @@
   "command.gamemode.unknown" : "Unknown game mode: <arg:0> (survival, creative, adventure, spectator)",
   "command.gamemode.console" : "From console: /<arg:0> <mode> <player>",
   "command.gamemode.changed.self" : "Game mode changed: <arg:0>",
-  "command.gamemode.changed.other" : "Game mode of <arg:0> changed: <arg:1>",
+  "command.gamemode.changed.other" : "Game mode of <arg:0> changed: '<arg:1>'",
 
   "gamemode.survival" : "survival",
   "gamemode.creative" : "creative",
@@ -32,23 +33,90 @@
   "command.stop.stopped" : "Server stopped",
 
   "command.tps.noregion" : "No active region (or not enough ticks measured yet).",
-  "command.tps.summary" : "Active regions: <arg:0> | Min TPS: <arg:1> | Average TPS: <arg:2>",
-  "command.tps.line" : " - <arg:0> [<arg:1>,<arg:2>] (chunks <arg:3>,<arg:4>): <arg:5> TPS, <arg:6> ms/tick, <arg:7> task(s), <arg:8> ticket(s)",
+  "command.tps.summary" : "Active regions: <arg:0> | Min TPS: '<arg:1>' | Average TPS: <arg:2>",
+  "command.tps.line" : " - <arg:0> ['<arg:1>',<arg:2>] (chunks <arg:3>,<arg:4>): <arg:5> TPS, <arg:6> ms/tick, <arg:7> task(s), <arg:8> ticket(s)",
   "command.tps.more" : "   ... and <arg:0> other region(s)",
 
   "command.weather.current" : "Current weather: <arg:0>",
   "command.weather.usage" : "Usage: /<arg:0> [clear|rain|thunder] [duration in seconds]",
   "command.weather.invalidduration" : "Invalid duration: <arg:0>",
   "command.weather.changed" : "Weather changed: <arg:0>",
-  "command.weather.changed.duration" : "Weather changed: <arg:0> for <arg:1> s",
+  "command.weather.changed.duration" : "Weather changed: <arg:0> for '<arg:1>' s",
 
   "weather.clear" : "clear",
   "weather.rain" : "rain",
   "weather.thunder" : "thunder",
 
   "command.summon.console" : "From the console, coordinates are required: /<arg:0> <type> <x> <y> <z>",
-  "command.summon.done" : "Summoned a <arg:0> (entity #<arg:1>).",
+  "command.summon.done" : "Summoned a <arg:0> (entity #'<arg:1>').",
   "command.summon.notmob" : "<arg:0> is not a summonable mob (yet).",
   "command.summon.unknown" : "Unknown entity type: <arg:0>",
-  "command.summon.usage" : "Usage: /<arg:0> <type> [x y z]"
+  "command.summon.usage" : "Usage: /<arg:0> <type> [x y z]",
+
+  "console.argument.double.low": "Double must not be less than '<arg:0>': found '<arg:1>'",
+  "console.argument.double.big": "Double must not be more than '<arg:0>': found '<arg:1>'",
+  "console.argument.float.low": "Float must not be less than '<arg:0>': found '<arg:1>'",
+  "console.argument.float.big": "Float must not be more than '<arg:0>': found '<arg:1>'",
+  "console.argument.integer.low": "Integer must not be less than '<arg:0>': found '<arg:1>'",
+  "console.argument.integer.big": "Integer must not be more than '<arg:0>': found '<arg:1>'",
+  "console.argument.long.low": "Long must not be less than '<arg:0>': found '<arg:1>'",
+  "console.argument.long.big": "Long must not be more than '<arg:0>': found '<arg:1>'",
+  "console.argument.literal.incorrect": "Expected literal '<arg:0>'",
+
+  "console.parsing.quote.expected.start": "Expected quote to start a string",
+  "console.parsing.quote.expected.end": "Unclosed quoted string",
+  "console.parsing.quote.escape": "Invalid escape sequence '\\<arg:0 in quoted string",
+  "console.parsing.bool.invalid": "Invalid boolean: expected 'true' or 'false' but found '<arg:0>'",
+  "console.parsing.int.invalid": "Invalid integer '<arg:0>'",
+  "console.parsing.int.expected": "Expected integer",
+  "console.parsing.long.invalid": "Invalid long '<arg:0>'",
+  "console.parsing.long.expected": "Expected long",
+  "console.parsing.double.invalid": "Invalid double '<arg:0>'",
+  "console.parsing.double.expected": "Expected double",
+  "console.parsing.float.invalid": "Invalid float '<arg:0>'",
+  "console.parsing.float.expected": "Expected float",
+  "console.parsing.bool.expected": "Expected boolean",
+  "console.parsing.expected": "Expected '<arg:0>'",
+
+  "console.argument.component.invalid": "Invalid chat component: '<arg:0>'",
+
+  "console.argument.entity.toomany": "Only one entity is allowed, but the provided selector allows more than one",
+  "console.argument.player.toomany": "Only one player is allowed, but the provided selector allows more than one",
+  "console.argument.player.entities": "Only players may be affected by this command, but the provided selector includes entities",
+  "console.argument.entity.notfound.entity": "No entity was found",
+  "console.argument.entity.notfound.player": "No player was found",
+  "console.argument.entity.selector.not_allowed": "Selector not allowed",
+  "console.argument.entity.invalid": "Invalid name or UUID",
+
+  "console.argument.entity.options.unterminated": "Expected end of options",
+  "console.argument.entity.options.valueless": "Expected value for option '<arg:0>'",
+  "console.argument.entity.options.unknown": "Unknown option '<arg:0>'",
+  "console.argument.entity.options.inapplicable": "Option '<arg:0>' isn't applicable here",
+  "console.argument.entity.options.distance.negative": "Distance cannot be negative",
+  "console.argument.entity.options.limit.toosmall": "Limit must be at least 1",
+  "console.argument.entity.options.sort.irreversible": "Invalid or unknown sort type '<arg:0>'",
+
+  "console.argument.time.invalid_unit": "Invalid unit",
+  "console.argument.time.tick_count_too_low": "The tick count must not be less than '<arg:0>': found '<arg:1>'",
+
+  "console.argument.item.id.invalid": "Unknown item '<arg:0>'",
+
+  "console.argument.player.unknown": "That player does not exist",
+
+  "console.argument.range.empty": "Expected value or range of values",
+  "console.argument.range.swapped": "Min cannot be bigger than max",
+
+  "console.argument.resource.not_found": "Can't find element '<arg:0>' of type '<arg:1>'",
+
+  "console.argument.hexcolor.invalid": "Invalid hex color code '<arg:0>'",
+  "console.argument.color.invalid": "Unknown color '<arg:0>'",
+  "console.argument.style.invalid": "Invalid style: '<arg:0>'",
+  "console.argument.uuid.invalid": "Invalid UUID",
+
+  "console.argument.angle.incomplete": "Incomplete (expected 1 angle)",
+  "console.argument.angle.invalid": "Invalid angle",
+
+  "console.argument.dimension.invalid": "Unknown dimension '<arg:0>'",
+  "console.argument.gamemode.invalid": "Unknown game mode: '<arg:0>'",
+  "console.argument.id.invalid": "Invalid ID"
 }

@@ -3,7 +3,8 @@ package fr.euphyllia.fidorial.server.adventure.brigadier;
 import com.mojang.brigadier.Message;
 import fr.fidorial.command.MessageComponentSerializer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.TranslatableComponent;
 
 public final class BrigadierAdventureHelper {
 
@@ -14,16 +15,20 @@ public final class BrigadierAdventureHelper {
 
     public static Component convert(Message message, boolean isConsole) {
         if (message instanceof FidorialTranslatableMessage(Component component)) {
-            String rawComponent = PlainTextComponentSerializer.plainText().serialize(component);
-            if (isConsole && rawComponent.startsWith("console.")) {
-                return component;
-            } else if (isConsole) {
-                return Component.translatable("console." + rawComponent);
-            } else {
+            if (!isConsole) {
                 return component;
             }
+
+            if (component instanceof TranslatableComponent translatable) {
+                return Component.translatable(
+                        "console." + translatable.key(),
+                        translatable.arguments().toArray(ComponentLike[]::new)
+                );
+            }
+
+            return component;
         }
 
-        return isConsole ? Component.text("console." + message.getString()) : Component.text(message.getString());
+        return isConsole ? Component.translatable("console." + message.getString()) : Component.translatable(message.getString());
     }
 }
