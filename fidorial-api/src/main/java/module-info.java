@@ -12,6 +12,7 @@ module fr.fidorial {
     exports fr.fidorial.inventory;
     exports fr.fidorial.permission;
     exports fr.fidorial.plugin;
+    exports fr.fidorial.protocol;
     exports fr.fidorial.registry.data;
     exports fr.fidorial.registry.keys;
     exports fr.fidorial.registry;
