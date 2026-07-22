@@ -14,6 +14,8 @@ dependencies {
     implementation(libs.adventure.text.serializer.ansi)
     implementation(libs.logback.classic)
     implementation(libs.adventure.text.serializer.plain)
+    implementation(libs.jline.ffm)
+    implementation(libs.jline.reader)
 }
 
 application {

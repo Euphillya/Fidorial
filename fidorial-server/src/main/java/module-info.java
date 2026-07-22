@@ -22,6 +22,8 @@ module fr.fidorial.server {
     requires net.kyori.adventure.text.serializer.ansi;
     requires net.kyori.adventure.text.serializer.gson;
     requires org.slf4j;
+    requires org.jline.reader;
+    requires org.jline.terminal;
 
     requires static org.jetbrains.annotations;
     requires static org.jspecify;
