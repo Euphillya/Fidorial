@@ -34,9 +34,10 @@ public final class StatusPacketHandler implements StatusPacketListener {
                         server.protocolVersion()
                 ))
                 .build();
-        final ServerStatusRequestEvent event = new ServerStatusRequestEventImpl(status);
-        FidorialServer.getInstance().events().post(event);
-        final String json = StatusResponseBuilder.build(event.status());
+        final String json = StatusResponseBuilder.build(server.events()
+                .fire(ServerStatusRequestEvent.class, () -> new ServerStatusRequestEventImpl(status))
+                .map(ServerStatusRequestEvent::status)
+                .orElse(status));
         connection.send(new ClientboundStatusResponsePacket(json));
     }
 

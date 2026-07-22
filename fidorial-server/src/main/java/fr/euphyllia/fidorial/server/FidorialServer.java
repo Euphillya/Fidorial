@@ -194,7 +194,7 @@ public final class FidorialServer implements Server {
             console.setLocale(Locale.getDefault());
             new ConsoleCommandReader(commandManager, running::get).start();
             pluginManager.enableAll();
-            events.post(new ServerStartedEvent(this));
+            events.fireAndForget(ServerStartedEvent.class, () -> new ServerStartedEvent(this));
             LOGGER.info("En ecoute sur le port {}", config.port());
         } catch (final Exception e) {
             LOGGER.error("Demarrage interrompu, arret en cours", e);
@@ -209,7 +209,7 @@ public final class FidorialServer implements Server {
             return;
         }
         LOGGER.info("Arret de Fidorial...");
-        events.post(new ServerStoppingEvent(this));
+        events.fireAndForget(ServerStoppingEvent.class, () -> new ServerStoppingEvent(this));
         closeQuietly("plugins", pluginManager::close);
         closeQuietly("reseau", network::shutdown);
         closeQuietly("auto-save", autoSave::shutdownNow);
