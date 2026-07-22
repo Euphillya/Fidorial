@@ -60,9 +60,8 @@ public class ConsoleCommandReader {
                 String line;
                 try {
                     line = lineReader.readLine(prompt);
-                } catch (UserInterruptException e) {
-                    continue;
-                } catch (EndOfFileException e) {
+                } catch (UserInterruptException | EndOfFileException e) {
+                    FidorialServer.getInstance().shutdown();
                     break;
                 }
 

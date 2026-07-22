@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.command;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.ServerConfig;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Entity;
@@ -163,7 +164,12 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder, Comm
 
     @Override
     public Location location() {
-        return null;
+        // provide the location as default spawn
+        ServerConfig config = FidorialServer.getInstance().config();
+        double x = config.spawnX();
+        double y = config.spawnY();
+        double z = config.spawnZ();
+        return new Location(x, y, z, 0, 0);
     }
 
     @Override
