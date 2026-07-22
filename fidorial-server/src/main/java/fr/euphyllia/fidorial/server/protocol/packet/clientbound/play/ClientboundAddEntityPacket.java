@@ -10,20 +10,37 @@ import fr.fidorial.world.Location;
 import java.util.UUID;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Packets#Spawn_Entity
-public record ClientboundAddEntityPacket(int entityId, UUID uuid, int typeNetworkId,
-                                         double x, double y, double z,
-                                         double velocityX, double velocityY, double velocityZ,
-                                         float pitch, float yaw, float headYaw,
-                                         int data)
+public record ClientboundAddEntityPacket(
+        int entityId,
+        UUID uuid,
+        int typeNetworkId,
+        double x,
+        double y,
+        double z,
+        double velocityX,
+        double velocityY,
+        double velocityZ,
+        float pitch,
+        float yaw,
+        float headYaw,
+        int data)
         implements ClientboundPacket {
 
     public static ClientboundAddEntityPacket of(AbstractEntity entity) {
         Location location = entity.location();
         return new ClientboundAddEntityPacket(
-                entity.entityId(), entity.uuid(), EntityTypes.networkId(entity.type()),
-                location.x(), location.y(), location.z(),
-                0.0, 0.0, 0.0,
-                location.pitch(), location.yaw(), location.yaw(),
+                entity.entityId(),
+                entity.uuid(),
+                EntityTypes.networkId(entity.type()),
+                location.x(),
+                location.y(),
+                location.z(),
+                0.0,
+                0.0,
+                0.0,
+                location.pitch(),
+                location.yaw(),
+                location.yaw(),
                 0);
     }
 

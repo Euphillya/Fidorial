@@ -17,8 +17,7 @@ public class ServiceBackedChunkGenerator implements ChunkGenerator {
     private final int minY;
     private final int height;
 
-    public ServiceBackedChunkGenerator(ServiceRegistry services, ChunkGenerator fallback,
-                                       int minY, int height) {
+    public ServiceBackedChunkGenerator(ServiceRegistry services, ChunkGenerator fallback, int minY, int height) {
         this.services = services;
         this.fallback = fallback;
         this.minY = minY;
@@ -37,7 +36,10 @@ public class ServiceBackedChunkGenerator implements ChunkGenerator {
             custom.generate(chunk);
             return chunk.column();
         } catch (Exception e) {
-            LOGGER.error("Le WorldGenerator {} a echoue, retour au generateur par defaut", custom.getClass().getName(), e);
+            LOGGER.error(
+                    "Le WorldGenerator {} a echoue, retour au generateur par defaut",
+                    custom.getClass().getName(),
+                    e);
             return fallback.generate(chunkX, chunkZ);
         }
     }

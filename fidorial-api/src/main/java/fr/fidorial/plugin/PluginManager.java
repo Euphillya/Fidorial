@@ -16,8 +16,7 @@ public interface PluginManager {
 
     boolean isEnabled(String id);
 
-    @Nullable
-    Permission getPermission(@Nullable String name);
+    Optional<Permission> getPermission(@Nullable String name);
 
     void addPermission(Permission perm);
 

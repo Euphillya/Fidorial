@@ -30,16 +30,17 @@ public final class ProtocolMap {
     public static ProtocolMap load() {
         try (InputStream in = ProtocolMap.class.getResourceAsStream(RESOURCE)) {
             if (in == null) {
-                LOGGER.warn("Ressource {} absente : lance tools/extract-protocol.sh <server.jar> "
-                        + "pour generer la table. Les phases Configuration/Play sont desactivees.", RESOURCE);
+                LOGGER.warn(
+                        "Ressource {} absente : lance tools/extract-protocol.sh <server.jar> "
+                                + "pour generer la table. Les phases Configuration/Play sont desactivees.",
+                        RESOURCE);
                 return new ProtocolMap(false);
             }
-            JsonObject root = JsonParser.parseReader(
-                    new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
+            JsonObject root = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))
+                    .getAsJsonObject();
 
             ProtocolMap map = new ProtocolMap(true);
-            for (ConnectionState state : new ConnectionState[]{
-                    ConnectionState.CONFIGURATION, ConnectionState.PLAY}) {
+            for (ConnectionState state : new ConnectionState[] {ConnectionState.CONFIGURATION, ConnectionState.PLAY}) {
                 JsonObject stateJson = root.getAsJsonObject(state.name().toLowerCase());
                 map.put(state, false, parse(stateJson, "serverbound"));
                 map.put(state, true, parse(stateJson, "clientbound"));
@@ -62,29 +63,40 @@ public final class ProtocolMap {
     }
 
     private void seedFixedStates() {
-        put(ConnectionState.HANDSHAKE, false, Map.of(
-                "minecraft:intention", 0));
+        put(ConnectionState.HANDSHAKE, false, Map.of("minecraft:intention", 0));
 
-        put(ConnectionState.STATUS, true, Map.of(
-                "minecraft:status_response", 0,
-                "minecraft:pong_response", 1));
-        put(ConnectionState.STATUS, false, Map.of(
-                "minecraft:status_request", 0,
-                "minecraft:ping_request", 1));
+        put(
+                ConnectionState.STATUS,
+                true,
+                Map.of(
+                        "minecraft:status_response", 0,
+                        "minecraft:pong_response", 1));
+        put(
+                ConnectionState.STATUS,
+                false,
+                Map.of(
+                        "minecraft:status_request", 0,
+                        "minecraft:ping_request", 1));
 
-        put(ConnectionState.LOGIN, true, Map.of(
-                "minecraft:login_disconnect", 0,
-                "minecraft:hello", 1,
-                "minecraft:login_finished", 2,
-                "minecraft:login_compression", 3,
-                "minecraft:custom_query", 4,
-                "minecraft:cookie_request", 5));
-        put(ConnectionState.LOGIN, false, Map.of(
-                "minecraft:hello", 0,
-                "minecraft:key", 1,
-                "minecraft:custom_query_answer", 2,
-                "minecraft:login_acknowledged", 3,
-                "minecraft:cookie_response", 4));
+        put(
+                ConnectionState.LOGIN,
+                true,
+                Map.of(
+                        "minecraft:login_disconnect", 0,
+                        "minecraft:hello", 1,
+                        "minecraft:login_finished", 2,
+                        "minecraft:login_compression", 3,
+                        "minecraft:custom_query", 4,
+                        "minecraft:cookie_request", 5));
+        put(
+                ConnectionState.LOGIN,
+                false,
+                Map.of(
+                        "minecraft:hello", 0,
+                        "minecraft:key", 1,
+                        "minecraft:custom_query_answer", 2,
+                        "minecraft:login_acknowledged", 3,
+                        "minecraft:cookie_response", 4));
     }
 
     private void put(ConnectionState state, boolean clientbound, Map<String, Integer> byName) {
@@ -101,8 +113,8 @@ public final class ProtocolMap {
 
     public int clientboundId(ConnectionState state, String name) {
         Integer id = dir(state, true).byName().get(name);
-        if (id == null) throw new IllegalStateException(
-                "Paquet clientbound inconnu dans la table : " + state + "/" + name);
+        if (id == null)
+            throw new IllegalStateException("Paquet clientbound inconnu dans la table : " + state + "/" + name);
         return id;
     }
 
@@ -112,8 +124,8 @@ public final class ProtocolMap {
 
     public int serverboundId(ConnectionState state, String name) {
         Integer id = dir(state, false).byName().get(name);
-        if (id == null) throw new IllegalStateException(
-                "Paquet serverbound inconnu dans la table : " + state + "/" + name);
+        if (id == null)
+            throw new IllegalStateException("Paquet serverbound inconnu dans la table : " + state + "/" + name);
         return id;
     }
 

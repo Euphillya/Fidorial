@@ -16,9 +16,11 @@ public final class BlockEditService {
     private final BlockChangeBroadcaster broadcaster;
     private final FluidNotifier fluidNotifier;
 
-    public BlockEditService(BlockStateRegistry blockRegistry,
-                            BlockChangeBroadcaster broadcaster,
-                            FluidNotifier fluidNotifier) {
+    public BlockEditService(
+            BlockStateRegistry blockRegistry,
+            BlockChangeBroadcaster broadcaster,
+            FluidNotifier fluidNotifier
+    ) {
         this.blockRegistry = blockRegistry;
         this.broadcaster = broadcaster;
         this.fluidNotifier = fluidNotifier;

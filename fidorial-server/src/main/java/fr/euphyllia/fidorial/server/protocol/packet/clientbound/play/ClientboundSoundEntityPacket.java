@@ -5,8 +5,7 @@ import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import net.kyori.adventure.sound.Sound;
 
-public record ClientboundSoundEntityPacket(Sound sound, int entityId)
-        implements ClientboundPacket {
+public record ClientboundSoundEntityPacket(Sound sound, int entityId) implements ClientboundPacket {
 
     @Override
     public String name() {

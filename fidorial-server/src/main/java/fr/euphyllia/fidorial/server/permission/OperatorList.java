@@ -37,8 +37,7 @@ public class OperatorList {
             return;
         }
         try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            List<Entry> entries = GSON.fromJson(reader, new TypeToken<List<Entry>>() {
-            }.getType());
+            List<Entry> entries = GSON.fromJson(reader, new TypeToken<List<Entry>>() {}.getType());
             operators.clear();
             if (entries != null) {
                 for (Entry entry : entries) {

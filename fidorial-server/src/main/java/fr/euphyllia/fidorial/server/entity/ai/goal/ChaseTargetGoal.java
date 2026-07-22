@@ -45,9 +45,9 @@ public final class ChaseTargetGoal implements Goal {
             return;
         }
         Location goal = target.location();
-        mob.navigation().moveTo(mob.location(),
-                new BlockPos((int) Math.floor(goal.x()), (int) Math.floor(goal.y()),
-                        (int) Math.floor(goal.z())));
+        mob.navigation()
+                .moveTo(mob.location(), new BlockPos((int) Math.floor(goal.x()), (int) Math.floor(goal.y()), (int)
+                        Math.floor(goal.z())));
         mob.setMoveSpeed(speed);
 
         if (mob.distanceSqTo(target) < 36.0) {

@@ -37,11 +37,13 @@ public final class ChunkViewTracker implements ChunkViewSource {
     private int centerX;
     private int centerZ;
 
-    public ChunkViewTracker(ClientConnection connection,
-                            ThreadedChunkWorker chunkWorker,
-                            ServerWorld world,
-                            ChunkNetworkSerializer serializer,
-                            int radius) {
+    public ChunkViewTracker(
+            ClientConnection connection,
+            ThreadedChunkWorker chunkWorker,
+            ServerWorld world,
+            ChunkNetworkSerializer serializer,
+            int radius
+    ) {
         this.connection = connection;
         this.chunkWorker = chunkWorker;
         this.world = world;
@@ -123,8 +125,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
                 return;
             }
         }
-        chunkWorker.loadAsync(world, cx, cz)
-                .whenComplete((column, error) -> onLoaded(cx, cz, column, error));
+        chunkWorker.loadAsync(world, cx, cz).whenComplete((column, error) -> onLoaded(cx, cz, column, error));
     }
 
     private void onLoaded(int cx, int cz, ChunkColumn column, @Nullable Throwable error) {

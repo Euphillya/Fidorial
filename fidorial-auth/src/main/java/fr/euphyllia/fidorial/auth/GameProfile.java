@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public record GameProfile(UUID uuid, String name, UUID sessionId, List<Property> properties) {
 
-    public record Property(String name, String value, @Nullable String signature) {
-    }
+    public record Property(
+            String name, String value, @Nullable String signature) {
+            }
 }

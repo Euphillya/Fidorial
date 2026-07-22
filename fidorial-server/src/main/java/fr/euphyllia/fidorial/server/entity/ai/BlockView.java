@@ -11,8 +11,7 @@ import java.util.Set;
 public class BlockView {
 
     private static final Set<String> PASSABLE = Set.of( // Todo : Remplacer par key
-            "minecraft:water"
-    );
+            "minecraft:water");
 
     private BlockView() {
     }
@@ -21,7 +20,7 @@ public class BlockView {
         if (y < world.minY() || y >= world.minY() + world.height()) {
             return BlockState.AIR;
         }
-        Chunk chunk = world.getChunkIfLoaded(x >> 4, z >> 4);
+        Chunk chunk = world.getChunkIfLoaded(x >> 4, z >> 4).orElseThrow();
         if (!(chunk instanceof ServerChunk serverChunk)) {
             return null;
         }
@@ -46,9 +45,15 @@ public class BlockView {
         return state != null && !isPassable(state);
     }
 
-    public static boolean hasLineOfSight(ServerWorld world,
-                                         double fromX, double fromY, double fromZ,
-                                         double toX, double toY, double toZ) {
+    public static boolean hasLineOfSight(
+            ServerWorld world,
+            double fromX,
+            double fromY,
+            double fromZ,
+            double toX,
+            double toY,
+            double toZ
+    ) {
         double dx = toX - fromX;
         double dy = toY - fromY;
         double dz = toZ - fromZ;

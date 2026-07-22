@@ -18,11 +18,12 @@ public record ClientboundPlayerAbilitiesPacket(byte flags, float flyingSpeed, fl
     private static final float DEFAULT_FOV_MODIFIER = 0.1f;
 
     public static ClientboundPlayerAbilitiesPacket forGameMode(GameMode mode) {
-        byte flags = switch (mode) {
-            case SURVIVAL, ADVENTURE -> 0;
-            case CREATIVE -> (byte) (INVULNERABLE | ALLOW_FLYING | CREATIVE_MODE);
-            case SPECTATOR -> (byte) (INVULNERABLE | FLYING | ALLOW_FLYING);
-        };
+        byte flags =
+                switch (mode) {
+                    case SURVIVAL, ADVENTURE -> 0;
+                    case CREATIVE -> (byte) (INVULNERABLE | ALLOW_FLYING | CREATIVE_MODE);
+                    case SPECTATOR -> (byte) (INVULNERABLE | FLYING | ALLOW_FLYING);
+                };
         return new ClientboundPlayerAbilitiesPacket(flags, DEFAULT_FLY_SPEED, DEFAULT_FOV_MODIFIER);
     }
 

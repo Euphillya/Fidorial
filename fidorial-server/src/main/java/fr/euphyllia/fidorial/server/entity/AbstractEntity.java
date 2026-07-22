@@ -1,13 +1,15 @@
 package fr.euphyllia.fidorial.server.entity;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.fidorial.command.CommandSender;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 
 public abstract class AbstractEntity implements Entity {
 
@@ -70,6 +72,11 @@ public abstract class AbstractEntity implements Entity {
     }
 
     @Override
+    public FidorialServer server() {
+        return FidorialServer.getInstance();
+    }
+
+    @Override
     public final void remove() {
         if (removed.compareAndSet(false, true)) {
             onRemoved();
@@ -102,5 +109,15 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public String toString() {
         return type.key() + "#" + entityId;
+    }
+
+    @Override
+    public CommandSender sender() {
+        return null;
+    }
+
+    @Override
+    public @Nullable Entity executor() {
+        return this;
     }
 }

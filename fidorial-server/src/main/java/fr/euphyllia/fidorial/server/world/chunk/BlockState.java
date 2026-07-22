@@ -9,9 +9,8 @@ public record BlockState(String name, Map<String, String> properties) {
     public static final BlockState AIR = of("minecraft:air");
 
     public BlockState {
-        properties = properties.isEmpty()
-                ? Collections.emptyMap()
-                : Collections.unmodifiableMap(new TreeMap<>(properties));
+        properties =
+                properties.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(new TreeMap<>(properties));
     }
 
     public static BlockState of(String name) {
@@ -19,8 +18,6 @@ public record BlockState(String name, Map<String, String> properties) {
     }
 
     public boolean isAir() {
-        return name.equals("minecraft:air")
-                || name.equals("minecraft:cave_air")
-                || name.equals("minecraft:void_air");
+        return name.equals("minecraft:air") || name.equals("minecraft:cave_air") || name.equals("minecraft:void_air");
     }
 }

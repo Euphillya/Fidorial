@@ -44,8 +44,11 @@ public final class SimpleEventBus implements EventBus {
             try {
                 ((Registration<E>) registration).listener.accept(event);
             } catch (Throwable t) {
-                LOGGER.error("Listener en erreur sur {} (proprietaire : {})",
-                        event.getClass().getSimpleName(), registration.owner, t);
+                LOGGER.error(
+                        "Listener en erreur sur {} (proprietaire : {})",
+                        event.getClass().getSimpleName(),
+                        registration.owner,
+                        t);
             }
         }
         return event;
@@ -138,13 +141,12 @@ public final class SimpleEventBus implements EventBus {
 
         @Override
         public String toString() {
-            return "Registration{" +
-                    "type=" + type +
-                    ", priority=" + priority +
-                    ", listener=" + listener +
-                    ", owner=" + owner +
-                    ", active=" + active +
-                    '}';
+            return "Registration{" + "type="
+                    + type + ", priority="
+                    + priority + ", listener="
+                    + listener + ", owner="
+                    + owner + ", active="
+                    + active + '}';
         }
     }
 }

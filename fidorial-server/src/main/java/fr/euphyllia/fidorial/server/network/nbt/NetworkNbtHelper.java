@@ -46,8 +46,7 @@ public final class NetworkNbtHelper {
                     entry.getKey(),
                     "extra".equals(entry.getKey())
                             ? convertArray(entry.getValue().getAsJsonArray())
-                            : convert(entry.getValue())
-            );
+                            : convert(entry.getValue()));
         }
 
         return compound;

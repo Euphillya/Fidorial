@@ -7,7 +7,6 @@ import fr.fidorial.world.World;
 
 import java.util.UUID;
 
-
 public final class Bat extends Mob {
 
     public static final float MAX_HEALTH = 6f;

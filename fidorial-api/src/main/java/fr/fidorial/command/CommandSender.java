@@ -2,20 +2,33 @@ package fr.fidorial.command;
 
 import fr.fidorial.permission.Permissible;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
+/**
+ * Represents an object that can be used to run {@link CommandTree}.
+ */
+public interface CommandSender extends Audience, Permissible {
 
-public interface CommandSender extends Permissible, Audience {
+    /**
+     * Sends a message with the MiniMessage format to this source.
+     *
+     * @param message MiniMessage content
+     **/
+    default void sendRichMessage(final @NotNull String message) {
+        this.sendMessage(MiniMessage.miniMessage().deserialize(message, this));
+    }
+
+    /**
+     * Sends a message with the MiniMessage format to this source.
+     *
+     * @param message MiniMessage content
+     * @param resolvers resolvers to use
+     */
+    default void sendRichMessage(final @NotNull String message, final @NotNull TagResolver @NotNull ... resolvers) {
+        this.sendMessage(MiniMessage.miniMessage().deserialize(message, this, resolvers));
+    }
 
     String name();
-
-    void setLocale(final String language);
-
-    void setLocale(final Locale locale);
-
-    Locale locale();
-
-    default boolean isConsole() {
-        return false;
-    }
 }

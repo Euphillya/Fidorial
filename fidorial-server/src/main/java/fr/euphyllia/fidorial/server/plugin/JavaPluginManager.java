@@ -158,8 +158,8 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
     }
 
     @Override
-    public @Nullable Permission getPermission(@Nullable String name) {
-        return name == null ? null : permissions.get(name.toLowerCase(Locale.ROOT));
+    public Optional<Permission> getPermission(@Nullable String name) {
+        return name == null ? Optional.empty() : Optional.ofNullable(permissions.get(name.toLowerCase(Locale.ROOT)));
     }
 
     @Override
@@ -326,8 +326,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             addPermission(perm);
             registered.add(perm);
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Le plugin {} tente de redefinir la permission '{}', ignoree",
-                    meta.id(), perm.getName());
+            LOGGER.warn("Le plugin {} tente de redefinir la permission '{}', ignoree", meta.id(), perm.getName());
         }
     }
 
@@ -344,16 +343,17 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         URLClassLoader classLoader = null;
         try {
             URL url = jar.toUri().toURL();
-            classLoader = new URLClassLoader("fidorial-plugin:" + jar.getFileName(),
-                    new URL[]{url}, getClass().getClassLoader());
+            classLoader = new URLClassLoader(
+                    "fidorial-plugin:" + jar.getFileName(),
+                    new URL[] {url},
+                    getClass().getClassLoader());
             try (InputStream in = classLoader.getResourceAsStream(DESCRIPTOR)) {
                 if (in == null) {
                     LOGGER.warn("{} ignore : pas de {} a la racine", jar.getFileName(), DESCRIPTOR);
                     classLoader.close();
                     return Optional.empty();
                 }
-                PluginMeta meta = GSON.fromJson(
-                        new InputStreamReader(in, StandardCharsets.UTF_8), PluginMeta.class);
+                PluginMeta meta = GSON.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginMeta.class);
                 return Optional.of(new Candidate(meta, classLoader));
             }
         } catch (JsonSyntaxException | NullPointerException | IllegalArgumentException e) {
@@ -375,8 +375,8 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                 return;
             }
             Plugin plugin = (Plugin) mainClass.getDeclaredConstructor().newInstance();
-            PluginContext context = new SimplePluginContext(
-                    meta, server, events, services, pluginsFolder.resolve(meta.id()));
+            PluginContext context =
+                    new SimplePluginContext(meta, server, events, services, pluginsFolder.resolve(meta.id()));
             registerDescriptorPermissions(meta);
             events.withOwner(plugin, () -> plugin.onLoad(context));
             plugins.put(meta.id(), new Loaded(meta, plugin, candidate.classLoader));
@@ -406,8 +406,13 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         return ordered;
     }
 
-    private void visit(Candidate candidate, Map<String, Candidate> byId,
-                       Set<String> done, Set<String> visiting, List<Candidate> ordered) {
+    private void visit(
+            Candidate candidate,
+            Map<String, Candidate> byId,
+            Set<String> done,
+            Set<String> visiting,
+            List<Candidate> ordered
+    ) {
         String id = candidate.meta.id();
         if (done.contains(id)) {
             return;

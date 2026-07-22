@@ -1,5 +1,6 @@
 package fr.fidorial.registry;
 
+import fr.fidorial.entity.EntityType;
 import fr.fidorial.registry.data.Attribute;
 import fr.fidorial.registry.data.BannerPattern;
 import fr.fidorial.registry.data.Biome;
@@ -63,13 +64,18 @@ public record RegistryKey<T>(Key key) {
     public static final RegistryKey<WolfVariant> WOLF_VARIANT = of("wolf_variant");
     public static final RegistryKey<WorldClock> WORLD_CLOCK = of("world_clock");
     public static final RegistryKey<ZombieNautilusVariant> ZOMBIE_NAUTILUS_VARIANT = of("zombie_nautilus_variant");
+    public static final RegistryKey<EntityType> ENTITY_TYPE = of("entity_type");
 
     public RegistryKey {
         Objects.requireNonNull(key, "key");
     }
 
-    private static <T> RegistryKey<T> of(@KeyPattern String path) {
+    public static <T> RegistryKey<T> of(@KeyPattern String path) {
         return new RegistryKey<>(Key.key(path));
+    }
+
+    public static <T> RegistryKey<T> of(Key key) {
+        return new RegistryKey<>(key);
     }
 
     @Override

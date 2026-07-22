@@ -61,7 +61,6 @@ public final class Explosion {
             Map.entry("minecraft:glass", 0.3f),
             Map.entry("minecraft:leaves", 0.2f));
 
-
     private Explosion() {
     }
 
@@ -73,15 +72,19 @@ public final class Explosion {
     }
 
     private static void playExplosionSound(FidorialServer server, Location center) {
-        float pitch = (1.0f + (ThreadLocalRandom.current().nextFloat()
-                - ThreadLocalRandom.current().nextFloat()) * 0.2f) * 0.7f;
+        float pitch = (1.0f
+                        + (ThreadLocalRandom.current().nextFloat()
+                                        - ThreadLocalRandom.current().nextFloat())
+                                * 0.2f)
+                * 0.7f;
         server.broadcast(new ClientboundSoundPacket(
                 Sound.sound(SoundEvents.GENERIC_EXPLODE, Sound.Source.BLOCK, 4.0f, pitch),
-                center.x(), center.y(), center.z()));
+                center.x(),
+                center.y(),
+                center.z()));
     }
 
-    private static void destroyBlocks(FidorialServer server, ServerWorld world,
-                                      Location center, float power) {
+    private static void destroyBlocks(FidorialServer server, ServerWorld world, Location center, float power) {
         Set<BlockPos> toDestroy = collectExplodedBlocks(world, center, power);
         List<BlockPos> destroyed = new ArrayList<>(toDestroy.size());
 
@@ -98,7 +101,6 @@ public final class Explosion {
             server.broadcast(new ClientboundLevelEventPacket(
                     ClientboundLevelEventPacket.BLOCK_BREAK, destroyed.get(i), 0, false));
         }
-
     }
 
     private static Set<BlockPos> collectExplodedBlocks(ServerWorld world, Location center, float power) {
@@ -145,19 +147,25 @@ public final class Explosion {
     }
 
     private static float resistanceOf(BlockState state) {
-        return BLAST_RESISTANCE.getOrDefault(state.name(), DEFAULT_BLAST_RESISTANCE); // Todo : Add the `BLAST_RESISTANCE` method to BlockState.
+        return BLAST_RESISTANCE.getOrDefault(
+                state.name(), DEFAULT_BLAST_RESISTANCE); // Todo : Add the `BLAST_RESISTANCE` method to BlockState.
     }
 
-
-    private static void damageEntities(FidorialServer server, ServerWorld world,
-                                       Location center, float power, AbstractEntity source) {
+    private static void damageEntities(
+            FidorialServer server,
+            ServerWorld world,
+            Location center,
+            float power,
+            AbstractEntity source
+    ) {
         double range = power * 2.0;
         double rangeSq = range * range;
         double cx = center.x(), cy = center.y(), cz = center.z();
 
         for (var entity : world.entities()) {
             if (!(entity instanceof AbstractEntity abstractEntity)
-                    || abstractEntity == source || abstractEntity.isRemoved()) {
+                    || abstractEntity == source
+                    || abstractEntity.isRemoved()) {
                 continue;
             }
             Location pos = abstractEntity.location();
@@ -195,17 +203,17 @@ public final class Explosion {
 
                     float finalDamage = damage;
                     // Todo : Uncomment once implemented.
-//                    switch (world.difficulty()) {
-//                        case PEACEFUL -> { continue; }
-//                        case EASY     -> finalDamage = Math.min(damage / 2f + 1f, damage);
-//                        case NORMAL   -> finalDamage = damage;
-//                        case HARD     -> finalDamage = damage * 1.5f;
-//                    }
+                    //                    switch (world.difficulty()) {
+                    //                        case PEACEFUL -> { continue; }
+                    //                        case EASY     -> finalDamage = Math.min(damage / 2f + 1f, damage);
+                    //                        case NORMAL   -> finalDamage = damage;
+                    //                        case HARD     -> finalDamage = damage * 1.5f;
+                    //                    }
 
                     player.setHealth(player.health() - finalDamage);
                     player.connection().send(new ClientboundSetHealthPacket(player.health(), 20, 5f));
-                    player.connection().send(new ClientboundSetEntityMotionPacket(
-                            player.entityId(), knockX, knockY, knockZ));
+                    player.connection()
+                            .send(new ClientboundSetEntityMotionPacket(player.entityId(), knockX, knockY, knockZ));
                     server.broadcast(new ClientboundHurtAnimationPacket(player.entityId(), pos.yaw()));
                 }
                 case Mob mob -> {
@@ -251,9 +259,15 @@ public final class Explosion {
         return total == 0 ? 0.0f : (float) clear / total;
     }
 
-    private static boolean clearLineOfSight(ServerWorld world,
-                                            double sx, double sy, double sz,
-                                            double cx, double cy, double cz) {
+    private static boolean clearLineOfSight(
+            ServerWorld world,
+            double sx,
+            double sy,
+            double sz,
+            double cx,
+            double cy,
+            double cz
+    ) {
 
         double dx = cx - sx, dy = cy - sy, dz = cz - sz;
         double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
@@ -267,8 +281,7 @@ public final class Explosion {
             x += stepX;
             y += stepY;
             z += stepZ;
-            BlockState state = BlockView.blockAt(world,
-                    (int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
+            BlockState state = BlockView.blockAt(world, (int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
             if (state != null && !state.isAir() && !isFluid(state)) {
                 return false;
             }
@@ -286,7 +299,6 @@ public final class Explosion {
         return (box[4] - box[1]) * 0.85;
     }
 
-
     private static double[] boundingBox(AbstractEntity entity) {
         double width = 0.6;
         double height = 1.8;
@@ -299,14 +311,10 @@ public final class Explosion {
         }
         Location loc = entity.location();
         double half = width / 2.0;
-        return new double[]{
-                loc.x() - half, loc.y(), loc.z() - half,
-                loc.x() + half, loc.y() + height, loc.z() + half
-        };
+        return new double[] {loc.x() - half, loc.y(), loc.z() - half, loc.x() + half, loc.y() + height, loc.z() + half};
     }
 
     private static double lerp(double t, double a, double b) {
         return a + (b - a) * t;
     }
 }
-

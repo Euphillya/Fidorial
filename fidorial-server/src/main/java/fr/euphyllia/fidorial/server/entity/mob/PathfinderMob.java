@@ -56,7 +56,6 @@ public abstract class PathfinderMob extends Mob {
     private float sentHeadYaw;
     private int ticksSinceSync;
 
-
     protected PathfinderMob(final int entityId, final UUID uuid, final EntityType type, final World world,
                             final Location location, final float maxHealth) {
         super(entityId, uuid, type, world, location, maxHealth);
@@ -75,7 +74,8 @@ public abstract class PathfinderMob extends Mob {
         return (ServerWorld) world();
     }
 
-    protected final FidorialServer server() {
+    @Override
+    public final FidorialServer server() {
         return FidorialServer.getInstance();
     }
 
@@ -129,9 +129,8 @@ public abstract class PathfinderMob extends Mob {
     }
 
     private void updateTarget() {
-        double bestDistSq = target != null && isValidTarget(target, dropRangeSq())
-                ? distanceSqTo(target)
-                : Double.MAX_VALUE;
+        double bestDistSq =
+                target != null && isValidTarget(target, dropRangeSq()) ? distanceSqTo(target) : Double.MAX_VALUE;
         ServerPlayer best = bestDistSq == Double.MAX_VALUE ? null : target;
 
         final double acquireSq = followRange() * followRange();
@@ -281,8 +280,7 @@ public abstract class PathfinderMob extends Mob {
             newZ = z;
         }
 
-        if ((blockedX || blockedZ) && onGround && velocityY <= 0.0
-                && !isBoxBlocked(x, y + 1.0, z)) {
+        if ((blockedX || blockedZ) && onGround && velocityY <= 0.0 && !isBoxBlocked(x, y + 1.0, z)) {
             velocityY = JUMP_VELOCITY;
         }
         if (blockedX) velocityX = 0.0;
@@ -345,9 +343,16 @@ public abstract class PathfinderMob extends Mob {
         final ServerWorld world = serverWorld();
         for (int blockY = minBlockY; blockY <= maxBlockY; blockY++) {
             if (!BlockView.isPassable(world, (int) Math.floor(x - HALF_WIDTH), blockY, (int) Math.floor(z - HALF_WIDTH))
-                    || !BlockView.isPassable(world, (int) Math.floor(x + HALF_WIDTH), blockY, (int) Math.floor(z - HALF_WIDTH))
-                    || !BlockView.isPassable(world, (int) Math.floor(x - HALF_WIDTH), blockY, (int) Math.floor(z + HALF_WIDTH))
-                    || !BlockView.isPassable(world, (int) Math.floor(x + HALF_WIDTH), blockY, (int) Math.floor(z + HALF_WIDTH))) {
+                    || !BlockView.isPassable(
+                            world, (int) Math.floor(x + HALF_WIDTH), blockY, (int) Math.floor(z - HALF_WIDTH))
+                    || !BlockView.isPassable(
+                            world, (int) Math.floor(x - HALF_WIDTH), blockY, (int) Math.floor(z + HALF_WIDTH))
+                    || !BlockView.isPassable(
+                            world,
+                            (int) Math.floor(x + HALF_WIDTH),
+                            blockY,
+                            (int) Math.floor(z + HALF_WIDTH))
+                    ) {
                 return true;
             }
         }
@@ -369,10 +374,17 @@ public abstract class PathfinderMob extends Mob {
                 || Math.abs(dz) > MAX_RELATIVE_DELTA;
 
         if (needsAbsoluteSync && (moved || rotated || ticksSinceSync >= POSITION_SYNC_INTERVAL)) {
-            server().broadcast(new ClientboundEntityPositionSyncPacket(entityId(),
-                    current.x(), current.y(), current.z(),
-                    velocityX, velocityY, velocityZ,
-                    yaw, pitch, onGround));
+            server().broadcast(new ClientboundEntityPositionSyncPacket(
+                    entityId(),
+                    current.x(),
+                    current.y(),
+                    current.z(),
+                    velocityX,
+                    velocityY,
+                    velocityZ,
+                    yaw,
+                    pitch,
+                    onGround));
             sentX = current.x();
             sentY = current.y();
             sentZ = current.z();
@@ -384,8 +396,7 @@ public abstract class PathfinderMob extends Mob {
             final short qy = (short) Math.round(dy * 4096.0);
             final short qz = (short) Math.round(dz * 4096.0);
             if (rotated) {
-                server().broadcast(new ClientboundMoveEntityPosRotPacket(entityId(),
-                        qx, qy, qz, yaw, pitch, onGround));
+                server().broadcast(new ClientboundMoveEntityPosRotPacket(entityId(), qx, qy, qz, yaw, pitch, onGround));
                 sentYaw = yaw;
                 sentPitch = pitch;
             } else {

@@ -19,7 +19,6 @@ public class AStarPathfinder {
     private AStarPathfinder() {
     }
 
-
     public static @Nullable Path find(ServerWorld world, BlockPos start, BlockPos goal, int maxNodes) {
         BlockPos from = snapToGround(world, start);
         BlockPos to = snapToGround(world, goal);
@@ -70,8 +69,7 @@ public class AStarPathfinder {
                 long key = pack(nx, ny, nz);
                 Node neighbor = nodes.get(key);
                 if (neighbor == null) {
-                    neighbor = new Node(nx, ny, nz, current,
-                            g, heuristic(new BlockPos(nx, ny, nz), to));
+                    neighbor = new Node(nx, ny, nz, current, g, heuristic(new BlockPos(nx, ny, nz), to));
                     nodes.put(key, neighbor);
                     open.add(neighbor);
                 } else if (!neighbor.closed && g < neighbor.g) {
@@ -163,7 +161,9 @@ public class AStarPathfinder {
         final int y;
         final int z;
         final double h;
+
         @Nullable Node parent;
+
         double g;
         boolean closed;
 

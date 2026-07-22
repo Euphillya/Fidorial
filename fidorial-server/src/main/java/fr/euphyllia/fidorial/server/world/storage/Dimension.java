@@ -2,7 +2,11 @@ package fr.euphyllia.fidorial.server.world.storage;
 
 import org.jspecify.annotations.Nullable;
 
-public record Dimension(String namespace, String path, @Nullable String legacyFolder) {
+public record Dimension(
+        String namespace,
+        String path,
+        @Nullable String legacyFolder
+) {
 
     public static final Dimension OVERWORLD = new Dimension("minecraft", "overworld", null);
     public static final Dimension THE_NETHER = new Dimension("minecraft", "the_nether", "DIM-1");

@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -54,10 +55,16 @@ public final class ServerWorld implements World {
     private volatile @Nullable EntitySpawnBridge entityBridge;
     private @Nullable Iterable<? extends Audience> adventure$audiences;
 
-    public ServerWorld(Dimension dimension, ChunkStorage storage,
-                       EntityRegionStorage entityStorage, AnvilEntitySerializer entitySerializer,
-                       ChunkGenerator generator,
-                       BlockStateRegistry blockStates, int minY, int height) {
+    public ServerWorld(
+            Dimension dimension,
+            ChunkStorage storage,
+            EntityRegionStorage entityStorage,
+            AnvilEntitySerializer entitySerializer,
+            ChunkGenerator generator,
+            BlockStateRegistry blockStates,
+            int minY,
+            int height
+    ) {
         this.dimension = dimension;
         this.storage = storage;
         this.entityStorage = entityStorage;
@@ -126,9 +133,9 @@ public final class ServerWorld implements World {
     }
 
     @Override
-    public @Nullable Chunk getChunkIfLoaded(int chunkX, int chunkZ) {
+    public Optional<Chunk> getChunkIfLoaded(int chunkX, int chunkZ) {
         ChunkColumn cached = loaded.get(key(chunkX, chunkZ));
-        return cached == null ? null : wrap(cached);
+        return Optional.ofNullable(cached).map(this::wrap);
     }
 
     private ServerChunk wrap(ChunkColumn column) {
@@ -233,8 +240,7 @@ public final class ServerWorld implements World {
             invalidateAudiences();
         } catch (IOException e) {
             entitiesLoaded.remove(k);
-            throw new UncheckedIOException(
-                    "Unable to load entities for chunk " + chunkX + "," + chunkZ, e);
+            throw new UncheckedIOException("Unable to load entities for chunk " + chunkX + "," + chunkZ, e);
         }
     }
 
@@ -353,8 +359,7 @@ public final class ServerWorld implements World {
                     unloadChunkEntities(cx, cz);
                 } catch (IOException exception) {
                     throw new UncheckedIOException(
-                            "Unloading entities from chunk " + cx + "," + cz + "failed.", exception
-                    );
+                            "Unloading entities from chunk " + cx + "," + cz + "failed.", exception);
                 }
             }
         }

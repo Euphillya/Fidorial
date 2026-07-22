@@ -1,7 +1,9 @@
 package fr.euphyllia.fidorial.server.network;
 
+import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.world.BlockPos;
 import io.netty.buffer.ByteBuf;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
@@ -133,12 +135,29 @@ public final class PacketBuffer {
         return this;
     }
 
-    public String readIdentifier() {
-        return VarInts.readString(buf, 32767);
+    public PacketBuffer writeIdentifier(String identifier) {
+        Key.key(identifier); // for validation
+        VarInts.writeString(buf, identifier);
+        return this;
     }
 
-    public PacketBuffer writeIdentifier(String id) {
-        VarInts.writeString(buf, id);
+    public Key readKey() {
+        String read = this.readString(32767);
+        return Key.key(read);
+    }
+
+    public PacketBuffer writeKey(Key key) {
+        this.writeString(key.asString());
+        return this;
+    }
+
+    public <T> RegistryKey<T> readRegistryKey() {
+        Key key = this.readKey();
+        return RegistryKey.of(key);
+    }
+
+    public PacketBuffer writeRegistryKey(final RegistryKey<?> key) {
+        this.writeKey(key.key());
         return this;
     }
 
@@ -199,10 +218,7 @@ public final class PacketBuffer {
         long scale = (long) Math.ceil(max);
         boolean continuation = (scale & 0b11L) != scale;
         long flags = continuation ? (scale & 0b11L) | 0b100L : scale;
-        long packed = flags
-                | lpPack(x / scale) << 3
-                | lpPack(y / scale) << 18
-                | lpPack(z / scale) << 33;
+        long packed = flags | lpPack(x / scale) << 3 | lpPack(y / scale) << 18 | lpPack(z / scale) << 33;
         buf.writeByte((int) packed);
         buf.writeByte((int) (packed >> 8));
         buf.writeInt((int) (packed >> 16));
@@ -239,9 +255,7 @@ public final class PacketBuffer {
     }
 
     public PacketBuffer writePosition(int x, int y, int z) {
-        long packed = ((long) (x & 0x3FFFFFF) << 38)
-                | ((long) (z & 0x3FFFFFF) << 12)
-                | (y & 0xFFF);
+        long packed = ((long) (x & 0x3FFFFFF) << 38) | ((long) (z & 0x3FFFFFF) << 12) | (y & 0xFFF);
         buf.writeLong(packed);
         return this;
     }

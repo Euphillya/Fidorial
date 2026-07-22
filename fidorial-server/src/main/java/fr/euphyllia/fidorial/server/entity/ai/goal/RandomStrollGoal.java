@@ -31,8 +31,7 @@ public final class RandomStrollGoal implements Goal {
 
     @Override
     public boolean canStart() {
-        return mob.target() == null
-                && ThreadLocalRandom.current().nextInt(START_CHANCE) == 0;
+        return mob.target() == null && ThreadLocalRandom.current().nextInt(START_CHANCE) == 0;
     }
 
     @Override

@@ -14,7 +14,6 @@ public final class PalettedContainer<T> {
     private final int[] data;
     private final int minBits;
 
-
     public PalettedContainer(int size, int minBits, T fill) {
         this.data = new int[size];
         this.minBits = minBits;

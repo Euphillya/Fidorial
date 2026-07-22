@@ -16,8 +16,7 @@ public final class ChunkColumn {
     private long lastUpdate;
     private String status = "minecraft:full";
 
-    public ChunkColumn(int chunkX, int chunkZ, int minY, int height,
-                       BlockState fillBlock, String fillBiome) {
+    public ChunkColumn(int chunkX, int chunkZ, int minY, int height, BlockState fillBlock, String fillBiome) {
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
         this.minY = minY;
@@ -94,7 +93,6 @@ public final class ChunkColumn {
         if (idx < 0 || idx >= sectionCount) return null;
         return sections[idx];
     }
-
 
     public void setBlock(int localX, int worldY, int localZ, BlockState state) {
         ChunkSection s = sectionForY(worldY);

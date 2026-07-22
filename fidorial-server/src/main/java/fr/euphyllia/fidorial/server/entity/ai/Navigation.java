@@ -55,12 +55,13 @@ public class Navigation {
             return;
         }
 
-        BlockPos start = new BlockPos((int) Math.floor(from.x()),
-                (int) Math.floor(from.y()), (int) Math.floor(from.z()));
+        BlockPos start =
+                new BlockPos((int) Math.floor(from.x()), (int) Math.floor(from.y()), (int) Math.floor(from.z()));
         requestedGoal = goal;
         lastRequestTick = age;
-        requestInFlight = FidorialServer.getInstance().aiWorker().submit(() ->
-                pendingResult.set(new PathResult(AStarPathfinder.find(world, start, goal, MAX_NODES))));
+        requestInFlight = FidorialServer.getInstance()
+                .aiWorker()
+                .submit(() -> pendingResult.set(new PathResult(AStarPathfinder.find(world, start, goal, MAX_NODES))));
     }
 
     public void tick(double x, double z) {

@@ -74,7 +74,6 @@ public final class NettyServer {
                         ch.pipeline()
                                 .addLast("frame-decoder", new FrameDecoder())
                                 .addLast("frame-encoder", new FrameEncoder())
-
                                 .addLast("handler", new ClientConnection(server));
                     }
                 });

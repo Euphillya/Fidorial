@@ -19,7 +19,6 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
-
 public final class RegionFile implements Closeable {
 
     private final RandomAccessFile raf;
@@ -87,17 +86,18 @@ public final class RegionFile implements Closeable {
         byte[] payload = new byte[length - 1];
         raf.readFully(payload);
 
-        DataInputStream in = switch (compression) {
-            case RegionConstants.COMPRESSION_ZLIB ->
-                    new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(payload)));
-            case RegionConstants.COMPRESSION_GZIP ->
-                    new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(payload)));
-            case RegionConstants.COMPRESSION_NONE ->
-                    new DataInputStream(new BufferedInputStream(new ByteArrayInputStream(payload)));
-            default -> throw new IOException(
-                    "Compression " + compression + " non gérée (chunk externe .mcc ?) pour "
-                            + chunkX + "," + chunkZ);
-        };
+        DataInputStream in =
+                switch (compression) {
+                    case RegionConstants.COMPRESSION_ZLIB ->
+                        new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(payload)));
+                    case RegionConstants.COMPRESSION_GZIP ->
+                        new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(payload)));
+                    case RegionConstants.COMPRESSION_NONE ->
+                        new DataInputStream(new BufferedInputStream(new ByteArrayInputStream(payload)));
+                    default ->
+                        throw new IOException("Compression " + compression + " non gérée (chunk externe .mcc ?) pour "
+                                + chunkX + "," + chunkZ);
+                };
         try (in) {
             return NbtIo.read(in).compound();
         }
@@ -107,13 +107,12 @@ public final class RegionFile implements Closeable {
         return timestamps[RegionConstants.headerIndex(chunkX, chunkZ)];
     }
 
-
     public void writeChunk(int chunkX, int chunkZ, NbtCompound chunk) throws IOException {
         byte[] frame = buildFrame(chunk);
         int neededSectors = (frame.length + RegionConstants.SECTOR_BYTES - 1) / RegionConstants.SECTOR_BYTES;
         if (neededSectors >= 256) {
-            throw new IOException("Chunk " + chunkX + "," + chunkZ
-                    + " trop volumineux (" + neededSectors + " secteurs) : nécessiterait un fichier .mcc externe");
+            throw new IOException("Chunk " + chunkX + "," + chunkZ + " trop volumineux (" + neededSectors
+                    + " secteurs) : nécessiterait un fichier .mcc externe");
         }
 
         int i = RegionConstants.headerIndex(chunkX, chunkZ);

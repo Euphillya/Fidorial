@@ -4,6 +4,8 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundCommandsPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundEntityEventPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerAbilitiesPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerInfoGameModePacket;
@@ -11,6 +13,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundStopSoundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
+import fr.fidorial.command.CommandSender;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
@@ -25,6 +28,7 @@ import fr.fidorial.permission.PermissionService;
 import fr.fidorial.permission.ServerOperator;
 import fr.fidorial.plugin.Plugin;
 import fr.fidorial.translation.TranslationStore;
+import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import net.kyori.adventure.sound.Sound;
@@ -38,8 +42,9 @@ import java.util.Set;
 public final class ServerPlayer extends AbstractEntity implements Player, PermissibleBaseHolder {
 
     // https://minecraft.wiki/w/Java_Edition_protocol/Entity_metadata#Avatar
-    public static final int MD_MAIN_HAND = 15;            // Main hand (0: left, 1: right)
-    public static final int MD_DISPLAYED_SKIN_PARTS = 16; // The Displayed Skin Parts bit mask that is sent in Client Information
+    public static final int MD_MAIN_HAND = 15; // Main hand (0: left, 1: right)
+    public static final int MD_DISPLAYED_SKIN_PARTS =
+            16; // The Displayed Skin Parts bit mask that is sent in Client Information
 
     private final PlayerProfile profile;
     private final PlayerInventory inventory;
@@ -50,19 +55,27 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     private volatile float health = 20f;
     private volatile int selectedSlot;
     private volatile int lastTeleportId;
+    private volatile boolean flying;
 
     private Locale locale;
 
-    public ServerPlayer(int entityId, PlayerProfile profile, PlayerInventory inventory,
-                        GameMode gameMode, ClientConnection connection, World world, Location location) {
+    public ServerPlayer(
+            int entityId,
+            PlayerProfile profile,
+            PlayerInventory inventory,
+            GameMode gameMode,
+            ClientConnection connection,
+            World world,
+            Location location
+    ) {
         super(entityId, profile.uuid(), EntityTypes.PLAYER, world, location);
         this.profile = profile;
         this.inventory = inventory;
         this.gameMode = gameMode;
         this.connection = connection;
         this.locale = connection.locale();
-        this.perm = new PermissibleBase(new PlayerOperator(), this,
-                FidorialServer.getInstance().plugins());
+        this.perm = new PermissibleBase(
+                new PlayerOperator(), this, FidorialServer.getInstance().plugins());
     }
 
     @Override
@@ -71,8 +84,10 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     private @Nullable PermissionService permissionService() {
-        return FidorialServer.getInstance().services()
-                .find(PermissionService.class).orElse(null);
+        return FidorialServer.getInstance()
+                .services()
+                .find(PermissionService.class)
+                .orElse(null);
     }
 
     @Override
@@ -128,11 +143,25 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     @Override
     public void recalculatePermissions() {
         PermissionService service = permissionService();
+
         if (service != null) {
             service.recalculate(this);
         } else {
             perm.recalculatePermissions();
         }
+        updateClientPermissionLevel();
+        refreshCommands();
+    }
+
+    private void updateClientPermissionLevel() {
+        int level = isOp() ? 4 : 0;
+        connection.send(new ClientboundEntityEventPacket(entityId(), (byte) (24 + level)));
+    }
+
+    @Override
+    public void refreshCommands() {
+        connection.send(new ClientboundCommandsPacket(
+                connection.server().commandManager().dispatcher(), this));
     }
 
     @Override
@@ -158,6 +187,25 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         return connection;
     }
 
+    public boolean isFlying() {
+        return /*flying &&*/ !isOnGround(); // broken
+    }
+
+    private boolean isOnGround() {
+        Location loc = location();
+
+        BlockPos below =
+                new BlockPos((int) Math.floor(loc.x()), (int) Math.floor(loc.y() - 0.01), (int) Math.floor(loc.z()));
+
+        int stateId = world().getBlockStateId(below);
+
+        return stateId != 0;
+    }
+
+    public void setFlying(boolean flying) {
+        this.flying = flying;
+    }
+
     @Override
     public float health() {
         return health;
@@ -173,17 +221,14 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         return 20f;
     }
 
-    @Override
     public void setLocale(final String language) {
         this.locale = Locale.forLanguageTag(language.replace('_', '-'));
     }
 
-    @Override
     public void setLocale(final Locale locale) {
         this.locale = locale;
     }
 
-    @Override
     public Locale locale() {
         return this.locale;
     }
@@ -236,8 +281,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
             return;
         }
         this.gameMode = gameMode;
-        connection.send(new ClientboundGameEventPacket(
-                ClientboundGameEventPacket.CHANGE_GAME_MODE, gameMode.id()));
+        connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, gameMode.id()));
         connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(gameMode));
         connection.server().broadcast(new ClientboundPlayerInfoGameModePacket(uuid(), gameMode.id()));
     }
@@ -257,6 +301,11 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         var id = lastTeleportId;
         lastTeleportId = id + 1;
         return lastTeleportId;
+    }
+
+    @Override
+    public CommandSender sender() {
+        return this;
     }
 
     private final class PlayerOperator implements ServerOperator {

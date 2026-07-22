@@ -58,13 +58,12 @@ public final class FidorialPermissionService implements PermissionService {
     }
 
     private @Nullable PermissibleBase base(Permissible permissible) {
-        return permissible instanceof PermissibleBaseHolder holder
-                ? holder.permissionBase() : null;
+        return permissible instanceof PermissibleBaseHolder holder ? holder.permissionBase() : null;
     }
 
     private boolean defaultValue(String permission, boolean op) {
         PluginManager plugins = server.plugins();
-        Permission perm = plugins.getPermission(permission.toLowerCase(Locale.ROOT));
+        Permission perm = plugins.getPermission(permission.toLowerCase(Locale.ROOT)).orElse(null);
         PermissionDefault def = perm == null ? Permission.DEFAULT_PERMISSION : perm.getDefault();
         return def.getValue(op);
     }

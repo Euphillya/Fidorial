@@ -61,7 +61,9 @@ public interface TranslationStore {
     void unload();
 
     final class Holder {
-        private Holder() {}
+        private Holder() {
+        }
+
         private static volatile @Nullable TranslationStore INSTANCE;
     }
 }

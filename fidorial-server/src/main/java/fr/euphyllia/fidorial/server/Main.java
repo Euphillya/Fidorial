@@ -14,8 +14,7 @@ public final class Main {
     static void main(String[] args) {
         try {
             FidorialServer server = new FidorialServer();
-            Runtime.getRuntime().addShutdownHook(
-                    new Thread(server::shutdown, "fidorial-shutdown"));
+            Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown, "fidorial-shutdown"));
             server.start();
         } catch (Throwable t) {
             LOGGER.error("Fidorial n'a pas pu demarrer", t);

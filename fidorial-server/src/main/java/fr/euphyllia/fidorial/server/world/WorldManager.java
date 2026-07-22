@@ -9,6 +9,7 @@ import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import fr.euphyllia.fidorial.server.world.storage.EntityRegionStorage;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
 import fr.euphyllia.fidorial.server.world.storage.WorldPaths;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -40,9 +41,16 @@ public final class WorldManager implements AutoCloseable {
     private volatile @Nullable IntSupplier entityIdSupplier;
     private volatile @Nullable EntitySpawnBridge entityBridge;
 
-    private WorldManager(WorldPaths paths, LevelData levelData, ChunkStorage storage,
-                         EntityRegionStorage entityStorage, AnvilEntitySerializer entitySerializer,
-                         BlockStateRegistry blockStates, int minY, int height) {
+    private WorldManager(
+            WorldPaths paths,
+            LevelData levelData,
+            ChunkStorage storage,
+            EntityRegionStorage entityStorage,
+            AnvilEntitySerializer entitySerializer,
+            BlockStateRegistry blockStates,
+            int minY,
+            int height
+    ) {
         this.paths = paths;
         this.levelData = levelData;
         this.storage = storage;
@@ -53,8 +61,8 @@ public final class WorldManager implements AutoCloseable {
         this.height = height;
     }
 
-    public static WorldManager openOrCreate(Path worldRoot, BlockStateRegistry blockStates,
-                                            int minY, int height) throws IOException {
+    public static WorldManager openOrCreate(Path worldRoot, BlockStateRegistry blockStates, int minY, int height)
+            throws IOException {
         WorldPaths paths = new WorldPaths(worldRoot, WorldPaths.Layout.MODERN);
 
         LevelData levelData;
@@ -68,20 +76,18 @@ public final class WorldManager implements AutoCloseable {
         }
 
         AnvilChunkSerializer serializer = new AnvilChunkSerializer();
-        ChunkStorage storage = new ChunkStorage(paths, serializer, minY, height,
-                BlockState.AIR, "minecraft:plains");
+        ChunkStorage storage = new ChunkStorage(paths, serializer, minY, height, BlockState.AIR, "minecraft:plains");
 
         EntityRegionStorage entityStorage = new EntityRegionStorage(paths);
         AnvilEntitySerializer entitySerializer = new AnvilEntitySerializer();
 
-        return new WorldManager(paths, levelData, storage, entityStorage, entitySerializer,
-                blockStates, minY, height);
+        return new WorldManager(paths, levelData, storage, entityStorage, entitySerializer, blockStates, minY, height);
     }
 
     public ServerWorld registerDimension(Dimension dim, ChunkGenerator generator) {
         return worlds.computeIfAbsent(dim.id(), k -> {
-            ServerWorld world = new ServerWorld(dim, storage, entityStorage, entitySerializer,
-                    generator, blockStates, minY, height);
+            ServerWorld world = new ServerWorld(
+                    dim, storage, entityStorage, entitySerializer, generator, blockStates, minY, height);
             if (chunkLoader != null) {
                 world.setChunkLoader(chunkLoader);
             }
@@ -113,8 +119,8 @@ public final class WorldManager implements AutoCloseable {
 
     public ServerWorld overworld() {
         ChunkGenerator chunkGenerator = defaultGenerator;
-        ChunkGenerator generator = chunkGenerator != null ? chunkGenerator
-                : FlatChunkGenerator.cobblestone(minY, height);
+        ChunkGenerator generator =
+                chunkGenerator != null ? chunkGenerator : FlatChunkGenerator.cobblestone(minY, height);
         return registerDimension(Dimension.OVERWORLD, generator);
     }
 
@@ -124,6 +130,10 @@ public final class WorldManager implements AutoCloseable {
 
     public ServerWorld dimension(Dimension dim) {
         return worlds.get(dim.id());
+    }
+
+    public ServerWorld world(Key worldKey) {
+        return worlds.get(worldKey.asString());
     }
 
     public LevelData levelData() {

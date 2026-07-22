@@ -60,8 +60,8 @@ public final class LoginPacketHandler implements LoginPacketListener {
     private void sendVelocityForwardingRequest() {
         this.velocityTransactionId = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
         byte[] requestedVersion = {(byte) VelocityForwarding.MAX_SUPPORTED_VERSION};
-        connection.send(new ClientboundCustomQueryPacket(
-                velocityTransactionId, VelocityForwarding.CHANNEL, requestedVersion));
+        connection.send(
+                new ClientboundCustomQueryPacket(velocityTransactionId, VelocityForwarding.CHANNEL, requestedVersion));
     }
 
     @Override
@@ -86,8 +86,11 @@ public final class LoginPacketHandler implements LoginPacketListener {
             connection.setForwardedAddress(data.remoteAddress());
             connection.setUsername(data.profile().name());
             this.pendingUsername = data.profile().name();
-            LOGGER.info("Player transferred by Velocity: {} ({}) from {}",
-                    data.profile().name(), data.profile().uuid(), data.remoteAddress());
+            LOGGER.info(
+                    "Player transferred by Velocity: {} ({}) from {}",
+                    data.profile().name(),
+                    data.profile().uuid(),
+                    data.remoteAddress());
             enableCompression();
             sendLoginSuccess(data.profile());
         } catch (VelocityForwarding.ForwardingException e) {
@@ -114,7 +117,8 @@ public final class LoginPacketHandler implements LoginPacketListener {
             SecretKey key = EncryptionUtils.toAesKey(sharedSecret);
             connection.installEncryption(key);
 
-            String serverHash = EncryptionUtils.computeServerHash("", sharedSecret, server.keyPair().getPublic());
+            String serverHash = EncryptionUtils.computeServerHash(
+                    "", sharedSecret, server.keyPair().getPublic());
             String username = pendingUsername;
             Thread.startVirtualThread(() -> authenticate(username, serverHash));
         } catch (Exception e) {

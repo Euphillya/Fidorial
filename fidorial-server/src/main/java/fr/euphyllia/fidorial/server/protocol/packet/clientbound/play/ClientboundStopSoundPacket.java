@@ -7,8 +7,10 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import org.jetbrains.annotations.Nullable;
 
-public record ClientboundStopSoundPacket(@Nullable Sound.Source source, @Nullable Key sound)
-        implements ClientboundPacket {
+public record ClientboundStopSoundPacket(
+        @Nullable Sound.Source source,
+        @Nullable Key sound
+) implements ClientboundPacket {
 
     @Override
     public String name() {

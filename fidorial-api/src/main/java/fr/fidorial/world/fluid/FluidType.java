@@ -4,7 +4,6 @@ import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 public enum FluidType {
-
     WATER(Key.key("water"), 5, 1, 7, true),
     LAVA(Key.key("lava"), 30, 2, 6, false);
 

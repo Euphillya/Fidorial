@@ -29,6 +29,11 @@ module fr.fidorial {
     exports fr.fidorial.world.weather;
     exports fr.fidorial.world;
     exports fr.fidorial;
+    exports fr.fidorial.command.argument;
+    exports fr.fidorial.command.argument.resolvers.selector;
+    exports fr.fidorial.command.argument.predicate;
+    exports fr.fidorial.command.argument.range;
+    exports fr.fidorial.command.argument.resolvers;
 
     requires com.google.common;
     requires java.desktop;
@@ -37,5 +42,9 @@ module fr.fidorial {
     requires net.kyori.adventure.text.logger.slf4j;
 
     requires static org.jetbrains.annotations;
+    requires com.mojang.brigadier;
+    requires net.kyori.adventure.text.minimessage;
+    requires com.google.gson;
+
     requires static org.jspecify;
 }

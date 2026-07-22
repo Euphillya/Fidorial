@@ -24,14 +24,11 @@ import java.util.Set;
 public final class BuiltInTranslationStore implements TranslationStore {
 
     private static final Gson GSON = new Gson();
-    private static final Type LANGUAGE_TYPE = new TypeToken<Map<String, String>>() {
-    }.getType();
+    private static final Type LANGUAGE_TYPE = new TypeToken<Map<String, String>>() {}.getType();
     private static final Locale DEFAULT_LOCALE = Locale.US;
-    private static final Set<Locale> SUPPORTED_LOCALES = Set.of(
-            Locale.FRANCE,
-            Locale.US
-    );
-    private final MiniMessageTranslationStore miniMessageStore = MiniMessageTranslationStore.create(Key.key("translations"));
+    private static final Set<Locale> SUPPORTED_LOCALES = Set.of(Locale.FRANCE, Locale.US);
+    private final MiniMessageTranslationStore miniMessageStore =
+            MiniMessageTranslationStore.create(Key.key("translations"));
 
     private static Locale resolveLocale(@Nullable final Locale locale) {
         if (locale == null) {
@@ -43,8 +40,7 @@ public final class BuiltInTranslationStore implements TranslationStore {
         }
 
         return SUPPORTED_LOCALES.stream()
-                .filter(supported -> supported.getLanguage()
-                        .equals(locale.getLanguage()))
+                .filter(supported -> supported.getLanguage().equals(locale.getLanguage()))
                 .findFirst()
                 .orElse(DEFAULT_LOCALE);
     }
@@ -52,12 +48,10 @@ public final class BuiltInTranslationStore implements TranslationStore {
     private void loadBuiltin() {
         Map<Locale, String> languages = Map.of(
                 Locale.FRANCE, "languages/fr_fr.json",
-                Locale.US, "languages/en_us.json"
-        );
+                Locale.US, "languages/en_us.json");
         for (Map.Entry<Locale, String> entry : languages.entrySet()) {
             try {
-                InputStream stream = Main.class.getClassLoader()
-                        .getResourceAsStream(entry.getValue());
+                InputStream stream = Main.class.getClassLoader().getResourceAsStream(entry.getValue());
 
                 if (stream == null) {
                     FidorialServer.LOGGER.warn("Missing builtin language: {}", entry.getValue());

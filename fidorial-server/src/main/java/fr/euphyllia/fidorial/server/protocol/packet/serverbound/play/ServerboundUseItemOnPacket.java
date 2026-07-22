@@ -6,9 +6,15 @@ import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
 import fr.fidorial.world.BlockPos;
 
-public record ServerboundUseItemOnPacket(int hand, BlockPos target, int face,
-                                         float cursorX, float cursorY, float cursorZ,
-                                         boolean insideBlock, int sequence)
+public record ServerboundUseItemOnPacket(
+        int hand,
+        BlockPos target,
+        int face,
+        float cursorX,
+        float cursorY,
+        float cursorZ,
+        boolean insideBlock,
+        int sequence)
         implements ServerboundPacket {
 
     public static ServerboundUseItemOnPacket read(PacketBuffer buf) {
@@ -24,8 +30,7 @@ public record ServerboundUseItemOnPacket(int hand, BlockPos target, int face,
             buf.readBoolean();
         }
         int sequence = buf.readableBytes() > 0 ? buf.readVarInt() : 0;
-        return new ServerboundUseItemOnPacket(hand, target, face,
-                cursorX, cursorY, cursorZ, insideBlock, sequence);
+        return new ServerboundUseItemOnPacket(hand, target, face, cursorX, cursorY, cursorZ, insideBlock, sequence);
     }
 
     @Override

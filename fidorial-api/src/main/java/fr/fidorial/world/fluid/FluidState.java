@@ -14,7 +14,6 @@ public record FluidState(@Nullable FluidType type, int level, boolean falling) {
         return new FluidState(type, 0, false);
     }
 
-
     public static FluidState flowing(FluidType type, int level) {
         return new FluidState(type, level, false);
     }

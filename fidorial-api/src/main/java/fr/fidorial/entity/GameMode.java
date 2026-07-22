@@ -8,7 +8,6 @@ import java.util.Locale;
  * Modes de jeu vanilla, avec les identifiants reseau du protocole.
  */
 public enum GameMode {
-
     SURVIVAL(0),
     CREATIVE(1),
     ADVENTURE(2),

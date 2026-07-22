@@ -40,11 +40,10 @@ public class AnvilEntitySerializer {
         return entity instanceof Mob && !entity.isRemoved();
     }
 
-
     public NbtCompound toChunkNbt(int chunkX, int chunkZ, Collection<? extends AbstractEntity> entities) {
         NbtCompound root = new NbtCompound();
         root.putInt("DataVersion", dataVersion);
-        root.putIntArray("Position", new int[]{chunkX, chunkZ});
+        root.putIntArray("Position", new int[] {chunkX, chunkZ});
 
         NbtList list = new NbtList(NbtType.COMPOUND);
         for (AbstractEntity entity : entities) {
@@ -178,16 +177,10 @@ public class AnvilEntitySerializer {
         return list.get(index) instanceof NbtFloat(float value) ? value : 0f;
     }
 
-
     static int[] uuidToInts(UUID uuid) {
         long msb = uuid.getMostSignificantBits();
         long lsb = uuid.getLeastSignificantBits();
-        return new int[]{
-                (int) (msb >> 32),
-                (int) msb,
-                (int) (lsb >> 32),
-                (int) lsb
-        };
+        return new int[] {(int) (msb >> 32), (int) msb, (int) (lsb >> 32), (int) lsb};
     }
 
     static UUID uuidFromInts(int[] ints) {
@@ -195,5 +188,4 @@ public class AnvilEntitySerializer {
         long lsb = ((long) ints[2] << 32) | (ints[3] & 0xFFFFFFFFL);
         return new UUID(msb, lsb);
     }
-
 }

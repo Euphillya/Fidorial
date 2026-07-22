@@ -51,5 +51,4 @@ public class ItemStack {
     public int count() {
         return count;
     }
-
 }

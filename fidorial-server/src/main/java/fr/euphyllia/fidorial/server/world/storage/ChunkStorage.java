@@ -24,8 +24,14 @@ public final class ChunkStorage implements AutoCloseable {
 
     private final Map<String, RegionFile> regionCache = new ConcurrentHashMap<>();
 
-    public ChunkStorage(WorldPaths paths, AnvilChunkSerializer serializer,
-                        int minY, int height, BlockState defaultBlock, String defaultBiome) {
+    public ChunkStorage(
+            WorldPaths paths,
+            AnvilChunkSerializer serializer,
+            int minY,
+            int height,
+            BlockState defaultBlock,
+            String defaultBiome
+    ) {
         this.paths = paths;
         this.serializer = serializer;
         this.minY = minY;

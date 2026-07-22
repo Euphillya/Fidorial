@@ -147,10 +147,16 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     }
 
     public void installEncryption(SecretKey key) throws GeneralSecurityException {
-        ctx.pipeline().addBefore("frame-decoder", "cipher-decoder",
-                new CipherDecoder(EncryptionUtils.createStreamCipher(Cipher.DECRYPT_MODE, key)));
-        ctx.pipeline().addBefore("frame-decoder", "cipher-encoder",
-                new CipherEncoder(EncryptionUtils.createStreamCipher(Cipher.ENCRYPT_MODE, key)));
+        ctx.pipeline()
+                .addBefore(
+                        "frame-decoder",
+                        "cipher-decoder",
+                        new CipherDecoder(EncryptionUtils.createStreamCipher(Cipher.DECRYPT_MODE, key)));
+        ctx.pipeline()
+                .addBefore(
+                        "frame-decoder",
+                        "cipher-encoder",
+                        new CipherEncoder(EncryptionUtils.createStreamCipher(Cipher.ENCRYPT_MODE, key)));
     }
 
     public void installCompression(int threshold) {
@@ -159,9 +165,13 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     }
 
     public void startKeepAlive() {
-        keepAliveTask = ctx.channel().eventLoop().scheduleAtFixedRate(
-                () -> send(new ClientboundKeepAlivePacket(System.currentTimeMillis())),
-                KEEP_ALIVE_INTERVAL_SECONDS, KEEP_ALIVE_INTERVAL_SECONDS, TimeUnit.SECONDS);
+        keepAliveTask = ctx.channel()
+                .eventLoop()
+                .scheduleAtFixedRate(
+                        () -> send(new ClientboundKeepAlivePacket(System.currentTimeMillis())),
+                        KEEP_ALIVE_INTERVAL_SECONDS,
+                        KEEP_ALIVE_INTERVAL_SECONDS,
+                        TimeUnit.SECONDS);
     }
 
     @Override
@@ -187,8 +197,8 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         Thread.startVirtualThread(() -> {
             try {
                 server.playerInventoryStorage().save(disconnecting.uuid(), disconnecting.inventory());
-                server.playerDataStorage().save(disconnecting.uuid(),
-                        new PlayerDataStorage.PlayerData(disconnecting.gameMode()));
+                server.playerDataStorage()
+                        .save(disconnecting.uuid(), new PlayerDataStorage.PlayerData(disconnecting.gameMode()));
                 LOGGER.info("Inventaire et donnees de {} sauvegardés", disconnecting.name());
             } catch (Exception e) {
                 LOGGER.error("Sauvegarde de l'inventaire de {} impossible", disconnecting.name(), e);

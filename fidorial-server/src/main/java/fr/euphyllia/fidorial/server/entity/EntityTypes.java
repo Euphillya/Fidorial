@@ -8,7 +8,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public final class EntityTypes {
 
     private static final Map<Key, EntityType> BY_KEY = new ConcurrentHashMap<>();
@@ -43,7 +42,8 @@ public final class EntityTypes {
     public static final EntityType CHICKEN = vanilla("chicken", EntityType.Category.CREATURE, 26);
     public static final EntityType COD = vanilla("cod", EntityType.Category.WATER_CREATURE, 27);
     public static final EntityType COPPER_GOLEM = vanilla("copper_golem", EntityType.Category.MISC, 28);
-    public static final EntityType COMMAND_BLOCK_MINECART = vanilla("command_block_minecart", EntityType.Category.MISC, 29);
+    public static final EntityType COMMAND_BLOCK_MINECART =
+            vanilla("command_block_minecart", EntityType.Category.MISC, 29);
     public static final EntityType COW = vanilla("cow", EntityType.Category.CREATURE, 30);
     public static final EntityType CREAKING = vanilla("creaking", EntityType.Category.MONSTER, 31);
     public static final EntityType CREEPER = vanilla("creeper", EntityType.Category.MONSTER, 32);
@@ -178,12 +178,7 @@ public final class EntityTypes {
 
     private static EntityType vanilla(@KeyPattern String name, EntityType.Category category, int networkId) {
         Key key = Key.key(name);
-        EntityType type = new EntityType(
-                key,
-                category,
-                0.6f,
-                1.8f
-        );
+        EntityType type = new EntityType(key, category, 0.6f, 1.8f);
         register(type);
         NETWORK_IDS.put(key, networkId);
         return type;
@@ -199,6 +194,10 @@ public final class EntityTypes {
 
     public static @Nullable EntityType get(Key key) {
         return BY_KEY.get(key);
+    }
+
+    public static Iterable<EntityType> values() {
+        return BY_KEY.values();
     }
 
     public static int networkId(EntityType type) {

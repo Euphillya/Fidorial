@@ -45,10 +45,8 @@ public class AnvilChunkSerializer {
         root.put("sections", sections);
 
         NbtCompound heightmaps = new NbtCompound();
-        heightmaps.putLongArray("MOTION_BLOCKING",
-                chunk.computeHeightmap(bs -> !bs.isAir()));
-        heightmaps.putLongArray("WORLD_SURFACE",
-                chunk.computeHeightmap(bs -> !bs.isAir()));
+        heightmaps.putLongArray("MOTION_BLOCKING", chunk.computeHeightmap(bs -> !bs.isAir()));
+        heightmaps.putLongArray("WORLD_SURFACE", chunk.computeHeightmap(bs -> !bs.isAir()));
         root.put("Heightmaps", heightmaps);
 
         root.put("block_entities", new NbtList(NbtType.COMPOUND));
@@ -103,8 +101,7 @@ public class AnvilChunkSerializer {
         return c;
     }
 
-    public ChunkColumn fromNbt(NbtCompound root, int minY, int height,
-                               BlockState defaultBlock, String defaultBiome) {
+    public ChunkColumn fromNbt(NbtCompound root, int minY, int height, BlockState defaultBlock, String defaultBiome) {
         int chunkX = root.getInt("xPos");
         int chunkZ = root.getInt("zPos");
 
@@ -145,8 +142,8 @@ public class AnvilChunkSerializer {
             blockData = bs.getLongArray("tool/data");
         }
         if (blockPalette.isEmpty()) blockPalette.add(defaultBlock);
-        PalettedContainer<BlockState> blocks = PalettedContainer.fromNbt(
-                ChunkSection.BLOCK_COUNT, 4, blockPalette, blockData);
+        PalettedContainer<BlockState> blocks =
+                PalettedContainer.fromNbt(ChunkSection.BLOCK_COUNT, 4, blockPalette, blockData);
 
         // biomes
         List<String> biomePalette = new ArrayList<>();
@@ -162,8 +159,8 @@ public class AnvilChunkSerializer {
             biomeData = bio.getLongArray("tool/data");
         }
         if (biomePalette.isEmpty()) biomePalette.add(defaultBiome);
-        PalettedContainer<String> biomes = PalettedContainer.fromNbt(
-                ChunkSection.BIOME_COUNT, 1, biomePalette, biomeData);
+        PalettedContainer<String> biomes =
+                PalettedContainer.fromNbt(ChunkSection.BIOME_COUNT, 1, biomePalette, biomeData);
 
         return new ChunkSection(sectionY, blocks, biomes);
     }

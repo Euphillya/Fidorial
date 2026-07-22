@@ -10,6 +10,7 @@ module fr.fidorial.server {
     requires dev.faststats;
     requires fr.fidorial.auth;
     requires fr.fidorial;
+    requires com.mojang.brigadier;
     requires io.netty.buffer;
     requires io.netty.codec;
     requires io.netty.transport.unix.common;
@@ -21,9 +22,13 @@ module fr.fidorial.server {
     requires net.kyori.adventure.text.serializer.ansi;
     requires net.kyori.adventure.text.serializer.gson;
     requires org.slf4j;
+    requires org.jline.reader;
+    requires org.jline.terminal;
 
     requires static org.jetbrains.annotations;
     requires static org.jspecify;
+    requires com.google.errorprone.annotations;
+    requires net.kyori.adventure.text.serializer.plain;
     requires io.netty.transport.classes.epoll;
     requires io.netty.transport.classes.kqueue;
     requires io.netty.transport.classes.io_uring;

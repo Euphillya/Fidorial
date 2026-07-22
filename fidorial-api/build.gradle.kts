@@ -7,6 +7,9 @@ dependencies {
     api(platform(libs.adventure.bom))
     api(libs.bundles.adventure)
     api(libs.guava)
+    api(libs.brigadier)
+    api(project(":fidorial-brigadier")) // for module support
+    compileOnly("org.jetbrains:annotations:26.0.2")
     api(libs.jspecify)
 }
 

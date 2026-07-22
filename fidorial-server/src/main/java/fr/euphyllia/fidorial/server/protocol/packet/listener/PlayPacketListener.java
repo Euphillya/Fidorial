@@ -5,9 +5,11 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.Serverbou
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatCommandPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerAbilitiesPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerActionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCarriedItemPacket;
@@ -28,6 +30,10 @@ public interface PlayPacketListener extends PacketListener {
     void handleUseItemOn(ServerboundUseItemOnPacket packet);
 
     void handlePlayerAction(ServerboundPlayerActionPacket packet);
+
+    void handleCommandSuggestion(ServerboundCommandSuggestionPacket packet);
+
+    void handlePlayerAbilities(ServerboundPlayerAbilitiesPacket packet);
 
     void handleMovePlayerPos(ServerboundMovePlayerPosPacket packet);
 
