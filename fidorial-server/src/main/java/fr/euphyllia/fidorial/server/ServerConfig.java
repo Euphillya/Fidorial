@@ -34,7 +34,8 @@ public record ServerConfig(
         String motd,
         int maxPlayers,
         ProxyMode proxyMode,
-        @Nullable String velocitySecret
+        @Nullable String velocitySecret,
+        boolean useIoUring
 ) {
 
     private static final ComponentLogger LOGGER = getLogger(ServerConfig.class);
@@ -89,7 +90,8 @@ public record ServerConfig(
                 "",
                 100,
                 ProxyMode.NONE,
-                "");
+                "",
+        false);
     }
 
     public static ServerConfig load() throws IOException {
@@ -127,7 +129,8 @@ public record ServerConfig(
                 readString(props, "motd", "<red>Fidorial <white>| <blue>Alternative Minecraft Server"),
                 readInt(props, "max-players", defaults.maxPlayers()),
                 readProxyMode(props, "proxy-mode", defaults.proxyMode()),
-                readString(props, "velocity-secret", "").strip());
+                readString(props, "velocity-secret", "").strip(),
+                readBool(props, "use-io-uring", false));
         LOGGER.info("Configuration chargee depuis {}", file);
         return config;
     }
@@ -218,6 +221,7 @@ public record ServerConfig(
         props.setProperty("max-players", Integer.toString(maxPlayers));
         props.setProperty("proxy-mode", proxyMode.name().toLowerCase(Locale.ROOT));
         props.setProperty("velocity-secret", velocitySecret == null ? "" : velocitySecret);
+        props.setProperty("use-io-uring", Boolean.toString(useIoUring));
         try (OutputStream out = Files.newOutputStream(file)) {
             props.store(out, "Configuration Fidorial");
         }

@@ -29,4 +29,7 @@ module fr.fidorial.server {
     requires static org.jspecify;
     requires com.google.errorprone.annotations;
     requires net.kyori.adventure.text.serializer.plain;
+    requires io.netty.transport.classes.epoll;
+    requires io.netty.transport.classes.kqueue;
+    requires io.netty.transport.classes.io_uring;
 }

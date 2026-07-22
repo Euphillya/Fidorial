@@ -16,6 +16,9 @@ dependencies {
     implementation(libs.adventure.text.serializer.plain)
     implementation(libs.jline.ffm)
     implementation(libs.jline.reader)
+    runtimeOnly(libs.netty.epoll)
+    runtimeOnly(libs.netty.kqueue)
+    runtimeOnly(libs.netty.iouring)
 }
 
 application {

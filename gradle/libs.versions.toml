@@ -12,6 +12,9 @@ jline = "4.3.1"
 
 [libraries]
 netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
+netty-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty" }
+netty-kqueue = { module = "io.netty:netty-transport-native-kqueue", version.ref = "netty" }
+netty-iouring = { module = "io.netty:netty-transport-native-io_uring", version.ref = "netty" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 brigadier = { module = "com.mojang:brigadier", version.ref = "brigadier" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
