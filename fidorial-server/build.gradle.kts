@@ -1,11 +1,11 @@
 plugins {
     application
-    id("com.gradleup.shadow") version "9.5.1"
+    id("com.gradleup.shadow")
 }
 
 dependencies {
-    implementation(project(":fidorial-api"))
-    implementation(project(":fidorial-auth"))
+    implementation(projects.fidorialApi)
+    implementation(projects.fidorialAuth)
     implementation(libs.netty.all)
     implementation(libs.gson)
     implementation(libs.slf4j.api)

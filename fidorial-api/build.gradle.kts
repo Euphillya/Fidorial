@@ -8,9 +8,9 @@ dependencies {
     api(libs.bundles.adventure)
     api(libs.guava)
     api(libs.brigadier)
-    api(project(":fidorial-brigadier")) // for module support
-    compileOnly("org.jetbrains:annotations:26.0.2")
+    api(projects.fidorialBrigadier) // for module support
     api(libs.jspecify)
+    compileOnly("org.jetbrains:annotations:26.0.2")
 }
 
 java {
@@ -19,7 +19,7 @@ java {
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
+        register<MavenPublication>("maven") {
             from(components["java"])
             pom {
                 name = "fidorial-api"
@@ -35,8 +35,8 @@ publishing {
             val snapshots = uri("https://repo.euphyllia.moe/repository/maven-snapshots/")
             url = if (version.toString().endsWith("SNAPSHOT")) snapshots else releases
             credentials {
-                username = System.getenv("NEXUS_USERNAME") ?: ""
-                password = System.getenv("NEXUS_PASSWORD") ?: ""
+                username = providers.environmentVariable("NEXUS_USERNAME").orNull ?: ""
+                password = providers.environmentVariable("NEXUS_PASSWORD").orNull ?: ""
             }
         }
     }
