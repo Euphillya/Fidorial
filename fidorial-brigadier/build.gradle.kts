@@ -1,5 +1,4 @@
 plugins {
-    `java-library`
     `maven-publish`
 }
 
@@ -10,10 +9,7 @@ dependencies {
 }
 
 tasks.jar {
-    from(embedded.map { files ->
-        files.map(::zipTree)
-    })
-
+    from(embedded)
     manifest {
         attributes(
             "Automatic-Module-Name" to "com.mojang.brigadier"

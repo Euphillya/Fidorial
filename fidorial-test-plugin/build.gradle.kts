@@ -1,9 +1,9 @@
 plugins {
-    id("com.gradleup.shadow") version "9.5.1"
+    id("com.gradleup.shadow")
 }
 
 dependencies {
-    compileOnly(project(":fidorial-api"))
+    compileOnly(projects.fidorialApi)
     implementation(platform(libs.adventure.bom))
     implementation(libs.adventure.text.serializer.plain)
 }

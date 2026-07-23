@@ -8,6 +8,8 @@ plugins {
 
 rootProject.name = "fidorial"
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 include("fidorial-api")
 include("fidorial-auth")
 include("fidorial-server")
