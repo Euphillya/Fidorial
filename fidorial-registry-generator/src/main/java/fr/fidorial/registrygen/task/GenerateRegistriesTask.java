@@ -17,6 +17,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 
+/**
+ * The GenerateRegistriesTask is a Gradle task designed for generating registry source files
+ * based on Minecraft version-specific reports. This task processes input reports, applies
+ * provided registry mappings, and generates source files in the specified output directory.
+ *
+ * @since 0.1.0
+ */
 @CacheableTask
 public abstract class GenerateRegistriesTask extends DefaultTask {
 

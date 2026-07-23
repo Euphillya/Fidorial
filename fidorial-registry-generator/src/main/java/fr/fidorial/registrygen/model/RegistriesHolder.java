@@ -4,6 +4,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Represents a holder for a collection of {@link RegistryDefinition} objects.
+ * Provides functionality to manage and retrieve registries based on their identifiers.
+ *
+ * @since 0.1.0
+ */
 public record RegistriesHolder(List<RegistryDefinition> registries) {
 
     public RegistriesHolder {

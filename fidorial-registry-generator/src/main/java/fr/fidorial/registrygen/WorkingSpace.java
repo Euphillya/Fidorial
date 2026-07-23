@@ -7,6 +7,19 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
+/**
+ * Represents a workspace environment for generating Minecraft version-specific registries.
+ * The `WorkingSpace` class manages directories and files associated with the
+ * Minecraft version, server JAR, data output, and reports.
+ *
+ * This class provides facilities to:
+ * - Initialize necessary directory structures.
+ * - Access paths associated with the workspace (e.g., server JAR location).
+ * - Verify the existence of expected files or directories, such as reports or the server JAR.
+ * - Clean up workspace directories, either for a specific Minecraft version or the entire root.
+ *
+ * @since 0.1.0
+ */
 public final class WorkingSpace {
 
     private final String minecraftVersion;

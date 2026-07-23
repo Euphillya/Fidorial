@@ -16,6 +16,17 @@ import java.nio.charset.StandardCharsets;
 
 import static fr.fidorial.registrygen.RegistryGeneratorMain.DOWNLOAD_MANIFEST_URL;
 
+/**
+ * The {@code ServerJarURLGrabber} class is a utility for retrieving server download information
+ * for specific Minecraft versions. It interacts with Mojang's Minecraft version manifest
+ * and metadata files to ascertain the download URL and SHA-1 checksum of a desired server JAR file.
+ *
+ * This class is designed to handle HTTP communication, JSON parsing, and validation of data
+ * integrity to ensure that only correct and valid information is returned to the caller.
+ * It operates with a focus on error handling and provides meaningful exceptions when issues arise.
+ *
+ * @since 0.1.0
+ */
 public final class ServerJarURLGrabber {
 
     /**

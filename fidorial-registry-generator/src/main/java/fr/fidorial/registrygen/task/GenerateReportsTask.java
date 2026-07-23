@@ -18,6 +18,18 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * GenerateReportsTask is responsible for running the Minecraft data generator
+ * to create the necessary data files for a specified Minecraft version.
+ * The task executes the data generation process using a given Java executable,
+ * a server JAR file, and a set of provided arguments.
+ *
+ * The generated data is stored in a designated output directory. The task ensures
+ * that the output directory is created if it does not already exist. If the process
+ * fails, it throws an exception with the generated process exit code.
+ *
+ * @since 0.1.0
+ */
 @CacheableTask
 public abstract class GenerateReportsTask extends DefaultTask {
 

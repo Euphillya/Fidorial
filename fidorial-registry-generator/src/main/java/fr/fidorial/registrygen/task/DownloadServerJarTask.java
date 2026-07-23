@@ -13,6 +13,13 @@ import java.io.IOException;
 
 import static fr.fidorial.registrygen.download.ServerJarURLGrabber.fetchServerDownload;
 
+/**
+ * The DownloadServerJarTask is a Gradle task responsible for downloading the Minecraft server JAR
+ * file for a specific Minecraft version. It utilizes server metadata to locate the download URL
+ * and retrieves the server JAR file.
+ *
+ * @since 0.1.0
+ */
 @CacheableTask
 public abstract class DownloadServerJarTask extends DefaultTask {
 

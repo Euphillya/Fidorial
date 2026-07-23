@@ -7,6 +7,8 @@ import org.gradle.api.provider.Property;
 
 /**
  * Configuration exposed by the plugin.
+ *
+ * @since 0.1.0
  */
 public abstract class FidorialRegistryGeneratorPlugin {
 

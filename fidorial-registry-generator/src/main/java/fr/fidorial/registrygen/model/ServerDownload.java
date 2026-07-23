@@ -3,6 +3,13 @@ package fr.fidorial.registrygen.model;
 import java.net.URI;
 import java.util.Objects;
 
+/**
+ * The ServerDownload record represents the metadata required to download a specific
+ * version of a Minecraft server JAR file. This includes the Minecraft version, the
+ * download URL, and the SHA-1 checksum for verifying the integrity of the downloaded file.
+ *
+ * @since 0.1.0
+ */
 public record ServerDownload(String version, URI url, String sha1) {
 
     public ServerDownload {
