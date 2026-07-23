@@ -11,6 +11,12 @@ public interface PluginContext {
 
     Server server();
 
+    /**
+     * Gets the plugin's event bus
+     *
+     * @return the event bus
+     * @since 0.1.0
+     */
     PluginEventBus events();
 
     ServiceRegistry services();
