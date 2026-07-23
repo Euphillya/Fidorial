@@ -24,11 +24,9 @@ import io.netty.channel.uring.IoUringServerSocketChannel;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class NettyServer {
 
-    private static final ComponentLogger LOGGER = getLogger(NettyServer.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(NettyServer.class);
     private final FidorialServer server;
     private final int port;
     private final MultiThreadIoEventLoopGroup bossGroup;

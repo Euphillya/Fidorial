@@ -18,11 +18,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.function.LongConsumer;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class ChunkViewTracker implements ChunkViewSource {
 
-    private static final ComponentLogger LOGGER = getLogger(ChunkViewTracker.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(ChunkViewTracker.class);
 
     private final ClientConnection connection;
     private final ThreadedChunkWorker chunkWorker;

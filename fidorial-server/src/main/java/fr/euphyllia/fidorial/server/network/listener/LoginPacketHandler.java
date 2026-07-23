@@ -28,11 +28,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class LoginPacketHandler implements LoginPacketListener {
 
-    private static final ComponentLogger LOGGER = getLogger(LoginPacketHandler.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(LoginPacketHandler.class);
 
     private final ClientConnection connection;
     private final FidorialServer server;

@@ -12,8 +12,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 final class SimplePluginContext implements PluginContext {
 
     private final PluginMeta meta;
@@ -30,7 +28,7 @@ final class SimplePluginContext implements PluginContext {
         this.events = events;
         this.services = services;
         this.dataFolder = dataFolder;
-        this.logger = getLogger("plugin/" + meta.id());
+        this.logger = ComponentLogger.logger("plugin/" + meta.id());
     }
 
     @Override

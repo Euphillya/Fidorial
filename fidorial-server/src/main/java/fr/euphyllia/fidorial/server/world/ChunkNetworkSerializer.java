@@ -11,11 +11,9 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.Arrays;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class ChunkNetworkSerializer {
 
-    private static final ComponentLogger LOGGER = getLogger(ChunkNetworkSerializer.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(ChunkNetworkSerializer.class);
 
     private final BlockStateRegistry blockRegistry;
     private final int biomeNetworkId;

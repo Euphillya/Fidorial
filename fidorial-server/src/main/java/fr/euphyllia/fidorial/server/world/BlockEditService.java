@@ -6,11 +6,9 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class BlockEditService {
 
-    private static final ComponentLogger LOGGER = getLogger(BlockEditService.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(BlockEditService.class);
 
     private final BlockStateRegistry blockRegistry;
     private final BlockChangeBroadcaster broadcaster;

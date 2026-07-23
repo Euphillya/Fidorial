@@ -18,11 +18,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public class OperatorList {
 
-    private static final ComponentLogger LOGGER = getLogger(OperatorList.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(OperatorList.class);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private final Path file;

@@ -13,11 +13,9 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class ProtocolMap {
 
-    private static final ComponentLogger LOGGER = getLogger(ProtocolMap.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(ProtocolMap.class);
     private static final String RESOURCE = "/protocol/26.2.json";
     private final Map<ConnectionState, Map<Boolean, Direction>> table = new EnumMap<>(ConnectionState.class);
     private final boolean available;

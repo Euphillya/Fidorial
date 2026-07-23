@@ -23,11 +23,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class FluidEngine implements FluidManager {
 
-    private static final ComponentLogger LOGGER = getLogger(FluidEngine.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(FluidEngine.class);
 
     private static final BlockState OBSIDIAN = BlockState.of("minecraft:obsidian");
     private static final BlockState COBBLESTONE = BlockState.of("minecraft:cobblestone");

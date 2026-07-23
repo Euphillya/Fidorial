@@ -8,11 +8,9 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public class AiWorker {
 
-    private static final ComponentLogger LOGGER = getLogger(AiWorker.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(AiWorker.class);
 
     private final ExecutorService workers;
 

@@ -5,11 +5,9 @@ import fr.fidorial.service.ServiceRegistry;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public class ServiceBackedChunkGenerator implements ChunkGenerator {
 
-    private static final ComponentLogger LOGGER = getLogger(ServiceBackedChunkGenerator.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(ServiceBackedChunkGenerator.class);
     private static final String DEFAULT_BIOME = "minecraft:plains";
 
     private final ServiceRegistry services;

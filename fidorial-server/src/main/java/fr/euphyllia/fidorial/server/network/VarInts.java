@@ -5,10 +5,10 @@ import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 import java.nio.charset.StandardCharsets;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.GSON_SERIALIZER;
 import static fr.euphyllia.fidorial.server.network.nbt.NetworkNbtHelper.convert;
 import static fr.euphyllia.fidorial.server.network.nbt.NetworkNbtHelper.writeNbt;
 
@@ -98,12 +98,12 @@ public final class VarInts {
     }
 
     public static void writeComponent(final ByteBuf buf, final Component component) {
-        final JsonElement deserialized = GSON_SERIALIZER.serializeToTree(component);
+        final JsonElement deserialized = GsonComponentSerializer.gson().serializeToTree(component);
         final Nbt serialized = convert(deserialized);
         writeNbt(buf, serialized);
     }
 
     public static Component readComponent(final ByteBuf buf, final int maxLength) {
-        return GSON_SERIALIZER.deserialize(readString(buf, maxLength));
+        return GsonComponentSerializer.gson().deserialize(readString(buf, maxLength));
     }
 }

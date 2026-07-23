@@ -15,11 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class SimpleEventBus implements EventBus {
 
-    private static final ComponentLogger LOGGER = getLogger(SimpleEventBus.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(SimpleEventBus.class);
 
     private final Map<Class<?>, List<Registration<?>>> byType = new ConcurrentHashMap<>();
     private final Map<Class<?>, List<Registration<?>>> resolved = new ConcurrentHashMap<>();

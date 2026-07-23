@@ -19,11 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public class ConsoleCommandReader {
 
-    private static final ComponentLogger LOGGER = getLogger(ConsoleCommandReader.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(ConsoleCommandReader.class);
 
     private final CommandManager commandManager;
     private final BooleanSupplier serverRunning;

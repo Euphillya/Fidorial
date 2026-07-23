@@ -17,12 +17,10 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.UUID;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class Creeper extends PathfinderMob {
 
     public static final float MAX_HEALTH = 20f;
-    private static final ComponentLogger LOGGER = getLogger(Creeper.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(Creeper.class);
 
     private static final int FUSE_TICKS = 30;
 
