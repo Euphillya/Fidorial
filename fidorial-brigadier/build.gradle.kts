@@ -9,7 +9,10 @@ dependencies {
 }
 
 tasks.jar {
-    from(embedded)
+    from(embedded.map { files ->
+        files.map(::zipTree)
+    })
+
     manifest {
         attributes(
             "Automatic-Module-Name" to "com.mojang.brigadier"

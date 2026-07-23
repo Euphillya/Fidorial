@@ -35,8 +35,8 @@ publishing {
             val snapshots = uri("https://repo.euphyllia.moe/repository/maven-snapshots/")
             url = if (version.toString().endsWith("SNAPSHOT")) snapshots else releases
             credentials {
-                username = providers.systemProperty("NEXUS_USERNAME").orNull ?: ""
-                password = providers.systemProperty("NEXUS_PASSWORD").orNull ?: ""
+                username = providers.environmentVariable("NEXUS_USERNAME").orNull ?: ""
+                password = providers.environmentVariable("NEXUS_PASSWORD").orNull ?: ""
             }
         }
     }
