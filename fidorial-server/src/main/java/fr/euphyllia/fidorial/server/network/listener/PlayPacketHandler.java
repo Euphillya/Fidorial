@@ -98,7 +98,6 @@ public final class PlayPacketHandler implements PlayPacketListener {
         sendLoginSequence(dynamic, world);
         openChunkView(world, dynamic, spawn.chunk());
         spawnPlayer(spawn);
-        sendExistingEntities(world);
 
         connection.startKeepAlive();
         server.addPlayerConnection(connection);
@@ -121,17 +120,6 @@ public final class PlayPacketHandler implements PlayPacketListener {
             server.worldManager().overworld().removeEntity(player);
             player.clearPermissions();
             player.remove();
-        }
-    }
-
-    private void sendExistingEntities(final ServerWorld world) {
-        for (final var entity : world.entityManager().all()) {
-            final EntityTypeRegistry registry =
-                    (EntityTypeRegistry) server.registries().registry(RegistryKey.ENTITY_TYPE);
-            if (entity instanceof ServerPlayer || !registry.hasNetworkId(entity.type())) {
-                continue;
-            }
-            connection.send(ClientboundAddEntityPacket.of(entity));
         }
     }
 

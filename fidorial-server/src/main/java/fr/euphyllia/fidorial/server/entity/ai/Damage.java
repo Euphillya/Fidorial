@@ -45,8 +45,9 @@ public class Damage {
         }
 
         final float hurtYaw = (float) (Math.toDegrees(Math.atan2(dz, dx)) - 90.0);
-        FidorialServer.getInstance().broadcast(
-                new ClientboundHurtAnimationPacket(target.entityId(), hurtYaw));
+        FidorialServer.getInstance()
+                .broadcastNear(target.world(), to.x(), to.y(), to.z(),
+                        new ClientboundHurtAnimationPacket(target.entityId(), hurtYaw));
         return true;
     }
 }

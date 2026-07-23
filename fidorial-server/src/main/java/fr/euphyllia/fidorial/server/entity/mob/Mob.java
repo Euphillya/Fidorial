@@ -16,7 +16,7 @@ public abstract class Mob extends AbstractEntity implements LivingEntity {
     private final float maxHealth;
     private volatile float health;
 
-    protected Mob(int entityId, UUID uuid, EntityType type, World world, Location location, float maxHealth) {
+    protected Mob(final int entityId, final UUID uuid, final EntityType type, final World world, final Location location, final float maxHealth) {
         super(entityId, uuid, type, world, location);
         this.maxHealth = maxHealth;
         this.health = maxHealth;
@@ -28,7 +28,7 @@ public abstract class Mob extends AbstractEntity implements LivingEntity {
     }
 
     @Override
-    public final void setHealth(float health) {
+    public final void setHealth(final float health) {
         this.health = Math.clamp(health, 0f, maxHealth);
         if (this.health == 0f) {
             onDeath();
@@ -44,9 +44,9 @@ public abstract class Mob extends AbstractEntity implements LivingEntity {
         remove();
     }
 
-    protected final void playSound(Sound.Type type, Sound.Source source, float volume, float pitch) {
-        Location loc = location();
-        FidorialServer.getInstance().broadcast(new ClientboundSoundPacket(
+    protected final void playSound(final Sound.Type type, final Sound.Source source, final float volume, final float pitch) {
+        final Location loc = location();
+        sendToTrackers(new ClientboundSoundPacket(
                 Sound.sound(type, source, volume, pitch), loc.x(), loc.y(), loc.z()));
     }
 }

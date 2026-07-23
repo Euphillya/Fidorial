@@ -64,31 +64,32 @@ public final class Explosion {
     private Explosion() {
     }
 
-    public static void explode(ServerWorld world, Location center, float power, AbstractEntity source) {
-        FidorialServer server = FidorialServer.getInstance();
-        playExplosionSound(server, center);
+    public static void explode(final ServerWorld world, final Location center, final float power, final AbstractEntity source) {
+        final FidorialServer server = FidorialServer.getInstance();
+        playExplosionSound(server, world, center);
         destroyBlocks(server, world, center, power);
         damageEntities(server, world, center, power, source);
     }
 
-    private static void playExplosionSound(FidorialServer server, Location center) {
-        float pitch = (1.0f
+    private static void playExplosionSound(final FidorialServer server, final ServerWorld world, final Location center) {
+        final float pitch = (1.0f
                         + (ThreadLocalRandom.current().nextFloat()
                                         - ThreadLocalRandom.current().nextFloat())
                                 * 0.2f)
                 * 0.7f;
-        server.broadcast(new ClientboundSoundPacket(
-                Sound.sound(SoundEvents.GENERIC_EXPLODE, Sound.Source.BLOCK, 4.0f, pitch),
-                center.x(),
-                center.y(),
-                center.z()));
+        server.broadcastNear(world, center.x(), center.y(), center.z(),
+                new ClientboundSoundPacket(
+                        Sound.sound(SoundEvents.GENERIC_EXPLODE, Sound.Source.BLOCK, 4.0f, pitch),
+                        center.x(),
+                        center.y(),
+                        center.z()));
     }
 
-    private static void destroyBlocks(FidorialServer server, ServerWorld world, Location center, float power) {
-        Set<BlockPos> toDestroy = collectExplodedBlocks(world, center, power);
-        List<BlockPos> destroyed = new ArrayList<>(toDestroy.size());
+    private static void destroyBlocks(final FidorialServer server, final ServerWorld world, final Location center, final float power) {
+        final Set<BlockPos> toDestroy = collectExplodedBlocks(world, center, power);
+        final List<BlockPos> destroyed = new ArrayList<>(toDestroy.size());
 
-        for (BlockPos pos : toDestroy) {
+        for (final BlockPos pos : toDestroy) {
             if (server.blockEdits().set(world, pos, BlockState.AIR)) {
                 destroyed.add(pos);
             }
@@ -98,15 +99,19 @@ public final class Explosion {
         }
 
         for (int i = 0; i < destroyed.size(); i += 5) {
-            server.broadcast(new ClientboundLevelEventPacket(
-                    ClientboundLevelEventPacket.BLOCK_BREAK, destroyed.get(i), 0, false));
+            final BlockPos broken = destroyed.get(i);
+            server.broadcastNear(world, broken.x() + 0.5, broken.y() + 0.5, broken.z() + 0.5,
+                    new ClientboundLevelEventPacket(
+                            ClientboundLevelEventPacket.BLOCK_BREAK, broken, 0, false));
         }
     }
 
-    private static Set<BlockPos> collectExplodedBlocks(ServerWorld world, Location center, float power) {
-        Set<BlockPos> out = new HashSet<>();
-        var random = ThreadLocalRandom.current();
-        double ox = center.x(), oy = center.y(), oz = center.z();
+    private static Set<BlockPos> collectExplodedBlocks(final ServerWorld world, final Location center, final float power) {
+        final Set<BlockPos> out = new HashSet<>();
+        final var random = ThreadLocalRandom.current();
+        final double ox = center.x();
+        final double oy = center.y();
+        final double oz = center.z();
 
         for (int j = 0; j < 16; j++) {
             for (int k = 0; k < 16; k++) {
@@ -117,7 +122,7 @@ public final class Explosion {
                     double dx = j / 15.0 * 2.0 - 1.0;
                     double dy = k / 15.0 * 2.0 - 1.0;
                     double dz = l / 15.0 * 2.0 - 1.0;
-                    double norm = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    final double norm = Math.sqrt(dx * dx + dy * dy + dz * dz);
                     dx /= norm;
                     dy /= norm;
                     dz /= norm;
@@ -126,10 +131,10 @@ public final class Explosion {
                     double px = ox, py = oy, pz = oz;
 
                     for (; intensity > 0.0f; intensity -= AIR_ATTENUATION) {
-                        int bx = (int) Math.floor(px);
-                        int by = (int) Math.floor(py);
-                        int bz = (int) Math.floor(pz);
-                        BlockState state = BlockView.blockAt(world, bx, by, bz);
+                        final int bx = (int) Math.floor(px);
+                        final int by = (int) Math.floor(py);
+                        final int bz = (int) Math.floor(pz);
+                        final BlockState state = BlockView.blockAt(world, bx, by, bz);
                         if (state != null && !state.isAir()) {
                             intensity -= (resistanceOf(state) + 0.3f) * 0.3f;
                             if (intensity > 0.0f) {
@@ -146,47 +151,49 @@ public final class Explosion {
         return out;
     }
 
-    private static float resistanceOf(BlockState state) {
+    private static float resistanceOf(final BlockState state) {
         return BLAST_RESISTANCE.getOrDefault(
                 state.name(), DEFAULT_BLAST_RESISTANCE); // Todo : Add the `BLAST_RESISTANCE` method to BlockState.
     }
 
     private static void damageEntities(
-            FidorialServer server,
-            ServerWorld world,
-            Location center,
-            float power,
-            AbstractEntity source
+            final FidorialServer server,
+            final ServerWorld world,
+            final Location center,
+            final float power,
+            final AbstractEntity source
     ) {
-        double range = power * 2.0;
-        double rangeSq = range * range;
-        double cx = center.x(), cy = center.y(), cz = center.z();
+        final double range = power * 2.0;
+        final double rangeSq = range * range;
+        final double cx = center.x();
+        final double cy = center.y();
+        final double cz = center.z();
 
-        for (var entity : world.entities()) {
-            if (!(entity instanceof AbstractEntity abstractEntity)
+        for (final var entity : world.entities()) {
+            if (!(entity instanceof final AbstractEntity abstractEntity)
                     || abstractEntity == source
                     || abstractEntity.isRemoved()) {
                 continue;
             }
-            Location pos = abstractEntity.location();
+            final Location pos = abstractEntity.location();
 
-            double fx = pos.x() - cx;
-            double fy = pos.y() - cy;
-            double fz = pos.z() - cz;
-            double feetDistSq = fx * fx + fy * fy + fz * fz;
+            final double fx = pos.x() - cx;
+            final double fy = pos.y() - cy;
+            final double fz = pos.z() - cz;
+            final double feetDistSq = fx * fx + fy * fy + fz * fz;
             if (feetDistSq > rangeSq) {
                 continue;
             }
-            double feetDist = Math.sqrt(feetDistSq);
-            double exposure = getExposure(world, center, abstractEntity);
-            double impact = (1.0 - feetDist / range) * exposure;
-            float damage = (float) ((impact * impact + impact) / 2.0 * 7.0 * range + 1.0);
+            final double feetDist = Math.sqrt(feetDistSq);
+            final double exposure = getExposure(world, center, abstractEntity);
+            final double impact = (1.0 - feetDist / range) * exposure;
+            final float damage = (float) ((impact * impact + impact) / 2.0 * 7.0 * range + 1.0);
 
-            double eye = eyeHeight(abstractEntity);
-            double ex = pos.x() - cx;
-            double ey = pos.y() + eye - cy;
-            double ez = pos.z() - cz;
-            double eyeDist = Math.sqrt(ex * ex + ey * ey + ez * ez);
+            final double eye = eyeHeight(abstractEntity);
+            final double ex = pos.x() - cx;
+            final double ey = pos.y() + eye - cy;
+            final double ez = pos.z() - cz;
+            final double eyeDist = Math.sqrt(ex * ex + ey * ey + ez * ez);
             double knockX = 0.0, knockY = 0.0, knockZ = 0.0;
             if (eyeDist > 1.0E-4) {
                 knockX = ex / eyeDist * impact;
@@ -195,13 +202,13 @@ public final class Explosion {
             }
 
             switch (abstractEntity) {
-                case ServerPlayer player -> {
-                    GameMode mode = player.gameMode();
+                case final ServerPlayer player -> {
+                    final GameMode mode = player.gameMode();
                     if (mode == GameMode.CREATIVE || mode == GameMode.SPECTATOR) {
                         continue;
                     }
 
-                    float finalDamage = damage;
+                    final float finalDamage = damage;
                     // Todo : Uncomment once implemented.
                     //                    switch (world.difficulty()) {
                     //                        case PEACEFUL -> { continue; }
@@ -214,12 +221,13 @@ public final class Explosion {
                     player.connection().send(new ClientboundSetHealthPacket(player.health(), 20, 5f));
                     player.connection()
                             .send(new ClientboundSetEntityMotionPacket(player.entityId(), knockX, knockY, knockZ));
-                    server.broadcast(new ClientboundHurtAnimationPacket(player.entityId(), pos.yaw()));
+                    server.broadcastNear(world, pos.x(), pos.y(), pos.z(),
+                            new ClientboundHurtAnimationPacket(player.entityId(), pos.yaw()));
                 }
-                case Mob mob -> {
+                case final Mob mob -> {
                     mob.setHealth(mob.health() - damage);
                     if (!mob.isRemoved()) {
-                        server.broadcast(new ClientboundHurtAnimationPacket(mob.entityId(), 0f));
+                        mob.sendToTrackers(new ClientboundHurtAnimationPacket(mob.entityId(), 0f));
                     }
                 }
                 default -> {
@@ -228,27 +236,27 @@ public final class Explosion {
         }
     }
 
-    private static float getExposure(ServerWorld world, Location center, AbstractEntity entity) {
-        double[] box = boundingBox(entity);
-        double width = box[3] - box[0];
-        double height = box[4] - box[1];
+    private static float getExposure(final ServerWorld world, final Location center, final AbstractEntity entity) {
+        final double[] box = boundingBox(entity);
+        final double width = box[3] - box[0];
+        final double height = box[4] - box[1];
 
-        double stepX = 1.0 / (width * 2.0 + 1.0);
-        double stepY = 1.0 / (height * 2.0 + 1.0);
-        double stepZ = stepX;
+        final double stepX = 1.0 / (width * 2.0 + 1.0);
+        final double stepY = 1.0 / (height * 2.0 + 1.0);
+        final double stepZ = stepX;
         if (stepX <= 0.0 || stepY <= 0.0) {
             return 0.0f;
         }
-        double offX = (1.0 - Math.floor(1.0 / stepX) * stepX) / 2.0;
-        double offZ = (1.0 - Math.floor(1.0 / stepZ) * stepZ) / 2.0;
+        final double offX = (1.0 - Math.floor(1.0 / stepX) * stepX) / 2.0;
+        final double offZ = (1.0 - Math.floor(1.0 / stepZ) * stepZ) / 2.0;
 
         int clear = 0, total = 0;
         for (double fx = 0.0; fx <= 1.0; fx += stepX) {
             for (double fy = 0.0; fy <= 1.0; fy += stepY) {
                 for (double fz = 0.0; fz <= 1.0; fz += stepZ) {
-                    double sx = lerp(fx, box[0], box[3]) + offX;
-                    double sy = lerp(fy, box[1], box[4]);
-                    double sz = lerp(fz, box[2], box[5]) + offZ;
+                    final double sx = lerp(fx, box[0], box[3]) + offX;
+                    final double sy = lerp(fy, box[1], box[4]);
+                    final double sz = lerp(fz, box[2], box[5]) + offZ;
                     if (clearLineOfSight(world, sx, sy, sz, center.x(), center.y(), center.z())) {
                         clear++;
                     }
@@ -260,28 +268,32 @@ public final class Explosion {
     }
 
     private static boolean clearLineOfSight(
-            ServerWorld world,
-            double sx,
-            double sy,
-            double sz,
-            double cx,
-            double cy,
-            double cz
+            final ServerWorld world,
+            final double sx,
+            final double sy,
+            final double sz,
+            final double cx,
+            final double cy,
+            final double cz
     ) {
 
-        double dx = cx - sx, dy = cy - sy, dz = cz - sz;
-        double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        final double dx = cx - sx;
+        final double dy = cy - sy;
+        final double dz = cz - sz;
+        final double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
         if (dist < 1.0E-6) {
             return true;
         }
-        int steps = (int) Math.ceil(dist / 0.3);
-        double stepX = dx / steps, stepY = dy / steps, stepZ = dz / steps;
+        final int steps = (int) Math.ceil(dist / 0.3);
+        final double stepX = dx / steps;
+        final double stepY = dy / steps;
+        final double stepZ = dz / steps;
         double x = sx, y = sy, z = sz;
         for (int i = 0; i < steps; i++) {
             x += stepX;
             y += stepY;
             z += stepZ;
-            BlockState state = BlockView.blockAt(world, (int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
+            final BlockState state = BlockView.blockAt(world, (int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
             if (state != null && !state.isAir() && !isFluid(state)) {
                 return false;
             }
@@ -289,17 +301,17 @@ public final class Explosion {
         return true;
     }
 
-    private static boolean isFluid(BlockState state) {
-        String name = state.name();
+    private static boolean isFluid(final BlockState state) {
+        final String name = state.name();
         return name.equals("minecraft:water") || name.equals("minecraft:lava"); // Todo : Add isFluid to BlockState
     }
 
-    private static double eyeHeight(AbstractEntity entity) {
-        double[] box = boundingBox(entity);
+    private static double eyeHeight(final AbstractEntity entity) {
+        final double[] box = boundingBox(entity);
         return (box[4] - box[1]) * 0.85;
     }
 
-    private static double[] boundingBox(AbstractEntity entity) {
+    private static double[] boundingBox(final AbstractEntity entity) {
         double width = 0.6;
         double height = 1.8;
         if (entity instanceof ServerPlayer) {
@@ -309,12 +321,12 @@ public final class Explosion {
             width = 0.6;
             height = 1.7;
         }
-        Location loc = entity.location();
-        double half = width / 2.0;
+        final Location loc = entity.location();
+        final double half = width / 2.0;
         return new double[] {loc.x() - half, loc.y(), loc.z() - half, loc.x() + half, loc.y() + height, loc.z() + half};
     }
 
-    private static double lerp(double t, double a, double b) {
+    private static double lerp(final double t, final double a, final double b) {
         return a + (b - a) * t;
     }
 }

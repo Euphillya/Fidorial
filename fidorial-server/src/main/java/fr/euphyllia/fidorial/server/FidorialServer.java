@@ -14,7 +14,9 @@ import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
 import fr.euphyllia.fidorial.server.entity.EntityManager;
 import fr.euphyllia.fidorial.server.entity.EntityTickHandler;
+import fr.euphyllia.fidorial.server.entity.EntityTracker;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;
+import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStorage;
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
@@ -66,6 +68,7 @@ import fr.fidorial.status.Favicon;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.storage.player.PlayerInventoryStorage;
 import fr.fidorial.translation.TranslationStore;
+import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import fr.fidorial.world.block.Blocks;
 import fr.fidorial.world.fluid.FluidManager;
@@ -80,7 +83,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -108,9 +113,11 @@ public final class FidorialServer implements Server {
     private final BlockStateRegistry blockStateRegistry = new BlockStateRegistry(blockRegistry);
     private final EntityIdAllocator entityIds = new EntityIdAllocator();
     private final EntityManager entityManager = new EntityManager();
+    private final EntityTracker entityTracker = new EntityTracker(config.sendDistance());
     private final SimpleEventBus events = new SimpleEventBus();
     private final ServiceRegistry services = new SimpleServiceRegistry();
     private final Set<ClientConnection> connections = ConcurrentHashMap.newKeySet();
+    private volatile List<ServerPlayer> playerSnapshot = List.of();
     private final BuiltInTranslationStore builtInTranslationStore = new BuiltInTranslationStore();
 
     private final ProtocolMap protocolMap = ProtocolMap.load();
@@ -181,7 +188,7 @@ public final class FidorialServer implements Server {
             metrics.ready();
             loadData();
             openWorlds();
-            regionizer.registerTickHandler(new EntityTickHandler(worldManager));
+            regionizer.registerTickHandler(new EntityTickHandler(worldManager, this));
             registerDefaultServices();
             loadPlugins();
             network.bind();
@@ -244,7 +251,7 @@ public final class FidorialServer implements Server {
                 if (entity instanceof Mob && entity.world() instanceof final ServerWorld world) {
                     regionizer.addTicket(world.dimension().id(), entity.chunk());
                 }
-                broadcast(ClientboundAddEntityPacket.of(entity));
+                entityTracker.update(entity, players());
             }
 
             @Override
@@ -252,7 +259,7 @@ public final class FidorialServer implements Server {
                 if (entity instanceof Mob && entity.world() instanceof final ServerWorld world) {
                     regionizer.removeTicket(world.dimension().id(), entity.chunk());
                 }
-                broadcast(new ClientboundRemoveEntitiesPacket(entity.entityId()));
+                entityTracker.untrack(entity);
             }
         });
         worldManager.setDefaultGenerator(new ServiceBackedChunkGenerator(
@@ -520,7 +527,7 @@ public final class FidorialServer implements Server {
             regionizer.addTicket(world.dimension().id(), entity.chunk());
         }
 
-        broadcast(ClientboundAddEntityPacket.of(entity));
+        entityTracker.update(entity, players());
     }
 
     public void despawnEntity(final AbstractEntity entity) {
@@ -536,17 +543,57 @@ public final class FidorialServer implements Server {
 
         entity.remove();
 
-        broadcast(new ClientboundRemoveEntitiesPacket(entity.entityId()));
+        entityTracker.untrack(entity);
     }
 
     public void addPlayerConnection(final ClientConnection connection) {
         connections.add(connection);
+        refreshPlayerSnapshot();
         invalidateAudiences();
     }
 
     public void removePlayerConnection(final ClientConnection connection) {
         connections.remove(connection);
+        entityTracker.removeViewer(connection);
+        refreshPlayerSnapshot();
         invalidateAudiences();
+    }
+
+    public EntityTracker entityTracker() {
+        return entityTracker;
+    }
+
+    public List<ServerPlayer> players() {
+        return playerSnapshot;
+    }
+
+    private void refreshPlayerSnapshot() {
+        final List<ServerPlayer> snapshot = new ArrayList<>(connections.size());
+        for (final ClientConnection connection : connections) {
+            final ServerPlayer player = connection.player();
+            if (player != null) {
+                snapshot.add(player);
+            }
+        }
+        this.playerSnapshot = List.copyOf(snapshot);
+    }
+
+    public void broadcastNear(
+            final World world, final double x, final double y, final double z, final ClientboundPacket packet) {
+        final double radius = config.sendDistance() * 16.0 + 16.0;
+        final double radiusSq = radius * radius;
+        for (final ServerPlayer player : players()) {
+            if (player.isRemoved() || player.world() != world) {
+                continue;
+            }
+            final Location loc = player.location();
+            final double dx = loc.x() - x;
+            final double dy = loc.y() - y;
+            final double dz = loc.z() - z;
+            if (dx * dx + dy * dy + dz * dz <= radiusSq) {
+                player.connection().send(packet);
+            }
+        }
     }
 
     public void broadcast(final ClientboundPacket packet) {

@@ -12,6 +12,7 @@ import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.euphyllia.fidorial.server.entity.mob.Mobs;
 import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
@@ -251,7 +252,7 @@ public class Zombie extends PathfinderMob {
         drownedConversionTicks = DROWNED_CONVERSION_TICKS;
         inWaterTicks = -1;
         fireTicks = 0;
-        server().broadcast(ClientboundSetEntityMetadataPacket.of(entityId(),
+        sendToTrackers(ClientboundSetEntityMetadataPacket.of(entityId(),
                 ClientboundSetEntityMetadataPacket.Entry.ofBoolean(MD_CONVERTING_TO_DROWNED, true)));
         playSound(SoundEvents.ZOMBIE_CONVERTED_TO_DROWNED, Sound.Source.HOSTILE, 2.0f, voicePitch());
     }
@@ -438,15 +439,30 @@ public class Zombie extends PathfinderMob {
     }
 
     private void sendBaseMetadata() {
-        server().broadcast(ClientboundSetEntityMetadataPacket.of(entityId(),
+        sendToTrackers(ClientboundSetEntityMetadataPacket.of(entityId(),
                 ClientboundSetEntityMetadataPacket.Entry.ofBoolean(MD_BABY, baby)));
     }
 
     private void setOnFireFlag(final boolean onFire) {
         sentOnFire = onFire;
-        server().broadcast(ClientboundSetEntityMetadataPacket.of(entityId(),
+        sendToTrackers(ClientboundSetEntityMetadataPacket.of(entityId(),
                 ClientboundSetEntityMetadataPacket.Entry.ofByte(MD_SHARED_FLAGS,
                         onFire ? FLAG_ON_FIRE : 0)));
+    }
+
+    @Override
+    public void sendSpawnPackets(final ClientConnection connection) {
+        super.sendSpawnPackets(connection);
+        connection.send(ClientboundSetEntityMetadataPacket.of(entityId(),
+                ClientboundSetEntityMetadataPacket.Entry.ofBoolean(MD_BABY, baby)));
+        if (sentOnFire) {
+            connection.send(ClientboundSetEntityMetadataPacket.of(entityId(),
+                    ClientboundSetEntityMetadataPacket.Entry.ofByte(MD_SHARED_FLAGS, FLAG_ON_FIRE)));
+        }
+        if (drownedConversionTicks >= 0) {
+            connection.send(ClientboundSetEntityMetadataPacket.of(entityId(),
+                    ClientboundSetEntityMetadataPacket.Entry.ofBoolean(MD_CONVERTING_TO_DROWNED, true)));
+        }
     }
 
     private float voicePitch() {

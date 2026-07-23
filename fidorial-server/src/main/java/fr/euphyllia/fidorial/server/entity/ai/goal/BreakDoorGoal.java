@@ -139,8 +139,8 @@ public final class BreakDoorGoal implements Goal {
         server.blockEdits().set(world, pos, BlockState.AIR);
         server.blockEdits().set(world, other, BlockState.AIR);
 
-        server.broadcast(new ClientboundLevelEventPacket(
-                ClientboundLevelEventPacket.BLOCK_BREAK, pos, 0, false));
+        server.broadcastNear(world, pos.x() + 0.5, pos.y() + 0.5, pos.z() + 0.5,
+                new ClientboundLevelEventPacket(ClientboundLevelEventPacket.BLOCK_BREAK, pos, 0, false));
         playSound(SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, 2.0f);
 
         door = null;
@@ -187,8 +187,7 @@ public final class BreakDoorGoal implements Goal {
 
     private void sendDestroyStage(final BlockPos pos, final int stage) {
         sentStage = stage;
-        FidorialServer.getInstance().broadcast(
-                new ClientboundBlockDestructionPacket(mob.entityId(), pos, stage));
+        mob.sendToTrackers(new ClientboundBlockDestructionPacket(mob.entityId(), pos, stage));
     }
 
     private void clearDestroyStage() {
@@ -196,8 +195,7 @@ public final class BreakDoorGoal implements Goal {
         final boolean needsClear = pos != null && sentStage != NO_DESTROY_STAGE;
         sentStage = NO_DESTROY_STAGE;
         if (needsClear) {
-            FidorialServer.getInstance().broadcast(
-                    new ClientboundBlockDestructionPacket(mob.entityId(), pos, NO_DESTROY_STAGE));
+            mob.sendToTrackers(new ClientboundBlockDestructionPacket(mob.entityId(), pos, NO_DESTROY_STAGE));
         }
     }
 
@@ -207,7 +205,7 @@ public final class BreakDoorGoal implements Goal {
             return;
         }
         final float pitch = 0.8f + ThreadLocalRandom.current().nextFloat() * 0.4f;
-        FidorialServer.getInstance().broadcast(new ClientboundSoundPacket(
+        mob.sendToTrackers(new ClientboundSoundPacket(
                 Sound.sound(type, Sound.Source.HOSTILE, volume, pitch),
                 pos.x() + 0.5, pos.y() + 0.5, pos.z() + 0.5));
     }

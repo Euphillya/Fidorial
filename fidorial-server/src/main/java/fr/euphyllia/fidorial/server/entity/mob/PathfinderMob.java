@@ -377,7 +377,7 @@ public abstract class PathfinderMob extends Mob {
                 || Math.abs(dz) > MAX_RELATIVE_DELTA;
 
         if (needsAbsoluteSync && (moved || rotated || ticksSinceSync >= POSITION_SYNC_INTERVAL)) {
-            server().broadcast(new ClientboundEntityPositionSyncPacket(
+            sendToTrackers(new ClientboundEntityPositionSyncPacket(
                     entityId(),
                     current.x(),
                     current.y(),
@@ -399,23 +399,23 @@ public abstract class PathfinderMob extends Mob {
             final short qy = (short) Math.round(dy * 4096.0);
             final short qz = (short) Math.round(dz * 4096.0);
             if (rotated) {
-                server().broadcast(new ClientboundMoveEntityPosRotPacket(entityId(), qx, qy, qz, yaw, pitch, onGround));
+                sendToTrackers(new ClientboundMoveEntityPosRotPacket(entityId(), qx, qy, qz, yaw, pitch, onGround));
                 sentYaw = yaw;
                 sentPitch = pitch;
             } else {
-                server().broadcast(new ClientboundMoveEntityPosPacket(entityId(), qx, qy, qz, onGround));
+                sendToTrackers(new ClientboundMoveEntityPosPacket(entityId(), qx, qy, qz, onGround));
             }
             sentX += qx / 4096.0;
             sentY += qy / 4096.0;
             sentZ += qz / 4096.0;
         } else if (rotated) {
-            server().broadcast(new ClientboundMoveEntityRotPacket(entityId(), yaw, pitch, onGround));
+            sendToTrackers(new ClientboundMoveEntityRotPacket(entityId(), yaw, pitch, onGround));
             sentYaw = yaw;
             sentPitch = pitch;
         }
 
         if (Math.abs(yaw - sentHeadYaw) > 1.0f) {
-            server().broadcast(new ClientboundRotateHeadPacket(entityId(), yaw));
+            sendToTrackers(new ClientboundRotateHeadPacket(entityId(), yaw));
             sentHeadYaw = yaw;
         }
     }
