@@ -153,7 +153,7 @@ public final class WorldManager implements AutoCloseable {
     }
 
     public ServerWorld world(final Key worldKey) {
-        return worlds.get(worldKey.asString());
+        return worlds.get(worldKey);
     }
 
     public LevelData levelData() {
