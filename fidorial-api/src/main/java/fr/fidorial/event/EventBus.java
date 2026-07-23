@@ -4,7 +4,6 @@ import fr.fidorial.plugin.Plugin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Supplier;
@@ -154,36 +153,20 @@ public interface EventBus {
      *
      * @param instance the subscriber instance
      * @param plugin   the owning plugin
-     * @return the created subscriptions
+     * @return a subscription that manages all created subscriptions
      * @since 0.1.0
      */
-    List<Subscription> registerSubscribers(Object instance, Plugin plugin);
+    Subscription registerSubscribers(Object instance, Plugin plugin);
 
     /**
      * Registers static {@link Subscribe} methods from a class.
      *
      * @param clazz  the subscriber class
      * @param plugin the owning plugin
-     * @return the created subscriptions
+     * @return a subscription that manages all created subscriptions
      * @since 0.1.0
      */
-    List<Subscription> registerSubscribers(Class<?> clazz, Plugin plugin);
-
-    /**
-     * Unsubscribes all subscriptions registered for static methods on a class.
-     *
-     * @param clazz the subscriber class
-     * @since 0.1.0
-     */
-    void unsubscribeAll(Class<?> clazz);
-
-    /**
-     * Unsubscribes all subscriptions registered for an instance.
-     *
-     * @param instance the subscriber instance
-     * @since 0.1.0
-     */
-    void unsubscribeAll(Object instance);
+    Subscription registerSubscribers(Class<?> clazz, Plugin plugin);
 
     /**
      * Unsubscribes all subscriptions owned by a plugin.

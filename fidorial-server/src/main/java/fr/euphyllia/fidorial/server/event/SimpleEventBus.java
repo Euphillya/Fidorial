@@ -115,7 +115,7 @@ public final class SimpleEventBus implements EventBus {
     }
 
     @Override
-    public List<Subscription> registerSubscribers(final Object instance, final Plugin plugin) {
+    public Subscription registerSubscribers(final Object instance, final Plugin plugin) {
         final List<Subscription> subscriptions = new ArrayList<>();
         for (final Method method : instance.getClass().getDeclaredMethods()) {
             if (Modifier.isStatic(method.getModifiers())) {
@@ -130,12 +130,13 @@ public final class SimpleEventBus implements EventBus {
         }
         if (subscriptions.isEmpty()) {
             noSubscribersRegistered(plugin, instance.getClass());
+            return CompositeSubscription.EMPTY;
         }
-        return List.copyOf(subscriptions);
+        return new CompositeSubscription(subscriptions);
     }
 
     @Override
-    public List<Subscription> registerSubscribers(final Class<?> clazz, final Plugin plugin) {
+    public Subscription registerSubscribers(final Class<?> clazz, final Plugin plugin) {
         final List<Subscription> subscriptions = new ArrayList<>();
         for (final Method method : clazz.getDeclaredMethods()) {
             final Subscribe subscribe = method.getAnnotation(Subscribe.class);
@@ -150,23 +151,14 @@ public final class SimpleEventBus implements EventBus {
         }
         if (subscriptions.isEmpty()) {
             noSubscribersRegistered(plugin, clazz);
+            return CompositeSubscription.EMPTY;
         }
-        return List.copyOf(subscriptions);
+        return new CompositeSubscription(subscriptions);
     }
 
     @Override
     public void unsubscribeAll(final Plugin plugin) {
         removeAll(registration -> registration.plugin == plugin);
-    }
-
-    @Override
-    public void unsubscribeAll(final Class<?> clazz) {
-        removeAll(registration -> registration.target == clazz);
-    }
-
-    @Override
-    public void unsubscribeAll(final Object instance) {
-        removeAll(registration -> registration.target == instance);
     }
 
     private void removeAll(final Predicate<Registration<?>> predicate) {
@@ -276,18 +268,13 @@ public final class SimpleEventBus implements EventBus {
             final Object handler,
             final Object target
     ) {
-        final Registration registration = new Registration(this, eventClass, priority, async, handler, plugin, target);
+        final Registration registration = new Registration(eventClass, priority, async, handler, plugin, target);
         directSubscribers.compute(eventClass, (ignored, current) -> {
             final DirectSubscribers subscribers = current == null ? DirectSubscribers.EMPTY : current;
             return subscribers.with(registration);
         });
         resolvedChains.clear();
         return registration;
-    }
-
-    private void remove(final Registration<?> registration) {
-        directSubscribers.computeIfPresent(registration.eventClass, (ignored, current) -> current.without(registration));
-        resolvedChains.clear();
     }
 
     private DispatchChain resolve(final Class<?> eventClass) {
@@ -490,32 +477,43 @@ public final class SimpleEventBus implements EventBus {
         }
     }
 
-    private static final class Registration<E> implements Subscription {
+    private record CompositeSubscription(List<Subscription> subscriptions) implements Subscription {
+        private static final CompositeSubscription EMPTY = new CompositeSubscription(List.of());
 
-        private final SimpleEventBus bus;
+        @Override
+        public boolean isActive() {
+            for (final Subscription subscription : subscriptions) {
+                if (subscription.isActive()) return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void unsubscribe() {
+            subscriptions.forEach(Subscription::unsubscribe);
+        }
+    }
+
+    private final class Registration<E> implements Subscription {
         private final Class<E> eventClass;
         private final EventPriority priority;
         private final boolean async;
         private final Object handler;
         private final Plugin plugin;
-        private final Object target;
         private final AtomicBoolean active = new AtomicBoolean(true);
 
         private Registration(
-                final SimpleEventBus bus,
                 final Class<E> eventClass,
                 final EventPriority priority,
                 final boolean async,
                 final Object handler,
                 final Plugin plugin,
                 final Object target) {
-            this.bus = bus;
             this.eventClass = eventClass;
             this.priority = priority;
             this.async = async;
             this.handler = handler;
             this.plugin = plugin;
-            this.target = target;
         }
 
         @Override
@@ -526,7 +524,8 @@ public final class SimpleEventBus implements EventBus {
         @Override
         public void unsubscribe() {
             if (deactivate()) {
-                bus.remove(this);
+                directSubscribers.computeIfPresent(eventClass, (ignored, current) -> current.without(this));
+                resolvedChains.clear();
             }
         }
 
@@ -541,7 +540,6 @@ public final class SimpleEventBus implements EventBus {
                     + ", priority=" + priority
                     + ", async=" + async
                     + ", plugin=" + plugin
-                    + ", target=" + target
                     + '}';
         }
     }

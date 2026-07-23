@@ -162,63 +162,66 @@ final class EventBusTest {
         final EventBus bus = new SimpleEventBus();
         final AnnotatedSubscribers instance = new AnnotatedSubscribers();
 
-        final List<Subscription> instanceSubscriptions = bus.registerSubscribers(instance, OWNER);
-        final List<Subscription> staticSubscriptions = bus.registerSubscribers(AnnotatedStaticSubscribers.class, OWNER);
+        final Subscription instanceSubscriptions = bus.registerSubscribers(instance, OWNER);
+        final Subscription staticSubscriptions = bus.registerSubscribers(AnnotatedStaticSubscribers.class, OWNER);
         final MutableEvent event = bus.fireAsync(new MutableEvent()).toCompletableFuture().join();
 
-        assertEquals(2, instanceSubscriptions.size());
-        assertEquals(1, staticSubscriptions.size());
+        assertTrue(instanceSubscriptions.isActive());
+        assertTrue(staticSubscriptions.isActive());
         assertEquals(111, event.value);
     }
 
     @Test
-    void unsubscribeAllRemovesInstanceRegistrations() {
+    void compositeUnsubscribeRemovesInstanceRegistrations() {
         final EventBus bus = new SimpleEventBus();
         final AnnotatedSubscribers first = new AnnotatedSubscribers();
         final AnnotatedSubscribers second = new AnnotatedSubscribers();
-        bus.registerSubscribers(first, OWNER);
-        bus.registerSubscribers(second, OWNER);
+        final Subscription firstSubscriptions = bus.registerSubscribers(first, OWNER);
+        final Subscription secondSubscriptions = bus.registerSubscribers(second, OWNER);
 
         assertEquals(22, bus.fireAsync(new MutableEvent()).toCompletableFuture().join().value);
 
-        bus.unsubscribeAll(first);
+        firstSubscriptions.unsubscribe();
 
         assertEquals(11, bus.fireAsync(new MutableEvent()).toCompletableFuture().join().value);
 
-        bus.unsubscribeAll(second);
+        secondSubscriptions.unsubscribe();
 
         assertFalse(bus.hasSubscribers(MutableEvent.class));
+        assertFalse(firstSubscriptions.isActive());
+        assertFalse(secondSubscriptions.isActive());
     }
 
     @Test
-    void unsubscribeAllRemovesClassRegistrations() {
+    void unsubscribeRemovesClassRegistrations() {
         final EventBus bus = new SimpleEventBus();
-        bus.registerSubscribers(AnnotatedStaticSubscribers.class, OWNER);
+        final Subscription staticSubscriptions = bus.registerSubscribers(AnnotatedStaticSubscribers.class, OWNER);
         bus.registerSubscribers(OtherAnnotatedStaticSubscribers.class, OWNER);
 
         assertEquals(300, bus.fire(new MutableEvent()).value);
 
-        bus.unsubscribeAll(AnnotatedStaticSubscribers.class);
+        staticSubscriptions.unsubscribe();
 
         assertEquals(200, bus.fire(new MutableEvent()).value);
+        assertFalse(staticSubscriptions.isActive());
     }
 
     @Test
     void ignoresInvalidAnnotatedMethods() {
         final EventBus bus = new SimpleEventBus();
 
-        assertTrue(bus.registerSubscribers(InvalidNoParameters.class, OWNER).isEmpty());
-        assertTrue(bus.registerSubscribers(InvalidReturn.class, OWNER).isEmpty());
-        assertTrue(bus.registerSubscribers(InvalidAsyncGeneric.class, OWNER).isEmpty());
+        assertFalse(bus.registerSubscribers(InvalidNoParameters.class, OWNER).isActive());
+        assertFalse(bus.registerSubscribers(InvalidReturn.class, OWNER).isActive());
+        assertFalse(bus.registerSubscribers(InvalidAsyncGeneric.class, OWNER).isActive());
     }
 
     @Test
     void invalidAnnotatedMethodsDoNotBlockValidMethods() {
         final EventBus bus = new SimpleEventBus();
 
-        final List<Subscription> subscriptions = bus.registerSubscribers(MixedValidAndInvalidSubscribers.class, OWNER);
+        final Subscription subscriptions = bus.registerSubscribers(MixedValidAndInvalidSubscribers.class, OWNER);
 
-        assertEquals(1, subscriptions.size());
+        assertTrue(subscriptions.isActive());
         assertEquals(1, bus.fire(new MutableEvent()).value);
     }
 
@@ -226,9 +229,9 @@ final class EventBusTest {
     void classRegistrationCollectsOnlyStaticMethods() {
         final EventBus bus = new SimpleEventBus();
 
-        final List<Subscription> subscriptions = bus.registerSubscribers(MixedSubscribersForClassRegistration.class, OWNER);
+        final Subscription subscriptions = bus.registerSubscribers(MixedSubscribersForClassRegistration.class, OWNER);
 
-        assertEquals(1, subscriptions.size());
+        assertTrue(subscriptions.isActive());
         assertEquals(1, bus.fire(new MutableEvent()).value);
     }
 
@@ -236,9 +239,9 @@ final class EventBusTest {
     void classRegistrationIgnoresOnlyInstanceMethods() {
         final EventBus bus = new SimpleEventBus();
 
-        final List<Subscription> subscriptions = bus.registerSubscribers(InstanceOnlySubscribersForClassRegistration.class, OWNER);
+        final Subscription subscriptions = bus.registerSubscribers(InstanceOnlySubscribersForClassRegistration.class, OWNER);
 
-        assertTrue(subscriptions.isEmpty());
+        assertFalse(subscriptions.isActive());
         assertFalse(bus.hasSubscribers(MutableEvent.class));
     }
 
@@ -246,9 +249,9 @@ final class EventBusTest {
     void instanceRegistrationIgnoresEmptyInstances() {
         final EventBus bus = new SimpleEventBus();
 
-        final List<Subscription> subscriptions = bus.registerSubscribers(new NoSubscribers(), OWNER);
+        final Subscription subscriptions = bus.registerSubscribers(new NoSubscribers(), OWNER);
 
-        assertTrue(subscriptions.isEmpty());
+        assertFalse(subscriptions.isActive());
     }
 
     @Test

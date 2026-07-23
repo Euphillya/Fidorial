@@ -6,8 +6,6 @@ import fr.fidorial.event.EventPriority;
 import fr.fidorial.event.Subscription;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.List;
-
 @ApiStatus.NonExtendable
 public interface PluginEventBus {
     default <E> Subscription subscribe(final Class<E> eventClass, final EventHandler<? super E> handler) {
@@ -22,13 +20,9 @@ public interface PluginEventBus {
 
     <E> Subscription subscribeAsync(Class<E> eventClass, EventPriority priority, AsyncEventHandler<? super E> handler);
 
-    List<Subscription> registerSubscribers(Object instance);
+    Subscription registerSubscribers(Object instance);
 
-    List<Subscription> registerSubscribers(Class<?> clazz);
-
-    void unsubscribeAll(Object instance);
-
-    void unsubscribeAll(Class<?> clazz);
+    Subscription registerSubscribers(Class<?> clazz);
 
     void unsubscribeAll();
 }

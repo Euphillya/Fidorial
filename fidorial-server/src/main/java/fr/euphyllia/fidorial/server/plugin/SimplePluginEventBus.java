@@ -8,8 +8,6 @@ import fr.fidorial.event.Subscription;
 import fr.fidorial.plugin.Plugin;
 import fr.fidorial.plugin.PluginEventBus;
 
-import java.util.List;
-
 final class SimplePluginEventBus implements PluginEventBus {
     private final EventBus events;
     private final Plugin plugin;
@@ -30,23 +28,13 @@ final class SimplePluginEventBus implements PluginEventBus {
     }
 
     @Override
-    public List<Subscription> registerSubscribers(final Object instance) {
+    public Subscription registerSubscribers(final Object instance) {
         return events.registerSubscribers(instance, plugin);
     }
 
     @Override
-    public List<Subscription> registerSubscribers(final Class<?> clazz) {
+    public Subscription registerSubscribers(final Class<?> clazz) {
         return events.registerSubscribers(clazz, plugin);
-    }
-
-    @Override
-    public void unsubscribeAll(final Object instance) {
-        events.unsubscribeAll(instance);
-    }
-
-    @Override
-    public void unsubscribeAll(final Class<?> clazz) {
-        events.unsubscribeAll(clazz);
     }
 
     @Override
