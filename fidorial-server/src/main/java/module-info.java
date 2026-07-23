@@ -32,4 +32,5 @@ module fr.fidorial.server {
     requires io.netty.transport.classes.epoll;
     requires io.netty.transport.classes.kqueue;
     requires io.netty.transport.classes.io_uring;
+    requires java.management;
 }

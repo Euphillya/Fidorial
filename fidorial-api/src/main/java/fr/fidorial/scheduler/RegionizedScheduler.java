@@ -1,16 +1,17 @@
 package fr.fidorial.scheduler;
 
 import fr.fidorial.world.ChunkPos;
+import net.kyori.adventure.key.Key;
 
 import java.util.List;
 
 public interface RegionizedScheduler {
 
-    void execute(String worldName, ChunkPos pos, Runnable task);
+    void execute(Key worldName, ChunkPos pos, Runnable task);
 
-    void executeDelayed(String worldName, ChunkPos pos, Runnable task, long delayTicks);
+    void executeDelayed(Key worldName, ChunkPos pos, Runnable task, long delayTicks);
 
-    boolean isOwnedByCurrentThread(String worldName, ChunkPos pos);
+    boolean isOwnedByCurrentThread(Key worldName, ChunkPos pos);
 
     List<? extends RegionTps> tpsSnapshots();
 }

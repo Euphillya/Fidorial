@@ -28,12 +28,12 @@ public final class ApiTestCommand {
 
     private final TestPlugin plugin;
 
-    public ApiTestCommand(TestPlugin plugin) {
+    public ApiTestCommand(final TestPlugin plugin) {
         this.plugin = plugin;
     }
 
     public CommandTree create() {
-        var command = literal("apitest")
+        final var command = literal("apitest")
                 .then(literal("info").executes(ctx -> info(plugin, ctx)))
                 .then(literal("tps").executes(ctx -> tps(plugin, ctx)))
                 .then(literal("worlds").executes(ctx -> worlds(plugin, ctx)))
@@ -57,32 +57,32 @@ public final class ApiTestCommand {
         return new CommandTree(command);
     }
 
-    private static int soundDefault(CommandContext<CommandSource> ctx) {
+    private static int soundDefault(final CommandContext<CommandSource> ctx) {
         return playSound(ctx, 1.0f, 1.0f);
     }
 
-    private static int soundVolume(CommandContext<CommandSource> ctx) {
-        Float volume = ctx.getArgument("volume", Float.class);
+    private static int soundVolume(final CommandContext<CommandSource> ctx) {
+        final Float volume = ctx.getArgument("volume", Float.class);
 
         return playSound(ctx, volume, 1.0f);
     }
 
-    private static int soundPitch(CommandContext<CommandSource> ctx) {
-        Float volume = ctx.getArgument("volume", Float.class);
-        Float pitch = ctx.getArgument("pitch", Float.class);
+    private static int soundPitch(final CommandContext<CommandSource> ctx) {
+        final Float volume = ctx.getArgument("volume", Float.class);
+        final Float pitch = ctx.getArgument("pitch", Float.class);
 
         return playSound(ctx, volume, pitch);
     }
 
-    private static int playSound(CommandContext<CommandSource> ctx, float volume, float pitch) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int playSound(final CommandContext<CommandSource> ctx, final float volume, final float pitch) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        if (!(sender instanceof Player player)) {
+        if (!(sender instanceof final Player player)) {
             msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
             return Command.SINGLE_SUCCESS;
         }
 
-        Key key = ctx.getArgument("key", Key.class);
+        final Key key = ctx.getArgument("key", Key.class);
 
         player.playSound(Sound.sound(key, Sound.Source.MASTER, volume, pitch));
 
@@ -91,10 +91,10 @@ public final class ApiTestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int soundDemo(CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int soundDemo(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        if (!(sender instanceof Player player)) {
+        if (!(sender instanceof final Player player)) {
             msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
             return Command.SINGLE_SUCCESS;
         }
@@ -113,15 +113,15 @@ public final class ApiTestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int stopSound(CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int stopSound(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        if (!(sender instanceof Player player)) {
+        if (!(sender instanceof final Player player)) {
             msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
             return Command.SINGLE_SUCCESS;
         }
 
-        Key key = ctx.getArgument("key", Key.class);
+        final Key key = ctx.getArgument("key", Key.class);
 
         player.stopSound(SoundStop.named(key));
 
@@ -130,10 +130,10 @@ public final class ApiTestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int stopAllSound(CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int stopAllSound(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        if (!(sender instanceof Player player)) {
+        if (!(sender instanceof final Player player)) {
             msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
             return Command.SINGLE_SUCCESS;
         }
@@ -145,8 +145,8 @@ public final class ApiTestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int info(TestPlugin plugin, CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int info(final TestPlugin plugin, final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
         msg(
                 sender,
@@ -159,17 +159,17 @@ public final class ApiTestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int tps(TestPlugin plugin, CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int tps(final TestPlugin plugin, final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        List<? extends RegionTps> snapshots = plugin.server().scheduler().tpsSnapshots();
+        final List<? extends RegionTps> snapshots = plugin.server().scheduler().tpsSnapshots();
 
         if (snapshots.isEmpty()) {
             msg(sender, "[TestPlugin] Aucune region active.");
             return Command.SINGLE_SUCCESS;
         }
 
-        for (RegionTps tps : snapshots) {
+        for (final RegionTps tps : snapshots) {
             msg(
                     sender,
                     String.format(
@@ -186,10 +186,10 @@ public final class ApiTestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int worlds(TestPlugin plugin, CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int worlds(final TestPlugin plugin, final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        String worlds =
+        final String worlds =
                 plugin.server().worlds().stream().map(w -> w.key().toString()).collect(Collectors.joining(", "));
 
         msg(sender, "[TestPlugin] " + plugin.server().worlds().size() + " monde(s): " + worlds);
@@ -197,10 +197,10 @@ public final class ApiTestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int players(TestPlugin plugin, CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int players(final TestPlugin plugin, final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        var players = plugin.server().onlinePlayers();
+        final var players = plugin.server().onlinePlayers();
 
         msg(
                 sender,
@@ -212,10 +212,10 @@ public final class ApiTestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int service(TestPlugin plugin, CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int service(final TestPlugin plugin, final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        var service = plugin.server().services().find(CounterService.class);
+        final var service = plugin.server().services().find(CounterService.class);
 
         if (service.isEmpty()) {
             msg(sender, "<red>CounterService introuvable.</red>");
@@ -227,10 +227,10 @@ public final class ApiTestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int schedule(TestPlugin plugin, CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int schedule(final TestPlugin plugin, final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        World world = plugin.server().worlds().stream().findFirst().orElse(null);
+        final World world = plugin.server().worlds().stream().findFirst().orElse(null);
 
         if (world == null) {
             msg(sender, "[TestPlugin] Aucun monde.");
@@ -240,13 +240,13 @@ public final class ApiTestCommand {
         plugin.server()
                 .scheduler()
                 .executeDelayed(
-                        world.key().value(), new ChunkPos(0, 0), () -> msg(sender, "[TestPlugin] Scheduler OK"), 40L);
+                        world.key(), new ChunkPos(0, 0), () -> msg(sender, "[TestPlugin] Scheduler OK"), 40L);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int perms(CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int perms(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
         msg(
                 sender,
@@ -258,7 +258,7 @@ public final class ApiTestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static void msg(CommandSender sender, String message) {
+    private static void msg(final CommandSender sender, final String message) {
         sender.sendMessage(Component.text(message));
     }
 }

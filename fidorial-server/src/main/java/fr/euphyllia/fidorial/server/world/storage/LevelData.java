@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
 import fr.euphyllia.fidorial.server.world.nbt.NbtList;
 import fr.euphyllia.fidorial.server.world.nbt.NbtType;
+import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -42,9 +43,9 @@ public class LevelData {
 
     public boolean doDaylightCycle = true;
 
-    public final Map<String, WorldTime> worldTimes = new LinkedHashMap<>();
+    public final Map<Key, WorldTime> worldTimes = new LinkedHashMap<>();
 
-    public @Nullable WorldTime worldTime(final String dimensionId) {
+    public @Nullable WorldTime worldTime(final Key dimensionId) {
         final WorldTime stored = worldTimes.get(dimensionId);
         if (stored != null) {
             return stored;
@@ -55,7 +56,7 @@ public class LevelData {
         return null;
     }
 
-    public void setWorldTime(final String dimensionId, final long worldAge, final long dayTime, final boolean doDaylightCycle) {
+    public void setWorldTime(final Key dimensionId, final long worldAge, final long dayTime, final boolean doDaylightCycle) {
         worldTimes.put(dimensionId, new WorldTime(worldAge, dayTime, doDaylightCycle));
         if (Dimension.OVERWORLD.id().equals(dimensionId)) {
             this.time = worldAge;
@@ -119,8 +120,9 @@ public class LevelData {
             if (dimension.isEmpty()) {
                 continue;
             }
+            final Key key = Key.key(dimension);
             worldTimes.put(
-                    dimension,
+                    key,
                     new WorldTime(
                             clock.getLong("WorldAge"),
                             clock.getLong("DayTime"),
@@ -203,10 +205,10 @@ public class LevelData {
 
     private NbtCompound buildFidorialData() {
         final NbtList clocks = new NbtList(NbtType.COMPOUND);
-        for (final Map.Entry<String, WorldTime> entry : worldTimes.entrySet()) {
+        for (final Map.Entry<Key, WorldTime> entry : worldTimes.entrySet()) {
             final WorldTime value = entry.getValue();
             final NbtCompound clock = new NbtCompound();
-            clock.putString("Dimension", entry.getKey());
+            clock.putString("Dimension", entry.getKey().asString());
             clock.putLong("WorldAge", value.worldAge());
             clock.putLong("DayTime", value.dayTime());
             clock.putBoolean("DoDaylightCycle", value.doDaylightCycle());

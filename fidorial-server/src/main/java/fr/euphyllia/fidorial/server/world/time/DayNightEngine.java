@@ -7,6 +7,7 @@ import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.fidorial.entity.Entity;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -28,7 +29,7 @@ public class DayNightEngine implements AutoCloseable {
     private final RegistryHolder registries;
     private final ScheduledExecutorService ticker;
     private final Set<String> unknownClocks = ConcurrentHashMap.newKeySet();
-    private final Set<String> attached = ConcurrentHashMap.newKeySet();
+    private final Set<Key> attached = ConcurrentHashMap.newKeySet();
 
     private int sinceLastSync;
 

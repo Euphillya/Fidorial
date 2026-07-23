@@ -20,15 +20,15 @@ public final class TpsCommand {
     }
 
     public static CommandTree create() {
-        LiteralCommandNode<CommandSource> command = CommandTree.literal("tps")
+        final LiteralCommandNode<CommandSource> command = CommandTree.literal("tps")
                 .requires(source -> source.sender().hasPermission("fidorial.command.tps"))
                 .executes(TpsCommand::execute)
                 .build();
         return new CommandTree(command);
     }
 
-    private static int execute(CommandContext<CommandSource> context) {
-        List<RegionTpsSnapshot> snapshots =
+    private static int execute(final CommandContext<CommandSource> context) {
+        final List<RegionTpsSnapshot> snapshots =
                 FidorialServer.getInstance().regionizer().tpsSnapshots();
 
         if (snapshots.isEmpty()) {
@@ -39,7 +39,7 @@ public final class TpsCommand {
         double worstTps = Double.MAX_VALUE;
         double sumTps = 0;
 
-        for (RegionTpsSnapshot snapshot : snapshots) {
+        for (final RegionTpsSnapshot snapshot : snapshots) {
             worstTps = Math.min(worstTps, snapshot.tps());
             sumTps += snapshot.tps();
         }
@@ -52,22 +52,23 @@ public final class TpsCommand {
                         Component.text(format1(worstTps)),
                         Component.text(format1(sumTps / snapshots.size()))));
 
-        int shown = Math.min(snapshots.size(), MAX_LINES);
+        final int shown = Math.min(snapshots.size(), MAX_LINES);
 
         for (int i = 0; i < shown; i++) {
-            RegionTpsSnapshot snapshot = snapshots.get(i);
+            final RegionTpsSnapshot snapshot = snapshots.get(i);
 
             context.getSource()
                     .sender()
                     .sendMessage(Component.translatable(
                             "command.tps.line",
-                            Component.text(snapshot.world()),
+                            Component.text(snapshot.world().asString()),
                             Component.text(snapshot.sectionX()),
                             Component.text(snapshot.sectionZ()),
                             Component.text(snapshot.originChunkX()),
                             Component.text(snapshot.originChunkZ()),
                             Component.text(format1(snapshot.tps())),
                             Component.text(String.format(Locale.ROOT, "%.2f", snapshot.msptAvg())),
+                            Component.text(format1(snapshot.cpuPercent())),
                             Component.text(snapshot.queuedTasks()),
                             Component.text(snapshot.tickets())));
         }
@@ -81,7 +82,7 @@ public final class TpsCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static String format1(double value) {
+    private static String format1(final double value) {
         return String.format(Locale.ROOT, "%.1f", value);
     }
 }

@@ -107,7 +107,7 @@ public final class ServerWorld implements World {
 
     @Override
     public Key key() {
-        return Key.key(dimension.id());
+        return dimension.id();
     }
 
     @Override

@@ -31,7 +31,7 @@ public final class WorldManager implements AutoCloseable {
     private final ChunkStorage storage;
     private final EntityRegionStorage entityStorage;
     private final AnvilEntitySerializer entitySerializer;
-    private final Map<String, ServerWorld> worlds = new ConcurrentHashMap<>();
+    private final Map<Key, ServerWorld> worlds = new ConcurrentHashMap<>();
     private final BlockStateRegistry blockStates;
     private final int minY;
     private final int height;

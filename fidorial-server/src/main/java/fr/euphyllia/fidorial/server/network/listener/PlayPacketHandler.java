@@ -175,10 +175,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private void sendLoginSequence(final RegistryHolder dynamic, final ServerWorld world) {
-        final int dimensionType = Math.max(0, dynamic.networkId("minecraft:dimension_type", worldId()));
+        final int dimensionType = Math.max(0, dynamic.networkId("minecraft:dimension_type", worldId().asString()));
         connection.send(new ClientboundLoginPacket(
                 player.entityId(),
-                worldId(),
+                worldId().asString(),
                 dimensionType,
                 config.viewDistance(),
                 player.gameMode().id()));
@@ -401,7 +401,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         ticket = chunk;
     }
 
-    private String worldId() {
+    private Key worldId() {
         return server.worldManager().overworld().dimension().id();
     }
 }
