@@ -33,11 +33,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class SimpleEventBus implements EventBus {
     private static final int PRIORITY_COUNT = EventPriority.values().length;
-    private static final ComponentLogger LOGGER = getLogger(SimpleEventBus.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(SimpleEventBus.class); // todo: use plugin logger
 
     private final Map<Class<?>, DirectSubscribers> directSubscribers = new ConcurrentHashMap<>();
     private final Map<Class<?>, DispatchChain> resolvedChains = new ConcurrentHashMap<>();
@@ -237,12 +235,10 @@ public final class SimpleEventBus implements EventBus {
     }
 
     private static void invalidSubscriber(final Plugin plugin, final Method method, final String reason) {
-        // todo: use plugin logger
         LOGGER.error("Invalid @Subscribe method {}", method, new IllegalStateException(reason));
     }
 
     private static void noSubscribersRegistered(final Plugin plugin, final Class<?> clazz) {
-        // todo: use plugin logger
         LOGGER.warn("No @Subscribe methods registered from {}", clazz.getName(), new Exception());
     }
 
@@ -360,7 +356,7 @@ public final class SimpleEventBus implements EventBus {
             try {
                 ((EventHandler) registration.handler).handle(event);
             } catch (final Throwable throwable) {
-                throwable.printStackTrace(System.err); // todo: handle exceptions properly
+                LOGGER.error("Failed to handle event {}", event.getClass().getName(), throwable);
             }
         }
     }
@@ -372,16 +368,21 @@ public final class SimpleEventBus implements EventBus {
             stage = stage.thenCompose(current -> {
                 try {
                     final CompletionStage<E> nextStage = ((AsyncEventHandler) registration.handler).handle(current);
-                    Preconditions.checkState(nextStage != null, "async event handler returned null");
+                    Preconditions.checkState(nextStage != null, "Async event handler returned null");
                     return nextStage.handle((next, throwable) -> {
+                        if (next == null) {
+                            final Exception exception = new IllegalStateException("Async event handler completed with null");
+                            LOGGER.error("Failed to handle event {} async", event.getClass().getName(), exception);
+                            return current;
+                        }
                         if (throwable != null) {
-                            throwable.printStackTrace(System.err); // todo: handle exceptions properly
+                            LOGGER.error("Failed to handle event {} async", event.getClass().getName(), throwable);
                             return current;
                         }
                         return next;
                     });
                 } catch (final Throwable throwable) {
-                    throwable.printStackTrace(System.err); // todo: handle exceptions properly
+                    LOGGER.error("Failed to handle event {} async", event.getClass().getName(), throwable);
                     return CompletableFuture.completedFuture(current);
                 }
             });
