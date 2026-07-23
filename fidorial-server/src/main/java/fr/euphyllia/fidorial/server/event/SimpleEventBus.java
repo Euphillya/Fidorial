@@ -158,28 +158,12 @@ public final class SimpleEventBus implements EventBus {
 
     @Override
     public void unsubscribeAll(final Plugin plugin) {
-        removeAll(registration -> registration.plugin == plugin);
-    }
-
-    private void removeAll(final Predicate<Registration<?>> predicate) {
-        boolean changed = false;
-        for (final Map.Entry<Class<?>, DirectSubscribers> entry : directSubscribers.entrySet()) {
-            DirectSubscribers current;
-            DirectSubscribers updated;
-            do {
-                current = entry.getValue();
-                updated = current.without(predicate);
-                if (updated == current) {
-                    break;
-                }
-            } while (!directSubscribers.replace(entry.getKey(), current, updated));
-            if (updated != current) {
-                changed = true;
-            }
+        for (final Class<?> eventClass : directSubscribers.keySet()) {
+            directSubscribers.computeIfPresent(eventClass, (ignored, current) -> {
+                return current.without(registration -> registration.plugin == plugin);
+            });
         }
-        if (changed) {
-            resolvedChains.clear();
-        }
+        resolvedChains.clear();
     }
 
     private @Nullable Subscription registerAnnotatedMethod(
