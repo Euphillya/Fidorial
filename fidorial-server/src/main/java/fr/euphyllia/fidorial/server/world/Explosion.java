@@ -169,10 +169,11 @@ public final class Explosion {
         final double cy = center.y();
         final double cz = center.z();
 
-        for (final var entity : world.entities()) {
-            if (!(entity instanceof final AbstractEntity abstractEntity)
-                    || abstractEntity == source
-                    || abstractEntity.isRemoved()) {
+        final List<AbstractEntity> affected = new ArrayList<>();
+        world.entityManager().forEachNear(center.chunk(), range, affected::add);
+
+        for (final AbstractEntity abstractEntity : affected) {
+            if (abstractEntity == source || abstractEntity.isRemoved()) {
                 continue;
             }
             final Location pos = abstractEntity.location();

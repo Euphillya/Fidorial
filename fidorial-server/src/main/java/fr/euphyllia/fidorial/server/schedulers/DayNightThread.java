@@ -1,12 +1,14 @@
-package fr.euphyllia.fidorial.server.world.time;
+package fr.euphyllia.fidorial.server.schedulers;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetTimePacket;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
-import fr.fidorial.entity.Entity;
+import fr.euphyllia.fidorial.server.world.time.WorldClocks;
+import fr.euphyllia.fidorial.server.world.time.WorldTimeEngine;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
@@ -19,9 +21,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class DayNightEngine implements AutoCloseable {
+public class DayNightThread implements AutoCloseable {
 
-    private static final ComponentLogger LOGGER = ComponentLogger.logger(DayNightEngine.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(DayNightThread.class);
 
     private static final int SYNC_INTERVAL_TICKS = 20;
 
@@ -33,11 +35,11 @@ public class DayNightEngine implements AutoCloseable {
 
     private int sinceLastSync;
 
-    public DayNightEngine(final WorldManager worldManager, final RegistryHolder registries) {
+    public DayNightThread(final WorldManager worldManager, final RegistryHolder registries) {
         this.worldManager = worldManager;
         this.registries = registries;
         this.ticker = Executors.newSingleThreadScheduledExecutor(
-                r -> Thread.ofPlatform().name("fidorial-daynight").unstarted(r));
+                r -> Thread.ofPlatform().name("fidorial-daynight-thread").unstarted(r));
     }
 
     public void start() {
@@ -49,7 +51,7 @@ public class DayNightEngine implements AutoCloseable {
                     try {
                         tick();
                     } catch (final Throwable t) {
-                        LOGGER.error("Tick du cycle jour/nuit en echec", t);
+                        LOGGER.error("Day/night cycle tick failed", t);
                     }
                 },
                 50,
@@ -93,8 +95,10 @@ public class DayNightEngine implements AutoCloseable {
         if (packet == null) {
             return;
         }
-        for (final Entity entity : world.entities()) {
-            if (entity instanceof final ServerPlayer player) {
+        final List<ServerPlayer> players = FidorialServer.getInstance().players();
+        for (int i = 0, size = players.size(); i < size; i++) {
+            final ServerPlayer player = players.get(i);
+            if (player.world() == world) {
                 player.connection().send(packet);
             }
         }

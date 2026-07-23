@@ -19,10 +19,12 @@ import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.sound.SoundEvents;
+import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import net.kyori.adventure.sound.Sound;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -62,6 +64,7 @@ public class Zombie extends PathfinderMob {
 
     private static final double HELP_CALL_RADIUS = 33.5;
     private static final double HELP_CALL_HEIGHT = 10.0;
+    private static final int HELP_CALL_CHUNK_RADIUS = 3;
 
     private static final long BURN_START_TICK = 23_460L;
     private static final long BURN_END_TICK = 12_010L;
@@ -304,22 +307,23 @@ public class Zombie extends PathfinderMob {
 
     private void callForHelp(final ServerPlayer attacker) {
         final Location self = location();
-        for (final var entity : serverWorld().entities()) {
+        final ChunkPos center = self.chunk();
+        serverWorld().entityManager().forEachInChunkRange(center.x(), center.z(), HELP_CALL_CHUNK_RADIUS, entity -> {
             if (!(entity instanceof final Zombie other) || other == this
                     || other.isRemoved() || other.isDead()) {
-                continue;
+                return;
             }
             if (other.type() != this.type()) {
-                continue;
+                return;
             }
             final Location pos = other.location();
             if (Math.abs(pos.x() - self.x()) > HELP_CALL_RADIUS
                     || Math.abs(pos.z() - self.z()) > HELP_CALL_RADIUS
                     || Math.abs(pos.y() - self.y()) > HELP_CALL_HEIGHT) {
-                continue;
+                return;
             }
             other.setTarget(attacker);
-        }
+        });
     }
 
     private void trySpawnReinforcement(final ServerPlayer attacker) {
@@ -332,12 +336,14 @@ public class Zombie extends PathfinderMob {
         final Location self = location();
         final ThreadLocalRandom random = ThreadLocalRandom.current();
 
+        final List<ServerPlayer> players = server().players();
+
         for (int attempt = 0; attempt < REINFORCEMENT_ATTEMPTS; attempt++) {
             final int x = (int) Math.floor(self.x()) + randomOffset(random);
             final int y = (int) Math.floor(self.y()) + randomOffset(random);
             final int z = (int) Math.floor(self.z()) + randomOffset(random);
 
-            if (!isValidReinforcementSpot(world, x, y, z)) {
+            if (!isValidReinforcementSpot(world, players, x, y, z)) {
                 continue;
             }
 
@@ -353,7 +359,7 @@ public class Zombie extends PathfinderMob {
         }
     }
 
-    private boolean isValidReinforcementSpot(final ServerWorld world,
+    private boolean isValidReinforcementSpot(final ServerWorld world, final List<ServerPlayer> players,
                                              final int x, final int y, final int z) {
         if (!BlockView.isSolidGround(world, x, y - 1, z)) {
             return false;
@@ -361,8 +367,9 @@ public class Zombie extends PathfinderMob {
         if (!BlockView.isPassable(world, x, y, z) || !BlockView.isPassable(world, x, y + 1, z)) {
             return false;
         }
-        for (final var entity : world.entities()) {
-            if (!(entity instanceof final ServerPlayer player)) {
+        for (int i = 0, size = players.size(); i < size; i++) {
+            final ServerPlayer player = players.get(i);
+            if (player.world() != world) {
                 continue;
             }
             final Location pos = player.location();

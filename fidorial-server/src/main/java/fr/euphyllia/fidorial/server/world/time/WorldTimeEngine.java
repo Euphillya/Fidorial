@@ -36,11 +36,11 @@ public final class WorldTimeEngine implements DayNightCycle {
         return clockId;
     }
 
-    void setBroadcaster(@Nullable final Consumer<WorldTimeEngine> broadcaster) {
+    public void setBroadcaster(@Nullable final Consumer<WorldTimeEngine> broadcaster) {
         this.broadcaster = broadcaster;
     }
 
-    synchronized void tick() {
+    public synchronized void tick() {
         worldAge++;
         if (!doDaylightCycle || rate <= 0f) {
             return;

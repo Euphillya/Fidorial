@@ -18,6 +18,7 @@ import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 public abstract class PathfinderMob extends Mob {
@@ -129,28 +130,38 @@ public abstract class PathfinderMob extends Mob {
     }
 
     private void updateTarget() {
-        double bestDistSq =
-                target != null && isValidTarget(target, dropRangeSq()) ? distanceSqTo(target) : Double.MAX_VALUE;
-        ServerPlayer best = bestDistSq == Double.MAX_VALUE ? null : target;
+        final List<ServerPlayer> players = server().players();
+        if (players.isEmpty()) {
+            target = null;
+            return;
+        }
 
         final double acquireSq = followRange() * followRange();
-        for (final var entity : serverWorld().entities()) {
-            if (!(entity instanceof final ServerPlayer player) || player == best) {
-                continue;
+        ServerPlayer best = null;
+        double bestDistSq = Double.MAX_VALUE;
+        final ServerPlayer current = this.target;
+        if (current != null && isTargetable(current)) {
+            final double distSq = distanceSqTo(current);
+            if (distSq <= dropRangeSq()) {
+                best = current;
+                bestDistSq = distSq;
             }
-            if (!isValidTarget(player, acquireSq)) {
+        }
+        for (int i = 0, size = players.size(); i < size; i++) {
+            final ServerPlayer player = players.get(i);
+            if (player == best || !isTargetable(player)) {
                 continue;
             }
             final double distSq = distanceSqTo(player);
-            if (distSq < bestDistSq) {
+            if (distSq <= acquireSq && distSq < bestDistSq) {
                 bestDistSq = distSq;
                 best = player;
             }
         }
-        target = best;
+        this.target = best;
     }
 
-    private boolean isValidTarget(final ServerPlayer player, final double maxDistSq) {
+    private boolean isTargetable(final ServerPlayer player) {
         if (player.isRemoved() || player.isDead()) {
             return false;
         }
@@ -158,7 +169,11 @@ public abstract class PathfinderMob extends Mob {
         if (mode == GameMode.CREATIVE || mode == GameMode.SPECTATOR) {
             return false;
         }
-        return player.world() == world() && distanceSqTo(player) <= maxDistSq;
+        return player.world() == world();
+    }
+
+    private boolean isValidTarget(final ServerPlayer player, final double maxDistSq) {
+        return isTargetable(player) && distanceSqTo(player) <= maxDistSq;
     }
 
     public final @Nullable ServerPlayer target() {
