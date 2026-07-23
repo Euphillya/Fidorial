@@ -73,6 +73,7 @@ import fr.fidorial.world.weather.WeatherManager;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -91,12 +92,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.MINI_MESSAGE;
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class FidorialServer implements Server {
 
-    public static final ComponentLogger LOGGER = getLogger(FidorialServer.class);
+    public static final ComponentLogger LOGGER = ComponentLogger.logger(FidorialServer.class);
     private static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware();
 
     private static @Nullable FidorialServer instance;
@@ -150,7 +148,9 @@ public final class FidorialServer implements Server {
     private @Nullable Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
 
     private @Nullable Favicon favicon = loadFavicon();
-    private Component description = MINI_MESSAGE.deserialize(config.motd());
+    private Component description = MiniMessage
+            .miniMessage(MiniMessage.Preset.FORMATTED_TEXT)
+            .deserialize(config.motd());
     private int maxPlayers = config.maxPlayers();
 
     public FidorialServer() throws IOException {

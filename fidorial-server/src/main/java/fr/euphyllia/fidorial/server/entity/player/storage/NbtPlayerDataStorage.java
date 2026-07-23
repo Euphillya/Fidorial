@@ -17,11 +17,9 @@ import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public class NbtPlayerDataStorage implements PlayerDataStorage {
 
-    private static final ComponentLogger LOGGER = getLogger(NbtPlayerDataStorage.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(NbtPlayerDataStorage.class);
     private static final String ROOT_NAME = "PlayerData";
 
     private final Path dataDir;

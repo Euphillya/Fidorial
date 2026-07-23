@@ -13,11 +13,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class WeatherEngine implements WeatherManager, AutoCloseable {
 
-    private static final ComponentLogger LOGGER = getLogger(WeatherEngine.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(WeatherEngine.class);
 
     private static final int RAIN_MIN = 12_000, RAIN_BOUND = 24_000; // 10 a 20 min
     private static final int CLEAR_MIN = 12_000, CLEAR_BOUND = 180_000; // 10 min a 2 h 30

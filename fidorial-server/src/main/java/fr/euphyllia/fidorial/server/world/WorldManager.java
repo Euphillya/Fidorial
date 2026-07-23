@@ -22,11 +22,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.IntSupplier;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class WorldManager implements AutoCloseable {
 
-    private static final ComponentLogger LOGGER = getLogger(WorldManager.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(WorldManager.class);
 
     private final WorldPaths paths;
     private final LevelData levelData;

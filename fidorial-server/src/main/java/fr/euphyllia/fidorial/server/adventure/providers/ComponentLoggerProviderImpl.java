@@ -4,11 +4,10 @@ import fr.fidorial.translation.TranslationStore;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.kyori.adventure.text.logger.slf4j.ComponentLoggerProvider;
+import net.kyori.adventure.text.serializer.ansi.ANSIComponentSerializer;
 import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
-
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.ANSI_SERIALIZER;
 
 public class ComponentLoggerProviderImpl implements ComponentLoggerProvider {
     @Override
@@ -17,6 +16,6 @@ public class ComponentLoggerProviderImpl implements ComponentLoggerProvider {
     }
 
     private String serialize(final Component message) {
-        return ANSI_SERIALIZER.serialize(TranslationStore.render(message, Locale.getDefault()));
+        return ANSIComponentSerializer.ansi().serialize(TranslationStore.render(message, Locale.getDefault()));
     }
 }

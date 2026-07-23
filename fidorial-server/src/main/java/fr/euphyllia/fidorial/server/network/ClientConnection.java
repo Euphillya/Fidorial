@@ -37,11 +37,9 @@ import java.util.Locale;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf> {
 
-    private static final ComponentLogger LOGGER = getLogger(ClientConnection.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(ClientConnection.class);
 
     private static final int KEEP_ALIVE_INTERVAL_SECONDS = 10;
 

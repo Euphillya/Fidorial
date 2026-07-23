@@ -21,12 +21,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class ThreadedRegionRegionizer implements RegionizedScheduler {
 
     public static final int SECTION_SHIFT = 5;
-    private static final ComponentLogger LOGGER = getLogger(ThreadedRegionRegionizer.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(ThreadedRegionRegionizer.class);
     private static final long TICK_PERIOD_MS = 50L;
     /**
      * Number of consecutive empty ticks before an idle region is destroyed.

@@ -62,11 +62,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 import java.util.UUID;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class PlayPacketHandler implements PlayPacketListener {
 
-    private static final ComponentLogger LOGGER = getLogger(PlayPacketHandler.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(PlayPacketHandler.class);
 
     private final ClientConnection connection;
     private final FidorialServer server;

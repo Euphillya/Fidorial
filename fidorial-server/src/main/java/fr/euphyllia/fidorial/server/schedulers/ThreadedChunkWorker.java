@@ -14,11 +14,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public class ThreadedChunkWorker implements AsyncChunkLoader {
 
-    private static final ComponentLogger LOGGER = getLogger(ThreadedChunkWorker.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(ThreadedChunkWorker.class);
 
     private final ScheduledExecutorService workers;
 

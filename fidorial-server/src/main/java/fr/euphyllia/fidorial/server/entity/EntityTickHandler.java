@@ -9,11 +9,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class EntityTickHandler implements RegionTickHandler {
 
-    private static final ComponentLogger LOGGER = getLogger(EntityTickHandler.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(EntityTickHandler.class);
 
     private final WorldManager worldManager;
     private final Map<String, ServerWorld> worldsById = new ConcurrentHashMap<>();

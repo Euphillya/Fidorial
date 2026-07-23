@@ -13,8 +13,6 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Properties;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public record ServerConfig(
         int port,
         boolean onlineMode,
@@ -38,7 +36,7 @@ public record ServerConfig(
         boolean useIoUring
 ) {
 
-    private static final ComponentLogger LOGGER = getLogger(ServerConfig.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(ServerConfig.class);
     private static final String DEFAULT_FILE = "fidorial.properties";
 
     public ServerConfig {

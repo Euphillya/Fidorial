@@ -18,11 +18,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public class DayNightEngine implements AutoCloseable {
 
-    private static final ComponentLogger LOGGER = getLogger(DayNightEngine.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(DayNightEngine.class);
 
     private static final int SYNC_INTERVAL_TICKS = 20;
 

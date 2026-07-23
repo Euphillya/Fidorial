@@ -22,11 +22,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 import java.util.Set;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public class ConsoleSender implements CommandSender, PermissibleBaseHolder, CommandSource {
 
-    public static final ComponentLogger LOGGER = getLogger("Console");
+    public static final ComponentLogger LOGGER = ComponentLogger.logger("Console");
     private static final ServerOperator CONSOLE_OP = new ServerOperator() {
         @Override
         public boolean isOp() {

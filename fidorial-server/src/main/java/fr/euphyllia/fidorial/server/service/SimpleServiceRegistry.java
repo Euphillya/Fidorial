@@ -11,11 +11,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class SimpleServiceRegistry implements ServiceRegistry {
 
-    private static final ComponentLogger LOGGER = getLogger(SimpleServiceRegistry.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(SimpleServiceRegistry.class);
 
     private final Map<Class<?>, List<Provider<?>>> providers = new ConcurrentHashMap<>();
 

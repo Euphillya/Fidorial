@@ -40,11 +40,9 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class JavaPluginManager implements PluginManager, AutoCloseable {
 
-    private static final ComponentLogger LOGGER = getLogger(JavaPluginManager.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(JavaPluginManager.class);
     private static final String DESCRIPTOR = "fidorial.json";
     private static final Gson GSON = new Gson();
 
