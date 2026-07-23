@@ -12,27 +12,28 @@ public class DefaultPermissions {
     private DefaultPermissions() {
     }
 
-    public static void registerCorePermissions(PluginManager manager) {
-        Permission root = register(
+    public static void registerCorePermissions(final PluginManager manager) {
+        final Permission root = register(
                 manager,
-                new Permission(ROOT, "Donne acces a toutes les fonctionnalites de Fidorial", PermissionDefault.FALSE));
-        Permission commands = register(
+                new Permission(ROOT, "Provides access to all Fidorial features.", PermissionDefault.FALSE));
+        final Permission commands = register(
                 manager,
                 new Permission(
-                        COMMAND_ROOT, "Donne acces a toutes les commandes de Fidorial", PermissionDefault.FALSE));
+                        COMMAND_ROOT, "Provides access to all Fidorial commands.", PermissionDefault.FALSE));
         commands.addParent(root, true);
 
-        child(manager, commands, "tps", "Permet de consulter les TPS", PermissionDefault.OP);
-        child(manager, commands, "weather", "Permet de changer la meteo", PermissionDefault.OP);
-        child(manager, commands, "gamemode", "Permet de changer de mode de jeu", PermissionDefault.OP);
-        child(manager, commands, "op", "Permet de promouvoir un operateur", PermissionDefault.OP);
-        child(manager, commands, "deop", "Permet de retrograder un operateur", PermissionDefault.OP);
-        child(manager, commands, "stop", "Idk what french says", PermissionDefault.OP);
-        Permission selector = register(
+        child(manager, commands, "tps", "Allows you to view the TPS", PermissionDefault.OP);
+        child(manager, commands, "weather", "Allows you to change the weather.", PermissionDefault.OP);
+        child(manager, commands, "time", "Allows you to change the time of a world.", PermissionDefault.OP);
+        child(manager, commands, "gamemode", "Allows you to change the game mode.", PermissionDefault.OP);
+        child(manager, commands, "op", "Allows promotion to operator status", PermissionDefault.OP);
+        child(manager, commands, "deop", "Allows an operator to be removed.", PermissionDefault.OP);
+        child(manager, commands, "stop", "Allows you to stop the server.", PermissionDefault.OP);
+        final Permission selector = register(
                 manager,
                 new Permission(
                         "minecraft.command.selector",
-                        "Permet d'utiliser les selecteurs d'entites (@a, @p, @e, @s)",
+                        "Allows the use of entity selectors (@a, @p, @e, @s)",
                         PermissionDefault.OP));
 
         root.recalculatePermissibles();
@@ -41,18 +42,18 @@ public class DefaultPermissions {
     }
 
     private static void child(
-            PluginManager manager,
-            Permission parent,
-            String name,
-            String description,
-            PermissionDefault def
+            final PluginManager manager,
+            final Permission parent,
+            final String name,
+            final String description,
+            final PermissionDefault def
     ) {
-        Permission perm = register(manager, new Permission(COMMAND_ROOT + "." + name, description, def));
+        final Permission perm = register(manager, new Permission(COMMAND_ROOT + "." + name, description, def));
         perm.addParent(parent, true);
     }
 
-    private static Permission register(PluginManager manager, Permission perm) {
-        Permission existing = manager.getPermission(perm.getName()).orElse(null);
+    private static Permission register(final PluginManager manager, final Permission perm) {
+        final Permission existing = manager.getPermission(perm.getName()).orElse(null);
         if (existing != null) {
             return existing;
         }

@@ -1,6 +1,7 @@
 package fr.fidorial.world;
 
 import fr.fidorial.entity.Entity;
+import fr.fidorial.world.time.DayNightCycle;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Keyed;
 
@@ -15,19 +16,21 @@ public interface World extends Keyed /* ForwardingAudience */ { // make it exten
 
     int height();
 
+    DayNightCycle dayNightCycle();
+
     CompletableFuture<Chunk> getChunkAsync(int chunkX, int chunkZ);
 
-    default CompletableFuture<Chunk> getChunkAsync(ChunkPos pos) {
+    default CompletableFuture<Chunk> getChunkAsync(final ChunkPos pos) {
         return getChunkAsync(pos.x(), pos.z());
     }
 
     Optional<Chunk> getChunkIfLoaded(int chunkX, int chunkZ);
 
-    default Chunk getChunkIfLoaded(ChunkPos pos) {
+    default Chunk getChunkIfLoaded(final ChunkPos pos) {
         return getChunkIfLoaded(pos.x(), pos.z()).orElseThrow();
     }
 
-    default boolean isChunkLoaded(int chunkX, int chunkZ) {
+    default boolean isChunkLoaded(final int chunkX, final int chunkZ) {
         return getChunkIfLoaded(chunkX, chunkZ).isPresent();
     }
 
@@ -46,7 +49,7 @@ public interface World extends Keyed /* ForwardingAudience */ { // make it exten
 
     CompletableFuture<Boolean> unloadChunkAsync(int chunkX, int chunkZ);
 
-    default CompletableFuture<Boolean> unloadChunkAsync(ChunkPos pos) {
+    default CompletableFuture<Boolean> unloadChunkAsync(final ChunkPos pos) {
         return unloadChunkAsync(pos.x(), pos.z());
     }
 }

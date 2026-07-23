@@ -118,5 +118,15 @@
 
   "console.argument.dimension.invalid": "Unknown dimension '<arg:0>'",
   "console.argument.gamemode.invalid": "Unknown game mode: '<arg:0>'",
-  "console.argument.id.invalid": "Invalid ID"
+  "console.argument.id.invalid": "Invalid ID",
+
+  "command.time.description": "Changes or queries the day/night cycle of a world",
+  "command.time.set": "Time set to <arg:0> in <arg:1>",
+  "command.time.query": "<arg:0>: <arg:1> (<arg:2>)",
+  "command.time.frozen": "Day/night cycle frozen in <arg:0>",
+  "command.time.resumed": "Day/night cycle resumed in <arg:0>",
+  "time.phase.day": "day",
+  "time.phase.dusk": "dusk",
+  "time.phase.night": "night",
+  "time.phase.dawn": "dawn"
 }

@@ -26,6 +26,7 @@ module fr.fidorial {
     exports fr.fidorial.world.block;
     exports fr.fidorial.world.fluid;
     exports fr.fidorial.world.generation;
+    exports fr.fidorial.world.time;
     exports fr.fidorial.world.weather;
     exports fr.fidorial.world;
     exports fr.fidorial;

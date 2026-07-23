@@ -117,5 +117,15 @@
 
   "console.argument.dimension.invalid": "Dimension inconnue : <arg:0>",
   "console.argument.gamemode.invalid": "Mode de jeu inconnu : <arg:0>",
-  "console.argument.id.invalid": "ID non valide"
+  "console.argument.id.invalid": "ID non valide",
+
+  "command.time.description": "Modifie ou consulte le cycle jour/nuit d'un monde",
+  "command.time.set": "Heure définie sur <arg:0> dans <arg:1>",
+  "command.time.query": "<arg:0> : <arg:1> (<arg:2>)",
+  "command.time.frozen": "Cycle jour/nuit gelé dans <arg:0>",
+  "command.time.resumed": "Cycle jour/nuit relancé dans <arg:0>",
+  "time.phase.day": "jour",
+  "time.phase.dusk": "crépuscule",
+  "time.phase.night": "nuit",
+  "time.phase.dawn": "aube"
 }

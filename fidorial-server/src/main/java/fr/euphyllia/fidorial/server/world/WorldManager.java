@@ -9,6 +9,7 @@ import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import fr.euphyllia.fidorial.server.world.storage.EntityRegionStorage;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
 import fr.euphyllia.fidorial.server.world.storage.WorldPaths;
+import fr.euphyllia.fidorial.server.world.time.WorldTimeEngine;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
@@ -42,14 +43,14 @@ public final class WorldManager implements AutoCloseable {
     private volatile @Nullable EntitySpawnBridge entityBridge;
 
     private WorldManager(
-            WorldPaths paths,
-            LevelData levelData,
-            ChunkStorage storage,
-            EntityRegionStorage entityStorage,
-            AnvilEntitySerializer entitySerializer,
-            BlockStateRegistry blockStates,
-            int minY,
-            int height
+            final WorldPaths paths,
+            final LevelData levelData,
+            final ChunkStorage storage,
+            final EntityRegionStorage entityStorage,
+            final AnvilEntitySerializer entitySerializer,
+            final BlockStateRegistry blockStates,
+            final int minY,
+            final int height
     ) {
         this.paths = paths;
         this.levelData = levelData;
@@ -61,11 +62,11 @@ public final class WorldManager implements AutoCloseable {
         this.height = height;
     }
 
-    public static WorldManager openOrCreate(Path worldRoot, BlockStateRegistry blockStates, int minY, int height)
+    public static WorldManager openOrCreate(final Path worldRoot, final BlockStateRegistry blockStates, final int minY, final int height)
             throws IOException {
-        WorldPaths paths = new WorldPaths(worldRoot, WorldPaths.Layout.MODERN);
+        final WorldPaths paths = new WorldPaths(worldRoot, WorldPaths.Layout.MODERN);
 
-        LevelData levelData;
+        final LevelData levelData;
         if (paths.levelDat().toFile().isFile()) {
             levelData = LevelData.read(paths.levelDat());
             LOGGER.info("Monde chargé : {} (DataVersion {})", levelData.levelName, levelData.dataVersion);
@@ -75,18 +76,18 @@ public final class WorldManager implements AutoCloseable {
             LOGGER.info("Nouveau monde créé dans {}", worldRoot);
         }
 
-        AnvilChunkSerializer serializer = new AnvilChunkSerializer();
-        ChunkStorage storage = new ChunkStorage(paths, serializer, minY, height, BlockState.AIR, "minecraft:plains");
+        final AnvilChunkSerializer serializer = new AnvilChunkSerializer();
+        final ChunkStorage storage = new ChunkStorage(paths, serializer, minY, height, BlockState.AIR, "minecraft:plains");
 
-        EntityRegionStorage entityStorage = new EntityRegionStorage(paths);
-        AnvilEntitySerializer entitySerializer = new AnvilEntitySerializer();
+        final EntityRegionStorage entityStorage = new EntityRegionStorage(paths);
+        final AnvilEntitySerializer entitySerializer = new AnvilEntitySerializer();
 
         return new WorldManager(paths, levelData, storage, entityStorage, entitySerializer, blockStates, minY, height);
     }
 
-    public ServerWorld registerDimension(Dimension dim, ChunkGenerator generator) {
+    public ServerWorld registerDimension(final Dimension dim, final ChunkGenerator generator) {
         return worlds.computeIfAbsent(dim.id(), k -> {
-            ServerWorld world = new ServerWorld(
+            final ServerWorld world = new ServerWorld(
                     dim, storage, entityStorage, entitySerializer, generator, blockStates, minY, height);
             if (chunkLoader != null) {
                 world.setChunkLoader(chunkLoader);
@@ -94,32 +95,53 @@ public final class WorldManager implements AutoCloseable {
             if (entityIdSupplier != null && entityBridge != null) {
                 world.setEntityBridge(entityIdSupplier, entityBridge);
             }
+            restoreTime(world);
             return world;
         });
     }
 
-    public void setEntityBridge(IntSupplier idSupplier, EntitySpawnBridge bridge) {
+    private void restoreTime(final ServerWorld world) {
+        final LevelData.WorldTime saved = levelData.worldTime(world.dimension().id());
+        if (saved == null) {
+            return;
+        }
+        world.dayNightCycle().restore(saved.worldAge(), saved.dayTime(), saved.doDaylightCycle());
+        LOGGER.debug(
+                "Cycle de {} restaure a {} ticks",
+                world.dimension().id(),
+                world.dayNightCycle().timeOfDay());
+    }
+
+    private void captureTimes() {
+        for (final ServerWorld world : worlds.values()) {
+            final WorldTimeEngine cycle = world.dayNightCycle();
+            levelData.setWorldTime(
+                    world.dimension().id(), cycle.worldAge(), cycle.time(), cycle.doDaylightCycle());
+        }
+    }
+
+    public void setEntityBridge(final IntSupplier idSupplier, final EntitySpawnBridge bridge) {
         this.entityIdSupplier = idSupplier;
         this.entityBridge = bridge;
-        for (ServerWorld world : worlds.values()) {
+        for (final ServerWorld world : worlds.values()) {
             world.setEntityBridge(idSupplier, bridge);
         }
     }
 
-    public void setChunkLoader(AsyncChunkLoader loader) {
+    public void setChunkLoader(final AsyncChunkLoader loader) {
         this.chunkLoader = loader;
-        for (ServerWorld world : worlds.values()) {
+        for (final ServerWorld world : worlds.values()) {
             world.setChunkLoader(loader);
         }
     }
 
-    public void setDefaultGenerator(ChunkGenerator generator) {
+    public void setDefaultGenerator(final ChunkGenerator generator) {
         this.defaultGenerator = generator;
     }
 
     public ServerWorld overworld() {
-        ChunkGenerator chunkGenerator = defaultGenerator;
-        ChunkGenerator generator =
+        final ChunkGenerator chunkGenerator = defaultGenerator;
+        final ChunkGenerator generator =
                 chunkGenerator != null ? chunkGenerator : FlatChunkGenerator.cobblestone(minY, height);
         return registerDimension(Dimension.OVERWORLD, generator);
     }
@@ -128,11 +150,11 @@ public final class WorldManager implements AutoCloseable {
         return Collections.unmodifiableCollection(worlds.values());
     }
 
-    public ServerWorld dimension(Dimension dim) {
+    public ServerWorld dimension(final Dimension dim) {
         return worlds.get(dim.id());
     }
 
-    public ServerWorld world(Key worldKey) {
+    public ServerWorld world(final Key worldKey) {
         return worlds.get(worldKey.asString());
     }
 
@@ -145,8 +167,9 @@ public final class WorldManager implements AutoCloseable {
     }
 
     public void saveAll() throws IOException {
+        captureTimes();
         levelData.write(paths.levelDat());
-        for (ServerWorld w : worlds.values()) {
+        for (final ServerWorld w : worlds.values()) {
             w.saveAll();
         }
         LOGGER.info("World saved ({} dimension(s))", worlds.size());
@@ -154,14 +177,14 @@ public final class WorldManager implements AutoCloseable {
 
     public int unloadUnusedChunks() {
         int total = 0;
-        for (ServerWorld w : worlds.values()) {
+        for (final ServerWorld w : worlds.values()) {
             total += w.unloadUnusedChunks();
         }
         return total;
     }
 
     public void saveDirty() throws IOException {
-        for (ServerWorld w : worlds.values()) {
+        for (final ServerWorld w : worlds.values()) {
             w.saveDirty();
         }
     }

@@ -17,6 +17,7 @@ import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.StopCommand;
 import fr.euphyllia.fidorial.server.command.defaults.SummonCommand;
+import fr.euphyllia.fidorial.server.command.defaults.TimeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TpsCommand;
 import fr.euphyllia.fidorial.server.command.defaults.WeatherCommand;
 import fr.fidorial.command.CommandMeta;
@@ -70,31 +71,37 @@ public final class CommandManager implements CommandRegistry {
         register(metaBuilder("summon").build(), SummonCommand.create());
         register(metaBuilder("gamemode").aliases("gm").build(), GameModeCommand.create());
         register(metaBuilder("tps").build(), TpsCommand.create());
+        register(
+                metaBuilder("time")
+                        .description(Component.translatable("command.time.description"))
+                        .usage(Component.text("/time <set|add|query|freeze|resume> [...]"))
+                        .build(),
+                TimeCommand.create());
     }
 
     @Override
-    public CommandMeta.Builder metaBuilder(String alias) {
+    public CommandMeta.Builder metaBuilder(final String alias) {
         Preconditions.checkNotNull(alias, "alias");
         return new InternalCommandMeta.Builder(alias);
     }
 
     @Override
-    public CommandMeta.Builder metaBuilder(CommandTree command) {
+    public CommandMeta.Builder metaBuilder(final CommandTree command) {
         Preconditions.checkNotNull(command, "command");
         return new InternalCommandMeta.Builder(command.node().getName());
     }
 
     @Override
-    public void register(CommandMeta meta, CommandTree command) {
+    public void register(final CommandMeta meta, final CommandTree command) {
         lock.writeLock().lock();
         try {
-            RegisteredCommand registered = new RegisteredCommand(command, meta);
+            final RegisteredCommand registered = new RegisteredCommand(command, meta);
 
-            for (String alias : meta.aliases()) {
+            for (final String alias : meta.aliases()) {
                 metaByAlias.put(alias.toLowerCase(Locale.ROOT), meta);
                 commands.put(alias.toLowerCase(Locale.ROOT), registered);
 
-                CommandNode<CommandSource> node;
+                final CommandNode<CommandSource> node;
 
                 if (alias.equalsIgnoreCase(command.node().getName())) {
                     node = command.node();
@@ -109,27 +116,27 @@ public final class CommandManager implements CommandRegistry {
     }
 
     private static LiteralCommandNode<CommandSource> cloneLiteral(
-            String name,
-            LiteralCommandNode<CommandSource> original
+            final String name,
+            final LiteralCommandNode<CommandSource> original
     ) {
-        LiteralArgumentBuilder<CommandSource> builder =
+        final LiteralArgumentBuilder<CommandSource> builder =
                 LiteralArgumentBuilder.<CommandSource>literal(name).requires(original.getRequirement());
 
         if (original.getCommand() != null) {
             builder.executes(original.getCommand());
         }
 
-        for (CommandNode<CommandSource> child : original.getChildren()) {
+        for (final CommandNode<CommandSource> child : original.getChildren()) {
             builder.then(cloneNode(child));
         }
 
         return builder.build();
     }
 
-    private static <S> CommandNode<S> cloneNode(CommandNode<S> node) {
-        ArgumentBuilder<S, ?> builder = node.createBuilder();
+    private static <S> CommandNode<S> cloneNode(final CommandNode<S> node) {
+        final ArgumentBuilder<S, ?> builder = node.createBuilder();
 
-        for (CommandNode<S> child : node.getChildren()) {
+        for (final CommandNode<S> child : node.getChildren()) {
             builder.then(cloneNode(child));
         }
 
@@ -137,7 +144,7 @@ public final class CommandManager implements CommandRegistry {
     }
 
     @Override
-    public void unregister(String alias) {
+    public void unregister(final String alias) {
         Preconditions.checkNotNull(alias, "alias");
         lock.writeLock().lock();
         try {
@@ -149,11 +156,11 @@ public final class CommandManager implements CommandRegistry {
     }
 
     @Override
-    public void unregister(CommandMeta meta) {
+    public void unregister(final CommandMeta meta) {
         Preconditions.checkNotNull(meta, "meta");
         lock.writeLock().lock();
         try {
-            for (String alias : meta.aliases()) {
+            for (final String alias : meta.aliases()) {
                 metaByAlias.remove(alias.toLowerCase(Locale.ROOT));
                 commands.remove(alias.toLowerCase(Locale.ROOT));
             }
@@ -163,17 +170,17 @@ public final class CommandManager implements CommandRegistry {
     }
 
     @Override
-    public CommandMeta commandMeta(String alias) {
+    public CommandMeta commandMeta(final String alias) {
         return metaByAlias.get(alias.toLowerCase(Locale.ROOT));
     }
 
     @Override
-    public CompletableFuture<Boolean> dispatchAsync(CommandSource source, String cmdLine) {
+    public CompletableFuture<Boolean> dispatchAsync(final CommandSource source, final String cmdLine) {
         return CompletableFuture.supplyAsync(() -> {
-            ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
+            final ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
 
-            CommandSyntaxException exception = getParseException(parse);
-            boolean isConsole = source.sender() instanceof ConsoleSender;
+            final CommandSyntaxException exception = getParseException(parse);
+            final boolean isConsole = source.sender() instanceof ConsoleSender;
 
             if (exception != null) {
                 source.sender()
@@ -190,7 +197,7 @@ public final class CommandManager implements CommandRegistry {
                 // also we do this here so real invalid entries fail in the console
                 String root = cmdLine.strip();
 
-                int space = root.indexOf(' ');
+                final int space = root.indexOf(' ');
                 if (space != -1) {
                     root = root.substring(0, space);
                 }
@@ -198,7 +205,7 @@ public final class CommandManager implements CommandRegistry {
                 root = root.toLowerCase(Locale.ROOT);
 
                 if (!metaByAlias.containsKey(root)) {
-                    CommandSyntaxException e = unknownCommand(parse);
+                    final CommandSyntaxException e = unknownCommand(parse);
                     source.sender()
                             .sendMessage(
                                     convert(e.getRawMessage(), isConsole)
@@ -207,9 +214,9 @@ public final class CommandManager implements CommandRegistry {
                     return false;
                 }
 
-                int result = dispatcher.execute(parse);
+                final int result = dispatcher.execute(parse);
                 return result == Command.SINGLE_SUCCESS;
-            } catch (CommandSyntaxException e) {
+            } catch (final CommandSyntaxException e) {
                 source.sender()
                         .sendMessage(convert(e.getRawMessage(), isConsole)
                                 .color(NamedTextColor.RED));
@@ -218,12 +225,12 @@ public final class CommandManager implements CommandRegistry {
         });
     }
 
-    private static boolean hasExecutableNode(ParseResults<CommandSource> parse) {
+    private static boolean hasExecutableNode(final ParseResults<CommandSource> parse) {
         return parse.getContext().getNodes().stream()
                 .anyMatch(node -> node.getNode().getCommand() != null);
     }
 
-    private static @Nullable CommandSyntaxException getParseException(ParseResults<CommandSource> parse) {
+    private static @Nullable CommandSyntaxException getParseException(final ParseResults<CommandSource> parse) {
         if (!parse.getExceptions().isEmpty()) {
             return parse.getExceptions().values().iterator().next();
         }
@@ -243,22 +250,22 @@ public final class CommandManager implements CommandRegistry {
         return null;
     }
 
-    private static CommandSyntaxException unknownCommand(ParseResults<CommandSource> parse) {
+    private static CommandSyntaxException unknownCommand(final ParseResults<CommandSource> parse) {
         return DISPATCHER_UNKNOWN_COMMAND.createWithContext(parse.getReader());
     }
 
     private void sendContext(
-            CommandSource source,
-            CommandSyntaxException exception,
-            String command,
-            boolean isConsole
+            final CommandSource source,
+            final CommandSyntaxException exception,
+            final String command,
+            final boolean isConsole
     ) {
 
         if (exception.getInput() == null || exception.getCursor() < 0) {
             return;
         }
 
-        int cursor = Math.min(exception.getInput().length(), exception.getCursor());
+        final int cursor = Math.min(exception.getInput().length(), exception.getCursor());
 
         Component context =
                 Component.empty().color(NamedTextColor.GRAY).clickEvent(ClickEvent.suggestCommand("/" + command));
@@ -267,7 +274,7 @@ public final class CommandManager implements CommandRegistry {
             context = context.append(Component.text("..."));
         }
 
-        int start = Math.max(0, cursor - 10);
+        final int start = Math.max(0, cursor - 10);
 
         context = context.append(Component.text(exception.getInput().substring(start, cursor)));
 
@@ -288,26 +295,26 @@ public final class CommandManager implements CommandRegistry {
     }
 
     @Override
-    public CompletableFuture<List<String>> offerSuggestions(CommandSource source, String cmdLine) {
+    public CompletableFuture<List<String>> offerSuggestions(final CommandSource source, final String cmdLine) {
         return offerBrigadierSuggestions(source, cmdLine)
                 .thenApply(suggestions -> Lists.transform(
                         suggestions.getList(), suggestion -> suggestion != null ? suggestion.getText() : null));
     }
 
     @Override
-    public CompletableFuture<Suggestions> offerBrigadierSuggestions(CommandSource source, String cmdLine) {
-        ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
+    public CompletableFuture<Suggestions> offerBrigadierSuggestions(final CommandSource source, final String cmdLine) {
+        final ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
         return dispatcher.getCompletionSuggestions(parse);
     }
 
     @Override
-    public boolean hasCommand(String alias) {
+    public boolean hasCommand(final String alias) {
         return metaByAlias.containsKey(alias.toLowerCase(Locale.ROOT));
     }
 
     @Override
-    public boolean hasCommand(String alias, CommandSource source) {
-        CommandNode<CommandSource> node = dispatcher.getRoot().getChild(alias.toLowerCase(Locale.ROOT));
+    public boolean hasCommand(final String alias, final CommandSource source) {
+        final CommandNode<CommandSource> node = dispatcher.getRoot().getChild(alias.toLowerCase(Locale.ROOT));
         return node != null && node.canUse(source);
     }
 

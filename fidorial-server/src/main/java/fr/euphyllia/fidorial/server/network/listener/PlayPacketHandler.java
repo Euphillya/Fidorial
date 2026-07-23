@@ -76,7 +76,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     private @Nullable ChunkViewTracker chunkView;
     private @Nullable ChunkPos ticket;
 
-    public PlayPacketHandler(ClientConnection connection) {
+    public PlayPacketHandler(final ClientConnection connection) {
         this.connection = connection;
         this.server = connection.server();
         this.config = server.config();
@@ -84,20 +84,20 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void onEnter() {
-        RegistryHolder dynamic = server.dynamicRegistries();
+        final RegistryHolder dynamic = server.dynamicRegistries();
         if (dynamic.isEmpty()) {
-            LOGGER.error("Registres dynamiques absents (GeneratedRegistryData vide) : entree en jeu impossible");
+            LOGGER.error("Missing dynamic registries (GeneratedRegistryData empty): unable to join the game");
             connection.close();
             return;
         }
 
-        ServerWorld world = server.worldManager().overworld();
-        Location spawn = new Location(config.spawnX(), config.spawnY(), config.spawnZ(), 0f, 0f);
+        final ServerWorld world = server.worldManager().overworld();
+        final Location spawn = new Location(config.spawnX(), config.spawnY(), config.spawnZ(), 0f, 0f);
         this.player = createPlayer(world, spawn);
         connection.setPlayer(player);
         world.addEntity(player);
 
-        sendLoginSequence(dynamic);
+        sendLoginSequence(dynamic, world);
         openChunkView(world, dynamic, spawn.chunk());
         spawnPlayer(spawn);
         sendExistingEntities(world);
@@ -126,9 +126,9 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
     }
 
-    private void sendExistingEntities(ServerWorld world) {
-        for (var entity : world.entityManager().all()) {
-            EntityTypeRegistry registry =
+    private void sendExistingEntities(final ServerWorld world) {
+        for (final var entity : world.entityManager().all()) {
+            final EntityTypeRegistry registry =
                     (EntityTypeRegistry) server.registries().registry(RegistryKey.ENTITY_TYPE);
             if (entity instanceof ServerPlayer || !registry.hasNetworkId(entity.type())) {
                 continue;
@@ -137,7 +137,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
     }
 
-    private ServerPlayer createPlayer(ServerWorld world, Location spawn) {
+    private ServerPlayer createPlayer(final ServerWorld world, final Location spawn) {
         PlayerProfile profile = connection.profile();
         if (profile == null) {
             // Filet de securite si l'on demarre sans phase de login complete.
@@ -153,31 +153,31 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 spawn);
     }
 
-    private PlayerInventory loadInventory(PlayerProfile profile) {
+    private PlayerInventory loadInventory(final PlayerProfile profile) {
         try {
-            PlayerInventory inventory = server.playerInventoryStorage().load(profile.uuid());
+            final PlayerInventory inventory = server.playerInventoryStorage().load(profile.uuid());
             if (!inventory.isEmpty()) {
                 LOGGER.debug("Inventaire de {} recharge", profile.name());
             }
             return inventory;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.error("Chargement de l'inventaire de {} impossible, inventaire vide utilise", profile.name(), e);
             return new PlayerInventory();
         }
     }
 
-    private PlayerDataStorage.PlayerData loadPlayerData(PlayerProfile profile) {
-        PlayerDataStorage.PlayerData defaults = new PlayerDataStorage.PlayerData(config.defaultGameMode());
+    private PlayerDataStorage.PlayerData loadPlayerData(final PlayerProfile profile) {
+        final PlayerDataStorage.PlayerData defaults = new PlayerDataStorage.PlayerData(config.defaultGameMode());
         try {
             return server.playerDataStorage().load(profile.uuid(), defaults);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.error("Chargement des donnees de {} impossible, valeurs par defaut utilisees", profile.name(), e);
             return defaults;
         }
     }
 
-    private void sendLoginSequence(RegistryHolder dynamic) {
-        int dimensionType = Math.max(0, dynamic.networkId("minecraft:dimension_type", worldId()));
+    private void sendLoginSequence(final RegistryHolder dynamic, final ServerWorld world) {
+        final int dimensionType = Math.max(0, dynamic.networkId("minecraft:dimension_type", worldId()));
         connection.send(new ClientboundLoginPacket(
                 player.entityId(),
                 worldId(),
@@ -193,10 +193,11 @@ public final class PlayPacketHandler implements PlayPacketListener {
         player.recalculatePermissions();
         connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         server.weatherEngine().syncTo(connection::send);
+        server.dayNightEngine().syncTo(world, connection::send);
     }
 
-    private void openChunkView(ServerWorld world, RegistryHolder dynamic, ChunkPos spawnChunk) {
-        int biome = Math.max(0, dynamic.networkId("minecraft:worldgen/biome", "minecraft:plains"));
+    private void openChunkView(final ServerWorld world, final RegistryHolder dynamic, final ChunkPos spawnChunk) {
+        final int biome = Math.max(0, dynamic.networkId("minecraft:worldgen/biome", "minecraft:plains"));
         this.chunkView = new ChunkViewTracker(
                 connection,
                 server.chunkWorker(),
@@ -209,29 +210,29 @@ public final class PlayPacketHandler implements PlayPacketListener {
         chunkView.init(spawnChunk);
     }
 
-    private void spawnPlayer(Location spawn) {
+    private void spawnPlayer(final Location spawn) {
         connection.send(new ClientboundPlayerPositionPacket(player.nextTeleportId(), spawn.x(), spawn.y(), spawn.z()));
         connection.send(new ClientboundContainerSetContentPacket(
                 player.inventory(), server.registries().frozen()));
     }
 
     @Override
-    public void handlePlayerLoaded(ServerboundPlayerLoadedPacket packet) {
+    public void handlePlayerLoaded(final ServerboundPlayerLoadedPacket packet) {
         LOGGER.debug("{} a fini de charger le terrain", player.name());
     }
 
     @Override
-    public void handleAcceptTeleportation(ServerboundAcceptTeleportationPacket packet) {
+    public void handleAcceptTeleportation(final ServerboundAcceptTeleportationPacket packet) {
         // Confirmation du client : rien a faire tant que l'anti-cheat n'existe pas.
     }
 
     @Override
-    public void handleKeepAlive(ServerboundKeepAlivePacket packet) {
+    public void handleKeepAlive(final ServerboundKeepAlivePacket packet) {
         // La reponse suffit a considerer la connexion vivante.
     }
 
     @Override
-    public void handleClientInformation(ServerboundClientInformationPacket packet) {
+    public void handleClientInformation(final ServerboundClientInformationPacket packet) {
         connection.setLocale(Locale.forLanguageTag(packet.language().replace('_', '-')));
         connection.setDisplayedSkinParts(packet.displayedSkinParts());
         if (player != null) {
@@ -243,8 +244,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     @Override
-    public void handleSetCarriedItem(ServerboundSetCarriedItemPacket packet) {
-        int slot = packet.slot();
+    public void handleSetCarriedItem(final ServerboundSetCarriedItemPacket packet) {
+        final int slot = packet.slot();
         if (slot < 0 || slot > 8) {
             LOGGER.debug("{} annonce un slot de hotbar invalide : {}", player.name(), slot);
             return;
@@ -254,12 +255,12 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     @SuppressWarnings("PatternValidation")
-    public void handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket packet) {
+    public void handleSetCreativeModeSlot(final ServerboundSetCreativeModeSlotPacket packet) {
         if (player.gameMode() != GameMode.CREATIVE) {
             LOGGER.debug("{} envoie un paquet creatif hors mode creatif (ignore)", player.name());
             return;
         }
-        int slot = InventorySlots.fromWindow(packet.slot());
+        final int slot = InventorySlots.fromWindow(packet.slot());
         if (slot == InventorySlots.INVALID || slot >= player.inventory().size()) {
             return;
         }
@@ -267,7 +268,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             player.inventory().set(slot, ItemStack.EMPTY);
             return;
         }
-        Registry items = server.registries().frozen().get("minecraft:item");
+        final Registry items = server.registries().frozen().get("minecraft:item");
         if (items == null || packet.itemId() >= items.entries().size()) {
             LOGGER.warn("{} envoie un id d'item hors borne : {}", player.name(), packet.itemId());
             return;
@@ -276,23 +277,23 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     @Override
-    public void handleChatCommand(ServerboundChatCommandPacket packet) {
+    public void handleChatCommand(final ServerboundChatCommandPacket packet) {
         server.commandManager().dispatchAsync(player, packet.command());
     }
 
     @Override
-    public void handleChat(ServerboundChatPacket packet) {
+    public void handleChat(final ServerboundChatPacket packet) {
         if (player == null) {
             return;
         }
-        Component message = packet.message();
+        final Component message = packet.message();
         if (message.equals(Component.empty())) {
             return;
         }
 
-        Component formatted = Component.text("\\<" + player.name() + "> ").append(message);
+        final Component formatted = Component.text("\\<" + player.name() + "> ").append(message);
 
-        PlayerChatEvent event = server.events().post(new PlayerChatEvent(player, formatted));
+        final PlayerChatEvent event = server.events().post(new PlayerChatEvent(player, formatted));
         if (event.isCancelled()) {
             return;
         }
@@ -302,17 +303,17 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     @Override
-    public void handleUseItemOn(ServerboundUseItemOnPacket packet) {
+    public void handleUseItemOn(final ServerboundUseItemOnPacket packet) {
         if (player.gameMode() == GameMode.SPECTATOR) {
             connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
             return;
         }
-        BlockPos target = packet.target().relative(BlockFace.byId(packet.face()));
-        ItemStack held = player.inventory().get(player.selectedSlot());
-        BlockState state = held.isEmpty() ? null : server.blockStateRegistry().blockForItem(held.id());
+        final BlockPos target = packet.target().relative(BlockFace.byId(packet.face()));
+        final ItemStack held = player.inventory().get(player.selectedSlot());
+        final BlockState state = held.isEmpty() ? null : server.blockStateRegistry().blockForItem(held.id());
 
         if (state != null) {
-            BlockPlaceEvent event = server.events()
+            final BlockPlaceEvent event = server.events()
                     .post(new BlockPlaceEvent(
                             player, target, server.blockStateRegistry().networkId(state)));
             if (!event.isCancelled()) {
@@ -323,18 +324,18 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     @Override
-    public void handlePlayerAction(ServerboundPlayerActionPacket packet) {
-        int status = packet.status();
-        boolean breaking =
+    public void handlePlayerAction(final ServerboundPlayerActionPacket packet) {
+        final int status = packet.status();
+        final boolean breaking =
                 switch (player.gameMode()) {
                     case CREATIVE -> status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK;
                     case SURVIVAL ->
-                        status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK && instantMine(packet.position())
-                                || status == ServerboundPlayerActionPacket.FINISH_DESTROY_BLOCK;
+                            status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK && instantMine(packet.position())
+                                    || status == ServerboundPlayerActionPacket.FINISH_DESTROY_BLOCK;
                     case ADVENTURE, SPECTATOR -> false;
                 };
         if (breaking) {
-            BlockBreakEvent event = server.events().post(new BlockBreakEvent(player, packet.position()));
+            final BlockBreakEvent event = server.events().post(new BlockBreakEvent(player, packet.position()));
             if (!event.isCancelled()) {
                 server.blockEdits().set(server.worldManager().overworld(), packet.position(), BlockState.AIR);
             }
@@ -343,18 +344,18 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     @Override
-    public void handleCommandSuggestion(ServerboundCommandSuggestionPacket packet) {
+    public void handleCommandSuggestion(final ServerboundCommandSuggestionPacket packet) {
         String input = packet.text();
-        boolean slash = input.startsWith("/");
+        final boolean slash = input.startsWith("/");
 
         if (slash) {
             input = input.substring(1);
         }
 
-        int offset = slash ? 1 : 0;
+        final int offset = slash ? 1 : 0;
 
         server.commandManager().offerBrigadierSuggestions(player, input).thenAccept(suggestions -> {
-            var entries = suggestions.getList().stream()
+            final var entries = suggestions.getList().stream()
                     .map(suggestion -> new ClientboundCommandSuggestionsPacket.Entry(
                             suggestion.getText(), suggestion.getTooltip()))
                     .toList();
@@ -368,33 +369,33 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     @Override
-    public void handlePlayerAbilities(ServerboundPlayerAbilitiesPacket packet) {
-        ServerPlayer player = connection.player();
+    public void handlePlayerAbilities(final ServerboundPlayerAbilitiesPacket packet) {
+        final ServerPlayer player = connection.player();
 
         player.setFlying(packet.isFlying());
     }
 
-    private boolean instantMine(BlockPos position) {
+    private boolean instantMine(final BlockPos position) {
         return false;
     }
 
     @Override
-    public void handleMovePlayerPos(ServerboundMovePlayerPosPacket packet) {
+    public void handleMovePlayerPos(final ServerboundMovePlayerPosPacket packet) {
         onMoved(packet.x(), packet.y(), packet.z());
     }
 
     @Override
-    public void handleMovePlayerPosRot(ServerboundMovePlayerPosRotPacket packet) {
+    public void handleMovePlayerPosRot(final ServerboundMovePlayerPosRotPacket packet) {
         onMoved(packet.x(), packet.y(), packet.z());
     }
 
-    private void onMoved(double x, double y, double z) {
-        Location previous = player.location();
-        Location current = new Location(x, y, z, previous.yaw(), previous.pitch());
+    private void onMoved(final double x, final double y, final double z) {
+        final Location previous = player.location();
+        final Location current = new Location(x, y, z, previous.yaw(), previous.pitch());
         player.setLocation(current);
         server.worldManager().overworld().entityManager().moved(player, previous.chunk(), current.chunk());
 
-        ChunkPos chunk = current.chunk();
+        final ChunkPos chunk = current.chunk();
         if (!chunkView.moveTo(chunk.x(), chunk.z())) {
             return;
         }

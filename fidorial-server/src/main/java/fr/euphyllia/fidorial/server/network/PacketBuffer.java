@@ -14,7 +14,7 @@ public final class PacketBuffer {
 
     private final ByteBuf buf;
 
-    public PacketBuffer(ByteBuf buf) {
+    public PacketBuffer(final ByteBuf buf) {
         this.buf = buf;
     }
 
@@ -30,25 +30,34 @@ public final class PacketBuffer {
         return VarInts.readVarInt(buf);
     }
 
-    public PacketBuffer writeVarInt(int value) {
+    public PacketBuffer writeVarInt(final int value) {
         VarInts.writeVarInt(buf, value);
         return this;
     }
 
-    public BitSet readFixedBitSet(int bits) {
-        int bytes = (bits + 7) / 8;
+    public long readVarLong() {
+        return VarInts.readVarLong(buf);
+    }
 
-        byte[] data = new byte[bytes];
+    public PacketBuffer writeVarLong(final long value) {
+        VarInts.writeVarLong(buf, value);
+        return this;
+    }
+
+    public BitSet readFixedBitSet(final int bits) {
+        final int bytes = (bits + 7) / 8;
+
+        final byte[] data = new byte[bytes];
         buf.readBytes(data);
 
         return BitSet.valueOf(data);
     }
 
-    public PacketBuffer writeFixedBitSet(BitSet bitSet, int bits) {
-        int bytes = (bits + 7) / 8;
-        byte[] data = new byte[bytes];
+    public PacketBuffer writeFixedBitSet(final BitSet bitSet, final int bits) {
+        final int bytes = (bits + 7) / 8;
+        final byte[] data = new byte[bytes];
 
-        byte[] source = bitSet.toByteArray();
+        final byte[] source = bitSet.toByteArray();
         System.arraycopy(source, 0, data, 0, Math.min(source.length, data.length));
 
         buf.writeBytes(data);
@@ -91,68 +100,68 @@ public final class PacketBuffer {
         return buf.readDouble();
     }
 
-    public PacketBuffer writeBoolean(boolean v) {
+    public PacketBuffer writeBoolean(final boolean v) {
         buf.writeBoolean(v);
         return this;
     }
 
-    public PacketBuffer writeByte(int v) {
+    public PacketBuffer writeByte(final int v) {
         buf.writeByte(v);
         return this;
     }
 
-    public PacketBuffer writeShort(int v) {
+    public PacketBuffer writeShort(final int v) {
         buf.writeShort(v);
         return this;
     }
 
-    public PacketBuffer writeInt(int v) {
+    public PacketBuffer writeInt(final int v) {
         buf.writeInt(v);
         return this;
     }
 
-    public PacketBuffer writeLong(long v) {
+    public PacketBuffer writeLong(final long v) {
         buf.writeLong(v);
         return this;
     }
 
-    public PacketBuffer writeFloat(float v) {
+    public PacketBuffer writeFloat(final float v) {
         buf.writeFloat(v);
         return this;
     }
 
-    public PacketBuffer writeDouble(double v) {
+    public PacketBuffer writeDouble(final double v) {
         buf.writeDouble(v);
         return this;
     }
 
-    public String readString(int maxLength) {
+    public String readString(final int maxLength) {
         return VarInts.readString(buf, maxLength);
     }
 
-    public PacketBuffer writeString(String value) {
+    public PacketBuffer writeString(final String value) {
         VarInts.writeString(buf, value);
         return this;
     }
 
-    public PacketBuffer writeIdentifier(String identifier) {
+    public PacketBuffer writeIdentifier(final String identifier) {
         Key.key(identifier); // for validation
         VarInts.writeString(buf, identifier);
         return this;
     }
 
     public Key readKey() {
-        String read = this.readString(32767);
+        final String read = this.readString(32767);
         return Key.key(read);
     }
 
-    public PacketBuffer writeKey(Key key) {
+    public PacketBuffer writeKey(final Key key) {
         this.writeString(key.asString());
         return this;
     }
 
     public <T> RegistryKey<T> readRegistryKey() {
-        Key key = this.readKey();
+        final Key key = this.readKey();
         return RegistryKey.of(key);
     }
 
@@ -161,11 +170,11 @@ public final class PacketBuffer {
         return this;
     }
 
-    public byte[] readByteArray(int maxLength) {
+    public byte[] readByteArray(final int maxLength) {
         return VarInts.readByteArray(buf, maxLength);
     }
 
-    public byte @Nullable [] readOptionalByteArray(int maxLength) {
+    public byte @Nullable [] readOptionalByteArray(final int maxLength) {
         if (!readBoolean()) {
             return null;
         }
@@ -173,31 +182,31 @@ public final class PacketBuffer {
     }
 
     public byte[] readRemainingBytes() {
-        byte[] data = new byte[buf.readableBytes()];
+        final byte[] data = new byte[buf.readableBytes()];
         buf.readBytes(data);
         return data;
     }
 
-    public PacketBuffer writeByteArray(byte[] data) {
+    public PacketBuffer writeByteArray(final byte[] data) {
         VarInts.writeByteArray(buf, data);
         return this;
     }
 
-    public PacketBuffer writeComponent(Component message) {
+    public PacketBuffer writeComponent(final Component message) {
         VarInts.writeComponent(buf, message);
         return this;
     }
 
-    public Component readComponent(int maxLength) {
+    public Component readComponent(final int maxLength) {
         return VarInts.readComponent(buf, maxLength);
     }
 
-    public PacketBuffer writeRawBytes(byte[] data) {
+    public PacketBuffer writeRawBytes(final byte[] data) {
         buf.writeBytes(data);
         return this;
     }
 
-    public PacketBuffer writeAngle(float degrees) {
+    public PacketBuffer writeAngle(final float degrees) {
         buf.writeByte((int) (degrees * 256f / 360f));
         return this;
     }
@@ -210,15 +219,15 @@ public final class PacketBuffer {
         x = lpSanitize(x);
         y = lpSanitize(y);
         z = lpSanitize(z);
-        double max = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
+        final double max = Math.max(Math.abs(x), Math.max(Math.abs(y), Math.abs(z)));
         if (max < LP_VEC3_ABS_MIN) {
             buf.writeByte(0);
             return this;
         }
-        long scale = (long) Math.ceil(max);
-        boolean continuation = (scale & 0b11L) != scale;
-        long flags = continuation ? (scale & 0b11L) | 0b100L : scale;
-        long packed = flags | lpPack(x / scale) << 3 | lpPack(y / scale) << 18 | lpPack(z / scale) << 33;
+        final long scale = (long) Math.ceil(max);
+        final boolean continuation = (scale & 0b11L) != scale;
+        final long flags = continuation ? (scale & 0b11L) | 0b100L : scale;
+        final long packed = flags | lpPack(x / scale) << 3 | lpPack(y / scale) << 18 | lpPack(z / scale) << 33;
         buf.writeByte((int) packed);
         buf.writeByte((int) (packed >> 8));
         buf.writeInt((int) (packed >> 16));
@@ -228,11 +237,11 @@ public final class PacketBuffer {
         return this;
     }
 
-    private static double lpSanitize(double value) {
+    private static double lpSanitize(final double value) {
         return Double.isNaN(value) ? 0.0 : Math.clamp(value, -LP_VEC3_ABS_MAX, LP_VEC3_ABS_MAX);
     }
 
-    private static long lpPack(double value) {
+    private static long lpPack(final double value) {
         return Math.round((value * 0.5 + 0.5) * LP_VEC3_MAX_QUANTIZED);
     }
 
@@ -240,39 +249,39 @@ public final class PacketBuffer {
         return new UUID(buf.readLong(), buf.readLong());
     }
 
-    public PacketBuffer writeUuid(UUID uuid) {
+    public PacketBuffer writeUuid(final UUID uuid) {
         buf.writeLong(uuid.getMostSignificantBits());
         buf.writeLong(uuid.getLeastSignificantBits());
         return this;
     }
 
     public BlockPos readPosition() {
-        long packed = buf.readLong();
-        int x = (int) (packed >> 38);
-        int y = (int) (packed << 52 >> 52);
-        int z = (int) (packed << 26 >> 38);
+        final long packed = buf.readLong();
+        final int x = (int) (packed >> 38);
+        final int y = (int) (packed << 52 >> 52);
+        final int z = (int) (packed << 26 >> 38);
         return new BlockPos(x, y, z);
     }
 
-    public PacketBuffer writePosition(int x, int y, int z) {
-        long packed = ((long) (x & 0x3FFFFFF) << 38) | ((long) (z & 0x3FFFFFF) << 12) | (y & 0xFFF);
+    public PacketBuffer writePosition(final int x, final int y, final int z) {
+        final long packed = ((long) (x & 0x3FFFFFF) << 38) | ((long) (z & 0x3FFFFFF) << 12) | (y & 0xFFF);
         buf.writeLong(packed);
         return this;
     }
 
-    public PacketBuffer writeVarIntArray(int[] values) {
+    public PacketBuffer writeVarIntArray(final int[] values) {
         VarInts.writeVarInt(buf, values.length);
-        for (int v : values) VarInts.writeVarInt(buf, v);
+        for (final int v : values) VarInts.writeVarInt(buf, v);
         return this;
     }
 
-    public PacketBuffer writeLongArray(long[] values) {
+    public PacketBuffer writeLongArray(final long[] values) {
         VarInts.writeVarInt(buf, values.length);
-        for (long v : values) buf.writeLong(v);
+        for (final long v : values) buf.writeLong(v);
         return this;
     }
 
-    public PacketBuffer writeBitSet(long[] words) {
+    public PacketBuffer writeBitSet(final long[] words) {
         return writeLongArray(words);
     }
 }

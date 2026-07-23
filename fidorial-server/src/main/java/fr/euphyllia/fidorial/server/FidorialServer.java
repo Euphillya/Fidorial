@@ -49,6 +49,7 @@ import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
 import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
+import fr.euphyllia.fidorial.server.world.time.DayNightEngine;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandRegistry;
@@ -133,6 +134,7 @@ public final class FidorialServer implements Server {
     private final FluidEngine fluidEngine =
             new FluidEngine(worldManager, regionizer, blockStateRegistry, this::broadcast);
     private final WeatherEngine weatherEngine = new WeatherEngine(worldManager.levelData(), this::broadcast);
+    private final DayNightEngine dayNightEngine = new DayNightEngine(worldManager, registries.dynamic());
     private final BlockEditService blockEdits = new BlockEditService(
             blockStateRegistry,
             (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),
@@ -163,7 +165,7 @@ public final class FidorialServer implements Server {
     }
 
     private static VanillaBlockRegistry bootstrapBlocks() {
-        VanillaBlockRegistry registry = new VanillaBlockRegistry();
+        final VanillaBlockRegistry registry = new VanillaBlockRegistry();
         Blocks.bootstrap(registry);
         LOGGER.info(
                 "Loaded {} block types from vanilla report", registry.types().size());
@@ -189,7 +191,7 @@ public final class FidorialServer implements Server {
             pluginManager.enableAll();
             events.post(new ServerStartedEvent(this));
             LOGGER.info("En ecoute sur le port {}", config.port());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.error("Demarrage interrompu, arret en cours", e);
             shutdown();
             throw e;
@@ -210,6 +212,7 @@ public final class FidorialServer implements Server {
         closeQuietly("regions", regionizer::shutdown);
         closeQuietly("chunks", chunkWorker::shutdown);
         closeQuietly("meteo", weatherEngine::close);
+        closeQuietly("cycle jour/nuit", dayNightEngine::close);
         closeQuietly("monde", worldManager::close);
         closeQuietly("metriques", metrics::shutdown);
         LOGGER.info("Arret termine");
@@ -219,7 +222,7 @@ public final class FidorialServer implements Server {
         final Path serverIcon = Path.of("server-icon.png");
         if (Files.isRegularFile(serverIcon)) try {
             return Favicon.read(serverIcon);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.warn("Could not load server icon", e);
         }
         return null;
@@ -237,16 +240,16 @@ public final class FidorialServer implements Server {
         worldManager.setChunkLoader(chunkWorker);
         worldManager.setEntityBridge(entityIds::allocate, new EntitySpawnBridge() {
             @Override
-            public void onEntityAppear(AbstractEntity entity) {
-                if (entity instanceof Mob && entity.world() instanceof ServerWorld world) {
+            public void onEntityAppear(final AbstractEntity entity) {
+                if (entity instanceof Mob && entity.world() instanceof final ServerWorld world) {
                     regionizer.addTicket(world.dimension().id(), entity.chunk());
                 }
                 broadcast(ClientboundAddEntityPacket.of(entity));
             }
 
             @Override
-            public void onEntityDisappear(AbstractEntity entity) {
-                if (entity instanceof Mob && entity.world() instanceof ServerWorld world) {
+            public void onEntityDisappear(final AbstractEntity entity) {
+                if (entity instanceof Mob && entity.world() instanceof final ServerWorld world) {
                     regionizer.removeTicket(world.dimension().id(), entity.chunk());
                 }
                 broadcast(new ClientboundRemoveEntitiesPacket(entity.entityId()));
@@ -257,7 +260,9 @@ public final class FidorialServer implements Server {
                 FlatChunkGenerator.cobblestone(WorldConstants.MIN_Y, WorldConstants.HEIGHT),
                 WorldConstants.MIN_Y,
                 WorldConstants.HEIGHT));
+        worldManager.overworld();
         weatherEngine.start();
+        dayNightEngine.start();
     }
 
     private void registerDefaultServices() {
@@ -280,11 +285,11 @@ public final class FidorialServer implements Server {
                 () -> {
                     try {
                         worldManager.saveDirty();
-                        int n = worldManager.unloadUnusedChunks();
+                        final int n = worldManager.unloadUnusedChunks();
                         if (n > 0) LOGGER.debug("{} chunks décharges", n);
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         LOGGER.error("Sauvegarde periodique impossible", e);
-                    } catch (Throwable t) {
+                    } catch (final Throwable t) {
                         LOGGER.error("Sauvegarde periodique en echec inattendu", t);
                     }
                 },
@@ -293,10 +298,10 @@ public final class FidorialServer implements Server {
                 TimeUnit.SECONDS);
     }
 
-    private void closeQuietly(String what, ThrowingRunnable action) {
+    private void closeQuietly(final String what, final ThrowingRunnable action) {
         try {
             action.run();
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             LOGGER.error("Arret du sous-systeme '{}' en erreur", what, t);
         }
     }
@@ -388,7 +393,7 @@ public final class FidorialServer implements Server {
     }
 
     @Override
-    public Optional<? extends World> world(Key key) {
+    public Optional<? extends World> world(final Key key) {
         return worlds().stream().filter(w -> w.key().equals(key)).findFirst();
     }
 
@@ -402,12 +407,12 @@ public final class FidorialServer implements Server {
     }
 
     @Override
-    public Optional<? extends Player> player(UUID uuid) {
+    public Optional<? extends Player> player(final UUID uuid) {
         return onlinePlayers().stream().filter(p -> p.uuid().equals(uuid)).findFirst();
     }
 
     @Override
-    public Optional<? extends Player> player(String name) {
+    public Optional<? extends Player> player(final String name) {
         return onlinePlayers().stream()
                 .filter(p -> p.name().equalsIgnoreCase(name))
                 .findFirst();
@@ -487,6 +492,10 @@ public final class FidorialServer implements Server {
         return weatherEngine;
     }
 
+    public DayNightEngine dayNightEngine() {
+        return dayNightEngine;
+    }
+
     public BlockEditService blockEdits() {
         return blockEdits;
     }
@@ -499,8 +508,8 @@ public final class FidorialServer implements Server {
         return entityManager;
     }
 
-    public void spawnEntity(AbstractEntity entity) {
-        if (!(entity.world() instanceof ServerWorld world)) {
+    public void spawnEntity(final AbstractEntity entity) {
+        if (!(entity.world() instanceof final ServerWorld world)) {
             throw new IllegalArgumentException("Entite sans monde serveur : " + entity);
         }
 
@@ -514,8 +523,8 @@ public final class FidorialServer implements Server {
         broadcast(ClientboundAddEntityPacket.of(entity));
     }
 
-    public void despawnEntity(AbstractEntity entity) {
-        if (entity.world() instanceof ServerWorld world) {
+    public void despawnEntity(final AbstractEntity entity) {
+        if (entity.world() instanceof final ServerWorld world) {
             world.removeEntity(entity);
 
             if (entity instanceof Mob) {
@@ -530,18 +539,18 @@ public final class FidorialServer implements Server {
         broadcast(new ClientboundRemoveEntitiesPacket(entity.entityId()));
     }
 
-    public void addPlayerConnection(ClientConnection connection) {
+    public void addPlayerConnection(final ClientConnection connection) {
         connections.add(connection);
         invalidateAudiences();
     }
 
-    public void removePlayerConnection(ClientConnection connection) {
+    public void removePlayerConnection(final ClientConnection connection) {
         connections.remove(connection);
         invalidateAudiences();
     }
 
-    public void broadcast(ClientboundPacket packet) {
-        for (ClientConnection connection : connections) {
+    public void broadcast(final ClientboundPacket packet) {
+        for (final ClientConnection connection : connections) {
             connection.send(packet);
         }
     }

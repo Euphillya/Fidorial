@@ -408,7 +408,7 @@ public class Zombie extends PathfinderMob {
     }
 
     private boolean isDaylight() {
-        final long dayTime = Math.floorMod(levelData().dayTime, 24_000L);
+        final int dayTime = world().dayNightCycle().timeOfDay();
         return dayTime < BURN_END_TICK || dayTime > BURN_START_TICK;
     }
 

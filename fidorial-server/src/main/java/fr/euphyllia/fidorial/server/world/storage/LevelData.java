@@ -1,16 +1,23 @@
 package fr.euphyllia.fidorial.server.world.storage;
 
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
+import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
 import fr.euphyllia.fidorial.server.world.nbt.NbtList;
 import fr.euphyllia.fidorial.server.world.nbt.NbtType;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class LevelData {
+
+    private static final String FIDORIAL = "Fidorial";
+    private static final String WORLD_CLOCKS = "WorldClocks";
 
     public String levelName = "Fidorial";
     public long seed = 0L;
@@ -33,10 +40,37 @@ public class LevelData {
     public int thunderTime = 0;
     public int clearWeatherTime = 0;
 
-    public static LevelData read(Path levelDat) throws IOException {
-        NbtIo.Named named = NbtIo.readGzip(levelDat);
-        NbtCompound data = named.compound().getCompound("Data");
-        LevelData l = new LevelData();
+    public boolean doDaylightCycle = true;
+
+    public final Map<String, WorldTime> worldTimes = new LinkedHashMap<>();
+
+    public @Nullable WorldTime worldTime(final String dimensionId) {
+        final WorldTime stored = worldTimes.get(dimensionId);
+        if (stored != null) {
+            return stored;
+        }
+        if (Dimension.OVERWORLD.id().equals(dimensionId)) {
+            return new WorldTime(time, dayTime, doDaylightCycle);
+        }
+        return null;
+    }
+
+    public void setWorldTime(final String dimensionId, final long worldAge, final long dayTime, final boolean doDaylightCycle) {
+        worldTimes.put(dimensionId, new WorldTime(worldAge, dayTime, doDaylightCycle));
+        if (Dimension.OVERWORLD.id().equals(dimensionId)) {
+            this.time = worldAge;
+            this.dayTime = dayTime;
+            this.doDaylightCycle = doDaylightCycle;
+        }
+    }
+
+    public record WorldTime(long worldAge, long dayTime, boolean doDaylightCycle) {
+    }
+
+    public static LevelData read(final Path levelDat) throws IOException {
+        final NbtIo.Named named = NbtIo.readGzip(levelDat);
+        final NbtCompound data = named.compound().getCompound("Data");
+        final LevelData l = new LevelData();
         if (data == null) return l;
 
         l.dataVersion = data.getInt("DataVersion");
@@ -57,18 +91,50 @@ public class LevelData {
         l.thunderTime = data.getInt("thunderTime");
         l.clearWeatherTime = data.getInt("clearWeatherTime");
 
-        NbtCompound wgs = data.getCompound("WorldGenSettings");
+        final NbtCompound gameRules = data.getCompound("GameRules");
+        if (gameRules != null && gameRules.contains("doDaylightCycle")) {
+            l.doDaylightCycle = !"false".equals(gameRules.getString("doDaylightCycle"));
+        }
+        l.readWorldClocks(data);
+
+        final NbtCompound wgs = data.getCompound("WorldGenSettings");
         if (wgs != null) l.seed = wgs.getLong("seed");
         return l;
     }
 
-    public void write(Path levelDat) throws IOException {
+    private void readWorldClocks(final NbtCompound data) {
+        final NbtCompound fidorial = data.getCompound(FIDORIAL);
+        if (fidorial == null) {
+            return;
+        }
+        final NbtList clocks = fidorial.getList(WORLD_CLOCKS);
+        if (clocks == null) {
+            return;
+        }
+        for (final Nbt entry : clocks) {
+            if (!(entry instanceof final NbtCompound clock)) {
+                continue;
+            }
+            final String dimension = clock.getString("Dimension");
+            if (dimension.isEmpty()) {
+                continue;
+            }
+            worldTimes.put(
+                    dimension,
+                    new WorldTime(
+                            clock.getLong("WorldAge"),
+                            clock.getLong("DayTime"),
+                            !clock.contains("DoDaylightCycle") || clock.getBoolean("DoDaylightCycle")));
+        }
+    }
+
+    public void write(final Path levelDat) throws IOException {
         Files.createDirectories(levelDat.getParent());
 
-        NbtCompound data = new NbtCompound();
+        final NbtCompound data = new NbtCompound();
         data.putInt("DataVersion", dataVersion);
 
-        NbtCompound version = new NbtCompound();
+        final NbtCompound version = new NbtCompound();
         version.putInt("Id", dataVersion);
         version.putString("Name", versionName);
         version.putString("Series", "main");
@@ -99,11 +165,11 @@ public class LevelData {
         data.putInt("thunderTime", thunderTime);
         data.putBoolean("thundering", thundering);
 
-        data.putInt("clearWeatherTime", 0);
-        data.putInt("rainTime", 0);
-        data.putBoolean("raining", false);
-        data.putInt("thunderTime", 0);
-        data.putBoolean("thundering", false);
+        final NbtCompound gameRules = new NbtCompound();
+        gameRules.putString("doDaylightCycle", Boolean.toString(doDaylightCycle));
+        data.put("GameRules", gameRules);
+
+        data.put(FIDORIAL, buildFidorialData());
 
         // Bordure de monde (valeurs par défaut vanilla)
         data.putDouble("BorderCenterX", 0d);
@@ -116,32 +182,48 @@ public class LevelData {
         data.putLong("BorderSizeLerpTime", 0L);
         data.putDouble("BorderDamagePerBlock", 0.2d);
 
-        NbtCompound dataPacks = new NbtCompound();
-        NbtList enabled = new NbtList(NbtType.STRING);
+        final NbtCompound dataPacks = new NbtCompound();
+        final NbtList enabled = new NbtList(NbtType.STRING);
         enabled.addString("vanilla");
         dataPacks.put("Enabled", enabled);
         dataPacks.put("Disabled", new NbtList(NbtType.STRING));
         data.put("DataPacks", dataPacks);
 
-        NbtList serverBrands = new NbtList(NbtType.STRING);
+        final NbtList serverBrands = new NbtList(NbtType.STRING);
         serverBrands.addString("Fidorial");
         data.put("ServerBrands", serverBrands);
 
         data.put("WorldGenSettings", buildWorldGenSettings());
 
-        NbtCompound root = new NbtCompound();
+        final NbtCompound root = new NbtCompound();
         root.put("Data", data);
 
         NbtIo.writeGzip(levelDat, "", root);
     }
 
+    private NbtCompound buildFidorialData() {
+        final NbtList clocks = new NbtList(NbtType.COMPOUND);
+        for (final Map.Entry<String, WorldTime> entry : worldTimes.entrySet()) {
+            final WorldTime value = entry.getValue();
+            final NbtCompound clock = new NbtCompound();
+            clock.putString("Dimension", entry.getKey());
+            clock.putLong("WorldAge", value.worldAge());
+            clock.putLong("DayTime", value.dayTime());
+            clock.putBoolean("DoDaylightCycle", value.doDaylightCycle());
+            clocks.addCompound(clock);
+        }
+        final NbtCompound fidorial = new NbtCompound();
+        fidorial.put(WORLD_CLOCKS, clocks);
+        return fidorial;
+    }
+
     private NbtCompound buildWorldGenSettings() {
-        NbtCompound wgs = new NbtCompound();
+        final NbtCompound wgs = new NbtCompound();
         wgs.putLong("seed", seed);
         wgs.putBoolean("generate_features", true);
         wgs.putBoolean("bonus_chest", false);
 
-        NbtCompound dimensions = new NbtCompound();
+        final NbtCompound dimensions = new NbtCompound();
         dimensions.put("minecraft:overworld", flatDimension("minecraft:overworld", "minecraft:plains"));
         dimensions.put("minecraft:the_nether", flatDimension("minecraft:the_nether", "minecraft:nether_wastes"));
         dimensions.put("minecraft:the_end", flatDimension("minecraft:the_end", "minecraft:the_end"));
@@ -149,20 +231,20 @@ public class LevelData {
         return wgs;
     }
 
-    private NbtCompound flatDimension(String typeId, String biome) {
-        NbtCompound dim = new NbtCompound();
+    private NbtCompound flatDimension(final String typeId, final String biome) {
+        final NbtCompound dim = new NbtCompound();
         dim.putString("type", typeId);
 
-        NbtCompound generator = new NbtCompound();
+        final NbtCompound generator = new NbtCompound();
         generator.putString("type", "minecraft:flat");
 
-        NbtCompound settings = new NbtCompound();
+        final NbtCompound settings = new NbtCompound();
         settings.putBoolean("features", false);
         settings.putBoolean("lakes", false);
         settings.putString("biome", biome);
 
-        NbtList layers = new NbtList(NbtType.COMPOUND);
-        NbtCompound layer = new NbtCompound();
+        final NbtList layers = new NbtList(NbtType.COMPOUND);
+        final NbtCompound layer = new NbtCompound();
         layer.putInt("height", 16);
         layer.putString("block", "minecraft:cobblestone");
         layers.add(layer);
@@ -175,7 +257,7 @@ public class LevelData {
         return dim;
     }
 
-    public boolean exists(Path levelDat) {
+    public boolean exists(final Path levelDat) {
         return Files.isRegularFile(levelDat);
     }
 }
