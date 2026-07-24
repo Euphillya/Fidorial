@@ -1,3 +1,5 @@
+extra.set("moduleName", "fr.fidorial")
+
 plugins {
     `maven-publish`
 }
@@ -8,12 +10,12 @@ dependencies {
     api(libs.bundles.adventure)
     api(libs.guava)
     api(libs.brigadier)
-    api(projects.fidorialBrigadier) // for module support
     api(libs.jspecify)
     compileOnly("org.jetbrains:annotations:26.0.2")
 }
 
 java {
+    withJavadocJar()
     withSourcesJar()
 }
 

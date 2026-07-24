@@ -10,7 +10,6 @@ module fr.fidorial.server {
     requires dev.faststats;
     requires fr.fidorial.auth;
     requires fr.fidorial;
-    requires com.mojang.brigadier;
     requires io.netty.buffer;
     requires io.netty.codec;
     requires io.netty.transport.unix.common;

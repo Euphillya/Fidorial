@@ -25,6 +25,35 @@ subprojects {
         }
     }
 
+    fun ownProperty(name: String): String? {
+        return if (extensions.extraProperties.has(name)) extensions.extraProperties.get(name).toString() else null
+    }
+
+    tasks.withType<JavaCompile>().configureEach {
+        ownProperty("moduleName")?.let { moduleName ->
+            options.compilerArgs.addAll(listOf("--add-reads", "$moduleName=ALL-UNNAMED"))
+        }
+    }
+
+    tasks.withType<Test>().configureEach {
+        ownProperty("moduleName")?.let { moduleName ->
+            jvmArgs("--add-reads", "$moduleName=ALL-UNNAMED")
+        }
+    }
+
+    tasks.withType<JavaExec>().configureEach {
+        ownProperty("moduleName")?.let { moduleName ->
+            jvmArgs("--add-reads", "$moduleName=ALL-UNNAMED")
+        }
+    }
+
+    tasks.javadoc {
+        val options = options as StandardJavadocDocletOptions
+        ownProperty("moduleName")?.let { moduleName ->
+            options.addStringOption("-add-reads", "$moduleName=ALL-UNNAMED")
+        }
+    }
+
     extensions.configure<JavaPluginExtension> {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(25))

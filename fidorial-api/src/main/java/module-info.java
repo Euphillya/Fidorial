@@ -37,15 +37,13 @@ module fr.fidorial {
     exports fr.fidorial.command.argument.resolvers;
 
     requires com.google.common;
+    requires com.google.gson;
     requires java.desktop;
     requires net.kyori.adventure.api;
     requires net.kyori.adventure.key;
     requires net.kyori.adventure.text.logger.slf4j;
+    requires net.kyori.adventure.text.minimessage;
 
     requires static org.jetbrains.annotations;
-    requires com.mojang.brigadier;
-    requires net.kyori.adventure.text.minimessage;
-    requires com.google.gson;
-
     requires static org.jspecify;
 }
