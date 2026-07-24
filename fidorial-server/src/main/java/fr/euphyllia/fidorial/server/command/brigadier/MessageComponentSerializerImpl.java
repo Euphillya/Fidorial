@@ -5,17 +5,16 @@ import fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper
 import fr.euphyllia.fidorial.server.adventure.brigadier.FidorialTranslatableMessage;
 import fr.fidorial.command.MessageComponentSerializer;
 import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
 
 public final class MessageComponentSerializerImpl implements MessageComponentSerializer {
 
     @Override
-    public @NotNull Component deserialize(@NotNull Message input) {
+    public Component deserialize(Message input) {
         return BrigadierAdventureHelper.convert(input, false);
     }
 
     @Override
-    public @NotNull Message serialize(@NotNull Component component) {
+    public Message serialize(Component component) {
         return new FidorialTranslatableMessage(component);
     }
 }

@@ -1,10 +1,11 @@
 package fr.fidorial.command;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.suggestion.Suggestions;
-import org.jspecify.annotations.Nullable;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
@@ -14,33 +15,43 @@ import java.util.function.Predicate;
 public interface CommandRegistry {
 
     /**
-     * Returns a builder to create a {@link CommandMeta} with
-     * the given alias.
+     * Registers a command from the given builder.
      *
-     * @param alias the first command alias
-     * @return a {@link CommandMeta} builder
+     * @param command the command builder to register
      */
-    CommandMeta.Builder metaBuilder(String alias);
+    default void register(LiteralArgumentBuilder<CommandSource> command) {
+        register(command.build());
+    }
 
     /**
-     * Returns a builder to create a {@link CommandMeta} for
-     * the given Brigadier command.
+     * Registers a command node without aliases.
      *
-     * @param command the command
-     * @return a {@link CommandMeta} builder
+     * @param command the command node to register
      */
-    CommandMeta.Builder metaBuilder(CommandTree command);
+    default void register(LiteralCommandNode<CommandSource> command) {
+        register(command, Set.of());
+    }
 
     /**
-     * Registers the specified command with the given metadata.
+     * Registers a command from the given builder with the specified aliases.
      *
-     * @param meta    the command metadata
-     * @param command the command to register
-     * @throws IllegalArgumentException if one of the given aliases is already registered, or
-     *                                  the given command does not implement a registrable {@link CommandTree} subinterface
-     * @see CommandTree for a list of registrable Command subinterfaces
+     * @param command the command builder to register
+     * @param aliases additional aliases that should point to this command
      */
-    void register(CommandMeta meta, CommandTree command);
+    default void register(LiteralArgumentBuilder<CommandSource> command, Set<String> aliases) {
+        register(command.build(), aliases);
+    }
+
+    /**
+     * Registers a command node with the specified aliases.
+     *
+     * <p>Aliases are additional names that can be used to execute the command
+     * besides its primary literal name.</p>
+     *
+     * @param command the command node to register
+     * @param aliases additional aliases that should point to this command
+     */
+    void register(LiteralCommandNode<CommandSource> command, Set<String> aliases);
 
     /**
      * Unregisters the specified command alias from the manager, if registered.
@@ -48,21 +59,6 @@ public interface CommandRegistry {
      * @param alias the command alias to unregister
      */
     void unregister(String alias);
-
-    /**
-     * Unregisters the specified command from the manager, if registered.
-     *
-     * @param meta the command to unregister
-     */
-    void unregister(CommandMeta meta);
-
-    /**
-     * Retrieves the {@link CommandMeta} from the specified command alias, if registered.
-     *
-     * @param alias the command alias to lookup
-     * @return an {@link CommandMeta} of the alias
-     */
-    @Nullable CommandMeta commandMeta(String alias);
 
     /**
      * Attempts to asynchronously execute a command from the given {@code cmdLine}.
@@ -94,14 +90,6 @@ public interface CommandRegistry {
      * empty
      */
     CompletableFuture<Suggestions> offerBrigadierSuggestions(CommandSource source, String cmdLine);
-
-    /**
-     * Returns an immutable collection of the case-insensitive aliases registered
-     * on this manager.
-     *
-     * @return the registered aliases
-     */
-    Collection<String> aliases();
 
     /**
      * Returns whether the given alias is registered on this manager.

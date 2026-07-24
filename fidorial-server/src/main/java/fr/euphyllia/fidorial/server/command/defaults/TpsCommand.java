@@ -6,11 +6,12 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer.RegionTpsSnapshot;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.CommandTree;
 import net.kyori.adventure.text.Component;
 
 import java.util.List;
 import java.util.Locale;
+
+import static fr.fidorial.command.CommandTree.literal;
 
 public final class TpsCommand {
 
@@ -19,12 +20,11 @@ public final class TpsCommand {
     private TpsCommand() {
     }
 
-    public static CommandTree create() {
-        final LiteralCommandNode<CommandSource> command = CommandTree.literal("tps")
+    public static LiteralCommandNode<CommandSource> create() {
+        return literal("tps")
                 .requires(source -> source.sender().hasPermission("fidorial.command.tps"))
                 .executes(TpsCommand::execute)
                 .build();
-        return new CommandTree(command);
     }
 
     private static int execute(final CommandContext<CommandSource> context) {

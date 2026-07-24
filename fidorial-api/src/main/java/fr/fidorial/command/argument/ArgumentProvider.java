@@ -21,19 +21,46 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.ApiStatus;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.UUID;
 
+/**
+ * Modeled after Paper's <a href="https://github.com/PaperMC/Paper/blob/main/paper-api/src/main/java/io/papermc/paper/command/brigadier/argument/VanillaArgumentProvider.java">ArgumentTypes</a>
+ * Originally contributed in <a href="https://github.com/PaperMC/Paper/pull/8235">#8235</a>, licensed under the MIT license.
+ */
 @ApiStatus.Internal
 public interface ArgumentProvider {
 
-    Optional<ArgumentProvider> PROVIDER = ServiceLoader.load(ArgumentProvider.class, ArgumentProvider.class.getClassLoader()).findFirst();
-
     static ArgumentProvider provider() {
-        return PROVIDER.orElseThrow();
+        return Holder.provider();
     }
+
+    static void register(ArgumentProvider provider) {
+        Holder.register(provider);
+    }
+
+    final class Holder {
+        private static @Nullable ArgumentProvider instance;
+
+        private Holder() {
+        }
+
+        static ArgumentProvider provider() {
+            if (instance == null) {
+                throw new IllegalStateException("ArgumentProvider not initialized");
+            }
+            return instance;
+        }
+
+        static void register(ArgumentProvider provider) {
+            if (instance != null) {
+                throw new IllegalStateException("ArgumentProvider already initialized");
+            }
+            instance = provider;
+        }
+    }
+
 
     ArgumentType<EntitySelectorArgumentResolver> entity();
 

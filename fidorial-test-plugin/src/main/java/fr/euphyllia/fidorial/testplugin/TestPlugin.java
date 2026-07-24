@@ -183,7 +183,7 @@ public final class TestPlugin implements Plugin {
 
     private void registerCommands() {
         final CommandRegistry registry = server.commands();
-        registry.register(registry.metaBuilder("pregen").plugin(this).build(), new PregenCommand(this).create());
-        registry.register(registry.metaBuilder("apitest").plugin(this).build(), new ApiTestCommand(this).create());
+        registry.register(new PregenCommand(this).create());
+        registry.register(new ApiTestCommand(this).create());
     }
 }

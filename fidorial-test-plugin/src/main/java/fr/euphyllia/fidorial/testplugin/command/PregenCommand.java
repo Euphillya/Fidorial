@@ -3,16 +3,19 @@ package fr.euphyllia.fidorial.testplugin.command;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.testplugin.TestPlugin;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.world.World;
 import net.kyori.adventure.text.Component;
+
+import static fr.fidorial.command.CommandTree.argument;
+import static fr.fidorial.command.CommandTree.literal;
 
 public final class PregenCommand {
 
@@ -22,21 +25,19 @@ public final class PregenCommand {
         PregenCommand.plugin = plugin;
     }
 
-    public CommandTree create() {
-        var command = CommandTree.literal("pregen")
-                .then(CommandTree.literal("start")
+    public LiteralCommandNode<CommandSource> create() {
+        return literal("pregen")
+                .then(literal("start")
                         .requires(_ -> !isTaskRunning())
-                        .then(CommandTree.argument("radius", ArgumentTypes.integer(1, Integer.MAX_VALUE))
+                        .then(argument("radius", ArgumentTypes.integer(1, Integer.MAX_VALUE))
                                 .executes(PregenCommand::startDefault)
-                                .then(CommandTree.argument("centerX", IntegerArgumentType.integer())
-                                        .then(CommandTree.argument("centerZ", IntegerArgumentType.integer())
+                                .then(argument("centerX", IntegerArgumentType.integer())
+                                        .then(argument("centerZ", IntegerArgumentType.integer())
                                                 .executes(PregenCommand::startCentered)))))
-                .then(CommandTree.literal("stop")
+                .then(literal("stop")
                         .executes(PregenCommand::stopCommand)
                         .requires(_ -> isTaskRunning()))
-                .then(CommandTree.literal("status").executes(PregenCommand::statusCommand));
-
-        return new CommandTree(command);
+                .then(literal("status").executes(PregenCommand::statusCommand)).build();
     }
 
     // helper for requires predicate

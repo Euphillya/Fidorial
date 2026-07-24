@@ -2,11 +2,11 @@ package fr.euphyllia.fidorial.testplugin.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.testplugin.CounterService;
 import fr.euphyllia.fidorial.testplugin.TestPlugin;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.scheduler.RegionTps;
@@ -32,8 +32,8 @@ public final class ApiTestCommand {
         this.plugin = plugin;
     }
 
-    public CommandTree create() {
-        final var command = literal("apitest")
+    public LiteralCommandNode<CommandSource> create() {
+        return literal("apitest")
                 .then(literal("info").executes(ctx -> info(plugin, ctx)))
                 .then(literal("tps").executes(ctx -> tps(plugin, ctx)))
                 .then(literal("worlds").executes(ctx -> worlds(plugin, ctx)))
@@ -53,8 +53,6 @@ public final class ApiTestCommand {
                         .executes(ApiTestCommand::stopAllSound)
                         .then(argument("key", ArgumentTypes.key()).executes(ApiTestCommand::stopSound)))
                 .build();
-
-        return new CommandTree(command);
     }
 
     private static int soundDefault(final CommandContext<CommandSource> ctx) {

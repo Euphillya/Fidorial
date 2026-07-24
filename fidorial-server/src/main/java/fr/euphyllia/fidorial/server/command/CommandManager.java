@@ -12,7 +12,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import fr.euphyllia.fidorial.server.command.brigadier.InternalCommandMeta;
 import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.StopCommand;
@@ -20,21 +19,19 @@ import fr.euphyllia.fidorial.server.command.defaults.SummonCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TimeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TpsCommand;
 import fr.euphyllia.fidorial.server.command.defaults.WeatherCommand;
-import fr.fidorial.command.CommandMeta;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.CommandTree;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -47,7 +44,6 @@ import static fr.euphyllia.fidorial.server.command.brigadier.argument.builtin.Tr
 public final class CommandManager implements CommandRegistry {
     private final @GuardedBy("lock") CommandDispatcher<CommandSource> dispatcher;
     private final ReadWriteLock lock;
-    private final Map<String, CommandMeta> metaByAlias = new ConcurrentHashMap<>();
     private final Map<String, RegisteredCommand> commands = new ConcurrentHashMap<>();
 
     public CommandManager() {
@@ -58,56 +54,36 @@ public final class CommandManager implements CommandRegistry {
     }
 
     private void registerDefaults() {
-        register(
-                metaBuilder("weather")
-                        .aliases("w")
-                        .description(Component.translatable("command.weather.description"))
-                        .usage(Component.text("/weather <clear|rain|thunder>"))
-                        .build(),
-                WeatherCommand.create());
-        register(metaBuilder("stop").aliases("s").build(), StopCommand.create());
-        register(metaBuilder("op").build(), OpCommand.createOp());
-        register(metaBuilder("deop").build(), OpCommand.createDeop());
-        register(metaBuilder("summon").build(), SummonCommand.create());
-        register(metaBuilder("gamemode").aliases("gm").build(), GameModeCommand.create());
-        register(metaBuilder("tps").build(), TpsCommand.create());
-        register(
-                metaBuilder("time")
-                        .description(Component.translatable("command.time.description"))
-                        .usage(Component.text("/time <set|add|query|freeze|resume> [...]"))
-                        .build(),
-                TimeCommand.create());
+        register(WeatherCommand.create(), Set.of("w"));
+        register(StopCommand.create(), Set.of("s"));
+        register(OpCommand.createOp());
+        register(OpCommand.createDeop());
+        register(SummonCommand.create());
+        register(GameModeCommand.create(), Set.of("gm"));
+        register(TpsCommand.create());
+        register(TimeCommand.create());
     }
 
     @Override
-    public CommandMeta.Builder metaBuilder(final String alias) {
-        Preconditions.checkNotNull(alias, "alias");
-        return new InternalCommandMeta.Builder(alias);
-    }
-
-    @Override
-    public CommandMeta.Builder metaBuilder(final CommandTree command) {
-        Preconditions.checkNotNull(command, "command");
-        return new InternalCommandMeta.Builder(command.node().getName());
-    }
-
-    @Override
-    public void register(final CommandMeta meta, final CommandTree command) {
+    public void register(final LiteralCommandNode<CommandSource> command, final Set<String> aliases) {
         lock.writeLock().lock();
         try {
-            final RegisteredCommand registered = new RegisteredCommand(command, meta);
+            final RegisteredCommand registered = new RegisteredCommand(command);
 
-            for (final String alias : meta.aliases()) {
-                metaByAlias.put(alias.toLowerCase(Locale.ROOT), meta);
-                commands.put(alias.toLowerCase(Locale.ROOT), registered);
+            // Always register the primary name as well if no aliases were provided
+            final Set<String> names = new HashSet<>(aliases);
+            names.add(command.getName());
 
-                final CommandNode<CommandSource> node;
+            for (final String alias : names) {
+                final String key = alias.toLowerCase(Locale.ROOT);
 
-                if (alias.equalsIgnoreCase(command.node().getName())) {
-                    node = command.node();
-                } else {
-                    node = cloneLiteral(alias, command.node());
-                }
+                commands.put(key, registered);
+
+                final CommandNode<CommandSource> node =
+                        alias.equalsIgnoreCase(command.getName())
+                                ? command
+                                : cloneLiteral(alias, command);
+
                 dispatcher.getRoot().addChild(node);
             }
         } finally {
@@ -148,30 +124,10 @@ public final class CommandManager implements CommandRegistry {
         Preconditions.checkNotNull(alias, "alias");
         lock.writeLock().lock();
         try {
-            metaByAlias.remove(alias.toLowerCase(Locale.ROOT));
             commands.remove(alias.toLowerCase(Locale.ROOT));
         } finally {
             lock.writeLock().unlock();
         }
-    }
-
-    @Override
-    public void unregister(final CommandMeta meta) {
-        Preconditions.checkNotNull(meta, "meta");
-        lock.writeLock().lock();
-        try {
-            for (final String alias : meta.aliases()) {
-                metaByAlias.remove(alias.toLowerCase(Locale.ROOT));
-                commands.remove(alias.toLowerCase(Locale.ROOT));
-            }
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-
-    @Override
-    public CommandMeta commandMeta(final String alias) {
-        return metaByAlias.get(alias.toLowerCase(Locale.ROOT));
     }
 
     @Override
@@ -204,7 +160,7 @@ public final class CommandManager implements CommandRegistry {
 
                 root = root.toLowerCase(Locale.ROOT);
 
-                if (!metaByAlias.containsKey(root)) {
+                if (!commands.containsKey(root)) {
                     final CommandSyntaxException e = unknownCommand(parse);
                     source.sender()
                             .sendMessage(
@@ -309,7 +265,7 @@ public final class CommandManager implements CommandRegistry {
 
     @Override
     public boolean hasCommand(final String alias) {
-        return metaByAlias.containsKey(alias.toLowerCase(Locale.ROOT));
+        return commands.containsKey(alias.toLowerCase(Locale.ROOT));
     }
 
     @Override
@@ -318,15 +274,14 @@ public final class CommandManager implements CommandRegistry {
         return node != null && node.canUse(source);
     }
 
-    @Override
-    public Collection<String> aliases() {
-        return Collections.unmodifiableSet(metaByAlias.keySet());
-    }
-
     public CommandDispatcher<CommandSource> dispatcher() {
         return dispatcher;
     }
 
-    public record RegisteredCommand(CommandTree tree, CommandMeta meta) {
+    public record RegisteredCommand(LiteralCommandNode<CommandSource> node) {
+    }
+
+    public RegisteredCommand command(final String alias) {
+        return commands.get(alias.toLowerCase(Locale.ROOT));
     }
 }

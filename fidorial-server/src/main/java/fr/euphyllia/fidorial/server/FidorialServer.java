@@ -7,6 +7,7 @@ import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleSender;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.ArgumentProviderImpl;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.builtin.TranslatableExceptions;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypes;
 import fr.euphyllia.fidorial.server.console.command.ConsoleCommandReader;
@@ -34,6 +35,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.schedulers.AiWorker;
+import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
@@ -49,10 +51,10 @@ import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
 import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
-import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandRegistry;
+import fr.fidorial.command.argument.ArgumentProvider;
 import fr.fidorial.entity.Player;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.event.server.ServerStartedEvent;
@@ -238,6 +240,7 @@ public final class FidorialServer implements Server {
     private void loadData() {
         TranslationStore.setStore(builtInTranslationStore);
         CommandSyntaxException.BUILT_IN_EXCEPTIONS = new TranslatableExceptions();
+        ArgumentProvider.register(new ArgumentProviderImpl());
         ArgumentTypes.bootstrap();
         commandManager = new CommandManager();
         operators.load();

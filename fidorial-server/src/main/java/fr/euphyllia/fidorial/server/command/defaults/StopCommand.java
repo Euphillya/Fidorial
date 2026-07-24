@@ -5,16 +5,16 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.CommandTree;
 import net.kyori.adventure.text.Component;
 
+import static fr.fidorial.command.CommandTree.literal;
+
 public class StopCommand {
-    public static CommandTree create() {
-        LiteralCommandNode<CommandSource> command = CommandTree.literal("stop")
+    public static LiteralCommandNode<CommandSource> create() {
+        return literal("stop")
                 .requires(source -> source.sender().hasPermission("fidorial.command.stop"))
                 .executes(StopCommand::stop)
                 .build();
-        return new CommandTree(command);
     }
 
     private static int stop(CommandContext<CommandSource> context) {

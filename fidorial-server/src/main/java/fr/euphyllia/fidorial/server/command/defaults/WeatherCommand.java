@@ -6,10 +6,12 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.world.weather.Weather;
 import net.kyori.adventure.text.Component;
+
+import static fr.fidorial.command.CommandTree.argument;
+import static fr.fidorial.command.CommandTree.literal;
 
 /**
  * /weather                     -> affiche la meteo courante
@@ -29,21 +31,20 @@ public final class WeatherCommand {
         };
     }
 
-    public static CommandTree create() {
-        LiteralCommandNode<CommandSource> command = CommandTree.literal("weather")
+    public static LiteralCommandNode<CommandSource> create() {
+        return literal("weather")
                 .requires(source -> source.sender().hasPermission("fidorial.command.weather"))
-                .then(CommandTree.literal("get").executes(WeatherCommand::get))
+                .then(literal("get").executes(WeatherCommand::get))
                 .then(weather("clear", Weather.CLEAR))
                 .then(weather("rain", Weather.RAIN))
                 .then(weather("thunder", Weather.THUNDER))
                 .build();
-        return new CommandTree(command);
     }
 
     private static LiteralCommandNode<CommandSource> weather(String name, Weather weather) {
-        return CommandTree.literal(name)
+        return literal(name)
                 .executes(context -> set(context.getSource(), weather, 0))
-                .then(CommandTree.argument("duration", ArgumentTypes.time(0))
+                .then(argument("duration", ArgumentTypes.time(0))
                         .executes(context ->
                                 set(context.getSource(), weather, context.getArgument("duration", Integer.class))))
                 .build();

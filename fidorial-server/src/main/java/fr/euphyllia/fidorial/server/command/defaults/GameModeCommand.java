@@ -3,8 +3,8 @@ package fr.euphyllia.fidorial.server.command.defaults;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.command.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import fr.fidorial.entity.GameMode;
@@ -12,6 +12,9 @@ import fr.fidorial.entity.Player;
 import net.kyori.adventure.text.Component;
 
 import java.util.List;
+
+import static fr.fidorial.command.CommandTree.argument;
+import static fr.fidorial.command.CommandTree.literal;
 
 public final class GameModeCommand {
 
@@ -24,15 +27,14 @@ public final class GameModeCommand {
         };
     }
 
-    public static CommandTree create() {
-        var command = CommandTree.literal("gamemode")
+    public static LiteralCommandNode<CommandSource> create() {
+        return literal("gamemode")
                 .requires(src -> src.sender().hasPermission("fidorial.command.gamemode"))
-                .then(CommandTree.argument("gamemode", ArgumentTypes.gameMode())
+                .then(argument("gamemode", ArgumentTypes.gameMode())
                         .executes(GameModeCommand::executeSelf)
-                        .then(CommandTree.argument("target", ArgumentTypes.players())
+                        .then(argument("target", ArgumentTypes.players())
                                 .executes(GameModeCommand::executeTarget)))
                 .build();
-        return new CommandTree(command);
     }
 
     private static int executeSelf(CommandContext<CommandSource> context) {
