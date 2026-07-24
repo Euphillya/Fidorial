@@ -118,7 +118,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (player != null) {
             server.events().post(new PlayerQuitEvent(player));
             server.worldManager().overworld().removeEntity(player);
-            player.clearPermissions();
+            player.permissions().revokeAll();
             player.remove();
         }
     }
@@ -176,7 +176,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.send(ClientboundSetEntityMetadataPacket.of(
                 player.entityId(),
                 Entry.ofByte(ServerPlayer.MD_DISPLAYED_SKIN_PARTS, connection.displayedSkinParts())));
-        player.recalculatePermissions();
+        player.invalidatePermissions();
         connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         server.weatherEngine().syncTo(connection::send);
         server.dayNightEngine().syncTo(world, connection::send);

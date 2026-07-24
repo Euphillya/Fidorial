@@ -25,7 +25,7 @@ import fr.euphyllia.fidorial.server.metrics.FidorialContext;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.NettyServer;
 import fr.euphyllia.fidorial.server.permission.DefaultPermissions;
-import fr.euphyllia.fidorial.server.permission.FidorialPermissionService;
+import fr.euphyllia.fidorial.server.permission.FidorialPermissionRegistry;
 import fr.euphyllia.fidorial.server.permission.OperatorList;
 import fr.euphyllia.fidorial.server.plugin.JavaPluginManager;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
@@ -59,7 +59,7 @@ import fr.fidorial.entity.Player;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.event.server.ServerStartedEvent;
 import fr.fidorial.event.server.ServerStoppingEvent;
-import fr.fidorial.permission.PermissionService;
+import fr.fidorial.permission.PermissionRegistry;
 import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.scheduler.RegionizedScheduler;
 import fr.fidorial.service.ServicePriority;
@@ -144,7 +144,9 @@ public final class FidorialServer implements Server {
             blockStateRegistry,
             (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),
             fluidEngine::notifyBlockChanged);
-    private final JavaPluginManager pluginManager = new JavaPluginManager(this, events, services, config.pluginsPath());
+    private final FidorialPermissionRegistry permissionRegistry = new FidorialPermissionRegistry();
+    private final JavaPluginManager pluginManager =
+            new JavaPluginManager(this, events, services, permissionRegistry, config.pluginsPath());
     private final OperatorList operators = new OperatorList(Path.of("ops.json"));
     private final NettyServer network = new NettyServer(this, config.port());
     private final FidorialContext metrics = new FidorialContext.Factory("6c8c21fe427163e998ea50f54a0ce855")
@@ -274,7 +276,7 @@ public final class FidorialServer implements Server {
     }
 
     private void registerDefaultServices() {
-        services.register(PermissionService.class, new FidorialPermissionService(this), this, ServicePriority.LOWEST);
+        services.register(PermissionRegistry.class, permissionRegistry, this, ServicePriority.LOWEST);
         services.register(FluidManager.class, fluidEngine, this, ServicePriority.LOWEST);
         services.register(WeatherManager.class, weatherEngine, this, ServicePriority.LOWEST);
         services.register(BlockEditService.class, blockEdits, this, ServicePriority.LOWEST);
@@ -284,7 +286,7 @@ public final class FidorialServer implements Server {
     }
 
     private void loadPlugins() throws IOException {
-        DefaultPermissions.registerCorePermissions(pluginManager);
+        DefaultPermissions.register(permissionRegistry);
         pluginManager.loadAll();
     }
 
@@ -389,6 +391,11 @@ public final class FidorialServer implements Server {
 
     public OperatorList operators() {
         return operators;
+    }
+
+    @Override
+    public PermissionRegistry permissions() {
+        return permissionRegistry;
     }
 
     public PluginManager plugins() {

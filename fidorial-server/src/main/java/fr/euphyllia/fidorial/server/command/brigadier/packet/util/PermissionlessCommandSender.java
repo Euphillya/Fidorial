@@ -1,13 +1,20 @@
 package fr.euphyllia.fidorial.server.command.brigadier.packet.util;
 
 import fr.fidorial.command.CommandSender;
-import fr.fidorial.permission.Permission;
-import fr.fidorial.permission.PermissionAttachment;
-import fr.fidorial.permission.PermissionAttachmentInfo;
+import fr.fidorial.permission.PermissionGrant;
+import fr.fidorial.permission.PermissionNode;
+import fr.fidorial.permission.TriState;
 import fr.fidorial.plugin.Plugin;
 
-import java.util.Set;
+import java.util.Map;
 
+/**
+ * A sender that holds nothing, used when building the command tree sent to a client before its
+ * permissions are known.
+ *
+ * <p>Every node resolves to {@link TriState#DENY} rather than {@link TriState#UNSET}: the point is
+ * to produce a definitive "no" that no resolver can override, not to defer the question.
+ */
 public final class PermissionlessCommandSender implements CommandSender {
 
     static final PermissionlessCommandSender INSTANCE = new PermissionlessCommandSender();
@@ -16,48 +23,23 @@ public final class PermissionlessCommandSender implements CommandSender {
     }
 
     @Override
-    public boolean isPermissionSet(String name) {
-        return false;
+    public TriState permissionState(final PermissionNode node) {
+        return TriState.DENY;
     }
 
     @Override
-    public boolean isPermissionSet(Permission perm) {
-        return false;
+    public PermissionGrant newGrant(final Plugin owner) {
+        throw new UnsupportedOperationException("Cannot grant permissions to the permissionless sender");
     }
 
     @Override
-    public boolean hasPermission(String permission) {
-        return false;
+    public Map<PermissionNode, TriState> activeOverrides() {
+        return Map.of();
     }
 
     @Override
-    public boolean hasPermission(Permission perm) {
-        return false;
-    }
-
-    @Override
-    public PermissionAttachment addAttachment(Plugin plugin) {
-        throw new UnsupportedOperationException("Cannot add permissions to PermissionlessSender");
-    }
-
-    @Override
-    public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value) {
-        throw new UnsupportedOperationException("Cannot add permissions to PermissionlessSender");
-    }
-
-    @Override
-    public void removeAttachment(PermissionAttachment attachment) {
-        // no-op
-    }
-
-    @Override
-    public void recalculatePermissions() {
-        // no-op
-    }
-
-    @Override
-    public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-        return Set.of();
+    public void invalidatePermissions() {
+        // nothing is cached
     }
 
     @Override
@@ -66,12 +48,12 @@ public final class PermissionlessCommandSender implements CommandSender {
     }
 
     @Override
-    public boolean isOp() {
+    public boolean isOperator() {
         return false;
     }
 
     @Override
-    public void setOp(boolean value) {
-        throw new UnsupportedOperationException("Cannot op PermissionlessSender");
+    public void setOperator(final boolean operator) {
+        throw new UnsupportedOperationException("Cannot op the permissionless sender");
     }
 }

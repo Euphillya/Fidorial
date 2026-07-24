@@ -44,17 +44,17 @@ public final class OpCommand {
                                                 .filter(suggestion -> ctx.getSource().server().onlinePlayers().stream()
                                                         .filter(player ->
                                                                 player.name().equalsIgnoreCase(suggestion.getText()))
-                                                        .anyMatch(player -> player.isOp() != grant))
+                                                        .anyMatch(player -> player.isOperator() != grant))
                                                 .toList())))
                         .executes(context -> execute(context, grant))).build();
     }
 
-    private static int execute(CommandContext<CommandSource> context, boolean grant) throws CommandSyntaxException {
+    private static int execute(final CommandContext<CommandSource> context, final boolean grant) throws CommandSyntaxException {
 
-        PlayerProfileListResolver resolver = context.getArgument("player", PlayerProfileListResolver.class);
-        Collection<PlayerProfile> targets = resolver.resolve(context.getSource());
+        final PlayerProfileListResolver resolver = context.getArgument("player", PlayerProfileListResolver.class);
+        final Collection<PlayerProfile> targets = resolver.resolve(context.getSource());
 
-        for (PlayerProfile targetProfile : targets) {
+        for (final PlayerProfile targetProfile : targets) {
             final List<? extends Player> players = context.getSource().server().onlinePlayers().stream()
                     .filter(player -> player.uuid().equals(targetProfile.uuid()))
                     .toList();
@@ -63,9 +63,9 @@ public final class OpCommand {
                 continue;
             }
 
-            for (Player target : players) {
+            for (final Player target : players) {
 
-                target.setOp(grant);
+                target.setOperator(grant);
 
                 target.sendMessage(
                         Component.translatable(grant ? "command.op.granted.self" : "command.op.revoked.self"));

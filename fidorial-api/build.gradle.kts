@@ -1,19 +1,24 @@
+extra.set("readUnnamedModules", setOf("fr.fidorial"))
+
 plugins {
-    `maven-publish`
+    id("maven-publish")
 }
 
 dependencies {
+    api(libs.adventure.text.serializer.ansi)
+    api(libs.adventure.text.serializer.plain)
+    api(libs.brigadier)
+    api(libs.bundles.adventure)
+    api(libs.gson)
+    api(libs.guava)
+    api(libs.jspecify)
     api(libs.slf4j.api)
     api(platform(libs.adventure.bom))
-    api(libs.bundles.adventure)
-    api(libs.guava)
-    api(libs.brigadier)
-    api(projects.fidorialBrigadier) // for module support
-    api(libs.jspecify)
-    compileOnly("org.jetbrains:annotations:26.0.2")
+    compileOnly(libs.jetbrains.annotations)
 }
 
 java {
+    withJavadocJar()
     withSourcesJar()
 }
 
