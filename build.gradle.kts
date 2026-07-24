@@ -19,10 +19,6 @@ subprojects {
     repositories {
         mavenCentral()
         maven("https://libraries.minecraft.net")
-        maven {
-            name = "faststatsReleases"
-            url = uri("https://repo.faststats.dev/releases")
-        }
     }
 
     val modules = setOf(

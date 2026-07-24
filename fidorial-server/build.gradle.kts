@@ -3,6 +3,10 @@ plugins {
     id("com.gradleup.shadow")
 }
 
+repositories {
+    maven("https://repo.faststats.dev/releases")
+}
+
 dependencies {
     implementation(libs.faststats.config)
     implementation(libs.faststats.core)
