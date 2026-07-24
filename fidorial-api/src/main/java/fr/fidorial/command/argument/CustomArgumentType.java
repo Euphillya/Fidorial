@@ -48,7 +48,7 @@ public interface CustomArgumentType<T, N> extends ArgumentType<T> {
      * not while they are still entering it.
      * <p>
      * This method provides the command source for additional context when parsing. You
-     * may have to do your own {@code instanceof} checks for {@link io.papermc.paper.command.brigadier.CommandSourceStack}.
+     * may have to do your own {@code instanceof} checks for {@code io.papermc.paper.command.brigadier.CommandSourceStack}.
      *
      * @param reader string reader input
      * @param source source of the command
@@ -136,7 +136,7 @@ public interface CustomArgumentType<T, N> extends ArgumentType<T> {
          * Converts the value from the native type to the custom argument type.
          * <p>
          * This method provides the command source for additional context when converting. You
-         * may have to do your own {@code instanceof} checks for {@link io.papermc.paper.command.brigadier.CommandSourceStack}.
+         * may have to do your own {@code instanceof} checks for {@code io.papermc.paper.command.brigadier.CommandSourceStack}.
          *
          * @param nativeType native argument provided value
          * @param source     source of the command
