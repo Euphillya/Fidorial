@@ -1,5 +1,5 @@
 plugins {
-    id("java")
+    java
     id("java-gradle-plugin")
 }
 
@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
     implementation("com.google.code.gson:gson:2.13.1")
-    implementation("com.squareup:javapoet:1.13.0")
+    implementation("com.palantir.javapoet:javapoet:javapoet:0.18.0")
 
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
