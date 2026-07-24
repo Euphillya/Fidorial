@@ -21,28 +21,26 @@ subprojects {
         maven("https://libraries.minecraft.net")
     }
 
-    val modules = setOf(
-        "fr.fidorial",
-        "fr.fidorial.server",
-        "fr.fidorial.auth",
-        "fr.fidorial.test"
-    )
+    fun readUnnamedModules(): Iterable<String> {
+        val property = extensions.extraProperties.get("readUnnamedModules")
+        return (property as Iterable<*>).map { it.toString() }
+    }
 
     tasks.withType<JavaCompile>().configureEach {
-        modules.forEach { options.compilerArgs.addAll(listOf("--add-reads", "$it=ALL-UNNAMED")) }
+        readUnnamedModules().forEach { options.compilerArgs.addAll(listOf("--add-reads", "$it=ALL-UNNAMED")) }
     }
 
     tasks.withType<Test>().configureEach {
-        modules.forEach { jvmArgs("--add-reads", "$it=ALL-UNNAMED") }
+        readUnnamedModules().forEach { jvmArgs("--add-reads", "$it=ALL-UNNAMED") }
     }
 
     tasks.withType<JavaExec>().configureEach {
-        modules.forEach { jvmArgs("--add-reads", "$it=ALL-UNNAMED") }
+        readUnnamedModules().forEach { jvmArgs("--add-reads", "$it=ALL-UNNAMED") }
     }
 
     tasks.javadoc {
         val options = options as StandardJavadocDocletOptions
-        modules.forEach { options.addStringOption("-add-reads", "$it=ALL-UNNAMED") }
+        readUnnamedModules().forEach { options.addStringOption("-add-reads", "$it=ALL-UNNAMED") }
     }
 
     extensions.configure<JavaPluginExtension> {

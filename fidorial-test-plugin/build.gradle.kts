@@ -1,3 +1,5 @@
+extra.set("readUnnamedModules", setOf("fr.fidorial.test", "fr.fidorial"))
+
 plugins {
     id("com.gradleup.shadow")
 }

@@ -1,3 +1,5 @@
+extra.set("readUnnamedModules", setOf("fr.fidorial"))
+
 plugins {
     id("maven-publish")
 }

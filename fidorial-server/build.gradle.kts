@@ -1,3 +1,5 @@
+extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
+
 plugins {
     application
     id("com.gradleup.shadow")
