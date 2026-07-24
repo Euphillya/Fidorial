@@ -35,6 +35,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.schedulers.AiWorker;
+import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
@@ -50,7 +51,6 @@ import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
 import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
-import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandRegistry;

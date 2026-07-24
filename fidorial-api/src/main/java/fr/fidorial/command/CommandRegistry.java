@@ -1,9 +1,7 @@
 package fr.fidorial.command;
 
 import com.mojang.brigadier.suggestion.Suggestions;
-import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;

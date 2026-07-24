@@ -23,8 +23,6 @@ import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.UUID;
 
 /**
@@ -45,7 +43,8 @@ public interface ArgumentProvider {
     final class Holder {
         private static @Nullable ArgumentProvider instance;
 
-        private Holder() {}
+        private Holder() {
+        }
 
         static ArgumentProvider provider() {
             if (instance == null) {
