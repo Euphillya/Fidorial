@@ -1,5 +1,3 @@
-extra.set("moduleName", "fr.fidorial.server")
-
 plugins {
     application
     id("com.gradleup.shadow")

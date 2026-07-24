@@ -1,5 +1,3 @@
-extra.set("moduleName", "fr.fidorial.test")
-
 plugins {
     id("com.gradleup.shadow")
 }

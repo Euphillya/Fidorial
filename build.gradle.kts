@@ -24,35 +24,28 @@ subprojects {
         }
     }
 
-    fun property(name: String): String {
-        val property = extensions.extraProperties.get(name)
-        if (property != null) return property.toString()
-        throw Error("Property '$name' not found in project ${project.path}")
-    }
+    val modules = setOf(
+        "fr.fidorial",
+        "fr.fidorial.server",
+        "fr.fidorial.auth",
+        "fr.fidorial.test"
+    )
 
     tasks.withType<JavaCompile>().configureEach {
-        property("moduleName").let { moduleName ->
-            options.compilerArgs.addAll(listOf("--add-reads", "$moduleName=ALL-UNNAMED"))
-        }
+        modules.forEach { options.compilerArgs.addAll(listOf("--add-reads", "$it=ALL-UNNAMED")) }
     }
 
     tasks.withType<Test>().configureEach {
-        property("moduleName").let { moduleName ->
-            jvmArgs("--add-reads", "$moduleName=ALL-UNNAMED")
-        }
+        modules.forEach { jvmArgs("--add-reads", "$it=ALL-UNNAMED") }
     }
 
     tasks.withType<JavaExec>().configureEach {
-        property("moduleName").let { moduleName ->
-            jvmArgs("--add-reads", "$moduleName=ALL-UNNAMED")
-        }
+        modules.forEach { jvmArgs("--add-reads", "$it=ALL-UNNAMED") }
     }
 
     tasks.javadoc {
         val options = options as StandardJavadocDocletOptions
-        property("moduleName").let { moduleName ->
-            options.addStringOption("-add-reads", "$moduleName=ALL-UNNAMED")
-        }
+        modules.forEach { options.addStringOption("-add-reads", "$it=ALL-UNNAMED") }
     }
 
     extensions.configure<JavaPluginExtension> {

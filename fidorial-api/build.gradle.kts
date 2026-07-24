@@ -1,5 +1,3 @@
-extra.set("moduleName", "fr.fidorial")
-
 plugins {
     id("maven-publish")
 }
