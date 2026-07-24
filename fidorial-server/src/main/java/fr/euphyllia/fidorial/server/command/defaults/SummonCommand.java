@@ -2,31 +2,33 @@ package fr.euphyllia.fidorial.server.command.defaults;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.euphyllia.fidorial.server.entity.mob.Mobs;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.command.argument.resolvers.PositionResolver;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.world.Location;
 import net.kyori.adventure.text.Component;
 
+import static fr.fidorial.command.CommandTree.argument;
+import static fr.fidorial.command.CommandTree.literal;
 import static fr.fidorial.registry.RegistryKey.ENTITY_TYPE;
 
 public final class SummonCommand {
-    public static CommandTree create() {
-        return new CommandTree(CommandTree.literal("summon")
+    public static LiteralCommandNode<CommandSource> create() {
+        return literal("summon")
                 .requires(source -> source.sender().hasPermission("fidorial.command.summon"))
-                .then(CommandTree.argument("entity", ArgumentTypes.resource(ENTITY_TYPE))
+                .then(argument("entity", ArgumentTypes.resource(ENTITY_TYPE))
                         .executes(SummonCommand::executeSelf)
-                        .then(CommandTree.argument("position", ArgumentTypes.position())
+                        .then(argument("position", ArgumentTypes.position())
                                 .suggests((ctx, builder) ->
                                         ArgumentTypes.position().listSuggestions(ctx, builder))
-                                .executes(SummonCommand::executeCoordinates))));
+                                .executes(SummonCommand::executeCoordinates))).build();
     }
 
     private static int executeSelf(CommandContext<CommandSource> context) {

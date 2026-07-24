@@ -5,7 +5,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.CommandTree;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.world.World;
@@ -13,6 +12,9 @@ import fr.fidorial.world.time.DayNightCycle;
 import net.kyori.adventure.text.Component;
 
 import java.util.Locale;
+
+import static fr.fidorial.command.CommandTree.argument;
+import static fr.fidorial.command.CommandTree.literal;
 
 /**
  * /time set day|noon|sunset|night|midnight|sunrise|&lt;ticks&gt;
@@ -27,27 +29,27 @@ public final class TimeCommand {
     private TimeCommand() {
     }
 
-    public static CommandTree create() {
-        final LiteralCommandNode<CommandSource> command = CommandTree.literal("time")
+    public static LiteralCommandNode<CommandSource> create() {
+        return literal("time")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
-                .then(CommandTree.literal("set")
+                .then(literal("set")
                         .then(preset("day", 1_000))
                         .then(preset("noon", DayNightCycle.NOON))
                         .then(preset("sunset", DayNightCycle.SUNSET))
                         .then(preset("night", DayNightCycle.NIGHT_START))
                         .then(preset("midnight", DayNightCycle.MIDNIGHT))
                         .then(preset("sunrise", DayNightCycle.SUNRISE))
-                        .then(CommandTree.argument("ticks", ArgumentTypes.time(0))
+                        .then(argument("ticks", ArgumentTypes.time(0))
                                 .executes(context -> set(context, context.getArgument("ticks", Integer.class)))
-                                .then(CommandTree.argument("world", ArgumentTypes.world())
+                                .then(argument("world", ArgumentTypes.world())
                                         .executes(context ->
                                                 set(context, context.getArgument("ticks", Integer.class))))))
-                .then(CommandTree.literal("add")
-                        .then(CommandTree.argument("ticks", ArgumentTypes.time(Integer.MIN_VALUE))
+                .then(literal("add")
+                        .then(argument("ticks", ArgumentTypes.time(Integer.MIN_VALUE))
                                 .executes(TimeCommand::add)
-                                .then(CommandTree.argument("world", ArgumentTypes.world())
+                                .then(argument("world", ArgumentTypes.world())
                                         .executes(TimeCommand::add))))
-                .then(CommandTree.literal("query")
+                .then(literal("query")
                         .then(query("daytime"))
                         .then(query("gametime"))
                         .then(query("day")))
@@ -55,29 +57,28 @@ public final class TimeCommand {
                 .then(toggle("resume", true))
                 .executes(context -> query(context, "daytime"))
                 .build();
-        return new CommandTree(command);
     }
 
     private static LiteralCommandNode<CommandSource> preset(final String name, final int ticks) {
-        return CommandTree.literal(name)
+        return literal(name)
                 .executes(context -> set(context, ticks))
-                .then(CommandTree.argument("world", ArgumentTypes.world())
+                .then(argument("world", ArgumentTypes.world())
                         .executes(context -> set(context, ticks)))
                 .build();
     }
 
     private static LiteralCommandNode<CommandSource> toggle(final String name, final boolean running) {
-        return CommandTree.literal(name)
+        return literal(name)
                 .executes(context -> freeze(context, running))
-                .then(CommandTree.argument("world", ArgumentTypes.world())
+                .then(argument("world", ArgumentTypes.world())
                         .executes(context -> freeze(context, running)))
                 .build();
     }
 
     private static LiteralCommandNode<CommandSource> query(final String kind) {
-        return CommandTree.literal(kind)
+        return literal(kind)
                 .executes(context -> query(context, kind))
-                .then(CommandTree.argument("world", ArgumentTypes.world())
+                .then(argument("world", ArgumentTypes.world())
                         .executes(context -> query(context, kind)))
                 .build();
     }

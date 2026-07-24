@@ -21,16 +21,17 @@ import fr.euphyllia.fidorial.server.command.defaults.TpsCommand;
 import fr.euphyllia.fidorial.server.command.defaults.WeatherCommand;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.CommandTree;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -53,38 +54,38 @@ public final class CommandManager implements CommandRegistry {
     }
 
     private void registerDefaults() {
-        register(WeatherCommand.create());
-        register(StopCommand.create());
+        register(WeatherCommand.create(), Set.of("w"));
+        register(StopCommand.create(), Set.of("s"));
         register(OpCommand.createOp());
         register(OpCommand.createDeop());
         register(SummonCommand.create());
-        register(GameModeCommand.create());
+        register(GameModeCommand.create(), Set.of("gm"));
         register(TpsCommand.create());
         register(TimeCommand.create());
     }
 
     @Override
-    public void register(final CommandTree command) {
+    public void register(final LiteralCommandNode<CommandSource> command, final Set<String> aliases) {
         lock.writeLock().lock();
         try {
             final RegisteredCommand registered = new RegisteredCommand(command);
 
-            for (final String alias : command.aliases()) {
+            // Always register the primary name as well if no aliases were provided
+            final Set<String> names = new HashSet<>(aliases);
+            names.add(command.getName());
+
+            for (final String alias : names) {
                 final String key = alias.toLowerCase(Locale.ROOT);
 
                 commands.put(key, registered);
 
-                CommandNode<CommandSource> node;
-
-                if (alias.equalsIgnoreCase(command.node().getName())) {
-                    node = command.node();
-                } else {
-                    node = cloneLiteral(alias, command.node());
-                }
+                final CommandNode<CommandSource> node =
+                        alias.equalsIgnoreCase(command.getName())
+                                ? command
+                                : cloneLiteral(alias, command);
 
                 dispatcher.getRoot().addChild(node);
             }
-
         } finally {
             lock.writeLock().unlock();
         }
@@ -277,7 +278,7 @@ public final class CommandManager implements CommandRegistry {
         return dispatcher;
     }
 
-    public record RegisteredCommand(CommandTree tree) {
+    public record RegisteredCommand(LiteralCommandNode<CommandSource> node) {
     }
 
     public RegisteredCommand command(final String alias) {

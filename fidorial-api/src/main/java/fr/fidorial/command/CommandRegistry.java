@@ -1,8 +1,11 @@
 package fr.fidorial.command;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
@@ -12,14 +15,43 @@ import java.util.function.Predicate;
 public interface CommandRegistry {
 
     /**
-     * Registers the specified command with the given metadata.
+     * Registers a command from the given builder.
      *
-     * @param command the command to register
-     * @throws IllegalArgumentException if one of the given aliases is already registered, or
-     *                                  the given command does not implement a registrable {@link CommandTree} subinterface
-     * @see CommandTree for a list of registrable Command subinterfaces
+     * @param command the command builder to register
      */
-    void register(CommandTree command);
+    default void register(LiteralArgumentBuilder<CommandSource> command) {
+        register(command.build());
+    }
+
+    /**
+     * Registers a command node without aliases.
+     *
+     * @param command the command node to register
+     */
+    default void register(LiteralCommandNode<CommandSource> command) {
+        register(command, Set.of());
+    }
+
+    /**
+     * Registers a command from the given builder with the specified aliases.
+     *
+     * @param command the command builder to register
+     * @param aliases additional aliases that should point to this command
+     */
+    default void register(LiteralArgumentBuilder<CommandSource> command, Set<String> aliases) {
+        register(command.build(), aliases);
+    }
+
+    /**
+     * Registers a command node with the specified aliases.
+     *
+     * <p>Aliases are additional names that can be used to execute the command
+     * besides its primary literal name.</p>
+     *
+     * @param command the command node to register
+     * @param aliases additional aliases that should point to this command
+     */
+    void register(LiteralCommandNode<CommandSource> command, Set<String> aliases);
 
     /**
      * Unregisters the specified command alias from the manager, if registered.
