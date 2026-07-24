@@ -14,7 +14,7 @@ subprojects {
         plugin("java-library")
     }
 
-    group = "fr.euphyllia.fidorial"
+    group = "fr.fidorial"
 
     repositories {
         mavenCentral()
