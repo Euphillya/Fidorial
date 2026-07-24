@@ -14,33 +14,14 @@ import java.util.function.Predicate;
 public interface CommandRegistry {
 
     /**
-     * Returns a builder to create a {@link CommandMeta} with
-     * the given alias.
-     *
-     * @param alias the first command alias
-     * @return a {@link CommandMeta} builder
-     */
-    CommandMeta.Builder metaBuilder(String alias);
-
-    /**
-     * Returns a builder to create a {@link CommandMeta} for
-     * the given Brigadier command.
-     *
-     * @param command the command
-     * @return a {@link CommandMeta} builder
-     */
-    CommandMeta.Builder metaBuilder(CommandTree command);
-
-    /**
      * Registers the specified command with the given metadata.
      *
-     * @param meta    the command metadata
      * @param command the command to register
      * @throws IllegalArgumentException if one of the given aliases is already registered, or
      *                                  the given command does not implement a registrable {@link CommandTree} subinterface
      * @see CommandTree for a list of registrable Command subinterfaces
      */
-    void register(CommandMeta meta, CommandTree command);
+    void register(CommandTree command);
 
     /**
      * Unregisters the specified command alias from the manager, if registered.
@@ -48,21 +29,6 @@ public interface CommandRegistry {
      * @param alias the command alias to unregister
      */
     void unregister(String alias);
-
-    /**
-     * Unregisters the specified command from the manager, if registered.
-     *
-     * @param meta the command to unregister
-     */
-    void unregister(CommandMeta meta);
-
-    /**
-     * Retrieves the {@link CommandMeta} from the specified command alias, if registered.
-     *
-     * @param alias the command alias to lookup
-     * @return an {@link CommandMeta} of the alias
-     */
-    @Nullable CommandMeta commandMeta(String alias);
 
     /**
      * Attempts to asynchronously execute a command from the given {@code cmdLine}.
@@ -94,14 +60,6 @@ public interface CommandRegistry {
      * empty
      */
     CompletableFuture<Suggestions> offerBrigadierSuggestions(CommandSource source, String cmdLine);
-
-    /**
-     * Returns an immutable collection of the case-insensitive aliases registered
-     * on this manager.
-     *
-     * @return the registered aliases
-     */
-    Collection<String> aliases();
 
     /**
      * Returns whether the given alias is registered on this manager.

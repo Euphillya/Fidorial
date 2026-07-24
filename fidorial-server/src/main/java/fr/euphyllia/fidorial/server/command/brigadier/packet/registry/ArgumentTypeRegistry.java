@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.command.brigadier.packet.registry;
 
 import com.mojang.brigadier.arguments.ArgumentType;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.ArgumentProviderImpl;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.WrappedArgumentType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,8 +36,8 @@ public final class ArgumentTypeRegistry {
 
     @SuppressWarnings("unchecked")
     public static <A extends ArgumentType<?>> A unwrap(A argument) {
-        while (argument instanceof ArgumentProviderImpl.NativeWrapperArgumentType<?, ?> wrapper) {
-            argument = (A) wrapper.vanillaArgumentType();
+        while (argument instanceof WrappedArgumentType<?> wrapper) {
+            argument = (A) wrapper.internalArgumentType();
         }
         return argument;
     }

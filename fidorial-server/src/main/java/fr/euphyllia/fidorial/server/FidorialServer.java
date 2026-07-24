@@ -7,6 +7,7 @@ import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleSender;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.ArgumentProviderImpl;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.builtin.TranslatableExceptions;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypes;
 import fr.euphyllia.fidorial.server.console.command.ConsoleCommandReader;
@@ -53,6 +54,7 @@ import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandRegistry;
+import fr.fidorial.command.argument.ArgumentProvider;
 import fr.fidorial.entity.Player;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.event.server.ServerStartedEvent;
@@ -236,6 +238,7 @@ public final class FidorialServer implements Server {
     private void loadData() {
         TranslationStore.setStore(builtInTranslationStore);
         CommandSyntaxException.BUILT_IN_EXCEPTIONS = new TranslatableExceptions();
+        ArgumentProvider.register(new ArgumentProviderImpl());
         ArgumentTypes.bootstrap();
         commandManager = new CommandManager();
         operators.load();

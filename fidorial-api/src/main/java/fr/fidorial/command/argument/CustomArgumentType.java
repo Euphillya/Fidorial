@@ -22,6 +22,9 @@ import java.util.concurrent.CompletableFuture;
  *
  * @param <T> custom type
  * @param <N> type with an argument native to vanilla Minecraft (from {@link ArgumentTypes})
+ * <p>
+ * Modeled after Paper's <a href="https://github.com/PaperMC/Paper/blob/main/paper-api/src/main/java/io/papermc/paper/command/brigadier/argument/VanillaArgumentProvider.java">ArgumentTypes</a>
+ * Originally contributed in <a href="https://github.com/PaperMC/Paper/pull/8235">#8235</a>, licensed under the MIT license.
  */
 public interface CustomArgumentType<T, N> extends ArgumentType<T> {
 
@@ -48,7 +51,7 @@ public interface CustomArgumentType<T, N> extends ArgumentType<T> {
      * not while they are still entering it.
      * <p>
      * This method provides the command source for additional context when parsing. You
-     * may have to do your own {@code instanceof} checks for {@link io.papermc.paper.command.brigadier.CommandSourceStack}.
+     * may have to do your own {@code instanceof} checks for {@link fr.fidorial.command.CommandSource}.
      *
      * @param reader string reader input
      * @param source source of the command
@@ -136,7 +139,7 @@ public interface CustomArgumentType<T, N> extends ArgumentType<T> {
          * Converts the value from the native type to the custom argument type.
          * <p>
          * This method provides the command source for additional context when converting. You
-         * may have to do your own {@code instanceof} checks for {@link io.papermc.paper.command.brigadier.CommandSourceStack}.
+         * may have to do your own {@code instanceof} checks for {@link fr.fidorial.command.CommandSource}.
          *
          * @param nativeType native argument provided value
          * @param source     source of the command

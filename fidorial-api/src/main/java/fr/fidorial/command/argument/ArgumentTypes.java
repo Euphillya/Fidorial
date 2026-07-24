@@ -26,6 +26,10 @@ import java.util.UUID;
 
 import static fr.fidorial.command.argument.ArgumentProvider.provider;
 
+/**
+ * Modeled after Paper's <a href="https://github.com/PaperMC/Paper/blob/main/paper-api/src/main/java/io/papermc/paper/command/brigadier/argument/ArgumentTypes.java">ArgumentTypes</a>
+ * Originally contributed in <a href="https://github.com/PaperMC/Paper/pull/8235">#8235</a>, licensed under the MIT license.
+ */
 public final class ArgumentTypes {
     /**
      * Represents a selector that can capture any

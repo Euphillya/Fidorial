@@ -11,6 +11,8 @@ import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.world.weather.Weather;
 import net.kyori.adventure.text.Component;
 
+import java.util.List;
+
 /**
  * /weather                     -> affiche la meteo courante
  * /weather clear|rain|thunder  -> change la meteo (duree aleatoire vanilla)
@@ -37,7 +39,7 @@ public final class WeatherCommand {
                 .then(weather("rain", Weather.RAIN))
                 .then(weather("thunder", Weather.THUNDER))
                 .build();
-        return new CommandTree(command);
+        return new CommandTree(command, List.of("weather", "w"));
     }
 
     private static LiteralCommandNode<CommandSource> weather(String name, Weather weather) {

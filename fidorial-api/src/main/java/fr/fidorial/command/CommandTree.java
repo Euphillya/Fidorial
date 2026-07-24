@@ -5,18 +5,19 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import org.jetbrains.annotations.NotNull;
 
-public record CommandTree(LiteralCommandNode<CommandSource> node) {
+import java.util.List;
+
+public record CommandTree(LiteralCommandNode<CommandSource> node, List<String> aliases) {
 
     /**
      * Constructs a {@link CommandTree} from the node returned by
      * the given builder.
      *
-     * @param builder the {@link LiteralCommandNode} builder
+     * @param builder the command builder
      */
-    public CommandTree(final @NotNull LiteralArgumentBuilder<CommandSource> builder) {
-        this(Preconditions.checkNotNull(builder, "builder").build());
+    public CommandTree(final LiteralArgumentBuilder<CommandSource> builder) {
+        this(Preconditions.checkNotNull(builder, "builder").build(), List.of(builder.getLiteral()));
     }
 
     /**
@@ -24,8 +25,8 @@ public record CommandTree(LiteralCommandNode<CommandSource> node) {
      *
      * @param node the command node
      */
-    public CommandTree(final @NotNull LiteralCommandNode<CommandSource> node) {
-        this.node = Preconditions.checkNotNull(node, "node");
+    public CommandTree(final LiteralCommandNode<CommandSource> node) {
+        this(Preconditions.checkNotNull(node, "node"), List.of(node.getName()));
     }
 
     /**
@@ -44,9 +45,8 @@ public record CommandTree(LiteralCommandNode<CommandSource> node) {
      * @param name the literal name.
      * @return a new LiteralArgumentBuilder.
      */
-    public static LiteralArgumentBuilder<CommandSource> literal(final @NotNull String name) {
+    public static LiteralArgumentBuilder<CommandSource> literal(final String name) {
         Preconditions.checkNotNull(name, "name");
-        // Validation to avoid beginner's errors in case someone includes a space in the argument name
         Preconditions.checkArgument(name.indexOf(' ') == -1, "the argument name cannot contain spaces");
         return LiteralArgumentBuilder.literal(name);
     }
@@ -60,8 +60,8 @@ public record CommandTree(LiteralCommandNode<CommandSource> node) {
      * @return a new RequiredArgumentBuilder
      */
     public static <T> RequiredArgumentBuilder<CommandSource, T> argument(
-            final @NotNull String name,
-            @NotNull final ArgumentType<T> argumentType
+            final String name,
+            final ArgumentType<T> argumentType
     ) {
         Preconditions.checkNotNull(name, "name");
         Preconditions.checkNotNull(argumentType, "argument type");
