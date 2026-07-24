@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.event;
 
 import com.google.common.base.Preconditions;
 import fr.fidorial.event.AsyncEventHandler;
+import fr.fidorial.event.AsyncEventTimeout;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.event.EventHandler;
 import fr.fidorial.event.EventPriority;
@@ -17,6 +18,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +31,9 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -36,6 +41,8 @@ import java.util.function.Supplier;
 public final class SimpleEventBus implements EventBus {
     private static final int PRIORITY_COUNT = EventPriority.values().length;
     private static final ComponentLogger LOGGER = ComponentLogger.logger(SimpleEventBus.class); // todo: use plugin logger
+    private static final long MIN_TIMEOUT_MILLIS = 1L;
+    private static final ScheduledThreadPoolExecutor ASYNC_TIMEOUT_SCHEDULER = asyncTimeoutScheduler();
 
     private final Map<Class<?>, DirectSubscribers> directSubscribers = new ConcurrentHashMap<>();
     private final Map<Class<?>, DispatchChain> resolvedChains = new ConcurrentHashMap<>();
@@ -340,18 +347,7 @@ public final class SimpleEventBus implements EventBus {
                 try {
                     final CompletionStage<E> nextStage = ((AsyncEventHandler) registration.handler).handle(current);
                     Preconditions.checkState(nextStage != null, "Async event handler returned null");
-                    return nextStage.handle((next, throwable) -> {
-                        if (next == null) {
-                            final Exception exception = new IllegalStateException("Async event handler completed with null");
-                            LOGGER.error("Failed to handle event {} async", event.getClass().getName(), exception);
-                            return current;
-                        }
-                        if (throwable != null) {
-                            LOGGER.error("Failed to handle event {} async", event.getClass().getName(), throwable);
-                            return current;
-                        }
-                        return next;
-                    });
+                    return guardAsyncHandler(event, current, registration, nextStage);
                 } catch (final Throwable throwable) {
                     LOGGER.error("Failed to handle event {} async", event.getClass().getName(), throwable);
                     return CompletableFuture.completedFuture(current);
@@ -361,10 +357,100 @@ public final class SimpleEventBus implements EventBus {
         return stage;
     }
 
-    private static void defaultExceptionHandler(
-            final Throwable throwable, final Class<?> eventClass, @Nullable final Subscription subscription) {
-        final Thread currentThread = Thread.currentThread();
-        currentThread.getUncaughtExceptionHandler().uncaughtException(currentThread, throwable);
+    private <E> CompletionStage<E> guardAsyncHandler(
+            final E event,
+            final E current,
+            final Registration<?> registration,
+            final CompletionStage<E> nextStage) {
+        final AsyncHandlerTimeout timeout = asyncHandlerTimeout(event);
+
+        final CompletableFuture<E> guarded = new CompletableFuture<>();
+        final AtomicBoolean completed = new AtomicBoolean();
+        final ScheduledFuture<?> warningTask = !timeout.warning().isZero()
+                ? ASYNC_TIMEOUT_SCHEDULER.schedule(() -> {
+            if (!completed.get()) LOGGER.warn(
+                    "Async event handler {} is still handling {} after {} ms",
+                    registration,
+                    event.getClass().getName(),
+                    timeout.warning().toMillis()
+            );
+        }, timeout.warning().toMillis(), TimeUnit.MILLISECONDS) : null;
+
+        final ScheduledFuture<?> timeoutTask = ASYNC_TIMEOUT_SCHEDULER.schedule(() -> {
+            if (!completed.compareAndSet(false, true)) return;
+            LOGGER.error(
+                    "Async event handler {} timed out handling {} after {} ms; skipping",
+                    registration,
+                    event.getClass().getName(),
+                    timeout.timeout().toMillis()
+            );
+            guarded.complete(current);
+            if (warningTask != null) warningTask.cancel(false);
+        }, timeout.timeout().toMillis(), TimeUnit.MILLISECONDS);
+
+        nextStage.whenComplete((next, throwable) -> {
+            if (!completed.compareAndSet(false, true)) return;
+            guarded.complete(handleAsyncResult(event, current, next, throwable));
+            if (warningTask != null) warningTask.cancel(false);
+            timeoutTask.cancel(false);
+        });
+        return guarded;
+    }
+
+    private static <E> E handleAsyncResult(
+            final E event,
+            final E current,
+            @Nullable final E next,
+            @Nullable final Throwable throwable) {
+        if (throwable != null) {
+            LOGGER.error("Failed to handle event {} async", event.getClass().getName(), throwable);
+            return current;
+        }
+        if (next == null) {
+            final Exception exception = new IllegalStateException("Async event handler completed with null");
+            LOGGER.error("Failed to handle event {} async", event.getClass().getName(), exception);
+            return current;
+        }
+        return next;
+    }
+
+    private static AsyncHandlerTimeout asyncHandlerTimeout(final Object event) {
+        AsyncEventTimeout configured = event instanceof final AsyncEventTimeout t ? t : () -> Duration.ofSeconds(1);
+        final Duration timeout = requirePositiveDuration(configured.asyncHandlerTimeout(), "async handler timeout");
+        final Duration warning = requireNonNegativeDuration(
+                configured.asyncHandlerWarningTimeout(),
+                "async handler warning timeout"
+        );
+        if (warning.compareTo(timeout) >= 0) {
+            return new AsyncHandlerTimeout(Duration.ZERO, timeout);
+        }
+        return new AsyncHandlerTimeout(warning, timeout);
+    }
+
+    private static Duration requirePositiveDuration(final Duration duration, final String name) {
+        Preconditions.checkArgument(!duration.isNegative() && !duration.isZero(), "%s must be positive", name);
+        return atLeastOneMillisecond(duration);
+    }
+
+    private static Duration requireNonNegativeDuration(final Duration duration, final String name) {
+        Preconditions.checkArgument(!duration.isNegative(), "%s must not be negative", name);
+        return duration.isZero() ? Duration.ZERO : atLeastOneMillisecond(duration);
+    }
+
+    private static Duration atLeastOneMillisecond(final Duration duration) {
+        return duration.compareTo(Duration.ofMillis(MIN_TIMEOUT_MILLIS)) < 0
+                ? Duration.ofMillis(MIN_TIMEOUT_MILLIS)
+                : duration;
+    }
+
+    private static ScheduledThreadPoolExecutor asyncTimeoutScheduler() {
+        final ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1, task -> {
+            final Thread thread = new Thread(task, "fidorial-event-timeouts");
+            thread.setDaemon(true);
+            return thread;
+        });
+        scheduler.setRemoveOnCancelPolicy(true);
+        return scheduler;
     }
 
     private static final class DispatchChain {
@@ -389,6 +475,9 @@ public final class SimpleEventBus implements EventBus {
                     || monitorSync.length != 0
                     || monitorAsync.length != 0;
         }
+    }
+
+    private record AsyncHandlerTimeout(Duration warning, Duration timeout) {
     }
 
     private record DirectSubscribers(Registration<?>[][] byPriority) {

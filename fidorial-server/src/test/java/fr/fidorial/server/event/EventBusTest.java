@@ -1,6 +1,7 @@
 package fr.fidorial.server.event;
 
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
+import fr.fidorial.event.AsyncEventTimeout;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.event.EventPriority;
 import fr.fidorial.event.Subscribe;
@@ -8,6 +9,7 @@ import fr.fidorial.event.Subscription;
 import fr.fidorial.plugin.Plugin;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -155,6 +157,45 @@ final class EventBusTest {
         asyncGate.complete(event);
 
         assertTrue(monitorRan.await(1, TimeUnit.SECONDS));
+    }
+
+    @Test
+    void fireAsyncSkipsTimedOutSubscriber() {
+        final EventBus bus = new SimpleEventBus();
+        final List<String> calls = new CopyOnWriteArrayList<>();
+        final CompletableFuture<TimedEvent> neverCompletes = new CompletableFuture<>();
+        bus.subscribeAsync(TimedEvent.class, current -> {
+            calls.add("first");
+            return neverCompletes;
+        }, OWNER);
+        bus.subscribeAsync(TimedEvent.class, current -> {
+            calls.add("second");
+            current.value++;
+            return CompletableFuture.completedFuture(current);
+        }, OWNER);
+
+        final TimedEvent result = bus.fireAsync(new TimedEvent()).toCompletableFuture().join();
+
+        assertEquals(List.of("first", "second"), calls);
+        assertEquals(1, result.value);
+    }
+
+    @Test
+    void fireAsyncWarnsBeforeTimeoutWithoutSkippingEarlyCompletion() throws Exception {
+        final EventBus bus = new SimpleEventBus();
+        final CompletableFuture<TimedEvent> asyncGate = new CompletableFuture<>();
+        bus.subscribeAsync(TimedEvent.class, current -> asyncGate.thenApply(ignored -> {
+            current.value++;
+            return current;
+        }), OWNER);
+
+        final CompletionStage<TimedEvent> stage = bus.fireAsync(new TimedEvent());
+        Thread.sleep(TimedEvent.WARNING_TIMEOUT.toMillis() + 10);
+
+        asyncGate.complete(new TimedEvent());
+        final TimedEvent result = stage.toCompletableFuture().get(1, TimeUnit.SECONDS);
+
+        assertEquals(1, result.value);
     }
 
     @Test
@@ -317,6 +358,23 @@ final class EventBusTest {
 
     private static final class MutableEvent {
         private int value;
+    }
+
+    private static final class TimedEvent implements AsyncEventTimeout {
+        private static final Duration WARNING_TIMEOUT = Duration.ofMillis(10);
+        private static final Duration HANDLER_TIMEOUT = Duration.ofMillis(50);
+
+        private int value;
+
+        @Override
+        public Duration asyncHandlerWarningTimeout() {
+            return WARNING_TIMEOUT;
+        }
+
+        @Override
+        public Duration asyncHandlerTimeout() {
+            return HANDLER_TIMEOUT;
+        }
     }
 
     private static final class OtherEvent {

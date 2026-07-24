@@ -40,6 +40,9 @@ public interface EventBus {
 
     /**
      * Fires an event asynchronously.
+     * <p>
+     * Events implementing {@link AsyncEventTimeout} bound how long each
+     * asynchronous subscriber may hold dispatch.
      *
      * @param event the event to fire
      * @param <E>   the event type
@@ -52,6 +55,9 @@ public interface EventBus {
      * Fires an event asynchronously if the event type has subscribers.
      *
      * <p>The event factory is only called when subscribers are present.</p>
+     * <p>
+     * Events implementing {@link AsyncEventTimeout} bound how long each
+     * asynchronous subscriber may hold dispatch.
      *
      * @param eventClass   the event class
      * @param eventFactory supplies the event to fire
@@ -63,6 +69,9 @@ public interface EventBus {
 
     /**
      * Fires an event asynchronously without exposing its completion stage.
+     * <p>
+     * Events implementing {@link AsyncEventTimeout} bound how long each
+     * asynchronous subscriber may hold dispatch.
      *
      * @param event the event to fire
      * @param <E>   the event type
@@ -76,6 +85,9 @@ public interface EventBus {
      * event type has subscribers.
      * <p>
      * The event factory is only called when subscribers are present.
+     * <p>
+     * Events implementing {@link AsyncEventTimeout} bound how long each
+     * asynchronous subscriber may hold dispatch.
      *
      * @param eventClass   the event class
      * @param eventFactory supplies the event to fire
