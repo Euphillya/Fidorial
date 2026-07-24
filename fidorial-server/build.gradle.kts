@@ -6,21 +6,17 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.fidorialApi)
-    implementation(projects.fidorialAuth)
-    implementation(libs.netty.all)
-    implementation(libs.gson)
-    implementation(libs.slf4j.api)
     implementation(libs.faststats.config)
     implementation(libs.faststats.core)
-    implementation(libs.adventure.text.serializer.ansi)
-    implementation(libs.logback.classic)
-    implementation(libs.adventure.text.serializer.plain)
     implementation(libs.jline.ffm)
     implementation(libs.jline.reader)
+    implementation(libs.logback.classic)
+    implementation(libs.netty.all)
+    implementation(projects.fidorialApi)
+    implementation(projects.fidorialAuth)
     runtimeOnly(libs.netty.epoll)
-    runtimeOnly(libs.netty.kqueue)
     runtimeOnly(libs.netty.iouring)
+    runtimeOnly(libs.netty.kqueue)
 }
 
 application {

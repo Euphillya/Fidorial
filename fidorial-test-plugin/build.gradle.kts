@@ -5,9 +5,8 @@ plugins {
 }
 
 dependencies {
+    compileOnly(libs.brigadier)
     compileOnly(projects.fidorialApi)
-    implementation(platform(libs.adventure.bom))
-    implementation(libs.adventure.text.serializer.plain)
 }
 
 tasks.jar {
