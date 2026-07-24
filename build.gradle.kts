@@ -25,31 +25,33 @@ subprojects {
         }
     }
 
-    fun ownProperty(name: String): String? {
-        return if (extensions.extraProperties.has(name)) extensions.extraProperties.get(name).toString() else null
+    fun property(name: String): String {
+        val property = extensions.extraProperties.get(name)
+        if (property != null) return property.toString()
+        throw Error("Property '$name' not found in project ${project.path}")
     }
 
     tasks.withType<JavaCompile>().configureEach {
-        ownProperty("moduleName")?.let { moduleName ->
+        property("moduleName").let { moduleName ->
             options.compilerArgs.addAll(listOf("--add-reads", "$moduleName=ALL-UNNAMED"))
         }
     }
 
     tasks.withType<Test>().configureEach {
-        ownProperty("moduleName")?.let { moduleName ->
+        property("moduleName").let { moduleName ->
             jvmArgs("--add-reads", "$moduleName=ALL-UNNAMED")
         }
     }
 
     tasks.withType<JavaExec>().configureEach {
-        ownProperty("moduleName")?.let { moduleName ->
+        property("moduleName").let { moduleName ->
             jvmArgs("--add-reads", "$moduleName=ALL-UNNAMED")
         }
     }
 
     tasks.javadoc {
         val options = options as StandardJavadocDocletOptions
-        ownProperty("moduleName")?.let { moduleName ->
+        property("moduleName").let { moduleName ->
             options.addStringOption("-add-reads", "$moduleName=ALL-UNNAMED")
         }
     }
