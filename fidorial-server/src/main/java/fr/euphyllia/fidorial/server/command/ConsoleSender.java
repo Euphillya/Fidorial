@@ -5,42 +5,33 @@ import fr.euphyllia.fidorial.server.ServerConfig;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Entity;
-import fr.fidorial.permission.PermissibleBase;
-import fr.fidorial.permission.PermissibleBaseHolder;
-import fr.fidorial.permission.Permission;
-import fr.fidorial.permission.PermissionAttachment;
-import fr.fidorial.permission.PermissionAttachmentInfo;
-import fr.fidorial.permission.PermissionService;
-import fr.fidorial.permission.ServerOperator;
-import fr.fidorial.plugin.Plugin;
+import fr.fidorial.permission.PermissionResolver;
+import fr.fidorial.permission.PermissionState;
+import fr.fidorial.permission.PermissionStateHolder;
 import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.Location;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
-public class ConsoleSender implements CommandSender, PermissibleBaseHolder, CommandSource {
+public class ConsoleSender implements CommandSender, PermissionStateHolder, CommandSource {
 
     public static final ComponentLogger LOGGER = ComponentLogger.logger("Console");
-    private static final ServerOperator CONSOLE_OP = new ServerOperator() {
-        @Override
-        public boolean isOp() {
-            return true;
-        }
 
-        @Override
-        public void setOp(boolean value) {
-            throw new UnsupportedOperationException("Impossible de changer le statut op de la console");
-        }
-    };
+    private final PermissionState permissions;
     private Locale locale = Locale.US;
-    private final PermissibleBase perm;
 
-    public ConsoleSender(FidorialServer server) {
-        this.perm = new PermissibleBase(CONSOLE_OP, this, server.plugins());
+    public ConsoleSender(final FidorialServer server) {
+        this.permissions = new PermissionState(
+                this,
+                server.permissions(),
+                () -> server.services()
+                        .find(PermissionResolver.class)
+                        .map(List::of)
+                        .orElseGet(List::of));
     }
 
     public void setLocale(final String language) {
@@ -66,102 +57,27 @@ public class ConsoleSender implements CommandSender, PermissibleBaseHolder, Comm
     }
 
     @Override
-    public PermissibleBase permissionBase() {
-        return perm;
-    }
-
-    private @Nullable PermissionService service() {
-        FidorialServer server = FidorialServer.getInstance();
-        return server.services().find(PermissionService.class).orElse(null);
+    public PermissionState permissions() {
+        return permissions;
     }
 
     @Override
-    public boolean isOp() {
+    public boolean isOperator() {
         return true;
     }
 
     @Override
-    public void setOp(boolean value) {
-        CONSOLE_OP.setOp(value);
-    }
-
-    @Override
-    public boolean isPermissionSet(String name) {
-        PermissionService service = service();
-        if (service != null) {
-            return service.isPermissionSet(this, name);
-        }
-        return perm.isPermissionSet(name);
-    }
-
-    @Override
-    public boolean isPermissionSet(Permission permission) {
-        PermissionService service = service();
-        if (service != null) {
-            return service.isPermissionSet(this, permission);
-        }
-        return perm.isPermissionSet(permission);
-    }
-
-    @Override
-    public boolean hasPermission(String name) {
-        PermissionService service = service();
-        if (service != null) {
-            return service.hasPermission(this, name);
-        }
-        return perm.hasPermission(name);
-    }
-
-    @Override
-    public boolean hasPermission(Permission permission) {
-        PermissionService service = service();
-        if (service != null) {
-            return service.hasPermission(this, permission);
-        }
-        return perm.hasPermission(permission);
-    }
-
-    @Override
-    public PermissionAttachment addAttachment(Plugin plugin) {
-        return perm.addAttachment(plugin);
-    }
-
-    @Override
-    public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value) {
-        return perm.addAttachment(plugin, name, value);
-    }
-
-    @Override
-    public void removeAttachment(PermissionAttachment attachment) {
-        perm.removeAttachment(attachment);
-    }
-
-    @Override
-    public void recalculatePermissions() {
-        PermissionService service = service();
-        if (service != null) {
-            service.recalculate(this);
-            return;
-        }
-        perm.recalculatePermissions();
-    }
-
-    @Override
-    public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-        PermissionService service = service();
-        if (service != null) {
-            return service.effectivePermissions(this);
-        }
-        return perm.getEffectivePermissions();
+    public void setOperator(final boolean operator) {
+        throw new UnsupportedOperationException("The console is always an operator");
     }
 
     @Override
     public Location location() {
         // provide the location as default spawn
-        ServerConfig config = FidorialServer.getInstance().config();
-        double x = config.spawnX();
-        double y = config.spawnY();
-        double z = config.spawnZ();
+        final ServerConfig config = FidorialServer.getInstance().config();
+        final double x = config.spawnX();
+        final double y = config.spawnY();
+        final double z = config.spawnZ();
         return new Location(x, y, z, 0, 0);
     }
 

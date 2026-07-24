@@ -19,14 +19,9 @@ import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.inventory.PlayerInventory;
-import fr.fidorial.permission.PermissibleBase;
-import fr.fidorial.permission.PermissibleBaseHolder;
-import fr.fidorial.permission.Permission;
-import fr.fidorial.permission.PermissionAttachment;
-import fr.fidorial.permission.PermissionAttachmentInfo;
-import fr.fidorial.permission.PermissionService;
-import fr.fidorial.permission.ServerOperator;
-import fr.fidorial.plugin.Plugin;
+import fr.fidorial.permission.PermissionResolver;
+import fr.fidorial.permission.PermissionState;
+import fr.fidorial.permission.PermissionStateHolder;
 import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
@@ -34,12 +29,10 @@ import fr.fidorial.world.World;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
-import java.util.Set;
 
-public final class ServerPlayer extends AbstractEntity implements Player, PermissibleBaseHolder {
+public final class ServerPlayer extends AbstractEntity implements Player, PermissionStateHolder {
 
     // https://minecraft.wiki/w/Java_Edition_protocol/Entity_metadata#Avatar
     public static final int MD_MAIN_HAND = 15; // Main hand (0: left, 1: right)
@@ -49,7 +42,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     private final PlayerProfile profile;
     private final PlayerInventory inventory;
     private final ClientConnection connection;
-    private final PermissibleBase perm;
+    private final PermissionState permissions;
 
     private volatile GameMode gameMode;
     private volatile float health = 20f;
@@ -60,13 +53,13 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     private Locale locale;
 
     public ServerPlayer(
-            int entityId,
-            PlayerProfile profile,
-            PlayerInventory inventory,
-            GameMode gameMode,
-            ClientConnection connection,
-            World world,
-            Location location
+            final int entityId,
+            final PlayerProfile profile,
+            final PlayerInventory inventory,
+            final GameMode gameMode,
+            final ClientConnection connection,
+            final World world,
+            final Location location
     ) {
         super(entityId, profile.uuid(), EntityTypes.PLAYER, world, location);
         this.profile = profile;
@@ -74,87 +67,41 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         this.gameMode = gameMode;
         this.connection = connection;
         this.locale = connection.locale();
-        this.perm = new PermissibleBase(
-                new PlayerOperator(), this, FidorialServer.getInstance().plugins());
+        this.permissions = new PermissionState(
+                this,
+                FidorialServer.getInstance().permissions(),
+                () -> FidorialServer.getInstance()
+                        .services()
+                        .find(PermissionResolver.class)
+                        .map(java.util.List::of)
+                        .orElseGet(java.util.List::of));
     }
 
     @Override
-    public PermissibleBase permissionBase() {
-        return perm;
-    }
-
-    private @Nullable PermissionService permissionService() {
-        return FidorialServer.getInstance()
-                .services()
-                .find(PermissionService.class)
-                .orElse(null);
+    public PermissionState permissions() {
+        return permissions;
     }
 
     @Override
-    public boolean isOp() {
+    public boolean isOperator() {
         return FidorialServer.getInstance().operators().isOp(profile.uuid());
     }
 
     @Override
-    public void setOp(boolean value) {
-        FidorialServer.getInstance().operators().setOp(profile.uuid(), profile.name(), value);
-        recalculatePermissions();
+    public void setOperator(final boolean operator) {
+        FidorialServer.getInstance().operators().setOp(profile.uuid(), profile.name(), operator);
+        invalidatePermissions();
     }
 
     @Override
-    public boolean isPermissionSet(String name) {
-        PermissionService service = permissionService();
-        return service != null ? service.isPermissionSet(this, name) : perm.isPermissionSet(name);
-    }
-
-    @Override
-    public boolean isPermissionSet(Permission permission) {
-        PermissionService service = permissionService();
-        return service != null ? service.isPermissionSet(this, permission) : perm.isPermissionSet(permission);
-    }
-
-    @Override
-    public boolean hasPermission(String name) {
-        PermissionService service = permissionService();
-        return service != null ? service.hasPermission(this, name) : perm.hasPermission(name);
-    }
-
-    @Override
-    public boolean hasPermission(Permission permission) {
-        PermissionService service = permissionService();
-        return service != null ? service.hasPermission(this, permission) : perm.hasPermission(permission);
-    }
-
-    @Override
-    public PermissionAttachment addAttachment(Plugin plugin) {
-        return perm.addAttachment(plugin);
-    }
-
-    @Override
-    public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value) {
-        return perm.addAttachment(plugin, name, value);
-    }
-
-    @Override
-    public void removeAttachment(PermissionAttachment attachment) {
-        perm.removeAttachment(attachment);
-    }
-
-    @Override
-    public void recalculatePermissions() {
-        PermissionService service = permissionService();
-
-        if (service != null) {
-            service.recalculate(this);
-        } else {
-            perm.recalculatePermissions();
-        }
+    public void invalidatePermissions() {
+        permissions.invalidate();
         updateClientPermissionLevel();
         refreshCommands();
     }
 
     private void updateClientPermissionLevel() {
-        int level = isOp() ? 4 : 0;
+        final int level = isOperator() ? 4 : 0;
         connection.send(new ClientboundEntityEventPacket(entityId(), (byte) (24 + level)));
     }
 
@@ -162,16 +109,6 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     public void refreshCommands() {
         connection.send(new ClientboundCommandsPacket(
                 connection.server().commandManager().dispatcher(), this));
-    }
-
-    @Override
-    public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-        PermissionService service = permissionService();
-        return service != null ? service.effectivePermissions(this) : perm.getEffectivePermissions();
-    }
-
-    public void clearPermissions() {
-        perm.clearPermissions();
     }
 
     @Override
@@ -192,17 +129,17 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     private boolean isOnGround() {
-        Location loc = location();
+        final Location loc = location();
 
-        BlockPos below =
+        final BlockPos below =
                 new BlockPos((int) Math.floor(loc.x()), (int) Math.floor(loc.y() - 0.01), (int) Math.floor(loc.z()));
 
-        int stateId = world().getBlockStateId(below);
+        final int stateId = world().getBlockStateId(below);
 
         return stateId != 0;
     }
 
-    public void setFlying(boolean flying) {
+    public void setFlying(final boolean flying) {
         this.flying = flying;
     }
 
@@ -212,7 +149,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     @Override
-    public void setHealth(float health) {
+    public void setHealth(final float health) {
         this.health = Math.clamp(health, 0f, maxHealth());
     }
 
@@ -253,7 +190,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     public void playSound(final Sound sound, final Sound.Emitter emitter) {
         if (emitter == Sound.Emitter.self()) {
             connection.send(new ClientboundSoundEntityPacket(sound, entityId()));
-        } else if (emitter instanceof Entity entity) {
+        } else if (emitter instanceof final Entity entity) {
             connection.send(new ClientboundSoundEntityPacket(sound, entity.entityId()));
         } else {
             playSound(sound);
@@ -266,7 +203,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     @Override
-    public void kick(String reason) {
+    public void kick(final String reason) {
         connection.disconnect(reason);
     }
 
@@ -276,7 +213,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     @Override
-    public void setGameMode(GameMode gameMode) {
+    public void setGameMode(final GameMode gameMode) {
         if (gameMode == this.gameMode) {
             return;
         }
@@ -290,7 +227,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         return selectedSlot;
     }
 
-    public void setSelectedSlot(int selectedSlot) {
+    public void setSelectedSlot(final int selectedSlot) {
         if (selectedSlot < 0 || selectedSlot > 8) {
             throw new IllegalArgumentException("slot de hotbar invalide : " + selectedSlot);
         }
@@ -298,7 +235,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     public int nextTeleportId() {
-        var id = lastTeleportId;
+        final var id = lastTeleportId;
         lastTeleportId = id + 1;
         return lastTeleportId;
     }
@@ -306,18 +243,5 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     @Override
     public CommandSender sender() {
         return this;
-    }
-
-    private final class PlayerOperator implements ServerOperator {
-
-        @Override
-        public boolean isOp() {
-            return FidorialServer.getInstance().operators().isOp(profile.uuid());
-        }
-
-        @Override
-        public void setOp(boolean value) {
-            FidorialServer.getInstance().operators().setOp(profile.uuid(), profile.name(), value);
-        }
     }
 }

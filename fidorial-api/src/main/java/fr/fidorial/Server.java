@@ -3,6 +3,7 @@ package fr.fidorial;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.entity.Player;
 import fr.fidorial.event.EventBus;
+import fr.fidorial.permission.PermissionRegistry;
 import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.scheduler.RegionizedScheduler;
 import fr.fidorial.service.ServiceRegistry;
@@ -113,6 +114,14 @@ public interface Server /* extends ForwardingAudience */ { // we need more funct
     ServiceRegistry services();
 
     PluginManager plugins();
+
+    /**
+     * Gets the server-wide permission registry.
+     *
+     * @return the permission registry
+     * @since 0.1.0
+     */
+    PermissionRegistry permissions();
 
     Collection<? extends World> worlds();
 
