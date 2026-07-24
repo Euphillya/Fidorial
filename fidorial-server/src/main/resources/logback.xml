@@ -3,7 +3,7 @@
                     class="fr.euphyllia.fidorial.server.console.FidorialConsoleHighlighter"/>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%highlight([%d{HH:mm:ss}] [%thread/%level] [%logger{0}]: %msg%n)</pattern>
+            <pattern>%highlight([%d{HH:mm:ss}] [%thread/%level] [%logger{0}]: %msg%n%ex)</pattern>
         </encoder>
     </appender>
     <root level="INFO">

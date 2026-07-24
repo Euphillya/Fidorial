@@ -1,6 +1,5 @@
 package fr.fidorial.event.server;
 
-import fr.fidorial.event.Event;
 import fr.fidorial.status.ServerStatus;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
@@ -11,7 +10,7 @@ import org.jetbrains.annotations.Contract;
  * @since 0.1.0
  */
 @ApiStatus.NonExtendable
-public interface ServerStatusRequestEvent extends Event {
+public interface ServerStatusRequestEvent {
     // todo: expose client connection that requested the status
 
     /**

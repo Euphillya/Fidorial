@@ -45,6 +45,12 @@ public interface Server /* extends ForwardingAudience */ { // we need more funct
 
     CommandRegistry commands();
 
+    /**
+     * Gets the server's event bus.
+     *
+     * @return the event bus
+     * @since 0.1.0
+     */
     EventBus events();
 
     /**

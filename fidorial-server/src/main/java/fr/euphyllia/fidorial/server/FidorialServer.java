@@ -34,6 +34,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.schedulers.AiWorker;
+import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
@@ -49,7 +50,6 @@ import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
 import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
-import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandRegistry;
@@ -194,7 +194,7 @@ public final class FidorialServer implements Server {
             console.setLocale(Locale.getDefault());
             new ConsoleCommandReader(commandManager, running::get).start();
             pluginManager.enableAll();
-            events.post(new ServerStartedEvent(this));
+            events.fireAndForget(ServerStartedEvent.class, () -> new ServerStartedEvent(this));
             LOGGER.info("En ecoute sur le port {}", config.port());
         } catch (final Exception e) {
             LOGGER.error("Demarrage interrompu, arret en cours", e);
@@ -209,7 +209,7 @@ public final class FidorialServer implements Server {
             return;
         }
         LOGGER.info("Arret de Fidorial...");
-        events.post(new ServerStoppingEvent(this));
+        events.fireAndForget(ServerStoppingEvent.class, () -> new ServerStoppingEvent(this));
         closeQuietly("plugins", pluginManager::close);
         closeQuietly("reseau", network::shutdown);
         closeQuietly("auto-save", autoSave::shutdownNow);

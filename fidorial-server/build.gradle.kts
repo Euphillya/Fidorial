@@ -17,8 +17,10 @@ dependencies {
     implementation(libs.jline.ffm)
     implementation(libs.jline.reader)
     runtimeOnly(libs.netty.epoll)
-    runtimeOnly(libs.netty.kqueue)
     runtimeOnly(libs.netty.iouring)
+    runtimeOnly(libs.netty.kqueue)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 application {
@@ -35,6 +37,10 @@ tasks.named<JavaExec>("run") {
 
 tasks.named("run") {
     dependsOn(":fidorial-test-plugin:build")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks.shadowJar {

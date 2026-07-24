@@ -6,7 +6,6 @@ import fr.euphyllia.fidorial.server.entity.player.InventorySlots;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.session.ChunkViewTracker;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundAddEntityPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundBlockChangedAckPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundCommandSuggestionsPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundContainerSetContentPacket;
@@ -35,7 +34,6 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.Serverbound
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
-import fr.euphyllia.fidorial.server.registry.entity.EntityTypeRegistry;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
@@ -48,7 +46,6 @@ import fr.fidorial.event.player.PlayerJoinEvent;
 import fr.fidorial.event.player.PlayerQuitEvent;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
-import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.world.BlockFace;
 import fr.fidorial.world.BlockPos;
@@ -91,7 +88,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
         final ServerWorld world = server.worldManager().overworld();
         final Location spawn = new Location(config.spawnX(), config.spawnY(), config.spawnZ(), 0f, 0f);
-        this.player = createPlayer(world, spawn);
+        ServerPlayer player = createPlayer(world, spawn);
+        this.player = player;
         connection.setPlayer(player);
         world.addEntity(player);
 
@@ -101,7 +99,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
         connection.startKeepAlive();
         server.addPlayerConnection(connection);
-        server.events().post(new PlayerJoinEvent(player));
+        server.events().fireAndForget(PlayerJoinEvent.class, () -> new PlayerJoinEvent(player));
         LOGGER.info("{} est en jeu", player.name());
     }
 
@@ -115,8 +113,9 @@ public final class PlayPacketHandler implements PlayPacketListener {
             server.regionizer().removeTicket(worldId(), ticket);
             ticket = null;
         }
+        ServerPlayer player = this.player;
         if (player != null) {
-            server.events().post(new PlayerQuitEvent(player));
+            server.events().fireAndForget(PlayerQuitEvent.class, () -> new PlayerQuitEvent(player));
             server.worldManager().overworld().removeEntity(player);
             player.clearPermissions();
             player.remove();
@@ -279,7 +278,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
         final Component formatted = Component.text("\\<" + player.name() + "> ").append(message);
 
-        final PlayerChatEvent event = server.events().post(new PlayerChatEvent(player, formatted));
+        final PlayerChatEvent event = server.events().fire(new PlayerChatEvent(player, formatted));
         if (event.isCancelled()) {
             return;
         }
@@ -290,6 +289,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleUseItemOn(final ServerboundUseItemOnPacket packet) {
+        var player = this.player;
         if (player.gameMode() == GameMode.SPECTATOR) {
             connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
             return;
@@ -298,33 +298,31 @@ public final class PlayPacketHandler implements PlayPacketListener {
         final ItemStack held = player.inventory().get(player.selectedSlot());
         final BlockState state = held.isEmpty() ? null : server.blockStateRegistry().blockForItem(held.id());
 
-        if (state != null) {
-            final BlockPlaceEvent event = server.events()
-                    .post(new BlockPlaceEvent(
-                            player, target, server.blockStateRegistry().networkId(state)));
-            if (!event.isCancelled()) {
-                server.blockEdits().set(server.worldManager().overworld(), target, state);
-            }
+        if (state != null && !server.events().fire(BlockPlaceEvent.class, () -> {
+            final int stateId = server.blockStateRegistry().networkId(state);
+            return new BlockPlaceEvent(player, target, stateId);
+        }).map(BlockPlaceEvent::isCancelled).orElse(false)) {
+            server.blockEdits().set(server.worldManager().overworld(), target, state);
         }
         connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
     }
 
     @Override
-    public void handlePlayerAction(final ServerboundPlayerActionPacket packet) {
-        final int status = packet.status();
-        final boolean breaking =
-                switch (player.gameMode()) {
-                    case CREATIVE -> status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK;
-                    case SURVIVAL ->
-                            status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK && instantMine(packet.position())
-                                    || status == ServerboundPlayerActionPacket.FINISH_DESTROY_BLOCK;
-                    case ADVENTURE, SPECTATOR -> false;
-                };
-        if (breaking) {
-            final BlockBreakEvent event = server.events().post(new BlockBreakEvent(player, packet.position()));
-            if (!event.isCancelled()) {
-                server.blockEdits().set(server.worldManager().overworld(), packet.position(), BlockState.AIR);
-            }
+    public void handlePlayerAction(ServerboundPlayerActionPacket packet) {
+        int status = packet.status();
+        final ServerPlayer player = this.player;
+        final boolean breaking = switch (player.gameMode()) {
+            case CREATIVE -> status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK;
+            case SURVIVAL -> status == ServerboundPlayerActionPacket.START_DESTROY_BLOCK
+                    && instantMine(packet.position())
+                    || status == ServerboundPlayerActionPacket.FINISH_DESTROY_BLOCK;
+            case ADVENTURE, SPECTATOR -> false;
+        };
+        if (breaking && !server.events().fire(BlockBreakEvent.class, () -> {
+            return new BlockBreakEvent(player, packet.position());
+        }).map(BlockBreakEvent::isCancelled).orElse(false)) {
+            server.blockEdits().set(server.worldManager().overworld(),
+                    packet.position(), BlockState.AIR);
         }
         connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
     }
