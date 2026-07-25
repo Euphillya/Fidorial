@@ -7,7 +7,6 @@ import fr.fidorial.Server;
 import fr.fidorial.permission.PermissionDefinition;
 import fr.fidorial.permission.PermissionNode;
 import fr.fidorial.permission.PermissionRegistry;
-import fr.fidorial.permission.TriState;
 import fr.fidorial.plugin.Plugin;
 import fr.fidorial.plugin.PluginContext;
 import fr.fidorial.plugin.PluginManager;
@@ -166,8 +165,8 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                 definitions.add(new PermissionDefinition(
                         node,
                         declaration.description(),
-                        TriState.parse(declaration.regular()),
-                        TriState.parse(declaration.operator())));
+                        declaration.regular(),
+                        declaration.operator()));
                 nodes.add(node);
             } catch (final IllegalArgumentException e) {
                 LOGGER.error("Permission '{}' du plugin {} invalide", entry.getKey(), meta.id(), e);

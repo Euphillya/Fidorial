@@ -1,5 +1,7 @@
 package fr.fidorial.permission;
 
+import net.kyori.adventure.util.TriState;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -47,18 +49,16 @@ public interface PermissionRegistry {
      *
      * @param node     the node
      * @param operator whether the holder is an operator
-     * @return the declared default, {@link TriState#UNSET} when nothing is declared
+     * @return the declared default, {@link TriState#NOT_SET} when nothing is declared
      */
     default TriState declaredDefault(final PermissionNode node, final boolean operator) {
         for (final PermissionNode candidate : node.lookupChain()) {
             final TriState state = definition(candidate)
                     .map(definition -> definition.defaultFor(operator))
-                    .orElse(TriState.UNSET);
-            if (state.isDecided()) {
-                return state;
-            }
+                    .orElse(TriState.NOT_SET);
+            if (state != TriState.NOT_SET) return state;
         }
-        return TriState.UNSET;
+        return TriState.NOT_SET;
     }
 
     /**

@@ -3,16 +3,16 @@ package fr.euphyllia.fidorial.server.command.brigadier.packet.util;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.permission.PermissionGrant;
 import fr.fidorial.permission.PermissionNode;
-import fr.fidorial.permission.TriState;
 import fr.fidorial.plugin.Plugin;
+import net.kyori.adventure.util.TriState;
 
 import java.util.Map;
 
 /**
  * A sender that holds nothing, used when building the command tree sent to a client before its
  * permissions are known.
- *
- * <p>Every node resolves to {@link TriState#DENY} rather than {@link TriState#UNSET}: the point is
+ * <p>
+ * Every node resolves to {@link TriState#FALSE} rather than {@link TriState#NOT_SET}: the point is
  * to produce a definitive "no" that no resolver can override, not to defer the question.
  */
 public final class PermissionlessCommandSender implements CommandSender {
@@ -24,7 +24,7 @@ public final class PermissionlessCommandSender implements CommandSender {
 
     @Override
     public TriState permissionState(final PermissionNode node) {
-        return TriState.DENY;
+        return TriState.FALSE;
     }
 
     @Override

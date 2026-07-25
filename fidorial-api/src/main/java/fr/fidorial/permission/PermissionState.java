@@ -1,6 +1,7 @@
 package fr.fidorial.permission;
 
 import fr.fidorial.plugin.Plugin;
+import net.kyori.adventure.util.TriState;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -79,7 +80,7 @@ public final class PermissionState {
         chain.sort(Comparator.comparingInt(PermissionResolver::weight).reversed());
         for (final PermissionResolver resolver : chain) {
             final TriState state = resolver.resolve(owner, node);
-            if (state != null && state.isDecided()) {
+            if (state != TriState.NOT_SET) {
                 return new Resolution(state, resolver.cacheable());
             }
         }
@@ -87,24 +88,24 @@ public final class PermissionState {
         final boolean operator = owner.isOperator();
         for (final PermissionNode candidate : node.lookupChain()) {
             final TriState granted = fromGrants(candidate);
-            if (granted.isDecided()) {
+            if (granted != TriState.NOT_SET) {
                 return new Resolution(granted, true);
             }
             final TriState declared = registry.definition(candidate)
                     .map(definition -> definition.defaultFor(operator))
-                    .orElse(TriState.UNSET);
-            if (declared.isDecided()) {
+                    .orElse(TriState.NOT_SET);
+            if (declared != TriState.NOT_SET) {
                 return new Resolution(declared, true);
             }
         }
-        return new Resolution(TriState.UNSET, true);
+        return new Resolution(TriState.NOT_SET, true);
     }
 
     private TriState fromGrants(final PermissionNode node) {
-        TriState result = TriState.UNSET;
+        TriState result = TriState.NOT_SET;
         for (final ActiveGrant grant : grants) {
             final TriState state = grant.overrides.get(node);
-            if (state != null && state.isDecided()) {
+            if (state != null && state !=  TriState.NOT_SET) {
                 result = state; // later grants win over earlier ones
             }
         }
@@ -192,7 +193,7 @@ public final class PermissionState {
             if (revoked) {
                 throw new IllegalStateException("This grant has been revoked");
             }
-            if (state.isDecided()) {
+            if (state != TriState.NOT_SET) {
                 overrides.put(node, state);
             } else {
                 overrides.remove(node);
