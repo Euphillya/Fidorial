@@ -65,7 +65,7 @@ public interface PluginMeta {
 
     interface RemoteDependency extends Dependency {
         // multiple, to allow for backup mirrors
-        Set<String> repositories();
+        Set<URI> repositories();
 
         // all dependencies to exclude from this dependency
         Set<Exclusion> excludes();
