@@ -45,7 +45,7 @@ public final class RegistryKeyGenerator {
         Objects.requireNonNull(registryTypes, "registryTypes");
         Objects.requireNonNull(outputDirectory, "outputDirectory");
 
-        final MethodSpec constructor = MethodSpec.constructorBuilder()
+        final MethodSpec constructor = MethodSpec.compactConstructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Key.class, "key")
                 .addStatement("$T.requireNonNull(key, $S)", Objects.class, "key")
@@ -75,7 +75,7 @@ public final class RegistryKeyGenerator {
             final ParameterizedTypeName fieldType = ParameterizedTypeName.get(REGISTRY_KEY, markerType);
 
 
-            final String fieldName = GenerationUtils.constantName(registryType.path());
+            final String fieldName = GenerationUtils.constantName(registryType.path(), true);
             registryKey.addField(FieldSpec.builder(fieldType, fieldName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                                          .initializer("of($S)", registryType.path())
                                          .addJavadoc("Registry key for {@code $L}.\n", registryType.identifier())

@@ -15,7 +15,9 @@ import fr.fidorial.registrygen.model.RegistryTypeDefinition;
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -44,7 +46,9 @@ public final class RegistryKeysGenerator {
      *
      * @throws IOException if the source file cannot be written
      */
-    public void generate(final RegistryTypeDefinition registryType, final RegistryDefinition registry, final Path outputDirectory) throws IOException {
+    public void generate(final RegistryTypeDefinition registryType,
+                         final RegistryDefinition registry,
+                         final Path outputDirectory) throws IOException {
 
         Objects.requireNonNull(registryType, "registryType");
         Objects.requireNonNull(registry, "registry");
@@ -74,7 +78,9 @@ public final class RegistryKeysGenerator {
                 .writeTo(outputDirectory);
     }
 
-    private static void addEntryFields(final TypeSpec.Builder keysClass, final RegistryDefinition registry, final ParameterizedTypeName typedKeyType) {
+    private static void addEntryFields(final TypeSpec.Builder keysClass,
+                                       final RegistryDefinition registry,
+                                       final ParameterizedTypeName typedKeyType) {
 
         final Set<String> generatedFieldNames = new HashSet<>();
 
@@ -105,13 +111,11 @@ public final class RegistryKeysGenerator {
                 .build();
     }
 
-    private static MethodSpec createFactoryMethod(
-            final RegistryTypeDefinition registryType,
-            final ClassName markerType,
-            final ParameterizedTypeName typedKeyType
-                                                 ) {
+    private static MethodSpec createFactoryMethod(final RegistryTypeDefinition registryType,
+                                                  final ClassName markerType,
+                                                  final ParameterizedTypeName typedKeyType) {
 
-        final String registryFieldName = GenerationUtils.constantName(registryType.typeName());
+        final String registryFieldName = GenerationUtils.constantName(registryType.path(), true);
         final ParameterSpec valueParameter = ParameterSpec.builder(String.class, "value", Modifier.FINAL)
                 .addAnnotation(KEY_PATTERN)
                 .build();

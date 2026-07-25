@@ -8,6 +8,8 @@ import fr.fidorial.registrygen.model.RegistryDefinition;
 import fr.fidorial.registrygen.model.RegistryEntryDefinition;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -17,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  * Parses Mojang's generated {@code reports/registries.json} file.
@@ -24,6 +27,10 @@ import java.util.Objects;
  * @since 0.1.0
  */
 public final class RegistryReportParser {
+
+    //custom json file for registries not in the official json file
+    private static final String REGISTRIES_RESOURCE_DIRECTORY = "/registries/";
+    private static final String CUSTOM_REGISTRIES_RESOURCE = REGISTRIES_RESOURCE_DIRECTORY + "custom-registries.json";
 
     /**
      * Parses a Mojang registry report.
@@ -47,21 +54,14 @@ public final class RegistryReportParser {
             throw new IOException("Registry report is not a regular file: " + registriesJson);
         }
 
+        final RegistriesHolder generatedRegistries;
         try (final Reader reader = Files.newBufferedReader(registriesJson, StandardCharsets.UTF_8)) {
-            final JsonElement rootElement;
-
-            try {
-                rootElement = JsonParser.parseReader(reader);
-            } catch (final RuntimeException exception) {
-                throw new IOException("Failed to parse registry report: " + registriesJson, exception);
-            }
-
-            if (!rootElement.isJsonObject()) {
-                throw new IOException("Registry report root must be a JSON object.");
-            }
-
-            return parseRoot(rootElement.getAsJsonObject());
+            generatedRegistries = parse(reader);
         }
+
+        final RegistriesHolder customRegistries = parseBundledRegistries();
+
+        return merge(customRegistries, generatedRegistries);
     }
 
     private RegistriesHolder parseRoot(final JsonObject root) throws IOException {
@@ -82,6 +82,36 @@ public final class RegistryReportParser {
         registries.sort(Comparator.comparing(RegistryDefinition::identifier));
 
         return new RegistriesHolder(registries);
+    }
+
+    private RegistriesHolder parse(final Reader reader) throws IOException {
+
+        final JsonElement rootElement;
+
+        try {
+            rootElement = JsonParser.parseReader(reader);
+        } catch (final RuntimeException exception) {
+            throw new IOException("Failed to parse registry report.", exception);
+        }
+
+        if (!rootElement.isJsonObject()) {
+            throw new IOException("Registry report root must be a JSON object.");
+        }
+        return parseRoot(rootElement.getAsJsonObject());
+    }
+
+    private RegistriesHolder parseBundledRegistries() throws IOException {
+
+        try (final InputStream stream = RegistryReportParser.class.getResourceAsStream(CUSTOM_REGISTRIES_RESOURCE)) {
+
+            if (stream == null) {
+                throw new IOException("Unable to find bundled registry resource: " + CUSTOM_REGISTRIES_RESOURCE);
+            }
+
+            try (final Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+                return parse(reader);
+            }
+        }
     }
 
     private RegistryDefinition parseRegistry(final String identifier, final JsonObject registryObject) throws IOException {
@@ -115,10 +145,10 @@ public final class RegistryReportParser {
         }
 
         /*
-         * Sorting by protocol ID normally preserves Mojang's actual
-         * registry ordering while remaining deterministic.
+         * Sort alphabetically by registry entry identifier so generated
+         * key constants are emitted in a predictable, readable order.
          */
-        entries.sort(Comparator.comparingInt(RegistryEntryDefinition::protocolId).thenComparing(RegistryEntryDefinition::identifier));
+        entries.sort(Comparator.comparing(RegistryEntryDefinition::identifier));
 
         return List.copyOf(entries);
     }
@@ -163,5 +193,28 @@ public final class RegistryReportParser {
             throw new IOException(context + " contains a blank '" + property + "' property.");
         }
         return value;
+    }
+
+    private RegistriesHolder merge(final RegistriesHolder customRegistries, final RegistriesHolder generatedRegistries) {
+
+        final Map<String, RegistryDefinition> merged = new TreeMap<>();
+
+        /*
+         * Custom registries provide fallback data.
+         */
+        for (final RegistryDefinition registry : customRegistries.registries()) {
+
+            merged.put(registry.identifier(), registry);
+        }
+
+        /*
+         * Mojang's generated registry data takes priority.
+         */
+        for (final RegistryDefinition registry : generatedRegistries.registries()) {
+
+            merged.put(registry.identifier(), registry);
+        }
+
+        return new RegistriesHolder(List.copyOf(merged.values()));
     }
 }

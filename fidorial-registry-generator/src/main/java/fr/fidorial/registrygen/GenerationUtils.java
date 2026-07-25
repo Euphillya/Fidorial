@@ -39,6 +39,16 @@ public final class GenerationUtils {
     return result;
   }
 
+  public static String constantName(final String identifier, final boolean stripSlash) {
+    String path = path(identifier);
+    if (stripSlash) {
+
+      final String[] parts = path.split("/");
+      path = parts[parts.length - 1];
+    }
+    return constantName(path);
+  }
+
   /**
    * Converts a Minecraft identifier into PascalCase.
    *

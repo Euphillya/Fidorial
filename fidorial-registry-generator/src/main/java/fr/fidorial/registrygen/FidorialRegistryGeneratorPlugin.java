@@ -5,6 +5,8 @@ import fr.fidorial.registrygen.task.GenerateRegistriesTask;
 import fr.fidorial.registrygen.task.GenerateReportsTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -49,7 +51,7 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
 
     extension.getGeneratedSourcesDirectory().convention(project.getLayout()
                                                                 .getBuildDirectory()
-                                                                .dir("generated/sources/fidorialRegistries/java/main"));
+                                                                .dir("generated/sources/fidorialRegistries/"));
 
     extension.getGeneratedPackage().convention("fr.fidorial.registry");
     extension.getRegistries().convention(Map.of());
@@ -85,10 +87,8 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
       task.getDataGeneratorArguments().set(extension.getDataGeneratorArguments());
       task.getServerJar().set(downloadTask.flatMap(DownloadServerJarTask::getServerJar));
 
-      task.getDataDirectory().set(
-              extension.getWorkingDirectory().dir(
-                      extension.getMinecraftVersion()
-                              .map(version -> "minecraft/" + version + "/data")));
+      task.getDataDirectory().set(extension.getWorkingDirectory().dir(extension.getMinecraftVersion()
+                                                                              .map(version -> "minecraft/" + version + "/data")));
     });
   }
 
@@ -128,9 +128,10 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
 
       final SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
 
-      sourceSets.named("main", sourceSet -> sourceSet.getJava().srcDir(extension.getGeneratedSourcesDirectory()));
+      sourceSets.named(SourceSet.MAIN_SOURCE_SET_NAME, sourceSet ->
+              sourceSet.getJava().srcDir(extension.getGeneratedSourcesDirectory()));
 
-      project.getTasks().named("compileJava").configure(task -> task.dependsOn(registriesTask));
+      project.getTasks().named(JavaPlugin.COMPILE_JAVA_TASK_NAME).configure(task ->task.dependsOn(registriesTask));
     });
   }
 
