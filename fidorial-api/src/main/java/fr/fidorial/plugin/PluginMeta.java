@@ -40,8 +40,9 @@ public interface PluginMeta {
     interface PluginDependency extends Dependency {
         String id();
 
-        // require this at all time?
-        Optional<VersionRange> versionRange();
+        // input: ~1.2.3 equivalent: >=1.2.3 <1.3.0
+        // input: ^1.2.3 equivalent: >=1.2.3 <2.0.0
+        String versionRange();
     }
 
     interface RemoteDependency extends Dependency {
@@ -55,7 +56,7 @@ public interface PluginMeta {
 
         String artifactId();
 
-        VersionRange versionRange();
+        String versionRange();
     }
 
     // jar in jar dependency
@@ -72,9 +73,6 @@ public interface PluginMeta {
             UNDEFINED
         }
 
-        interface VersionRange {
-            // todo: idk how to model this yet
-        }
     }
 
     interface PermissionEntry {
