@@ -1,6 +1,7 @@
 package fr.fidorial.permission;
 
 import fr.fidorial.plugin.Plugin;
+import net.kyori.adventure.util.TriState;
 
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public interface PermissionGrant extends AutoCloseable {
      * Sets the state of a node.
      *
      * @param node  the node
-     * @param state the state; {@link TriState#UNSET} removes the override
+     * @param state the state; {@link TriState#NOT_SET} removes the override
      * @return this grant, for chaining
      * @throws IllegalStateException if the grant has been revoked
      */
@@ -33,7 +34,7 @@ public interface PermissionGrant extends AutoCloseable {
      * @return this grant, for chaining
      */
     default PermissionGrant allow(final String node) {
-        return set(PermissionNode.of(node), TriState.ALLOW);
+        return set(PermissionNode.of(node), TriState.TRUE);
     }
 
     /**
@@ -43,7 +44,7 @@ public interface PermissionGrant extends AutoCloseable {
      * @return this grant, for chaining
      */
     default PermissionGrant deny(final String node) {
-        return set(PermissionNode.of(node), TriState.DENY);
+        return set(PermissionNode.of(node), TriState.FALSE);
     }
 
     /**
@@ -53,7 +54,7 @@ public interface PermissionGrant extends AutoCloseable {
      * @return this grant, for chaining
      */
     default PermissionGrant unset(final String node) {
-        return set(PermissionNode.of(node), TriState.UNSET);
+        return set(PermissionNode.of(node), TriState.NOT_SET);
     }
 
     /**
