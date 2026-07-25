@@ -20,6 +20,14 @@ public interface PluginMeta {
 
     String main();
 
+    String license();
+
+    URI url();
+
+    // input: ~1.2.3 equivalent: >=1.2.3 <1.3.0
+    // input: ^1.2.3 equivalent: >=1.2.3 <2.0.0
+    String apiVersion();
+
     Set<Author> authors();
 
     Set<String> providedPlugins();
