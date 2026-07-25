@@ -62,6 +62,15 @@ public interface PluginMeta {
     Class<?> main();
 
     /**
+     * Returns the plugin description, if declared.
+     *
+     * @return the description, or empty
+     */
+    default Optional<String> description() {
+        return Optional.empty();
+    }
+
+    /**
      * Returns the plugin license, if declared.
      *
      * @return the license identifier or name, or empty
