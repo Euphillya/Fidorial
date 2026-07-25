@@ -18,6 +18,7 @@ public interface AngleResolver {
      *
      * @param source source
      * @return the resolved angle in degrees.
+     * @throws CommandSyntaxException if an error occurs while parsing
      */
     float resolve(CommandSource source) throws CommandSyntaxException;
 }

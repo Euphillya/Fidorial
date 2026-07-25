@@ -130,7 +130,7 @@ public interface CustomArgumentType<T, N> extends ArgumentType<T> {
          *
          * @param nativeType native argument provided value
          * @return converted value
-         * @throws CommandSyntaxException if an exception occurs while parsing
+         * @throws CommandSyntaxException if an error occurs while parsing
          * @see #convert(Object, Object)
          */
         T convert(N nativeType) throws CommandSyntaxException;
@@ -144,7 +144,7 @@ public interface CustomArgumentType<T, N> extends ArgumentType<T> {
          * @param nativeType native argument provided value
          * @param source     source of the command
          * @return converted value
-         * @throws CommandSyntaxException if an exception occurs while parsing
+         * @throws CommandSyntaxException if an error occurs while parsing
          */
         default <S> T convert(final N nativeType, final S source) throws CommandSyntaxException {
             return this.convert(nativeType);

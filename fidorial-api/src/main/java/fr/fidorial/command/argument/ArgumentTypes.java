@@ -376,7 +376,6 @@ public final class ArgumentTypes {
      * @param registryKey the registry's key
      * @return argument
      * @param <T> the registry value type
-     * @see RegistryArgumentExtractor#getTypedKey(com.mojang.brigadier.context.CommandContext, RegistryKey, String)
      */
     public static <T> ArgumentType<TypedKey<T>> resourceKey(final RegistryKey<T> registryKey) {
         return provider().resourceKey(registryKey);
