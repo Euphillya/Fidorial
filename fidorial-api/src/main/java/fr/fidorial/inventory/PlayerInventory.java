@@ -1,8 +1,10 @@
 package fr.fidorial.inventory;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Arrays;
 
-public class PlayerInventory {
+public class PlayerInventory implements Container {
 
     public static final int SIZE = 46;
 
@@ -12,32 +14,37 @@ public class PlayerInventory {
         Arrays.fill(slots, ItemStack.EMPTY);
     }
 
-    private static void checkSlot(int slot) {
+    private static void checkSlot(final int slot) {
         if (slot < 0 || slot >= SIZE) {
             throw new IndexOutOfBoundsException("Emplacement invalide : " + slot);
         }
     }
 
+    @Override
     public int size() {
         return SIZE;
     }
 
-    public ItemStack get(int slot) {
+    @Override
+    public ItemStack get(final int slot) {
         checkSlot(slot);
         return slots[slot];
     }
 
-    public void set(int slot, ItemStack stack) {
+    @Override
+    public void set(final int slot, @Nullable final ItemStack stack) {
         checkSlot(slot);
         slots[slot] = stack == null ? ItemStack.EMPTY : stack;
     }
 
+    @Override
     public void clear() {
         Arrays.fill(slots, ItemStack.EMPTY);
     }
 
+    @Override
     public boolean isEmpty() {
-        for (ItemStack stack : slots) {
+        for (final ItemStack stack : slots) {
             if (!stack.isEmpty()) {
                 return false;
             }
@@ -49,16 +56,14 @@ public class PlayerInventory {
         return Arrays.copyOf(slots, SIZE);
     }
 
-
-    public void setAllItems(ItemStack[] contents) {
+    public void setAllItems(final ItemStack @Nullable [] contents) {
         if (contents == null) {
             return;
         }
         clear();
-        int limit = Math.min(contents.length, SIZE);
+        final int limit = Math.min(contents.length, SIZE);
         for (int slot = 0; slot < limit; slot++) {
             set(slot, contents[slot]);
         }
     }
-
 }

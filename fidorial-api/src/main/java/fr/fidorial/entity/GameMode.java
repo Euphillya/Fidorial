@@ -1,12 +1,13 @@
 package fr.fidorial.entity;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Locale;
 
 /**
  * Modes de jeu vanilla, avec les identifiants reseau du protocole.
  */
 public enum GameMode {
-
     SURVIVAL(0),
     CREATIVE(1),
     ADVENTURE(2),
@@ -18,7 +19,7 @@ public enum GameMode {
         this.id = id;
     }
 
-    public static GameMode byId(int id) {
+    public static @Nullable GameMode byId(int id) {
         for (GameMode mode : values()) {
             if (mode.id == id) {
                 return mode;
@@ -27,8 +28,8 @@ public enum GameMode {
         return null;
     }
 
-    public static GameMode byName(String input) {
-        if (input == null || input.isBlank()) {
+    public static @Nullable GameMode byName(String input) {
+        if (input.isBlank()) {
             return null;
         }
         return switch (input.toLowerCase(Locale.ROOT)) {

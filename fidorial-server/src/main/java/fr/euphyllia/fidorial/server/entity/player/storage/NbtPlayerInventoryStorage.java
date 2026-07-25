@@ -14,11 +14,9 @@ import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public class NbtPlayerInventoryStorage implements PlayerInventoryStorage {
 
-    private static final ComponentLogger LOGGER = getLogger(NbtPlayerInventoryStorage.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(NbtPlayerInventoryStorage.class);
 
     private final Path inventoriesDir;
     private final boolean gzip;

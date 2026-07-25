@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.protocol.packet.serverbound.play;
 
-import fr.fidorial.world.BlockPos;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
+import fr.fidorial.world.BlockPos;
 
 public record ServerboundPlayerActionPacket(int status, BlockPos position, int face, int sequence)
         implements ServerboundPacket {

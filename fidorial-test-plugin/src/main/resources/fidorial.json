@@ -11,11 +11,13 @@
   "permissions": {
     "testplugin.use": {
       "description": "Autorise la commande /apitest",
-      "default": "true"
+      "regular": "TRUE",
+      "operator": "FALSE"
     },
     "testplugin.admin": {
       "description": "Acces aux sous-commandes sensibles",
-      "default": "op"
+      "operator": "TRUE",
+      "regular": "FALSE"
     }
   }
 }

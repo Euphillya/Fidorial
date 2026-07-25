@@ -31,6 +31,9 @@ public final class RegistryKeyGenerator {
     private static final ClassName KEY = ClassName.get("net.kyori.adventure.key", "Key");
     private static final ClassName KEY_PATTERN = ClassName.get("net.kyori.adventure.key", "KeyPattern");
     private static final ClassName REGISTRY_KEY = ClassName.get(REGISTRY_PACKAGE, "RegistryKey");
+    private static final ClassName ENTITY_TYPE = ClassName.get("fr.fidorial.entity", "EntityType");
+
+    private static final ParameterizedTypeName ENTITY_TYPE_REGISTRY_KEY = ParameterizedTypeName.get(REGISTRY_KEY, ENTITY_TYPE);
 
     /**
      * Generates {@code RegistryKey.java}.
@@ -61,7 +64,9 @@ public final class RegistryKeyGenerator {
                 .addJavadoc("@param key namespaced registry identifier\n");
 
         addRegistryFields(registryKey, registryTypes);
+        registryKey.addField(createEntityTypeRegistryKey());
         registryKey.addMethod(createFactoryMethod());
+        registryKey.addMethod(createFactoryKeyMethod());
         registryKey.addMethod(createToStringMethod());
 
         JavaFile.builder(REGISTRY_PACKAGE, registryKey.build()).indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
@@ -81,6 +86,18 @@ public final class RegistryKeyGenerator {
                                          .addJavadoc("Registry key for {@code $L}.\n", registryType.identifier())
                                          .build());
         }
+    }
+
+    private static FieldSpec createEntityTypeRegistryKey() {
+
+        return FieldSpec.builder(ENTITY_TYPE_REGISTRY_KEY,
+                                 "ENTITY_TYPE",
+                                 Modifier.PUBLIC,
+                                 Modifier.STATIC,
+                                 Modifier.FINAL)
+                .initializer("new $T<>($T.key($S))", REGISTRY_KEY, Key.class, "entity_type")
+                .addJavadoc("Registry key for {@code minecraft:entity_type}.\n")
+                .build();
     }
 
     /**
@@ -118,11 +135,28 @@ public final class RegistryKeyGenerator {
         final ParameterSpec pathParameter = ParameterSpec.builder(String.class, "path", Modifier.FINAL).addAnnotation(KEY_PATTERN).build();
 
         return MethodSpec.methodBuilder("of")
-                .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addTypeVariable(typeVariable)
                 .returns(returnType)
                 .addParameter(pathParameter)
                 .addStatement("return new $T<>($T.key($N))", REGISTRY_KEY, KEY, "path")
+                .build();
+    }
+
+    private static MethodSpec createFactoryKeyMethod() {
+
+        final ClassName apiStatus = ClassName.get("org.jetbrains.annotations", "NotNull");
+
+        final TypeVariableName typeVariable = TypeVariableName.get("T");
+        final ParameterizedTypeName returnType = ParameterizedTypeName.get(REGISTRY_KEY, typeVariable);
+        final ParameterSpec pathParameter = ParameterSpec.builder(Key.class, "key", Modifier.FINAL).addAnnotation(apiStatus).build();
+
+        return MethodSpec.methodBuilder("of")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addTypeVariable(typeVariable)
+                .returns(returnType)
+                .addParameter(pathParameter)
+                .addStatement("return new $T<>($N)", REGISTRY_KEY, "key")
                 .build();
     }
 

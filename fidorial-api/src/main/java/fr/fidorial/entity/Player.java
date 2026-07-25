@@ -1,11 +1,16 @@
 package fr.fidorial.entity;
 
 import fr.fidorial.command.CommandSender;
+import fr.fidorial.command.CommandSource;
+import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.permission.PermissionHolder;
 
 import java.util.UUID;
 
-public interface Player extends LivingEntity, CommandSender {
+public interface Player extends LivingEntity, PermissionHolder, CommandSource, CommandSender {
+
+    void refreshCommands();
 
     PlayerProfile profile();
 
@@ -23,8 +28,9 @@ public interface Player extends LivingEntity, CommandSender {
 
     PlayerInventory inventory();
 
+    EnderChestInventory enderChest();
+
     GameMode gameMode();
 
     void setGameMode(GameMode gameMode);
-
 }

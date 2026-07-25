@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 
+// https://minecraft.wiki/w/Java_Edition_protocol/Packets#Game_Event
 public record ClientboundGameEventPacket(int event, float value) implements ClientboundPacket {
 
     public static final int END_RAINING = 1;

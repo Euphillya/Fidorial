@@ -1,25 +1,67 @@
 package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 
-import fr.fidorial.inventory.ItemStack;
-import fr.fidorial.inventory.PlayerInventory;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.utils.ItemStackWriter;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.fidorial.inventory.ItemStack;
+import fr.fidorial.inventory.PlayerInventory;
 
 import java.util.Arrays;
+import java.util.List;
 
+/**
+ * Fully replaces the contents of a window.
+ *
+ * <p>Format:
+ *
+ * <pre>
+ *   Window ID     VarInt
+ *   State ID      VarInt
+ *   Slots         Prefixed Array of Slot
+ *   Carried item  Slot
+ * </pre>
+ *
+ * <p>Also resent to resynchronize the client after each click, mirroring what the vanilla server
+ * does when a State ID does not match.
+ *
+ * <p>https://minecraft.wiki/w/Java_Edition_protocol/Packets#Set_Container_Content
+ */
 public record ClientboundContainerSetContentPacket(
-        PlayerInventory inventory, RegistryHolder frozen) implements ClientboundPacket {
+        int windowId, int stateId, List<ItemStack> slots, ItemStack carried, RegistryHolder frozen)
+        implements ClientboundPacket {
 
-    private static final int PLAYER_INVENTORY_WINDOW = 0;
-    private static final int WINDOW_SLOTS = 46;
+    public static final int PLAYER_INVENTORY_WINDOW = 0;
+    private static final int PLAYER_WINDOW_SLOTS = 46;
 
-    private static int toWindowSlot(int slot) {
+    public ClientboundContainerSetContentPacket {
+        slots = List.copyOf(slots);
+    }
+
+    /**
+     * Builds the packet for window 0 (player inventory), reordering the internal slots into the
+     * network numbering.
+     */
+    public static ClientboundContainerSetContentPacket ofPlayerInventory(
+            final PlayerInventory inventory, final int stateId, final ItemStack carried, final RegistryHolder frozen) {
+        final ItemStack[] window = new ItemStack[PLAYER_WINDOW_SLOTS];
+        Arrays.fill(window, ItemStack.EMPTY);
+        for (int slot = 0; slot < inventory.size(); slot++) {
+            final int windowSlot = toWindowSlot(slot);
+            if (windowSlot >= 0 && windowSlot < PLAYER_WINDOW_SLOTS) {
+                window[windowSlot] = inventory.get(slot);
+            }
+        }
+        return new ClientboundContainerSetContentPacket(
+                PLAYER_INVENTORY_WINDOW, stateId, List.of(window), carried, frozen);
+    }
+
+    private static int toWindowSlot(final int slot) {
         if (slot >= 0 && slot <= 8) return slot + 36; // hotbar -> 36..44
-        if (slot >= 9 && slot <= 35) return slot;      // inventaire principal -> identite
-        if (slot >= 36 && slot <= 39) return 44 - slot; // armure : 36->8(bottes)..39->5(casque)
-        if (slot == 40) return 45;        // main secondaire
+        if (slot >= 9 && slot <= 35) return slot; // main inventory -> identity
+        if (slot >= 36 && slot <= 39) return 44 - slot; // armor: 36->8 (boots)..39->5 (helmet)
+        if (slot == 40) return 45; // off hand
         return -1;
     }
 
@@ -29,38 +71,18 @@ public record ClientboundContainerSetContentPacket(
     }
 
     @Override
-    public void write(PacketBuffer buf) {
-        ItemStack[] window = new ItemStack[WINDOW_SLOTS];
-        Arrays.fill(window, ItemStack.EMPTY);
-        for (int slot = 0; slot < inventory.size(); slot++) {
-            int w = toWindowSlot(slot);
-            if (w >= 0 && w < WINDOW_SLOTS) {
-                window[w] = inventory.get(slot);
-            }
+    public void write(final PacketBuffer buf) {
+        buf.writeVarInt(windowId); // Window ID
+        buf.writeVarInt(stateId); // State ID
+        buf.writeVarInt(slots.size()); // slot count
+        for (final ItemStack stack : slots) {
+            ItemStackWriter.writeSlot(buf, stack, frozen);
         }
-
-        buf.writeVarInt(PLAYER_INVENTORY_WINDOW); // Window ID (VarInt depuis 1.21.2)
-        buf.writeVarInt(0);                       // State ID
-        buf.writeVarInt(WINDOW_SLOTS);            // nb de slots (46)
-        for (ItemStack stack : window) {
-            writeSlot(buf, stack);
-        }
-        writeSlot(buf, ItemStack.EMPTY);          // Carried item (curseur)
+        ItemStackWriter.writeSlot(buf, carried, frozen); // Carried item (cursor)
     }
 
-    private void writeSlot(PacketBuffer buf, ItemStack stack) {
-        if (stack == null || stack.isEmpty()) {
-            buf.writeVarInt(0);                   // count 0 => slot vide
-            return;
-        }
-        buf.writeVarInt(stack.count());           // Item Count
-        buf.writeVarInt(itemNetworkId(stack));    // Item ID (registre frozen)
-        buf.writeVarInt(0);                       // nb components a ajouter
-        buf.writeVarInt(0);                       // nb components a retirer
-    }
-
-    private int itemNetworkId(ItemStack stack) {
-        int id = frozen.networkId("minecraft:item", stack.id().asString());
-        return id < 0 ? 0 : id;                   // 0 = air en secours
+    private int itemNetworkId(final ItemStack stack) {
+        final int id = frozen.networkId("minecraft:item", stack.id().asString());
+        return Math.max(id, 0); // 0 = air fallback
     }
 }

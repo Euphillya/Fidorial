@@ -11,14 +11,16 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public class OperatorList {
 
-    private static final ComponentLogger LOGGER = getLogger(OperatorList.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(OperatorList.class);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private final Path file;
@@ -33,14 +35,11 @@ public class OperatorList {
             return;
         }
         try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            List<Entry> entries = GSON.fromJson(reader, new TypeToken<List<Entry>>() {
-            }.getType());
+            List<Entry> entries = GSON.fromJson(reader, new TypeToken<List<Entry>>() {}.getType());
             operators.clear();
             if (entries != null) {
                 for (Entry entry : entries) {
-                    if (entry != null && entry.uuid != null) {
-                        operators.put(entry.uuid, entry);
-                    }
+                    operators.put(entry.uuid, entry);
                 }
             }
             LOGGER.info("{} operateur(s) charge(s)", operators.size());
@@ -58,7 +57,7 @@ public class OperatorList {
     }
 
     public boolean isOp(UUID uuid) {
-        return uuid != null && operators.containsKey(uuid);
+        return operators.containsKey(uuid);
     }
 
     public boolean setOp(UUID uuid, String name, boolean value) {

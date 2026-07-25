@@ -1,26 +1,27 @@
 package fr.euphyllia.fidorial.server.entity.mob.monster;
 
-import fr.fidorial.entity.ai.Goal;
-import fr.fidorial.world.Location;
-import fr.fidorial.world.World;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.ai.goal.ChaseTargetGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.LookAtTargetGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.RandomStrollGoal;
 import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundCreeperStatePacket;
-import net.kyori.adventure.text.Component;
+import fr.euphyllia.fidorial.server.network.ClientConnection;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket;
+import fr.euphyllia.fidorial.server.world.Explosion;
+import fr.fidorial.entity.ai.Goal;
+import fr.fidorial.sound.SoundEvents;
+import fr.fidorial.world.Location;
+import fr.fidorial.world.World;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.UUID;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class Creeper extends PathfinderMob {
 
     public static final float MAX_HEALTH = 20f;
-    private static final ComponentLogger LOGGER = getLogger(Creeper.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(Creeper.class);
 
     private static final int FUSE_TICKS = 30;
 
@@ -33,7 +34,11 @@ public final class Creeper extends PathfinderMob {
     private int swell;
     private boolean primed;
 
-    public Creeper(int entityId, World world, Location location) {
+    private static final int MD_STATE = 16;
+    private static final int MD_CHARGED = 17;
+    private static final int MD_IGNITED = 18;
+
+    public Creeper(final int entityId, final World world, final Location location) {
         super(entityId, UUID.randomUUID(), EntityTypes.CREEPER, world, location, MAX_HEALTH);
 
         goals.add(new SwellGoal());
@@ -43,7 +48,7 @@ public final class Creeper extends PathfinderMob {
     }
 
     @Override
-    public void tick(long currentTick) {
+    public void tick(final long currentTick) {
         super.tick(currentTick);
         if (isRemoved()) {
             return;
@@ -58,24 +63,49 @@ public final class Creeper extends PathfinderMob {
     }
 
     private void explode() {
-        Location center = location();
+        final Location center = location();
         setPrimed(false);
         server().despawnEntity(this);
-        LOGGER.debug(Component.text("Macron... putain. EXPLOSION !")); // Todo : Replace Macron for real explosion
+        Explosion.explode(serverWorld(), center, EXPLOSION_POWER, this);
     }
 
     @Override
     protected void onDeath() {
         setPrimed(false);
+        playSound(SoundEvents.CREEPER_DEATH, Sound.Source.HOSTILE, 1.0f, 1.0f);
         super.onDeath();
     }
 
-    private void setPrimed(boolean primed) {
+    @Override
+    public void sendSpawnPackets(final ClientConnection connection) {
+        super.sendSpawnPackets(connection);
+        if (primed) {
+            connection.send(ClientboundSetEntityMetadataPacket.of(
+                    entityId(), ClientboundSetEntityMetadataPacket.Entry.varInt(MD_STATE, 1)));
+        }
+    }
+
+    private void setPrimed(final boolean primed) {
         if (this.primed == primed) {
             return;
         }
         this.primed = primed;
-        server().broadcast(new ClientboundCreeperStatePacket(entityId(), primed));
+        sendToTrackers(ClientboundSetEntityMetadataPacket.of(
+                entityId(), ClientboundSetEntityMetadataPacket.Entry.varInt(MD_STATE, primed ? 1 : -1)));
+        if (primed) {
+            playSound(SoundEvents.CREEPER_PRIMED, Sound.Source.HOSTILE, 1.0f, 0.5f);
+        }
+    }
+
+    public void hurt(final float amount) {
+        if (isRemoved() || isDead()) {
+            return;
+        }
+        final float remaining = health() - amount;
+        if (remaining > 0f) {
+            playSound(SoundEvents.CREEPER_HURT, Sound.Source.HOSTILE, 1.0f, 1.0f);
+        }
+        setHealth(remaining);
     }
 
     private final class SwellGoal implements Goal {
@@ -87,16 +117,14 @@ public final class Creeper extends PathfinderMob {
 
         @Override
         public boolean canStart() {
-            ServerPlayer target = target();
-            return target != null
-                    && distanceSqTo(target) <= SWELL_RANGE_SQ
-                    && hasLineOfSightTo(target);
+            final ServerPlayer target = target();
+            return target != null && distanceSqTo(target) <= SWELL_RANGE_SQ && hasLineOfSightTo(target);
         }
 
         @Override
         public boolean shouldContinue() {
-            ServerPlayer target = target();
-            return target != null && distanceSqTo(target) <= DEFUSE_RANGE_SQ;
+            final ServerPlayer target = target();
+            return target != null && distanceSqTo(target) <= DEFUSE_RANGE_SQ && hasLineOfSightTo(target);
         }
 
         @Override
@@ -112,7 +140,7 @@ public final class Creeper extends PathfinderMob {
 
         @Override
         public void tick() {
-            ServerPlayer target = target();
+            final ServerPlayer target = target();
             if (target != null) {
                 lookAt(target);
             }

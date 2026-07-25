@@ -1,10 +1,10 @@
 package fr.euphyllia.fidorial.server.entity.ai.goal;
 
+import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.fidorial.entity.ai.Goal;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
-import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 
 public final class ChaseTargetGoal implements Goal {
 
@@ -45,9 +45,9 @@ public final class ChaseTargetGoal implements Goal {
             return;
         }
         Location goal = target.location();
-        mob.navigation().moveTo(mob.location(),
-                new BlockPos((int) Math.floor(goal.x()), (int) Math.floor(goal.y()),
-                        (int) Math.floor(goal.z())));
+        mob.navigation()
+                .moveTo(mob.location(), new BlockPos((int) Math.floor(goal.x()), (int) Math.floor(goal.y()), (int)
+                        Math.floor(goal.z())));
         mob.setMoveSpeed(speed);
 
         if (mob.distanceSqTo(target) < 36.0) {

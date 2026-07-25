@@ -15,6 +15,9 @@ public interface Levelled extends BlockData {
 
     default int getMaximumLevel() {
         BlockProperty property = type().property("level");
+        if (property == null) {
+            throw new IllegalStateException("Cannot determine maximum level");
+        }
         return Integer.parseInt(property.values().getLast());
     }
 }

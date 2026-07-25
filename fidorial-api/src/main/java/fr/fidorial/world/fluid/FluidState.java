@@ -1,6 +1,8 @@
 package fr.fidorial.world.fluid;
 
-public record FluidState(FluidType type, int level, boolean falling) {
+import org.jspecify.annotations.Nullable;
+
+public record FluidState(@Nullable FluidType type, int level, boolean falling) {
 
     private static final FluidState EMPTY = new FluidState(null, 0, false);
 
@@ -11,7 +13,6 @@ public record FluidState(FluidType type, int level, boolean falling) {
     public static FluidState source(FluidType type) {
         return new FluidState(type, 0, false);
     }
-
 
     public static FluidState flowing(FluidType type, int level) {
         return new FluidState(type, level, false);

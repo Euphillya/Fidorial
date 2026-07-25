@@ -1,11 +1,12 @@
+extra.set("readUnnamedModules", setOf("fr.fidorial.test", "fr.fidorial"))
+
 plugins {
-    id("com.gradleup.shadow") version "9.5.1"
+    id("com.gradleup.shadow")
 }
 
 dependencies {
-    compileOnly(project(":fidorial-api"))
-    implementation(platform(libs.adventure.bom))
-    implementation(libs.adventure.text.serializer.plain)
+    compileOnly(libs.brigadier)
+    compileOnly(projects.fidorialApi)
 }
 
 tasks.jar {

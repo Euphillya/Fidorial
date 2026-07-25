@@ -1,8 +1,5 @@
 package fr.euphyllia.fidorial.server.network;
 
-import fr.fidorial.entity.PlayerProfile;
-import fr.fidorial.storage.player.PlayerDataStorage;
-import fr.fidorial.translation.TranslationStore;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
@@ -10,7 +7,11 @@ import fr.euphyllia.fidorial.server.network.codec.CipherDecoder;
 import fr.euphyllia.fidorial.server.network.codec.CipherEncoder;
 import fr.euphyllia.fidorial.server.network.codec.CompressionDecoder;
 import fr.euphyllia.fidorial.server.network.codec.CompressionEncoder;
-import fr.euphyllia.fidorial.server.network.listener.*;
+import fr.euphyllia.fidorial.server.network.listener.ConfigurationPacketHandler;
+import fr.euphyllia.fidorial.server.network.listener.HandshakePacketHandler;
+import fr.euphyllia.fidorial.server.network.listener.LoginPacketHandler;
+import fr.euphyllia.fidorial.server.network.listener.PlayPacketHandler;
+import fr.euphyllia.fidorial.server.network.listener.StatusPacketHandler;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
@@ -18,12 +19,16 @@ import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundLoginDisconnectPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundKeepAlivePacket;
+import fr.fidorial.entity.PlayerProfile;
+import fr.fidorial.storage.player.PlayerDataStorage;
+import fr.fidorial.translation.TranslationStore;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -32,11 +37,9 @@ import java.util.Locale;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf> {
 
-    private static final ComponentLogger LOGGER = getLogger(ClientConnection.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(ClientConnection.class);
 
     private static final int KEEP_ALIVE_INTERVAL_SECONDS = 10;
 
@@ -48,15 +51,15 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     private PacketListener listener;
 
     private int clientProtocol;
-    private String username;
-    private PlayerProfile profile;
-    private ServerPlayer player;
+    private @Nullable String username;
+    private @Nullable PlayerProfile profile;
+    private @Nullable ServerPlayer player;
     private int displayedSkinParts = 0x7F; // toutes les couches activees par defaut
-    private String forwardedAddress;
+    private @Nullable String forwardedAddress;
     private Locale locale = TranslationStore.defaultLocale();
-    private ScheduledFuture<?> keepAliveTask;
+    private @Nullable ScheduledFuture<?> keepAliveTask;
 
-    public ClientConnection(FidorialServer server) {
+    public ClientConnection(final FidorialServer server) {
         this.server = server;
         this.protocol = server.protocolMap();
         this.state = ConnectionState.HANDSHAKE;
@@ -64,22 +67,22 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         this.ctx = ctx;
         super.channelActive(ctx);
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf raw) {
-        PacketBuffer buf = new PacketBuffer(raw);
-        int packetId = buf.readVarInt();
+    protected void channelRead0(final ChannelHandlerContext ctx, final ByteBuf raw) {
+        final PacketBuffer buf = new PacketBuffer(raw);
+        final int packetId = buf.readVarInt();
 
-        String name = protocol.serverboundName(state, packetId);
+        final String name = protocol.serverboundName(state, packetId);
         if (name == null) {
             LOGGER.trace("Paquet {} 0x{} inconnu (ignore)", state, Integer.toHexString(packetId));
             return;
         }
-        ServerboundPacket packet = ServerboundPackets.decode(state, name, buf);
+        final ServerboundPacket packet = ServerboundPackets.decode(state, name, buf);
         if (packet == null) {
             LOGGER.trace("{} : {} recu (non gere, ignore)", state, name);
             return;
@@ -87,13 +90,13 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         packet.handle(listener);
     }
 
-    public void setState(ConnectionState newState) {
+    public void setState(final ConnectionState newState) {
         this.state = newState;
         this.listener = createListener(newState);
         this.listener.onEnter();
     }
 
-    private PacketListener createListener(ConnectionState newState) {
+    private PacketListener createListener(final ConnectionState newState) {
         return switch (newState) {
             case HANDSHAKE -> new HandshakePacketHandler(this);
             case STATUS -> new StatusPacketHandler(this);
@@ -103,15 +106,15 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         };
     }
 
-    public void send(ClientboundPacket packet) {
+    public void send(final ClientboundPacket packet) {
         write(packet).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     }
 
-    public void sendAndClose(ClientboundPacket packet) {
+    public void sendAndClose(final ClientboundPacket packet) {
         write(packet).addListener(ChannelFutureListener.CLOSE);
     }
 
-    public void disconnect(String reason) {
+    public void disconnect(final String reason) {
         if (state == ConnectionState.LOGIN) {
             sendAndClose(ClientboundLoginDisconnectPacket.ofText(reason));
         } else {
@@ -120,13 +123,13 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         }
     }
 
-    private ChannelFuture write(ClientboundPacket packet) {
-        ByteBuf out = ctx.alloc().buffer();
+    private ChannelFuture write(final ClientboundPacket packet) {
+        final ByteBuf out = ctx.alloc().buffer();
         try {
-            PacketBuffer p = new PacketBuffer(out);
+            final PacketBuffer p = new PacketBuffer(out);
             p.writeVarInt(protocol.clientboundId(state, packet.name()));
             packet.write(p);
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             out.release();
             throw t;
         }
@@ -137,46 +140,54 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         ctx.close();
     }
 
-    public void execute(Runnable task) {
+    public void execute(final Runnable task) {
         ctx.channel().eventLoop().execute(task);
     }
 
-    public void installEncryption(SecretKey key) throws GeneralSecurityException {
-        ctx.pipeline().addBefore("frame-decoder", "cipher-decoder",
-                new CipherDecoder(EncryptionUtils.createStreamCipher(Cipher.DECRYPT_MODE, key)));
-        ctx.pipeline().addBefore("frame-decoder", "cipher-encoder",
-                new CipherEncoder(EncryptionUtils.createStreamCipher(Cipher.ENCRYPT_MODE, key)));
+    public void installEncryption(final SecretKey key) throws GeneralSecurityException {
+        ctx.pipeline()
+                .addBefore(
+                        "frame-decoder",
+                        "cipher-decoder",
+                        new CipherDecoder(EncryptionUtils.createStreamCipher(Cipher.DECRYPT_MODE, key)));
+        ctx.pipeline()
+                .addBefore(
+                        "frame-decoder",
+                        "cipher-encoder",
+                        new CipherEncoder(EncryptionUtils.createStreamCipher(Cipher.ENCRYPT_MODE, key)));
     }
 
-    public void installCompression(int threshold) {
+    public void installCompression(final int threshold) {
         ctx.pipeline().addBefore("handler", "decompress", new CompressionDecoder(threshold));
         ctx.pipeline().addBefore("handler", "compress", new CompressionEncoder(threshold));
     }
 
     public void startKeepAlive() {
-        keepAliveTask = ctx.channel().eventLoop().scheduleAtFixedRate(
-                () -> send(new ClientboundKeepAlivePacket(System.currentTimeMillis())),
-                KEEP_ALIVE_INTERVAL_SECONDS, KEEP_ALIVE_INTERVAL_SECONDS, TimeUnit.SECONDS);
+        keepAliveTask = ctx.channel()
+                .eventLoop()
+                .scheduleAtFixedRate(
+                        () -> send(new ClientboundKeepAlivePacket(System.currentTimeMillis())),
+                        KEEP_ALIVE_INTERVAL_SECONDS,
+                        KEEP_ALIVE_INTERVAL_SECONDS,
+                        TimeUnit.SECONDS);
     }
 
     @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) {
+    public void handlerRemoved(final ChannelHandlerContext ctx) {
         if (keepAliveTask != null) {
             keepAliveTask.cancel(false);
         }
-        if (listener != null) {
-            try {
-                listener.onDisconnect();
-            } catch (Throwable t) {
-                LOGGER.error("Erreur pendant onDisconnect", t);
-            }
+        try {
+            listener.onDisconnect();
+        } catch (final Throwable t) {
+            LOGGER.error("Erreur pendant onDisconnect", t);
         }
         server.removePlayerConnection(this);
         saveInventoryOnDisconnect();
     }
 
     private void saveInventoryOnDisconnect() {
-        ServerPlayer disconnecting = this.player;
+        final ServerPlayer disconnecting = this.player;
         if (disconnecting == null) {
             return;
         }
@@ -184,17 +195,18 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         Thread.startVirtualThread(() -> {
             try {
                 server.playerInventoryStorage().save(disconnecting.uuid(), disconnecting.inventory());
-                server.playerDataStorage().save(disconnecting.uuid(),
-                        new PlayerDataStorage.PlayerData(disconnecting.gameMode()));
+                server.playerEnderChestStorage().save(disconnecting.uuid(), disconnecting.enderChest());
+                server.playerDataStorage()
+                        .save(disconnecting.uuid(), new PlayerDataStorage.PlayerData(disconnecting.gameMode()));
                 LOGGER.info("Inventaire et donnees de {} sauvegardés", disconnecting.name());
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOGGER.error("Sauvegarde de l'inventaire de {} impossible", disconnecting.name(), e);
             }
         });
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         LOGGER.debug("Connexion closed", cause);
         ctx.close();
     }
@@ -211,31 +223,31 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         return clientProtocol;
     }
 
-    public void setClientProtocol(int clientProtocol) {
+    public void setClientProtocol(final int clientProtocol) {
         this.clientProtocol = clientProtocol;
     }
 
-    public String username() {
+    public @Nullable String username() {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
-    public String forwardedAddress() {
+    public @Nullable String forwardedAddress() {
         return forwardedAddress;
     }
 
-    public void setForwardedAddress(String forwardedAddress) {
+    public void setForwardedAddress(final String forwardedAddress) {
         this.forwardedAddress = forwardedAddress;
     }
 
-    public PlayerProfile profile() {
+    public @Nullable PlayerProfile profile() {
         return profile;
     }
 
-    public void setProfile(PlayerProfile profile) {
+    public void setProfile(final PlayerProfile profile) {
         this.profile = profile;
     }
 
@@ -243,7 +255,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         return displayedSkinParts;
     }
 
-    public void setDisplayedSkinParts(int displayedSkinParts) {
+    public void setDisplayedSkinParts(final int displayedSkinParts) {
         this.displayedSkinParts = displayedSkinParts;
     }
 
@@ -255,11 +267,11 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         this.locale = locale;
     }
 
-    public ServerPlayer player() {
+    public @Nullable ServerPlayer player() {
         return player;
     }
 
-    public void setPlayer(ServerPlayer player) {
+    public void setPlayer(final ServerPlayer player) {
         this.player = player;
     }
 }

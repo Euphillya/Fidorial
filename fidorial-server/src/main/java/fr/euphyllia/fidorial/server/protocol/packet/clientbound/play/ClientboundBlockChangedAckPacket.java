@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 
+// https://minecraft.wiki/w/Java_Edition_protocol/Packets#Acknowledge_Block_Change
 public record ClientboundBlockChangedAckPacket(int sequence) implements ClientboundPacket {
 
     @Override

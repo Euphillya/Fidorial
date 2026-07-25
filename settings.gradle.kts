@@ -1,13 +1,15 @@
+pluginManagement {
+    includeBuild("build-logic")
+    includeBuild("fidorial-registry-generator")
+}
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 rootProject.name = "fidorial"
 
-pluginManagement {
-    includeBuild("fidorial-registry-generator")
-
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-    }
-}
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include("fidorial-api")
 include("fidorial-auth")

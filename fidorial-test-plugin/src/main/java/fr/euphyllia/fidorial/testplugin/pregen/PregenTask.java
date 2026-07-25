@@ -10,7 +10,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-
 public class PregenTask {
 
     private static final int MAX_IN_FLIGHT = 64;
@@ -31,10 +30,26 @@ public class PregenTask {
     private final long startedAt = System.currentTimeMillis();
     private volatile boolean cancelled;
     private volatile boolean finished;
-    private Thread thread;
+    private final Runnable onStart;
+    private final Runnable onFinish;
+    private final Thread thread = Thread.ofPlatform().name("fidorial-pregen").unstarted(() -> {
+        try {
+            run();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    });
 
-    public PregenTask(World world, ComponentLogger logger,
-                      int centerX, int centerZ, int radius, Consumer<String> progressListener) {
+    public PregenTask(
+            World world,
+            ComponentLogger logger,
+            int centerX,
+            int centerZ,
+            int radius,
+            Consumer<String> progressListener,
+            Runnable onStart,
+            Runnable onFinish
+    ) {
         this.world = world;
         this.logger = logger;
         this.centerX = centerX;
@@ -42,25 +57,19 @@ public class PregenTask {
         this.radius = radius;
         this.total = (2 * radius + 1) * (2 * radius + 1);
         this.progressListener = progressListener;
+        this.onStart = onStart;
+        this.onFinish = onFinish;
     }
 
     public void start() {
-        thread = Thread.ofPlatform().name("fidorial-pregen").start(() -> {
-            try {
-                run();
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        onStart.run();
+        thread.start();
     }
 
     public void cancel() {
         cancelled = true;
-        if (thread != null) {
-            thread.interrupt();
-        }
+        onFinish.run();
+        thread.interrupt();
     }
 
     public boolean isRunning() {
@@ -73,14 +82,13 @@ public class PregenTask {
         double perSecond = completed * 1000.0 / elapsedMs;
         long remaining = total - completed;
         long etaSeconds = perSecond > 0 ? (long) (remaining / perSecond) : -1;
-        return String.format("%d/%d chunks (%.1f%%), %.0f chunks/s, ETA %s",
-                completed, total, completed * 100.0 / total, perSecond,
-                etaSeconds < 0 ? "?" : etaSeconds + "s");
+        return String.format(
+                "%d/%d chunks (%.1f%%), %.0f chunks/s, ETA %s",
+                completed, total, completed * 100.0 / total, perSecond, etaSeconds < 0 ? "?" : etaSeconds + "s");
     }
 
     private void run() throws ExecutionException, InterruptedException {
-        logger.info("Pre-generation lancee : rayon {} autour de {},{} ({} chunks)",
-                radius, centerX, centerZ, total);
+        logger.info("Pre-generation lancee : rayon {} autour de {},{} ({} chunks)", radius, centerX, centerZ, total);
         long nextReport = System.currentTimeMillis() + REPORT_PERIOD_MS;
 
         outer:
@@ -111,12 +119,18 @@ public class PregenTask {
         }
         finished = true;
 
+        try {
+            onFinish.run();
+        } catch (Exception e) {
+            logger.warn("Erreur pendant le refresh des commandes", e);
+        }
+
         if (cancelled) {
             progressListener.accept("Pre-generation annulee apres " + done.get() + " chunks.");
         } else {
             long seconds = (System.currentTimeMillis() - startedAt) / 1000;
-            progressListener.accept("Pre-generation terminee : " + done.get() + " chunks en "
-                    + seconds + "s" + (failed.get() > 0 ? " (" + failed.get() + " echecs, voir logs)" : "") + ".");
+            progressListener.accept("Pre-generation terminee : " + done.get() + " chunks en " + seconds + "s"
+                    + (failed.get() > 0 ? " (" + failed.get() + " echecs, voir logs)" : "") + ".");
         }
     }
 

@@ -6,10 +6,21 @@ logback = "1.5.12"
 faststats = "0.27.2"
 adventure = "5.2.0"
 guava = "33.6.0-jre"
+brigadier = "1.3.10"
+jetbrains-annotations = "26.0.2"
+jspecify = "1.0.0"
+jline = "4.3.1"
+spotless = "8.8.0"
+spotless-lib = "4.8.0"
+shadow = "9.5.1"
 
 [libraries]
 netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
+netty-epoll = { module = "io.netty:netty-transport-native-epoll", version.ref = "netty" }
+netty-kqueue = { module = "io.netty:netty-transport-native-kqueue", version.ref = "netty" }
+netty-iouring = { module = "io.netty:netty-transport-native-io_uring", version.ref = "netty" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+brigadier = { module = "com.mojang:brigadier", version.ref = "brigadier" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 faststats-core = { module = "dev.faststats.metrics:core", version.ref = "faststats" }
@@ -23,10 +34,21 @@ adventure-text-serializer-ansi = { module = "net.kyori:adventure-text-serializer
 adventure-text-minimessage = { module = "net.kyori:adventure-text-minimessage" }
 adventure-text-logger-slf4j = { module = "net.kyori:adventure-text-logger-slf4j" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+jline-ffm = { module = "org.jline:jline-terminal-ffm", version.ref = "jline" }
+jline-reader = { module = "org.jline:jline-reader", version.ref = "jline" }
+spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+spotless-lib = { module = "com.diffplug.spotless:spotless-lib", version.ref = "spotless-lib" }
+spotless-lib-extra = { module = "com.diffplug.spotless:spotless-lib-extra", version.ref = "spotless-lib" }
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 
 [bundles]
 adventure = [
-    "adventure-api", "adventure-key",
+    "adventure-api",
+    "adventure-key",
     "adventure-text-serializer-gson",
     "adventure-text-minimessage",
     "adventure-text-logger-slf4j"

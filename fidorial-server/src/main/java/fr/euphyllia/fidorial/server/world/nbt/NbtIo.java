@@ -1,6 +1,14 @@
 package fr.euphyllia.fidorial.server.world.nbt;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
@@ -27,16 +35,20 @@ public final class NbtIo {
 
     public static void writeGzip(Path file, String rootName, NbtCompound root) throws IOException {
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
-        try (DataOutputStream out = new DataOutputStream(
-                new GZIPOutputStream(new BufferedOutputStream(Files.newOutputStream(tmp))))) {
+        try (DataOutputStream out =
+                new DataOutputStream(new GZIPOutputStream(new BufferedOutputStream(Files.newOutputStream(tmp))))) {
             write(out, rootName, root);
         }
         // level.dat_old : sauvegarde comme le fait vanilla
         if (Files.exists(file)) {
-            Files.copy(file, file.resolveSibling(file.getFileName() + "_old"),
+            Files.copy(
+                    file,
+                    file.resolveSibling(file.getFileName() + "_old"),
                     java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         }
-        Files.move(tmp, file,
+        Files.move(
+                tmp,
+                file,
                 java.nio.file.StandardCopyOption.REPLACE_EXISTING,
                 java.nio.file.StandardCopyOption.ATOMIC_MOVE);
     }
@@ -95,8 +107,8 @@ public final class NbtIo {
     }
 
     public static Named readGzip(Path file) throws IOException {
-        try (DataInputStream in = new DataInputStream(
-                new GZIPInputStream(new BufferedInputStream(Files.newInputStream(file))))) {
+        try (DataInputStream in =
+                new DataInputStream(new GZIPInputStream(new BufferedInputStream(Files.newInputStream(file))))) {
             return read(in);
         }
     }

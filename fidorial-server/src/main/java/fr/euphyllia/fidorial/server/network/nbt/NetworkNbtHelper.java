@@ -1,7 +1,19 @@
 package fr.euphyllia.fidorial.server.network.nbt;
 
-import com.google.gson.*;
-import fr.euphyllia.fidorial.server.world.nbt.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import fr.euphyllia.fidorial.server.world.nbt.Nbt;
+import fr.euphyllia.fidorial.server.world.nbt.NbtByte;
+import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import fr.euphyllia.fidorial.server.world.nbt.NbtDouble;
+import fr.euphyllia.fidorial.server.world.nbt.NbtFloat;
+import fr.euphyllia.fidorial.server.world.nbt.NbtInt;
+import fr.euphyllia.fidorial.server.world.nbt.NbtList;
+import fr.euphyllia.fidorial.server.world.nbt.NbtLong;
+import fr.euphyllia.fidorial.server.world.nbt.NbtShort;
+import fr.euphyllia.fidorial.server.world.nbt.NbtString;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.EncoderException;
 
@@ -14,7 +26,8 @@ public final class NetworkNbtHelper {
 
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
-    private NetworkNbtHelper() {}
+    private NetworkNbtHelper() {
+    }
 
     public static Nbt convert(JsonElement element) {
         return switch (element) {
@@ -33,8 +46,7 @@ public final class NetworkNbtHelper {
                     entry.getKey(),
                     "extra".equals(entry.getKey())
                             ? convertArray(entry.getValue().getAsJsonArray())
-                            : convert(entry.getValue())
-            );
+                            : convert(entry.getValue()));
         }
 
         return compound;

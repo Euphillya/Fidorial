@@ -93,6 +93,24 @@ For development, you can also run directly:
 ./gradlew :fidorial-server:run
 ```
 
+### Formatting
+
+Fidorial uses [Spotless](https://github.com/diffplug/spotless) with Palantir Java Format. Check formatting before
+committing with:
+
+```bash
+./gradlew spotlessCheck
+```
+
+Apply the formatter with:
+
+```bash
+./gradlew spotlessApply
+```
+
+CI runs `spotlessCheck`. Java files are formatted with Palantir; Gradle, Markdown, properties, JSON, TOML, XML and YAML
+files are checked for trailing whitespace and a final newline.
+
 On first start, Fidorial writes a `fidorial.properties` next to the jar — port, view distance, world path, online
 mode, default game mode and worker thread counts live there. The server listens on port **25565** by default. Type `tps`
 in the console to check

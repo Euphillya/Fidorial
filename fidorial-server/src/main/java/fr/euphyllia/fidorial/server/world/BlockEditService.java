@@ -1,35 +1,36 @@
 package fr.euphyllia.fidorial.server.world;
 
-import fr.fidorial.world.BlockPos;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.fidorial.world.BlockPos;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.IOException;
 
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
-
 public final class BlockEditService {
 
-    private static final ComponentLogger LOGGER = getLogger(BlockEditService.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(BlockEditService.class);
 
     private final BlockStateRegistry blockRegistry;
     private final BlockChangeBroadcaster broadcaster;
     private final FluidNotifier fluidNotifier;
 
-    public BlockEditService(BlockStateRegistry blockRegistry,
-                            BlockChangeBroadcaster broadcaster,
-                            FluidNotifier fluidNotifier) {
+    public BlockEditService(
+            final BlockStateRegistry blockRegistry,
+            final BlockChangeBroadcaster broadcaster,
+            final FluidNotifier fluidNotifier
+    ) {
         this.blockRegistry = blockRegistry;
         this.broadcaster = broadcaster;
         this.fluidNotifier = fluidNotifier;
     }
 
-    public boolean set(ServerWorld world, BlockPos pos, BlockState state) {
+    public boolean set(final ServerWorld world, final BlockPos pos, final BlockState state) {
         try {
             if (!world.setBlock(pos.x(), pos.y(), pos.z(), state)) {
                 return false;
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOGGER.error("Changement de bloc impossible en {},{},{}", pos.x(), pos.y(), pos.z(), e);
             return false;
         }
@@ -45,6 +46,6 @@ public final class BlockEditService {
 
     @FunctionalInterface
     public interface FluidNotifier {
-        void notifyBlockChanged(String world, int x, int y, int z);
+        void notifyBlockChanged(Key world, int x, int y, int z);
     }
 }

@@ -2,7 +2,11 @@ package fr.euphyllia.fidorial.server.protocol.packet;
 
 import fr.euphyllia.fidorial.server.network.ConnectionState;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
-import fr.euphyllia.fidorial.server.protocol.catalog.*;
+import fr.euphyllia.fidorial.server.protocol.catalog.ConfigurationServerboundPackets;
+import fr.euphyllia.fidorial.server.protocol.catalog.HandshakeServerboundPackets;
+import fr.euphyllia.fidorial.server.protocol.catalog.LoginServerboundPackets;
+import fr.euphyllia.fidorial.server.protocol.catalog.PlayServerboundPackets;
+import fr.euphyllia.fidorial.server.protocol.catalog.StatusServerboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundFinishConfigurationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundSelectKnownPacksPacket;
@@ -11,9 +15,23 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.Serverboun
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundHelloPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundKeyPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.login.ServerboundLoginAcknowledgedPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.*;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatCommandPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClosePacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerActionPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCarriedItemPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundSetCreativeModeSlotPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundPingRequestPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.status.ServerboundStatusRequestPacket;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -21,69 +39,85 @@ import java.util.Map;
 
 public class ServerboundPackets {
 
-    private static final Map<ConnectionState, Map<String, Reader>> READERS =
-            new EnumMap<>(ConnectionState.class);
+    private static final Map<ConnectionState, Map<String, Reader>> READERS = new EnumMap<>(ConnectionState.class);
 
     static {
-        register(ConnectionState.HANDSHAKE, HandshakeServerboundPackets.INTENTION,
-                ServerboundIntentionPacket::read);
+        register(ConnectionState.HANDSHAKE, HandshakeServerboundPackets.INTENTION, ServerboundIntentionPacket::read);
 
-        register(ConnectionState.STATUS, StatusServerboundPackets.STATUS_REQUEST,
-                ServerboundStatusRequestPacket::read);
-        register(ConnectionState.STATUS, StatusServerboundPackets.PING_REQUEST,
-                ServerboundPingRequestPacket::read);
+        register(ConnectionState.STATUS, StatusServerboundPackets.STATUS_REQUEST, ServerboundStatusRequestPacket::read);
+        register(ConnectionState.STATUS, StatusServerboundPackets.PING_REQUEST, ServerboundPingRequestPacket::read);
 
-        register(ConnectionState.LOGIN, LoginServerboundPackets.HELLO,
-                ServerboundHelloPacket::read);
-        register(ConnectionState.LOGIN, LoginServerboundPackets.KEY,
-                ServerboundKeyPacket::read);
-        register(ConnectionState.LOGIN, LoginServerboundPackets.CUSTOM_QUERY_ANSWER,
+        register(ConnectionState.LOGIN, LoginServerboundPackets.HELLO, ServerboundHelloPacket::read);
+        register(ConnectionState.LOGIN, LoginServerboundPackets.KEY, ServerboundKeyPacket::read);
+        register(
+                ConnectionState.LOGIN,
+                LoginServerboundPackets.CUSTOM_QUERY_ANSWER,
                 ServerboundCustomQueryAnswerPacket::read);
-        register(ConnectionState.LOGIN, LoginServerboundPackets.LOGIN_ACKNOWLEDGED,
+        register(
+                ConnectionState.LOGIN,
+                LoginServerboundPackets.LOGIN_ACKNOWLEDGED,
                 ServerboundLoginAcknowledgedPacket::read);
 
-        register(ConnectionState.CONFIGURATION, ConfigurationServerboundPackets.SELECT_KNOWN_PACKS,
+        register(
+                ConnectionState.CONFIGURATION,
+                ConfigurationServerboundPackets.SELECT_KNOWN_PACKS,
                 ServerboundSelectKnownPacksPacket::read);
-        register(ConnectionState.CONFIGURATION, ConfigurationServerboundPackets.CLIENT_INFORMATION,
+        register(
+                ConnectionState.CONFIGURATION,
+                ConfigurationServerboundPackets.CLIENT_INFORMATION,
                 ServerboundClientInformationPacket::read);
-        register(ConnectionState.CONFIGURATION, ConfigurationServerboundPackets.FINISH_CONFIGURATION,
+        register(
+                ConnectionState.CONFIGURATION,
+                ConfigurationServerboundPackets.FINISH_CONFIGURATION,
                 ServerboundFinishConfigurationPacket::read);
 
-        register(ConnectionState.PLAY, PlayServerboundPackets.PLAYER_LOADED,
-                ServerboundPlayerLoadedPacket::read);
-        register(ConnectionState.PLAY, PlayServerboundPackets.ACCEPT_TELEPORTATION,
+        register(ConnectionState.PLAY, PlayServerboundPackets.PLAYER_LOADED, ServerboundPlayerLoadedPacket::read);
+        register(
+                ConnectionState.PLAY,
+                PlayServerboundPackets.ACCEPT_TELEPORTATION,
                 ServerboundAcceptTeleportationPacket::read);
-        register(ConnectionState.PLAY, PlayServerboundPackets.KEEP_ALIVE,
-                ServerboundKeepAlivePacket::read);
-        register(ConnectionState.PLAY, PlayServerboundPackets.SET_CREATIVE_MODE_SLOT,
+        register(ConnectionState.PLAY, PlayServerboundPackets.KEEP_ALIVE, ServerboundKeepAlivePacket::read);
+        register(
+                ConnectionState.PLAY,
+                PlayServerboundPackets.SET_CREATIVE_MODE_SLOT,
                 ServerboundSetCreativeModeSlotPacket::read);
-        register(ConnectionState.PLAY, PlayServerboundPackets.USE_ITEM_ON,
-                ServerboundUseItemOnPacket::read);
-        register(ConnectionState.PLAY, PlayServerboundPackets.PLAYER_ACTION,
-                ServerboundPlayerActionPacket::read);
-        register(ConnectionState.PLAY, PlayServerboundPackets.SET_CARRIED_ITEM,
-                ServerboundSetCarriedItemPacket::read);
-        register(ConnectionState.PLAY, PlayServerboundPackets.MOVE_PLAYER_POS,
-                ServerboundMovePlayerPosPacket::read);
-        register(ConnectionState.PLAY, PlayServerboundPackets.MOVE_PLAYER_POS_ROT,
+        register(ConnectionState.PLAY, PlayServerboundPackets.USE_ITEM_ON, ServerboundUseItemOnPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.PLAYER_ACTION, ServerboundPlayerActionPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.SET_CARRIED_ITEM, ServerboundSetCarriedItemPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.MOVE_PLAYER_POS, ServerboundMovePlayerPosPacket::read);
+        register(
+                ConnectionState.PLAY,
+                PlayServerboundPackets.MOVE_PLAYER_POS_ROT,
                 ServerboundMovePlayerPosRotPacket::read);
-        register(ConnectionState.PLAY, PlayServerboundPackets.CLIENT_INFORMATION,
+        register(
+                ConnectionState.PLAY,
+                PlayServerboundPackets.CLIENT_INFORMATION,
                 ServerboundClientInformationPacket::read);
-        register(ConnectionState.PLAY, PlayServerboundPackets.CHAT_COMMAND,
-                ServerboundChatCommandPacket::read);
-        register(ConnectionState.PLAY, PlayServerboundPackets.CHAT,
-                ServerboundChatPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.CHAT_COMMAND, ServerboundChatCommandPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.CHAT, ServerboundChatPacket::read);
+        register(
+                ConnectionState.PLAY,
+                PlayServerboundPackets.COMMAND_SUGGESTION,
+                ServerboundCommandSuggestionPacket::read);
+        register(
+                ConnectionState.PLAY,
+                PlayServerboundPackets.CONTAINER_CLICK,
+                ServerboundContainerClickPacket::read);
+        register(
+                ConnectionState.PLAY,
+                PlayServerboundPackets.CONTAINER_CLOSE,
+                ServerboundContainerClosePacket::read);
     }
 
     private ServerboundPackets() {
     }
 
-    private static void register(ConnectionState state, String name, Reader reader) {
+    private static void register(final ConnectionState state, final String name, final Reader reader) {
         READERS.computeIfAbsent(state, s -> new HashMap<>()).put(name, reader);
     }
 
-    public static ServerboundPacket decode(ConnectionState state, String name, PacketBuffer buf) {
-        Reader reader = READERS.getOrDefault(state, Map.of()).get(name);
+    public static @Nullable ServerboundPacket decode(final ConnectionState state, final String name, final PacketBuffer buf) {
+        final Reader reader = READERS.getOrDefault(state, Map.of()).get(name);
         return reader == null ? null : reader.read(buf);
     }
 
@@ -91,5 +125,4 @@ public class ServerboundPackets {
     public interface Reader {
         ServerboundPacket read(PacketBuffer buf);
     }
-
 }

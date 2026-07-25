@@ -1,0 +1,328 @@
+package fr.euphyllia.fidorial.server.command.brigadier.argument;
+
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.ComponentArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.HexColorArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.NamedColorArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.StyleArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgumentInternal;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.item.ItemArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.item.ItemPredicateArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.location.AngleArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.location.BlockPositionArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.location.DimensionArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.range.MinMaxBounds;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.range.RangeArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.KeyArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceKeyArgument;
+import fr.fidorial.command.argument.ArgumentProvider;
+import fr.fidorial.command.argument.predicate.ItemStackPredicate;
+import fr.fidorial.command.argument.range.DoubleRangeProvider;
+import fr.fidorial.command.argument.range.IntegerRangeProvider;
+import fr.fidorial.command.argument.range.RangeProvider;
+import fr.fidorial.command.argument.resolvers.AngleResolver;
+import fr.fidorial.command.argument.resolvers.BlockPosResolver;
+import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
+import fr.fidorial.command.argument.resolvers.PositionResolver;
+import fr.fidorial.command.argument.resolvers.selector.EntitySelectorArgumentResolver;
+import fr.fidorial.command.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import fr.fidorial.entity.Entity;
+import fr.fidorial.entity.GameMode;
+import fr.fidorial.entity.PlayerProfile;
+import fr.fidorial.inventory.ItemStack;
+import fr.fidorial.registry.RegistryKey;
+import fr.fidorial.registry.TypedKey;
+import fr.fidorial.world.World;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+
+public class ArgumentProviderImpl implements ArgumentProvider {
+    @Override
+    public ArgumentType<EntitySelectorArgumentResolver> entity() {
+        return this.wrap(
+                EntityArgumentInternal.entity(), (result) -> source -> List.of(result.findSingleEntity(source)));
+    }
+
+    @Override
+    public ArgumentType<EntitySelectorArgumentResolver> entities() {
+        return this.wrap(
+                EntityArgumentInternal.entities(),
+                result -> source -> result.findEntities(source).stream()
+                        .map(Entity.class::cast)
+                        .toList());
+    }
+
+    @Override
+    public ArgumentType<PlayerSelectorArgumentResolver> player() {
+        return this.wrap(EntityArgumentInternal.player(), result -> source -> List.of(result.findSinglePlayer(source)));
+    }
+
+    @Override
+    public ArgumentType<PlayerSelectorArgumentResolver> players() {
+        return this.wrap(EntityArgumentInternal.players(), result -> result::findPlayers);
+    }
+
+    @Override
+    public ArgumentType<BlockPosResolver> blockPosition() {
+        return this.wrap(BlockPositionArgument.blockPosition());
+    }
+
+    @Override
+    public ArgumentType<AngleResolver> angle() {
+        return this.wrap(AngleArgument.angle());
+    }
+
+    @Override
+    public ArgumentType<ItemStack> itemStack() {
+        return this.wrap(ItemArgument.item(), result -> {
+            fr.euphyllia.fidorial.server.entity.ItemStack internal = result.createItemStack(1);
+            return new fr.fidorial.inventory.ItemStack(internal.id(), internal.count());
+        });
+    }
+
+    @Override
+    public ArgumentType<ItemStackPredicate> itemStackPredicate() {
+        return this.wrap(
+                ItemPredicateArgument.itemPredicate(),
+                internalPredicate -> apiStack -> internalPredicate.test(
+                        fr.euphyllia.fidorial.server.entity.ItemStack.of(apiStack.id(), apiStack.count())));
+    }
+
+    @Override
+    public ArgumentType<NamedTextColor> namedColor() {
+        return this.wrap(NamedColorArgument.namedColor());
+    }
+
+    @Override
+    public ArgumentType<TextColor> hexColor() {
+        return this.wrap(HexColorArgument.hexColor(), TextColor::color);
+    }
+
+    @Override
+    public ArgumentType<Component> component() {
+        return this.wrap(ComponentArgument.textComponent());
+    }
+
+    @Override
+    public ArgumentType<Style> style() {
+        return this.wrap(StyleArgument.style());
+    }
+
+    @Override
+    public ArgumentType<Key> key() {
+        return this.wrap(KeyArgument.key());
+    }
+
+    @Override
+    public ArgumentType<String> word() {
+        return this.wrap(StringArgumentType.word());
+    }
+
+    @Override
+    public ArgumentType<String> string() {
+        return this.wrap(StringArgumentType.string());
+    }
+
+    @Override
+    public ArgumentType<String> greedyString() {
+        return this.wrap(StringArgumentType.greedyString());
+    }
+
+    @Override
+    public ArgumentType<Boolean> bool() {
+        return this.wrap(BoolArgumentType.bool());
+    }
+
+    @Override
+    public ArgumentType<Integer> integer(int min, int max) {
+        return this.wrap(IntegerArgumentType.integer(min, max));
+    }
+
+    @Override
+    public ArgumentType<Long> longArg(long min, long max) {
+        return this.wrap(LongArgumentType.longArg(min, max));
+    }
+
+    @Override
+    public ArgumentType<Float> floatArg(float min, float max) {
+        return this.wrap(FloatArgumentType.floatArg(min, max));
+    }
+
+    @Override
+    public ArgumentType<Double> doubleArg(double min, double max) {
+        return this.wrap(DoubleArgumentType.doubleArg(min, max));
+    }
+
+    @Override
+    public ArgumentType<IntegerRangeProvider> integerRange() {
+        return this.wrap(RangeArgument.intRange(), type -> ArgumentProviderImpl.convertToRange(type, range -> () -> range));
+    }
+
+    @Override
+    public ArgumentType<DoubleRangeProvider> doubleRange() {
+        return this.wrap(RangeArgument.floatRange(), type -> ArgumentProviderImpl.convertToRange(type, range -> () -> range));
+    }
+
+    private static <C extends Number & Comparable<C>, T extends RangeProvider<C>> T convertToRange(
+            final MinMaxBounds<C> bounds, final Function<Range<C>, T> converter) {
+        if (bounds.isAny()) {
+            return converter.apply(Range.all());
+        } else if (bounds.min().isPresent() && bounds.max().isPresent()) {
+            return converter.apply(Range.closed(bounds.min().get(), bounds.max().get()));
+        } else if (bounds.max().isPresent()) {
+            return converter.apply(Range.atMost(bounds.max().get()));
+        } else if (bounds.min().isPresent()) {
+            return converter.apply(Range.atLeast(bounds.min().get()));
+        }
+        throw new IllegalStateException("This is a bug: " + bounds);
+    }
+
+    @Override
+    public ArgumentType<World> world() {
+        return this.wrap(
+                DimensionArgument.dimension(),
+                worldKey -> FidorialServer.getInstance().worldManager().world(worldKey));
+    }
+
+    @Override
+    public ArgumentType<GameMode> gameMode() {
+        return this.wrap(GameModeArgument.gameMode());
+    }
+
+    @Override
+    public ArgumentType<UUID> uuid() {
+        return this.wrap(UuidArgument.uuid());
+    }
+
+    @Override
+    public ArgumentType<Integer> time(int minTicks) {
+        return this.wrap(TimeArgument.time(minTicks));
+    }
+
+    @Override
+    public <T> ArgumentType<TypedKey<T>> resourceKey(final RegistryKey<T> registryKey) {
+        return this.wrap(ResourceKeyArgument.resourceKey(registryKey), internalRegistryKey -> internalRegistryKey);
+    }
+
+    @Override
+    public <T> ArgumentType<T> resource(final RegistryKey<T> registryKey) {
+        return this.wrap(ResourceArgument.resource(registryKey));
+    }
+
+    @Override
+    public ArgumentType<PlayerProfileListResolver> playerProfiles() {
+        return this.wrap(PlayerProfileArgument.playerProfile(), result -> {
+            if (result instanceof PlayerProfileArgument.SelectorResult) {
+                return source -> transformUnmodifiable(result.getNames(source), PlayerProfile::new);
+            } else {
+                return source -> transformUnmodifiable(result.getNames(source), PlayerProfile::new);
+            }
+        });
+    }
+
+    //@Override
+    //public ArgumentType<BlockState> blockState() {
+        //return null;
+    //}
+
+    @Override
+    public ArgumentType<PositionResolver> position() {
+        return Vec3Argument.vec3();
+    }
+
+    private <T> ArgumentType<T> wrap(final ArgumentType<T> base) {
+        return this.wrap(base, identity -> identity);
+    }
+
+    private <B, C> ArgumentType<C> wrap(final ArgumentType<B> base, final ResultConverter<B, C> converter) {
+        return new NativeWrapperArgumentType<>(base, converter);
+    }
+
+    public static <A, M> List<A> transformUnmodifiable(
+            final List<? extends M> nms,
+            final Function<? super M, ? extends A> converter
+    ) {
+        return Collections.unmodifiableList(Lists.transform(nms, converter::apply));
+    }
+
+    public static <A, M> Collection<A> transformUnmodifiable(
+            final Collection<? extends M> nms,
+            final Function<? super M, ? extends A> converter
+    ) {
+        return Collections.unmodifiableCollection(Collections2.transform(nms, converter::apply));
+    }
+
+    @FunctionalInterface
+    interface ResultConverter<T, R> {
+        R convert(T type) throws CommandSyntaxException;
+    }
+
+    public static final class NativeWrapperArgumentType<M, P> implements ArgumentType<P> {
+
+        private final ArgumentType<M> vanilla;
+        private final ResultConverter<M, P> converter;
+
+        private NativeWrapperArgumentType(final ArgumentType<M> vanilla, final ResultConverter<M, P> converter) {
+            this.vanilla = vanilla;
+            this.converter = converter;
+        }
+
+        public ArgumentType<M> vanillaArgumentType() {
+            return this.vanilla;
+        }
+
+        @Override
+        public P parse(final StringReader reader) throws CommandSyntaxException {
+            return this.converter.convert(this.vanilla.parse(reader));
+        }
+
+        @Override
+        public <S> P parse(final StringReader reader, final S source) throws CommandSyntaxException {
+            return this.converter.convert(this.vanilla.parse(reader, source));
+        }
+
+        @Override
+        public <S> CompletableFuture<Suggestions> listSuggestions(
+                final CommandContext<S> context,
+                final SuggestionsBuilder builder
+        ) {
+            return this.vanilla.listSuggestions(context, builder);
+        }
+
+        @Override
+        public Collection<String> getExamples() {
+            return this.vanilla.getExamples();
+        }
+    }
+}

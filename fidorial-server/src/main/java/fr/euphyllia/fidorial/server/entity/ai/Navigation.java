@@ -1,10 +1,11 @@
 package fr.euphyllia.fidorial.server.entity.ai;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.entity.ai.Path;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
-import fr.euphyllia.fidorial.server.schedulers.AiWorkers;
-import fr.euphyllia.fidorial.server.world.ServerWorld;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -18,11 +19,11 @@ public class Navigation {
     private static final int MAX_NODES = 768;
 
     private final ServerWorld world;
-    private final AtomicReference<PathResult> pendingResult = new AtomicReference<>();
+    private final AtomicReference<@Nullable PathResult> pendingResult = new AtomicReference<>();
 
-    private Path path;
+    private @Nullable Path path;
     private int waypointIndex;
-    private BlockPos requestedGoal;
+    private @Nullable BlockPos requestedGoal;
 
     private long age;
     private long lastRequestTick = -REPATH_COOLDOWN_TICKS;
@@ -54,12 +55,13 @@ public class Navigation {
             return;
         }
 
-        BlockPos start = new BlockPos((int) Math.floor(from.x()),
-                (int) Math.floor(from.y()), (int) Math.floor(from.z()));
+        BlockPos start =
+                new BlockPos((int) Math.floor(from.x()), (int) Math.floor(from.y()), (int) Math.floor(from.z()));
         requestedGoal = goal;
         lastRequestTick = age;
-        requestInFlight = AiWorkers.submit(() ->
-                pendingResult.set(new PathResult(AStarPathfinder.find(world, start, goal, MAX_NODES))));
+        requestInFlight = FidorialServer.getInstance()
+                .aiWorker()
+                .submit(() -> pendingResult.set(new PathResult(AStarPathfinder.find(world, start, goal, MAX_NODES))));
     }
 
     public void tick(double x, double z) {
@@ -102,7 +104,7 @@ public class Navigation {
         }
     }
 
-    public BlockPos currentWaypoint() {
+    public @Nullable BlockPos currentWaypoint() {
         if (path == null || waypointIndex >= path.waypoints().size()) {
             return null;
         }
@@ -121,6 +123,6 @@ public class Navigation {
         lastDistanceSq = Double.MAX_VALUE;
     }
 
-    private record PathResult(Path path) {
+    private record PathResult(@Nullable Path path) {
     }
 }

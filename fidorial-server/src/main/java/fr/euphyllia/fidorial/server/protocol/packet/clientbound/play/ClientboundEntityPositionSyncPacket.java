@@ -4,10 +4,18 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 
-public record ClientboundEntityPositionSyncPacket(int entityId,
-                                                  double x, double y, double z,
-                                                  double velocityX, double velocityY, double velocityZ,
-                                                  float yaw, float pitch, boolean onGround)
+// https://minecraft.wiki/w/Java_Edition_protocol/Packets#Teleport_Entity
+public record ClientboundEntityPositionSyncPacket(
+        int entityId,
+        double x,
+        double y,
+        double z,
+        double velocityX,
+        double velocityY,
+        double velocityZ,
+        float yaw,
+        float pitch,
+        boolean onGround)
         implements ClientboundPacket {
 
     @Override

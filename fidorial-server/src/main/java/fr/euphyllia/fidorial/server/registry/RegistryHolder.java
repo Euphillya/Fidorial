@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.registry;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -35,7 +37,7 @@ public final class RegistryHolder {
         return registries.values();
     }
 
-    public Registry get(String name) {
+    public @Nullable Registry get(String name) {
         return registries.get(name);
     }
 

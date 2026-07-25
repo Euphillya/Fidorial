@@ -1,6 +1,8 @@
 package fr.fidorial.registrygen.generate;
 
+import com.palantir.javapoet.AnnotationSpec;
 import com.palantir.javapoet.ClassName;
+import com.palantir.javapoet.CodeBlock;
 import com.palantir.javapoet.FieldSpec;
 import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.MethodSpec;
@@ -14,12 +16,16 @@ import fr.fidorial.registrygen.model.RegistryTypeDefinition;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Generates typed registry-entry key classes such as
@@ -66,10 +72,12 @@ public final class RegistryKeysGenerator {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addJavadoc("Typed keys for entries in the " + "{@code $L} registry.\n", registryType.identifier());
 
-        addEntryFields(keysClass, registry, typedKeyType);
+        final List<String> fieldNames = addEntryFields(keysClass, registry, typedKeyType);
 
+        keysClass.addField(createValuesField(fieldNames, typedKeyType));
         keysClass.addMethod(createPrivateConstructor(registryType.keysClassName()));
         keysClass.addMethod(createFactoryMethod(registryType, markerType, typedKeyType));
+        keysClass.addMethod(createValuesMethod(typedKeyType));
 
         JavaFile.builder(KEYS_PACKAGE, keysClass.build())
                 .indent("    ")
@@ -78,11 +86,11 @@ public final class RegistryKeysGenerator {
                 .writeTo(outputDirectory);
     }
 
-    private static void addEntryFields(final TypeSpec.Builder keysClass,
+    private static List<String> addEntryFields(final TypeSpec.Builder keysClass,
                                        final RegistryDefinition registry,
                                        final ParameterizedTypeName typedKeyType) {
 
-        final Set<String> generatedFieldNames = new HashSet<>();
+        final LinkedHashSet<String> generatedFieldNames = new LinkedHashSet<>();
 
         for (final RegistryEntryDefinition entry : registry.entries()) {
 
@@ -102,6 +110,37 @@ public final class RegistryKeysGenerator {
                                        .addJavadoc("Key for {@code $L}.\n", entry.identifier())
                                        .build());
         }
+        return List.copyOf(generatedFieldNames);
+    }
+
+    private static FieldSpec createValuesField(final List<String> fieldNames, final ParameterizedTypeName typedKeyType) {
+
+        final ClassName LIST = ClassName.get(List.class);
+        final ParameterizedTypeName listType = ParameterizedTypeName.get(LIST, typedKeyType);
+        final CodeBlock.Builder initializer = CodeBlock.builder();
+
+        initializer.add("$T.of(", LIST);
+
+        if (!fieldNames.isEmpty()) {
+
+            initializer.add("\n");
+
+            for (int index = 0; index < fieldNames.size(); index++) {
+                initializer.add("    $N", fieldNames.get(index));
+
+                if (index < fieldNames.size() - 1) {
+                    initializer.add(",");
+                }
+
+                initializer.add("\n");
+            }
+        }
+
+        initializer.add(")");
+
+        return FieldSpec.builder(listType, "VALUES", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                .initializer(initializer.build())
+                .build();
     }
 
     private static MethodSpec createPrivateConstructor(final String className) {
@@ -125,6 +164,19 @@ public final class RegistryKeysGenerator {
                 .returns(typedKeyType)
                 .addParameter(valueParameter)
                 .addStatement("return $T.create($T.$N, $N)", TYPED_KEY, REGISTRY_KEY, registryFieldName, "value")
+                .build();
+    }
+
+    private static MethodSpec createValuesMethod(final ParameterizedTypeName typedKeyType) {
+
+        final ParameterizedTypeName streamType = ParameterizedTypeName.get(ClassName.get(Stream.class), typedKeyType);
+
+        return MethodSpec.methodBuilder("values")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(streamType)
+                .addJavadoc("Returns a stream containing all keys declared by this class.\n\n")
+                .addJavadoc("@return a stream of registry keys\n")
+                .addStatement("return VALUES.stream()")
                 .build();
     }
 

@@ -5,6 +5,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.BitSet;
 
@@ -12,11 +13,11 @@ public record ServerboundChatPacket(
         Component message,
         long timestamp,
         long salt,
-        byte[] signature,
+        byte @Nullable [] signature,
         int messageCount,
         BitSet acknowledged,
-        byte checksum
-) implements ServerboundPacket {
+        byte checksum)
+        implements ServerboundPacket {
 
     private static final int MAX_LENGTH = 256;
 
@@ -28,15 +29,7 @@ public record ServerboundChatPacket(
         int count = buf.readVarInt();
         BitSet acknowledged = buf.readFixedBitSet(20);
         byte checksum = buf.readByte();
-        return new ServerboundChatPacket(
-                message,
-                timestamp,
-                salt,
-                sig,
-                count,
-                acknowledged,
-                checksum
-        );
+        return new ServerboundChatPacket(message, timestamp, salt, sig, count, acknowledged, checksum);
     }
 
     @Override

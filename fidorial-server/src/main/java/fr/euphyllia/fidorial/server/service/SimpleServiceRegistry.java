@@ -4,36 +4,42 @@ import fr.fidorial.service.ServicePriority;
 import fr.fidorial.service.ServiceRegistry;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static fr.euphyllia.fidorial.server.adventure.AdventureHelper.getLogger;
 
 public final class SimpleServiceRegistry implements ServiceRegistry {
 
-    private static final ComponentLogger LOGGER = getLogger(SimpleServiceRegistry.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(SimpleServiceRegistry.class);
 
     private final Map<Class<?>, List<Provider<?>>> providers = new ConcurrentHashMap<>();
 
     @Override
     public <T> void register(Class<T> service, T implementation, Object owner, ServicePriority priority) {
         if (!service.isInstance(implementation)) {
-            throw new IllegalArgumentException(implementation.getClass().getName()
-                    + " n'implemente pas " + service.getName());
+            throw new IllegalArgumentException(
+                    implementation.getClass().getName() + " n'implemente pas " + service.getName());
         }
         List<Provider<?>> list = providers.computeIfAbsent(service, s -> new ArrayList<>());
         synchronized (list) {
             list.add(new Provider<>(implementation, owner, priority));
             list.sort(Comparator.comparing((Provider<?> p) -> p.priority).reversed());
         }
-        LOGGER.debug("Service {} fourni par {} (priorite {})",
-                service.getSimpleName(), implementation.getClass().getName(), priority);
+        LOGGER.debug(
+                "Service {} fourni par {} (priorite {})",
+                service.getSimpleName(),
+                implementation.getClass().getName(),
+                priority);
     }
 
     @Override
     public <T> T get(Class<T> service) {
-        return find(service).orElseThrow(() -> new IllegalStateException(
-                "Aucune implementation enregistree pour " + service.getName()));
+        return find(service)
+                .orElseThrow(
+                        () -> new IllegalStateException("Aucune implementation enregistree pour " + service.getName()));
     }
 
     @Override

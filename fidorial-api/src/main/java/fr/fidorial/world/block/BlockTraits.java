@@ -1,6 +1,5 @@
 package fr.fidorial.world.block;
 
-import fr.fidorial.world.block.data.*;
 import fr.fidorial.world.block.data.Ageable;
 import fr.fidorial.world.block.data.Bisected;
 import fr.fidorial.world.block.data.Directional;
@@ -17,6 +16,7 @@ import fr.fidorial.world.block.data.type.NoteBlock;
 import fr.fidorial.world.block.data.type.Slab;
 import fr.fidorial.world.block.data.type.Stairs;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,22 +77,22 @@ public class BlockTraits {
         if (key.asString().equals("minecraft:note_block")) {
             traits.add(NoteBlock.class);
         }
-        if (facing != null && half != null && find(properties, "shape") != null
-                && traits.contains(Bisected.class)) {
+        if (facing != null && half != null && find(properties, "shape") != null && traits.contains(Bisected.class)) {
             traits.add(Stairs.class);
         }
-        if (type != null && SLAB_TYPES.containsAll(type.values()) && type.values().size() == 3) {
+        if (type != null
+                && SLAB_TYPES.containsAll(type.values())
+                && type.values().size() == 3) {
             traits.add(Slab.class);
         }
-        if (facing != null && half != null && find(properties, "hinge") != null
-                && find(properties, "open") != null) {
+        if (facing != null && half != null && find(properties, "hinge") != null && find(properties, "open") != null) {
             traits.add(Door.class);
         }
 
         return traits;
     }
 
-    private static BlockProperty find(List<BlockProperty> properties, String name) {
+    private static @Nullable BlockProperty find(List<BlockProperty> properties, String name) {
         for (BlockProperty property : properties) {
             if (property.name().equals(name)) {
                 return property;

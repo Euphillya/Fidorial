@@ -2,8 +2,16 @@ package fr.euphyllia.fidorial.server.world.anvil;
 
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
+import org.jspecify.annotations.Nullable;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -11,14 +19,13 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
-
 public final class RegionFile implements Closeable {
 
     private final RandomAccessFile raf;
     private final int[] offsets = new int[RegionConstants.CHUNKS_PER_REGION];
     private final int[] sectorCounts = new int[RegionConstants.CHUNKS_PER_REGION];
     private final int[] timestamps = new int[RegionConstants.CHUNKS_PER_REGION];
-    private boolean[] usedSectors;
+    private boolean[] usedSectors = new boolean[0];
 
     public RegionFile(Path path) throws IOException {
         Files.createDirectories(path.getParent());
@@ -67,7 +74,7 @@ public final class RegionFile implements Closeable {
         return offsets[i] != 0 && sectorCounts[i] != 0;
     }
 
-    public NbtCompound readChunk(int chunkX, int chunkZ) throws IOException {
+    public @Nullable NbtCompound readChunk(int chunkX, int chunkZ) throws IOException {
         int i = RegionConstants.headerIndex(chunkX, chunkZ);
         if (offsets[i] == 0 || sectorCounts[i] == 0) return null;
 
@@ -79,17 +86,18 @@ public final class RegionFile implements Closeable {
         byte[] payload = new byte[length - 1];
         raf.readFully(payload);
 
-        DataInputStream in = switch (compression) {
-            case RegionConstants.COMPRESSION_ZLIB ->
-                    new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(payload)));
-            case RegionConstants.COMPRESSION_GZIP ->
-                    new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(payload)));
-            case RegionConstants.COMPRESSION_NONE ->
-                    new DataInputStream(new BufferedInputStream(new ByteArrayInputStream(payload)));
-            default -> throw new IOException(
-                    "Compression " + compression + " non gérée (chunk externe .mcc ?) pour "
-                            + chunkX + "," + chunkZ);
-        };
+        DataInputStream in =
+                switch (compression) {
+                    case RegionConstants.COMPRESSION_ZLIB ->
+                        new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(payload)));
+                    case RegionConstants.COMPRESSION_GZIP ->
+                        new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(payload)));
+                    case RegionConstants.COMPRESSION_NONE ->
+                        new DataInputStream(new BufferedInputStream(new ByteArrayInputStream(payload)));
+                    default ->
+                        throw new IOException("Compression " + compression + " non gérée (chunk externe .mcc ?) pour "
+                                + chunkX + "," + chunkZ);
+                };
         try (in) {
             return NbtIo.read(in).compound();
         }
@@ -99,13 +107,12 @@ public final class RegionFile implements Closeable {
         return timestamps[RegionConstants.headerIndex(chunkX, chunkZ)];
     }
 
-
     public void writeChunk(int chunkX, int chunkZ, NbtCompound chunk) throws IOException {
         byte[] frame = buildFrame(chunk);
         int neededSectors = (frame.length + RegionConstants.SECTOR_BYTES - 1) / RegionConstants.SECTOR_BYTES;
         if (neededSectors >= 256) {
-            throw new IOException("Chunk " + chunkX + "," + chunkZ
-                    + " trop volumineux (" + neededSectors + " secteurs) : nécessiterait un fichier .mcc externe");
+            throw new IOException("Chunk " + chunkX + "," + chunkZ + " trop volumineux (" + neededSectors
+                    + " secteurs) : nécessiterait un fichier .mcc externe");
         }
 
         int i = RegionConstants.headerIndex(chunkX, chunkZ);

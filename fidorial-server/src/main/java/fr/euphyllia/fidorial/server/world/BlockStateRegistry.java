@@ -1,11 +1,11 @@
 package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
-import fr.fidorial.registry.keys.ItemKeys;
 import fr.fidorial.world.block.BlockData;
 import fr.fidorial.world.block.BlockRegistry;
 import fr.fidorial.world.block.BlockType;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
@@ -32,7 +32,7 @@ public record BlockStateRegistry(BlockRegistry registry) {
     }
 
     @SuppressWarnings("PatternValidation")
-    private BlockData resolve(final BlockState state) {
+    private @Nullable BlockData resolve(final BlockState state) {
         final BlockType type = registry.type(Key.key(state.name())).orElse(null);
         if (type == null) {
             return null;
@@ -40,16 +40,16 @@ public record BlockStateRegistry(BlockRegistry registry) {
         return type.dataOrNull(state.properties());
     }
 
-    public BlockState blockForItem(final Key itemId) {
+    public @Nullable BlockState blockForItem(final @Nullable Key itemId) {
         if (itemId == null) {
             return null;
         }
 
-        if (itemId.equals(ItemKeys.WATER_BUCKET.key())) {
+        if (itemId.asString().equals("minecraft:water_bucket")) {
             return new BlockState("minecraft:water", Map.of("level", "0"));
         }
 
-        if (itemId.equals(ItemKeys.LAVA_BUCKET.key())) {
+        if (itemId.asString().equals("minecraft:lava_bucket")) {
             return new BlockState("minecraft:lava", Map.of("level", "0"));
         }
 
