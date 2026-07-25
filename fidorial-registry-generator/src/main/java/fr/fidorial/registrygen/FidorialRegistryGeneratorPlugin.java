@@ -1,45 +1,140 @@
 package fr.fidorial.registrygen;
 
-import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.MapProperty;
-import org.gradle.api.provider.Property;
+import fr.fidorial.registrygen.task.DownloadServerJarTask;
+import fr.fidorial.registrygen.task.GenerateRegistriesTask;
+import fr.fidorial.registrygen.task.GenerateReportsTask;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.TaskProvider;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
- * Configuration exposed by the plugin.
+ * Gradle plugin that downloads the Minecraft server, generates Mojang reports,
+ * and generates typed registry source files.
  *
  * @since 0.1.0
  */
-public abstract class FidorialRegistryGeneratorPlugin {
+public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
 
-    /**
-     * Minecraft version to resolve from Mojang's official version manifest.
-     */
-    public abstract Property<String> getMinecraftVersion();
+  public static final String DOWNLOAD_MANIFEST_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 
-    /**
-     * Persistent workspace root. Defaults to {@code build/working}.
-     */
-    public abstract DirectoryProperty getWorkingDirectory();
+  public static final String EXTENSION_NAME = "fidorialRegistryGenerator";
+  public static final String DOWNLOAD_TASK_NAME = "downloadMinecraftServer";
+  public static final String REPORTS_TASK_NAME = "generateMinecraftReports";
+  public static final String REGISTRIES_TASK_NAME = "generateRegistries";
 
-    /**
-     * Final generated Java source root.
-     */
-    public abstract DirectoryProperty getGeneratedSourcesDirectory();
+  @Override
+  public void apply(final Project project) {
+    final FidorialRegistryGeneratorExtension extension = project.getExtensions().create(EXTENSION_NAME,
+                                                                                        FidorialRegistryGeneratorExtension.class);
 
-    /**
-     * Package used for generated classes.
-     */
-    public abstract Property<String> getGeneratedPackage();
+    configureDefaults(project, extension);
 
-    /**
-     * Registry identifier to generated class name.
-     * Example: {@code minecraft:entity_type -> EntityTypes}.
-     */
-    public abstract MapProperty<String, String> getRegistries();
+    final TaskProvider<DownloadServerJarTask> downloadTask = registerDownloadTask(project, extension);
+    final TaskProvider<GenerateReportsTask> reportsTask = registerReportsTask(project, extension, downloadTask);
+    final TaskProvider<GenerateRegistriesTask> registriesTask = registerRegistriesTask(project, extension, reportsTask);
 
-    /**
-     * Additional arguments passed to Mojang's data generator.
-     */
-    public abstract ListProperty<String> getDataGeneratorArguments();
+    registerLifecycleTask(project, registriesTask);
+    addGeneratedSources(project, extension, registriesTask);
+  }
+
+  private static void configureDefaults(final Project project, final FidorialRegistryGeneratorExtension extension) {
+
+    extension.getWorkingDirectory().convention(project.getLayout().getBuildDirectory().dir("working"));
+
+    extension.getGeneratedSourcesDirectory().convention(project.getLayout()
+                                                                .getBuildDirectory()
+                                                                .dir("generated/sources/fidorialRegistries/java/main"));
+
+    extension.getGeneratedPackage().convention("fr.fidorial.registry");
+    extension.getRegistries().convention(Map.of());
+    extension.getDataGeneratorArguments().convention(List.of("--reports"));
+  }
+
+  private static TaskProvider<DownloadServerJarTask> registerDownloadTask(final Project project,
+                                                                          final FidorialRegistryGeneratorExtension extension) {
+
+    return project.getTasks().register(DOWNLOAD_TASK_NAME, DownloadServerJarTask.class, task -> {
+      task.setGroup("fidorial registry generation");
+      task.setDescription("Downloads the official Minecraft server JAR.");
+
+      task.getMinecraftVersion().set(extension.getMinecraftVersion());
+      task.getServerJar().set(extension.getWorkingDirectory()
+                                       .file(extension.getMinecraftVersion().map(version -> "minecraft/" + version + "/jar/server.jar")));
+    });
+  }
+
+  private static TaskProvider<GenerateReportsTask> registerReportsTask(final Project project,
+                                                                       final FidorialRegistryGeneratorExtension extension,
+                                                                       final TaskProvider<DownloadServerJarTask> downloadTask) {
+
+    return project.getTasks().register(REPORTS_TASK_NAME, GenerateReportsTask.class, task -> {
+      task.setGroup("fidorial registry generation");
+      task.setDescription("Runs Mojang's data generator.");
+      task.dependsOn(downloadTask);
+
+      task.getMinecraftVersion().set(extension.getMinecraftVersion());
+
+      task.getJavaExecutable().convention(Path.of(System.getProperty("java.home"), "bin", executableName("java")).toString());
+
+      task.getDataGeneratorArguments().set(extension.getDataGeneratorArguments());
+      task.getServerJar().set(downloadTask.flatMap(DownloadServerJarTask::getServerJar));
+
+      task.getDataDirectory().set(
+              extension.getWorkingDirectory().dir(
+                      extension.getMinecraftVersion()
+                              .map(version -> "minecraft/" + version + "/data")));
+    });
+  }
+
+  private static TaskProvider<GenerateRegistriesTask> registerRegistriesTask(final Project project,
+                                                                             final FidorialRegistryGeneratorExtension extension,
+                                                                             final TaskProvider<GenerateReportsTask> reportsTask) {
+
+    return project.getTasks().register(REGISTRIES_TASK_NAME, GenerateRegistriesTask.class, task -> {
+      task.setGroup("fidorial registry generation");
+      task.setDescription("Generates typed registry Java sources.");
+      task.dependsOn(reportsTask);
+
+      task.getMinecraftVersion().set(extension.getMinecraftVersion());
+      task.getGeneratedPackage().set(extension.getGeneratedPackage());
+      task.getRegistries().set(extension.getRegistries());
+
+      task.getReportsDirectory().set(reportsTask.flatMap(GenerateReportsTask::getDataDirectory)
+                                             .map(directory -> directory.dir("generated/reports")));
+
+      task.getGeneratedSourcesDirectory().set(extension.getGeneratedSourcesDirectory());
+    });
+  }
+
+  private static void registerLifecycleTask(final Project project, final TaskProvider<GenerateRegistriesTask> registriesTask) {
+    project.getTasks().register("generateFidorialRegistries", task -> {
+      task.setGroup("fidorial registry generation");
+      task.setDescription("Runs the complete registry generation pipeline.");
+      task.dependsOn(registriesTask);
+    });
+  }
+
+  private static void addGeneratedSources(final Project project,
+                                          final FidorialRegistryGeneratorExtension extension,
+                                          final TaskProvider<GenerateRegistriesTask> registriesTask) {
+
+    project.getPluginManager().withPlugin("java", ignored -> {
+
+      final SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
+
+      sourceSets.named("main", sourceSet -> sourceSet.getJava().srcDir(extension.getGeneratedSourcesDirectory()));
+
+      project.getTasks().named("compileJava").configure(task -> task.dependsOn(registriesTask));
+    });
+  }
+
+  private static String executableName(final String executable) {
+    return (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win"))? executable + ".exe" : executable;
+  }
 }

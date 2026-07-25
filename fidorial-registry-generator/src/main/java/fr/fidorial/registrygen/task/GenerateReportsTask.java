@@ -13,8 +13,12 @@ import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,27 +55,52 @@ public abstract class GenerateReportsTask extends DefaultTask {
 
     @TaskAction
     public void generate() throws IOException, InterruptedException {
-        final var dataDirectory = getDataDirectory().get().getAsFile().toPath();
+        final Path dataDirectory = getDataDirectory().get().getAsFile().toPath();
+        final Path serverJar = getServerJar().get().getAsFile().toPath();
+
         Files.createDirectories(dataDirectory);
 
         final List<String> command = new ArrayList<>();
         command.add(getJavaExecutable().get());
         command.add("-DbundlerMainClass=net.minecraft.data.Main");
         command.add("-jar");
-        command.add(getServerJar().get().getAsFile().getAbsolutePath());
+        command.add(serverJar.toAbsolutePath().toString());
         command.addAll(getDataGeneratorArguments().get());
-        command.add("--output");
-        command.add(dataDirectory.toAbsolutePath().toString());
 
         getLogger().lifecycle("Running Minecraft data generator for Minecraft {}", getMinecraftVersion().get());
-        final Process process = new ProcessBuilder(command)
-                .directory(dataDirectory.toFile())
-                .inheritIO()
-                .start();
+        getLogger().lifecycle("Java executable: {}", getJavaExecutable().get());
+        getLogger().lifecycle("Working directory: {}", dataDirectory.toAbsolutePath());
+        getLogger().lifecycle("Command: {}", command);
+
+        final ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.directory(dataDirectory.toFile());
+        processBuilder.redirectErrorStream(true);
+
+        final Process process = processBuilder.start();
+
+        try (final BufferedReader reader = process.inputReader(StandardCharsets.UTF_8)) {
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                getLogger().lifecycle("[Minecraft Data Generator] {}", line);
+            }
+        }
 
         final int exitCode = process.waitFor();
+
         if (exitCode != 0) {
-            throw new IOException("Minecraft data generator exited with code " + exitCode);
+            throw new IOException(
+                    "Minecraft data generator exited with code " + exitCode
+            );
+        }
+
+        final Path registriesFile = dataDirectory.resolve("generated").resolve("reports").resolve("registries.json");
+
+        if (!Files.isRegularFile(registriesFile)) {
+            throw new IOException(
+                    "Minecraft data generator exited successfully, but did not generate "
+                    + registriesFile
+            );
         }
     }
 }

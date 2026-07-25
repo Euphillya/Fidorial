@@ -14,7 +14,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import static fr.fidorial.registrygen.RegistryGeneratorMain.DOWNLOAD_MANIFEST_URL;
+import static fr.fidorial.registrygen.FidorialRegistryGeneratorPlugin.DOWNLOAD_MANIFEST_URL;
 
 /**
  * The {@code ServerJarURLGrabber} class is a utility for retrieving server download information

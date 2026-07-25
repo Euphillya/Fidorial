@@ -23,8 +23,7 @@ public final class GenerationUtils {
 
     final String path = path(identifier);
 
-    String result = path
-            .replace('/', '_')
+    String result = path.replace('/', '_')
             .replace('-', '_')
             .replace('.', '_')
             .replace(':', '_')

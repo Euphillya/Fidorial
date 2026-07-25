@@ -1,5 +1,7 @@
 package fr.fidorial.registrygen.task;
 
+import fr.fidorial.registrygen.generate.RegistryGenerator;
+import fr.fidorial.registrygen.model.RegistriesHolder;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.MapProperty;
@@ -44,21 +46,11 @@ public abstract class GenerateRegistriesTask extends DefaultTask {
     public abstract DirectoryProperty getGeneratedSourcesDirectory();
 
     @TaskAction
-    public void generate() throws IOException {
-        final Path output = getGeneratedSourcesDirectory().get().getAsFile().toPath();
-        recreateDirectory(output);
+    public void generateRegistries() throws IOException {
+        final Path registriesJson = getReportsDirectory().get().getAsFile().toPath().resolve("registries.json");
 
-        //TODO: Generate the sources
-    }
+        final Path outputDirectory = getGeneratedSourcesDirectory().get().getAsFile().toPath();
 
-    private static void recreateDirectory(final Path directory) throws IOException {
-        if (Files.exists(directory)) {
-            try (final var paths = Files.walk(directory)) {
-                for (final Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
-                    Files.deleteIfExists(path);
-                }
-            }
-        }
-        Files.createDirectories(directory);
+        new RegistryGenerator().generate(registriesJson, outputDirectory);
     }
 }

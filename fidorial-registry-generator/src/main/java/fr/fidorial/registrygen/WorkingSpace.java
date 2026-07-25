@@ -1,7 +1,6 @@
 package fr.fidorial.registrygen;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -45,24 +44,15 @@ public final class WorkingSpace {
         Objects.requireNonNull(minecraftVersion, "minecraftVersion");
 
         if (minecraftVersion.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Minecraft version cannot be blank."
-            );
+            throw new IllegalArgumentException("Minecraft version cannot be blank.");
         }
 
         this.minecraftVersion = minecraftVersion.trim();
-
-        this.rootDirectory = rootDirectory
-                .toAbsolutePath()
-                .normalize();
-
+        this.rootDirectory = rootDirectory.toAbsolutePath().normalize();
         this.minecraftDirectory = this.rootDirectory.resolve("minecraft");
-
         this.versionDirectory = minecraftDirectory.resolve(this.minecraftVersion);
-
         this.jarDirectory = versionDirectory.resolve("jar");
         this.serverJar = jarDirectory.resolve("server.jar");
-
         this.dataDirectory = versionDirectory.resolve("data");
         this.reportsDirectory = dataDirectory.resolve("reports");
     }

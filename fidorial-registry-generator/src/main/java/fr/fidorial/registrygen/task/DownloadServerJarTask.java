@@ -10,6 +10,8 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import static fr.fidorial.registrygen.download.ServerJarURLGrabber.fetchServerDownload;
 
@@ -32,7 +34,13 @@ public abstract class DownloadServerJarTask extends DefaultTask {
     @TaskAction
     public void download() throws IOException {
 
-
         final ServerDownload serverDownload = fetchServerDownload(getMinecraftVersion().get());
+
+        final var destination = getServerJar().get().getAsFile().toPath();
+
+        Files.createDirectories(destination.getParent());
+        try (final var input = serverDownload.url().toURL().openStream()) {
+            Files.copy(input, destination, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 }
