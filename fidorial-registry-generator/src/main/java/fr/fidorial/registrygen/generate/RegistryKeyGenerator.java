@@ -145,11 +145,9 @@ public final class RegistryKeyGenerator {
 
     private static MethodSpec createFactoryKeyMethod() {
 
-        final ClassName apiStatus = ClassName.get("org.jetbrains.annotations", "NotNull");
-
         final TypeVariableName typeVariable = TypeVariableName.get("T");
         final ParameterizedTypeName returnType = ParameterizedTypeName.get(REGISTRY_KEY, typeVariable);
-        final ParameterSpec pathParameter = ParameterSpec.builder(Key.class, "key", Modifier.FINAL).addAnnotation(apiStatus).build();
+        final ParameterSpec pathParameter = ParameterSpec.builder(Key.class, "key", Modifier.FINAL).build();
 
         return MethodSpec.methodBuilder("of")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
