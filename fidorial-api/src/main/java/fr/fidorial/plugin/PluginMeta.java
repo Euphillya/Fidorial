@@ -5,6 +5,7 @@ import fr.fidorial.permission.PermissionNode;
 import net.kyori.adventure.key.KeyPattern;
 import net.kyori.adventure.util.TriState;
 import org.eclipse.aether.graph.Exclusion;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -19,6 +20,7 @@ import java.util.Set;
  *
  * @since 0.1.0
  */
+@ApiStatus.NonExtendable
 public interface PluginMeta {
     /**
      * Returns the stable plugin identifier.
@@ -145,6 +147,7 @@ public interface PluginMeta {
      *
      * @since 0.1.0
      */
+    @ApiStatus.NonExtendable
     interface Author {
         /**
          * Returns the author's name.
@@ -182,6 +185,7 @@ public interface PluginMeta {
      *
      * @since 0.1.0
      */
+    @ApiStatus.NonExtendable
     interface PluginDependency extends Dependency {
         /**
          * Returns the required plugin identifier.
@@ -260,6 +264,7 @@ public interface PluginMeta {
      *
      * @since 0.1.0
      */
+    @ApiStatus.NonExtendable
     interface RemoteDependency extends Dependency {
         /**
          * Returns Maven repositories that can provide this dependency.
@@ -315,6 +320,7 @@ public interface PluginMeta {
      *
      * @since 0.1.0
      */
+    @ApiStatus.NonExtendable
     interface JarDependency extends Dependency {
         /**
          * Returns the path to the bundled dependency file.
@@ -330,6 +336,7 @@ public interface PluginMeta {
      *
      * @since 0.1.0
      */
+    @ApiStatus.NonExtendable
     interface Dependency {
     }
 
@@ -338,6 +345,7 @@ public interface PluginMeta {
      *
      * @since 0.1.0
      */
+    @ApiStatus.NonExtendable
     interface PermissionEntry {
         /**
          * Returns the permission node.
