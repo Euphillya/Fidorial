@@ -20,9 +20,9 @@ public interface PluginMeta {
 
     String main();
 
-    Set<String> providedPlugins();
-
     Set<Author> authors();
+
+    Set<String> providedPlugins();
 
     Set<Dependency> dependencies();
 
