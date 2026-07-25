@@ -4,19 +4,19 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
-public class PlayerInventory implements Container {
+public class EnderChestInventory implements Container {
 
-    public static final int SIZE = 46;
+    public static final int SIZE = 27;
 
     private final ItemStack[] slots = new ItemStack[SIZE];
 
-    public PlayerInventory() {
+    public EnderChestInventory() {
         Arrays.fill(slots, ItemStack.EMPTY);
     }
 
     private static void checkSlot(final int slot) {
         if (slot < 0 || slot >= SIZE) {
-            throw new IndexOutOfBoundsException("Emplacement invalide : " + slot);
+            throw new IndexOutOfBoundsException("Invalid slot: " + slot);
         }
     }
 

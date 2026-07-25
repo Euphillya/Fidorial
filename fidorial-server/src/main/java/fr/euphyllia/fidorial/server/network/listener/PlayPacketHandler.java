@@ -4,10 +4,12 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.ServerConfig;
 import fr.euphyllia.fidorial.server.entity.player.InventorySlots;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
+import fr.euphyllia.fidorial.server.inventory.EnderChestMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.session.ChunkViewTracker;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundAddEntityPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundBlockChangedAckPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundBlockEventPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundCommandSuggestionsPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundContainerSetContentPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
@@ -17,6 +19,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerPositionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket.Entry;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
@@ -24,6 +27,8 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.Serverbound
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatCommandPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClosePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
@@ -35,9 +40,9 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.Serverbound
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
-import fr.euphyllia.fidorial.server.registry.entity.EntityTypeRegistry;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
+import fr.euphyllia.fidorial.server.world.block.EnderChestBlock;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.PlayerProfile;
@@ -45,20 +50,23 @@ import fr.fidorial.event.player.BlockBreakEvent;
 import fr.fidorial.event.player.BlockPlaceEvent;
 import fr.fidorial.event.player.PlayerChatEvent;
 import fr.fidorial.event.player.PlayerJoinEvent;
+import fr.fidorial.event.player.PlayerOpenEnderChestEvent;
 import fr.fidorial.event.player.PlayerQuitEvent;
+import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
-import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.world.BlockFace;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -116,6 +124,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             ticket = null;
         }
         if (player != null) {
+            closeOpenMenu(false);
             server.events().post(new PlayerQuitEvent(player));
             server.worldManager().overworld().removeEntity(player);
             player.permissions().revokeAll();
@@ -133,10 +142,20 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 server.entityIds().allocate(),
                 profile,
                 loadInventory(profile),
+                loadEnderChest(profile),
                 loadPlayerData(profile).gameMode(),
                 connection,
                 world,
                 spawn);
+    }
+
+    private EnderChestInventory loadEnderChest(final PlayerProfile profile) {
+        try {
+            return server.playerEnderChestStorage().load(profile.uuid());
+        } catch (final Exception e) {
+            LOGGER.error("Chargement de l'ender chest de {} impossible, conteneur vide utilise", profile.name(), e);
+            return new EnderChestInventory();
+        }
     }
 
     private PlayerInventory loadInventory(final PlayerProfile profile) {
@@ -198,8 +217,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     private void spawnPlayer(final Location spawn) {
         connection.send(new ClientboundPlayerPositionPacket(player.nextTeleportId(), spawn.x(), spawn.y(), spawn.z()));
-        connection.send(new ClientboundContainerSetContentPacket(
-                player.inventory(), server.registries().frozen()));
+        connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
+                player.inventory(), 0, ItemStack.EMPTY, server.registries().frozen()));
     }
 
     @Override
@@ -294,9 +313,13 @@ public final class PlayPacketHandler implements PlayPacketListener {
             connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
             return;
         }
+        if (interactWithBlock(packet.target())) {
+            connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
+            return;
+        }
         final BlockPos target = packet.target().relative(BlockFace.byId(packet.face()));
         final ItemStack held = player.inventory().get(player.selectedSlot());
-        final BlockState state = held.isEmpty() ? null : server.blockStateRegistry().blockForItem(held.id());
+        final BlockState state = held.isEmpty() ? null : blockToPlace(held, target);
 
         if (state != null) {
             final BlockPlaceEvent event = server.events()
@@ -307,6 +330,101 @@ public final class PlayPacketHandler implements PlayPacketListener {
             }
         }
         connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
+    }
+
+    private @Nullable BlockState blockToPlace(final ItemStack held, final BlockPos target) {
+        final BlockState state = server.blockStateRegistry().blockForItem(held.id());
+        if (state == null) {
+            return null;
+        }
+        if (EnderChestBlock.is(state)) {
+            return EnderChestBlock.placedBy(player.location(), isWater(target));
+        }
+        return state;
+    }
+
+    private boolean isWater(final BlockPos pos) {
+        try {
+            return "minecraft:water"
+                    .equals(server.worldManager().overworld().getBlock(pos.x(), pos.y(), pos.z()).name());
+        } catch (final IOException e) {
+            return false;
+        }
+    }
+
+    private boolean interactWithBlock(final BlockPos pos) {
+        final BlockState state;
+        try {
+            state = server.worldManager().overworld().getBlock(pos.x(), pos.y(), pos.z());
+        } catch (final IOException e) {
+            LOGGER.debug("Lecture du bloc {} impossible", pos, e);
+            return false;
+        }
+        if (!EnderChestBlock.is(state)) {
+            return false;
+        }
+        openEnderChest(pos);
+        return true;
+    }
+
+    private void openEnderChest(final BlockPos pos) {
+        if (EnderChestBlock.isBlockedAbove(server.worldManager().overworld(), pos)) {
+            return;
+        }
+
+        final PlayerOpenEnderChestEvent event =
+                server.events().post(new PlayerOpenEnderChestEvent(player, pos, player.enderChest()));
+        if (event.isCancelled()) {
+            return;
+        }
+
+        final EnderChestMenu menu = new EnderChestMenu(player, player.allocateWindowId(), pos);
+        player.openMenu(menu);
+
+        server.chestViewers().open(pos, this::broadcastLid);
+        broadcastChestSound(pos, "block.ender_chest.open");
+    }
+
+    private void broadcastLid(final BlockPos pos, final int viewers) {
+        server.broadcast(ClientboundBlockEventPacket.chestViewers(pos, viewers));
+    }
+
+    @SuppressWarnings("PatternValidation")
+    private void broadcastChestSound(final BlockPos pos, final String soundId) {
+        final Sound sound = Sound.sound(Key.key(soundId), Sound.Source.BLOCK, 0.5f, 1.0f);
+        server.broadcast(new ClientboundSoundPacket(sound, pos.x() + 0.5, pos.y() + 0.5, pos.z() + 0.5));
+    }
+
+    private void closeOpenMenu(final boolean notifyClient) {
+        final ContainerMenu menu = player.openMenu();
+        if (menu == null) {
+            return;
+        }
+        player.closeMenu(notifyClient);
+
+        if (menu instanceof final EnderChestMenu enderChest) {
+            server.chestViewers().close(enderChest.position(), this::broadcastLid);
+            broadcastChestSound(enderChest.position(), "block.ender_chest.close");
+        }
+        connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
+                player.inventory(), 0, ItemStack.EMPTY, server.registries().frozen()));
+    }
+
+    @Override
+    public void handleContainerClick(final ServerboundContainerClickPacket packet) {
+        final ContainerMenu menu = player.openMenu();
+        if (menu == null || menu.windowId() != packet.windowId()) {
+            connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
+                    player.inventory(), 0, ItemStack.EMPTY, server.registries().frozen()));
+            return;
+        }
+        menu.click(packet);
+        connection.send(menu.buildSyncPacket(server.registries().frozen()));
+    }
+
+    @Override
+    public void handleContainerClose(final ServerboundContainerClosePacket packet) {
+        closeOpenMenu(false);
     }
 
     @Override
@@ -323,10 +441,19 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (breaking) {
             final BlockBreakEvent event = server.events().post(new BlockBreakEvent(player, packet.position()));
             if (!event.isCancelled()) {
+                onBlockDestroyed(packet.position());
                 server.blockEdits().set(server.worldManager().overworld(), packet.position(), BlockState.AIR);
             }
         }
         connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
+    }
+
+    private void onBlockDestroyed(final BlockPos position) {
+        final ContainerMenu menu = player.openMenu();
+        if (menu instanceof final EnderChestMenu enderChest && enderChest.position().equals(position)) {
+            closeOpenMenu(true);
+        }
+        server.chestViewers().forget(position);
     }
 
     @Override

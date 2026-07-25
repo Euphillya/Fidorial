@@ -3,10 +3,13 @@ package fr.euphyllia.fidorial.server.entity.player;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
+import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundCommandsPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundContainerClosePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundEntityEventPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundOpenScreenPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerAbilitiesPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerInfoGameModePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSoundEntityPacket;
@@ -18,6 +21,7 @@ import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfile;
+import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.PlayerInventory;
 import fr.fidorial.permission.PermissionResolver;
 import fr.fidorial.permission.PermissionState;
@@ -29,6 +33,7 @@ import fr.fidorial.world.World;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -41,6 +46,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     private final PlayerProfile profile;
     private final PlayerInventory inventory;
+    private final EnderChestInventory enderChest;
     private final ClientConnection connection;
     private final PermissionState permissions;
 
@@ -50,12 +56,16 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     private volatile int lastTeleportId;
     private volatile boolean flying;
 
+    private volatile @Nullable ContainerMenu openMenu;
+    private int nextWindowId = 1;
+
     private Locale locale;
 
     public ServerPlayer(
             final int entityId,
             final PlayerProfile profile,
             final PlayerInventory inventory,
+            final EnderChestInventory enderChest,
             final GameMode gameMode,
             final ClientConnection connection,
             final World world,
@@ -64,6 +74,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         super(entityId, profile.uuid(), EntityTypes.PLAYER, world, location);
         this.profile = profile;
         this.inventory = inventory;
+        this.enderChest = enderChest;
         this.gameMode = gameMode;
         this.connection = connection;
         this.locale = connection.locale();
@@ -118,6 +129,61 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     public PlayerInventory inventory() {
         return inventory;
+    }
+
+    @Override
+    public EnderChestInventory enderChest() {
+        return enderChest;
+    }
+
+    /**
+     * The currently open container window, or {@code null}.
+     */
+    public @Nullable ContainerMenu openMenu() {
+        return openMenu;
+    }
+
+    /**
+     * Allocates the next Window ID. IDs stay within 1..99: beyond that, several protocol packets
+     * still encode the window on a single byte.
+     */
+    public int allocateWindowId() {
+        final int id = nextWindowId;
+        nextWindowId = id >= 99 ? 1 : id + 1;
+        return id;
+    }
+
+    /**
+     * Opens a window on the client and keeps it as the current window. Any previously open window
+     * is cleanly closed beforehand.
+     */
+    public void openMenu(final ContainerMenu menu) {
+        closeMenu(true);
+        this.openMenu = menu;
+        connection.send(new ClientboundOpenScreenPacket(
+                menu.windowId(),
+                menu.menuTypeId(connection.server().registries().frozen()),
+                menu.title()));
+        connection.send(menu.buildSyncPacket(connection.server().registries().frozen()));
+    }
+
+    /**
+     * Closes the current window, if any.
+     *
+     * @param notifyClient {@code true} to also send a {@code container_close} to the client;
+     *     unnecessary when it is precisely the client that just closed the window.
+     */
+    public void closeMenu(final boolean notifyClient) {
+        final ContainerMenu menu = this.openMenu;
+        if (menu == null) {
+            return;
+        }
+        this.openMenu = null;
+        menu.returnCarried();
+        menu.onClosed();
+        if (notifyClient) {
+            connection.send(new ClientboundContainerClosePacket(menu.windowId()));
+        }
     }
 
     public ClientConnection connection() {

@@ -6,6 +6,8 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.Serverbound
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatCommandPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClosePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
@@ -26,6 +28,10 @@ public interface PlayPacketListener extends PacketListener {
     void handleSetCreativeModeSlot(ServerboundSetCreativeModeSlotPacket packet);
 
     void handleSetCarriedItem(ServerboundSetCarriedItemPacket packet);
+
+    void handleContainerClick(ServerboundContainerClickPacket packet);
+
+    void handleContainerClose(ServerboundContainerClosePacket packet);
 
     void handleUseItemOn(ServerboundUseItemOnPacket packet);
 
