@@ -14,6 +14,7 @@ spotless = "8.8.0"
 spotless-lib = "4.8.0"
 classgraph = "4.8.180"
 shadow = "9.5.1"
+maven-resolver = "2.0.20"
 
 [libraries]
 netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
@@ -44,6 +45,7 @@ spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.re
 spotless-lib = { module = "com.diffplug.spotless:spotless-lib", version.ref = "spotless-lib" }
 spotless-lib-extra = { module = "com.diffplug.spotless:spotless-lib-extra", version.ref = "spotless-lib" }
 classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
+maven-resolver = { module = "org.apache.maven.resolver:maven-resolver-api", version.ref = "maven-resolver" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

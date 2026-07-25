@@ -1,0 +1,25 @@
+{
+  "id": "fidorial",
+  "name": "Fidorial",
+  "version": "0.1.0",
+  "main": "fr.fidorial.Main",
+  "provided": [
+    "some-other-plugin",
+    "and-another-one"
+  ],
+  "authors": [
+    "Euphyllia",
+    {
+      "name": "NonSwag",
+      "website": "https://nonswag.dev",
+      "contact": {
+        "discord": "NonSwag",
+        "email": "mail@nonswag.dev"
+      }
+    }
+  ],
+  "dependencies": [
+  ],
+  "permissions": {
+  }
+}
