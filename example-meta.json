@@ -1,8 +1,12 @@
 {
   "id": "fidorial",
   "name": "Fidorial",
+  "description": "An alternative Minecraft Server",
   "version": "0.1.0",
   "main": "fr.fidorial.Main",
+  "url": "https://github.com/Euphillya/Fidorial",
+  "license": "MIT",
+  "apiVersion": ">=0.1.0 <1.0.0",
   "provided": [
     "some-other-plugin",
     "and-another-one"
@@ -19,7 +23,80 @@
     }
   ],
   "dependencies": [
+    {
+      "plugin": "yet-another-plugin",
+      "version": "*",
+      "joinClasspath": true
+    },
+    {
+      "plugin": "and-one-more-plugin",
+      "version": "~1.2.3",
+      "load": "before"
+    },
+    {
+      "plugin": "you-guessed-it-one-more",
+      "version": "1.2.3",
+      "load": "after"
+    },
+    {
+      "jar": "mylib-1.0.0-all.jar"
+    },
+    {
+      "groupId": "com.google.guava",
+      "artifactId": "guava",
+      "version": "^33.0.0",
+      "repositories": [
+        "https://dl.google.com/dl/android/maven2/",
+        "https://repo.maven.apache.org/maven2/"
+      ],
+      "excludes": [
+        "org.jspecify:jspecify",
+        "com.google.j2objc:j2objc-annotations",
+        "com.google.errorprone:error_prone_annotations"
+      ]
+    }
   ],
   "permissions": {
+    "*": {
+      "description": "Grant access to every permission that is not explicitly denied"
+    },
+    "fidorial.command.op": {
+      "description": "Grants access to /fidorial:op",
+      "scope": "op"
+    },
+    "fidorial.command.whitelist": {
+      "description": "Grants access to /whitelist",
+      "scope": "op",
+      "children": {
+        "fidorial.command.whitelist.toggle": {
+          "description": "Grants access to /whitelist [on|off]",
+          "children": {
+            "fidorial.command.whitelist.toggle.on": {
+              "description": "Grants access to /whitelist on"
+            },
+            "fidorial.command.whitelist.toggle.off": {
+              "description": "Grants access to /whitelist off"
+            }
+          }
+        },
+        "fidorial.command.whitelist.manage": {
+          "description": "Grants access to /whitelist [add|remove] <player>",
+          "children": {
+            "fidorial.command.whitelist.manage.add": {
+              "description": "Grants access to /whitelist add <player>"
+            },
+            "fidorial.command.whitelist.manage.remove": {
+              "description": "Grants access to /whitelist remove <player>"
+            }
+          }
+        },
+        "fidorial.command.whitelist.list": {
+          "description": "Grants access to /whitelist list"
+        },
+        "fidorial.command.whitelist.reload": {
+          "description": "Grants access to /whitelist reload"
+        }
+      }
+    }
   }
 }
