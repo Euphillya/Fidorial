@@ -2,6 +2,7 @@ package fr.fidorial.entity;
 
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
+import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.PlayerInventory;
 import fr.fidorial.permission.PermissionHolder;
 
@@ -26,6 +27,8 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
     void kick(String reason);
 
     PlayerInventory inventory();
+
+    EnderChestInventory enderChest();
 
     GameMode gameMode();
 

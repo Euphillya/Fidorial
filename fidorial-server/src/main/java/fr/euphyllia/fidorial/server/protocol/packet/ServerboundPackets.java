@@ -19,6 +19,8 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.Serverbound
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatCommandPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClosePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
@@ -97,17 +99,25 @@ public class ServerboundPackets {
                 ConnectionState.PLAY,
                 PlayServerboundPackets.COMMAND_SUGGESTION,
                 ServerboundCommandSuggestionPacket::read);
+        register(
+                ConnectionState.PLAY,
+                PlayServerboundPackets.CONTAINER_CLICK,
+                ServerboundContainerClickPacket::read);
+        register(
+                ConnectionState.PLAY,
+                PlayServerboundPackets.CONTAINER_CLOSE,
+                ServerboundContainerClosePacket::read);
     }
 
     private ServerboundPackets() {
     }
 
-    private static void register(ConnectionState state, String name, Reader reader) {
+    private static void register(final ConnectionState state, final String name, final Reader reader) {
         READERS.computeIfAbsent(state, s -> new HashMap<>()).put(name, reader);
     }
 
-    public static @Nullable ServerboundPacket decode(ConnectionState state, String name, PacketBuffer buf) {
-        Reader reader = READERS.getOrDefault(state, Map.of()).get(name);
+    public static @Nullable ServerboundPacket decode(final ConnectionState state, final String name, final PacketBuffer buf) {
+        final Reader reader = READERS.getOrDefault(state, Map.of()).get(name);
         return reader == null ? null : reader.read(buf);
     }
 
