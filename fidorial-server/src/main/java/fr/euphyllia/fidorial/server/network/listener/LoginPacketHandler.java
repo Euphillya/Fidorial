@@ -23,9 +23,11 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class LoginPacketHandler implements LoginPacketListener {
@@ -38,32 +40,48 @@ public final class LoginPacketHandler implements LoginPacketListener {
     private byte @Nullable [] verifyToken;
     private @Nullable String pendingUsername;
     private int velocityTransactionId = -1;
+    private boolean encryptionRequested = false;
+    private boolean loginComplete = false;
 
-    public LoginPacketHandler(ClientConnection connection) {
+    public LoginPacketHandler(final ClientConnection connection) {
         this.connection = connection;
         this.server = connection.server();
     }
 
     @Override
-    public void handleHello(ServerboundHelloPacket packet) {
+    public void handleHello(final ServerboundHelloPacket packet) {
+        if (pendingUsername != null) {
+            connection.close();
+            return;
+        }
         this.pendingUsername = packet.username();
         connection.setUsername(pendingUsername);
         if (server.config().proxyMode() == ServerConfig.ProxyMode.VELOCITY) {
             sendVelocityForwardingRequest();
-        } else {
+        } else if (server.config().onlineMode()) {
             sendEncryptionRequest();
+        } else {
+            LOGGER.warn("Offline connection (unauthenticated): {}", pendingUsername);
+            enableCompression();
+            sendLoginSuccess(offlineProfile(pendingUsername));
         }
     }
 
+    private static GameProfile offlineProfile(final String username) {
+        final UUID uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + username).getBytes(StandardCharsets.UTF_8));
+        return new GameProfile(uuid, username, UUID.randomUUID(), List.of());
+    }
+
+
     private void sendVelocityForwardingRequest() {
         this.velocityTransactionId = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
-        byte[] requestedVersion = {(byte) VelocityForwarding.MAX_SUPPORTED_VERSION};
+        final byte[] requestedVersion = {(byte) VelocityForwarding.MAX_SUPPORTED_VERSION};
         connection.send(
                 new ClientboundCustomQueryPacket(velocityTransactionId, VelocityForwarding.CHANNEL, requestedVersion));
     }
 
     @Override
-    public void handleCustomQueryAnswer(ServerboundCustomQueryAnswerPacket packet) {
+    public void handleCustomQueryAnswer(final ServerboundCustomQueryAnswerPacket packet) {
         if (server.config().proxyMode() != ServerConfig.ProxyMode.VELOCITY
                 || packet.transactionId() != velocityTransactionId) {
             LOGGER.trace("unexpected custom_query_answer (id {}) ignore", packet.transactionId());
@@ -79,7 +97,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
             return;
         }
         try {
-            VelocityForwarding.ForwardedData data =
+            final VelocityForwarding.ForwardedData data =
                     VelocityForwarding.decode(packet.payload(), server.config().velocitySecret());
             connection.setForwardedAddress(data.remoteAddress());
             connection.setUsername(data.profile().name());
@@ -91,70 +109,76 @@ public final class LoginPacketHandler implements LoginPacketListener {
                     data.remoteAddress());
             enableCompression();
             sendLoginSuccess(data.profile());
-        } catch (VelocityForwarding.ForwardingException e) {
+        } catch (final VelocityForwarding.ForwardingException e) {
             LOGGER.warn("Forwarding Velocity refuses for {}: {}", pendingUsername, e.getMessage());
             disconnect("Invalid Velocity forwarding data");
         }
     }
 
     private void sendEncryptionRequest() {
+        this.encryptionRequested = true;
         this.verifyToken = EncryptionUtils.generateVerifyToken();
-        byte[] publicKey = server.keyPair().getPublic().getEncoded();
+        final byte[] publicKey = server.keyPair().getPublic().getEncoded();
         connection.send(new ClientboundHelloPacket("", publicKey, verifyToken, true));
     }
 
     @Override
-    public void handleKey(ServerboundKeyPacket packet) {
+    public void handleKey(final ServerboundKeyPacket packet) {
+        if (!encryptionRequested || loginComplete) {
+            connection.close();
+            return;
+        }
         try {
-            byte[] token = EncryptionUtils.decryptRsa(server.keyPair().getPrivate(), packet.encryptedToken());
+            final byte[] token = EncryptionUtils.decryptRsa(server.keyPair().getPrivate(), packet.encryptedToken());
             if (!Arrays.equals(token, verifyToken)) {
                 disconnect("Verify token invalide");
                 return;
             }
-            byte[] sharedSecret = EncryptionUtils.decryptRsa(server.keyPair().getPrivate(), packet.encryptedSecret());
-            SecretKey key = EncryptionUtils.toAesKey(sharedSecret);
+            final byte[] sharedSecret = EncryptionUtils.decryptRsa(server.keyPair().getPrivate(), packet.encryptedSecret());
+            final SecretKey key = EncryptionUtils.toAesKey(sharedSecret);
             connection.installEncryption(key);
 
-            String serverHash = EncryptionUtils.computeServerHash(
+            final String serverHash = EncryptionUtils.computeServerHash(
                     "", sharedSecret, server.keyPair().getPublic());
-            String username = pendingUsername;
+            final String username = pendingUsername;
             Thread.startVirtualThread(() -> authenticate(username, serverHash));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.warn("Echec du chiffrement pour {}", pendingUsername, e);
             connection.close();
         }
     }
 
-    private void authenticate(String username, String serverHash) {
+    private void authenticate(final String username, final String serverHash) {
         try {
-            Optional<GameProfile> profile = server.sessionService().hasJoined(username, serverHash);
+            final Optional<GameProfile> profile = server.sessionService().hasJoined(username, serverHash);
             connection.execute(() -> {
                 if (profile.isEmpty()) {
-                    disconnect("Authentification Mojang refusee");
+                    disconnect("Mojang authentication refused");
                 } else {
                     enableCompression();
                     sendLoginSuccess(profile.get());
                 }
             });
-        } catch (Exception e) {
-            LOGGER.warn("Session Mojang injoignable pour {}", username, e);
-            connection.execute(() -> disconnect("Serveurs d'authentification indisponibles"));
+        } catch (final Exception e) {
+            LOGGER.warn("Mojang session unreachable for {}", username, e);
+            connection.execute(() -> disconnect("Authentication servers unavailable"));
         }
     }
 
     private void enableCompression() {
-        int threshold = ProtocolConstants.COMPRESSION_THRESHOLD;
+        final int threshold = ProtocolConstants.COMPRESSION_THRESHOLD;
         if (threshold < 0) {
             return;
         }
         connection.send(new ClientboundLoginCompressionPacket(threshold));
         connection.installCompression(threshold);
-        LOGGER.debug("Compression activee (seuil {}) pour {}", threshold, pendingUsername);
+        LOGGER.debug("Compression enabled (threshold {}) for {}", threshold, pendingUsername);
     }
 
-    private void sendLoginSuccess(GameProfile profile) {
-        LOGGER.info("Authentifie : {} ({})", profile.name(), profile.uuid());
-        List<PlayerProfile.Property> properties = profile.properties().stream()
+    private void sendLoginSuccess(final GameProfile profile) {
+        this.loginComplete = true;
+        LOGGER.info("Authenticates: {} ({})", profile.name(), profile.uuid());
+        final List<PlayerProfile.Property> properties = profile.properties().stream()
                 .map(p -> new PlayerProfile.Property(p.name(), p.value(), p.signature()))
                 .toList();
         connection.setProfile(new PlayerProfile(profile.uuid(), profile.name(), properties));
@@ -162,11 +186,17 @@ public final class LoginPacketHandler implements LoginPacketListener {
     }
 
     @Override
-    public void handleLoginAcknowledged(ServerboundLoginAcknowledgedPacket packet) {
+    public void handleLoginAcknowledged(final ServerboundLoginAcknowledgedPacket packet) {
+        if (!loginComplete || connection.profile() == null) {
+            LOGGER.warn("login_acknowledged refuses for {}: login not completed", pendingUsername);
+            disconnect("Login not completed");
+            return;
+
+        }
         connection.setState(ConnectionState.CONFIGURATION);
     }
 
-    private void disconnect(String reason) {
+    private void disconnect(final String reason) {
         connection.sendAndClose(ClientboundLoginDisconnectPacket.ofText(reason));
     }
 }

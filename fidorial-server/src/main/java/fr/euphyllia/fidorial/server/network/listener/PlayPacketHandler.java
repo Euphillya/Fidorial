@@ -110,7 +110,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.startKeepAlive();
         server.addPlayerConnection(connection);
         server.events().post(new PlayerJoinEvent(player));
-        LOGGER.info("{} est en jeu", player.name());
+        LOGGER.info("{} logged with uuid {}", player.name(), player.uuid());
     }
 
     @Override
@@ -133,10 +133,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private ServerPlayer createPlayer(final ServerWorld world, final Location spawn) {
-        PlayerProfile profile = connection.profile();
+        final PlayerProfile profile = connection.profile();
         if (profile == null) {
-            // Filet de securite si l'on demarre sans phase de login complete.
-            profile = new PlayerProfile(UUID.randomUUID(), connection.username());
+            throw new IllegalStateException(
+                    "Attempt to create a player without an authenticated profile (incomplete login)");
         }
         return new ServerPlayer(
                 server.entityIds().allocate(),
