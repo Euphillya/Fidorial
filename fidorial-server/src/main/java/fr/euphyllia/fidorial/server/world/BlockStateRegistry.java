@@ -5,6 +5,7 @@ import fr.fidorial.world.block.BlockData;
 import fr.fidorial.world.block.BlockRegistry;
 import fr.fidorial.world.block.BlockType;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
@@ -13,33 +14,33 @@ public record BlockStateRegistry(BlockRegistry registry) {
 
     private static final int AIR_BLOCK = 0;
 
-    public int networkId(BlockState state) {
-        BlockData data = resolve(state);
+    public int networkId(final BlockState state) {
+        final BlockData data = resolve(state);
         return data == null ? AIR_BLOCK : data.networkId();
     }
 
-    public BlockState byId(int networkId) {
-        BlockData data = registry.fromNetworkId(networkId);
+    public BlockState byId(final int networkId) {
+        final BlockData data = registry.fromNetworkId(networkId);
         if (data == null) {
             return BlockState.AIR;
         }
         return new BlockState(data.key().asString(), data.propertyMap());
     }
 
-    public boolean contains(BlockState state) {
+    public boolean contains(final BlockState state) {
         return resolve(state) != null;
     }
 
     @SuppressWarnings("PatternValidation")
-    private BlockData resolve(BlockState state) {
-        BlockType type = registry.type(Key.key(state.name())).orElse(null);
+    private @Nullable BlockData resolve(final BlockState state) {
+        final BlockType type = registry.type(Key.key(state.name())).orElse(null);
         if (type == null) {
             return null;
         }
         return type.dataOrNull(state.properties());
     }
 
-    public BlockState blockForItem(Key itemId) {
+    public @Nullable BlockState blockForItem(final @Nullable Key itemId) {
         if (itemId == null) {
             return null;
         }
@@ -52,7 +53,7 @@ public record BlockStateRegistry(BlockRegistry registry) {
             return new BlockState("minecraft:lava", Map.of("level", "0"));
         }
 
-        BlockState candidate = BlockState.of(itemId.asString());
+        final BlockState candidate = BlockState.of(itemId.asString());
         if (candidate.isAir()) {
             return null;
         }

@@ -1,5 +1,7 @@
 package fr.fidorial.permission;
 
+import net.kyori.adventure.util.TriState;
+
 import java.util.Objects;
 
 public record PermissionDefinition(
@@ -13,7 +15,6 @@ public record PermissionDefinition(
         Objects.requireNonNull(node, "node");
         Objects.requireNonNull(regularDefault, "regularDefault");
         Objects.requireNonNull(operatorDefault, "operatorDefault");
-        description = description == null ? "" : description;
     }
 
     /**
@@ -24,7 +25,7 @@ public record PermissionDefinition(
      * @return the definition
      */
     public static PermissionDefinition operatorOnly(final String node, final String description) {
-        return new PermissionDefinition(PermissionNode.of(node), description, TriState.UNSET, TriState.ALLOW);
+        return new PermissionDefinition(PermissionNode.of(node), description, TriState.NOT_SET, TriState.TRUE);
     }
 
     /**
@@ -35,7 +36,7 @@ public record PermissionDefinition(
      * @return the definition
      */
     public static PermissionDefinition everyone(final String node, final String description) {
-        return new PermissionDefinition(PermissionNode.of(node), description, TriState.ALLOW, TriState.ALLOW);
+        return new PermissionDefinition(PermissionNode.of(node), description, TriState.TRUE, TriState.TRUE);
     }
 
     /**
@@ -47,7 +48,7 @@ public record PermissionDefinition(
      * @return the definition
      */
     public static PermissionDefinition explicitOnly(final String node, final String description) {
-        return new PermissionDefinition(PermissionNode.of(node), description, TriState.UNSET, TriState.UNSET);
+        return new PermissionDefinition(PermissionNode.of(node), description, TriState.NOT_SET, TriState.NOT_SET);
     }
 
     /**
@@ -58,7 +59,7 @@ public record PermissionDefinition(
      * @return the definition
      */
     public static PermissionDefinition refused(final String node, final String description) {
-        return new PermissionDefinition(PermissionNode.of(node), description, TriState.DENY, TriState.DENY);
+        return new PermissionDefinition(PermissionNode.of(node), description, TriState.FALSE, TriState.FALSE);
     }
 
     /**

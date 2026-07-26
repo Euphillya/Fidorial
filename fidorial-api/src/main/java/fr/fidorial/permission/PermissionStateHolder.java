@@ -1,6 +1,7 @@
 package fr.fidorial.permission;
 
 import fr.fidorial.plugin.Plugin;
+import net.kyori.adventure.util.TriState;
 
 import java.util.Map;
 

@@ -1,6 +1,7 @@
 package fr.fidorial.permission;
 
 import fr.fidorial.plugin.Plugin;
+import net.kyori.adventure.util.TriState;
 
 import java.util.Map;
 
@@ -38,22 +39,22 @@ public interface PermissionHolder {
     }
 
     /**
-     * Convenience check. Only {@link TriState#ALLOW} counts as held, so an unresolved node is
+     * Convenience check. Only {@link TriState#TRUE} counts as held, so an unresolved node is
      * treated as refused at the call site while still being distinguishable through
      * {@link #permissionState(PermissionNode)}.
      *
      * @param node the node
-     * @return {@code true} if the node resolves to {@link TriState#ALLOW}
+     * @return {@code true} if the node resolves to {@link TriState#TRUE}
      */
     default boolean hasPermission(final PermissionNode node) {
-        return permissionState(node) == TriState.ALLOW;
+        return permissionState(node) == TriState.TRUE;
     }
 
     /**
      * Convenience check from a textual path.
      *
      * @param node node path
-     * @return {@code true} if the node resolves to {@link TriState#ALLOW}
+     * @return {@code true} if the node resolves to {@link TriState#TRUE}
      */
     default boolean hasPermission(final String node) {
         return hasPermission(PermissionNode.of(node));
@@ -64,10 +65,10 @@ public interface PermissionHolder {
      * through unresolved.
      *
      * @param node node path
-     * @return {@code true} if the state is not {@link TriState#UNSET}
+     * @return {@code true} if the state is not {@link TriState#NOT_SET}
      */
     default boolean isPermissionDecided(final String node) {
-        return permissionState(node).isDecided();
+        return permissionState(node) != TriState.NOT_SET;
     }
 
     /**

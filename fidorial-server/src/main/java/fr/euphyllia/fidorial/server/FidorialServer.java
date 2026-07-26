@@ -19,8 +19,10 @@ import fr.euphyllia.fidorial.server.entity.EntityTracker;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
+import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerEnderChestStorage;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStorage;
 import fr.euphyllia.fidorial.server.event.SimpleEventBus;
+import fr.euphyllia.fidorial.server.inventory.ChestViewerTracker;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.NettyServer;
@@ -66,6 +68,7 @@ import fr.fidorial.service.ServicePriority;
 import fr.fidorial.service.ServiceRegistry;
 import fr.fidorial.status.Favicon;
 import fr.fidorial.storage.player.PlayerDataStorage;
+import fr.fidorial.storage.player.PlayerEnderChestStorage;
 import fr.fidorial.storage.player.PlayerInventoryStorage;
 import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.Location;
@@ -134,6 +137,9 @@ public final class FidorialServer implements Server {
             new NbtPlayerInventoryStorage(config.worldPath().resolve("player"), false);
     private final NbtPlayerDataStorage defaultPlayerDataStorage =
             new NbtPlayerDataStorage(config.worldPath().resolve("player"), false);
+    private final NbtPlayerEnderChestStorage defaultEnderChestStorage =
+            new NbtPlayerEnderChestStorage(config.worldPath().resolve("player"), false);
+    private final ChestViewerTracker chestViewers = new ChestViewerTracker();
     private final WorldManager worldManager =
             WorldManager.openOrCreate(config.worldPath(), blockStateRegistry, FlatWorld.MIN_Y, FlatWorld.HEIGHT);
     private final FluidEngine fluidEngine =
@@ -283,6 +289,7 @@ public final class FidorialServer implements Server {
         services.register(CommandManager.class, commandManager, this, ServicePriority.LOWEST);
         services.register(PlayerInventoryStorage.class, defaultInventoryStorage, this, ServicePriority.LOWEST);
         services.register(PlayerDataStorage.class, defaultPlayerDataStorage, this, ServicePriority.LOWEST);
+        services.register(PlayerEnderChestStorage.class, defaultEnderChestStorage, this, ServicePriority.LOWEST);
     }
 
     private void loadPlugins() throws IOException {
@@ -489,6 +496,14 @@ public final class FidorialServer implements Server {
 
     public PlayerInventoryStorage playerInventoryStorage() {
         return services.find(PlayerInventoryStorage.class).orElse(defaultInventoryStorage);
+    }
+
+    public ChestViewerTracker chestViewers() {
+        return chestViewers;
+    }
+
+    public PlayerEnderChestStorage playerEnderChestStorage() {
+        return services.find(PlayerEnderChestStorage.class).orElse(defaultEnderChestStorage);
     }
 
     public PlayerDataStorage playerDataStorage() {

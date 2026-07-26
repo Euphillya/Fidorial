@@ -52,7 +52,7 @@ public final class TestPlugin implements Plugin {
         return task;
     }
 
-    public void setTask(PregenTask task) {
+    public void setTask(final PregenTask task) {
         this.task = task;
     }
 
@@ -65,7 +65,7 @@ public final class TestPlugin implements Plugin {
     }
 
     @Override
-    public void onLoad(PluginContext context) {
+    public void onLoad(final PluginContext context) {
         this.context = context;
         this.logger = context.logger();
         this.server = context.server();
@@ -98,17 +98,17 @@ public final class TestPlugin implements Plugin {
         server.commands().unregister("apitest");
     }
 
-    private void msg(CommandSender sender, String miniMessageText) {
+    private void msg(final CommandSender sender, final String miniMessageText) {
         sender.sendMessage(MM.deserialize(miniMessageText));
     }
 
-    private void msg(Player player, String miniMessageText) {
+    private void msg(final Player player, final String miniMessageText) {
         player.sendMessage(MM.deserialize(miniMessageText));
     }
 
     private void registerServices() {
-        AtomicLong counter = new AtomicLong();
-        CounterService impl = new CounterService() {
+        final AtomicLong counter = new AtomicLong();
+        final CounterService impl = new CounterService() {
             @Override
             public long increment() {
                 return counter.incrementAndGet();
@@ -126,7 +126,7 @@ public final class TestPlugin implements Plugin {
     }
 
     private void registerEvents() {
-        var events = context.events();
+        final var events = context.events();
 
         events.subscribe(ServerStatusRequestEvent.class, event -> {
             event.status(event.status().toBuilder()
@@ -161,7 +161,7 @@ public final class TestPlugin implements Plugin {
 
         events.subscribe(PlayerChatEvent.class, EventPriority.HIGH, e -> {
             eventCount.incrementAndGet();
-            String raw = PLAIN.serialize(e.message());
+            final String raw = PLAIN.serialize(e.message());
             if (raw.equalsIgnoreCase("!cancel")) {
                 e.setCancelled(true);
                 msg(e.player(), "[TestPlugin] Message annule (test Cancellable OK).");

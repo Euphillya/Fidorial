@@ -42,8 +42,7 @@ public final class EntityTypes {
     public static final EntityType CHICKEN = vanilla("chicken", EntityType.Category.CREATURE, 26);
     public static final EntityType COD = vanilla("cod", EntityType.Category.WATER_CREATURE, 27);
     public static final EntityType COPPER_GOLEM = vanilla("copper_golem", EntityType.Category.MISC, 28);
-    public static final EntityType COMMAND_BLOCK_MINECART =
-            vanilla("command_block_minecart", EntityType.Category.MISC, 29);
+    public static final EntityType COMMAND_BLOCK_MINECART = vanilla("command_block_minecart", EntityType.Category.MISC, 29);
     public static final EntityType COW = vanilla("cow", EntityType.Category.CREATURE, 30);
     public static final EntityType CREAKING = vanilla("creaking", EntityType.Category.MONSTER, 31);
     public static final EntityType CREEPER = vanilla("creeper", EntityType.Category.MONSTER, 32);
@@ -176,23 +175,23 @@ public final class EntityTypes {
     private EntityTypes() {
     }
 
-    private static EntityType vanilla(@KeyPattern String name, EntityType.Category category, int networkId) {
-        Key key = Key.key(name);
-        EntityType type = new EntityType(key, category, 0.6f, 1.8f);
+    private static EntityType vanilla(@KeyPattern final String name, final EntityType.Category category, final int networkId) {
+        final Key key = Key.key(name);
+        final EntityType type = new EntityType(key, category, 0.6f, 1.8f);
         register(type);
         NETWORK_IDS.put(key, networkId);
         return type;
     }
 
-    public static EntityType register(EntityType type) {
-        EntityType previous = BY_KEY.putIfAbsent(type.key(), type);
+    public static EntityType register(final EntityType type) {
+        final EntityType previous = BY_KEY.putIfAbsent(type.key(), type);
         if (previous != null) {
             throw new IllegalStateException("Entity type already registered : " + type.key());
         }
         return type;
     }
 
-    public static @Nullable EntityType get(Key key) {
+    public static @Nullable EntityType get(final Key key) {
         return BY_KEY.get(key);
     }
 
@@ -200,15 +199,15 @@ public final class EntityTypes {
         return BY_KEY.values();
     }
 
-    public static int networkId(EntityType type) {
-        Integer id = NETWORK_IDS.get(type.key());
+    public static int networkId(final EntityType type) {
+        final Integer id = NETWORK_IDS.get(type.key());
         if (id == null) {
             throw new IllegalStateException("No network ID for the entity type " + type.key());
         }
         return id;
     }
 
-    public static boolean hasNetworkId(EntityType type) {
+    public static boolean hasNetworkId(final EntityType type) {
         return NETWORK_IDS.containsKey(type.key());
     }
 }

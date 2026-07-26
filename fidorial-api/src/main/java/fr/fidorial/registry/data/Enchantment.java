@@ -1,10 +1,12 @@
 package fr.fidorial.registry.data;
 
-import fr.fidorial.registry.TypedKey;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
- * Marker type for entries of the {@code minecraft:enchantment} registry.
- * Used only as the generic parameter of {@link TypedKey}.
+ * Marker type for entries in the {@code minecraft:enchantment} registry.
+ *
+ * <p>This interface is used as the generic type for typed registry keys.</p>
  */
+@ApiStatus.NonExtendable
 public interface Enchantment {
 }

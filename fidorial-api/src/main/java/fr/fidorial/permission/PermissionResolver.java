@@ -1,5 +1,7 @@
 package fr.fidorial.permission;
 
+import net.kyori.adventure.util.TriState;
+
 @FunctionalInterface
 public interface PermissionResolver {
 
@@ -8,7 +10,7 @@ public interface PermissionResolver {
      *
      * @param holder the holder
      * @param node   the node
-     * @return the decided state, or {@link TriState#UNSET} to defer to the next resolver
+     * @return the decided state, or {@link TriState#NOT_SET} to defer to the next resolver
      */
     TriState resolve(PermissionHolder holder, PermissionNode node);
 
