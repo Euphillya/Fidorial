@@ -5,9 +5,6 @@ import fr.fidorial.registrygen.task.GenerateRegistriesTask;
 import fr.fidorial.registrygen.task.GenerateReportsTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
 
 import java.nio.file.Path;
@@ -42,7 +39,6 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
     final TaskProvider<GenerateRegistriesTask> registriesTask = registerRegistriesTask(project, extension, reportsTask);
 
     registerLifecycleTask(project, registriesTask);
-    addGeneratedSources(project, extension, registriesTask);
   }
 
   private static void configureDefaults(final Project project, final FidorialRegistryGeneratorExtension extension) {
@@ -117,21 +113,6 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
       task.setGroup("fidorial registry generation");
       task.setDescription("Runs the complete registry generation pipeline.");
       task.dependsOn(registriesTask);
-    });
-  }
-
-  private static void addGeneratedSources(final Project project,
-                                          final FidorialRegistryGeneratorExtension extension,
-                                          final TaskProvider<GenerateRegistriesTask> registriesTask) {
-
-    project.getPluginManager().withPlugin("java", ignored -> {
-
-      final SourceSetContainer sourceSets = project.getExtensions().getByType(SourceSetContainer.class);
-
-      sourceSets.named(SourceSet.MAIN_SOURCE_SET_NAME, sourceSet ->
-              sourceSet.getJava().srcDir(extension.getGeneratedSourcesDirectory()));
-
-      project.getTasks().named(JavaPlugin.COMPILE_JAVA_TASK_NAME).configure(task ->task.dependsOn(registriesTask));
     });
   }
 
