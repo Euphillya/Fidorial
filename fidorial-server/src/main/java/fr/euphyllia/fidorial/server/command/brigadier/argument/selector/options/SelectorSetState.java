@@ -5,11 +5,11 @@ public final class SelectorSetState {
     private boolean negative;
 
     public boolean canAdd(boolean inverted) {
-        return inverted || (!positive && !negative);
+        return inverted ? !positive : (!positive && !negative);
     }
 
     public boolean canAddAny() {
-        return !positive || !negative;
+        return !positive;
     }
 
     public void add(boolean inverted) {
