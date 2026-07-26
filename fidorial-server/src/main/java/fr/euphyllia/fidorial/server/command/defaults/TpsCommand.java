@@ -11,7 +11,7 @@ import net.kyori.adventure.text.Component;
 import java.util.List;
 import java.util.Locale;
 
-import static fr.fidorial.command.CommandTree.literal;
+import static fr.fidorial.command.Commands.literal;
 
 public final class TpsCommand {
 

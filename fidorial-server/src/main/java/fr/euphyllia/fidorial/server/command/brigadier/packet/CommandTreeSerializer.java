@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import static fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistry.unwrap;
-
 public final class CommandTreeSerializer {
 
     private static final byte TYPE_ROOT = 0;
@@ -183,12 +181,11 @@ public final class CommandTreeSerializer {
     }
 
     private static void writeArgumentType(PacketBuffer buf, ArgumentType<?> argument) {
-        ArgumentType<?> vanilla = unwrap(argument);
-        ArgumentTypeRegistrar registrar = ArgumentTypeRegistry.registrar(vanilla);
+        ArgumentTypeRegistrar registrar = ArgumentTypeRegistry.registrar(argument);
         int id = NetworkArgumentIds.getId(registrar);
         buf.writeVarInt(id);
 
-        registrar.serialize(registrar.access(vanilla), buf);
+        registrar.serialize(registrar.access(argument), buf);
     }
 
     private static boolean isRestricted(CommandNode<CommandSource> node) {

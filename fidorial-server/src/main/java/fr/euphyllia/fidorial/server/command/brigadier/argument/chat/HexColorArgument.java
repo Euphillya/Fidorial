@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.command.brigadier.argument.chat;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
@@ -14,10 +15,11 @@ import net.kyori.adventure.text.Component;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public final class HexColorArgument implements ArgumentType<Integer> {
+public final class HexColorArgument<T> implements ArgumentType<T> {
 
     private static final Collection<String> EXAMPLES = Arrays.asList("F00", "FF0000");
 
@@ -25,27 +27,39 @@ public final class HexColorArgument implements ArgumentType<Integer> {
             new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
                     Component.translatable("argument.hexcolor.invalid", Component.text(String.valueOf(value)))));
 
-    public static HexColorArgument hexColor() {
-        return new HexColorArgument();
+    private final Function<Integer, T> converter;
+
+    private HexColorArgument(Function<Integer, T> converter) {
+        this.converter = converter;
+    }
+
+    public static HexColorArgument<Integer> hexColor() {
+        return hexColor(Function.identity());
+    }
+
+    public static <T> HexColorArgument<T> hexColor(Function<Integer, T> converter) {
+        return new HexColorArgument<>(converter);
     }
 
     @Override
-    public Integer parse(StringReader reader) throws CommandSyntaxException {
+    public T parse(StringReader reader) throws CommandSyntaxException {
         String colorString = reader.readUnquotedString();
 
-        return switch (colorString.length()) {
+        int rgb = switch (colorString.length()) {
             case 3 ->
-                rgb(
-                        duplicate(hexDigit(colorString, 0)),
-                        duplicate(hexDigit(colorString, 1)),
-                        duplicate(hexDigit(colorString, 2)));
+                    rgb(
+                            duplicate(hexDigit(colorString, 0)),
+                            duplicate(hexDigit(colorString, 1)),
+                            duplicate(hexDigit(colorString, 2)));
             case 6 ->
-                rgb(
-                        Integer.parseInt(colorString.substring(0, 2), 16),
-                        Integer.parseInt(colorString.substring(2, 4), 16),
-                        Integer.parseInt(colorString.substring(4, 6), 16));
+                    rgb(
+                            Integer.parseInt(colorString.substring(0, 2), 16),
+                            Integer.parseInt(colorString.substring(2, 4), 16),
+                            Integer.parseInt(colorString.substring(4, 6), 16));
             default -> throw ERROR_INVALID_HEX.createWithContext(reader, colorString);
         };
+
+        return converter.apply(rgb);
     }
 
     private static int hexDigit(String s, int index) {
@@ -62,7 +76,7 @@ public final class HexColorArgument implements ArgumentType<Integer> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(
-            com.mojang.brigadier.context.CommandContext<S> context,
+            CommandContext<S> context,
             SuggestionsBuilder builder
     ) {
         for (String example : EXAMPLES) {
@@ -76,7 +90,7 @@ public final class HexColorArgument implements ArgumentType<Integer> {
         return EXAMPLES;
     }
 
-    public static final class Info implements ArgumentTypeRegistrar<HexColorArgument, Info.Spec> {
+    public static final class Info implements ArgumentTypeRegistrar<HexColorArgument<?>, Info.Spec> {
 
         @Override
         public void serialize(Spec spec, PacketBuffer buf) {
@@ -92,18 +106,18 @@ public final class HexColorArgument implements ArgumentType<Integer> {
         }
 
         @Override
-        public Spec access(HexColorArgument argument) {
+        public Spec access(HexColorArgument<?> argument) {
             return new Spec();
         }
 
-        public record Spec() implements ArgumentTypeRegistrar.Spec<HexColorArgument> {
+        public record Spec() implements ArgumentTypeRegistrar.Spec<HexColorArgument<?>> {
             @Override
-            public HexColorArgument instantiate() {
+            public HexColorArgument<?> instantiate() {
                 return HexColorArgument.hexColor();
             }
 
             @Override
-            public ArgumentTypeRegistrar<HexColorArgument, ?> type() {
+            public ArgumentTypeRegistrar<HexColorArgument<?>, ?> type() {
                 return new Info();
             }
         }

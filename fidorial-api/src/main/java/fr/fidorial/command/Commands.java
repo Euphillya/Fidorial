@@ -5,10 +5,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 
-public final class CommandTree {
-
-    private CommandTree() {
-    }
+public interface Commands {
 
     /**
      * Creates a new {@link LiteralArgumentBuilder} of the required name.
@@ -16,7 +13,7 @@ public final class CommandTree {
      * @param name the literal name
      * @return a new literal argument builder
      */
-    public static LiteralArgumentBuilder<CommandSource> literal(final String name) {
+    static LiteralArgumentBuilder<CommandSource> literal(final String name) {
         Preconditions.checkNotNull(name, "name");
         Preconditions.checkArgument(name.indexOf(' ') == -1, "the argument name cannot contain spaces");
 
@@ -31,7 +28,7 @@ public final class CommandTree {
      * @param <T> the argument type
      * @return a new required argument builder
      */
-    public static <T> RequiredArgumentBuilder<CommandSource, T> argument(
+    static <T> RequiredArgumentBuilder<CommandSource, T> argument(
             final String name,
             final ArgumentType<T> argumentType
     ) {

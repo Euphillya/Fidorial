@@ -19,10 +19,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public final class ItemArgument implements ArgumentType<ItemArgument.ItemInput> {
+public final class ItemArgument<T> implements ArgumentType<T> {
 
     private static final Collection<String> EXAMPLES = Arrays.asList("stick", "minecraft:stick");
 
@@ -30,8 +31,18 @@ public final class ItemArgument implements ArgumentType<ItemArgument.ItemInput> 
             new DynamicCommandExceptionType(id -> MSG_SERIALIZER.serialize(
                     Component.translatable("argument.item.id.invalid", Component.text(String.valueOf(id)))));
 
-    public static ItemArgument item() {
-        return new ItemArgument();
+    private final Function<ItemInput, T> converter;
+
+    private ItemArgument(Function<ItemInput, T> converter) {
+        this.converter = converter;
+    }
+
+    public static ItemArgument<ItemInput> item() {
+        return item(Function.identity());
+    }
+
+    public static <T> ItemArgument<T> item(Function<ItemInput, T> converter) {
+        return new ItemArgument<>(converter);
     }
 
     private boolean exists(Key key) {
@@ -39,7 +50,7 @@ public final class ItemArgument implements ArgumentType<ItemArgument.ItemInput> 
     }
 
     @Override
-    public ItemInput parse(StringReader reader) throws CommandSyntaxException {
+    public T parse(StringReader reader) throws CommandSyntaxException {
         int start = reader.getCursor();
 
         while (reader.canRead() && isAllowedInKey(reader.peek())) {
@@ -62,7 +73,7 @@ public final class ItemArgument implements ArgumentType<ItemArgument.ItemInput> 
             if (reader.canRead()) reader.skip();
         }
 
-        return new ItemInput(key);
+        return converter.apply(new ItemInput(key));
     }
 
     private boolean isAllowedInKey(char c) {
@@ -91,7 +102,7 @@ public final class ItemArgument implements ArgumentType<ItemArgument.ItemInput> 
         }
     }
 
-    public static final class Info implements ArgumentTypeRegistrar<ItemArgument, Info.Spec> {
+    public static final class Info implements ArgumentTypeRegistrar<ItemArgument<?>, Info.Spec> {
 
         @Override
         public void serialize(Spec spec, PacketBuffer buf) {
@@ -107,18 +118,18 @@ public final class ItemArgument implements ArgumentType<ItemArgument.ItemInput> 
         }
 
         @Override
-        public Spec access(ItemArgument argument) {
+        public Spec access(ItemArgument<?> argument) {
             return new Spec();
         }
 
-        public record Spec() implements ArgumentTypeRegistrar.Spec<ItemArgument> {
+        public record Spec() implements ArgumentTypeRegistrar.Spec<ItemArgument<?>> {
             @Override
-            public ItemArgument instantiate() {
+            public ItemArgument<?> instantiate() {
                 return ItemArgument.item();
             }
 
             @Override
-            public ArgumentTypeRegistrar<ItemArgument, ?> type() {
+            public ArgumentTypeRegistrar<ItemArgument<?>, ?> type() {
                 return new Info();
             }
         }

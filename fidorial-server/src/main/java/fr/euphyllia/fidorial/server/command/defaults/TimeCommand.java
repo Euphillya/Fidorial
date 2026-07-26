@@ -13,8 +13,8 @@ import net.kyori.adventure.text.Component;
 
 import java.util.Locale;
 
-import static fr.fidorial.command.CommandTree.argument;
-import static fr.fidorial.command.CommandTree.literal;
+import static fr.fidorial.command.Commands.argument;
+import static fr.fidorial.command.Commands.literal;
 
 /**
  * /time set day|noon|sunset|night|midnight|sunrise|&lt;ticks&gt;

@@ -14,7 +14,6 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.HexColorArgu
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.NamedColorArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.StyleArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgumentInternal;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntitySelector;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.item.ItemArgument;
@@ -57,51 +56,29 @@ import net.kyori.adventure.text.format.TextColor;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<EntitySelectorArgumentResolver> entity() {
-        return new WrappedArgumentTypeImpl<>(EntityArgumentInternal.entity()) {
-            @Override
-            protected EntitySelectorArgumentResolver convert(final EntitySelector selector) {
-                return source -> List.of(selector.findSingleEntity(source));
-            }
-        };
+        return EntityArgumentInternal.entity(selector -> source -> List.of(selector.findSingleEntity(source)));
     }
 
     @Override
     public ArgumentType<EntitySelectorArgumentResolver> entities() {
-        return new WrappedArgumentTypeImpl<>(EntityArgumentInternal.entities()) {
-            @Override
-            protected EntitySelectorArgumentResolver convert(final EntitySelector selector) {
-                return source -> selector.findEntities(source).stream()
-                        .map(Entity.class::cast)
-                        .toList();
-            }
-        };
+        return EntityArgumentInternal.entities(selector -> source -> selector.findEntities(source).stream()
+                .map(Entity.class::cast)
+                .toList());
     }
-
 
     @Override
     public ArgumentType<PlayerSelectorArgumentResolver> player() {
-        return new WrappedArgumentTypeImpl<>(EntityArgumentInternal.player()) {
-            @Override
-            protected PlayerSelectorArgumentResolver convert(final EntitySelector selector) {
-                return source -> List.of(selector.findSinglePlayer(source));
-            }
-        };
+        return EntityArgumentInternal.player(selector -> source -> List.of(selector.findSinglePlayer(source)));
     }
 
     @Override
     public ArgumentType<PlayerSelectorArgumentResolver> players() {
-        return new WrappedArgumentTypeImpl<>(EntityArgumentInternal.players()) {
-            @Override
-            protected PlayerSelectorArgumentResolver convert(final EntitySelector selector) {
-                return selector::findPlayers;
-            }
-        };
+        return EntityArgumentInternal.players(selector -> selector::findPlayers);
     }
 
     @Override
@@ -116,28 +93,16 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<ItemStack> itemStack() {
-        return new WrappedArgumentTypeImpl<>(ItemArgument.item()) {
-            @Override
-            protected ItemStack convert(final ItemArgument.ItemInput input) {
-                final var internal = input.createItemStack(1);
-                return new ItemStack(internal.id(), internal.count());
-            }
-        };
+        return ItemArgument.item(input -> {
+            final var internal = input.createItemStack(1);
+            return new ItemStack(internal.id(), internal.count());
+        });
     }
 
     @Override
     public ArgumentType<ItemStackPredicate> itemStackPredicate() {
-        return new WrappedArgumentTypeImpl<>(ItemPredicateArgument.itemPredicate()) {
-            @Override
-            protected ItemStackPredicate convert(final Predicate<fr.euphyllia.fidorial.server.entity.ItemStack> predicate) {
-                return apiStack -> predicate.test(
-                        fr.euphyllia.fidorial.server.entity.ItemStack.of(
-                                apiStack.id(),
-                                apiStack.count()
-                        )
-                );
-            }
-        };
+        return ItemPredicateArgument.itemPredicate(predicate -> apiStack -> predicate.test(
+                fr.euphyllia.fidorial.server.entity.ItemStack.of(apiStack.id(), apiStack.count())));
     }
 
     @Override
@@ -147,12 +112,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<TextColor> hexColor() {
-        return new WrappedArgumentTypeImpl<>(HexColorArgument.hexColor()) {
-            @Override
-            protected TextColor convert(final Integer color) {
-                return TextColor.color(color);
-            }
-        };
+        return HexColorArgument.hexColor(TextColor::color);
     }
 
     @Override
@@ -212,22 +172,12 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<IntegerRangeProvider> integerRange() {
-        return new WrappedArgumentTypeImpl<>(RangeArgument.intRange()) {
-            @Override
-            protected IntegerRangeProvider convert(final MinMaxBounds.Ints bounds) {
-                return toRange(bounds, range -> () -> range);
-            }
-        };
+        return RangeArgument.intRange(bounds -> toRange(bounds, range -> () -> range));
     }
 
     @Override
     public ArgumentType<DoubleRangeProvider> doubleRange() {
-        return new WrappedArgumentTypeImpl<>(RangeArgument.floatRange()) {
-            @Override
-            protected DoubleRangeProvider convert(final MinMaxBounds.Doubles bounds) {
-                return toRange(bounds, range -> () -> range);
-            }
-        };
+        return RangeArgument.floatRange(bounds -> toRange(bounds, range -> () -> range));
     }
 
     private static <N extends Number & Comparable<N>, R extends RangeProvider<N>> R toRange(
@@ -254,12 +204,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<World> world() {
-        return new WrappedArgumentTypeImpl<>(DimensionArgument.dimension()) {
-            @Override
-            protected World convert(final Key key) {
-                return FidorialServer.getInstance().worldManager().world(key);
-            }
-        };
+        return DimensionArgument.dimension(key -> FidorialServer.getInstance().worldManager().world(key));
     }
 
     @Override
@@ -289,14 +234,9 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<PlayerProfileListResolver> playerProfiles() {
-        return new WrappedArgumentTypeImpl<>(PlayerProfileArgument.playerProfile()) {
-            @Override
-            protected PlayerProfileListResolver convert(final PlayerProfileArgument.Result result) {
-                return source -> result.getNames(source).stream()
-                        .map(PlayerProfile::new)
-                        .toList();
-            }
-        };
+        return PlayerProfileArgument.playerProfile(result -> source -> result.getNames(source).stream()
+                .map(PlayerProfile::new)
+                .toList());
     }
 
     //@Override

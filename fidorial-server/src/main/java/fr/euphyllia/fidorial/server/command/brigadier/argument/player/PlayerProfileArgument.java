@@ -23,10 +23,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument.Result> {
+public class PlayerProfileArgument<T> implements ArgumentType<T> {
 
     public static final SimpleCommandExceptionType ERROR_UNKNOWN_PLAYER =
             new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.player.unknown")));
@@ -34,11 +35,18 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
     private static final Collection<String> EXAMPLES =
             List.of("Player", "0123", "dd12be42-52a9-4a91-a8a1-11c01849e498", "@a");
 
-    public static PlayerProfileArgument playerProfile() {
-        return new PlayerProfileArgument();
+    private final Function<Result, T> converter;
+
+    private PlayerProfileArgument(Function<Result, T> converter) {
+        this.converter = converter;
     }
 
-    public PlayerProfileArgument() {
+    public static PlayerProfileArgument<Result> playerProfile() {
+        return playerProfile(Function.identity());
+    }
+
+    public static <T> PlayerProfileArgument<T> playerProfile(Function<Result, T> converter) {
+        return new PlayerProfileArgument<>(converter);
     }
 
     public static Collection<PlayerProfileMeta> getPlayerProfiles(CommandContext<CommandSource> context, String name)
@@ -48,7 +56,9 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
     }
 
     @Override
-    public Result parse(StringReader reader) throws CommandSyntaxException {
+    public T parse(StringReader reader) throws CommandSyntaxException {
+
+        Result result;
 
         if (reader.canRead() && reader.peek() == '@') {
             EntitySelector selector = new EntitySelectorParser(reader).parse();
@@ -57,28 +67,31 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
                 throw EntityArgument.ERROR_ONLY_PLAYERS_ALLOWED.create();
             }
 
-            return new SelectorResult(selector);
-        }
+            result = new SelectorResult(selector);
+        } else {
 
-        int start = reader.getCursor();
+            int start = reader.getCursor();
 
-        while (reader.canRead() && reader.peek() != ' ') {
-            reader.skip();
-        }
-
-        String name = reader.getString().substring(start, reader.getCursor());
-
-        return source -> {
-            FidorialServer server = (FidorialServer) source.server();
-
-            Optional<? extends Player> player = server.player(name);
-
-            if (player.isEmpty()) {
-                throw ERROR_UNKNOWN_PLAYER.create();
+            while (reader.canRead() && reader.peek() != ' ') {
+                reader.skip();
             }
 
-            return List.of(new PlayerProfileMeta(player.get().profile()));
-        };
+            String name = reader.getString().substring(start, reader.getCursor());
+
+            result = source -> {
+                FidorialServer server = (FidorialServer) source.server();
+
+                Optional<? extends Player> player = server.player(name);
+
+                if (player.isEmpty()) {
+                    throw ERROR_UNKNOWN_PLAYER.create();
+                }
+
+                return List.of(new PlayerProfileMeta(player.get().profile()));
+            };
+        }
+
+        return converter.apply(result);
     }
 
     @Override
@@ -127,7 +140,7 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
         }
     }
 
-    public static final class Info implements ArgumentTypeRegistrar<PlayerProfileArgument, Info.Spec> {
+    public static final class Info implements ArgumentTypeRegistrar<PlayerProfileArgument<?>, Info.Spec> {
 
         @Override
         public void serialize(Spec spec, PacketBuffer buf) {
@@ -143,19 +156,19 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
         }
 
         @Override
-        public Spec access(PlayerProfileArgument argument) {
+        public Spec access(PlayerProfileArgument<?> argument) {
             return new Spec();
         }
 
-        public record Spec() implements ArgumentTypeRegistrar.Spec<PlayerProfileArgument> {
+        public record Spec() implements ArgumentTypeRegistrar.Spec<PlayerProfileArgument<?>> {
 
             @Override
-            public PlayerProfileArgument instantiate() {
-                return new PlayerProfileArgument();
+            public PlayerProfileArgument<?> instantiate() {
+                return PlayerProfileArgument.playerProfile();
             }
 
             @Override
-            public ArgumentTypeRegistrar<PlayerProfileArgument, ?> type() {
+            public ArgumentTypeRegistrar<PlayerProfileArgument<?>, ?> type() {
                 return new Info();
             }
         }

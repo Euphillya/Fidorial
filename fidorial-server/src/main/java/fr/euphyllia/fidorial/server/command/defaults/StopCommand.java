@@ -7,7 +7,7 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.fidorial.command.CommandSource;
 import net.kyori.adventure.text.Component;
 
-import static fr.fidorial.command.CommandTree.literal;
+import static fr.fidorial.command.Commands.literal;
 
 public class StopCommand {
     public static LiteralCommandNode<CommandSource> create() {

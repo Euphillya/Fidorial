@@ -14,8 +14,8 @@ import fr.fidorial.entity.Player;
 import fr.fidorial.world.World;
 import net.kyori.adventure.text.Component;
 
-import static fr.fidorial.command.CommandTree.argument;
-import static fr.fidorial.command.CommandTree.literal;
+import static fr.fidorial.command.Commands.argument;
+import static fr.fidorial.command.Commands.literal;
 
 public final class PregenCommand {
 

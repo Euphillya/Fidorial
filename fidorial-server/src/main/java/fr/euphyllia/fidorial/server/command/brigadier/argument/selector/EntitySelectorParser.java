@@ -8,8 +8,8 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntitySelector;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.EntitySelectorOptions;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.InvertableSetOptionState;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.SetOnceOptionState;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.SelectorSetState;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.SingleUseOption;
 import fr.fidorial.entity.Entity;
 import net.kyori.adventure.text.Component;
 
@@ -70,11 +70,11 @@ public final class EntitySelectorParser {
 
     private final List<Predicate<Entity>> predicates = new ArrayList<>();
 
-    private final InvertableSetOptionState nameOption = new InvertableSetOptionState();
-    private final SetOnceOptionState limitedOption = new SetOnceOptionState();
-    private final SetOnceOptionState sortedOption = new SetOnceOptionState();
-    private final InvertableSetOptionState gamemodeOption = new InvertableSetOptionState();
-    private final InvertableSetOptionState typeOption = new InvertableSetOptionState();
+    private final SelectorSetState nameOption = new SelectorSetState();
+    private final SingleUseOption limitedOption = new SingleUseOption();
+    private final SingleUseOption sortedOption = new SingleUseOption();
+    private final SelectorSetState gamemodeOption = new SelectorSetState();
+    private final SelectorSetState typeOption = new SelectorSetState();
 
     public EntitySelectorParser(StringReader reader) {
         this.reader = reader;
@@ -273,11 +273,11 @@ public final class EntitySelectorParser {
         this.sort = sort;
     }
 
-    public InvertableSetOptionState nameOption() { return nameOption; }
-    public SetOnceOptionState limitedOption() { return limitedOption; }
-    public SetOnceOptionState sortedOption() { return sortedOption; }
-    public InvertableSetOptionState gamemodeOption() { return gamemodeOption; }
-    public InvertableSetOptionState typeOption() { return typeOption; }
+    public SelectorSetState nameOption() { return nameOption; }
+    public SingleUseOption limitedOption() { return limitedOption; }
+    public SingleUseOption sortedOption() { return sortedOption; }
+    public SelectorSetState gamemodeOption() { return gamemodeOption; }
+    public SelectorSetState typeOption() { return typeOption; }
 
     public CompletableFuture<Suggestions> fillSuggestions(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
         return suggestions.apply(builder.createOffset(reader.getCursor()), names);

@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import static fr.fidorial.command.CommandTree.argument;
-import static fr.fidorial.command.CommandTree.literal;
+import static fr.fidorial.command.Commands.argument;
+import static fr.fidorial.command.Commands.literal;
 
 public final class ApiTestCommand {
 

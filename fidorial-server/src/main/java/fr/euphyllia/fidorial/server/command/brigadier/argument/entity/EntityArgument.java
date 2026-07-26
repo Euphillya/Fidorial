@@ -20,11 +20,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public final class EntityArgument implements ArgumentType<EntitySelector> {
+public final class EntityArgument<T> implements ArgumentType<T> {
 
     private static final Collection<String> EXAMPLES =
             List.of("Player", "0123", "@e", "@e[type=zombie]", "dd12be42-52a9-4a91-a8a1-11c01849e498");
@@ -51,27 +52,37 @@ public final class EntityArgument implements ArgumentType<EntitySelector> {
     private final boolean playersOnly;
 
     private final Predicate<Entity> predicate;
+    private final Function<EntitySelector, T> converter;
 
-    public EntityArgument(boolean single, boolean playersOnly, Predicate<Entity> predicate) {
+    public EntityArgument(
+            final boolean single,
+            final boolean playersOnly,
+            final Predicate<Entity> predicate,
+            final Function<EntitySelector, T> converter
+    ) {
         this.single = single;
         this.playersOnly = playersOnly;
         this.predicate = predicate;
+        this.converter = converter;
     }
 
-    public static EntityArgument entity() {
-        return new EntityArgument(true, false, _ -> true);
+    // Identity-converter factories: used internally, where the parsed EntitySelector
+    // itself is what commands want (see getEntity/getPlayer/... below).
+
+    public static EntityArgument<EntitySelector> entity() {
+        return new EntityArgument<>(true, false, _ -> true, Function.identity());
     }
 
-    public static EntityArgument entities() {
-        return new EntityArgument(false, false, _ -> true);
+    public static EntityArgument<EntitySelector> entities() {
+        return new EntityArgument<>(false, false, _ -> true, Function.identity());
     }
 
-    public static EntityArgument player() {
-        return new EntityArgument(true, true, Player.class::isInstance);
+    public static EntityArgument<EntitySelector> player() {
+        return new EntityArgument<>(true, true, Player.class::isInstance, Function.identity());
     }
 
-    public static EntityArgument players() {
-        return new EntityArgument(false, true, Player.class::isInstance);
+    public static EntityArgument<EntitySelector> players() {
+        return new EntityArgument<>(false, true, Player.class::isInstance, Function.identity());
     }
 
     public boolean single() {
@@ -83,7 +94,7 @@ public final class EntityArgument implements ArgumentType<EntitySelector> {
     }
 
     @Override
-    public EntitySelector parse(StringReader reader) throws CommandSyntaxException {
+    public T parse(StringReader reader) throws CommandSyntaxException {
 
         int start = reader.getCursor();
 
@@ -107,7 +118,7 @@ public final class EntityArgument implements ArgumentType<EntitySelector> {
             throw ERROR_ONLY_PLAYERS_ALLOWED.createWithContext(reader);
         }
 
-        return selector;
+        return converter.apply(selector);
     }
 
     public static Entity getEntity(CommandContext<CommandSource> context, String name) throws CommandSyntaxException {
@@ -194,7 +205,7 @@ public final class EntityArgument implements ArgumentType<EntitySelector> {
         return EXAMPLES;
     }
 
-    public static final class Info implements ArgumentTypeRegistrar<EntityArgument, Info.Spec> {
+    public static final class Info implements ArgumentTypeRegistrar<EntityArgument<?>, Info.Spec> {
 
         @Override
         public void serialize(Spec spec, PacketBuffer buf) {
@@ -220,19 +231,19 @@ public final class EntityArgument implements ArgumentType<EntitySelector> {
         }
 
         @Override
-        public Spec access(EntityArgument argument) {
+        public Spec access(EntityArgument<?> argument) {
             return new Spec(argument.single(), argument.playersOnly());
         }
 
-        public record Spec(boolean single, boolean playersOnly) implements ArgumentTypeRegistrar.Spec<EntityArgument> {
+        public record Spec(boolean single, boolean playersOnly) implements ArgumentTypeRegistrar.Spec<EntityArgument<?>> {
 
             @Override
-            public EntityArgument instantiate() {
-                return new EntityArgument(single, playersOnly, _ -> true);
+            public EntityArgument<?> instantiate() {
+                return new EntityArgument<>(single, playersOnly, _ -> true, Function.identity());
             }
 
             @Override
-            public ArgumentTypeRegistrar<EntityArgument, ?> type() {
+            public ArgumentTypeRegistrar<EntityArgument<?>, ?> type() {
                 return new Info();
             }
         }

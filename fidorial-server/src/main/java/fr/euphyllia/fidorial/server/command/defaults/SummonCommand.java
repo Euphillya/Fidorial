@@ -15,8 +15,8 @@ import fr.fidorial.entity.EntityType;
 import fr.fidorial.world.Location;
 import net.kyori.adventure.text.Component;
 
-import static fr.fidorial.command.CommandTree.argument;
-import static fr.fidorial.command.CommandTree.literal;
+import static fr.fidorial.command.Commands.argument;
+import static fr.fidorial.command.Commands.literal;
 import static fr.fidorial.registry.RegistryKey.ENTITY_TYPE;
 
 public final class SummonCommand {

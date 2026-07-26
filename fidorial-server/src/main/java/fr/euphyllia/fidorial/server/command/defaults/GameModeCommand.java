@@ -13,8 +13,8 @@ import net.kyori.adventure.text.Component;
 
 import java.util.List;
 
-import static fr.fidorial.command.CommandTree.argument;
-import static fr.fidorial.command.CommandTree.literal;
+import static fr.fidorial.command.Commands.argument;
+import static fr.fidorial.command.Commands.literal;
 
 public final class GameModeCommand {
 

@@ -23,6 +23,8 @@ import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.UUID;
 
 /**
@@ -32,35 +34,11 @@ import java.util.UUID;
 @ApiStatus.Internal
 public interface ArgumentProvider {
 
+    Optional<ArgumentProvider> PROVIDER = ServiceLoader.load(ArgumentProvider.class, ArgumentProvider.class.getClassLoader()).findFirst();
+
     static ArgumentProvider provider() {
-        return Holder.provider();
+        return PROVIDER.orElseThrow();
     }
-
-    static void register(ArgumentProvider provider) {
-        Holder.register(provider);
-    }
-
-    final class Holder {
-        private static @Nullable ArgumentProvider instance;
-
-        private Holder() {
-        }
-
-        static ArgumentProvider provider() {
-            if (instance == null) {
-                throw new IllegalStateException("ArgumentProvider not initialized");
-            }
-            return instance;
-        }
-
-        static void register(ArgumentProvider provider) {
-            if (instance != null) {
-                throw new IllegalStateException("ArgumentProvider already initialized");
-            }
-            instance = provider;
-        }
-    }
-
 
     ArgumentType<EntitySelectorArgumentResolver> entity();
 
