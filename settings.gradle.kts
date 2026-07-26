@@ -1,5 +1,6 @@
 pluginManagement {
     includeBuild("build-logic")
+    includeBuild("fidorial-registry-generator")
 }
 
 plugins {

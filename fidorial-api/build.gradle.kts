@@ -1,6 +1,8 @@
 extra.set("readUnnamedModules", setOf("fr.fidorial"))
 
 plugins {
+    `maven-publish`
+    id("fr.fidorial.registry-generator")
     id("maven-publish")
 }
 
@@ -21,6 +23,7 @@ java {
     withJavadocJar()
     withSourcesJar()
 }
+
 
 publishing {
     publications {
@@ -45,4 +48,29 @@ publishing {
             }
         }
     }
+}
+
+fidorialRegistryGenerator {
+    minecraftVersion.set("26.2")
+
+    generatedPackage.set(
+        "fr.fidorial.registry"
+    )
+
+    generatedSourcesDirectory.set(
+        layout.buildDirectory.dir(
+            "generated/sources/registries/java/main"
+        )
+    )
+
+    dataGeneratorArguments.set(
+        listOf("--reports")
+    )
+
+    registries.set(
+        mapOf(
+            "minecraft:item" to "Item",
+            "minecraft:worldgen/biome" to "Biome"
+        )
+    )
 }
