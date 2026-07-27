@@ -1,5 +1,8 @@
 package fr.euphyllia.fidorial.server.world;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.entity.AbstractEntity;
+import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
@@ -10,6 +13,7 @@ import fr.euphyllia.fidorial.server.world.storage.EntityRegionStorage;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
 import fr.euphyllia.fidorial.server.world.storage.WorldPaths;
 import fr.euphyllia.fidorial.server.world.time.WorldTimeEngine;
+import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
@@ -18,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.IntSupplier;
@@ -146,6 +151,61 @@ public final class WorldManager implements AutoCloseable {
 
     public Collection<ServerWorld> worlds() {
         return Collections.unmodifiableCollection(worlds.values());
+    }
+
+    public ServerWorld createWorld(final Key key, final long seed, final @Nullable WorldGenerator generator) {
+        final Dimension dim = Dimension.datapack(key.namespace(), key.value());
+        final ChunkGenerator chunkGenerator = generator != null
+                ? new PluginBackedChunkGenerator(
+                generator, FlatChunkGenerator.cobblestone(minY, height), minY, height)
+                : FlatChunkGenerator.cobblestone(minY, height);
+
+        final boolean existed = worlds.containsKey(dim.id());
+        final ServerWorld world = registerDimension(dim, chunkGenerator);
+        if (!existed) {
+            LOGGER.info(
+                    "World '{}' created (seed={}, generator={})",
+                    key,
+                    seed,
+                    generator != null ? generator.getClass().getName() : "flat");
+        }
+        return world;
+    }
+
+    public @Nullable ServerWorld unloadWorld(final Key key, final boolean save) throws IOException {
+        final ServerWorld world = world(key);
+        if (world == null) {
+            return null;
+        }
+
+        if (key.equals(Dimension.OVERWORLD.id())) {
+            LOGGER.warn("Refusal to unload the main world {}", key); // Todo : Make it possible later?
+            return null;
+        }
+
+        final boolean hasPlayers = FidorialServer.getInstance().players().stream().anyMatch(player -> player.world() == world);
+        if (hasPlayers) {
+            LOGGER.warn("Refusal to unload {}: players are still present there.", key);
+            return null;
+        }
+
+        for (final AbstractEntity entity : List.copyOf(world.entityManager().all())) {
+            if (entity instanceof ServerPlayer) {
+                continue;
+            }
+            FidorialServer.getInstance().despawnEntity(entity);
+        }
+
+        if (save) {
+            final WorldTimeEngine cycle = world.dayNightCycle();
+            levelData.setWorldTime(world.dimension().id(), cycle.worldAge(), cycle.time(), cycle.doDaylightCycle());
+            levelData.write(paths.levelDat());
+            world.saveAll();
+        }
+        worlds.remove(key);
+        LOGGER.debug("Removing world '{}' from manager (save={})", key, save);
+
+        return world;
     }
 
     public ServerWorld dimension(final Dimension dim) {
