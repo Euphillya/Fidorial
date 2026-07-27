@@ -19,9 +19,11 @@ import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundLoginDisconnectPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundKeepAlivePacket;
+import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.translation.TranslationStore;
+import fr.fidorial.world.Location;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -273,5 +275,12 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
 
     public void setPlayer(final ServerPlayer player) {
         this.player = player;
+    }
+
+    public boolean teleport(final ServerWorld target, final Location location) {
+        if (listener instanceof final PlayPacketHandler play) {
+            return play.teleport(target, location);
+        }
+        return false;
     }
 }

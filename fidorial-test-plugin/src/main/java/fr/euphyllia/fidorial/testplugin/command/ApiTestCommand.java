@@ -11,12 +11,14 @@ import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.scheduler.RegionTps;
 import fr.fidorial.world.ChunkPos;
+import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -41,6 +43,15 @@ public final class ApiTestCommand {
                 .then(literal("service").executes(ctx -> service(plugin, ctx)))
                 .then(literal("schedule").executes(ctx -> schedule(plugin, ctx)))
                 .then(literal("perms").executes(ApiTestCommand::perms))
+                .then(literal("teleport")
+                    .then(argument("x", ArgumentTypes.doubleArg())
+                            .then(argument("y", ArgumentTypes.doubleArg())
+                                    .then(argument("z", ArgumentTypes.doubleArg())
+                                            .executes(ApiTestCommand::tp)))))
+                .then(literal("tpworld")
+                    .executes(ctx -> tpWorld(plugin, ctx, Key.key("minecraft", "overworld")))
+                        .then(argument("name", ArgumentTypes.word())
+                        .executes(ctx -> tpWorld(plugin, ctx, ctx.getArgument("name", Key.class)))))
                 .then(literal("sound")
                         .executes(ApiTestCommand::soundDemo)
                         .then(argument("key", ArgumentTypes.key())
@@ -192,6 +203,51 @@ public final class ApiTestCommand {
 
         msg(sender, "[TestPlugin] " + plugin.server().worlds().size() + " monde(s): " + worlds);
 
+        return Command.SINGLE_SUCCESS;
+    }
+
+
+    private static int tp(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
+        if (!(sender instanceof final Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        final double x = ctx.getArgument("x", Double.class);
+        final double y = ctx.getArgument("y", Double.class);
+        final double z = ctx.getArgument("z", Double.class);
+
+        final boolean ok = player.teleport(x, y, z);
+        msg(player, "[TestPlugin] Teleportation " + (ok ? "OK" : "refusee") + " vers " + x + ", " + y + ", " + z);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int tpWorld(
+            final TestPlugin plugin, final CommandContext<CommandSource> ctx, final Key key) {
+        final CommandSender sender = ctx.getSource().sender();
+        if (!(sender instanceof final Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        final Collection<? extends World> worlds = plugin.server().worlds();
+        final World target = plugin.server().world(key).orElse(null);
+        if (target == null) {
+
+            msg(player, "[TestPlugin] Monde " + key + " inexistant.");
+            msg(player, "Liste des mondes : ");
+
+            for (final World world : worlds) {
+                msg(player, world.key().asString());
+            }
+
+            return Command.SINGLE_SUCCESS;
+        }
+
+        final Location destination = new Location(8.5, 100.0, 8.5, 0f, 0f);
+        final boolean ok = player.teleport(target, destination);
+        msg(player, "[TestPlugin] Teleportation inter-monde " + (ok ? "OK" : "refusee") + " vers " + key);
         return Command.SINGLE_SUCCESS;
     }
 
