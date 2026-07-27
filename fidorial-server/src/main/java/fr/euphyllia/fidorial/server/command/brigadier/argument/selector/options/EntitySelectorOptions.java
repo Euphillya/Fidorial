@@ -45,14 +45,14 @@ public final class EntitySelectorOptions {
             boolean inverted = parser.shouldInvertValue();
             String name = parser.getReader().readString();
             var state = parser.nameOption();
-            if (!state.canParseElement(inverted)) {
+            if (!state.canAdd(inverted)) {
                 throw parser.getReader().canRead()
                         ? EntitySelectorParser.ERROR_INAPPLICABLE_OPTION.createWithContext(parser.getReader(), "name")
                         : EntitySelectorParser.ERROR_INAPPLICABLE_OPTION.create("name");
             }
-            state.markParsedElement(inverted);
+            state.add(inverted);
             parser.addPredicate(e -> (e instanceof Player p && p.name().equalsIgnoreCase(name)) != inverted);
-        }, s -> s.nameOption().canParseAny());
+        }, s -> s.nameOption().canAddAny());
 
         register("distance", parser -> {
             int start = parser.getReader().getCursor();
@@ -79,8 +79,8 @@ public final class EntitySelectorOptions {
                 throw ERROR_LIMIT_TOO_SMALL.createWithContext(parser.getReader());
             }
             parser.setMaxResults(count);
-            parser.limitedOption().markParsed();
-        }, s -> !s.isCurrentEntity() && s.limitedOption().canParse());
+            parser.limitedOption().consume();
+        }, s -> !s.isCurrentEntity() && s.limitedOption().available());
 
         register("sort", parser -> {
             int start = parser.getReader().getCursor();
@@ -99,31 +99,31 @@ public final class EntitySelectorOptions {
                     throw ERROR_SORT_UNKNOWN.createWithContext(parser.getReader(), name);
                 }
             });
-            parser.sortedOption().markParsed();
-        }, s -> !s.isCurrentEntity() && s.sortedOption().canParse());
+            parser.sortedOption().consume();
+        }, s -> !s.isCurrentEntity() && s.sortedOption().available());
 
         register("gamemode", parser -> {
             var state = parser.gamemodeOption();
             boolean inverted = parser.shouldInvertValue();
-            if (!state.canParseElement(inverted)) {
+            if (!state.canAdd(inverted)) {
                 throw EntitySelectorParser.ERROR_INAPPLICABLE_OPTION.createWithContext(parser.getReader(), "gamemode");
             }
             String name = parser.getReader().readUnquotedString().toLowerCase(Locale.ROOT);
             parser.setIncludesEntities(false);
             parser.addPredicate(e -> (e instanceof Player p && p.gameMode().name().equalsIgnoreCase(name)) != inverted);
-            state.markParsedElement(inverted);
-        }, s -> s.gamemodeOption().canParseAny());
+            state.add(inverted);
+        }, s -> s.gamemodeOption().canAddAny());
 
         register("type", parser -> {
             var state = parser.typeOption();
             boolean inverted = parser.shouldInvertValue();
-            if (!state.canParseElement(inverted)) {
+            if (!state.canAdd(inverted)) {
                 throw EntitySelectorParser.ERROR_INAPPLICABLE_OPTION.createWithContext(parser.getReader(), "type");
             }
             String type = parser.getReader().readUnquotedString();
             parser.addPredicate(e -> e.type().key().value().equals(type) != inverted);
-            state.markParsedElement(inverted);
-        }, s -> s.typeOption().canParseAny());
+            state.add(inverted);
+        }, s -> s.typeOption().canAddAny());
     }
 
     public static Modifier get(EntitySelectorParser parser, String key, int start) throws CommandSyntaxException {

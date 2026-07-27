@@ -1,8 +1,9 @@
 package fr.euphyllia.fidorial.server.command.brigadier.packet.registry;
 
 import com.mojang.brigadier.arguments.ArgumentType;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.ArgumentProviderImpl;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,16 +15,46 @@ public final class ArgumentTypeRegistry {
     }
 
     public static <A extends ArgumentType<?>, S extends ArgumentTypeRegistrar.Spec<A>> void register(
-            Class<? extends A> type,
             ArgumentTypeRegistrar<A, S> registrar
     ) {
+        final Class<?> type = resolveArgumentTypeClass(registrar);
         REGISTRARS.put(type, registrar);
+    }
+
+    private static Class<?> resolveArgumentTypeClass(ArgumentTypeRegistrar<?, ?> registrar) {
+
+        for (final Type genericInterface : registrar.getClass().getGenericInterfaces()) {
+
+            if (genericInterface instanceof ParameterizedType parameterized
+                    && parameterized.getRawType() == ArgumentTypeRegistrar.class) {
+
+                return rawClassOf(parameterized.getActualTypeArguments()[0], registrar);
+            }
+        }
+
+        throw new IllegalStateException(
+                "Could not resolve argument type for registrar: " + registrar.getClass().getName()
+                        + " — it must directly implement ArgumentTypeRegistrar<T, ...>");
+    }
+
+    private static Class<?> rawClassOf(Type type, ArgumentTypeRegistrar<?, ?> registrar) {
+
+        if (type instanceof Class<?> clazz) {
+            return clazz;
+        }
+
+        if (type instanceof ParameterizedType parameterized && parameterized.getRawType() instanceof Class<?> clazz) {
+            return clazz;
+        }
+
+        throw new IllegalStateException(
+                "Cannot resolve a concrete argument type for registrar: " + registrar.getClass().getName()
+                        + " — its ArgumentTypeRegistrar type parameter is not concrete (found: " + type + "). "
+                        + "Generic registrars (e.g. Info<T>) must register with an explicit class.");
     }
 
     @SuppressWarnings("unchecked")
     public static <A extends ArgumentType<?>> ArgumentTypeRegistrar<A, ?> registrar(A argument) {
-        argument = unwrap(argument);
-
         ArgumentTypeRegistrar<?, ?> registrar = REGISTRARS.get(argument.getClass());
 
         if (registrar == null) {
@@ -32,13 +63,5 @@ public final class ArgumentTypeRegistry {
         }
 
         return (ArgumentTypeRegistrar<A, ?>) registrar;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <A extends ArgumentType<?>> A unwrap(A argument) {
-        while (argument instanceof ArgumentProviderImpl.NativeWrapperArgumentType<?, ?> wrapper) {
-            argument = (A) wrapper.vanillaArgumentType();
-        }
-        return argument;
     }
 }

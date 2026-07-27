@@ -8,6 +8,7 @@ import fr.fidorial.registrygen.model.SupportedRegistries;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -23,6 +24,7 @@ public final class RegistryGenerator {
     private final RegistryDataGenerator dataGenerator;
     private final RegistryKeysGenerator keysGenerator;
     private final RegistryKeyGenerator registryKeyGenerator;
+    private final RegistryArgumentTypeIdGenerator argumentIdGenerator;
 
     /**
      * Creates a registry generator using the standard parser and
@@ -33,7 +35,8 @@ public final class RegistryGenerator {
         this(new RegistryReportParser(),
              new RegistryDataGenerator(),
              new RegistryKeysGenerator(),
-             new RegistryKeyGenerator());
+             new RegistryKeyGenerator(),
+                new RegistryArgumentTypeIdGenerator());
     }
 
     /**
@@ -50,12 +53,14 @@ public final class RegistryGenerator {
     public RegistryGenerator(final RegistryReportParser parser,
                              final RegistryDataGenerator dataGenerator,
                              final RegistryKeysGenerator keysGenerator,
-                             final RegistryKeyGenerator registryKeyGenerator) {
+                             final RegistryKeyGenerator registryKeyGenerator,
+                             final RegistryArgumentTypeIdGenerator argumentIdGenerator) {
 
         this.parser = Objects.requireNonNull(parser, "parser");
         this.dataGenerator = Objects.requireNonNull(dataGenerator, "dataGenerator");
         this.keysGenerator = Objects.requireNonNull(keysGenerator, "keysGenerator");
         this.registryKeyGenerator = Objects.requireNonNull(registryKeyGenerator, "registryKeyGenerator");
+        this.argumentIdGenerator = Objects.requireNonNull(argumentIdGenerator, "argumentIdGenerator");
     }
 
     /**
@@ -64,13 +69,17 @@ public final class RegistryGenerator {
      *
      * @param registriesJson  path to Mojang's {@code registries.json}
      * @param outputDirectory generated Java source root
+     * @param registryTypes the registries to generate
      *
      * @throws IOException if parsing or source generation fails
      */
-    public void generate(final Path registriesJson, final Path outputDirectory) throws IOException {
+    public void generate(final Path registriesJson,
+                         final Path outputDirectory,
+                         final List<RegistryTypeDefinition> registryTypes) throws IOException {
 
         Objects.requireNonNull(registriesJson, "registriesJson");
         Objects.requireNonNull(outputDirectory, "outputDirectory");
+        Objects.requireNonNull(registryTypes, "registryTypes");
 
         validateInput(registriesJson);
 
@@ -78,7 +87,7 @@ public final class RegistryGenerator {
 
         final RegistriesHolder registries = parser.parse(registriesJson);
 
-        for (final RegistryTypeDefinition registryType : SupportedRegistries.ALL) {
+        for (final RegistryTypeDefinition registryType : registryTypes) {
 
             final Optional<RegistryDefinition> registryDefinition = registries.registry(registryType.identifier());
             if (registryDefinition.isEmpty()) {
@@ -86,12 +95,16 @@ public final class RegistryGenerator {
                 continue;
             }
 
+            if (registryType.identifier().equals(SupportedRegistries.ARGUMENT_TYPE.identifier())) {
+                argumentIdGenerator.generate(registryDefinition.get(), outputDirectory);
+                continue;
+            }
 
             dataGenerator.generate(registryType, outputDirectory);
             keysGenerator.generate(registryType, registryDefinition.get(), outputDirectory);
         }
 
-        registryKeyGenerator.generate(SupportedRegistries.ALL, outputDirectory);
+        registryKeyGenerator.generate(registryTypes, outputDirectory);
     }
 
     /**

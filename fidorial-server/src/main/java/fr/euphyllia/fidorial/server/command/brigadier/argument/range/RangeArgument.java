@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.command.brigadier.argument.range;
 
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
@@ -10,27 +11,42 @@ import fr.fidorial.command.CommandSource;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Function;
 
-public interface RangeArgument<T extends MinMaxBounds<?>> extends com.mojang.brigadier.arguments.ArgumentType<T> {
+public interface RangeArgument {
 
-    static RangeArgument.Ints intRange() {
-        return new RangeArgument.Ints();
+    static RangeArgument.Ints<MinMaxBounds.Ints> intRange() {
+        return intRange(Function.identity());
     }
 
-    static RangeArgument.Floats floatRange() {
-        return new RangeArgument.Floats();
+    static <R> RangeArgument.Ints<R> intRange(Function<MinMaxBounds.Ints, R> converter) {
+        return new RangeArgument.Ints<>(converter);
     }
 
-    class Floats implements RangeArgument<MinMaxBounds.Doubles> {
+    static RangeArgument.Floats<MinMaxBounds.Doubles> floatRange() {
+        return floatRange(Function.identity());
+    }
+
+    static <R> RangeArgument.Floats<R> floatRange(Function<MinMaxBounds.Doubles, R> converter) {
+        return new RangeArgument.Floats<>(converter);
+    }
+
+    final class Floats<R> implements ArgumentType<R> {
         private static final Collection<String> EXAMPLES = Arrays.asList("0..5.2", "0", "-5.4", "-100.76..", "..100");
+
+        private final Function<MinMaxBounds.Doubles, R> converter;
+
+        public Floats(Function<MinMaxBounds.Doubles, R> converter) {
+            this.converter = converter;
+        }
 
         public static MinMaxBounds.Doubles getRange(CommandContext<CommandSource> context, String name) {
             return context.getArgument(name, MinMaxBounds.Doubles.class);
         }
 
         @Override
-        public MinMaxBounds.Doubles parse(StringReader reader) throws CommandSyntaxException {
-            return MinMaxBounds.Doubles.fromReader(reader);
+        public R parse(StringReader reader) throws CommandSyntaxException {
+            return converter.apply(MinMaxBounds.Doubles.fromReader(reader));
         }
 
         @Override
@@ -38,7 +54,7 @@ public interface RangeArgument<T extends MinMaxBounds<?>> extends com.mojang.bri
             return EXAMPLES;
         }
 
-        public static final class Info implements ArgumentTypeRegistrar<RangeArgument.Floats, Info.Spec> {
+        public static final class Info implements ArgumentTypeRegistrar<Floats<?>, Info.Spec> {
 
             @Override
             public void serialize(Spec spec, PacketBuffer buf) {
@@ -54,35 +70,41 @@ public interface RangeArgument<T extends MinMaxBounds<?>> extends com.mojang.bri
             }
 
             @Override
-            public Spec access(RangeArgument.Floats argument) {
+            public Spec access(Floats<?> argument) {
                 return new Spec();
             }
 
-            public record Spec() implements ArgumentTypeRegistrar.Spec<RangeArgument.Floats> {
+            public record Spec() implements ArgumentTypeRegistrar.Spec<Floats<?>> {
 
                 @Override
-                public RangeArgument.Floats instantiate() {
-                    return new RangeArgument.Floats();
+                public Floats<?> instantiate() {
+                    return new Floats<>(Function.identity());
                 }
 
                 @Override
-                public ArgumentTypeRegistrar<RangeArgument.Floats, ?> type() {
+                public ArgumentTypeRegistrar<Floats<?>, ?> type() {
                     return new Info();
                 }
             }
         }
     }
 
-    class Ints implements RangeArgument<MinMaxBounds.Ints> {
+    final class Ints<R> implements ArgumentType<R> {
         private static final Collection<String> EXAMPLES = Arrays.asList("0..5", "0", "-5", "-100..", "..100");
+
+        private final Function<MinMaxBounds.Ints, R> converter;
+
+        public Ints(Function<MinMaxBounds.Ints, R> converter) {
+            this.converter = converter;
+        }
 
         public static MinMaxBounds.Ints getRange(CommandContext<CommandSource> context, String name) {
             return context.getArgument(name, MinMaxBounds.Ints.class);
         }
 
         @Override
-        public MinMaxBounds.Ints parse(StringReader reader) throws CommandSyntaxException {
-            return MinMaxBounds.Ints.fromReader(reader);
+        public R parse(StringReader reader) throws CommandSyntaxException {
+            return converter.apply(MinMaxBounds.Ints.fromReader(reader));
         }
 
         @Override
@@ -90,7 +112,7 @@ public interface RangeArgument<T extends MinMaxBounds<?>> extends com.mojang.bri
             return EXAMPLES;
         }
 
-        public static final class Info implements ArgumentTypeRegistrar<RangeArgument.Ints, Info.Spec> {
+        public static final class Info implements ArgumentTypeRegistrar<Ints<?>, Info.Spec> {
 
             @Override
             public void serialize(Spec spec, PacketBuffer buf) {
@@ -106,19 +128,19 @@ public interface RangeArgument<T extends MinMaxBounds<?>> extends com.mojang.bri
             }
 
             @Override
-            public Spec access(RangeArgument.Ints argument) {
+            public Spec access(Ints<?> argument) {
                 return new Spec();
             }
 
-            public record Spec() implements ArgumentTypeRegistrar.Spec<RangeArgument.Ints> {
+            public record Spec() implements ArgumentTypeRegistrar.Spec<Ints<?>> {
 
                 @Override
-                public RangeArgument.Ints instantiate() {
-                    return new RangeArgument.Ints();
+                public Ints<?> instantiate() {
+                    return new Ints<>(Function.identity());
                 }
 
                 @Override
-                public ArgumentTypeRegistrar<RangeArgument.Ints, ?> type() {
+                public ArgumentTypeRegistrar<Ints<?>, ?> type() {
                     return new Info();
                 }
             }

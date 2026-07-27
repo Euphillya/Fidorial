@@ -34,7 +34,7 @@ public final class FidorialCommandHighlighter implements Highlighter {
     public AttributedString highlight(final LineReader reader, final String buffer) {
         final AttributedStringBuilder builder = new AttributedStringBuilder();
         final ParseResults<CommandSource> results =
-                this.commandManager.dispatcher().parse(new StringReader(buffer), this.consoleSource.get());
+                commandManager.parse(new StringReader(buffer), consoleSource.get());
 
         int pos = 0;
         int component = -1;

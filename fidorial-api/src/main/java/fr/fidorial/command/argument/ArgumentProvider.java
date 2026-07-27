@@ -10,7 +10,9 @@ import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.command.argument.resolvers.PositionResolver;
 import fr.fidorial.command.argument.resolvers.selector.EntitySelectorArgumentResolver;
 import fr.fidorial.command.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
+import fr.fidorial.entity.Player;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
@@ -25,7 +27,12 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.UUID;
+import java.util.function.Predicate;
 
+/**
+ * Modeled after Paper's <a href="https://github.com/PaperMC/Paper/blob/main/paper-api/src/main/java/io/papermc/paper/command/brigadier/argument/VanillaArgumentProvider.java">ArgumentTypes</a>
+ * Originally contributed in <a href="https://github.com/PaperMC/Paper/pull/8235">#8235</a>, licensed under the MIT license.
+ */
 @ApiStatus.Internal
 public interface ArgumentProvider {
 
@@ -37,11 +44,19 @@ public interface ArgumentProvider {
 
     ArgumentType<EntitySelectorArgumentResolver> entity();
 
+    ArgumentType<EntitySelectorArgumentResolver> entity(Predicate<Entity> filter);
+
     ArgumentType<PlayerSelectorArgumentResolver> player();
+
+    ArgumentType<PlayerSelectorArgumentResolver> player(Predicate<Player> filter);
 
     ArgumentType<EntitySelectorArgumentResolver> entities();
 
+    ArgumentType<EntitySelectorArgumentResolver> entities(Predicate<Entity> filter);
+
     ArgumentType<PlayerSelectorArgumentResolver> players();
+
+    ArgumentType<PlayerSelectorArgumentResolver> players(Predicate<Player> filter);
 
     ArgumentType<BlockPosResolver> blockPosition();
 
@@ -94,6 +109,8 @@ public interface ArgumentProvider {
     <T> ArgumentType<T> resource(RegistryKey<T> registryKey);
 
     ArgumentType<PlayerProfileListResolver> playerProfiles();
+
+    ArgumentType<PlayerProfileListResolver> playerProfiles(Predicate<Player> filter);
 
     //ArgumentType<BlockState> blockState();
 

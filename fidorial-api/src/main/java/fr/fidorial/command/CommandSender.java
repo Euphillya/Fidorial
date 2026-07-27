@@ -2,33 +2,13 @@ package fr.fidorial.command;
 
 import fr.fidorial.permission.PermissionHolder;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents an object that can be used to run {@link CommandTree}.
+ * Represents an object that can be used to run {@link Commands}.
+ * This is intentionally separated from {@link CommandSource} due to the possibility of it not matching the {@link CommandSender}
+ * when the executor was changed using the {@literal /execute} command for example.
  */
 public interface CommandSender extends Audience, PermissionHolder {
-
-    /**
-     * Sends a message with the MiniMessage format to this source.
-     *
-     * @param message MiniMessage content
-     **/
-    default void sendRichMessage(final @NotNull String message) {
-        this.sendMessage(MiniMessage.miniMessage().deserialize(message, this));
-    }
-
-    /**
-     * Sends a message with the MiniMessage format to this source.
-     *
-     * @param message MiniMessage content
-     * @param resolvers resolvers to use
-     */
-    default void sendRichMessage(final @NotNull String message, final @NotNull TagResolver @NotNull ... resolvers) {
-        this.sendMessage(MiniMessage.miniMessage().deserialize(message, this, resolvers));
-    }
 
     String name();
 }

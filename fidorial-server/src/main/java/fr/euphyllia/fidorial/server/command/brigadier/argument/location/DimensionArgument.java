@@ -18,10 +18,11 @@ import net.kyori.adventure.text.Component;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public final class DimensionArgument implements ArgumentType<Key> {
+public final class DimensionArgument<T> implements ArgumentType<T> {
 
     private static final Collection<String> EXAMPLES = Arrays.asList("minecraft:overworld", "minecraft:the_nether");
 
@@ -29,12 +30,22 @@ public final class DimensionArgument implements ArgumentType<Key> {
             new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
                     Component.translatable("argument.dimension.invalid", Component.text(value.toString()))));
 
-    public static DimensionArgument dimension() {
-        return new DimensionArgument();
+    private final Function<Key, T> converter;
+
+    private DimensionArgument(Function<Key, T> converter) {
+        this.converter = converter;
+    }
+
+    public static DimensionArgument<Key> dimension() {
+        return dimension(Function.identity());
+    }
+
+    public static <T> DimensionArgument<T> dimension(Function<Key, T> converter) {
+        return new DimensionArgument<>(converter);
     }
 
     @Override
-    public Key parse(StringReader reader) throws CommandSyntaxException {
+    public T parse(StringReader reader) throws CommandSyntaxException {
         int start = reader.getCursor();
 
         while (reader.canRead() && isAllowedInKey(reader.peek())) {
@@ -49,7 +60,7 @@ public final class DimensionArgument implements ArgumentType<Key> {
             throw ERROR_INVALID_VALUE.create(full);
         }
 
-        return Key.key(full);
+        return converter.apply(Key.key(full));
     }
 
     private boolean isAllowedInKey(char c) {
@@ -69,7 +80,7 @@ public final class DimensionArgument implements ArgumentType<Key> {
         return EXAMPLES;
     }
 
-    public static final class Info implements ArgumentTypeRegistrar<DimensionArgument, Info.Spec> {
+    public static final class Info implements ArgumentTypeRegistrar<DimensionArgument<?>, Info.Spec> {
 
         @Override
         public void serialize(Spec spec, PacketBuffer buf) {
@@ -85,18 +96,18 @@ public final class DimensionArgument implements ArgumentType<Key> {
         }
 
         @Override
-        public Spec access(DimensionArgument argument) {
+        public Spec access(DimensionArgument<?> argument) {
             return new Spec();
         }
 
-        public record Spec() implements ArgumentTypeRegistrar.Spec<DimensionArgument> {
+        public record Spec() implements ArgumentTypeRegistrar.Spec<DimensionArgument<?>> {
             @Override
-            public DimensionArgument instantiate() {
+            public DimensionArgument<?> instantiate() {
                 return DimensionArgument.dimension();
             }
 
             @Override
-            public ArgumentTypeRegistrar<DimensionArgument, ?> type() {
+            public ArgumentTypeRegistrar<DimensionArgument<?>, ?> type() {
                 return new Info();
             }
         }

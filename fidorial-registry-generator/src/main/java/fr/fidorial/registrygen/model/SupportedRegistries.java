@@ -16,6 +16,8 @@ import java.util.List;
  */
 public final class SupportedRegistries {
 
+  public static final RegistryTypeDefinition ARGUMENT_TYPE = registry("minecraft:command_argument_type", "ArgumentType");
+
   public static final List<RegistryTypeDefinition> ALL = List.of(
           registry("minecraft:attribute", "Attribute"),
           registry("minecraft:banner_pattern", "BannerPattern"),

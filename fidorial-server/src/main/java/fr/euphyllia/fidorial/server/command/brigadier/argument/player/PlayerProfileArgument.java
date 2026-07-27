@@ -21,12 +21,15 @@ import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument.Result> {
+public class PlayerProfileArgument<T> implements ArgumentType<T> {
 
     public static final SimpleCommandExceptionType ERROR_UNKNOWN_PLAYER =
             new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.player.unknown")));
@@ -34,11 +37,30 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
     private static final Collection<String> EXAMPLES =
             List.of("Player", "0123", "dd12be42-52a9-4a91-a8a1-11c01849e498", "@a");
 
-    public static PlayerProfileArgument playerProfile() {
-        return new PlayerProfileArgument();
+    private static final Predicate<Player> ALL = _ -> true;
+
+    private final Predicate<Player> filter;
+    private final Function<Result, T> converter;
+
+    private PlayerProfileArgument(Predicate<Player> filter, Function<Result, T> converter) {
+        this.filter = filter;
+        this.converter = converter;
     }
 
-    public PlayerProfileArgument() {
+    public static PlayerProfileArgument<Result> playerProfile() {
+        return playerProfile(ALL, Function.identity());
+    }
+
+    public static <T> PlayerProfileArgument<T> playerProfile(Function<Result, T> converter) {
+        return playerProfile(ALL, converter);
+    }
+
+    public static PlayerProfileArgument<Result> playerProfile(Predicate<Player> filter) {
+        return playerProfile(filter, Function.identity());
+    }
+
+    public static <T> PlayerProfileArgument<T> playerProfile(Predicate<Player> filter, Function<Result, T> converter) {
+        return new PlayerProfileArgument<>(filter, converter);
     }
 
     public static Collection<PlayerProfileMeta> getPlayerProfiles(CommandContext<CommandSource> context, String name)
@@ -48,7 +70,9 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
     }
 
     @Override
-    public Result parse(StringReader reader) throws CommandSyntaxException {
+    public T parse(StringReader reader) throws CommandSyntaxException {
+
+        Result result;
 
         if (reader.canRead() && reader.peek() == '@') {
             EntitySelector selector = new EntitySelectorParser(reader).parse();
@@ -57,37 +81,49 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
                 throw EntityArgument.ERROR_ONLY_PLAYERS_ALLOWED.create();
             }
 
-            return new SelectorResult(selector);
-        }
+            result = new SelectorResult(selector, filter);
+        } else {
 
-        int start = reader.getCursor();
+            int start = reader.getCursor();
 
-        while (reader.canRead() && reader.peek() != ' ') {
-            reader.skip();
-        }
-
-        String name = reader.getString().substring(start, reader.getCursor());
-
-        return source -> {
-            FidorialServer server = (FidorialServer) source.server();
-
-            Optional<? extends Player> player = server.player(name);
-
-            if (player.isEmpty()) {
-                throw ERROR_UNKNOWN_PLAYER.create();
+            while (reader.canRead() && reader.peek() != ' ') {
+                reader.skip();
             }
 
-            return List.of(new PlayerProfileMeta(player.get().profile()));
-        };
+            String name = reader.getString().substring(start, reader.getCursor());
+
+            result = source -> {
+                FidorialServer server = (FidorialServer) source.server();
+
+                Optional<? extends Player> player = server.player(name);
+
+                if (player.isEmpty() || !filter.test(player.get())) {
+                    throw ERROR_UNKNOWN_PLAYER.create();
+                }
+
+                return List.of(new PlayerProfileMeta(player.get().profile()));
+            };
+        }
+
+        return converter.apply(result);
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(
+            CommandContext<S> context,
+            SuggestionsBuilder builder
+    ) {
         if (!(context.getSource() instanceof CommandSource source)) {
             return Suggestions.empty();
         }
 
-        source.server().onlinePlayers().forEach(player -> builder.suggest(player.name()));
+        String remaining = builder.getRemainingLowerCase();
+
+        source.server().onlinePlayers().stream()
+                .filter(filter)
+                .map(Player::name)
+                .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
+                .forEach(builder::suggest);
 
         return builder.buildFuture();
     }
@@ -106,15 +142,19 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
     public static class SelectorResult implements Result {
 
         private final EntitySelector selector;
+        private final Predicate<Player> filter;
 
-        public SelectorResult(EntitySelector selector) {
+        public SelectorResult(EntitySelector selector, Predicate<Player> filter) {
             this.selector = selector;
+            this.filter = filter;
         }
 
         @Override
         public Collection<PlayerProfileMeta> getNames(CommandSource source) throws CommandSyntaxException {
 
-            List<Player> players = selector.findPlayers(source);
+            List<Player> players = selector.findPlayers(source).stream()
+                    .filter(filter)
+                    .toList();
 
             if (players.isEmpty()) {
                 throw EntityArgument.NO_PLAYERS_FOUND.create();
@@ -127,7 +167,7 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
         }
     }
 
-    public static final class Info implements ArgumentTypeRegistrar<PlayerProfileArgument, Info.Spec> {
+    public static final class Info implements ArgumentTypeRegistrar<PlayerProfileArgument<?>, Info.Spec> {
 
         @Override
         public void serialize(Spec spec, PacketBuffer buf) {
@@ -143,19 +183,19 @@ public class PlayerProfileArgument implements ArgumentType<PlayerProfileArgument
         }
 
         @Override
-        public Spec access(PlayerProfileArgument argument) {
+        public Spec access(PlayerProfileArgument<?> argument) {
             return new Spec();
         }
 
-        public record Spec() implements ArgumentTypeRegistrar.Spec<PlayerProfileArgument> {
+        public record Spec() implements ArgumentTypeRegistrar.Spec<PlayerProfileArgument<?>> {
 
             @Override
-            public PlayerProfileArgument instantiate() {
-                return new PlayerProfileArgument();
+            public PlayerProfileArgument<?> instantiate() {
+                return PlayerProfileArgument.playerProfile();
             }
 
             @Override
-            public ArgumentTypeRegistrar<PlayerProfileArgument, ?> type() {
+            public ArgumentTypeRegistrar<PlayerProfileArgument<?>, ?> type() {
                 return new Info();
             }
         }

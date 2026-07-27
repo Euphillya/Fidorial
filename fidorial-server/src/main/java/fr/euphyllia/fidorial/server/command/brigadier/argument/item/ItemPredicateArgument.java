@@ -21,11 +21,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public final class ItemPredicateArgument implements ArgumentType<Predicate<ItemStack>> {
+public final class ItemPredicateArgument<T> implements ArgumentType<T> {
 
     private static final Collection<String> EXAMPLES = Arrays.asList("stick", "minecraft:stick");
 
@@ -36,8 +37,18 @@ public final class ItemPredicateArgument implements ArgumentType<Predicate<ItemS
     public static final SimpleCommandExceptionType ERROR_TAGS_UNSUPPORTED =
             new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.text("Item tags are not yet supported")));
 
-    public static ItemPredicateArgument itemPredicate() {
-        return new ItemPredicateArgument();
+    private final Function<Predicate<ItemStack>, T> converter;
+
+    private ItemPredicateArgument(Function<Predicate<ItemStack>, T> converter) {
+        this.converter = converter;
+    }
+
+    public static ItemPredicateArgument<Predicate<ItemStack>> itemPredicate() {
+        return itemPredicate(Function.identity());
+    }
+
+    public static <T> ItemPredicateArgument<T> itemPredicate(Function<Predicate<ItemStack>, T> converter) {
+        return new ItemPredicateArgument<>(converter);
     }
 
     private boolean exists(Key key) {
@@ -45,7 +56,7 @@ public final class ItemPredicateArgument implements ArgumentType<Predicate<ItemS
     }
 
     @Override
-    public Predicate<ItemStack> parse(StringReader reader) throws CommandSyntaxException {
+    public T parse(StringReader reader) throws CommandSyntaxException {
         if (reader.canRead() && reader.peek() == '#') {
             // TBD
             throw ERROR_TAGS_UNSUPPORTED.createWithContext(reader);
@@ -73,7 +84,9 @@ public final class ItemPredicateArgument implements ArgumentType<Predicate<ItemS
             if (reader.canRead()) reader.skip();
         }
 
-        return stack -> !stack.isEmpty() && stack.id().equals(key);
+        Predicate<ItemStack> predicate = stack -> !stack.isEmpty() && stack.id().equals(key);
+
+        return converter.apply(predicate);
     }
 
     private boolean isAllowedInKey(char c) {
@@ -96,7 +109,7 @@ public final class ItemPredicateArgument implements ArgumentType<Predicate<ItemS
         return EXAMPLES;
     }
 
-    public static final class Info implements ArgumentTypeRegistrar<ItemPredicateArgument, Info.Spec> {
+    public static final class Info implements ArgumentTypeRegistrar<ItemPredicateArgument<?>, Info.Spec> {
 
         @Override
         public void serialize(Spec spec, PacketBuffer buf) {
@@ -112,18 +125,18 @@ public final class ItemPredicateArgument implements ArgumentType<Predicate<ItemS
         }
 
         @Override
-        public Spec access(ItemPredicateArgument argument) {
+        public Spec access(ItemPredicateArgument<?> argument) {
             return new Spec();
         }
 
-        public record Spec() implements ArgumentTypeRegistrar.Spec<ItemPredicateArgument> {
+        public record Spec() implements ArgumentTypeRegistrar.Spec<ItemPredicateArgument<?>> {
             @Override
-            public ItemPredicateArgument instantiate() {
+            public ItemPredicateArgument<?> instantiate() {
                 return ItemPredicateArgument.itemPredicate();
             }
 
             @Override
-            public ArgumentTypeRegistrar<ItemPredicateArgument, ?> type() {
+            public ArgumentTypeRegistrar<ItemPredicateArgument<?>, ?> type() {
                 return new Info();
             }
         }

@@ -1,4 +1,4 @@
-package fr.euphyllia.fidorial.server.command.brigadier.argument.builtin;
+package fr.euphyllia.fidorial.server.command.brigadier.builtin.exceptions;
 
 import com.mojang.brigadier.exceptions.BuiltInExceptionProvider;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;

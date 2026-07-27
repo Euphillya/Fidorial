@@ -10,7 +10,9 @@ import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.command.argument.resolvers.PositionResolver;
 import fr.fidorial.command.argument.resolvers.selector.EntitySelectorArgumentResolver;
 import fr.fidorial.command.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
+import fr.fidorial.entity.Player;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.Registry;
 import fr.fidorial.registry.RegistryKey;
@@ -23,9 +25,14 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import static fr.fidorial.command.argument.ArgumentProvider.provider;
 
+/**
+ * Modeled after Paper's <a href="https://github.com/PaperMC/Paper/blob/main/paper-api/src/main/java/io/papermc/paper/command/brigadier/argument/ArgumentTypes.java">ArgumentTypes</a>
+ * Originally contributed in <a href="https://github.com/PaperMC/Paper/pull/8235">#8235</a>, licensed under the MIT license.
+ */
 public final class ArgumentTypes {
     /**
      * Represents a selector that can capture any
@@ -35,6 +42,17 @@ public final class ArgumentTypes {
      */
     public static ArgumentType<EntitySelectorArgumentResolver> entity() {
         return provider().entity();
+    }
+
+    /**
+     * Represents a selector that can capture any single entity
+     * matching the given predicate.
+     *
+     * @param filter predicate the matched entity must satisfy
+     * @return argument that takes one entity
+     */
+    public static ArgumentType<EntitySelectorArgumentResolver> entity(final Predicate<Entity> filter) {
+        return provider().entity(filter);
     }
 
     /**
@@ -48,6 +66,17 @@ public final class ArgumentTypes {
     }
 
     /**
+     * Represents a selector that can capture multiple entities
+     * matching the given predicate.
+     *
+     * @param filter predicate each matched entity must satisfy
+     * @return argument that takes multiple entities
+     */
+    public static ArgumentType<EntitySelectorArgumentResolver> entities(final Predicate<Entity> filter) {
+        return provider().entities(filter);
+    }
+
+    /**
      * Represents a selector that can capture a
      * singular player entity.
      *
@@ -55,6 +84,17 @@ public final class ArgumentTypes {
      */
     public static ArgumentType<PlayerSelectorArgumentResolver> player() {
         return provider().player();
+    }
+
+    /**
+     * Represents a selector that can capture a singular player
+     * entity matching the given predicate.
+     *
+     * @param filter predicate the matched player must satisfy
+     * @return argument that takes one player
+     */
+    public static ArgumentType<PlayerSelectorArgumentResolver> player(final Predicate<Player> filter) {
+        return provider().player(filter);
     }
 
     /**
@@ -68,6 +108,17 @@ public final class ArgumentTypes {
     }
 
     /**
+     * Represents a selector that can capture multiple player
+     * entities matching the given predicate.
+     *
+     * @param filter predicate each matched player must satisfy
+     * @return argument that takes multiple players
+     */
+    public static ArgumentType<PlayerSelectorArgumentResolver> players(final Predicate<Player> filter) {
+        return provider().players(filter);
+    }
+
+    /**
      * A selector argument that provides a list
      * of player profiles.
      *
@@ -75,6 +126,17 @@ public final class ArgumentTypes {
      */
     public static ArgumentType<PlayerProfileListResolver> playerProfiles() {
         return provider().playerProfiles();
+    }
+
+    /**
+     * A selector argument that provides a list
+     * of player profiles matching the given predicate.
+     *
+     * @param filter predicate each matched player must satisfy
+     * @return player profile argument
+     */
+    public static ArgumentType<PlayerProfileListResolver> playerProfiles(final Predicate<Player> filter) {
+        return provider().playerProfiles(filter);
     }
 
     /**
@@ -372,7 +434,6 @@ public final class ArgumentTypes {
      * @param registryKey the registry's key
      * @return argument
      * @param <T> the registry value type
-     * @see RegistryArgumentExtractor#getTypedKey(com.mojang.brigadier.context.CommandContext, RegistryKey, String)
      */
     public static <T> ArgumentType<TypedKey<T>> resourceKey(final RegistryKey<T> registryKey) {
         return provider().resourceKey(registryKey);

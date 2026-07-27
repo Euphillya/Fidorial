@@ -2,6 +2,7 @@ extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
 
 plugins {
     application
+    id("fr.fidorial.registry-generator")
     id("com.gradleup.shadow")
 }
 
@@ -44,4 +45,28 @@ tasks.shadowJar {
     filesMatching("META-INF/services/**") {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
+}
+
+fidorialRegistryGenerator {
+    minecraftVersion.set("26.2")
+
+    generatedPackage.set(
+        "fr.euphyllia.fidorial.server.registry"
+    )
+
+    generatedSourcesDirectory.set(
+        layout.buildDirectory.dir(
+            "generated/sources/registries/java/main"
+        )
+    )
+
+    dataGeneratorArguments.set(
+        listOf("--reports")
+    )
+
+    registries.set(
+        mapOf(
+            "minecraft:command_argument_type" to "ArgumentType"
+        )
+    )
 }

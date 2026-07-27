@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.console.command.brigadier;
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
@@ -16,8 +15,6 @@ import org.jline.reader.ParsedLine;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
@@ -34,13 +31,11 @@ public final class FidorialCommandCompleter implements Completer {
 
     @Override
     public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
-        final CommandDispatcher<CommandSource> dispatcher = this.commandManager.dispatcher();
         final ParseResults<CommandSource> results =
-                dispatcher.parse(new StringReader(line.line()), this.consoleSource.get());
+                commandManager.parse(new StringReader(line.line()), consoleSource.get());
 
-        List<Suggestion> suggestions = CompletableFuture
-                .supplyAsync(() -> dispatcher.getCompletionSuggestions(results, line.cursor()))
-                .thenCompose(Function.identity())
+        List<Suggestion> suggestions = commandManager
+                .completionSuggestions(results, line.cursor())
                 .join()
                 .getList();
 
