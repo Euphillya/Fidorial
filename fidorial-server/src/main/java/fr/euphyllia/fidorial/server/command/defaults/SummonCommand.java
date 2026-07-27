@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
@@ -21,13 +22,13 @@ import static fr.fidorial.registry.RegistryKey.ENTITY_TYPE;
 
 public final class SummonCommand {
     public static LiteralCommandNode<CommandSource> create() {
+        ArgumentType<PositionResolver> positionArgument = ArgumentTypes.position();
         return literal("summon")
                 .requires(source -> source.sender().hasPermission("fidorial.command.summon"))
                 .then(argument("entity", ArgumentTypes.resource(ENTITY_TYPE))
                         .executes(SummonCommand::executeSelf)
-                        .then(argument("position", ArgumentTypes.position())
-                                .suggests((ctx, builder) ->
-                                        ArgumentTypes.position().listSuggestions(ctx, builder))
+                        .then(argument("position", positionArgument)
+                                .suggests(positionArgument::listSuggestions)
                                 .executes(SummonCommand::executeCoordinates))).build();
     }
 

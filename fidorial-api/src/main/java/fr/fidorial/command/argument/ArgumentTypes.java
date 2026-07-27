@@ -10,7 +10,9 @@ import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.command.argument.resolvers.PositionResolver;
 import fr.fidorial.command.argument.resolvers.selector.EntitySelectorArgumentResolver;
 import fr.fidorial.command.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
+import fr.fidorial.entity.Player;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.Registry;
 import fr.fidorial.registry.RegistryKey;
@@ -23,6 +25,7 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import static fr.fidorial.command.argument.ArgumentProvider.provider;
 
@@ -42,6 +45,17 @@ public final class ArgumentTypes {
     }
 
     /**
+     * Represents a selector that can capture any single entity
+     * matching the given predicate.
+     *
+     * @param filter predicate the matched entity must satisfy
+     * @return argument that takes one entity
+     */
+    public static ArgumentType<EntitySelectorArgumentResolver> entity(final Predicate<Entity> filter) {
+        return provider().entity(filter);
+    }
+
+    /**
      * Represents a selector that can capture multiple
      * entities.
      *
@@ -49,6 +63,17 @@ public final class ArgumentTypes {
      */
     public static ArgumentType<EntitySelectorArgumentResolver> entities() {
         return provider().entities();
+    }
+
+    /**
+     * Represents a selector that can capture multiple entities
+     * matching the given predicate.
+     *
+     * @param filter predicate each matched entity must satisfy
+     * @return argument that takes multiple entities
+     */
+    public static ArgumentType<EntitySelectorArgumentResolver> entities(final Predicate<Entity> filter) {
+        return provider().entities(filter);
     }
 
     /**
@@ -62,6 +87,17 @@ public final class ArgumentTypes {
     }
 
     /**
+     * Represents a selector that can capture a singular player
+     * entity matching the given predicate.
+     *
+     * @param filter predicate the matched player must satisfy
+     * @return argument that takes one player
+     */
+    public static ArgumentType<PlayerSelectorArgumentResolver> player(final Predicate<Player> filter) {
+        return provider().player(filter);
+    }
+
+    /**
      * Represents a selector that can capture multiple
      * player entities.
      *
@@ -72,6 +108,17 @@ public final class ArgumentTypes {
     }
 
     /**
+     * Represents a selector that can capture multiple player
+     * entities matching the given predicate.
+     *
+     * @param filter predicate each matched player must satisfy
+     * @return argument that takes multiple players
+     */
+    public static ArgumentType<PlayerSelectorArgumentResolver> players(final Predicate<Player> filter) {
+        return provider().players(filter);
+    }
+
+    /**
      * A selector argument that provides a list
      * of player profiles.
      *
@@ -79,6 +126,17 @@ public final class ArgumentTypes {
      */
     public static ArgumentType<PlayerProfileListResolver> playerProfiles() {
         return provider().playerProfiles();
+    }
+
+    /**
+     * A selector argument that provides a list
+     * of player profiles matching the given predicate.
+     *
+     * @param filter predicate each matched player must satisfy
+     * @return player profile argument
+     */
+    public static ArgumentType<PlayerProfileListResolver> playerProfiles(final Predicate<Player> filter) {
+        return provider().playerProfiles(filter);
     }
 
     /**

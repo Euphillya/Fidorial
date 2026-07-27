@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
@@ -35,18 +36,30 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
     private static final Collection<String> EXAMPLES =
             List.of("Player", "0123", "dd12be42-52a9-4a91-a8a1-11c01849e498", "@a");
 
+    private static final Predicate<Player> ALL = _ -> true;
+
+    private final Predicate<Player> filter;
     private final Function<Result, T> converter;
 
-    private PlayerProfileArgument(Function<Result, T> converter) {
+    private PlayerProfileArgument(Predicate<Player> filter, Function<Result, T> converter) {
+        this.filter = filter;
         this.converter = converter;
     }
 
     public static PlayerProfileArgument<Result> playerProfile() {
-        return playerProfile(Function.identity());
+        return playerProfile(ALL, Function.identity());
     }
 
     public static <T> PlayerProfileArgument<T> playerProfile(Function<Result, T> converter) {
-        return new PlayerProfileArgument<>(converter);
+        return playerProfile(ALL, converter);
+    }
+
+    public static PlayerProfileArgument<Result> playerProfile(Predicate<Player> filter) {
+        return playerProfile(filter, Function.identity());
+    }
+
+    public static <T> PlayerProfileArgument<T> playerProfile(Predicate<Player> filter, Function<Result, T> converter) {
+        return new PlayerProfileArgument<>(filter, converter);
     }
 
     public static Collection<PlayerProfileMeta> getPlayerProfiles(CommandContext<CommandSource> context, String name)
@@ -67,7 +80,7 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
                 throw EntityArgument.ERROR_ONLY_PLAYERS_ALLOWED.create();
             }
 
-            result = new SelectorResult(selector);
+            result = new SelectorResult(selector, filter);
         } else {
 
             int start = reader.getCursor();
@@ -83,7 +96,7 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
 
                 Optional<? extends Player> player = server.player(name);
 
-                if (player.isEmpty()) {
+                if (player.isEmpty() || !filter.test(player.get())) {
                     throw ERROR_UNKNOWN_PLAYER.create();
                 }
 
@@ -100,7 +113,9 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
             return Suggestions.empty();
         }
 
-        source.server().onlinePlayers().forEach(player -> builder.suggest(player.name()));
+        source.server().onlinePlayers().stream()
+                .filter(filter)
+                .forEach(player -> builder.suggest(player.name()));
 
         return builder.buildFuture();
     }
@@ -119,15 +134,19 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
     public static class SelectorResult implements Result {
 
         private final EntitySelector selector;
+        private final Predicate<Player> filter;
 
-        public SelectorResult(EntitySelector selector) {
+        public SelectorResult(EntitySelector selector, Predicate<Player> filter) {
             this.selector = selector;
+            this.filter = filter;
         }
 
         @Override
         public Collection<PlayerProfileMeta> getNames(CommandSource source) throws CommandSyntaxException {
 
-            List<Player> players = selector.findPlayers(source);
+            List<Player> players = selector.findPlayers(source).stream()
+                    .filter(filter)
+                    .toList();
 
             if (players.isEmpty()) {
                 throw EntityArgument.NO_PLAYERS_FOUND.create();

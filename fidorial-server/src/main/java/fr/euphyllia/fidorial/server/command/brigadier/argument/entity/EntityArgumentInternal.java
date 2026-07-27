@@ -23,11 +23,11 @@ public final class EntityArgumentInternal {
     }
 
     public static <T> ArgumentType<T> player(Function<EntitySelector, T> converter) {
-        return player((Predicate<Player>) _ -> true, converter);
+        return player(_ -> true, converter);
     }
 
     public static <T> ArgumentType<T> players(Function<EntitySelector, T> converter) {
-        return players((Predicate<Player>) _ -> true, converter);
+        return players(_ -> true, converter);
     }
 
     public static <T> ArgumentType<T> entity(Predicate<Entity> filter, Function<EntitySelector, T> converter) {

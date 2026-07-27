@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
@@ -32,20 +32,12 @@ public final class OpCommand {
     }
 
     private static LiteralCommandNode<CommandSource> create(String name, boolean grant) {
+        ArgumentType<PlayerProfileListResolver> playerArgument = ArgumentTypes.playerProfiles(player -> player.isOperator() != grant);
         return literal(name)
                 .requires(source ->
                         source.sender().hasPermission(grant ? "fidorial.command.op" : "fidorial.command.deop"))
-                .then(argument("player", ArgumentTypes.playerProfiles())
-                        .suggests((ctx, builder) -> ArgumentTypes.playerProfiles()
-                                .listSuggestions(ctx, builder)
-                                .thenApply(suggestions -> new Suggestions(
-                                        suggestions.getRange(),
-                                        suggestions.getList().stream()
-                                                .filter(suggestion -> ctx.getSource().server().onlinePlayers().stream()
-                                                        .filter(player ->
-                                                                player.name().equalsIgnoreCase(suggestion.getText()))
-                                                        .anyMatch(player -> player.isOperator() != grant))
-                                                .toList())))
+                .then(argument("player", playerArgument)
+                        .suggests(playerArgument::listSuggestions)
                         .executes(context -> execute(context, grant))).build();
     }
 

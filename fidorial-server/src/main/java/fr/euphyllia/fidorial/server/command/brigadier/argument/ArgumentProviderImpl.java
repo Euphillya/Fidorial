@@ -42,6 +42,7 @@ import fr.fidorial.command.argument.resolvers.selector.EntitySelectorArgumentRes
 import fr.fidorial.command.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
+import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.RegistryKey;
@@ -56,12 +57,18 @@ import net.kyori.adventure.text.format.TextColor;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<EntitySelectorArgumentResolver> entity() {
         return EntityArgumentInternal.entity(selector -> source -> List.of(selector.findSingleEntity(source)));
+    }
+
+    @Override
+    public ArgumentType<EntitySelectorArgumentResolver> entity(final Predicate<Entity> filter) {
+        return EntityArgumentInternal.entity(filter, selector -> source -> List.of(selector.findSingleEntity(source)));
     }
 
     @Override
@@ -72,13 +79,30 @@ public class ArgumentProviderImpl implements ArgumentProvider {
     }
 
     @Override
+    public ArgumentType<EntitySelectorArgumentResolver> entities(final Predicate<Entity> filter) {
+        return EntityArgumentInternal.entities(filter, selector -> source -> selector.findEntities(source).stream()
+                .map(Entity.class::cast)
+                .toList());
+    }
+
+    @Override
     public ArgumentType<PlayerSelectorArgumentResolver> player() {
         return EntityArgumentInternal.player(selector -> source -> List.of(selector.findSinglePlayer(source)));
     }
 
     @Override
+    public ArgumentType<PlayerSelectorArgumentResolver> player(final Predicate<Player> filter) {
+        return EntityArgumentInternal.player(filter, selector -> source -> List.of(selector.findSinglePlayer(source)));
+    }
+
+    @Override
     public ArgumentType<PlayerSelectorArgumentResolver> players() {
         return EntityArgumentInternal.players(selector -> selector::findPlayers);
+    }
+
+    @Override
+    public ArgumentType<PlayerSelectorArgumentResolver> players(final Predicate<Player> filter) {
+        return EntityArgumentInternal.players(filter, selector -> selector::findPlayers);
     }
 
     @Override
@@ -234,7 +258,14 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<PlayerProfileListResolver> playerProfiles() {
-        return PlayerProfileArgument.playerProfile(result -> source -> result.getNames(source).stream()
+        return PlayerProfileArgument.playerProfile((Function<PlayerProfileArgument.Result, PlayerProfileListResolver>) result -> source -> result.getNames(source).stream()
+                .map(PlayerProfile::new)
+                .toList());
+    }
+
+    @Override
+    public ArgumentType<PlayerProfileListResolver> playerProfiles(final Predicate<Player> filter) {
+        return PlayerProfileArgument.playerProfile(filter, result -> source -> result.getNames(source).stream()
                 .map(PlayerProfile::new)
                 .toList());
     }
