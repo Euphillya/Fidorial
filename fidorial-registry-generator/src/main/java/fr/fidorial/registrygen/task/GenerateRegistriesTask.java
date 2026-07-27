@@ -1,7 +1,8 @@
 package fr.fidorial.registrygen.task;
 
 import fr.fidorial.registrygen.generate.RegistryGenerator;
-import fr.fidorial.registrygen.model.RegistriesHolder;
+import fr.fidorial.registrygen.model.RegistryTypeDefinition;
+import fr.fidorial.registrygen.model.SupportedRegistries;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.MapProperty;
@@ -15,9 +16,9 @@ import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The GenerateRegistriesTask is a Gradle task designed for generating registry source files
@@ -47,10 +48,19 @@ public abstract class GenerateRegistriesTask extends DefaultTask {
 
     @TaskAction
     public void generateRegistries() throws IOException {
-        final Path registriesJson = getReportsDirectory().get().getAsFile().toPath().resolve("registries.json");
 
+        final Path registriesJson = getReportsDirectory().get().getAsFile().toPath().resolve("registries.json");
         final Path outputDirectory = getGeneratedSourcesDirectory().get().getAsFile().toPath();
 
-        new RegistryGenerator().generate(registriesJson, outputDirectory);
+        final Map<String, String> configured = getRegistries().getOrElse(Map.of());
+
+        final List<RegistryTypeDefinition> registryTypes = configured.isEmpty()
+                ? SupportedRegistries.ALL
+                : configured.entrySet().stream()
+                .map(entry -> new RegistryTypeDefinition(
+                        entry.getKey(), entry.getValue(), entry.getValue() + "Keys"))
+                .toList();
+
+        new RegistryGenerator().generate(registriesJson, outputDirectory, registryTypes);
     }
 }

@@ -32,6 +32,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.range.RangeArgume
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.KeyArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceKeyArgument;
+import fr.euphyllia.fidorial.server.registry.data.ArgumentTypeIds;
 
 public final class ArgumentTypes {
 
@@ -66,32 +67,32 @@ public final class ArgumentTypes {
     public static final UuidArgument.Info UUID = new UuidArgument.Info();
 
     static {
-        register(BoolArgumentType.class, BOOL, 0);
-        register(FloatArgumentType.class, FLOAT, 1);
-        register(DoubleArgumentType.class, DOUBLE, 2);
-        register(IntegerArgumentType.class, INTEGER, 3);
-        register(LongArgumentType.class, LONG, 4);
-        register(StringArgumentType.class, STRING, 5);
-        register(EntityArgument.class, ENTITY, 6);
-        register(PlayerProfileArgument.class, PLAYER_PROFILE, 7);
-        register(BlockPositionArgument.class, BLOCK_POS, 8);
-        register(Vec3Argument.class, VEC3, 10);
-        register(ItemArgument.class, ITEM_STACK, 14);
-        register(ItemPredicateArgument.class, ITEM_PREDICATE, 15);
-        register(NamedColorArgument.class, TEAM_COLOR, 16);
-        register(HexColorArgument.class, HEX_COLOR, 17);
-        register(ComponentArgument.class, COMPONENT, 18);
-        register(StyleArgument.class, STYLE, 19);
-        register(AngleArgument.class, ANGLE, 28);
-        register(KeyArgument.class, KEY, 36);
-        register(RangeArgument.Ints.class, INT_RANGE, 39);
-        register(RangeArgument.Floats.class, FLOAT_RANGE, 40);
-        register(DimensionArgument.class, DIMENSION, 41);
-        register(GameModeArgument.class, GAME_MODE, 42);
-        register(TimeArgument.class, TIME, 43);
-        register(ResourceArgument.class, RESOURCE, 46);
-        register(ResourceKeyArgument.class, RESOURCE_KEY, 47);
-        register(UuidArgument.class, UUID, 56);
+        register(BoolArgumentType.class, BOOL, ArgumentTypeIds.BOOL_ARGUMENT_ID);
+        register(FloatArgumentType.class, FLOAT, ArgumentTypeIds.FLOAT_ARGUMENT_ID);
+        register(DoubleArgumentType.class, DOUBLE, ArgumentTypeIds.DOUBLE_ARGUMENT_ID);
+        register(IntegerArgumentType.class, INTEGER, ArgumentTypeIds.INTEGER_ARGUMENT_ID);
+        register(LongArgumentType.class, LONG, ArgumentTypeIds.LONG_ARGUMENT_ID);
+        register(StringArgumentType.class, STRING, ArgumentTypeIds.STRING_ARGUMENT_ID);
+        register(EntityArgument.class, ENTITY, ArgumentTypeIds.ENTITY_ARGUMENT_ID);
+        register(PlayerProfileArgument.class, PLAYER_PROFILE, ArgumentTypeIds.GAME_PROFILE_ARGUMENT_ID);
+        register(BlockPositionArgument.class, BLOCK_POS, ArgumentTypeIds.BLOCK_POS_ARGUMENT_ID);
+        register(Vec3Argument.class, VEC3, ArgumentTypeIds.VEC3_ARGUMENT_ID);
+        register(ItemArgument.class, ITEM_STACK, ArgumentTypeIds.ITEM_STACK_ARGUMENT_ID);
+        register(ItemPredicateArgument.class, ITEM_PREDICATE, ArgumentTypeIds.ITEM_PREDICATE_ARGUMENT_ID);
+        register(NamedColorArgument.class, TEAM_COLOR, ArgumentTypeIds.TEAM_COLOR_ARGUMENT_ID);
+        register(HexColorArgument.class, HEX_COLOR, ArgumentTypeIds.HEX_COLOR_ARGUMENT_ID);
+        register(ComponentArgument.class, COMPONENT, ArgumentTypeIds.COMPONENT_ARGUMENT_ID);
+        register(StyleArgument.class, STYLE, ArgumentTypeIds.STYLE_ARGUMENT_ID);
+        register(AngleArgument.class, ANGLE, ArgumentTypeIds.ANGLE_ARGUMENT_ID);
+        register(KeyArgument.class, KEY, ArgumentTypeIds.RESOURCE_LOCATION_ARGUMENT_ID);
+        register(RangeArgument.Ints.class, INT_RANGE, ArgumentTypeIds.INT_RANGE_ARGUMENT_ID);
+        register(RangeArgument.Floats.class, FLOAT_RANGE, ArgumentTypeIds.FLOAT_RANGE_ARGUMENT_ID);
+        register(DimensionArgument.class, DIMENSION, ArgumentTypeIds.DIMENSION_ARGUMENT_ID);
+        register(GameModeArgument.class, GAME_MODE, ArgumentTypeIds.GAMEMODE_ARGUMENT_ID);
+        register(TimeArgument.class, TIME, ArgumentTypeIds.TIME_ARGUMENT_ID);
+        register(ResourceArgument.class, RESOURCE, ArgumentTypeIds.RESOURCE_ARGUMENT_ID);
+        register(ResourceKeyArgument.class, RESOURCE_KEY, ArgumentTypeIds.RESOURCE_KEY_ARGUMENT_ID);
+        register(UuidArgument.class, UUID, ArgumentTypeIds.UUID_ARGUMENT_ID);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
