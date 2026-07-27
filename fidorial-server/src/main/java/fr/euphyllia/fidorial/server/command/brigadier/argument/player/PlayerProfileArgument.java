@@ -21,6 +21,7 @@ import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -108,14 +109,21 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(
+            CommandContext<S> context,
+            SuggestionsBuilder builder
+    ) {
         if (!(context.getSource() instanceof CommandSource source)) {
             return Suggestions.empty();
         }
 
+        String remaining = builder.getRemainingLowerCase();
+
         source.server().onlinePlayers().stream()
                 .filter(filter)
-                .forEach(player -> builder.suggest(player.name()));
+                .map(Player::name)
+                .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
+                .forEach(builder::suggest);
 
         return builder.buildFuture();
     }

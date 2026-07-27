@@ -38,6 +38,10 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
 
     @Override
     public PositionResolver parse(StringReader reader) throws CommandSyntaxException {
+        if (reader.canRead() && reader.peek() == '^') {
+            LocalCoords coords = LocalCoords.parse(reader);
+            return coords::resolve;
+        }
 
         Coordinate x = Coordinate.parse(reader);
         reader.expect(' ');
@@ -62,62 +66,23 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        if (context.getSource() instanceof CommandSource source && source.sender() instanceof ServerPlayer player) {
-
-            String remaining = builder.getRemaining();
-
-            int spaces = (int) remaining.chars().filter(c -> c == ' ').count();
-
-            Location loc = source.location();
-
-            boolean relative = player.isFlying();
-
-            SuggestionsBuilder coordinateBuilder = offsetToCurrentCoordinate(builder);
-
-            switch (spaces) {
-                case 0 -> {
-                    if (relative) {
-                        coordinateBuilder.suggest("~ ~ ~");
-                    } else {
-                        coordinateBuilder.suggest(String.format("%.2f %.2f %.2f", loc.x(), loc.y(), loc.z()));
-                    }
-                }
-
-                case 1 -> {
-                    if (relative) {
-                        coordinateBuilder.suggest("~ ~");
-                    } else {
-                        coordinateBuilder.suggest(String.format("%.2f %.2f", loc.y(), loc.z()));
-                    }
-                }
-
-                case 2 -> {
-                    if (relative) {
-                        coordinateBuilder.suggest("~");
-                    } else {
-                        coordinateBuilder.suggest(String.format("%.2f", loc.z()));
-                    }
-                }
-            }
-
-            return coordinateBuilder.buildFuture();
+    public <S> CompletableFuture<Suggestions> listSuggestions(
+            CommandContext<S> context,
+            SuggestionsBuilder builder
+    ) {
+        if (!(context.getSource() instanceof CommandSource source)
+                || !(source.sender() instanceof ServerPlayer)) {
+            return Suggestions.empty();
         }
 
-        return builder.buildFuture();
-    }
+        Location loc = source.location();
 
-    private SuggestionsBuilder offsetToCurrentCoordinate(SuggestionsBuilder builder) {
-        String input = builder.getInput();
-        int start = builder.getStart();
-
-        for (int i = input.length() - 1; i >= start; i--) {
-            if (input.charAt(i) == ' ') {
-                return builder.createOffset(i + 1);
-            }
-        }
-
-        return builder;
+        return CommonPositionSuggestions.suggest(
+                builder,
+                String.format("%.2f", loc.x()),
+                String.format("%.2f", loc.y()),
+                String.format("%.2f", loc.z())
+        );
     }
 
     @Override

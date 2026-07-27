@@ -68,7 +68,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Locale;
-import java.util.UUID;
 
 public final class PlayPacketHandler implements PlayPacketListener {
 
@@ -494,17 +493,18 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleMovePlayerPos(final ServerboundMovePlayerPosPacket packet) {
-        onMoved(packet.x(), packet.y(), packet.z());
+        final Location old = player.location();
+        onMoved(packet.x(), packet.y(), packet.z(), old.yaw(), old.pitch());
     }
 
     @Override
     public void handleMovePlayerPosRot(final ServerboundMovePlayerPosRotPacket packet) {
-        onMoved(packet.x(), packet.y(), packet.z());
+        onMoved(packet.x(), packet.y(), packet.z(), packet.yaw(), packet.pitch());
     }
 
-    private void onMoved(final double x, final double y, final double z) {
+    private void onMoved(final double x, final double y, final double z, final float yaw, final float pitch) {
         final Location previous = player.location();
-        final Location current = new Location(x, y, z, previous.yaw(), previous.pitch());
+        final Location current = new Location(x, y, z, yaw, pitch);
         player.setLocation(current);
         server.worldManager().overworld().entityManager().moved(player, previous.chunk(), current.chunk());
 
