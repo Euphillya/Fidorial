@@ -130,8 +130,6 @@ public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
 
         @Override
         public void serialize(Spec spec, PacketBuffer buf) {
-            System.out.println(
-                    "ResourceKey registry = " + spec.registryKey.key().asString());
             buf.writeRegistryKey(spec.registryKey);
         }
 
