@@ -274,11 +274,10 @@ public final class CommandManager implements CommandRegistry {
         lock.readLock().lock();
         try {
             parse = dispatcher.parse(cmdLine, source);
+            return dispatcher.getCompletionSuggestions(parse);
         } finally {
             lock.readLock().unlock();
         }
-
-        return dispatcher.getCompletionSuggestions(parse);
     }
 
     @Override
@@ -325,7 +324,12 @@ public final class CommandManager implements CommandRegistry {
             final ParseResults<CommandSource> parse,
             final int cursor
     ) {
-        return dispatcher.getCompletionSuggestions(parse, cursor);
+        lock.readLock().lock();
+        try {
+            return dispatcher.getCompletionSuggestions(parse, cursor);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public ClientboundCommandsPacket createCommandsPacket(final ServerPlayer player) {
