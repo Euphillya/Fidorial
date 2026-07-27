@@ -14,7 +14,7 @@ import fr.fidorial.scheduler.RegionTps;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
-import fr.fidorial.world.WorldSpec;
+import fr.fidorial.world.WorldBuilder;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
@@ -339,7 +339,7 @@ public final class ApiTestCommand {
 
         final long seed = 20260716L;
         final WorldGenerator generator = new HillsGenerator(seed, 64, 24, 60);
-        final WorldSpec spec = WorldSpec.builder(key)
+        final WorldBuilder spec = WorldBuilder.builder(key)
                 .seed(seed)
                 .generator(generator)
                 .build();

@@ -8,13 +8,13 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
-public class WorldSpec {
+public class WorldBuilder {
 
     private final Key key;
     private final long seed;
     private final @Nullable WorldGenerator generator;
 
-    private WorldSpec(final Builder builder) {
+    private WorldBuilder(final Builder builder) {
         this.key = builder.key;
         this.seed = builder.seed;
         this.generator = builder.generator;
@@ -89,7 +89,7 @@ public class WorldSpec {
     }
 
     /**
-     * A fluent builder for {@link WorldSpec}.
+     * A fluent builder for {@link WorldBuilder}.
      *
      * @since 0.1.0
      */
@@ -117,7 +117,7 @@ public class WorldSpec {
         }
 
         /**
-         * Sets the world seed. See {@link WorldSpec#seed()} for how the seed is used.
+         * Sets the world seed. See {@link WorldBuilder#seed()} for how the seed is used.
          *
          * @param seed the world seed
          * @return this builder
@@ -143,14 +143,14 @@ public class WorldSpec {
         }
 
         /**
-         * Builds an immutable {@link WorldSpec} from the current builder state.
+         * Builds an immutable {@link WorldBuilder} from the current builder state.
          *
          * @return a new spec
          * @since 0.1.0
          */
         @Contract(value = "-> new", pure = true)
-        public WorldSpec build() {
-            return new WorldSpec(this);
+        public WorldBuilder build() {
+            return new WorldBuilder(this);
         }
     }
 }

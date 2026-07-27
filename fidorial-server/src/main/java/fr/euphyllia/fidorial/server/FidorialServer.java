@@ -71,7 +71,7 @@ import fr.fidorial.storage.player.PlayerInventoryStorage;
 import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
-import fr.fidorial.world.WorldSpec;
+import fr.fidorial.world.WorldBuilder;
 import fr.fidorial.world.block.Blocks;
 import fr.fidorial.world.fluid.FluidManager;
 import fr.fidorial.world.weather.WeatherManager;
@@ -418,7 +418,7 @@ public final class FidorialServer implements Server {
     }
 
     @Override
-    public World createWorld(final WorldSpec spec) {
+    public World createWorld(final WorldBuilder spec) {
         return worldManager.createWorld(spec.key(), spec.seed(), spec.generator().orElse(null));
     }
 

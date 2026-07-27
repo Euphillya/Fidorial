@@ -569,6 +569,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 player.gameMode().id(),
                 ClientboundRespawnPacket.KEEP_ALL));
         connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(player.gameMode()));
+        connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         openChunkView(target, dynamic, destChunk);
         connection.send(new ClientboundPlayerPositionPacket(
                 player.nextTeleportId(), location.x(), location.y(), location.z()));
