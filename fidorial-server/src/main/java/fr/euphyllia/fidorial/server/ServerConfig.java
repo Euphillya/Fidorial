@@ -25,6 +25,7 @@ public record ServerConfig(
         int regionWorkers,
         int chunkWorkers,
         int aiWorkers,
+        int regionShift,
         GameMode defaultGameMode,
         double spawnX,
         double spawnY,
@@ -57,8 +58,8 @@ public record ServerConfig(
         NONE,
         VELOCITY;
 
-        static @Nullable ProxyMode byName(String raw) {
-            for (ProxyMode mode : values()) {
+        static @Nullable ProxyMode byName(final String raw) {
+            for (final ProxyMode mode : values()) {
                 if (mode.name().equalsIgnoreCase(raw)) {
                     return mode;
                 }
@@ -68,12 +69,12 @@ public record ServerConfig(
     }
 
     public static ServerConfig defaults() {
-        int cpus = Runtime.getRuntime().availableProcessors();
+        final int cpus = Runtime.getRuntime().availableProcessors();
         return new ServerConfig(
                 25565,
                 true,
-                8,
-                3,
+                10,
+                10,
                 256,
                 Path.of("world"),
                 Path.of("plugins"),
@@ -81,6 +82,7 @@ public record ServerConfig(
                 Math.max(2, cpus / 2),
                 Math.max(2, cpus / 8),
                 Math.max(2, cpus / 8),
+                5,
                 GameMode.SURVIVAL,
                 WorldConstants.DEFAULT_SPAWN_X,
                 WorldConstants.DEFAULT_SPAWN_Y,
@@ -93,22 +95,22 @@ public record ServerConfig(
     }
 
     public static ServerConfig load() throws IOException {
-        Path file = Path.of(DEFAULT_FILE);
-        ServerConfig config = read(file);
+        final Path file = Path.of(DEFAULT_FILE);
+        final ServerConfig config = read(file);
         config.write(file);
         return config;
     }
 
-    public static ServerConfig read(Path file) throws IOException {
-        ServerConfig defaults = defaults();
+    public static ServerConfig read(final Path file) throws IOException {
+        final ServerConfig defaults = defaults();
         if (!Files.isRegularFile(file)) {
             return defaults;
         }
-        Properties props = new Properties();
-        try (InputStream in = Files.newInputStream(file)) {
+        final Properties props = new Properties();
+        try (final InputStream in = Files.newInputStream(file)) {
             props.load(in);
         }
-        ServerConfig config = new ServerConfig(
+        final ServerConfig config = new ServerConfig(
                 readInt(props, "port", defaults.port()),
                 readBool(props, "online-mode", defaults.onlineMode()),
                 readInt(props, "view-distance", defaults.viewDistance()),
@@ -119,7 +121,8 @@ public record ServerConfig(
                 readInt(props, "auto-save-seconds", defaults.autoSaveSeconds()),
                 readInt(props, "region-workers", defaults.regionWorkers()),
                 readInt(props, "chunk-workers", defaults.chunkWorkers()),
-                readInt(props, "ai-workers", defaults.chunkWorkers()),
+                readInt(props, "ai-workers", defaults.aiWorkers()),
+                readInt(props, "region-section-shift", defaults.regionShift()),
                 readGameMode(props, "default-game-mode", defaults.defaultGameMode()),
                 readDouble(props, "spawn-x", defaults.spawnX()),
                 readDouble(props, "spawn-y", defaults.spawnY()),
@@ -133,46 +136,46 @@ public record ServerConfig(
         return config;
     }
 
-    private static int readInt(Properties props, String key, int fallback) {
-        String raw = props.getProperty(key);
+    private static int readInt(final Properties props, final String key, final int fallback) {
+        final String raw = props.getProperty(key);
         if (raw == null || raw.isBlank()) {
             return fallback;
         }
         try {
             return Integer.parseInt(raw.strip());
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             LOGGER.warn("{} = '{}' unreadable, default value {} used", key, raw, fallback);
             return fallback;
         }
     }
 
-    private static double readDouble(Properties props, String key, double fallback) {
-        String raw = props.getProperty(key);
+    private static double readDouble(final Properties props, final String key, final double fallback) {
+        final String raw = props.getProperty(key);
         if (raw == null || raw.isBlank()) {
             return fallback;
         }
         try {
             return Double.parseDouble(raw.strip());
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             LOGGER.warn("{} = '{}' invalid, default value {} used", key, raw, fallback);
             return fallback;
         }
     }
 
-    private static String readString(Properties props, String key, String fallback) {
-        String raw = props.getProperty(key);
+    private static String readString(final Properties props, final String key, final String fallback) {
+        final String raw = props.getProperty(key);
         if (raw == null || raw.isBlank()) {
             return fallback;
         }
         return raw;
     }
 
-    private static GameMode readGameMode(Properties props, String key, GameMode fallback) {
-        String raw = props.getProperty(key);
+    private static GameMode readGameMode(final Properties props, final String key, final GameMode fallback) {
+        final String raw = props.getProperty(key);
         if (raw == null || raw.isBlank()) {
             return fallback;
         }
-        GameMode mode = GameMode.byName(raw.strip());
+        final GameMode mode = GameMode.byName(raw.strip());
         if (mode == null) {
             LOGGER.warn("{} = '{}' unknown, default value {} used", key, raw, fallback);
             return fallback;
@@ -180,12 +183,12 @@ public record ServerConfig(
         return mode;
     }
 
-    private static ProxyMode readProxyMode(Properties props, String key, ProxyMode fallback) {
-        String raw = props.getProperty(key);
+    private static ProxyMode readProxyMode(final Properties props, final String key, final ProxyMode fallback) {
+        final String raw = props.getProperty(key);
         if (raw == null || raw.isBlank()) {
             return fallback;
         }
-        ProxyMode mode = ProxyMode.byName(raw.strip());
+        final ProxyMode mode = ProxyMode.byName(raw.strip());
         if (mode == null) {
             LOGGER.warn("{} = '{}' unknown (expected: none, velocity), default value {} used", key, raw, fallback);
             return fallback;
@@ -193,13 +196,13 @@ public record ServerConfig(
         return mode;
     }
 
-    private static boolean readBool(Properties props, String key, boolean fallback) {
-        String raw = props.getProperty(key);
+    private static boolean readBool(final Properties props, final String key, final boolean fallback) {
+        final String raw = props.getProperty(key);
         return raw == null || raw.isBlank() ? fallback : Boolean.parseBoolean(raw.strip());
     }
 
-    public void write(Path file) throws IOException {
-        Properties props = new Properties();
+    public void write(final Path file) throws IOException {
+        final Properties props = new Properties();
         props.setProperty("port", Integer.toString(port));
         props.setProperty("online-mode", Boolean.toString(onlineMode));
         props.setProperty("view-distance", Integer.toString(viewDistance));
@@ -211,6 +214,7 @@ public record ServerConfig(
         props.setProperty("region-workers", Integer.toString(regionWorkers));
         props.setProperty("chunk-workers", Integer.toString(chunkWorkers));
         props.setProperty("ai-workers", Integer.toString(aiWorkers));
+        props.setProperty("region-section-shift", Integer.toString(regionShift));
         props.setProperty("default-game-mode", defaultGameMode.name().toLowerCase(Locale.ROOT));
         props.setProperty("spawn-x", Double.toString(spawnX));
         props.setProperty("spawn-y", Double.toString(spawnY));
@@ -220,7 +224,7 @@ public record ServerConfig(
         props.setProperty("proxy-mode", proxyMode.name().toLowerCase(Locale.ROOT));
         props.setProperty("velocity-secret", velocitySecret == null ? "" : velocitySecret);
         props.setProperty("use-io-uring", Boolean.toString(useIoUring));
-        try (OutputStream out = Files.newOutputStream(file)) {
+        try (final OutputStream out = Files.newOutputStream(file)) {
             props.store(out, "Configuration Fidorial");
         }
     }

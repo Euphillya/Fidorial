@@ -126,7 +126,7 @@ public final class FidorialServer implements Server {
     private final Registries registries = Registries.load();
     private @Nullable CommandManager commandManager;
 
-    private final ThreadedRegionRegionizer regionizer = new ThreadedRegionRegionizer(config.regionWorkers());
+    private final ThreadedRegionRegionizer regionizer = new ThreadedRegionRegionizer(config.regionWorkers(), config.regionShift());
     private final ThreadedChunkWorker chunkWorker = new ThreadedChunkWorker(config.chunkWorkers());
     private final AiWorker aiWorker = new AiWorker(config.aiWorkers());
     private final ScheduledExecutorService autoSave = Executors.newSingleThreadScheduledExecutor(

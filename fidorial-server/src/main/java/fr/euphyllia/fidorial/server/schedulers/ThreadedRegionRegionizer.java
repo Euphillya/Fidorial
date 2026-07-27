@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ThreadedRegionRegionizer implements RegionizedScheduler {
 
-    public static final int SECTION_SHIFT = 5;
+    public static int SECTION_SHIFT = 5;
     private static final ComponentLogger LOGGER = ComponentLogger.logger(ThreadedRegionRegionizer.class);
     private static final long TICK_PERIOD_MS = 50L;
     /**
@@ -44,11 +44,12 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
     private final ConcurrentMap<RegionKey, Region> regions = new ConcurrentHashMap<>();
     private final List<RegionTickHandler> tickHandlers = new CopyOnWriteArrayList<>();
 
-    public ThreadedRegionRegionizer(final int workerThreads) {
+    public ThreadedRegionRegionizer(final int workerThreads, final int sectionShift) {
+        SECTION_SHIFT = sectionShift;
         final AtomicInteger id = new AtomicInteger();
         this.workers = Executors.newScheduledThreadPool(
                 workerThreads, r -> new Thread(r, "fidorial-region-worker-" + id.incrementAndGet()));
-        LOGGER.info("Region pool started with {} workers", workerThreads);
+        LOGGER.info("Region pool started with {} workers and section shift: {}", workerThreads, SECTION_SHIFT);
     }
 
     @Override
