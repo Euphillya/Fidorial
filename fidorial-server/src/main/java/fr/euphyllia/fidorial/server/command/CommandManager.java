@@ -6,6 +6,7 @@ import com.google.errorprone.annotations.concurrent.GuardedBy;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -19,6 +20,8 @@ import fr.euphyllia.fidorial.server.command.defaults.SummonCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TimeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TpsCommand;
 import fr.euphyllia.fidorial.server.command.defaults.WeatherCommand;
+import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundCommandsPacket;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.command.CommandSource;
 import net.kyori.adventure.text.Component;
@@ -133,7 +136,14 @@ public final class CommandManager implements CommandRegistry {
     @Override
     public CompletableFuture<Boolean> dispatchAsync(final CommandSource source, final String cmdLine) {
         return CompletableFuture.supplyAsync(() -> {
-            final ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
+            final ParseResults<CommandSource> parse;
+
+            lock.readLock().lock();
+            try {
+                parse = dispatcher.parse(cmdLine, source);
+            } finally {
+                lock.readLock().unlock();
+            }
 
             final CommandSyntaxException exception = getParseException(parse);
             final boolean isConsole = source.sender() instanceof ConsoleSender;
@@ -141,8 +151,8 @@ public final class CommandManager implements CommandRegistry {
             if (exception != null) {
                 source.sender()
                         .sendMessage(convert(
-                                        exception.getRawMessage(),
-                                        isConsole)
+                                exception.getRawMessage(),
+                                isConsole)
                                 .color(NamedTextColor.RED));
                 sendContext(source, exception, cmdLine, isConsole);
                 return false;
@@ -244,8 +254,8 @@ public final class CommandManager implements CommandRegistry {
                 isConsole
                         ? Component.translatable("console.command.context.here")
                         : Component.translatable("command.context.here")
-                                .color(NamedTextColor.RED)
-                                .decorate(TextDecoration.ITALIC));
+                        .color(NamedTextColor.RED)
+                        .decorate(TextDecoration.ITALIC));
 
         source.sender().sendMessage(context);
     }
@@ -259,7 +269,15 @@ public final class CommandManager implements CommandRegistry {
 
     @Override
     public CompletableFuture<Suggestions> offerBrigadierSuggestions(final CommandSource source, final String cmdLine) {
-        final ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
+        final ParseResults<CommandSource> parse;
+
+        lock.readLock().lock();
+        try {
+            parse = dispatcher.parse(cmdLine, source);
+        } finally {
+            lock.readLock().unlock();
+        }
+
         return dispatcher.getCompletionSuggestions(parse);
     }
 
@@ -270,12 +288,53 @@ public final class CommandManager implements CommandRegistry {
 
     @Override
     public boolean hasCommand(final String alias, final CommandSource source) {
-        final CommandNode<CommandSource> node = dispatcher.getRoot().getChild(alias.toLowerCase(Locale.ROOT));
-        return node != null && node.canUse(source);
+        lock.readLock().lock();
+        try {
+            final CommandNode<CommandSource> node = dispatcher.getRoot().getChild(alias.toLowerCase(Locale.ROOT));
+            return node != null && node.canUse(source);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
-    public CommandDispatcher<CommandSource> dispatcher() {
-        return dispatcher;
+    public ParseResults<CommandSource> parse(
+            final StringReader reader,
+            final CommandSource source
+    ) {
+        lock.readLock().lock();
+        try {
+            return dispatcher.parse(reader, source);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public ParseResults<CommandSource> parse(
+            final String input,
+            final CommandSource source
+    ) {
+        lock.readLock().lock();
+        try {
+            return dispatcher.parse(input, source);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public CompletableFuture<Suggestions> completionSuggestions(
+            final ParseResults<CommandSource> parse,
+            final int cursor
+    ) {
+        return dispatcher.getCompletionSuggestions(parse, cursor);
+    }
+
+    public ClientboundCommandsPacket createCommandsPacket(final ServerPlayer player) {
+        lock.readLock().lock();
+        try {
+            return new ClientboundCommandsPacket(dispatcher, player);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public record RegisteredCommand(LiteralCommandNode<CommandSource> node) {

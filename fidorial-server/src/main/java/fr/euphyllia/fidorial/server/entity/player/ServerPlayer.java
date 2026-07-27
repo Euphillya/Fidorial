@@ -5,7 +5,6 @@ import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundCommandsPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundContainerClosePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundEntityEventPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
@@ -118,8 +117,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     @Override
     public void refreshCommands() {
-        connection.send(new ClientboundCommandsPacket(
-                connection.server().commandManager().dispatcher(), this));
+        connection.send(connection.server().commandManager().createCommandsPacket(this));
     }
 
     @Override

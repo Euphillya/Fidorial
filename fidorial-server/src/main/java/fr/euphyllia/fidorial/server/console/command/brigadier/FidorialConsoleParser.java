@@ -30,7 +30,7 @@ public final class FidorialConsoleParser implements Parser {
     @Override
     public ParsedLine parse(final String line, final int cursor, final ParseContext context) throws SyntaxError {
         final ParseResults<CommandSource> results =
-                this.commandManager.dispatcher().parse(new StringReader(line), this.consoleSource.get());
+                commandManager.parse(new StringReader(line), consoleSource.get());
         final ImmutableStringReader reader = results.getReader();
         final List<String> words = new ArrayList<>();
         CommandContextBuilder<CommandSource> currentContext = results.getContext();
