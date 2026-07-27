@@ -71,6 +71,7 @@ import fr.fidorial.storage.player.PlayerInventoryStorage;
 import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import fr.fidorial.world.WorldSpec;
 import fr.fidorial.world.block.Blocks;
 import fr.fidorial.world.fluid.FluidManager;
 import fr.fidorial.world.weather.WeatherManager;
@@ -414,6 +415,22 @@ public final class FidorialServer implements Server {
     @Override
     public Optional<? extends World> world(final Key key) {
         return worlds().stream().filter(w -> w.key().equals(key)).findFirst();
+    }
+
+    @Override
+    public World createWorld(final WorldSpec spec) {
+        return worldManager.createWorld(spec.key(), spec.seed(), spec.generator().orElse(null));
+    }
+
+    @Override
+    public boolean unloadWorld(final Key key, final boolean save) {
+        try {
+            worldManager.unloadWorld(key, save);
+            return true;
+        } catch (final IOException e) {
+            LOGGER.error("Saving world {} before unloading failed", key, e);
+            return false;
+        }
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.testplugin.CounterService;
 import fr.euphyllia.fidorial.testplugin.TestPlugin;
+import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
@@ -13,6 +14,8 @@ import fr.fidorial.scheduler.RegionTps;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import fr.fidorial.world.WorldSpec;
+import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
@@ -21,6 +24,7 @@ import net.kyori.adventure.text.Component;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static fr.fidorial.command.Commands.argument;
@@ -50,8 +54,16 @@ public final class ApiTestCommand {
                                             .executes(ApiTestCommand::tp)))))
                 .then(literal("tpworld")
                     .executes(ctx -> tpWorld(plugin, ctx, Key.key("minecraft", "overworld")))
-                        .then(argument("name", ArgumentTypes.word())
+                        .then(argument("name", ArgumentTypes.key())
                         .executes(ctx -> tpWorld(plugin, ctx, ctx.getArgument("name", Key.class)))))
+                .then(literal("createworld")
+                        .executes(ctx -> createWorld(plugin, ctx, Key.key("minecraft", UUID.randomUUID().toString())))
+                        .then(argument("name", ArgumentTypes.key())
+                                .executes(ctx -> createWorld(plugin, ctx, ctx.getArgument("name", Key.class)))))
+                .then(literal("unloadworld")
+                        .executes(ctx -> unloadWorld(plugin, ctx, Key.key("minecraft", UUID.randomUUID().toString())))
+                        .then(argument("name", ArgumentTypes.key())
+                                .executes(ctx -> unloadWorld(plugin, ctx, ctx.getArgument("name", Key.class)))))
                 .then(literal("sound")
                         .executes(ApiTestCommand::soundDemo)
                         .then(argument("key", ArgumentTypes.key())
@@ -314,5 +326,53 @@ public final class ApiTestCommand {
 
     private static void msg(final CommandSender sender, final String message) {
         sender.sendMessage(Component.text(message));
+    }
+
+    private static int createWorld(
+            final TestPlugin plugin, final CommandContext<CommandSource> ctx, final Key key) {
+        final CommandSender sender = ctx.getSource().sender();
+
+        if (plugin.server().world(key).isPresent()) {
+            msg(sender, "[TestPlugin] Le monde " + key + " existe deja (test d'idempotence OK).");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        final long seed = 20260716L;
+        final WorldGenerator generator = new HillsGenerator(seed, 64, 24, 60);
+        final WorldSpec spec = WorldSpec.builder(key)
+                .seed(seed)
+                .generator(generator)
+                .build();
+
+        final World world = plugin.server().createWorld(spec);
+
+        msg(
+                sender,
+                "[TestPlugin] Monde cree: " + world.key()
+                        + " | minY=" + world.minY()
+                        + " | height=" + world.height()
+                        + " | total=" + plugin.server().worlds().size());
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int unloadWorld(
+            final TestPlugin plugin, final CommandContext<CommandSource> ctx, final Key key) {
+        final CommandSender sender = ctx.getSource().sender();
+
+        final boolean unloaded = plugin.server().unloadWorld(key, true);
+        if (unloaded) {
+            msg(
+                    sender,
+                    "[TestPlugin] Monde decharge: " + key
+                            + " | total=" + plugin.server().worlds().size());
+        } else {
+            msg(
+                    sender,
+                    "[TestPlugin] Dechargement refuse pour " + key
+                            + " (monde inexistant, monde principal, ou joueurs presents).");
+        }
+
+        return Command.SINGLE_SUCCESS;
     }
 }
