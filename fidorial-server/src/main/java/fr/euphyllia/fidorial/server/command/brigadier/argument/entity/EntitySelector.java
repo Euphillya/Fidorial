@@ -252,4 +252,12 @@ public final class EntitySelector {
             throw EntityArgument.SELECTORS_NOT_PERMITTED.create();
         }
     }
+
+    public EntitySelector withPredicate(Predicate<Entity> extra) {
+        List<Predicate<Entity>> combined = new ArrayList<>(predicates.size() + 1);
+        combined.addAll(predicates);
+        combined.add(extra);
+        return new EntitySelector(maxResults, includesEntities, selfSelector, usesSelector, combined,
+                x, y, z, distance, dx, dy, dz, sort, targetName, targetUuid);
+    }
 }

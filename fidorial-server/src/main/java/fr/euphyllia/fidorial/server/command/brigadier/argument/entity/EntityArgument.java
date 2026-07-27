@@ -118,7 +118,7 @@ public final class EntityArgument<T> implements ArgumentType<T> {
             throw ERROR_ONLY_PLAYERS_ALLOWED.createWithContext(reader);
         }
 
-        return converter.apply(selector);
+        return converter.apply(selector.withPredicate(predicate));
     }
 
     public static Entity getEntity(CommandContext<CommandSource> context, String name) throws CommandSyntaxException {
