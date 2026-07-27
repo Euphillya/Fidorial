@@ -84,14 +84,6 @@ public final class ServerWorld implements World {
         this.entityBridge = entityBridge;
     }
 
-    public static long chunkKey(final int chunkX, final int chunkZ) {
-        return ((long) chunkX << 32) | (chunkZ & 0xFFFFFFFFL);
-    }
-
-    private static long key(final int chunkX, final int chunkZ) {
-        return chunkKey(chunkX, chunkZ);
-    }
-
     public Dimension dimension() {
         return dimension;
     }
@@ -126,7 +118,7 @@ public final class ServerWorld implements World {
 
     @Override
     public CompletableFuture<Chunk> getChunkAsync(final int chunkX, final int chunkZ) {
-        final ChunkColumn cached = loaded.get(key(chunkX, chunkZ));
+        final ChunkColumn cached = loaded.get(ChunkPos.chunkKey(chunkX, chunkZ));
         if (cached != null) {
             return CompletableFuture.completedFuture(wrap(cached));
         }
@@ -143,7 +135,7 @@ public final class ServerWorld implements World {
 
     @Override
     public Optional<Chunk> getChunkIfLoaded(final int chunkX, final int chunkZ) {
-        final ChunkColumn cached = loaded.get(key(chunkX, chunkZ));
+        final ChunkColumn cached = loaded.get(ChunkPos.chunkKey(chunkX, chunkZ));
         return Optional.ofNullable(cached).map(this::wrap);
     }
 
@@ -195,7 +187,7 @@ public final class ServerWorld implements World {
     }
 
     public ChunkColumn getChunk(final int chunkX, final int chunkZ) throws IOException {
-        final long k = key(chunkX, chunkZ);
+        final long k = ChunkPos.chunkKey(chunkX, chunkZ);
         final ChunkColumn cached = loaded.get(k);
         if (cached != null) {
             return cached;
@@ -224,7 +216,7 @@ public final class ServerWorld implements World {
     }
 
     private void ensureEntitiesLoaded(final int chunkX, final int chunkZ) {
-        final long k = key(chunkX, chunkZ);
+        final long k = ChunkPos.chunkKey(chunkX, chunkZ);
         if (!entitiesLoaded.add(k)) {
             return;
         }
@@ -273,7 +265,7 @@ public final class ServerWorld implements World {
     }
 
     private void unloadChunkEntities(final int chunkX, final int chunkZ) throws IOException {
-        final long k = key(chunkX, chunkZ);
+        final long k = ChunkPos.chunkKey(chunkX, chunkZ);
         if (!entitiesLoaded.remove(k)) {
             return;
         }
@@ -289,7 +281,7 @@ public final class ServerWorld implements World {
     }
 
     public void markDirty(final int chunkX, final int chunkZ) {
-        dirty.add(key(chunkX, chunkZ));
+        dirty.add(ChunkPos.chunkKey(chunkX, chunkZ));
     }
 
     public boolean setBlock(final int x, final int y, final int z, final BlockState state) throws IOException {
@@ -376,7 +368,7 @@ public final class ServerWorld implements World {
     }
 
     public void unloadChunk(final int chunkX, final int chunkZ) throws IOException {
-        final long k = key(chunkX, chunkZ);
+        final long k = ChunkPos.chunkKey(chunkX, chunkZ);
         if (dirty.remove(k)) {
             final ChunkColumn chunk = loaded.get(k);
             if (chunk != null) {
@@ -408,7 +400,7 @@ public final class ServerWorld implements World {
 
     @Override
     public CompletableFuture<Boolean> unloadChunkAsync(final int chunkX, final int chunkZ) {
-        final long k = key(chunkX, chunkZ);
+        final long k = ChunkPos.chunkKey(chunkX, chunkZ);
         if (!loaded.containsKey(k)) {
             return CompletableFuture.completedFuture(false);
         }

@@ -18,14 +18,6 @@ public final class EntityManager {
     private final Map<Long, Set<AbstractEntity>> byChunk = new ConcurrentHashMap<>();
     private final Map<Long, Set<AbstractEntity>> bySection = new ConcurrentHashMap<>();
 
-    private static long key(final ChunkPos pos) {
-        return key(pos.x(), pos.z());
-    }
-
-    private static long key(final int chunkX, final int chunkZ) {
-        return ((long) chunkZ << 32) | (chunkX & 0xFFFFFFFFL);
-    }
-
     private static long sectionKey(final ChunkPos pos) {
         return sectionKey(
                 pos.x() >> ThreadedRegionRegionizer.SECTION_SHIFT, pos.z() >> ThreadedRegionRegionizer.SECTION_SHIFT);
@@ -39,7 +31,7 @@ public final class EntityManager {
         byId.put(entity.entityId(), entity);
         byUuid.put(entity.uuid(), entity);
         final ChunkPos chunk = entity.chunk();
-        byChunk.computeIfAbsent(key(chunk), k -> ConcurrentHashMap.newKeySet()).add(entity);
+        byChunk.computeIfAbsent(ChunkPos.chunkKey(chunk), k -> ConcurrentHashMap.newKeySet()).add(entity);
         bySection
                 .computeIfAbsent(sectionKey(chunk), k -> ConcurrentHashMap.newKeySet())
                 .add(entity);
@@ -49,7 +41,7 @@ public final class EntityManager {
         byId.remove(entity.entityId());
         byUuid.remove(entity.uuid());
         final ChunkPos chunk = entity.chunk();
-        byChunk.computeIfPresent(key(chunk), (k, set) -> {
+        byChunk.computeIfPresent(ChunkPos.chunkKey(chunk), (k, set) -> {
             set.remove(entity);
             return set.isEmpty() ? null : set;
         });
@@ -63,11 +55,11 @@ public final class EntityManager {
         if (from.equals(to)) {
             return;
         }
-        byChunk.computeIfPresent(key(from), (k, set) -> {
+        byChunk.computeIfPresent(ChunkPos.chunkKey(from), (k, set) -> {
             set.remove(entity);
             return set.isEmpty() ? null : set;
         });
-        byChunk.computeIfAbsent(key(to), k -> ConcurrentHashMap.newKeySet()).add(entity);
+        byChunk.computeIfAbsent(ChunkPos.chunkKey(to), k -> ConcurrentHashMap.newKeySet()).add(entity);
 
         final long fromSection = sectionKey(from);
         final long toSection = sectionKey(to);
@@ -91,7 +83,7 @@ public final class EntityManager {
     }
 
     public Set<AbstractEntity> inChunk(final ChunkPos pos) {
-        return byChunk.getOrDefault(key(pos), Set.of());
+        return byChunk.getOrDefault(ChunkPos.chunkKey(pos), Set.of());
     }
 
     public Set<AbstractEntity> inSection(final int sectionX, final int sectionZ) {
@@ -105,7 +97,7 @@ public final class EntityManager {
     public void forEachInChunkRange(final int chunkX, final int chunkZ, final int chunkRadius, final Consumer<AbstractEntity> action) {
         for (int x = chunkX - chunkRadius; x <= chunkX + chunkRadius; x++) {
             for (int z = chunkZ - chunkRadius; z <= chunkZ + chunkRadius; z++) {
-                final Set<AbstractEntity> entitySet = byChunk.get(key(x, z));
+                final Set<AbstractEntity> entitySet = byChunk.get(ChunkPos.chunkKey(x, z));
                 if (entitySet == null || entitySet.isEmpty()) {
                     continue;
                 }

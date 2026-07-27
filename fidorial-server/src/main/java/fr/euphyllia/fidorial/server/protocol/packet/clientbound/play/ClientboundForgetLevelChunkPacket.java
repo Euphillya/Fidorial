@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import fr.fidorial.world.ChunkPos;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Packets#Unload_Chunk
 public record ClientboundForgetLevelChunkPacket(int chunkX, int chunkZ) implements ClientboundPacket {
@@ -13,7 +14,7 @@ public record ClientboundForgetLevelChunkPacket(int chunkX, int chunkZ) implemen
     }
 
     @Override
-    public void write(PacketBuffer buf) {
-        buf.writeLong(((long) chunkZ << 32) | (chunkX & 0xFFFFFFFFL));
+    public void write(final PacketBuffer buf) {
+        buf.writeLong(ChunkPos.chunkKey(chunkX, chunkZ));
     }
 }

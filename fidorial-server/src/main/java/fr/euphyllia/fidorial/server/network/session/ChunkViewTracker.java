@@ -36,11 +36,11 @@ public final class ChunkViewTracker implements ChunkViewSource {
     private int centerZ;
 
     public ChunkViewTracker(
-            ClientConnection connection,
-            ThreadedChunkWorker chunkWorker,
-            ServerWorld world,
-            ChunkNetworkSerializer serializer,
-            int radius
+            final ClientConnection connection,
+            final ThreadedChunkWorker chunkWorker,
+            final ServerWorld world,
+            final ChunkNetworkSerializer serializer,
+            final int radius
     ) {
         this.connection = connection;
         this.chunkWorker = chunkWorker;
@@ -49,19 +49,15 @@ public final class ChunkViewTracker implements ChunkViewSource {
         this.radius = radius;
     }
 
-    private static long key(int chunkX, int chunkZ) {
-        return ((long) chunkZ << 32) | (chunkX & 0xFFFFFFFFL);
-    }
-
-    private static void emit(Set<Long> source, LongConsumer keys) {
-        for (long key : source) {
-            int cx = (int) key;
-            int cz = (int) (key >> 32);
-            keys.accept(ServerWorld.chunkKey(cx, cz));
+    private static void emit(final Set<Long> source, final LongConsumer keys) {
+        for (final long key : source) {
+            final int cx = (int) key;
+            final int cz = (int) (key >> 32);
+            keys.accept(ChunkPos.chunkKey(cx, cz));
         }
     }
 
-    public void init(ChunkPos center) {
+    public void init(final ChunkPos center) {
         synchronized (lock) {
             centerX = center.x();
             centerZ = center.z();
@@ -70,7 +66,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
         stream(center.x(), center.z());
     }
 
-    public boolean moveTo(int chunkX, int chunkZ) {
+    public boolean moveTo(final int chunkX, final int chunkZ) {
         synchronized (lock) {
             if (chunkX == centerX && chunkZ == centerZ) {
                 return false;
@@ -83,18 +79,18 @@ public final class ChunkViewTracker implements ChunkViewSource {
         return true;
     }
 
-    private void stream(int centerX, int centerZ) {
+    private void stream(final int centerX, final int centerZ) {
         forgetOutOfRange(centerX, centerZ);
         requestInRange(centerX, centerZ);
     }
 
-    private void forgetOutOfRange(int centerX, int centerZ) {
+    private void forgetOutOfRange(final int centerX, final int centerZ) {
         synchronized (lock) {
-            Iterator<Long> it = sent.iterator();
+            final Iterator<Long> it = sent.iterator();
             while (it.hasNext()) {
-                long key = it.next();
-                int cx = (int) key;
-                int cz = (int) (key >> 32);
+                final long key = it.next();
+                final int cx = (int) key;
+                final int cz = (int) (key >> 32);
                 if (!inRange(cx, cz, centerX, centerZ)) {
                     connection.send(new ClientboundForgetLevelChunkPacket(cx, cz));
                     it.remove();
@@ -103,7 +99,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
         }
     }
 
-    private void requestInRange(int centerX, int centerZ) {
+    private void requestInRange(final int centerX, final int centerZ) {
         for (int r = 0; r <= radius; r++) {
             for (int dx = -r; dx <= r; dx++) {
                 for (int dz = -r; dz <= r; dz++) {
@@ -116,8 +112,8 @@ public final class ChunkViewTracker implements ChunkViewSource {
         }
     }
 
-    private void requestChunk(int cx, int cz) {
-        long key = key(cx, cz);
+    private void requestChunk(final int cx, final int cz) {
+        final long key = ChunkPos.chunkKey(cx, cz);
         synchronized (lock) {
             if (sent.contains(key) || !pending.add(key)) {
                 return;
@@ -126,8 +122,8 @@ public final class ChunkViewTracker implements ChunkViewSource {
         chunkWorker.loadAsync(world, cx, cz).whenComplete((column, error) -> onLoaded(cx, cz, column, error));
     }
 
-    private void onLoaded(int cx, int cz, ChunkColumn column, @Nullable Throwable error) {
-        long key = key(cx, cz);
+    private void onLoaded(final int cx, final int cz, final ChunkColumn column, @Nullable final Throwable error) {
+        final long key = ChunkPos.chunkKey(cx, cz);
         synchronized (lock) {
             pending.remove(key);
             if (error != null) {
@@ -142,7 +138,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
         connection.send(new ClientboundLevelChunkWithLightPacket(serializer, column));
     }
 
-    private boolean inRange(int cx, int cz, int centerX, int centerZ) {
+    private boolean inRange(final int cx, final int cz, final int centerX, final int centerZ) {
         return Math.abs(cx - centerX) <= radius && Math.abs(cz - centerZ) <= radius;
     }
 
@@ -157,7 +153,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
     }
 
     @Override
-    public void collectViewedChunks(LongConsumer keys) {
+    public void collectViewedChunks(final LongConsumer keys) {
         synchronized (lock) {
             emit(sent, keys);
             emit(pending, keys);
