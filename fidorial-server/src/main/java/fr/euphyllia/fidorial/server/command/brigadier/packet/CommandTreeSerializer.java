@@ -180,12 +180,20 @@ public final class CommandTreeSerializer {
         }
     }
 
-    private static void writeArgumentType(PacketBuffer buf, ArgumentType<?> argument) {
-        ArgumentTypeRegistrar registrar = ArgumentTypeRegistry.registrar(argument);
-        int id = NetworkArgumentIds.getId(registrar);
+    private static void writeArgumentType(final PacketBuffer buf, final ArgumentType<?> argument) {
+        writeArgumentTypeCaptured(buf, argument, ArgumentTypeRegistry.registrar(argument));
+    }
+
+    private static <A extends ArgumentType<?>, S extends ArgumentTypeRegistrar.Spec<A>> void writeArgumentTypeCaptured(
+            final PacketBuffer buf,
+            final A argument,
+            final ArgumentTypeRegistrar<A, S> registrar
+    ) {
+        final int id = NetworkArgumentIds.getId(registrar);
         buf.writeVarInt(id);
 
-        registrar.serialize(registrar.access(argument), buf);
+        final S spec = registrar.access(argument);
+        registrar.serialize(spec, buf);
     }
 
     private static boolean isRestricted(CommandNode<CommandSource> node) {

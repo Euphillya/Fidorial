@@ -38,8 +38,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.convert;
-import static fr.euphyllia.fidorial.server.command.brigadier.argument.builtin.TranslatableExceptions.DISPATCHER_UNKNOWN_ARGUMENT;
-import static fr.euphyllia.fidorial.server.command.brigadier.argument.builtin.TranslatableExceptions.DISPATCHER_UNKNOWN_COMMAND;
+import static fr.euphyllia.fidorial.server.command.brigadier.builtin.exceptions.TranslatableExceptions.DISPATCHER_UNKNOWN_ARGUMENT;
+import static fr.euphyllia.fidorial.server.command.brigadier.builtin.exceptions.TranslatableExceptions.DISPATCHER_UNKNOWN_COMMAND;
 
 public final class CommandManager implements CommandRegistry {
     private final @GuardedBy("lock") CommandDispatcher<CommandSource> dispatcher;

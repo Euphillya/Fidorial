@@ -7,7 +7,7 @@ import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleSender;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.builtin.TranslatableExceptions;
+import fr.euphyllia.fidorial.server.command.brigadier.builtin.exceptions.TranslatableExceptions;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypes;
 import fr.euphyllia.fidorial.server.console.command.ConsoleCommandReader;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
