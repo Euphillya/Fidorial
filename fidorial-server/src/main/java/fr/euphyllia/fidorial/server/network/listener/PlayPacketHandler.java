@@ -17,6 +17,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerAbilitiesPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerInfoUpdatePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundPlayerPositionPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundRespawnPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket.Entry;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSoundPacket;
@@ -514,6 +515,66 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
         server.regionizer().moveTicket(worldId(), ticket, chunk);
         ticket = chunk;
+    }
+
+    public boolean teleport(final ServerWorld target, final Location location) {
+        if (player == null) {
+            return false;
+        }
+        final ServerWorld from = (ServerWorld) player.world();
+        final ChunkPos destChunk = location.chunk();
+
+        if (from == target) {
+            final Location previous = player.location();
+            player.setLocation(location);
+            from.entityManager().moved(player, previous.chunk(), destChunk);
+            connection.send(new ClientboundPlayerPositionPacket(
+                    player.nextTeleportId(), location.x(), location.y(), location.z()));
+            if (chunkView != null && chunkView.moveTo(destChunk.x(), destChunk.z()) && ticket != null) {
+                server.regionizer().moveTicket(from.dimension().id(), ticket, destChunk);
+                ticket = destChunk;
+            }
+            server.entityTracker().update(player, server.players());
+            return true;
+        }
+        return teleportCrossWorld(from, target, location, destChunk);
+    }
+
+    private boolean teleportCrossWorld(
+            final ServerWorld from, final ServerWorld target, final Location location, final ChunkPos destChunk) {
+        if (player == null) {
+            throw new RuntimeException("Attempt to teleport a player who does not exist!");
+        }
+        if (chunkView != null) {
+            from.removeViewer(chunkView);
+            chunkView = null;
+        }
+        if (ticket != null) {
+            server.regionizer().removeTicket(from.dimension().id(), ticket);
+            ticket = null;
+        }
+        from.removeEntity(player);
+        server.entityTracker().untrack(player);
+
+        player.setWorld(target);
+        player.setLocation(location);
+        target.addEntity(player);
+
+        final RegistryHolder dynamic = server.dynamicRegistries();
+        final int dimensionType =
+                Math.max(0, dynamic.networkId("minecraft:dimension_type", target.dimension().id().asString()));
+        connection.send(new ClientboundRespawnPacket(
+                target.dimension().id().asString(),
+                dimensionType,
+                player.gameMode().id(),
+                ClientboundRespawnPacket.KEEP_ALL));
+        connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(player.gameMode()));
+        openChunkView(target, dynamic, destChunk);
+        connection.send(new ClientboundPlayerPositionPacket(
+                player.nextTeleportId(), location.x(), location.y(), location.z()));
+        server.dayNightEngine().syncTo(target, connection::send);
+        server.entityTracker().update(player, server.players());
+        return true;
     }
 
     private Key worldId() {

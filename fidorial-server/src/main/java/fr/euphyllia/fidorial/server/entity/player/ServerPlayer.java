@@ -15,6 +15,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundStopSoundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
+import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
@@ -169,7 +170,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
      * Closes the current window, if any.
      *
      * @param notifyClient {@code true} to also send a {@code container_close} to the client;
-     *     unnecessary when it is precisely the client that just closed the window.
+     *                     unnecessary when it is precisely the client that just closed the window.
      */
     public void closeMenu(final boolean notifyClient) {
         final ContainerMenu menu = this.openMenu;
@@ -192,6 +193,10 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         return /*flying &&*/ !isOnGround(); // broken
     }
 
+    public void setFlying(final boolean flying) {
+        this.flying = flying;
+    }
+
     private boolean isOnGround() {
         final Location loc = location();
 
@@ -201,10 +206,6 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         final int stateId = world().getBlockStateId(below);
 
         return stateId != 0;
-    }
-
-    public void setFlying(final boolean flying) {
-        this.flying = flying;
     }
 
     @Override
@@ -302,6 +303,14 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         final var id = lastTeleportId;
         lastTeleportId = id + 1;
         return lastTeleportId;
+    }
+
+    @Override
+    public boolean teleport(final World destination, final Location location) {
+        if (isRemoved() || !(destination instanceof final ServerWorld target)) {
+            return false;
+        }
+        return connection.teleport(target, location);
     }
 
     @Override

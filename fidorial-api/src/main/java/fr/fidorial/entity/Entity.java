@@ -32,7 +32,7 @@ public interface Entity extends CommandSource {
      *
      * @param location the destination position and orientation
      * @return {@code true} if the teleport happened, {@code false} if it was refused (for example
-     *         because the entity has been {@linkplain #isRemoved() removed})
+     * because the entity has been {@linkplain #isRemoved() removed})
      * @since 0.1.0
      */
     boolean teleport(Location location);

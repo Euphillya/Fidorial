@@ -4,11 +4,14 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundAddEntityPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundEntityPositionSyncPacket;
+import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
@@ -16,11 +19,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractEntity implements Entity {
 
+    public static final ComponentLogger LOGGER = ComponentLogger.logger(AbstractEntity.class);
+
     private final int entityId;
-    private UUID uuid;
     private final EntityType type;
     private final AtomicBoolean removed = new AtomicBoolean(false);
-
+    private UUID uuid;
     private volatile World world;
     private volatile Location location;
 
@@ -130,5 +134,51 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public @Nullable Entity executor() {
         return this;
+    }
+
+    @Override
+    public boolean teleport(final Location location) {
+        return teleport(world(), location);
+    }
+
+    @Override
+    public boolean teleport(final World destination, final Location location) {
+        if (isRemoved() || !(destination instanceof final ServerWorld target)) {
+            return false;
+        }
+
+        try {
+            final World from = world();
+            final Location previous = location();
+
+            if (from == target) {
+                setLocation(location);
+                target.entityManager().moved(this, previous.chunk(), location.chunk());
+            } else {
+                if (from instanceof final ServerWorld old) {
+                    old.removeEntity(this);
+                }
+                setWorld(target);
+                setLocation(location);
+                target.addEntity(this);
+            }
+
+            sendToTrackers(new ClientboundEntityPositionSyncPacket(
+                    entityId(),
+                    location.x(),
+                    location.y(),
+                    location.z(),
+                    0.0,
+                    0.0,
+                    0.0,
+                    location.yaw(),
+                    location.pitch(),
+                    false));
+            server().entityTracker().update(this, server().players());
+            return true;
+        } catch (final Exception exception) {
+            LOGGER.error("An error occurred while teleporting the player : ", exception);
+            return false;
+        }
     }
 }
