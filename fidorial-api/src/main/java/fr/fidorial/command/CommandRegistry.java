@@ -55,8 +55,9 @@ public interface CommandRegistry {
 
     /**
      * Unregisters the specified command alias from the manager, if registered.
+     * Root literal names are also treated as aliases in this context.
      *
-     * @param alias the command alias to unregister
+     * @param alias the command alias to unregister; if not currently registered, this method does nothing
      */
     void unregister(String alias);
 
