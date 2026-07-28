@@ -172,12 +172,12 @@ public final class TestPlugin implements Plugin {
 
         events.subscribe(BlockBreakEvent.class, e -> {
             eventCount.incrementAndGet();
-            logger.info("[TestPlugin][event] {} casse un bloc en {}", e.player().name(), e.position());
+           // logger.info("[TestPlugin][event] {} casse un bloc en {}", e.player().name(), e.position());
         });
 
         events.subscribe(BlockPlaceEvent.class, e -> {
             eventCount.incrementAndGet();
-            logger.info("[TestPlugin][event] {} pose un bloc", e.player().name());
+         //   logger.info("[TestPlugin][event] {} pose un bloc", e.player().name());
         });
     }
 

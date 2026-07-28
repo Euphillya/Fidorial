@@ -1,12 +1,16 @@
 package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.fidorial.world.block.BlockBehaviour;
 import fr.fidorial.world.block.BlockData;
+import fr.fidorial.world.block.BlockGetter;
+import fr.fidorial.world.block.BlockPlaceContext;
 import fr.fidorial.world.block.BlockRegistry;
 import fr.fidorial.world.block.BlockType;
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.Map;
 
 
@@ -31,8 +35,32 @@ public record BlockStateRegistry(BlockRegistry registry) {
         return resolve(state) != null;
     }
 
+    public BlockState toBlockState(final BlockData data) {
+        return new BlockState(data.key().asString(), data.propertyMap());
+    }
+
     @SuppressWarnings("PatternValidation")
-    private @Nullable BlockData resolve(final BlockState state) {
+    public @Nullable BlockState placementState(final BlockState state, final BlockPlaceContext context) {
+        final BlockBehaviour behaviour = registry.behaviour(Key.key(state.name())).orElse(null);
+        if (behaviour == null) {
+            return state;
+        }
+        final BlockData placed = behaviour.placementState(context);
+        return placed == null ? null : toBlockState(placed);
+    }
+
+    public BlockGetter view(final ServerWorld world) {
+        return pos -> {
+            try {
+                return resolve(world.getBlock(pos.x(), pos.y(), pos.z()));
+            } catch (final IOException exception) {
+                return null;
+            }
+        };
+    }
+
+    @SuppressWarnings("PatternValidation")
+    public @Nullable BlockData resolve(final BlockState state) {
         final BlockType type = registry.type(Key.key(state.name())).orElse(null);
         if (type == null) {
             return null;

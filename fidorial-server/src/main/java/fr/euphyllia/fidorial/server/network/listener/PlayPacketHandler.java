@@ -63,6 +63,7 @@ import fr.fidorial.world.BlockFace;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
+import fr.fidorial.world.block.BlockPlaceContext;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
@@ -320,9 +321,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
             connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
             return;
         }
-        final BlockPos target = packet.target().relative(BlockFace.byId(packet.face()));
+        final BlockFace clickedFace = BlockFace.byId(packet.face());
+        final BlockPos target = packet.target().relative(clickedFace);
         final ItemStack held = player.inventory().get(player.selectedSlot());
-        final BlockState state = held.isEmpty() ? null : blockToPlace(held, target);
+        final BlockState state = held.isEmpty() ? null : blockToPlace(held, target, clickedFace);
 
         if (state != null) {
             final BlockPlaceEvent event = server.events()
@@ -335,15 +337,16 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
     }
 
-    private @Nullable BlockState blockToPlace(final ItemStack held, final BlockPos target) {
+    private @Nullable BlockState blockToPlace(
+            final ItemStack held, final BlockPos target, final BlockFace clickedFace) {
         final BlockState state = server.blockStateRegistry().blockForItem(held.id());
         if (state == null) {
             return null;
         }
-        if (EnderChestBlock.is(state)) {
-            return EnderChestBlock.placedBy(player.location(), isWater(target));
-        }
-        return state;
+        final ServerWorld world = server.worldManager().overworld();
+        final BlockPlaceContext context = new BlockPlaceContext(
+                target, clickedFace, player.location(), server.blockStateRegistry().view(world));
+        return server.blockStateRegistry().placementState(state, context);
     }
 
     private boolean isWater(final BlockPos pos) {
@@ -435,7 +438,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (player == null) {
             return;
         }
-        UUID uuid;
+        final UUID uuid;
         try {
             uuid = ClickCallbackManager.uuidFromPayload(packet.payload());
         } catch (final IllegalArgumentException e) {

@@ -13,7 +13,7 @@ public interface BlockRegistry {
 
     Optional<BlockType> type(Key key);
 
-    default Optional<BlockType> type(@KeyPattern String key) {
+    default Optional<BlockType> type(@KeyPattern final String key) {
         return type(Key.key(key));
     }
 
@@ -22,23 +22,35 @@ public interface BlockRegistry {
 
     void register(BlockType type);
 
+    default void register(final BlockBehaviour behaviour) {
+        register(behaviour.type());
+    }
+
+    default Optional<BlockBehaviour> behaviour(final Key key) {
+        return Optional.empty();
+    }
+
+    default Optional<BlockBehaviour> behaviour(final BlockData data) {
+        return behaviour(data.key());
+    }
+
     Collection<BlockType> types();
 
     @SuppressWarnings("PatternValidation")
-    default @Nullable BlockData parse(String input) {
+    default @Nullable BlockData parse(final String input) {
         String name = input;
         Map<String, String> values = Map.of();
-        int bracket = input.indexOf('[');
+        final int bracket = input.indexOf('[');
         if (bracket >= 0) {
             if (!input.endsWith("]")) {
                 throw new IllegalArgumentException("Missing closing ']' in '" + input + "'");
             }
             name = input.substring(0, bracket);
             values = new LinkedHashMap<>();
-            String body = input.substring(bracket + 1, input.length() - 1);
+            final String body = input.substring(bracket + 1, input.length() - 1);
             if (!body.isEmpty()) {
-                for (String pair : body.split(",")) {
-                    int eq = pair.indexOf('=');
+                for (final String pair : body.split(",")) {
+                    final int eq = pair.indexOf('=');
                     if (eq < 0) {
                         throw new IllegalArgumentException("Invalid property '" + pair + "' in '" + input + "'");
                     }
@@ -46,7 +58,7 @@ public interface BlockRegistry {
                 }
             }
         }
-        BlockType type = type(name).orElse(null);
+        final BlockType type = type(name).orElse(null);
         return type == null ? null : type.data(values);
     }
 }

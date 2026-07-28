@@ -52,6 +52,8 @@ import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.ServiceBackedChunkGenerator;
 import fr.euphyllia.fidorial.server.world.WorldConstants;
 import fr.euphyllia.fidorial.server.world.WorldManager;
+import fr.euphyllia.fidorial.server.world.block.BuiltInBlocks;
+import fr.euphyllia.fidorial.server.world.block.FidorialBlockRegistry;
 import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
@@ -117,7 +119,7 @@ public final class FidorialServer implements Server {
 
     private final KeyPair keyPair = EncryptionUtils.generateServerKeyPair();
     private final MojangSessionService sessionService = new MojangSessionService();
-    private final VanillaBlockRegistry blockRegistry = bootstrapBlocks();
+    private final FidorialBlockRegistry blockRegistry = bootstrapBlocks();
     private final BlockStateRegistry blockStateRegistry = new BlockStateRegistry(blockRegistry);
     private final EntityIdAllocator entityIds = new EntityIdAllocator();
     private final EntityTracker entityTracker = new EntityTracker(config.sendDistance());
@@ -188,11 +190,12 @@ public final class FidorialServer implements Server {
         return Objects.requireNonNull(instance, "FidorialServer is not initialized");
     }
 
-    private static VanillaBlockRegistry bootstrapBlocks() {
-        final VanillaBlockRegistry registry = new VanillaBlockRegistry();
+    private static FidorialBlockRegistry bootstrapBlocks() {
+        final FidorialBlockRegistry registry = new FidorialBlockRegistry(new VanillaBlockRegistry());
+        BuiltInBlocks.registerAll(registry);
         Blocks.bootstrap(registry);
-        LOGGER.info(
-                "Loaded {} block types from vanilla report", registry.types().size());
+        LOGGER.info("{} blocks defined in code, {} types available with fallback",
+                registry.definedCount(), registry.types().size());
         return registry;
     }
 

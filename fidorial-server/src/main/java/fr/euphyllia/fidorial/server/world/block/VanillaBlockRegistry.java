@@ -23,6 +23,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 
+/**
+ * @deprecated do not build anything new on top of it.
+ */
+@Deprecated(forRemoval = true)
 public final class VanillaBlockRegistry implements BlockRegistry {
 
     private static final String RESOURCE = "/data/blocks.json.gz";
@@ -31,27 +35,27 @@ public final class VanillaBlockRegistry implements BlockRegistry {
     private final Map<Integer, BlockData> byNetworkId = new ConcurrentHashMap<>();
 
     public VanillaBlockRegistry() {
-        try (InputStream raw = VanillaBlockRegistry.class.getResourceAsStream(RESOURCE)) {
+        try (final InputStream raw = VanillaBlockRegistry.class.getResourceAsStream(RESOURCE)) {
             if (raw == null) {
                 throw new IllegalStateException("Missing resource " + RESOURCE);
             }
             load(new GZIPInputStream(raw));
-        } catch (IOException exception) {
+        } catch (final IOException exception) {
             throw new UncheckedIOException("Failed to load " + RESOURCE, exception);
         }
     }
 
-    private static int ordinalOf(List<BlockProperty> properties, Map<String, String> values) {
+    private static int ordinalOf(final List<BlockProperty> properties, final Map<String, String> values) {
         int ordinal = 0;
-        for (BlockProperty property : properties) {
+        for (final BlockProperty property : properties) {
             ordinal = ordinal * property.values().size() + property.indexOf(values.get(property.name()));
         }
         return ordinal;
     }
 
     @SuppressWarnings("PatternValidation")
-    private void load(InputStream input) throws IOException {
-        try (JsonReader reader = new JsonReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
+    private void load(final InputStream input) throws IOException {
+        try (final JsonReader reader = new JsonReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
             reader.beginObject();
             while (reader.hasNext()) {
                 register(readBlock(Key.key(reader.nextName()), reader));
@@ -60,7 +64,7 @@ public final class VanillaBlockRegistry implements BlockRegistry {
         }
     }
 
-    private BlockType readBlock(Key key, JsonReader reader) throws IOException {
+    private BlockType readBlock(final Key key, final JsonReader reader) throws IOException {
         List<BlockProperty> properties = List.of();
         List<ParsedState> states = List.of();
 
@@ -74,10 +78,10 @@ public final class VanillaBlockRegistry implements BlockRegistry {
         }
         reader.endObject();
 
-        int[] stateIds = new int[states.size()];
+        final int[] stateIds = new int[states.size()];
         int defaultOrdinal = 0;
-        for (ParsedState state : states) {
-            int ordinal = ordinalOf(properties, state.values);
+        for (final ParsedState state : states) {
+            final int ordinal = ordinalOf(properties, state.values);
             stateIds[ordinal] = state.id;
             if (state.isDefault) {
                 defaultOrdinal = ordinal;
@@ -86,12 +90,12 @@ public final class VanillaBlockRegistry implements BlockRegistry {
         return BlockType.of(key, properties, stateIds, defaultOrdinal);
     }
 
-    private List<BlockProperty> readProperties(JsonReader reader) throws IOException {
-        List<BlockProperty> properties = new ArrayList<>();
+    private List<BlockProperty> readProperties(final JsonReader reader) throws IOException {
+        final List<BlockProperty> properties = new ArrayList<>();
         reader.beginObject();
         while (reader.hasNext()) {
-            String name = reader.nextName();
-            List<String> values = new ArrayList<>();
+            final String name = reader.nextName();
+            final List<String> values = new ArrayList<>();
             reader.beginArray();
             while (reader.hasNext()) {
                 values.add(reader.nextString());
@@ -103,8 +107,8 @@ public final class VanillaBlockRegistry implements BlockRegistry {
         return properties;
     }
 
-    private List<ParsedState> readStates(JsonReader reader) throws IOException {
-        List<ParsedState> states = new ArrayList<>();
+    private List<ParsedState> readStates(final JsonReader reader) throws IOException {
+        final List<ParsedState> states = new ArrayList<>();
         reader.beginArray();
         while (reader.hasNext()) {
             int id = -1;
@@ -134,20 +138,20 @@ public final class VanillaBlockRegistry implements BlockRegistry {
     }
 
     @Override
-    public Optional<BlockType> type(Key key) {
+    public Optional<BlockType> type(final Key key) {
         return Optional.ofNullable(types.get(key));
     }
 
     @Override
-    public @Nullable BlockData fromNetworkId(int networkId) {
+    public @Nullable BlockData fromNetworkId(final int networkId) {
         return byNetworkId.get(networkId);
     }
 
     @Override
-    public void register(BlockType type) {
+    public void register(final BlockType type) {
         types.put(type.key(), type);
         for (int ordinal = 0; ordinal < type.stateCount(); ordinal++) {
-            BlockData data = type.stateAt(ordinal);
+            final BlockData data = type.stateAt(ordinal);
             byNetworkId.putIfAbsent(data.networkId(), data);
         }
     }
