@@ -11,6 +11,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.NetworkArg
 import fr.euphyllia.fidorial.server.command.brigadier.packet.util.PermissionlessCommandSource;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
+import net.kyori.adventure.key.Key;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -133,7 +134,7 @@ public final class CommandTreeSerializer {
                 writeArgumentType(buf, argument.getType());
 
                 if (argument.getCustomSuggestions() != null) {
-                    buf.writeIdentifier("minecraft:ask_server");
+                    buf.writeKey(Key.key("minecraft", "ask_server"));
                 }
             }
 

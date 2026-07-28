@@ -3,8 +3,9 @@ package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import net.kyori.adventure.key.Key;
 
-public record ClientboundRespawnPacket(String dimensionName, int dimensionTypeId, int gameMode, int dataToKeep)
+public record ClientboundRespawnPacket(Key dimensionKey, int dimensionTypeId, int gameMode, int dataToKeep)
         implements ClientboundPacket {
 
     /**
@@ -24,8 +25,8 @@ public record ClientboundRespawnPacket(String dimensionName, int dimensionTypeId
      */
     public static final int KEEP_ALL = KEEP_ATTRIBUTES | KEEP_METADATA;
 
-    public ClientboundRespawnPacket(final String dimensionName, final int dimensionTypeId, final int gameMode) {
-        this(dimensionName, dimensionTypeId, gameMode, KEEP_NOTHING);
+    public ClientboundRespawnPacket(final Key dimensionKey, final int dimensionTypeId, final int gameMode) {
+        this(dimensionKey, dimensionTypeId, gameMode, KEEP_NOTHING);
     }
 
     @Override
@@ -36,7 +37,7 @@ public record ClientboundRespawnPacket(String dimensionName, int dimensionTypeId
     @Override
     public void write(final PacketBuffer buf) {
         buf.writeVarInt(dimensionTypeId); // dimension type (minecraft:dimension_type registry id)
-        buf.writeIdentifier(dimensionName); // dimension name
+        buf.writeKey(dimensionKey); // dimension name
         buf.writeLong(0L); // hashed seed (biome noise only)
         buf.writeByte(gameMode); // game mode (unsigned byte)
         buf.writeByte(-1); // previous game mode (-1 = undefined)

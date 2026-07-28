@@ -19,10 +19,12 @@ public final class VarInts {
         int position = 0;
         byte current;
         do {
+            if (position == 35) {
+                throw new DecoderException("VarInt too large");
+            }
             current = buf.readByte();
             value |= (current & 0x7F) << position;
             position += 7;
-            if (position >= 32) throw new DecoderException("VarInt too large");
         } while ((current & 0x80) != 0);
         return value;
     }
@@ -40,10 +42,12 @@ public final class VarInts {
         int position = 0;
         byte current;
         do {
+            if (position == 70) {
+                throw new DecoderException("VarLong too large");
+            }
             current = buf.readByte();
             value |= (long) (current & 0x7F) << position;
             position += 7;
-            if (position >= 64) throw new DecoderException("VarLong too large");
         } while ((current & 0x80) != 0);
         return value;
     }
@@ -99,8 +103,14 @@ public final class VarInts {
         NetworkNbtHelper.writeNbt(buf, nbt);
     }
 
-    public static Component readComponent(final ByteBuf buf, final long maxNbtBytes) {
-        Nbt nbt = NetworkNbtHelper.readNbt(buf, maxNbtBytes);
+    public static Component readComponent(final ByteBuf buf, final int maxLength) {
+        final int start = buf.readerIndex();
+        final Nbt nbt = NetworkNbtHelper.readNbt(buf, maxLength);
+        final int consumed = buf.readerIndex() - start;
+        if (consumed > maxLength) {
+            throw new DecoderException("Component NBT exceeds maximum size: " + consumed + " > " + maxLength);
+        }
+
         return ComponentNbt.read(nbt);
     }
 }

@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.world.nbt;
 
+import io.netty.handler.codec.DecoderException;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -36,7 +38,7 @@ public final class NbtIo {
     public static void writeGzip(Path file, String rootName, NbtCompound root) throws IOException {
         Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         try (DataOutputStream out =
-                new DataOutputStream(new GZIPOutputStream(new BufferedOutputStream(Files.newOutputStream(tmp))))) {
+                     new DataOutputStream(new GZIPOutputStream(new BufferedOutputStream(Files.newOutputStream(tmp))))) {
             write(out, rootName, root);
         }
         // level.dat_old : sauvegarde comme le fait vanilla
@@ -101,12 +103,16 @@ public final class NbtIo {
     }
 
     public static Named read(DataInput in) throws IOException {
+        return read(in, NbtReadLimits.noBudget());
+    }
+
+    public static Named read(DataInput in, NbtReadLimits limits) throws IOException {
         int rootType = in.readUnsignedByte();
         if (rootType != NbtType.COMPOUND.id()) {
             throw new IOException("Racine NBT attendue TAG_Compound, reçu " + rootType);
         }
-        String name = in.readUTF();
-        NbtCompound root = (NbtCompound) readPayload(in, NbtType.COMPOUND);
+        String name = readUtf(in, limits);
+        NbtCompound root = (NbtCompound) readPayload(in, NbtType.COMPOUND, limits, 0);
         return new Named(name, root);
     }
 
@@ -114,52 +120,69 @@ public final class NbtIo {
         return read(new DataInputStream(new ByteArrayInputStream(data)));
     }
 
+    public static Named readFromBytes(byte[] data, NbtReadLimits limits) throws IOException {
+        return read(new DataInputStream(new ByteArrayInputStream(data)), limits);
+    }
+
     public static Named readGzip(Path file) throws IOException {
         try (DataInputStream in =
-                new DataInputStream(new GZIPInputStream(new BufferedInputStream(Files.newInputStream(file))))) {
+                     new DataInputStream(new GZIPInputStream(new BufferedInputStream(Files.newInputStream(file))))) {
             return read(in);
         }
     }
 
-    public static Nbt readPayload(DataInput in, NbtType type) throws IOException {
+    public static Nbt readPayload(DataInput in, NbtType type, NbtReadLimits limits, int depth) throws IOException {
         return switch (type) {
             case END -> throw new IOException("TAG_End inattendu");
-            case BYTE -> new NbtByte(in.readByte());
-            case SHORT -> new NbtShort(in.readShort());
-            case INT -> new NbtInt(in.readInt());
-            case LONG -> new NbtLong(in.readLong());
-            case FLOAT -> new NbtFloat(in.readFloat());
-            case DOUBLE -> new NbtDouble(in.readDouble());
+            case BYTE -> { limits.spendFor(type); yield new NbtByte(in.readByte()); }
+            case SHORT -> { limits.spendFor(type); yield new NbtShort(in.readShort()); }
+            case INT -> { limits.spendFor(type); yield new NbtInt(in.readInt()); }
+            case LONG -> { limits.spendFor(type); yield new NbtLong(in.readLong()); }
+            case FLOAT -> { limits.spendFor(type); yield new NbtFloat(in.readFloat()); }
+            case DOUBLE -> { limits.spendFor(type); yield new NbtDouble(in.readDouble()); }
             case BYTE_ARRAY -> {
+                limits.spendFor(type);
                 int len = in.readInt();
+                if (len < 0) throw new DecoderException("Negative TAG_Byte_Array length: " + len);
+                limits.spend(len);
                 byte[] arr = new byte[len];
                 in.readFully(arr);
                 yield new NbtByteArray(arr);
             }
-            case STRING -> new NbtString(in.readUTF());
+            case STRING -> { limits.spendFor(type); yield new NbtString(readUtf(in, limits)); }
             case INT_ARRAY -> {
+                limits.spendFor(type);
                 int len = in.readInt();
+                if (len < 0) throw new DecoderException("Negative TAG_Int_Array length: " + len);
+                limits.spend((long) len * 4L);
                 int[] arr = new int[len];
                 for (int i = 0; i < len; i++) arr[i] = in.readInt();
                 yield new NbtIntArray(arr);
             }
             case LONG_ARRAY -> {
+                limits.spendFor(type);
                 int len = in.readInt();
+                if (len < 0) throw new DecoderException("Negative TAG_Long_Array length: " + len);
+                limits.spend((long) len * 8L);
                 long[] arr = new long[len];
                 for (int i = 0; i < len; i++) arr[i] = in.readLong();
                 yield new NbtLongArray(arr);
             }
             case LIST -> {
+                limits.spendFor(type);
+                limits.checkDepth(depth + 1);
                 NbtType elem = NbtType.byId(in.readUnsignedByte());
                 int len = in.readInt();
+                if (len < 0) throw new DecoderException("Negative TAG_List length: " + len);
+                limits.spend((long) len * 4L);
+
                 NbtList list = new NbtList();
                 for (int i = 0; i < len; i++) {
-                    Nbt item = readPayload(in, elem);
+                    Nbt item = readPayload(in, elem, limits, depth + 1);
                     if (elem == NbtType.COMPOUND
                             && item instanceof NbtCompound compound
                             && compound.size() == 1
                             && compound.contains("")) {
-
                         item = compound.get("");
                     }
                     list.add(item);
@@ -167,17 +190,26 @@ public final class NbtIo {
                 yield list;
             }
             case COMPOUND -> {
+                limits.spendFor(type);
+                limits.checkDepth(depth + 1);
                 NbtCompound compound = new NbtCompound();
                 while (true) {
                     int id = in.readUnsignedByte();
                     if (id == NbtType.END.id()) break;
                     NbtType childType = NbtType.byId(id);
-                    String key = in.readUTF();
-                    compound.put(key, readPayload(in, childType));
+                    String key = readUtf(in, limits);
+                    limits.spendEntry();
+                    compound.put(key, readPayload(in, childType, limits, depth + 1));
                 }
                 yield compound;
             }
         };
+    }
+
+    private static String readUtf(DataInput in, NbtReadLimits limits) throws IOException {
+        String s = in.readUTF();
+        limits.spend(2L + (long) s.length() * 3L);
+        return s;
     }
 
     public static void writeNetwork(DataOutput out, Nbt tag) throws IOException {
@@ -185,8 +217,8 @@ public final class NbtIo {
         writePayload(out, tag);
     }
 
-    public static Nbt readNetwork(DataInput in) throws IOException {
-        return readPayload(in, NbtType.byId(in.readUnsignedByte()));
+    public static Nbt readNetwork(DataInput in, NbtReadLimits limits) throws IOException {
+        return readPayload(in, NbtType.byId(in.readUnsignedByte()), limits, 0);
     }
 
     public static byte[] writeNetworkToBytes(Nbt tag) {

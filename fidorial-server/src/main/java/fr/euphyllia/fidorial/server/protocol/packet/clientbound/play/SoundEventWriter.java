@@ -12,7 +12,7 @@ public class SoundEventWriter {
 
     static void writeSoundEvent(final PacketBuffer buf, final Sound sound) {
         buf.writeVarInt(0);
-        buf.writeIdentifier(sound.name().asString());
+        buf.writeKey(sound.name());
         buf.writeBoolean(false);
     }
 

@@ -3,10 +3,11 @@ package fr.euphyllia.fidorial.server.protocol.packet.clientbound.configuration;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.ConfigurationClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import net.kyori.adventure.key.Key;
 
 public record ClientboundBrandPacket(String brand) implements ClientboundPacket {
 
-    private static final String BRAND_CHANNEL = "minecraft:brand";
+    private static final Key BRAND_CHANNEL = Key.key("minecraft", "brand");
 
     @Override
     public String name() {
@@ -15,6 +16,6 @@ public record ClientboundBrandPacket(String brand) implements ClientboundPacket 
 
     @Override
     public void write(PacketBuffer buf) {
-        buf.writeIdentifier(BRAND_CHANNEL).writeString(brand);
+        buf.writeKey(BRAND_CHANNEL).writeString(brand);
     }
 }
