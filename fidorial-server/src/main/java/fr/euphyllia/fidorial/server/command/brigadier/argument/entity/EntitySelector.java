@@ -137,9 +137,14 @@ public final class EntitySelector {
 
         final FidorialServer server = (FidorialServer) source.server();
         final Collection<? extends Entity> entities;
+        final Entity executor = source.executor();
+
+        final Collection<? extends Entity> worldEntities = executor != null
+                ? server.worldManager().world(executor.world().key()).entityManager().all()
+                : server.worldManager().overworld().entityManager().all();
 
         if (targetUuid != null) {
-            final Optional<? extends Entity> entity = server.worldManager().world(source.executor().world().key()).entityManager().all().stream()
+            final Optional<? extends Entity> entity = worldEntities.stream()
                     .filter(e -> e.uuid().equals(targetUuid))
                     .findFirst();
 
@@ -161,7 +166,7 @@ public final class EntitySelector {
             entities = List.of(player);
 
         } else if (includesEntities) {
-            entities = server.worldManager().world(source.executor().world().key()).entityManager().all();
+            entities = worldEntities;
         } else {
             entities = server.onlinePlayers();
         }
