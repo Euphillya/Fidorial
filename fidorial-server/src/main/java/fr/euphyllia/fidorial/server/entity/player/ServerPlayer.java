@@ -5,6 +5,7 @@ import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
+import fr.euphyllia.fidorial.server.network.nbt.ComponentResolver;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundContainerClosePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundEntityEventPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
@@ -167,8 +168,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         connection.send(new ClientboundOpenScreenPacket(
                 menu.windowId(),
                 menu.menuTypeId(connection.server().registries().frozen()),
-                menu.title(),
-                this));
+                menu.title()));
         connection.send(menu.buildSyncPacket(connection.server().registries().frozen()));
     }
 
@@ -243,7 +243,8 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     @Override
     public void sendMessage(final Component message) {
-        connection.send(new ClientboundSystemChatPacket(TranslationStore.render(message, locale()), false, this));
+        Component resolved = ComponentResolver.resolve(message, this);
+        connection.send(new ClientboundSystemChatPacket(TranslationStore.render(resolved, locale()), false));
     }
 
     @Override

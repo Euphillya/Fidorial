@@ -6,6 +6,7 @@ import dev.faststats.ErrorTracker;
 import dev.faststats.Metrics;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
+import fr.euphyllia.fidorial.server.adventure.ClickCallbackManager;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleSender;
 import fr.euphyllia.fidorial.server.command.brigadier.builtin.exceptions.TranslatableExceptions;
@@ -127,6 +128,7 @@ public final class FidorialServer implements Server {
     private final ProtocolMap protocolMap = ProtocolMap.load();
     private final Registries registries = Registries.load();
     private @Nullable CommandManager commandManager;
+    private final ClickCallbackManager clickCallbackManager = new ClickCallbackManager();
 
     private final ThreadedRegionRegionizer regionizer = new ThreadedRegionRegionizer(config.regionWorkers(), config.regionShift());
     private final ThreadedChunkWorker chunkWorker = new ThreadedChunkWorker(config.chunkWorkers());
@@ -222,6 +224,7 @@ public final class FidorialServer implements Server {
         LOGGER.info("Stopping the Fidorial server...");
         events.post(new ServerStoppingEvent(this));
         closeQuietly("plugins", pluginManager::close);
+        closeQuietly("click callbacks", clickCallbackManager::close);
         closeQuietly("reseau", network::shutdown);
         closeQuietly("auto-save", autoSave::shutdownNow);
         closeQuietly("ia", aiWorker::shutdown);
@@ -497,6 +500,10 @@ public final class FidorialServer implements Server {
 
     public CommandManager commandManager() {
         return commandManager;
+    }
+
+    public ClickCallbackManager clickCallbacksManager() {
+        return clickCallbackManager;
     }
 
     @Override

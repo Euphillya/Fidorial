@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.network.listener;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.ServerConfig;
+import fr.euphyllia.fidorial.server.adventure.ClickCallbackManager;
 import fr.euphyllia.fidorial.server.entity.player.InventorySlots;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
@@ -30,6 +31,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.Serverbound
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClosePacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
@@ -69,6 +71,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.UUID;
 
 public final class PlayPacketHandler implements PlayPacketListener {
 
@@ -304,7 +307,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
 
         LOGGER.debug(Component.text("<" + player.name() + ">").appendSpace().append(event.message()));
-        server.broadcast(new ClientboundSystemChatPacket(event.message(), false, player));
+        server.broadcast(new ClientboundSystemChatPacket(event.message(), false));
     }
 
     @Override
@@ -425,6 +428,21 @@ public final class PlayPacketHandler implements PlayPacketListener {
     @Override
     public void handleContainerClose(final ServerboundContainerClosePacket packet) {
         closeOpenMenu(false);
+    }
+
+    @Override
+    public void handleCustomClickAction(final ServerboundCustomClickActionPacket packet) {
+        if (player == null) {
+            return;
+        }
+        UUID uuid;
+        try {
+            uuid = ClickCallbackManager.uuidFromPayload(packet.payload());
+        } catch (final IllegalArgumentException e) {
+            LOGGER.debug("{} sent an invalid click callback payload for {}", player.name(), packet.id(), e);
+            return;
+        }
+        server.clickCallbacksManager().handleClick(player, packet.id(), uuid);
     }
 
     @Override
