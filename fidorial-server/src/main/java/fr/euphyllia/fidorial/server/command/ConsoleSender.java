@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.command;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.ServerConfig;
+import fr.euphyllia.fidorial.server.network.nbt.ComponentResolver;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Entity;
@@ -48,7 +49,8 @@ public class ConsoleSender implements CommandSender, PermissionStateHolder, Comm
 
     @Override
     public void sendMessage(final Component message) {
-        LOGGER.info(TranslationStore.render(message, locale()));
+        Component resolved = ComponentResolver.resolve(message, this);
+        LOGGER.info(TranslationStore.render(resolved, locale()));
     }
 
     @Override

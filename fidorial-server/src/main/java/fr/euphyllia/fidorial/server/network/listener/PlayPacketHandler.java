@@ -304,7 +304,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
 
         LOGGER.debug(Component.text("<" + player.name() + ">").appendSpace().append(event.message()));
-        server.broadcast(new ClientboundSystemChatPacket(event.message(), false, player));
+        server.broadcast(new ClientboundSystemChatPacket(event.message(), false));
     }
 
     @Override

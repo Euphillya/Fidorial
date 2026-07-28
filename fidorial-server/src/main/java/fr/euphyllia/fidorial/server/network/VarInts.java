@@ -1,10 +1,8 @@
 package fr.euphyllia.fidorial.server.network;
 
 import fr.euphyllia.fidorial.server.network.nbt.ComponentNbt;
-import fr.euphyllia.fidorial.server.network.nbt.ComponentResolver;
 import fr.euphyllia.fidorial.server.network.nbt.NetworkNbtHelper;
 import fr.euphyllia.fidorial.server.world.nbt.Nbt;
-import fr.fidorial.command.CommandSource;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.text.Component;
@@ -96,13 +94,8 @@ public final class VarInts {
         buf.writeBytes(data);
     }
 
-    public static void writeComponent(
-            final ByteBuf buf,
-            final Component component,
-            final CommandSource source
-    ) {
-        Component resolved = ComponentResolver.resolve(component, source);
-        Nbt nbt = ComponentNbt.write(resolved);
+    public static void writeComponent(final ByteBuf buf, final Component message) {
+        Nbt nbt = ComponentNbt.write(message);
         NetworkNbtHelper.writeNbt(buf, nbt);
     }
 
