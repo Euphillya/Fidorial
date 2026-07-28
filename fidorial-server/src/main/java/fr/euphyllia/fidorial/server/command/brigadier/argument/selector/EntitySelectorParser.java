@@ -12,6 +12,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.SingleUseOption;
 import fr.fidorial.entity.Entity;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,17 +55,18 @@ public final class EntitySelectorParser {
     private boolean selfSelector;
     private boolean usesSelector;
 
-    private Double x;
-    private Double y;
-    private Double z;
-    private Double deltaX;
-    private Double deltaY;
-    private Double deltaZ;
+    private @Nullable Double x;
+    private @Nullable Double y;
+    private @Nullable Double z;
 
-    private DoubleRange distance;
+    private @Nullable Double deltaX;
+    private @Nullable Double deltaY;
+    private @Nullable Double deltaZ;
 
-    private String targetName;
-    private UUID targetUuid;
+    private @Nullable DoubleRange distance;
+
+    private @Nullable String targetName;
+    private @Nullable UUID targetUuid;
 
     private EntitySelector.SortType sort = EntitySelector.SortType.ARBITRARY;
 
@@ -235,7 +237,7 @@ public final class EntitySelectorParser {
         CompletableFuture<Suggestions> apply(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names);
     }
 
-    public DoubleRange getDistance() {
+    public @Nullable DoubleRange getDistance() {
         return distance;
     }
 
@@ -243,16 +245,16 @@ public final class EntitySelectorParser {
         this.distance = distance;
     }
 
-    public Double getX() { return x; }
-    public Double getY() { return y; }
-    public Double getZ() { return z; }
+    public @Nullable Double getX() { return x; }
+    public @Nullable Double getY() { return y; }
+    public @Nullable Double getZ() { return z; }
     public void setX(final double x) { this.x = x; }
     public void setY(final double y) { this.y = y; }
     public void setZ(final double z) { this.z = z; }
 
-    public Double getDeltaX() { return deltaX; }
-    public Double getDeltaY() { return deltaY; }
-    public Double getDeltaZ() { return deltaZ; }
+    public @Nullable Double getDeltaX() { return deltaX; }
+    public @Nullable Double getDeltaY() { return deltaY; }
+    public @Nullable Double getDeltaZ() { return deltaZ; }
     public void setDeltaX(final double deltaX) { this.deltaX = deltaX; }
     public void setDeltaY(final double deltaY) { this.deltaY = deltaY; }
     public void setDeltaZ(final double deltaZ) { this.deltaZ = deltaZ; }

@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import fr.fidorial.command.CommandSource;
 import net.kyori.adventure.text.Component;
 
 /**
@@ -20,7 +21,7 @@ import net.kyori.adventure.text.Component;
  *
  * <p>https://minecraft.wiki/w/Java_Edition_protocol/Packets#Open_Screen
  */
-public record ClientboundOpenScreenPacket(int windowId, int menuTypeId, Component title)
+public record ClientboundOpenScreenPacket(int windowId, int menuTypeId, Component title, CommandSource source)
         implements ClientboundPacket {
 
     @Override
@@ -32,6 +33,6 @@ public record ClientboundOpenScreenPacket(int windowId, int menuTypeId, Componen
     public void write(final PacketBuffer buf) {
         buf.writeVarInt(windowId);
         buf.writeVarInt(menuTypeId);
-        buf.writeComponent(title);
+        buf.writeComponent(source, title);
     }
 }

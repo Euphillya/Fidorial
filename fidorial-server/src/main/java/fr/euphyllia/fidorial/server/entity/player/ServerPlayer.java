@@ -105,6 +105,11 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     @Override
+    public Component displayName() {
+        return Component.text(profile().name());
+    }
+
+    @Override
     public void invalidatePermissions() {
         permissions.invalidate();
         updateClientPermissionLevel();
@@ -162,7 +167,8 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         connection.send(new ClientboundOpenScreenPacket(
                 menu.windowId(),
                 menu.menuTypeId(connection.server().registries().frozen()),
-                menu.title()));
+                menu.title(),
+                this));
         connection.send(menu.buildSyncPacket(connection.server().registries().frozen()));
     }
 
@@ -237,7 +243,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     @Override
     public void sendMessage(final Component message) {
-        connection.send(new ClientboundSystemChatPacket(TranslationStore.render(message, locale()), false));
+        connection.send(new ClientboundSystemChatPacket(TranslationStore.render(message, locale()), false, this));
     }
 
     @Override

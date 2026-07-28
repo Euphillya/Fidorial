@@ -13,7 +13,6 @@ import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTy
 import fr.euphyllia.fidorial.server.console.command.ConsoleCommandReader;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
-import fr.euphyllia.fidorial.server.entity.EntityManager;
 import fr.euphyllia.fidorial.server.entity.EntityTickHandler;
 import fr.euphyllia.fidorial.server.entity.EntityTracker;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;
@@ -118,7 +117,6 @@ public final class FidorialServer implements Server {
     private final VanillaBlockRegistry blockRegistry = bootstrapBlocks();
     private final BlockStateRegistry blockStateRegistry = new BlockStateRegistry(blockRegistry);
     private final EntityIdAllocator entityIds = new EntityIdAllocator();
-    private final EntityManager entityManager = new EntityManager();
     private final EntityTracker entityTracker = new EntityTracker(config.sendDistance());
     private final SimpleEventBus events = new SimpleEventBus();
     private final ServiceRegistry services = new SimpleServiceRegistry();
@@ -550,17 +548,12 @@ public final class FidorialServer implements Server {
         return entityIds;
     }
 
-    public EntityManager entityManager() {
-        return entityManager;
-    }
-
     public void spawnEntity(final AbstractEntity entity) {
         if (!(entity.world() instanceof final ServerWorld world)) {
             throw new IllegalArgumentException("Cannot summon an entity into a non-existent or unloaded world :" + entity);
         }
 
         world.addEntity(entity);
-        entityManager.add(entity);
 
         if (entity instanceof Mob) {
             regionizer.addTicket(world.dimension().id(), entity.chunk());
@@ -577,8 +570,6 @@ public final class FidorialServer implements Server {
                 regionizer.removeTicket(world.dimension().id(), entity.chunk());
             }
         }
-
-        entityManager.remove(entity);
 
         entity.remove();
 

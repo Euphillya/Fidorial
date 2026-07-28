@@ -1,16 +1,14 @@
 package fr.euphyllia.fidorial.server.network;
 
-import com.google.gson.JsonElement;
+import fr.euphyllia.fidorial.server.network.nbt.ComponentNbt;
+import fr.euphyllia.fidorial.server.network.nbt.ComponentResolver;
+import fr.euphyllia.fidorial.server.network.nbt.NetworkNbtHelper;
 import fr.euphyllia.fidorial.server.world.nbt.Nbt;
+import fr.fidorial.command.CommandSource;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-
 import java.nio.charset.StandardCharsets;
-
-import static fr.euphyllia.fidorial.server.network.nbt.NetworkNbtHelper.convert;
-import static fr.euphyllia.fidorial.server.network.nbt.NetworkNbtHelper.writeNbt;
 
 public final class VarInts {
 
@@ -97,13 +95,18 @@ public final class VarInts {
         buf.writeBytes(data);
     }
 
-    public static void writeComponent(final ByteBuf buf, final Component component) {
-        final JsonElement deserialized = GsonComponentSerializer.gson().serializeToTree(component);
-        final Nbt serialized = convert(deserialized);
-        writeNbt(buf, serialized);
+    public static void writeComponent(
+            final ByteBuf buf,
+            final Component component,
+            final CommandSource source
+    ) {
+        Component resolved = ComponentResolver.resolve(component, source);
+        Nbt nbt = ComponentNbt.write(resolved);
+        NetworkNbtHelper.writeNbt(buf, nbt);
     }
 
-    public static Component readComponent(final ByteBuf buf, final int maxLength) {
-        return GsonComponentSerializer.gson().deserialize(readString(buf, maxLength));
+    public static Component readComponent(final ByteBuf buf, final long maxNbtBytes) {
+        Nbt nbt = NetworkNbtHelper.readNbt(buf, maxNbtBytes);
+        return ComponentNbt.read(nbt);
     }
 }

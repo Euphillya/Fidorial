@@ -5,6 +5,7 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.PlayerInventory;
 import fr.fidorial.permission.PermissionHolder;
+import net.kyori.adventure.text.Component;
 
 import java.util.UUID;
 

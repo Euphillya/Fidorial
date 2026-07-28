@@ -24,7 +24,6 @@ java {
     withSourcesJar()
 }
 
-
 publishing {
     publications {
         register<MavenPublication>("maven") {

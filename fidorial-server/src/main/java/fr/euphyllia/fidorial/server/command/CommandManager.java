@@ -13,6 +13,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.StopCommand;
@@ -188,6 +189,9 @@ public final class CommandManager implements CommandRegistry {
                                 .color(NamedTextColor.RED));
                 return false;
             }
+        }).exceptionally(ex -> {
+            FidorialServer.LOGGER.error("Encountered an exception while executing command: \"/{}\"", cmdLine, ex);
+            return false;
         });
     }
 

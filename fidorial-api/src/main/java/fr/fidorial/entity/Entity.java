@@ -4,6 +4,7 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.text.Component;
 
 import java.util.UUID;
 
@@ -12,6 +13,8 @@ public interface Entity extends CommandSource {
     int entityId();
 
     UUID uuid();
+
+    Component displayName();
 
     EntityType type();
 

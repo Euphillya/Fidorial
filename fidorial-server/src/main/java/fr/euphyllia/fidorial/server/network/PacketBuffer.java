@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.network;
 
+import fr.fidorial.command.CommandSource;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.world.BlockPos;
 import io.netty.buffer.ByteBuf;
@@ -192,8 +193,8 @@ public final class PacketBuffer {
         return this;
     }
 
-    public PacketBuffer writeComponent(final Component message) {
-        VarInts.writeComponent(buf, message);
+    public PacketBuffer writeComponent(final CommandSource source, final Component message) {
+        VarInts.writeComponent(buf, message, source);
         return this;
     }
 
