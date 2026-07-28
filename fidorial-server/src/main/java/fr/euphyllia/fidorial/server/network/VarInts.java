@@ -8,6 +8,7 @@ import fr.fidorial.command.CommandSource;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.text.Component;
+
 import java.nio.charset.StandardCharsets;
 
 public final class VarInts {
