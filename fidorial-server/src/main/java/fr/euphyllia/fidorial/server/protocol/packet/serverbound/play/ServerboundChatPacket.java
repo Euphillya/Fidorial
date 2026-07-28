@@ -22,7 +22,8 @@ public record ServerboundChatPacket(
     private static final int MAX_LENGTH = 256;
 
     public static ServerboundChatPacket read(final PacketBuffer buf) {
-        final Component message = buf.readComponent(MAX_LENGTH);
+        final String rawMessage = buf.readString(MAX_LENGTH);
+        final Component message = Component.text(rawMessage);
         final long timestamp = buf.readLong();
         final long salt = buf.readLong();
         final byte[] sig = buf.readOptionalByteArray(MAX_LENGTH);

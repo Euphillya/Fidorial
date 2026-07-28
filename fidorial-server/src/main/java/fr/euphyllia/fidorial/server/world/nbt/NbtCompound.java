@@ -137,4 +137,8 @@ public final class NbtCompound implements Nbt, Iterable<Nbt> {
     public Set<Map.Entry<String, Nbt>> entrySet() {
         return tags.entrySet();
     }
+
+    public int size() {
+        return tags.size();
+    }
 }

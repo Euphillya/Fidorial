@@ -32,4 +32,5 @@ module fr.fidorial.server {
 
     requires static org.jetbrains.annotations;
     requires static org.jspecify;
+    requires net.kyori.adventure.nbt;
 }

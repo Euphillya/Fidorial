@@ -11,6 +11,7 @@ import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -44,6 +45,11 @@ public abstract class AbstractEntity implements Entity {
     @Override
     public UUID uuid() {
         return uuid;
+    }
+
+    @Override
+    public Component displayName() {
+        return Component.translatable("entity." + type.key().asString().replace(':', '.'));
     }
 
     public final void restoreUuid(final UUID uuid) {

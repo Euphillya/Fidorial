@@ -53,7 +53,7 @@ public final class NbtIo {
                 java.nio.file.StandardCopyOption.ATOMIC_MOVE);
     }
 
-    private static void writePayload(DataOutput out, Nbt tag) throws IOException {
+    public static void writePayload(DataOutput out, Nbt tag) throws IOException {
         switch (tag) {
             case NbtByte b -> out.writeByte(b.value());
             case NbtShort s -> out.writeShort(s.value());
@@ -75,10 +75,18 @@ public final class NbtIo {
                 for (long v : a.value()) out.writeLong(v);
             }
             case NbtList list -> {
-                out.writeByte(list.elementType().id());
+                NbtType elementType = list.elementType();
+
+                out.writeByte(elementType.id());
                 out.writeInt(list.size());
+
                 for (Nbt item : list.items()) {
-                    writePayload(out, item);
+                    if (elementType == NbtType.COMPOUND && item.type() != NbtType.COMPOUND) {
+                        NbtCompound wrapper = new NbtCompound().put("", item);
+                        writePayload(out, wrapper);
+                    } else {
+                        writePayload(out, item);
+                    }
                 }
             }
             case NbtCompound compound -> {
@@ -113,7 +121,7 @@ public final class NbtIo {
         }
     }
 
-    private static Nbt readPayload(DataInput in, NbtType type) throws IOException {
+    public static Nbt readPayload(DataInput in, NbtType type) throws IOException {
         return switch (type) {
             case END -> throw new IOException("TAG_End inattendu");
             case BYTE -> new NbtByte(in.readByte());
@@ -144,9 +152,17 @@ public final class NbtIo {
             case LIST -> {
                 NbtType elem = NbtType.byId(in.readUnsignedByte());
                 int len = in.readInt();
-                NbtList list = new NbtList(len == 0 ? NbtType.END : elem);
+                NbtList list = new NbtList();
                 for (int i = 0; i < len; i++) {
-                    list.add(readPayload(in, elem));
+                    Nbt item = readPayload(in, elem);
+                    if (elem == NbtType.COMPOUND
+                            && item instanceof NbtCompound compound
+                            && compound.size() == 1
+                            && compound.contains("")) {
+
+                        item = compound.get("");
+                    }
+                    list.add(item);
                 }
                 yield list;
             }
@@ -167,6 +183,10 @@ public final class NbtIo {
     public static void writeNetwork(DataOutput out, Nbt tag) throws IOException {
         out.writeByte(tag.type().id());
         writePayload(out, tag);
+    }
+
+    public static Nbt readNetwork(DataInput in) throws IOException {
+        return readPayload(in, NbtType.byId(in.readUnsignedByte()));
     }
 
     public static byte[] writeNetworkToBytes(Nbt tag) {

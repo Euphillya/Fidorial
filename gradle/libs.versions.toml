@@ -28,6 +28,7 @@ faststats-config = { module = "dev.faststats.metrics:config", version.ref = "fas
 adventure-bom = { module = "net.kyori:adventure-bom", version.ref = "adventure" }
 adventure-api = { module = "net.kyori:adventure-api" }
 adventure-key = { module = "net.kyori:adventure-key" }
+adventure-nbt = { module = "net.kyori:adventure-nbt" }
 adventure-text-serializer-gson = { module = "net.kyori:adventure-text-serializer-gson" }
 adventure-text-serializer-plain = { module = "net.kyori:adventure-text-serializer-plain" }
 adventure-text-serializer-ansi = { module = "net.kyori:adventure-text-serializer-ansi" }
@@ -49,6 +50,7 @@ shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 adventure = [
     "adventure-api",
     "adventure-key",
+    "adventure-nbt",
     "adventure-text-serializer-gson",
     "adventure-text-minimessage",
     "adventure-text-logger-slf4j"

@@ -1,11 +1,14 @@
 package fr.euphyllia.fidorial.server.command.brigadier.argument.entity;
 
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.DoubleRange;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySelectorParser;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.Player;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,20 +33,20 @@ public final class EntitySelector {
 
     private final List<Predicate<Entity>> predicates;
 
-    private final Double x;
-    private final Double y;
-    private final Double z;
+    private final @Nullable Double x;
+    private final @Nullable Double y;
+    private final @Nullable Double z;
 
-    private final DoubleRange distance;
+    private final @Nullable DoubleRange distance;
 
-    private final Double dx;
-    private final Double dy;
-    private final Double dz;
+    private final @Nullable Double dx;
+    private final @Nullable Double dy;
+    private final @Nullable Double dz;
 
     private final SortType sort;
 
-    private final String targetName;
-    private final UUID targetUuid;
+    private final @Nullable String targetName;
+    private final @Nullable UUID targetUuid;
 
     public EntitySelector(
             final int maxResults,
@@ -51,16 +54,16 @@ public final class EntitySelector {
             final boolean selfSelector,
             final boolean usesSelector,
             final List<Predicate<Entity>> predicates,
-            final Double x,
-            final Double y,
-            final Double z,
-            final DoubleRange distance,
-            final Double dx,
-            final Double dy,
-            final Double dz,
+            final @Nullable Double x,
+            final @Nullable Double y,
+            final @Nullable Double z,
+            final @Nullable DoubleRange distance,
+            final @Nullable Double dx,
+            final @Nullable Double dy,
+            final @Nullable Double dz,
             final SortType sort,
-            final String targetName,
-            final UUID targetUuid
+            final @Nullable String targetName,
+            final @Nullable UUID targetUuid
     ) {
         this.maxResults = maxResults;
         this.includesEntities = includesEntities;
@@ -93,6 +96,10 @@ public final class EntitySelector {
 
     public boolean usesSelector() {
         return usesSelector;
+    }
+
+    public static EntitySelector parse(final String input) throws CommandSyntaxException {
+        return new EntitySelectorParser(new StringReader(input)).parse();
     }
 
     public Entity findSingleEntity(final CommandSource source) throws CommandSyntaxException {
@@ -132,7 +139,7 @@ public final class EntitySelector {
         final Collection<? extends Entity> entities;
 
         if (targetUuid != null) {
-            final Optional<? extends Entity> entity = server.entityManager().all().stream()
+            final Optional<? extends Entity> entity = server.worldManager().world(source.executor().world().key()).entityManager().all().stream()
                     .filter(e -> e.uuid().equals(targetUuid))
                     .findFirst();
 
@@ -154,8 +161,7 @@ public final class EntitySelector {
             entities = List.of(player);
 
         } else if (includesEntities) {
-            entities = server.entityManager().all();
-
+            entities = server.worldManager().world(source.executor().world().key()).entityManager().all();
         } else {
             entities = server.onlinePlayers();
         }
