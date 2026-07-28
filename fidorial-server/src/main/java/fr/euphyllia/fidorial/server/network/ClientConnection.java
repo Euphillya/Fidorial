@@ -14,13 +14,13 @@ import fr.euphyllia.fidorial.server.network.listener.PlayPacketHandler;
 import fr.euphyllia.fidorial.server.network.listener.StatusPacketHandler;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
-import fr.fidorial.protocol.PacketListener;
-import fr.fidorial.protocol.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundLoginDisconnectPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.entity.PlayerProfile;
+import fr.fidorial.protocol.PacketListener;
+import fr.fidorial.protocol.ServerboundPacket;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.Location;
@@ -29,6 +29,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -39,7 +40,8 @@ import java.util.Locale;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf> {
+// implement resource pack, pointers and dialog methods in the future from audience
+public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf> implements Audience {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(ClientConnection.class);
 
