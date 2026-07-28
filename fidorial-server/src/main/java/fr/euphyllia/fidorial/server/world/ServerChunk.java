@@ -64,16 +64,24 @@ public final class ServerChunk implements Chunk {
 
     @Override
     public int blockLight(final int localX, final int worldY, final int localZ) {
-        return 0;
+        return world.blockLightAt(worldX(localX), worldY, worldZ(localZ));
     }
 
     @Override
     public int skyLight(final int localX, final int worldY, final int localZ) {
-        return 0;
+        return world.skyLightAt(worldX(localX), worldY, worldZ(localZ));
     }
 
     @Override
     public int lightLevel(final int localX, final int worldY, final int localZ) {
-        return 0;
+        return world.lightLevelAt(worldX(localX), worldY, worldZ(localZ));
+    }
+
+    private int worldX(final int localX) {
+        return (column.chunkX() << 4) | (localX & 15);
+    }
+
+    private int worldZ(final int localZ) {
+        return (column.chunkZ() << 4) | (localZ & 15);
     }
 }

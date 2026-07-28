@@ -3,10 +3,13 @@ package fr.euphyllia.fidorial.server.world;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityManager;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.euphyllia.fidorial.server.schedulers.LightUpdateDispatcher;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
-import fr.fidorial.world.entity.EntitySpawnBridge;
+import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
+import fr.euphyllia.fidorial.server.world.light.LightAccess;
+import fr.euphyllia.fidorial.server.world.light.WorldLightManager;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
@@ -18,6 +21,7 @@ import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Chunk;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.World;
+import fr.fidorial.world.entity.EntitySpawnBridge;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
@@ -48,6 +52,8 @@ public final class ServerWorld implements World {
     private final WorldTimeEngine dayNightCycle;
     private final int minY;
     private final int height;
+    private final WorldLightManager lightManager;
+    private volatile @Nullable LightUpdateDispatcher lightDispatcher;
 
     private final Map<Long, ChunkColumn> loaded = new ConcurrentHashMap<>();
     private final Set<Long> dirty = ConcurrentHashMap.newKeySet();
@@ -77,6 +83,7 @@ public final class ServerWorld implements World {
         this.dayNightCycle = new WorldTimeEngine(WorldClocks.forDimension(dimension));
         this.minY = minY;
         this.height = height;
+        this.lightManager = new WorldLightManager(minY, height, new WorldLightAccess());
     }
 
     public void setEntityBridge(final IntSupplier entityIdSupplier, final EntitySpawnBridge entityBridge) {
@@ -227,7 +234,20 @@ public final class ServerWorld implements World {
         }
 
         ensureEntitiesLoaded(chunkX, chunkZ);
+        ensureLight(column, chunkX, chunkZ);
         return column;
+    }
+
+    private void ensureLight(final ChunkColumn column, final int chunkX, final int chunkZ) {
+        if (column.lightPopulated()) {
+            return;
+        }
+
+        lightManager.lightChunkIfNeeded(column, chunkX, chunkZ);
+        final LightUpdateDispatcher dispatcher = lightDispatcher;
+        if (dispatcher != null) {
+            dispatcher.queueChunkLoad(dimension.id(), chunkX, chunkZ);
+        }
     }
 
     private void ensureEntitiesLoaded(final int chunkX, final int chunkZ) {
@@ -442,7 +462,54 @@ public final class ServerWorld implements World {
         return loaded.get(ChunkPos.chunkKey(chunkX, chunkZ));
     }
 
+    public WorldLightManager lightManager() {
+        return lightManager;
+    }
+
+    public void setLightDispatcher(final LightUpdateDispatcher dispatcher) {
+        this.lightDispatcher = dispatcher;
+    }
+
     public Set<Long> relightChunks(final Set<Long> chunkKeys) {
-        return Set.of(0L);
+        return lightManager.relightChunks(chunkKeys);
+    }
+
+    public int blockLightAt(final int x, final int y, final int z) {
+        return lightManager.blockLight(x, y, z);
+    }
+
+    public int skyLightAt(final int x, final int y, final int z) {
+        return lightManager.skyLight(x, y, z);
+    }
+
+    public int lightLevelAt(final int x, final int y, final int z) {
+        return lightManager.lightLevel(x, y, z);
+    }
+
+    private final class WorldLightAccess implements LightAccess {
+        @Override
+        public int minY() {
+            return minY;
+        }
+
+        @Override
+        public int height() {
+            return height;
+        }
+
+        @Override
+        public BlockState blockAt(final int x, final int y, final int z) {
+            if (y < minY || y >= minY + height) {
+                return BlockState.AIR;
+            }
+            final ChunkColumn column = loadedColumn(x >> 4, z >> 4);
+            return column == null ? BlockState.AIR : column.getBlock(x & 15, y, z & 15);
+        }
+
+        @Override
+        public @Nullable ChunkLightData lightAt(final int chunkX, final int chunkZ) {
+            final ChunkColumn column = loadedColumn(chunkX, chunkZ);
+            return column == null ? null : column.lightData();
+        }
     }
 }

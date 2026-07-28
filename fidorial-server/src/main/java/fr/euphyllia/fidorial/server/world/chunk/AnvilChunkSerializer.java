@@ -1,10 +1,12 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
 import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtList;
 import fr.euphyllia.fidorial.server.world.nbt.NbtString;
 import fr.euphyllia.fidorial.server.world.nbt.NbtType;
+import fr.fidorial.world.light.LightType;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -36,11 +38,17 @@ public class AnvilChunkSerializer {
         root.putLong("LastUpdate", chunk.lastUpdate());
         root.putLong("InhabitedTime", chunk.inhabitedTime());
 
-        root.putBoolean("isLightOn", false);
+        root.putBoolean("isLightOn", chunk.lightPopulated());
+
+        final ChunkLightData light = chunk.lightData();
+        final int minSectionY = chunk.minSectionY();
 
         final NbtList sections = new NbtList(NbtType.COMPOUND);
         for (final ChunkSection section : chunk.sections()) {
-            sections.add(sectionToNbt(section));
+            final int lightIndex = section.sectionY() - minSectionY;
+            final byte[] blockLight = light.sectionArray(LightType.BLOCK, lightIndex);
+            final byte[] skyLight = light.sectionArray(LightType.SKY, lightIndex);
+            sections.add(sectionToNbt(section, blockLight, skyLight));
         }
         root.put("sections", sections);
 
@@ -55,9 +63,16 @@ public class AnvilChunkSerializer {
         return root;
     }
 
-    private NbtCompound sectionToNbt(final ChunkSection section) {
+    private NbtCompound sectionToNbt(final ChunkSection section, final byte @Nullable [] blockLight, final byte @Nullable [] skyLight) {
         final NbtCompound c = new NbtCompound();
         c.putByte("Y", section.sectionY());
+
+        if (blockLight != null) {
+            c.putByteArray("BlockLight", blockLight);
+        }
+        if (skyLight != null) {
+            c.putByteArray("SkyLight", skyLight);
+        }
 
         // block_states
         final NbtCompound blockStates = new NbtCompound();
