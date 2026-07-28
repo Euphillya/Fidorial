@@ -3,16 +3,17 @@ package fr.euphyllia.fidorial.server.world;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.euphyllia.fidorial.server.schedulers.LightUpdateDispatcher;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
-import fr.fidorial.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import fr.euphyllia.fidorial.server.world.storage.EntityRegionStorage;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
 import fr.euphyllia.fidorial.server.world.storage.WorldPaths;
 import fr.euphyllia.fidorial.server.world.time.WorldTimeEngine;
+import fr.fidorial.world.entity.EntitySpawnBridge;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -37,6 +38,7 @@ public final class WorldManager implements AutoCloseable {
     private final EntityRegionStorage entityStorage;
     private final AnvilEntitySerializer entitySerializer;
     private final Map<Key, ServerWorld> worlds = new ConcurrentHashMap<>();
+    private volatile @Nullable LightUpdateDispatcher lightDispatcher;
     private final BlockStateRegistry blockStates;
     private final int minY;
     private final int height;
@@ -98,6 +100,9 @@ public final class WorldManager implements AutoCloseable {
             if (entityIdSupplier != null && entityBridge != null) {
                 world.setEntityBridge(entityIdSupplier, entityBridge);
             }
+            if (lightDispatcher != null) {
+                world.setLightDispatcher(lightDispatcher);
+            }
             restoreTime(world);
             return world;
         });
@@ -135,6 +140,13 @@ public final class WorldManager implements AutoCloseable {
         this.chunkLoader = loader;
         for (final ServerWorld world : worlds.values()) {
             world.setChunkLoader(loader);
+        }
+    }
+
+    public void setLightDispatcher(final LightUpdateDispatcher dispatcher) {
+        this.lightDispatcher = dispatcher;
+        for (final ServerWorld world : worlds.values()) {
+            world.setLightDispatcher(dispatcher);
         }
     }
 

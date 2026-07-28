@@ -5,11 +5,15 @@ import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkSection;
 import fr.euphyllia.fidorial.server.world.chunk.PalettedContainer;
+import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
+import fr.fidorial.world.light.LightType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public final class ChunkNetworkSerializer {
 
@@ -17,6 +21,7 @@ public final class ChunkNetworkSerializer {
 
     private final BlockStateRegistry blockRegistry;
     private final int biomeNetworkId;
+    private static final byte[] FULL_LIGHT = fullLight();
 
     public ChunkNetworkSerializer(final BlockStateRegistry blockRegistry, final int biomeNetworkId) {
         this.blockRegistry = blockRegistry;
@@ -39,7 +44,7 @@ public final class ChunkNetworkSerializer {
 
         p.writeVarInt(0); // block entities
 
-        writeLight(p, chunk.sectionCount());
+        writeLightData(p, chunk);
     }
 
     private byte[] buildSections(final ByteBufAllocator alloc, final ChunkColumn chunk) {
@@ -112,5 +117,73 @@ public final class ChunkNetworkSerializer {
             p.writeRawBytes(full);
         }
         p.writeVarInt(0);
+    }
+
+    public void writeLightData(final PacketBuffer p, final ChunkColumn chunk) {
+        final int worldSections = chunk.sectionCount();
+        final int lightSections = worldSections + 2;
+        final int topIndex = lightSections - 1;
+
+        final ChunkLightData light = chunk.lightData();
+
+        final long[] skyMask = new long[(lightSections + 63) >> 6];
+        final long[] blockMask = new long[skyMask.length];
+        final long[] emptySkyMask = new long[skyMask.length];
+        final long[] emptyBlockMask = new long[skyMask.length];
+
+        final List<byte[]> skyArrays = new ArrayList<>();
+        final List<byte[]> blockArrays = new ArrayList<>();
+
+        for (int i = 0; i < lightSections; i++) {
+            final byte[] sky;
+            if (i == topIndex) {
+                sky = FULL_LIGHT;
+            } else if (i == 0) {
+                sky = null;
+            } else {
+                sky = light.sectionArray(LightType.SKY, i - 1);
+            }
+            if (sky != null) {
+                setBit(skyMask, i);
+                skyArrays.add(sky);
+            } else {
+                setBit(emptySkyMask, i);
+            }
+
+            final byte[] block = (i == 0 || i == topIndex) ? null : light.sectionArray(LightType.BLOCK, i - 1);
+            if (block != null) {
+                setBit(blockMask, i);
+                blockArrays.add(block);
+            } else {
+                setBit(emptyBlockMask, i);
+            }
+        }
+
+        p.writeBitSet(skyMask);
+        p.writeBitSet(blockMask);
+        p.writeBitSet(emptySkyMask);
+        p.writeBitSet(emptyBlockMask);
+
+        p.writeVarInt(skyArrays.size());
+        for (final byte[] array : skyArrays) {
+            p.writeVarInt(ChunkLightData.SECTION_BYTES);
+            p.writeRawBytes(array);
+        }
+
+        p.writeVarInt(blockArrays.size());
+        for (final byte[] array : blockArrays) {
+            p.writeVarInt(ChunkLightData.SECTION_BYTES);
+            p.writeRawBytes(array);
+        }
+    }
+
+    private static void setBit(final long[] words, final int bit) {
+        words[bit >> 6] |= 1L << (bit & 63);
+    }
+
+    private static byte[] fullLight() {
+        final byte[] full = new byte[ChunkLightData.SECTION_BYTES];
+        Arrays.fill(full, (byte) 0xFF);
+        return full;
     }
 }

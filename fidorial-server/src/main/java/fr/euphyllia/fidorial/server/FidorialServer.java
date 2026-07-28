@@ -38,12 +38,14 @@ import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
+import fr.euphyllia.fidorial.server.schedulers.LightUpdateDispatcher;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
 import fr.euphyllia.fidorial.server.translation.BuiltInTranslationStore;
 import fr.euphyllia.fidorial.server.world.BlockEditService;
 import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
+import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.FlatChunkGenerator;
 import fr.euphyllia.fidorial.server.world.FlatWorld;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
@@ -149,10 +151,14 @@ public final class FidorialServer implements Server {
             new FluidEngine(worldManager, regionizer, blockStateRegistry, this::broadcast);
     private final WeatherEngine weatherEngine = new WeatherEngine(worldManager.levelData(), this::broadcast);
     private final DayNightThread dayNightEngine = new DayNightThread(worldManager, registries.dynamic());
+    private final ChunkNetworkSerializer lightSerializer = new ChunkNetworkSerializer(blockStateRegistry, 0);
+    private final LightUpdateDispatcher lightDispatcher = new LightUpdateDispatcher(
+            chunkWorker::execute, this::broadcast, lightSerializer, worldManager::world);
     private final BlockEditService blockEdits = new BlockEditService(
             blockStateRegistry,
             (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),
-            fluidEngine::notifyBlockChanged);
+            fluidEngine::notifyBlockChanged,
+            lightDispatcher::queueBlockChange);
     private final FidorialPermissionRegistry permissionRegistry = new FidorialPermissionRegistry();
     private final JavaPluginManager pluginManager =
             new JavaPluginManager(this, events, services, permissionRegistry, config.pluginsPath());
@@ -257,6 +263,8 @@ public final class FidorialServer implements Server {
 
     private void openWorlds() {
         worldManager.setChunkLoader(chunkWorker);
+        worldManager.setLightDispatcher(lightDispatcher);
+        fluidEngine.setLightHook(lightDispatcher::queueBlockChange);
         worldManager.setEntityBridge(entityIds::allocate, new EntitySpawnBridge() {
             @Override
             public void onEntityAppear(final Entity entity) {

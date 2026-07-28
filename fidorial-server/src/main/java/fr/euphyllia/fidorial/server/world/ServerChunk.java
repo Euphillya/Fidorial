@@ -11,7 +11,7 @@ public final class ServerChunk implements Chunk {
     private final ChunkColumn column;
     private final BlockStateRegistry blockStates;
 
-    public ServerChunk(ServerWorld world, ChunkColumn column, BlockStateRegistry blockStates) {
+    public ServerChunk(final ServerWorld world, final ChunkColumn column, final BlockStateRegistry blockStates) {
         this.world = world;
         this.column = column;
         this.blockStates = blockStates;
@@ -47,18 +47,41 @@ public final class ServerChunk implements Chunk {
     }
 
     @Override
-    public int getBlockStateId(int localX, int worldY, int localZ) {
+    public int getBlockStateId(final int localX, final int worldY, final int localZ) {
         return blockStates.networkId(column.getBlock(localX & 15, worldY, localZ & 15));
     }
 
     @Override
-    public boolean setBlockStateId(int localX, int worldY, int localZ, int stateId) {
+    public boolean setBlockStateId(final int localX, final int worldY, final int localZ, final int stateId) {
         if (worldY < column.minY() || worldY >= column.minY() + column.height()) {
             return false;
         }
-        BlockState state = blockStates.byId(stateId);
+        final BlockState state = blockStates.byId(stateId);
         column.setBlock(localX & 15, worldY, localZ & 15, state);
         world.markDirty(column.chunkX(), column.chunkZ());
         return true;
+    }
+
+    @Override
+    public int blockLight(final int localX, final int worldY, final int localZ) {
+        return world.blockLightAt(worldX(localX), worldY, worldZ(localZ));
+    }
+
+    @Override
+    public int skyLight(final int localX, final int worldY, final int localZ) {
+        return world.skyLightAt(worldX(localX), worldY, worldZ(localZ));
+    }
+
+    @Override
+    public int lightLevel(final int localX, final int worldY, final int localZ) {
+        return world.lightLevelAt(worldX(localX), worldY, worldZ(localZ));
+    }
+
+    private int worldX(final int localX) {
+        return (column.chunkX() << 4) | (localX & 15);
+    }
+
+    private int worldZ(final int localZ) {
+        return (column.chunkZ() << 4) | (localZ & 15);
     }
 }

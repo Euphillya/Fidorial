@@ -38,6 +38,12 @@ public interface World extends Keyed /* ForwardingAudience */ { // make it exten
 
     boolean setBlockStateId(BlockPos pos, int stateId);
 
+    int blockLight(BlockPos pos);
+
+    int skyLight(BlockPos pos);
+
+    int lightLevel(BlockPos pos);
+
     Collection<? extends Entity> entities();
 
     Entity entity(UUID uuid);
