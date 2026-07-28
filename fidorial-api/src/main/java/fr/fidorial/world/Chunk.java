@@ -19,4 +19,10 @@ public interface Chunk {
     int getBlockStateId(int localX, int worldY, int localZ);
 
     boolean setBlockStateId(int localX, int worldY, int localZ, int stateId);
+
+    int blockLight(int localX, int worldY, int localZ);
+
+    int skyLight(int localX, int worldY, int localZ);
+
+    int lightLevel(int localX, int worldY, int localZ);
 }
