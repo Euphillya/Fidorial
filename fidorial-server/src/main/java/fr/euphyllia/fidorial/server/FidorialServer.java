@@ -262,6 +262,8 @@ public final class FidorialServer implements Server {
 
     private void openWorlds() {
         worldManager.setChunkLoader(chunkWorker);
+        worldManager.setLightDispatcher(lightDispatcher);
+        fluidEngine.setLightHook(lightDispatcher::queueBlockChange);
         worldManager.setEntityBridge(entityIds::allocate, new EntitySpawnBridge() {
             @Override
             public void onEntityAppear(final Entity entity) {
