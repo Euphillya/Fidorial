@@ -65,6 +65,10 @@ public class ThreadedChunkWorker implements AsyncChunkLoader {
         return promise;
     }
 
+    public void execute(final Runnable task) {
+        workers.execute(task);
+    }
+
     public void shutdown() {
         workers.shutdown();
         try {

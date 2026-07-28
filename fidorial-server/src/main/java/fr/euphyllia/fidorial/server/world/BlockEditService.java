@@ -14,15 +14,18 @@ public final class BlockEditService {
     private final BlockStateRegistry blockRegistry;
     private final BlockChangeBroadcaster broadcaster;
     private final FluidNotifier fluidNotifier;
+    private final LightNotifier lightNotifier;
 
     public BlockEditService(
             final BlockStateRegistry blockRegistry,
             final BlockChangeBroadcaster broadcaster,
-            final FluidNotifier fluidNotifier
+            final FluidNotifier fluidNotifier,
+            final LightNotifier lightNotifier
     ) {
         this.blockRegistry = blockRegistry;
         this.broadcaster = broadcaster;
         this.fluidNotifier = fluidNotifier;
+        this.lightNotifier = lightNotifier;
     }
 
     public boolean set(final ServerWorld world, final BlockPos pos, final BlockState state) {
@@ -36,6 +39,7 @@ public final class BlockEditService {
         }
         broadcaster.broadcast(pos, blockRegistry.networkId(state));
         fluidNotifier.notifyBlockChanged(world.dimension().id(), pos.x(), pos.y(), pos.z());
+        lightNotifier.onBlockChanged(world.dimension().id(), pos.x(), pos.y(), pos.z());
         return true;
     }
 
@@ -47,5 +51,10 @@ public final class BlockEditService {
     @FunctionalInterface
     public interface FluidNotifier {
         void notifyBlockChanged(Key world, int x, int y, int z);
+    }
+
+    @FunctionalInterface
+    public interface LightNotifier {
+        void onBlockChanged(Key world, int x, int y, int z);
     }
 }

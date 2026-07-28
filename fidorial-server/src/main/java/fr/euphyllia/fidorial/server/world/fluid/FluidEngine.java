@@ -39,6 +39,7 @@ public final class FluidEngine implements FluidManager {
     private final Consumer<ClientboundPacket> broadcaster;
 
     private final Map<Key, Set<Long>> pending = new ConcurrentHashMap<>();
+    private volatile LightHook lightHook = (world, x, y, z) -> {};
 
     public FluidEngine(
             final WorldManager worlds,
@@ -322,6 +323,7 @@ public final class FluidEngine implements FluidManager {
             return false;
         }
         broadcaster.accept(new ClientboundBlockUpdatePacket(new BlockPos(x, y, z), blockRegistry.networkId(state)));
+        lightHook.onBlockChanged(world.dimension().id(), x, y, z);
         return true;
     }
 
@@ -330,5 +332,14 @@ public final class FluidEngine implements FluidManager {
             return worlds.overworld();
         }
         return worlds.dimension(Dimension.datapack(key.namespace(), key.value()));
+    }
+
+    public void setLightHook(final LightHook hook) {
+        this.lightHook = hook;
+    }
+
+    @FunctionalInterface
+    public interface LightHook {
+        void onBlockChanged(Key world, int x, int y, int z);
     }
 }

@@ -162,6 +162,21 @@ public final class ServerWorld implements World {
     }
 
     @Override
+    public int blockLight(final BlockPos pos) {
+        return 0;
+    }
+
+    @Override
+    public int skyLight(final BlockPos pos) {
+        return 0;
+    }
+
+    @Override
+    public int lightLevel(final BlockPos pos) {
+        return 0;
+    }
+
+    @Override
     public Collection<? extends Entity> entities() {
         return entities.all();
     }
@@ -421,5 +436,13 @@ public final class ServerWorld implements World {
                 throw new UncheckedIOException(e);
             }
         });
+    }
+
+    public @Nullable ChunkColumn loadedColumn(final int chunkX, final int chunkZ) {
+        return loaded.get(ChunkPos.chunkKey(chunkX, chunkZ));
+    }
+
+    public Set<Long> relightChunks(final Set<Long> chunkKeys) {
+        return Set.of(0L);
     }
 }

@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
 import org.jspecify.annotations.Nullable;
 
 public final class ChunkColumn {
@@ -15,6 +16,9 @@ public final class ChunkColumn {
     private long inhabitedTime;
     private long lastUpdate;
     private String status = "minecraft:full";
+
+    private volatile boolean lightPopulated;
+    private @Nullable ChunkLightData lightData;
 
     public ChunkColumn(final int chunkX, final int chunkZ, final int minY, final int height, final BlockState fillBlock, final String fillBiome) {
         this.chunkX = chunkX;
@@ -86,6 +90,23 @@ public final class ChunkColumn {
 
     public void setStatus(final String s) {
         this.status = s;
+    }
+
+    public synchronized ChunkLightData lightData() {
+        ChunkLightData data = lightData;
+        if (data == null) {
+            data = new ChunkLightData(minY, height);
+            lightData = data;
+        }
+        return data;
+    }
+
+    public boolean lightPopulated() {
+        return lightPopulated;
+    }
+
+    public void setLightPopulated(final boolean populated) {
+        this.lightPopulated = populated;
     }
 
     private @Nullable ChunkSection sectionForY(final int worldY) {
