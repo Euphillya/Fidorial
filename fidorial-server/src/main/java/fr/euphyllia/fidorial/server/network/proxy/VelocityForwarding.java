@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.network.proxy;
 import fr.euphyllia.fidorial.auth.GameProfile;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import io.netty.buffer.Unpooled;
+import net.kyori.adventure.key.Key;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -15,7 +16,7 @@ import java.util.UUID;
 
 public class VelocityForwarding {
 
-    public static final String CHANNEL = "velocity:player_info";
+    public static final Key CHANNEL = Key.key("velocity", "player_info");
 
     public static final int MODERN_DEFAULT = 1;
     public static final int MODERN_WITH_KEY = 2;

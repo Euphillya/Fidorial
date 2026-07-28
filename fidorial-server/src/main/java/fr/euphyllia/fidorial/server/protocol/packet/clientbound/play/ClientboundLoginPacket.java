@@ -3,10 +3,11 @@ package fr.euphyllia.fidorial.server.protocol.packet.clientbound.play;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import net.kyori.adventure.key.Key;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Packets#Login_(play)
 public record ClientboundLoginPacket(
-        int entityId, String dimensionName, int dimensionTypeId, int viewDistance, int gameMode)
+        int entityId, Key dimensionKey, int dimensionTypeId, int viewDistance, int gameMode)
         implements ClientboundPacket {
 
     @Override
@@ -19,7 +20,7 @@ public record ClientboundLoginPacket(
         buf.writeInt(entityId);
         buf.writeBoolean(false); // hardcore
         buf.writeVarInt(1); // nombre de dimensions
-        buf.writeIdentifier(dimensionName); // liste des dimensions
+        buf.writeKey(dimensionKey); // liste des dimensions
         buf.writeVarInt(0); // maxPlayers (obsolete)
         buf.writeVarInt(viewDistance);
         buf.writeVarInt(viewDistance); // simulationDistance
@@ -27,7 +28,7 @@ public record ClientboundLoginPacket(
         buf.writeBoolean(true); // enableRespawnScreen
         buf.writeBoolean(false); // doLimitedCrafting
         buf.writeVarInt(dimensionTypeId);
-        buf.writeIdentifier(dimensionName);
+        buf.writeKey(dimensionKey);
         buf.writeLong(0L); // hashedSeed
         buf.writeByte(gameMode); // gameMode (survie)
         buf.writeByte(-1); // previousGameMode

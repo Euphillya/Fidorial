@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.adventure;
 
-import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.nbt.NbtBinaryTagBridge;
 import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIntArray;
@@ -84,17 +83,17 @@ public final class ClickCallbackManager implements AutoCloseable {
         this.cleanupService.shutdownNow();
     }
 
-    public void handleClick(final ServerPlayer player, final Key key, final UUID uuid) {
+    public void handleClick(final Audience audience, final Key key, final UUID uuid) {
         if (!KEY.equals(key)) return;
 
         final ClickCallback<Audience> persistent = this.persistentCallbacks.get(uuid);
         if (persistent != null) {
-            persistent.accept(player);
+            persistent.accept(audience);
             return;
         }
         final ExpiringCallbackEntry entry = this.expiringCallbacks.get(uuid);
         if (entry != null) {
-            entry.tryHandle(player);
+            entry.tryHandle(audience);
         }
     }
 

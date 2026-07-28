@@ -31,7 +31,7 @@ public record ClientboundStopSoundPacket(
             buf.writeVarInt(source.ordinal());
         }
         if (sound != null) {
-            buf.writeIdentifier(sound.asString());
+            buf.writeKey(sound);
         }
     }
 }

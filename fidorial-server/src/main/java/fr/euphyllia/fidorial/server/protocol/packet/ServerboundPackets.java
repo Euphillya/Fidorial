@@ -8,6 +8,7 @@ import fr.euphyllia.fidorial.server.protocol.catalog.LoginServerboundPackets;
 import fr.euphyllia.fidorial.server.protocol.catalog.PlayServerboundPackets;
 import fr.euphyllia.fidorial.server.protocol.catalog.StatusServerboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundFinishConfigurationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundSelectKnownPacksPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.handshake.ServerboundIntentionPacket;
@@ -21,7 +22,6 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.Serverbound
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClosePacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
@@ -68,6 +68,10 @@ public class ServerboundPackets {
                 ConnectionState.CONFIGURATION,
                 ConfigurationServerboundPackets.CLIENT_INFORMATION,
                 ServerboundClientInformationPacket::read);
+        register(
+                ConnectionState.CONFIGURATION,
+                PlayServerboundPackets.CUSTOM_CLICK_ACTION,
+                ServerboundCustomClickActionPacket::read);
         register(
                 ConnectionState.CONFIGURATION,
                 ConfigurationServerboundPackets.FINISH_CONFIGURATION,

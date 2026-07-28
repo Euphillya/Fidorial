@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.network.listener;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.adventure.ClickCallbackManager;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.ConnectionState;
 import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
@@ -11,6 +12,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.configuration.Cl
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.configuration.ClientboundUpdateTagsPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.ConfigurationPacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundFinishConfigurationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.configuration.ServerboundSelectKnownPacksPacket;
 import fr.euphyllia.fidorial.server.registry.Registry;
@@ -18,6 +20,7 @@ import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.Locale;
+import java.util.UUID;
 
 public final class ConfigurationPacketHandler implements ConfigurationPacketListener {
 
@@ -75,6 +78,18 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
     @Override
     public void handleFinishConfiguration(final ServerboundFinishConfigurationPacket packet) {
         connection.setState(ConnectionState.PLAY);
+    }
+
+    @Override
+    public void handleCustomClickAction(final ServerboundCustomClickActionPacket packet) {
+        final UUID uuid;
+        try {
+            uuid = ClickCallbackManager.uuidFromPayload(packet.payload());
+        } catch (final IllegalArgumentException e) {
+            LOGGER.debug("{} sent an invalid click callback payload for {}", connection.username(), packet.id(), e);
+            return;
+        }
+        server.clickCallbacksManager().handleClick(connection, packet.id(), uuid);
     }
 
     @Override

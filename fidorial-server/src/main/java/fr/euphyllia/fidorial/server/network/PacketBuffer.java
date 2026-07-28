@@ -1,8 +1,11 @@
 package fr.euphyllia.fidorial.server.network;
 
+import fr.euphyllia.fidorial.server.network.nbt.NetworkNbtHelper;
+import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.world.BlockPos;
 import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
@@ -100,6 +103,25 @@ public final class PacketBuffer {
         return buf.readDouble();
     }
 
+    public Nbt readSizedNbt(final int maxBytes) {
+        final int size = readVarInt();
+        if (size < 0 || size > maxBytes) {
+            throw new DecoderException("NBT payload too large: " + size);
+        }
+
+        if (buf.readableBytes() < size) {
+            throw new DecoderException("NBT payload truncated: expected " + size + " bytes, got " + buf.readableBytes());
+        }
+
+        final ByteBuf slice = buf.readSlice(size);
+        final Nbt nbt = NetworkNbtHelper.readNbt(slice, maxBytes);
+        if (slice.isReadable()) {
+            throw new DecoderException("NBT payload has " + slice.readableBytes() + " unread bytes");
+        }
+
+        return nbt;
+    }
+
     public PacketBuffer writeBoolean(final boolean v) {
         buf.writeBoolean(v);
         return this;
@@ -144,6 +166,10 @@ public final class PacketBuffer {
         return this;
     }
 
+    /**
+     * Use {@link PacketBuffer#writeKey(Key)} or {@link PacketBuffer#writeRegistryKey(RegistryKey)} instead.
+     */
+    @Deprecated(forRemoval = true)
     public PacketBuffer writeIdentifier(final String identifier) {
         Key.key(identifier); // for validation
         VarInts.writeString(buf, identifier);

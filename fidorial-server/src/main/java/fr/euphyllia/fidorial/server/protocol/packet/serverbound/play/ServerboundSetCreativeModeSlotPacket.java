@@ -15,13 +15,11 @@ public record ServerboundSetCreativeModeSlotPacket(short slot, int itemId, int c
         if (count > 0) {
             itemId = buf.readVarInt();
         }
-        System.out.println("PACKET READ");
         return new ServerboundSetCreativeModeSlotPacket(slot, itemId, count);
     }
 
     @Override
     public void handle(final PacketListener listener) {
-        System.out.println("HANDLED");
         ((PlayPacketListener) listener).handleSetCreativeModeSlot(this);
     }
 }

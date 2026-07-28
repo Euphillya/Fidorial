@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.network.nbt;
 
 import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
+import fr.euphyllia.fidorial.server.world.nbt.NbtReadLimits;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -31,7 +32,8 @@ public final class NetworkNbtHelper {
     public static Nbt readNbt(ByteBuf buf, long maxBytes) {
         try {
             return NbtIo.readNetwork(
-                    new DataInputStream(new ByteBufInputStream(buf))
+                    new DataInputStream(new ByteBufInputStream(buf)),
+                    NbtReadLimits.withBudget(maxBytes)
             );
         } catch (IOException e) {
             throw new DecoderException("Failed reading NBT", e);

@@ -25,13 +25,13 @@ import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.Clientbound
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.common.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatCommandPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundChatPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClosePacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
@@ -189,7 +189,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         final int dimensionType = Math.max(0, dynamic.networkId("minecraft:dimension_type", worldId().asString()));
         connection.send(new ClientboundLoginPacket(
                 player.entityId(),
-                worldId().asString(),
+                worldId(),
                 dimensionType,
                 config.viewDistance(),
                 player.gameMode().id()));
@@ -585,7 +585,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         final int dimensionType =
                 Math.max(0, dynamic.networkId("minecraft:dimension_type", target.dimension().id().asString()));
         connection.send(new ClientboundRespawnPacket(
-                target.dimension().id().asString(),
+                target.dimension().id(),
                 dimensionType,
                 player.gameMode().id(),
                 ClientboundRespawnPacket.KEEP_ALL));

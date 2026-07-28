@@ -47,14 +47,6 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
         return new ResourceArgument<>(registryKey, registry);
     }
 
-    public static <T> T getResource(
-            final CommandContext<?> context,
-            final String name,
-            @SuppressWarnings("unused") final RegistryKey<T> registryKey
-    ) {
-        return (T) context.getArgument(name, Object.class);
-    }
-
     @Override
     public T parse(final StringReader reader) throws CommandSyntaxException {
         final int start = reader.getCursor();

@@ -3,8 +3,9 @@ package fr.euphyllia.fidorial.server.protocol.packet.clientbound.login;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.protocol.catalog.LoginClientboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
+import net.kyori.adventure.key.Key;
 
-public record ClientboundCustomQueryPacket(int transactionId, String channel, byte[] payload)
+public record ClientboundCustomQueryPacket(int transactionId, Key channel, byte[] payload)
         implements ClientboundPacket {
 
     @Override
@@ -15,7 +16,7 @@ public record ClientboundCustomQueryPacket(int transactionId, String channel, by
     @Override
     public void write(PacketBuffer buf) {
         buf.writeVarInt(transactionId)
-                .writeIdentifier(channel)
+                .writeKey(channel)
                 .writeRawBytes(payload);
     }
 }
