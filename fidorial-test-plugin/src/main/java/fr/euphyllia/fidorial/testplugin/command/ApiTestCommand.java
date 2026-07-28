@@ -16,10 +16,14 @@ import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import fr.fidorial.world.WorldBuilder;
 import fr.fidorial.world.generation.WorldGenerator;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickCallback;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Collection;
 import java.util.List;
@@ -48,14 +52,14 @@ public final class ApiTestCommand {
                 .then(literal("schedule").executes(ctx -> schedule(plugin, ctx)))
                 .then(literal("perms").executes(ApiTestCommand::perms))
                 .then(literal("teleport")
-                    .then(argument("x", ArgumentTypes.doubleArg())
-                            .then(argument("y", ArgumentTypes.doubleArg())
-                                    .then(argument("z", ArgumentTypes.doubleArg())
-                                            .executes(ApiTestCommand::tp)))))
+                        .then(argument("x", ArgumentTypes.doubleArg())
+                                .then(argument("y", ArgumentTypes.doubleArg())
+                                        .then(argument("z", ArgumentTypes.doubleArg())
+                                                .executes(ApiTestCommand::tp)))))
                 .then(literal("tpworld")
-                    .executes(ctx -> tpWorld(plugin, ctx, Key.key("minecraft", "overworld")))
+                        .executes(ctx -> tpWorld(plugin, ctx, Key.key("minecraft", "overworld")))
                         .then(argument("name", ArgumentTypes.key())
-                        .executes(ctx -> tpWorld(plugin, ctx, ctx.getArgument("name", Key.class)))))
+                                .executes(ctx -> tpWorld(plugin, ctx, ctx.getArgument("name", Key.class)))))
                 .then(literal("createworld")
                         .executes(ctx -> createWorld(plugin, ctx, Key.key("minecraft", UUID.randomUUID().toString())))
                         .then(argument("name", ArgumentTypes.key())
@@ -75,6 +79,8 @@ public final class ApiTestCommand {
                 .then(literal("stopsound")
                         .executes(ApiTestCommand::stopAllSound)
                         .then(argument("key", ArgumentTypes.key()).executes(ApiTestCommand::stopSound)))
+                .then(literal("callback")
+                        .executes(ctx -> clickCallback(ctx, plugin)))
                 .build();
     }
 
@@ -373,6 +379,23 @@ public final class ApiTestCommand {
                             + " (monde inexistant, monde principal, ou joueurs presents).");
         }
 
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int clickCallback(final CommandContext<CommandSource> ctx, final TestPlugin plugin) {
+        final ClickCallback<Player> narrow = clicker -> {
+            clicker.sendMessage(Component.text("Callback fired for " + clicker.name(), NamedTextColor.YELLOW));
+            plugin.logger.info("Click callback consumed by {}", clicker.name());
+        };
+
+        final ClickCallback<Audience> callback = ClickCallback.widen(narrow, Player.class);
+        final ClickCallback.Options options = ClickCallback.Options.builder()
+                .uses(ClickCallback.UNLIMITED_USES)
+                .lifetime(ClickCallback.DEFAULT_LIFETIME)
+                .build();
+
+        Component callbackComponent = Component.text("[Click me!]", NamedTextColor.GREEN).clickEvent(ClickEvent.callback(callback, options));
+        ctx.getSource().sender().sendMessage(callbackComponent);
         return Command.SINGLE_SUCCESS;
     }
 }

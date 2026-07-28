@@ -21,6 +21,7 @@ import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.Serverbound
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClosePacket;
+import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
@@ -108,6 +109,11 @@ public class ServerboundPackets {
                 ConnectionState.PLAY,
                 PlayServerboundPackets.CONTAINER_CLOSE,
                 ServerboundContainerClosePacket::read);
+
+        register(
+                ConnectionState.PLAY,
+                PlayServerboundPackets.CUSTOM_CLICK_ACTION,
+                ServerboundCustomClickActionPacket::read);
     }
 
     private ServerboundPackets() {

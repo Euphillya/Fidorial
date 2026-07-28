@@ -30,12 +30,12 @@ import net.kyori.adventure.nbt.StringBinaryTag;
 
 import java.util.Map;
 
-final class NbtBinaryTagBridge {
+public final class NbtBinaryTagBridge {
 
     private NbtBinaryTagBridge() {
     }
 
-    static Nbt toNbt(BinaryTag tag) {
+    public static Nbt toNbt(BinaryTag tag) {
         return switch (tag) {
             case ByteBinaryTag b -> new NbtByte(b.byteValue());
             case ShortBinaryTag s -> new NbtShort(s.shortValue());
