@@ -111,7 +111,10 @@ public final class NbtIo {
         if (rootType != NbtType.COMPOUND.id()) {
             throw new IOException("Racine NBT attendue TAG_Compound, reçu " + rootType);
         }
-        String name = readUtf(in, limits);
+
+        limits.spendFor(NbtType.STRING);
+        String name = in.readUTF();
+        limits.spendStringValue(name.length());
         NbtCompound root = (NbtCompound) readPayload(in, NbtType.COMPOUND, limits, 0);
         return new Named(name, root);
     }
@@ -149,7 +152,12 @@ public final class NbtIo {
                 in.readFully(arr);
                 yield new NbtByteArray(arr);
             }
-            case STRING -> { limits.spendFor(type); yield new NbtString(readUtf(in, limits)); }
+            case STRING -> {
+                limits.spendFor(type);
+                String s = in.readUTF();
+                limits.spendStringValue(s.length());
+                yield new NbtString(s);
+            }
             case INT_ARRAY -> {
                 limits.spendFor(type);
                 int len = in.readInt();
@@ -197,19 +205,18 @@ public final class NbtIo {
                     int id = in.readUnsignedByte();
                     if (id == NbtType.END.id()) break;
                     NbtType childType = NbtType.byId(id);
-                    String key = readUtf(in, limits);
-                    limits.spendEntry();
-                    compound.put(key, readPayload(in, childType, limits, depth + 1));
+                    String key = in.readUTF();
+                    limits.spendCompoundKey(key.length());
+                    Nbt value = readPayload(in, childType, limits, depth + 1);
+                    boolean isNewKey = !compound.contains(key);
+                    compound.put(key, value);
+                    if (isNewKey) {
+                        limits.spendNewCompoundEntry();
+                    }
                 }
                 yield compound;
             }
         };
-    }
-
-    private static String readUtf(DataInput in, NbtReadLimits limits) throws IOException {
-        String s = in.readUTF();
-        limits.spend(2L + (long) s.length() * 3L);
-        return s;
     }
 
     public static void writeNetwork(DataOutput out, Nbt tag) throws IOException {

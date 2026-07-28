@@ -44,15 +44,23 @@ public final class NbtReadLimits {
             case SHORT -> 10L;
             case INT, FLOAT -> 12L;
             case LONG, DOUBLE -> 16L;
-            case BYTE_ARRAY, INT_ARRAY, LONG_ARRAY -> 20L;
-            case STRING -> 14L;
-            case LIST -> 24L;
-            case COMPOUND -> 40L;
+            case BYTE_ARRAY, INT_ARRAY, LONG_ARRAY -> 24L;
+            case STRING -> 36L;
+            case LIST -> 36L;
+            case COMPOUND -> 48L;
         });
     }
 
-    public void spendEntry() {
-        spend(28L);
+    public void spendStringValue(final int length) {
+        spend(2L * length);
+    }
+
+    public void spendCompoundKey(final int length) {
+        spend(28L + 2L * length);
+    }
+
+    public void spendNewCompoundEntry() {
+        spend(36L);
     }
 
     public void checkDepth(final int depth) {
