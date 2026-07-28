@@ -29,24 +29,24 @@ public final class AngleArgument implements ArgumentType<AngleResolver> {
     }
 
     @Override
-    public AngleResolver parse(StringReader reader) throws CommandSyntaxException {
+    public AngleResolver parse(final StringReader reader) throws CommandSyntaxException {
         if (!reader.canRead()) {
             throw ERROR_NOT_COMPLETE.createWithContext(reader);
         }
 
-        boolean relative = reader.peek() == '~';
+        final boolean relative = reader.peek() == '~';
         if (relative) {
             reader.skip();
         }
 
-        float value = reader.canRead() && reader.peek() != ' ' ? reader.readFloat() : 0.0F;
+        final float value = reader.canRead() && reader.peek() != ' ' ? reader.readFloat() : 0.0F;
 
         if (Float.isNaN(value) || Float.isInfinite(value)) {
             throw ERROR_INVALID_ANGLE.createWithContext(reader);
         }
 
         return source -> {
-            float baseYaw = relative ? source.location().yaw() : 0.0F;
+            final float baseYaw = relative ? source.location().yaw() : 0.0F;
             float result = (relative ? baseYaw + value : value) % 360.0F;
             if (result >= 180.0F) {
                 result -= 360.0F;
@@ -66,20 +66,20 @@ public final class AngleArgument implements ArgumentType<AngleResolver> {
     public static final class Info implements ArgumentTypeRegistrar<AngleArgument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(AngleArgument argument) {
+        public Spec access(final AngleArgument argument) {
             return new Spec();
         }
 

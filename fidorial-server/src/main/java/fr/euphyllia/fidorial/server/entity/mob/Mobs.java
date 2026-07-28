@@ -196,7 +196,7 @@ public final class Mobs {
     private Mobs() {
     }
 
-    public static boolean isMob(EntityType type) {
+    public static boolean isMob(final EntityType type) {
         return FACTORIES.containsKey(type.key());
     }
 
@@ -204,8 +204,8 @@ public final class Mobs {
         return FACTORIES.keySet();
     }
 
-    public static Mob create(EntityType type, int entityId, World world, Location location) {
-        MobFactory factory = FACTORIES.get(type.key());
+    public static Mob create(final EntityType type, final int entityId, final World world, final Location location) {
+        final MobFactory factory = FACTORIES.get(type.key());
         if (factory == null) {
             throw new IllegalArgumentException("No mob implemented for " + type.key());
         }

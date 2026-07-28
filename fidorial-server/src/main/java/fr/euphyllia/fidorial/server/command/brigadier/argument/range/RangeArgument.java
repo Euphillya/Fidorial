@@ -19,7 +19,7 @@ public interface RangeArgument {
         return intRange(Function.identity());
     }
 
-    static <R> RangeArgument.Ints<R> intRange(Function<MinMaxBounds.Ints, R> converter) {
+    static <R> RangeArgument.Ints<R> intRange(final Function<MinMaxBounds.Ints, R> converter) {
         return new RangeArgument.Ints<>(converter);
     }
 
@@ -27,7 +27,7 @@ public interface RangeArgument {
         return floatRange(Function.identity());
     }
 
-    static <R> RangeArgument.Floats<R> floatRange(Function<MinMaxBounds.Doubles, R> converter) {
+    static <R> RangeArgument.Floats<R> floatRange(final Function<MinMaxBounds.Doubles, R> converter) {
         return new RangeArgument.Floats<>(converter);
     }
 
@@ -36,16 +36,16 @@ public interface RangeArgument {
 
         private final Function<MinMaxBounds.Doubles, R> converter;
 
-        public Floats(Function<MinMaxBounds.Doubles, R> converter) {
+        public Floats(final Function<MinMaxBounds.Doubles, R> converter) {
             this.converter = converter;
         }
 
-        public static MinMaxBounds.Doubles getRange(CommandContext<CommandSource> context, String name) {
+        public static MinMaxBounds.Doubles getRange(final CommandContext<CommandSource> context, final String name) {
             return context.getArgument(name, MinMaxBounds.Doubles.class);
         }
 
         @Override
-        public R parse(StringReader reader) throws CommandSyntaxException {
+        public R parse(final StringReader reader) throws CommandSyntaxException {
             return converter.apply(MinMaxBounds.Doubles.fromReader(reader));
         }
 
@@ -57,20 +57,20 @@ public interface RangeArgument {
         public static final class Info implements ArgumentTypeRegistrar<Floats<?>, Info.Spec> {
 
             @Override
-            public void serialize(Spec spec, PacketBuffer buf) {
+            public void serialize(final Spec spec, final PacketBuffer buf) {
             }
 
             @Override
-            public Spec deserialize(PacketBuffer buf) {
+            public Spec deserialize(final PacketBuffer buf) {
                 return new Spec();
             }
 
             @Override
-            public void serializeJson(Spec spec, JsonObject json) {
+            public void serializeJson(final Spec spec, final JsonObject json) {
             }
 
             @Override
-            public Spec access(Floats<?> argument) {
+            public Spec access(final Floats<?> argument) {
                 return new Spec();
             }
 
@@ -94,16 +94,16 @@ public interface RangeArgument {
 
         private final Function<MinMaxBounds.Ints, R> converter;
 
-        public Ints(Function<MinMaxBounds.Ints, R> converter) {
+        public Ints(final Function<MinMaxBounds.Ints, R> converter) {
             this.converter = converter;
         }
 
-        public static MinMaxBounds.Ints getRange(CommandContext<CommandSource> context, String name) {
+        public static MinMaxBounds.Ints getRange(final CommandContext<CommandSource> context, final String name) {
             return context.getArgument(name, MinMaxBounds.Ints.class);
         }
 
         @Override
-        public R parse(StringReader reader) throws CommandSyntaxException {
+        public R parse(final StringReader reader) throws CommandSyntaxException {
             return converter.apply(MinMaxBounds.Ints.fromReader(reader));
         }
 
@@ -115,20 +115,20 @@ public interface RangeArgument {
         public static final class Info implements ArgumentTypeRegistrar<Ints<?>, Info.Spec> {
 
             @Override
-            public void serialize(Spec spec, PacketBuffer buf) {
+            public void serialize(final Spec spec, final PacketBuffer buf) {
             }
 
             @Override
-            public Spec deserialize(PacketBuffer buf) {
+            public Spec deserialize(final PacketBuffer buf) {
                 return new Spec();
             }
 
             @Override
-            public void serializeJson(Spec spec, JsonObject json) {
+            public void serializeJson(final Spec spec, final JsonObject json) {
             }
 
             @Override
-            public Spec access(Ints<?> argument) {
+            public Spec access(final Ints<?> argument) {
                 return new Spec();
             }
 

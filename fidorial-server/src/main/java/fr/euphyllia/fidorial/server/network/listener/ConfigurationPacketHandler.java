@@ -26,7 +26,7 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
     private final ClientConnection connection;
     private final FidorialServer server;
 
-    public ConfigurationPacketHandler(ClientConnection connection) {
+    public ConfigurationPacketHandler(final ClientConnection connection) {
         this.connection = connection;
         this.server = connection.server();
     }
@@ -36,7 +36,7 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
         LOGGER.info("{} entre en phase Configuration", connection.username());
         if (!server.protocolMap().isAvailable()) {
             LOGGER.error(
-                    "Table de protocole absente : impossible de configurer {}. " + "Lance tools/extract-protocol.sh.",
+                    "Protocol table missing: unable to configure {}.",
                     connection.username());
             connection.close();
             return;
@@ -47,22 +47,22 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
     }
 
     @Override
-    public void handleSelectKnownPacks(ServerboundSelectKnownPacksPacket packet) {
-        LOGGER.debug("Known Packs client recus -> envoi des registres");
+    public void handleSelectKnownPacks(final ServerboundSelectKnownPacksPacket packet) {
+        LOGGER.debug("Known Packs client received -> sending registers");
         sendRegistries();
         sendTags();
         connection.send(new ClientboundFinishConfigurationPacket());
     }
 
     private void sendRegistries() {
-        RegistryHolder dynamic = server.dynamicRegistries();
+        final RegistryHolder dynamic = server.dynamicRegistries();
         if (dynamic.isEmpty()) {
-            LOGGER.warn("Aucun registre dynamique a envoyer (GeneratedRegistryData vide).");
+            LOGGER.warn("No dynamic registry to send (GeneratedRegistryData is empty).");
             return;
         }
-        for (Registry reg : dynamic.all()) {
-            if (reg.name().contains("minecraft:enchantment")) {
-                continue; // should be sent but we dont have exclusive_set tags
+        for (final Registry reg : dynamic.all()) {
+            if (reg.name().contains("minecraft:enchantment")) { // Todo
+                continue;
             }
             connection.send(new ClientboundRegistryDataPacket(reg.name(), reg.entries()));
         }
@@ -73,12 +73,12 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
     }
 
     @Override
-    public void handleFinishConfiguration(ServerboundFinishConfigurationPacket packet) {
+    public void handleFinishConfiguration(final ServerboundFinishConfigurationPacket packet) {
         connection.setState(ConnectionState.PLAY);
     }
 
     @Override
-    public void handleClientInformation(ServerboundClientInformationPacket packet) {
+    public void handleClientInformation(final ServerboundClientInformationPacket packet) {
         connection.setLocale(Locale.forLanguageTag(packet.language().replace('_', '-')));
         connection.setDisplayedSkinParts(packet.displayedSkinParts());
     }

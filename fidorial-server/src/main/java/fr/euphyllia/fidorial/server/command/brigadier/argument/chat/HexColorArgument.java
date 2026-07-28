@@ -29,7 +29,7 @@ public final class HexColorArgument<T> implements ArgumentType<T> {
 
     private final Function<Integer, T> converter;
 
-    private HexColorArgument(Function<Integer, T> converter) {
+    private HexColorArgument(final Function<Integer, T> converter) {
         this.converter = converter;
     }
 
@@ -37,15 +37,15 @@ public final class HexColorArgument<T> implements ArgumentType<T> {
         return hexColor(Function.identity());
     }
 
-    public static <T> HexColorArgument<T> hexColor(Function<Integer, T> converter) {
+    public static <T> HexColorArgument<T> hexColor(final Function<Integer, T> converter) {
         return new HexColorArgument<>(converter);
     }
 
     @Override
-    public T parse(StringReader reader) throws CommandSyntaxException {
-        String colorString = reader.readUnquotedString();
+    public T parse(final StringReader reader) throws CommandSyntaxException {
+        final String colorString = reader.readUnquotedString();
 
-        int rgb = switch (colorString.length()) {
+        final int rgb = switch (colorString.length()) {
             case 3 ->
                     rgb(
                             duplicate(hexDigit(colorString, 0)),
@@ -62,24 +62,24 @@ public final class HexColorArgument<T> implements ArgumentType<T> {
         return converter.apply(rgb);
     }
 
-    private static int hexDigit(String s, int index) {
+    private static int hexDigit(final String s, final int index) {
         return Integer.parseInt(s.substring(index, index + 1), 16);
     }
 
-    private static int duplicate(int digit) {
+    private static int duplicate(final int digit) {
         return digit * 17;
     }
 
-    private static int rgb(int r, int g, int b) {
+    private static int rgb(final int r, final int g, final int b) {
         return (r << 16) | (g << 8) | b;
     }
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(
-            CommandContext<S> context,
-            SuggestionsBuilder builder
+            final CommandContext<S> context,
+            final SuggestionsBuilder builder
     ) {
-        for (String example : EXAMPLES) {
+        for (final String example : EXAMPLES) {
             builder.suggest(example);
         }
         return builder.buildFuture();
@@ -93,20 +93,20 @@ public final class HexColorArgument<T> implements ArgumentType<T> {
     public static final class Info implements ArgumentTypeRegistrar<HexColorArgument<?>, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(HexColorArgument<?> argument) {
+        public Spec access(final HexColorArgument<?> argument) {
             return new Spec();
         }
 

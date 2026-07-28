@@ -127,7 +127,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
         synchronized (lock) {
             pending.remove(key);
             if (error != null) {
-                LOGGER.error("Chargement du chunk {},{} impossible pour {}", cx, cz, connection.username(), error);
+                LOGGER.error("Unable to load chunk {},{} for {}", cx, cz, connection.username(), error);
                 return;
             }
 

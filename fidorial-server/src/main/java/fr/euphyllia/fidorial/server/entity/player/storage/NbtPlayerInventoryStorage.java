@@ -21,39 +21,39 @@ public class NbtPlayerInventoryStorage implements PlayerInventoryStorage {
     private final Path inventoriesDir;
     private final boolean gzip;
 
-    public NbtPlayerInventoryStorage(Path playerRoot, boolean gzip) {
+    public NbtPlayerInventoryStorage(final Path playerRoot, final boolean gzip) {
         this.inventoriesDir = playerRoot.resolve("inventories");
         this.gzip = gzip;
     }
 
-    private static byte[] gzip(byte[] plain) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(plain.length);
-        try (GZIPOutputStream out = new GZIPOutputStream(baos)) {
+    private static byte[] gzip(final byte[] plain) throws IOException {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream(plain.length);
+        try (final GZIPOutputStream out = new GZIPOutputStream(baos)) {
             out.write(plain);
         }
         return baos.toByteArray();
     }
 
-    private static byte[] gunzip(byte[] compressed) throws IOException {
-        try (GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(compressed))) {
+    private static byte[] gunzip(final byte[] compressed) throws IOException {
+        try (final GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(compressed))) {
             return in.readAllBytes();
         }
     }
 
-    private Path fileFor(UUID uuid) {
+    private Path fileFor(final UUID uuid) {
         return inventoriesDir.resolve(uuid.toString());
     }
 
     @Override
-    public PlayerInventory load(UUID uuid) throws IOException {
-        Path file = fileFor(uuid);
+    public PlayerInventory load(final UUID uuid) throws IOException {
+        final Path file = fileFor(uuid);
         if (!Files.isRegularFile(file)) {
             return new PlayerInventory();
         }
 
         byte[] data = Files.readAllBytes(file);
 
-        boolean isGzip = data.length >= 2
+        final boolean isGzip = data.length >= 2
                 && data[0] == (byte) 0x1F
                 && data[1] == (byte) 0x8B;
         if (isGzip) {
@@ -63,7 +63,7 @@ public class NbtPlayerInventoryStorage implements PlayerInventoryStorage {
     }
 
     @Override
-    public void save(UUID uuid, PlayerInventory inventory) throws IOException {
+    public void save(final UUID uuid, final PlayerInventory inventory) throws IOException {
         Files.createDirectories(inventoriesDir);
 
         byte[] data = PlayerInventoryCodec.encode(inventory);
@@ -71,17 +71,17 @@ public class NbtPlayerInventoryStorage implements PlayerInventoryStorage {
             data = gzip(data);
         }
 
-        Path file = fileFor(uuid);
-        Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
+        final Path file = fileFor(uuid);
+        final Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         Files.write(tmp, data);
         try {
             Files.move(tmp, file,
                     StandardCopyOption.REPLACE_EXISTING,
                     StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException atomicFailure) {
+        } catch (final IOException atomicFailure) {
             Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING);
         }
-        LOGGER.debug("Inventaire de {} sauvegardé ({} octets{})",
+        LOGGER.debug("Inventory of {} saved ({} bytes{})",
                 uuid, data.length, gzip ? ", gzip" : "");
     }
 

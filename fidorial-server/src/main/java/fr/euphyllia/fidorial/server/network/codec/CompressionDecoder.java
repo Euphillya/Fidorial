@@ -8,6 +8,7 @@ import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
 import java.util.List;
+import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 public final class CompressionDecoder extends MessageToMessageDecoder<ByteBuf> {
@@ -15,48 +16,48 @@ public final class CompressionDecoder extends MessageToMessageDecoder<ByteBuf> {
     private final int threshold;
     private final Inflater inflater = new Inflater();
 
-    public CompressionDecoder(int threshold) {
+    public CompressionDecoder(final int threshold) {
         this.threshold = threshold;
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) {
         if (!in.isReadable()) return;
 
-        int dataLength = VarInts.readVarInt(in);
+        final int dataLength = VarInts.readVarInt(in);
         if (dataLength == 0) {
 
             out.add(in.readRetainedSlice(in.readableBytes()));
             return;
         }
         if (dataLength < threshold) {
-            throw new DecoderException("Paquet compresse sous le seuil (" + dataLength + ")");
+            throw new DecoderException("Compress packet under the threshold (" + dataLength + ")");
         }
         if (dataLength > ProtocolConstants.MAX_PACKET_SIZE) {
-            throw new DecoderException("Paquet decompresse trop grand (" + dataLength + ")");
+            throw new DecoderException("Decompressed packet is too large (" + dataLength + ")");
         }
 
-        byte[] compressed = new byte[in.readableBytes()];
+        final byte[] compressed = new byte[in.readableBytes()];
         in.readBytes(compressed);
         inflater.setInput(compressed);
 
-        byte[] decompressed = new byte[dataLength];
+        final byte[] decompressed = new byte[dataLength];
         try {
-            int produced = inflater.inflate(decompressed);
+            final int produced = inflater.inflate(decompressed);
             if (produced != dataLength) {
                 throw new DecoderException(
-                        "Taille inflatee incoherente : " + produced + " != " + dataLength);
+                        "Inconsistent inflated size : " + produced + " != " + dataLength);
             }
             out.add(ctx.alloc().buffer(dataLength).writeBytes(decompressed));
-        } catch (java.util.zip.DataFormatException e) {
-            throw new DecoderException("Flux zlib invalide", e);
+        } catch (final DataFormatException e) {
+            throw new DecoderException("Invalid zlib stream", e);
         } finally {
             inflater.reset();
         }
     }
 
     @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) {
+    public void handlerRemoved(final ChannelHandlerContext ctx) {
         inflater.end();
     }
 }

@@ -11,7 +11,7 @@ public final class NetworkArgumentIds {
     private NetworkArgumentIds() {
     }
 
-    public static void register(int id, ArgumentTypeRegistrar<?, ?> registrar) {
+    public static void register(final int id, final ArgumentTypeRegistrar<?, ?> registrar) {
         if (BY_ID.put(id, registrar) != null) {
             throw new IllegalStateException("Duplicate network id: " + id);
         }
@@ -21,8 +21,8 @@ public final class NetworkArgumentIds {
         }
     }
 
-    public static int getId(ArgumentTypeRegistrar<?, ?> registrar) {
-        Integer id = IDS.get(registrar);
+    public static int getId(final ArgumentTypeRegistrar<?, ?> registrar) {
+        final Integer id = IDS.get(registrar);
 
         if (id == null) {
             throw new IllegalArgumentException(
@@ -32,8 +32,8 @@ public final class NetworkArgumentIds {
         return id;
     }
 
-    public static ArgumentTypeRegistrar<?, ?> byId(int id) {
-        ArgumentTypeRegistrar<?, ?> registrar = BY_ID.get(id);
+    public static ArgumentTypeRegistrar<?, ?> byId(final int id) {
+        final ArgumentTypeRegistrar<?, ?> registrar = BY_ID.get(id);
 
         if (registrar == null) {
             throw new IllegalArgumentException("Unknown network argument id: " + id);

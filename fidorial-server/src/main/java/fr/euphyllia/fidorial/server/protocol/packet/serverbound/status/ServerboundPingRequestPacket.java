@@ -1,18 +1,18 @@
 package fr.euphyllia.fidorial.server.protocol.packet.serverbound.status;
 
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
-import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
-import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.StatusPacketListener;
+import fr.fidorial.protocol.PacketListener;
+import fr.fidorial.protocol.ServerboundPacket;
 
 public record ServerboundPingRequestPacket(long payload) implements ServerboundPacket {
 
-    public static ServerboundPingRequestPacket read(PacketBuffer buf) {
+    public static ServerboundPingRequestPacket read(final PacketBuffer buf) {
         return new ServerboundPingRequestPacket(buf.readLong());
     }
 
     @Override
-    public void handle(PacketListener listener) {
+    public void handle(final PacketListener listener) {
         ((StatusPacketListener) listener).handlePingRequest(this);
     }
 }

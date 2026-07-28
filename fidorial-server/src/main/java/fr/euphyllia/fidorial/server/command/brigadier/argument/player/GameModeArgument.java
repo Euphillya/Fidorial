@@ -38,10 +38,10 @@ public final class GameModeArgument implements ArgumentType<GameMode> {
     }
 
     @Override
-    public GameMode parse(StringReader reader) throws CommandSyntaxException {
-        String input = reader.readUnquotedString();
+    public GameMode parse(final StringReader reader) throws CommandSyntaxException {
+        final String input = reader.readUnquotedString();
 
-        GameMode mode = GameMode.byName(input);
+        final GameMode mode = GameMode.byName(input);
         if (mode == null) {
             throw ERROR_INVALID.createWithContext(reader, input);
         }
@@ -50,11 +50,11 @@ public final class GameModeArgument implements ArgumentType<GameMode> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        String remaining = builder.getRemaining().toLowerCase();
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        final String remaining = builder.getRemaining().toLowerCase();
 
-        for (GameMode mode : GameMode.values()) {
-            String name = mode.name().toLowerCase();
+        for (final GameMode mode : GameMode.values()) {
+            final String name = mode.name().toLowerCase();
             if (name.startsWith(remaining)) {
                 builder.suggest(name);
             }
@@ -71,20 +71,20 @@ public final class GameModeArgument implements ArgumentType<GameMode> {
     public static final class Info implements ArgumentTypeRegistrar<GameModeArgument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(GameModeArgument argument) {
+        public Spec access(final GameModeArgument argument) {
             return new Spec();
         }
 

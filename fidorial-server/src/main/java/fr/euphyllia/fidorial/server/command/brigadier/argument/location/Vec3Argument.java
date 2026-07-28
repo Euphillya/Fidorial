@@ -24,7 +24,7 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
 
     private final boolean centerCorrect;
 
-    public Vec3Argument(boolean centerCorrect) {
+    public Vec3Argument(final boolean centerCorrect) {
         this.centerCorrect = centerCorrect;
     }
 
@@ -32,28 +32,28 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
         return new Vec3Argument(true);
     }
 
-    public static Location getPosition(CommandContext<CommandSource> context, String name) {
+    public static Location getPosition(final CommandContext<CommandSource> context, final String name) {
         return context.getArgument(name, PositionResolver.class).resolve(context.getSource());
     }
 
     @Override
-    public PositionResolver parse(StringReader reader) throws CommandSyntaxException {
+    public PositionResolver parse(final StringReader reader) throws CommandSyntaxException {
         if (reader.canRead() && reader.peek() == '^') {
-            LocalCoords coords = LocalCoords.parse(reader);
+            final LocalCoords coords = LocalCoords.parse(reader);
             return coords::resolve;
         }
 
-        Coordinate x = Coordinate.parse(reader);
+        final Coordinate x = Coordinate.parse(reader);
         reader.expect(' ');
-        Coordinate y = Coordinate.parse(reader);
+        final Coordinate y = Coordinate.parse(reader);
         reader.expect(' ');
-        Coordinate z = Coordinate.parse(reader);
+        final Coordinate z = Coordinate.parse(reader);
 
         return source -> {
-            Location origin = source.location();
+            final Location origin = source.location();
 
             double px = x.resolve(origin.x());
-            double py = y.resolve(origin.y());
+            final double py = y.resolve(origin.y());
             double pz = z.resolve(origin.z());
 
             if (centerCorrect && !x.relative() && !y.relative() && !z.relative()) {
@@ -67,15 +67,15 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(
-            CommandContext<S> context,
-            SuggestionsBuilder builder
+            final CommandContext<S> context,
+            final SuggestionsBuilder builder
     ) {
-        if (!(context.getSource() instanceof CommandSource source)
+        if (!(context.getSource() instanceof final CommandSource source)
                 || !(source.sender() instanceof ServerPlayer)) {
             return Suggestions.empty();
         }
 
-        Location loc = source.location();
+        final Location loc = source.location();
 
         return CommonPositionSuggestions.suggest(
                 builder,
@@ -92,7 +92,7 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
 
     private record Coordinate(double value, boolean relative) {
 
-        static Coordinate parse(StringReader reader) throws CommandSyntaxException {
+        static Coordinate parse(final StringReader reader) throws CommandSyntaxException {
 
             boolean relative = false;
 
@@ -105,12 +105,12 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
                 }
             }
 
-            double value = reader.readDouble();
+            final double value = reader.readDouble();
 
             return new Coordinate(value, relative);
         }
 
-        double resolve(double origin) {
+        double resolve(final double origin) {
             return relative ? origin + value : value;
         }
     }
@@ -122,20 +122,20 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
     public static final class Info implements ArgumentTypeRegistrar<Vec3Argument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(Vec3Argument argument) {
+        public Spec access(final Vec3Argument argument) {
             return new Spec();
         }
 

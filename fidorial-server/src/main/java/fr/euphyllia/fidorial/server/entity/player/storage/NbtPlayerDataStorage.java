@@ -25,49 +25,49 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
     private final Path dataDir;
     private final boolean gzip;
 
-    public NbtPlayerDataStorage(Path playerRoot, boolean gzip) {
+    public NbtPlayerDataStorage(final Path playerRoot, final boolean gzip) {
         this.dataDir = playerRoot.resolve("data");
         this.gzip = gzip;
     }
 
-    private static byte[] gzip(byte[] plain) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(plain.length);
-        try (GZIPOutputStream out = new GZIPOutputStream(baos)) {
+    private static byte[] gzip(final byte[] plain) throws IOException {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream(plain.length);
+        try (final GZIPOutputStream out = new GZIPOutputStream(baos)) {
             out.write(plain);
         }
         return baos.toByteArray();
     }
 
-    private static byte[] gunzip(byte[] compressed) throws IOException {
-        try (GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(compressed))) {
+    private static byte[] gunzip(final byte[] compressed) throws IOException {
+        try (final GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(compressed))) {
             return in.readAllBytes();
         }
     }
 
-    private Path fileFor(UUID uuid) {
+    private Path fileFor(final UUID uuid) {
         return dataDir.resolve(uuid.toString());
     }
 
     @Override
-    public PlayerData load(UUID uuid, PlayerData defaults) throws IOException {
-        Path file = fileFor(uuid);
+    public PlayerData load(final UUID uuid, final PlayerData defaults) throws IOException {
+        final Path file = fileFor(uuid);
         if (!Files.isRegularFile(file)) {
             return defaults;
         }
 
         byte[] data = Files.readAllBytes(file);
 
-        boolean isGzip = data.length >= 2 && data[0] == (byte) 0x1F && data[1] == (byte) 0x8B;
+        final boolean isGzip = data.length >= 2 && data[0] == (byte) 0x1F && data[1] == (byte) 0x8B;
         if (isGzip) {
             data = gunzip(data);
         }
 
-        NbtIo.Named named = NbtIo.readFromBytes(data);
-        NbtCompound root = named.compound();
+        final NbtIo.Named named = NbtIo.readFromBytes(data);
+        final NbtCompound root = named.compound();
 
         GameMode gameMode = defaults.gameMode();
         if (root.contains("playerGameModeId")) {
-            GameMode stored = GameMode.byId(root.getInt("playerGameModeId"));
+            final GameMode stored = GameMode.byId(root.getInt("playerGameModeId"));
             if (stored != null) {
                 gameMode = stored;
             }
@@ -76,10 +76,10 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
     }
 
     @Override
-    public void save(UUID uuid, PlayerData data) throws IOException {
+    public void save(final UUID uuid, final PlayerData data) throws IOException {
         Files.createDirectories(dataDir);
 
-        NbtCompound root = new NbtCompound();
+        final NbtCompound root = new NbtCompound();
         root.putInt("DataVersion", AnvilChunkSerializer.DATA_VERSION_26_2);
         root.putInt("playerGameModeId", data.gameMode().id());
 
@@ -88,15 +88,15 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
             bytes = gzip(bytes);
         }
 
-        Path file = fileFor(uuid);
-        Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
+        final Path file = fileFor(uuid);
+        final Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
         Files.write(tmp, bytes);
         try {
             Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException atomicFailure) {
+        } catch (final IOException atomicFailure) {
             Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING);
         }
-        LOGGER.debug("Donnees de {} sauvegardées ({} octets{})", uuid, bytes.length, gzip ? ", gzip" : "");
+        LOGGER.debug("Data for {} saved ({} bytes{})", uuid, bytes.length, gzip ? ", gzip" : "");
     }
 
     public Path dataDir() {

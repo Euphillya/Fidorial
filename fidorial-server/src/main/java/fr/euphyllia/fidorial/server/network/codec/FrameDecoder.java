@@ -11,7 +11,7 @@ import java.util.List;
 public final class FrameDecoder extends ByteToMessageDecoder {
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) {
         in.markReaderIndex();
 
         int length = 0;
@@ -20,7 +20,7 @@ public final class FrameDecoder extends ByteToMessageDecoder {
                 in.resetReaderIndex();
                 return;
             }
-            byte b = in.readByte();
+            final byte b = in.readByte();
             length |= (b & 0x7F) << (i * 7);
             if ((b & 0x80) == 0) {
                 if (length < 0 || length > ProtocolConstants.MAX_PACKET_SIZE) {

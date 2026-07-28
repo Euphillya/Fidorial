@@ -14,17 +14,17 @@ public record DoubleRange(Double min, Double max) {
     public static final SimpleCommandExceptionType ERROR_SWAPPED = new SimpleCommandExceptionType(
             MSG_SERIALIZER.serialize(Component.translatable("argument.range.swapped")));
 
-    public static DoubleRange exact(double value) {
+    public static DoubleRange exact(final double value) {
         return new DoubleRange(value, value);
     }
 
-    public static DoubleRange fromReader(StringReader reader) throws CommandSyntaxException {
+    public static DoubleRange fromReader(final StringReader reader) throws CommandSyntaxException {
         if (!reader.canRead()) {
             throw ERROR_EMPTY.createWithContext(reader);
         }
 
-        int start = reader.getCursor();
-        Double min = readNumberOrNull(reader);
+        final int start = reader.getCursor();
+        final Double min = readNumberOrNull(reader);
         Double max = min;
 
         if (reader.canRead(2) && reader.peek() == '.' && reader.peek(1) == '.') {
@@ -49,37 +49,37 @@ public record DoubleRange(Double min, Double max) {
         return new DoubleRange(min, max);
     }
 
-    private static Double readNumberOrNull(StringReader reader) {
-        int start = reader.getCursor();
+    private static Double readNumberOrNull(final StringReader reader) {
+        final int start = reader.getCursor();
 
         while (reader.canRead() && isAllowedNumber(reader)) {
             reader.skip();
         }
 
-        String number = reader.getString().substring(start, reader.getCursor());
+        final String number = reader.getString().substring(start, reader.getCursor());
         if (number.isEmpty()) {
             return null;
         }
 
         try {
             return Double.parseDouble(number);
-        } catch (NumberFormatException ex) {
+        } catch (final NumberFormatException ex) {
             return null;
         }
     }
 
-    private static boolean isAllowedNumber(StringReader reader) {
-        char c = reader.peek();
+    private static boolean isAllowedNumber(final StringReader reader) {
+        final char c = reader.peek();
         return (c >= '0' && c <= '9') || c == '-'
                 || (c == '.' && !(reader.canRead(2) && reader.peek(1) == '.'));
     }
 
-    public boolean matches(double value) {
+    public boolean matches(final double value) {
         if (this.min != null && value < this.min) return false;
         return this.max == null || !(value > this.max);
     }
 
-    public boolean matchesSqr(double valueSqr) {
+    public boolean matchesSqr(final double valueSqr) {
         if (this.min != null && valueSqr < this.min * this.min) return false;
         return this.max == null || !(valueSqr > this.max * this.max);
     }

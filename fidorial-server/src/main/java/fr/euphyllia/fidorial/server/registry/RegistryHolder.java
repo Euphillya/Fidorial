@@ -13,11 +13,11 @@ public final class RegistryHolder {
 
     private final Map<String, Registry> registries;
 
-    private RegistryHolder(Map<String, Registry> registries) {
+    private RegistryHolder(final Map<String, Registry> registries) {
         this.registries = registries;
     }
 
-    public static RegistryHolder of(Map<String, Registry> registries) {
+    public static RegistryHolder of(final Map<String, Registry> registries) {
         return new RegistryHolder(Collections.unmodifiableMap(new LinkedHashMap<>(registries)));
     }
 
@@ -37,12 +37,12 @@ public final class RegistryHolder {
         return registries.values();
     }
 
-    public @Nullable Registry get(String name) {
+    public @Nullable Registry get(final String name) {
         return registries.get(name);
     }
 
-    public int networkId(String registry, String entry) {
-        Registry reg = registries.get(registry);
+    public int networkId(final String registry, final String entry) {
+        final Registry reg = registries.get(registry);
         return reg == null ? -1 : reg.networkId(entry);
     }
 

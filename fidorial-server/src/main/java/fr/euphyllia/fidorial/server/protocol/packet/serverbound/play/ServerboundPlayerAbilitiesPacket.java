@@ -1,16 +1,16 @@
 package fr.euphyllia.fidorial.server.protocol.packet.serverbound.play;
 
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
-import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
-import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
+import fr.fidorial.protocol.PacketListener;
+import fr.fidorial.protocol.ServerboundPacket;
 
 public record ServerboundPlayerAbilitiesPacket(boolean flying) implements ServerboundPacket {
 
     public static final byte FLAG_FLYING = 0x02;
 
-    public static ServerboundPlayerAbilitiesPacket read(PacketBuffer buf) {
-        byte flags = buf.readByte();
+    public static ServerboundPlayerAbilitiesPacket read(final PacketBuffer buf) {
+        final byte flags = buf.readByte();
         return new ServerboundPlayerAbilitiesPacket((flags & FLAG_FLYING) != 0);
     }
 
@@ -19,7 +19,7 @@ public record ServerboundPlayerAbilitiesPacket(boolean flying) implements Server
     }
 
     @Override
-    public void handle(PacketListener listener) {
+    public void handle(final PacketListener listener) {
         ((PlayPacketListener) listener).handlePlayerAbilities(this);
     }
 }

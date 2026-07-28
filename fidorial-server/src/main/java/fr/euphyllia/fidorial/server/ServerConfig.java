@@ -132,7 +132,7 @@ public record ServerConfig(
                 readProxyMode(props, "proxy-mode", defaults.proxyMode()),
                 readString(props, "velocity-secret", "").strip(),
                 readBool(props, "use-io-uring", false));
-        LOGGER.info("Configuration chargee depuis {}", file);
+        LOGGER.info("Configuration loaded from {}", file);
         return config;
     }
 

@@ -32,21 +32,21 @@ public class AnvilEntitySerializer {
         this(AnvilChunkSerializer.DATA_VERSION_26_2);
     }
 
-    public AnvilEntitySerializer(int dataVersion) {
+    public AnvilEntitySerializer(final int dataVersion) {
         this.dataVersion = dataVersion;
     }
 
-    public static boolean isPersistable(AbstractEntity entity) {
+    public static boolean isPersistable(final AbstractEntity entity) {
         return entity instanceof Mob && !entity.isRemoved();
     }
 
-    public NbtCompound toChunkNbt(int chunkX, int chunkZ, Collection<? extends AbstractEntity> entities) {
-        NbtCompound root = new NbtCompound();
+    public NbtCompound toChunkNbt(final int chunkX, final int chunkZ, final Collection<? extends AbstractEntity> entities) {
+        final NbtCompound root = new NbtCompound();
         root.putInt("DataVersion", dataVersion);
         root.putIntArray("Position", new int[] {chunkX, chunkZ});
 
-        NbtList list = new NbtList(NbtType.COMPOUND);
-        for (AbstractEntity entity : entities) {
+        final NbtList list = new NbtList(NbtType.COMPOUND);
+        for (final AbstractEntity entity : entities) {
             if (isPersistable(entity)) {
                 list.add(toNbt(entity));
             }
@@ -55,15 +55,15 @@ public class AnvilEntitySerializer {
         return root;
     }
 
-    public NbtCompound toNbt(AbstractEntity entity) {
-        NbtCompound c = new NbtCompound();
+    public NbtCompound toNbt(final AbstractEntity entity) {
+        final NbtCompound c = new NbtCompound();
         c.putString("id", entity.type().key().asString());
         c.putIntArray("UUID", uuidToInts(entity.uuid()));
 
-        Location loc = entity.location();
+        final Location loc = entity.location();
         c.put("Pos", doubleList(loc.x(), loc.y(), loc.z()));
 
-        if (entity instanceof PathfinderMob mob) {
+        if (entity instanceof final PathfinderMob mob) {
             c.put("Motion", doubleList(mob.velocityX(), mob.velocityY(), mob.velocityZ()));
             c.putBoolean("OnGround", mob.onGround());
         } else {
@@ -76,24 +76,24 @@ public class AnvilEntitySerializer {
         c.putShort("Fire", -20);
         c.putShort("Air", 300);
 
-        if (entity instanceof LivingEntity living) {
+        if (entity instanceof final LivingEntity living) {
             c.putFloat("Health", living.health());
         }
         return c;
     }
 
-    public List<AbstractEntity> fromChunkNbt(NbtCompound root, World world, IntSupplier idAllocator) {
-        List<AbstractEntity> result = new ArrayList<>();
+    public List<AbstractEntity> fromChunkNbt(final NbtCompound root, final World world, final IntSupplier idAllocator) {
+        final List<AbstractEntity> result = new ArrayList<>();
         if (root == null) {
             return result;
         }
-        NbtList entities = root.getList("Entities");
+        final NbtList entities = root.getList("Entities");
         if (entities == null) {
             return result;
         }
-        for (Nbt tag : entities.items()) {
-            if (tag instanceof NbtCompound entry) {
-                AbstractEntity entity = fromNbt(entry, world, idAllocator);
+        for (final Nbt tag : entities.items()) {
+            if (tag instanceof final NbtCompound entry) {
+                final AbstractEntity entity = fromNbt(entry, world, idAllocator);
                 if (entity != null) {
                     result.add(entity);
                 }
@@ -103,41 +103,41 @@ public class AnvilEntitySerializer {
     }
 
     @SuppressWarnings("PatternValidation")
-    public AbstractEntity fromNbt(NbtCompound c, World world, IntSupplier idAllocator) {
-        String id = c.getString("id");
+    public AbstractEntity fromNbt(final NbtCompound c, final World world, final IntSupplier idAllocator) {
+        final String id = c.getString("id");
         if (id.isEmpty()) {
             return null;
         }
-        EntityType type = EntityTypes.get(Key.key(id));
+        final EntityType type = EntityTypes.get(Key.key(id));
         if (type == null || !Mobs.isMob(type)) {
             return null;
         }
 
-        NbtList pos = c.getList("Pos");
-        NbtList rot = c.getList("Rotation");
-        double x = doubleAt(pos, 0);
-        double y = doubleAt(pos, 1);
-        double z = doubleAt(pos, 2);
-        float yaw = floatAt(rot, 0);
-        float pitch = floatAt(rot, 1);
-        Location location = new Location(x, y, z, yaw, pitch);
+        final NbtList pos = c.getList("Pos");
+        final NbtList rot = c.getList("Rotation");
+        final double x = doubleAt(pos, 0);
+        final double y = doubleAt(pos, 1);
+        final double z = doubleAt(pos, 2);
+        final float yaw = floatAt(rot, 0);
+        final float pitch = floatAt(rot, 1);
+        final Location location = new Location(x, y, z, yaw, pitch);
 
-        Mob mob = Mobs.create(type, idAllocator.getAsInt(), world, location);
+        final Mob mob = Mobs.create(type, idAllocator.getAsInt(), world, location);
 
-        int[] uuid = c.getIntArray("UUID");
+        final int[] uuid = c.getIntArray("UUID");
         if (uuid.length == 4) {
             mob.restoreUuid(uuidFromInts(uuid));
         }
 
         if (c.contains("Health")) {
-            float health = c.getFloat("Health");
+            final float health = c.getFloat("Health");
             if (health > 0f) {
                 mob.setHealth(health);
             }
         }
 
-        if (mob instanceof PathfinderMob pathfinder) {
-            NbtList motion = c.getList("Motion");
+        if (mob instanceof final PathfinderMob pathfinder) {
+            final NbtList motion = c.getList("Motion");
             if (motion != null && motion.size() == 3) {
                 pathfinder.setVelocity(doubleAt(motion, 0), doubleAt(motion, 1), doubleAt(motion, 2));
             }
@@ -148,44 +148,44 @@ public class AnvilEntitySerializer {
         return mob;
     }
 
-    private static NbtList doubleList(double a, double b, double c) {
-        NbtList list = new NbtList(NbtType.DOUBLE);
+    private static NbtList doubleList(final double a, final double b, final double c) {
+        final NbtList list = new NbtList(NbtType.DOUBLE);
         list.add(new NbtDouble(a));
         list.add(new NbtDouble(b));
         list.add(new NbtDouble(c));
         return list;
     }
 
-    private static NbtList floatList(float a, float b) {
-        NbtList list = new NbtList(NbtType.FLOAT);
+    private static NbtList floatList(final float a, final float b) {
+        final NbtList list = new NbtList(NbtType.FLOAT);
         list.add(new NbtFloat(a));
         list.add(new NbtFloat(b));
         return list;
     }
 
-    private static double doubleAt(NbtList list, int index) {
+    private static double doubleAt(final NbtList list, final int index) {
         if (list == null || index >= list.size()) {
             return 0.0;
         }
-        return list.get(index) instanceof NbtDouble(double value) ? value : 0.0;
+        return list.get(index) instanceof NbtDouble(final double value) ? value : 0.0;
     }
 
-    private static float floatAt(NbtList list, int index) {
+    private static float floatAt(final NbtList list, final int index) {
         if (list == null || index >= list.size()) {
             return 0f;
         }
-        return list.get(index) instanceof NbtFloat(float value) ? value : 0f;
+        return list.get(index) instanceof NbtFloat(final float value) ? value : 0f;
     }
 
-    static int[] uuidToInts(UUID uuid) {
-        long msb = uuid.getMostSignificantBits();
-        long lsb = uuid.getLeastSignificantBits();
+    static int[] uuidToInts(final UUID uuid) {
+        final long msb = uuid.getMostSignificantBits();
+        final long lsb = uuid.getLeastSignificantBits();
         return new int[] {(int) (msb >> 32), (int) msb, (int) (lsb >> 32), (int) lsb};
     }
 
-    static UUID uuidFromInts(int[] ints) {
-        long msb = ((long) ints[0] << 32) | (ints[1] & 0xFFFFFFFFL);
-        long lsb = ((long) ints[2] << 32) | (ints[3] & 0xFFFFFFFFL);
+    static UUID uuidFromInts(final int[] ints) {
+        final long msb = ((long) ints[0] << 32) | (ints[1] & 0xFFFFFFFFL);
+        final long lsb = ((long) ints[2] << 32) | (ints[3] & 0xFFFFFFFFL);
         return new UUID(msb, lsb);
     }
 }

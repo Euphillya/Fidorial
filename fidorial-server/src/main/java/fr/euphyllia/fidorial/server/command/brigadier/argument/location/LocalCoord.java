@@ -5,7 +5,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 public record LocalCoord(double value) {
 
-    static LocalCoord parse(StringReader reader)
+    static LocalCoord parse(final StringReader reader)
             throws CommandSyntaxException {
 
         reader.expect('^');

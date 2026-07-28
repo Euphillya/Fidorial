@@ -18,7 +18,7 @@ import static fr.fidorial.command.Commands.literal;
 
 public final class GameModeCommand {
 
-    private static Component describe(GameMode mode) {
+    private static Component describe(final GameMode mode) {
         return switch (mode) {
             case SURVIVAL -> Component.translatable("gamemode.survival");
             case CREATIVE -> Component.translatable("gamemode.creative");
@@ -37,8 +37,8 @@ public final class GameModeCommand {
                 .build();
     }
 
-    private static int executeSelf(CommandContext<CommandSource> context) {
-        if (!(context.getSource().sender() instanceof Player sender)) {
+    private static int executeSelf(final CommandContext<CommandSource> context) {
+        if (!(context.getSource().sender() instanceof final Player sender)) {
             context.getSource().sender().sendMessage(Component.translatable("command.gamemode.console"));
             return Command.SINGLE_SUCCESS;
         }
@@ -46,20 +46,20 @@ public final class GameModeCommand {
         return change(context, List.of(sender));
     }
 
-    private static int executeTarget(CommandContext<CommandSource> context) throws CommandSyntaxException {
+    private static int executeTarget(final CommandContext<CommandSource> context) throws CommandSyntaxException {
 
-        var resolver = context.getArgument("target", PlayerSelectorArgumentResolver.class);
+        final var resolver = context.getArgument("target", PlayerSelectorArgumentResolver.class);
 
-        List<Player> targets = resolver.resolve(context.getSource());
+        final List<Player> targets = resolver.resolve(context.getSource());
 
         return change(context, targets);
     }
 
-    private static int change(CommandContext<CommandSource> context, List<Player> targets) {
+    private static int change(final CommandContext<CommandSource> context, final List<Player> targets) {
 
-        GameMode mode = context.getArgument("gamemode", GameMode.class);
+        final GameMode mode = context.getArgument("gamemode", GameMode.class);
 
-        for (Player target : targets) {
+        for (final Player target : targets) {
             target.setGameMode(mode);
 
             target.sendMessage(Component.translatable("command.gamemode.changed.self", describe(mode)));

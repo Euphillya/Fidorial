@@ -1,4 +1,4 @@
-package fr.euphyllia.fidorial.server.protocol.packet;
+package fr.fidorial.protocol;
 
 public interface PacketListener {
 

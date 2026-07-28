@@ -16,7 +16,7 @@ public final class ChunkColumn {
     private long lastUpdate;
     private String status = "minecraft:full";
 
-    public ChunkColumn(int chunkX, int chunkZ, int minY, int height, BlockState fillBlock, String fillBiome) {
+    public ChunkColumn(final int chunkX, final int chunkZ, final int minY, final int height, final BlockState fillBlock, final String fillBiome) {
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
         this.minY = minY;
@@ -57,8 +57,8 @@ public final class ChunkColumn {
         return sections;
     }
 
-    public void putSection(ChunkSection s) {
-        int idx = s.sectionY() - minSectionY;
+    public void putSection(final ChunkSection s) {
+        final int idx = s.sectionY() - minSectionY;
         if (idx >= 0 && idx < sectionCount) {
             sections[idx] = s;
         }
@@ -68,7 +68,7 @@ public final class ChunkColumn {
         return inhabitedTime;
     }
 
-    public void setInhabitedTime(long t) {
+    public void setInhabitedTime(final long t) {
         this.inhabitedTime = t;
     }
 
@@ -76,7 +76,7 @@ public final class ChunkColumn {
         return lastUpdate;
     }
 
-    public void setLastUpdate(long t) {
+    public void setLastUpdate(final long t) {
         this.lastUpdate = t;
     }
 
@@ -84,31 +84,31 @@ public final class ChunkColumn {
         return status;
     }
 
-    public void setStatus(String s) {
+    public void setStatus(final String s) {
         this.status = s;
     }
 
-    private @Nullable ChunkSection sectionForY(int worldY) {
-        int idx = (worldY >> 4) - minSectionY;
+    private @Nullable ChunkSection sectionForY(final int worldY) {
+        final int idx = (worldY >> 4) - minSectionY;
         if (idx < 0 || idx >= sectionCount) return null;
         return sections[idx];
     }
 
-    public void setBlock(int localX, int worldY, int localZ, BlockState state) {
-        ChunkSection s = sectionForY(worldY);
+    public void setBlock(final int localX, final int worldY, final int localZ, final BlockState state) {
+        final ChunkSection s = sectionForY(worldY);
         if (s != null) {
             s.setBlock(localX, worldY & 15, localZ, state);
         }
     }
 
-    public BlockState getBlock(int localX, int worldY, int localZ) {
-        ChunkSection s = sectionForY(worldY);
+    public BlockState getBlock(final int localX, final int worldY, final int localZ) {
+        final ChunkSection s = sectionForY(worldY);
         return s == null ? BlockState.AIR : s.getBlock(localX, worldY & 15, localZ);
     }
 
-    public long[] computeHeightmap(java.util.function.Predicate<BlockState> solid) {
-        int bits = BitPacking.bitsFor(height + 1, 1);
-        int[] values = new int[256];
+    public long[] computeHeightmap(final java.util.function.Predicate<BlockState> solid) {
+        final int bits = BitPacking.bitsFor(height + 1, 1);
+        final int[] values = new int[256];
         for (int z = 0; z < 16; z++) {
             for (int x = 0; x < 16; x++) {
                 int top = minY;

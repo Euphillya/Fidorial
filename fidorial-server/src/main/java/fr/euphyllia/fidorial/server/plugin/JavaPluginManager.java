@@ -2,7 +2,7 @@ package fr.euphyllia.fidorial.server.plugin;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import fr.euphyllia.fidorial.server.event.SimpleEventBus;
+import fr.euphyllia.fidorial.server.events.SimpleEventBus;
 import fr.fidorial.Server;
 import fr.fidorial.permission.PermissionDefinition;
 import fr.fidorial.permission.PermissionNode;
@@ -87,7 +87,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         for (final Candidate candidate : sortByDependencies(candidates)) {
             instantiate(candidate);
         }
-        LOGGER.info("{} plugin(s) charge(s)", plugins.size());
+        LOGGER.info("{} plugin(s) loaded", plugins.size());
     }
 
     public void enableAll() {
@@ -112,7 +112,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             try {
                 loaded.plugin.onDisable();
             } catch (final Throwable t) {
-                LOGGER.error("Erreur pendant onDisable de {}", loaded.meta.id(), t);
+                LOGGER.error("Error during onDisable of {}", loaded.meta.id(), t);
             } finally {
                 loaded.enabled = false;
                 events.unsubscribeAll(loaded.plugin);
@@ -146,7 +146,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             try {
                 loaded.classLoader.close();
             } catch (final IOException e) {
-                LOGGER.warn("Fermeture du classloader de {} impossible", loaded.meta.id(), e);
+                LOGGER.warn("Unable to close the classloader for {}", loaded.meta.id(), e);
             }
         }
         plugins.clear();
@@ -169,7 +169,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                         declaration.operator()));
                 nodes.add(node);
             } catch (final IllegalArgumentException e) {
-                LOGGER.error("Permission '{}' du plugin {} invalide", entry.getKey(), meta.id(), e);
+                LOGGER.error("Invalid plugin {} permission '{}'", entry.getKey(), meta.id(), e);
             }
         }
         if (!definitions.isEmpty()) {
@@ -195,7 +195,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                     getClass().getClassLoader());
             try (final InputStream in = classLoader.getResourceAsStream(DESCRIPTOR)) {
                 if (in == null) {
-                    LOGGER.warn("{} ignore : pas de {} a la racine", jar.getFileName(), DESCRIPTOR);
+                    LOGGER.warn("{} ignored: no {} at the root", jar.getFileName(), DESCRIPTOR);
                     classLoader.close();
                     return Optional.empty();
                 }
@@ -203,9 +203,9 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                 return Optional.of(new Candidate(meta, classLoader));
             }
         } catch (final JsonSyntaxException | NullPointerException | IllegalArgumentException e) {
-            LOGGER.error("{} ignore : {} invalide", jar.getFileName(), DESCRIPTOR, e);
+            LOGGER.error("{} ignored : {} invalid", jar.getFileName(), DESCRIPTOR, e);
         } catch (final IOException e) {
-            LOGGER.error("{} illisible", jar.getFileName(), e);
+            LOGGER.error("{} illegible", jar.getFileName(), e);
         }
         closeQuietly(classLoader);
         return Optional.empty();
@@ -216,7 +216,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         try {
             final Class<?> mainClass = Class.forName(meta.main(), true, candidate.classLoader);
             if (!Plugin.class.isAssignableFrom(mainClass)) {
-                LOGGER.error("{} ignore : {} n'implemente pas Plugin", meta.id(), meta.main());
+                LOGGER.error("{} ignored: {} does not implement Plugin", meta.id(), meta.main());
                 candidate.classLoader.close();
                 return;
             }
@@ -227,7 +227,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             events.withOwner(plugin, () -> plugin.onLoad(context));
             plugins.put(meta.id(), new Loaded(meta, plugin, candidate.classLoader));
         } catch (final Throwable t) {
-            LOGGER.error("Chargement de {} impossible", meta.id(), t);
+            LOGGER.error("Unable to load {}", meta.id(), t);
             closeQuietly(candidate.classLoader);
         }
     }
@@ -239,7 +239,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         final Map<String, Candidate> byId = new HashMap<>();
         for (final Candidate candidate : candidates) {
             if (byId.putIfAbsent(candidate.meta.id(), candidate) != null) {
-                LOGGER.error("Deux plugins declarent l'id '{}', le second est ignore", candidate.meta.id());
+                LOGGER.error("Two plugins declare the ID '{}'; the second one is ignored.", candidate.meta.id());
                 closeQuietly(candidate.classLoader);
             }
         }
@@ -264,7 +264,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             return;
         }
         if (!visiting.add(id)) {
-            LOGGER.error("Dependance cyclique detectee autour de '{}', plugin ignore", id);
+            LOGGER.error("Cyclic dependency detected around '{}', plugin ignore", id);
             return;
         }
         for (final String dependency : candidate.meta.depends()) {

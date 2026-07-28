@@ -15,20 +15,20 @@ public class FluidBlockCodec {
     private FluidBlockCodec() {
     }
 
-    public static FluidState fromBlock(@Nullable BlockState block) {
+    public static FluidState fromBlock(@Nullable final BlockState block) {
         if (block == null) {
             return FluidState.empty();
         }
-        FluidType type = FluidType.byBlockKey(block.name());
+        final FluidType type = FluidType.byBlockKey(block.name());
         if (type == null) {
             return FluidState.empty();
         }
-        String raw = block.properties().get(LEVEL);
+        final String raw = block.properties().get(LEVEL);
         int level = 0;
         if (raw != null) {
             try {
                 level = Integer.parseInt(raw);
-            } catch (NumberFormatException ignored) {
+            } catch (final NumberFormatException ignored) {
             }
         }
         if (level >= FALLING_OFFSET) {
@@ -37,15 +37,15 @@ public class FluidBlockCodec {
         return new FluidState(type, level, false);
     }
 
-    public static BlockState toBlock(FluidState state) {
+    public static BlockState toBlock(final FluidState state) {
         if (state.type() == null) {
             return BlockState.AIR;
         }
-        int level = state.falling() ? FALLING_OFFSET : clamp(state.level());
+        final int level = state.falling() ? FALLING_OFFSET : clamp(state.level());
         return new BlockState(state.type().blockKey().asString(), Map.of(LEVEL, String.valueOf(level)));
     }
 
-    private static int clamp(int level) {
+    private static int clamp(final int level) {
         return Math.clamp(level, 0, 7);
     }
 }

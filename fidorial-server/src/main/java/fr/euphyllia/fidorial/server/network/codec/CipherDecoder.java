@@ -11,13 +11,13 @@ public final class CipherDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     private final Cipher cipher;
 
-    public CipherDecoder(Cipher cipher) {
+    public CipherDecoder(final Cipher cipher) {
         this.cipher = cipher;
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
-        byte[] input = new byte[msg.readableBytes()];
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf msg, final List<Object> out) throws Exception {
+        final byte[] input = new byte[msg.readableBytes()];
         msg.readBytes(input);
         out.add(ctx.alloc().buffer().writeBytes(cipher.update(input)));
     }

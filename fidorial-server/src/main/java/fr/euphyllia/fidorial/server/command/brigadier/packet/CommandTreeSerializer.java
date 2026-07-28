@@ -35,10 +35,10 @@ public final class CommandTreeSerializer {
     private CommandTreeSerializer() {
     }
 
-    public static void write(PacketBuffer buf, RootCommandNode<CommandSource> root) {
-        List<CommandNode<CommandSource>> nodes = enumerate(root);
+    public static void write(final PacketBuffer buf, final RootCommandNode<CommandSource> root) {
+        final List<CommandNode<CommandSource>> nodes = enumerate(root);
 
-        Map<CommandNode<CommandSource>, Integer> ids = new IdentityHashMap<>();
+        final Map<CommandNode<CommandSource>, Integer> ids = new IdentityHashMap<>();
 
         for (int i = 0; i < nodes.size(); i++) {
             ids.put(nodes.get(i), i);
@@ -46,24 +46,24 @@ public final class CommandTreeSerializer {
 
         buf.writeVarInt(nodes.size());
 
-        for (CommandNode<CommandSource> node : nodes) {
+        for (final CommandNode<CommandSource> node : nodes) {
             writeNode(buf, node, ids);
         }
 
         buf.writeVarInt(ids.get(root));
     }
 
-    private static List<CommandNode<CommandSource>> enumerate(RootCommandNode<CommandSource> root) {
-        List<CommandNode<CommandSource>> nodes = new ArrayList<>();
+    private static List<CommandNode<CommandSource>> enumerate(final RootCommandNode<CommandSource> root) {
+        final List<CommandNode<CommandSource>> nodes = new ArrayList<>();
 
-        Map<CommandNode<CommandSource>, Integer> ids = new IdentityHashMap<>();
+        final Map<CommandNode<CommandSource>, Integer> ids = new IdentityHashMap<>();
 
-        Queue<CommandNode<CommandSource>> queue = new ArrayDeque<>();
+        final Queue<CommandNode<CommandSource>> queue = new ArrayDeque<>();
 
         queue.add(root);
 
         while (!queue.isEmpty()) {
-            CommandNode<CommandSource> node = queue.poll();
+            final CommandNode<CommandSource> node = queue.poll();
 
             if (ids.containsKey(node)) {
                 continue;
@@ -83,9 +83,9 @@ public final class CommandTreeSerializer {
     }
 
     private static void writeNode(
-            PacketBuffer buf,
-            CommandNode<CommandSource> node,
-            Map<CommandNode<CommandSource>, Integer> ids
+            final PacketBuffer buf,
+            final CommandNode<CommandSource> node,
+            final Map<CommandNode<CommandSource>, Integer> ids
     ) {
 
         int flags = 0;
@@ -108,13 +108,13 @@ public final class CommandTreeSerializer {
             flags |= FLAG_RESTRICTED;
         }
 
-        if (node instanceof ArgumentCommandNode<?, ?> argument && argument.getCustomSuggestions() != null) {
+        if (node instanceof final ArgumentCommandNode<?, ?> argument && argument.getCustomSuggestions() != null) {
             flags |= FLAG_CUSTOM_SUGGESTIONS;
         }
 
         buf.writeByte(flags);
 
-        int[] children = node.getChildren().stream()
+        final int[] children = node.getChildren().stream()
                 .filter(ids::containsKey)
                 .mapToInt(ids::get)
                 .toArray();
@@ -126,8 +126,8 @@ public final class CommandTreeSerializer {
         }
 
         switch (node) {
-            case LiteralCommandNode<?> literal -> buf.writeString(literal.getLiteral());
-            case ArgumentCommandNode<?, ?> argument -> {
+            case final LiteralCommandNode<?> literal -> buf.writeString(literal.getLiteral());
+            case final ArgumentCommandNode<?, ?> argument -> {
                 buf.writeString(argument.getName());
 
                 writeArgumentType(buf, argument.getType());
@@ -143,10 +143,10 @@ public final class CommandTreeSerializer {
         }
     }
 
-    public static RootCommandNode<CommandSource> filter(RootCommandNode<CommandSource> root, CommandSource source) {
-        Map<CommandNode<CommandSource>, CommandNode<CommandSource>> converted = new IdentityHashMap<>();
+    public static RootCommandNode<CommandSource> filter(final RootCommandNode<CommandSource> root, final CommandSource source) {
+        final Map<CommandNode<CommandSource>, CommandNode<CommandSource>> converted = new IdentityHashMap<>();
 
-        RootCommandNode<CommandSource> result = new RootCommandNode<>();
+        final RootCommandNode<CommandSource> result = new RootCommandNode<>();
         converted.put(root, result);
 
         fillUsableCommands(root, result, source, converted);
@@ -155,23 +155,23 @@ public final class CommandTreeSerializer {
     }
 
     private static void fillUsableCommands(
-            CommandNode<CommandSource> from,
-            CommandNode<CommandSource> to,
-            CommandSource source,
-            Map<CommandNode<CommandSource>, CommandNode<CommandSource>> converted
+            final CommandNode<CommandSource> from,
+            final CommandNode<CommandSource> to,
+            final CommandSource source,
+            final Map<CommandNode<CommandSource>, CommandNode<CommandSource>> converted
     ) {
-        for (CommandNode<CommandSource> child : from.getChildren()) {
+        for (final CommandNode<CommandSource> child : from.getChildren()) {
             if (!child.canUse(source)) {
                 continue;
             }
 
-            var builder = child.createBuilder();
+            final var builder = child.createBuilder();
 
             if (child.getRedirect() != null) {
                 builder.redirect(converted.get(child.getRedirect()));
             }
 
-            CommandNode<CommandSource> copy = builder.build();
+            final CommandNode<CommandSource> copy = builder.build();
 
             converted.put(child, copy);
             to.addChild(copy);
@@ -196,7 +196,7 @@ public final class CommandTreeSerializer {
         registrar.serialize(spec, buf);
     }
 
-    private static boolean isRestricted(CommandNode<CommandSource> node) {
+    private static boolean isRestricted(final CommandNode<CommandSource> node) {
         return !node.getRequirement().test(NO_PERMISSION_SOURCE);
     }
 }

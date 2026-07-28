@@ -19,7 +19,7 @@ public final class EntityTypeRegistry implements Registry<EntityType> {
     private final Map<TypedKey<EntityType>, Integer> networkIds = new ConcurrentHashMap<>();
 
     public EntityTypeRegistry() {
-        for (EntityType type : EntityTypes.values()) {
+        for (final EntityType type : EntityTypes.values()) {
             register(type, EntityTypes.networkId(type));
         }
     }
@@ -30,17 +30,17 @@ public final class EntityTypeRegistry implements Registry<EntityType> {
     }
 
     @Override
-    public EntityType get(TypedKey<EntityType> key) {
+    public EntityType get(final TypedKey<EntityType> key) {
         return entries.get(key);
     }
 
     @Override
-    public Optional<EntityType> find(TypedKey<EntityType> key) {
+    public Optional<EntityType> find(final TypedKey<EntityType> key) {
         return Optional.ofNullable(entries.get(key));
     }
 
     @Override
-    public TypedKey<EntityType> key(EntityType value) {
+    public TypedKey<EntityType> key(final EntityType value) {
         return TypedKey.create(registryKey(), value.key());
     }
 
@@ -54,12 +54,12 @@ public final class EntityTypeRegistry implements Registry<EntityType> {
         return entries.values().stream();
     }
 
-    public EntityType register(EntityType type) {
+    public EntityType register(final EntityType type) {
         return register(type, -1);
     }
 
-    public EntityType register(EntityType type, int networkId) {
-        TypedKey<EntityType> key = key(type);
+    public EntityType register(final EntityType type, final int networkId) {
+        final TypedKey<EntityType> key = key(type);
 
         if (entries.putIfAbsent(key, type) != null) {
             throw new IllegalStateException("Duplicate entity type: " + type.key());
@@ -72,8 +72,8 @@ public final class EntityTypeRegistry implements Registry<EntityType> {
         return type;
     }
 
-    public int networkId(EntityType type) {
-        Integer id = networkIds.get(key(type));
+    public int networkId(final EntityType type) {
+        final Integer id = networkIds.get(key(type));
 
         if (id == null) {
             throw new IllegalStateException("Missing network id for " + type.key());
@@ -82,7 +82,7 @@ public final class EntityTypeRegistry implements Registry<EntityType> {
         return id;
     }
 
-    public boolean hasNetworkId(EntityType type) {
+    public boolean hasNetworkId(final EntityType type) {
         return networkIds.containsKey(key(type));
     }
 }

@@ -29,34 +29,34 @@ public final class SummonCommand {
                                 .executes(SummonCommand::executeCoordinates))).build();
     }
 
-    private static int executeSelf(CommandContext<CommandSource> context) {
+    private static int executeSelf(final CommandContext<CommandSource> context) {
 
-        if (!(context.getSource().sender() instanceof ServerPlayer player)) {
+        if (!(context.getSource().sender() instanceof final ServerPlayer player)) {
             context.getSource().sender().sendMessage(Component.translatable("command.summon.console"));
             return Command.SINGLE_SUCCESS;
         }
 
         return summon(
                 context,
-                player.world() instanceof ServerWorld world
+                player.world() instanceof final ServerWorld world
                         ? world
                         : FidorialServer.getInstance().worldManager().overworld(),
                 player.location());
     }
 
-    private static int executeCoordinates(CommandContext<CommandSource> context) {
-        Location location = context.getArgument("position", PositionResolver.class).resolve(context.getSource());
+    private static int executeCoordinates(final CommandContext<CommandSource> context) {
+        final Location location = context.getArgument("position", PositionResolver.class).resolve(context.getSource());
 
-        ServerWorld world = context.getSource().sender() instanceof ServerPlayer player
-                        && player.world() instanceof ServerWorld serverWorld
+        final ServerWorld world = context.getSource().sender() instanceof final ServerPlayer player
+                        && player.world() instanceof final ServerWorld serverWorld
                 ? serverWorld
                 : FidorialServer.getInstance().worldManager().overworld();
 
         return summon(context, world, location);
     }
 
-    private static int summon(CommandContext<CommandSource> context, ServerWorld world, Location location) {
-        EntityType entity = context.getArgument("entity", EntityType.class);
+    private static int summon(final CommandContext<CommandSource> context, final ServerWorld world, final Location location) {
+        final EntityType entity = context.getArgument("entity", EntityType.class);
 
         if (!Mobs.isMob(entity)) {
             context.getSource()
@@ -66,9 +66,9 @@ public final class SummonCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        FidorialServer server = FidorialServer.getInstance();
+        final FidorialServer server = FidorialServer.getInstance();
 
-        Mob mob = Mobs.create(entity, server.entityIds().allocate(), world, location);
+        final Mob mob = Mobs.create(entity, server.entityIds().allocate(), world, location);
 
         server.spawnEntity(mob);
 

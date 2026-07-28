@@ -32,7 +32,7 @@ public final class DimensionArgument<T> implements ArgumentType<T> {
 
     private final Function<Key, T> converter;
 
-    private DimensionArgument(Function<Key, T> converter) {
+    private DimensionArgument(final Function<Key, T> converter) {
         this.converter = converter;
     }
 
@@ -40,20 +40,20 @@ public final class DimensionArgument<T> implements ArgumentType<T> {
         return dimension(Function.identity());
     }
 
-    public static <T> DimensionArgument<T> dimension(Function<Key, T> converter) {
+    public static <T> DimensionArgument<T> dimension(final Function<Key, T> converter) {
         return new DimensionArgument<>(converter);
     }
 
     @Override
-    public T parse(StringReader reader) throws CommandSyntaxException {
-        int start = reader.getCursor();
+    public T parse(final StringReader reader) throws CommandSyntaxException {
+        final int start = reader.getCursor();
 
         while (reader.canRead() && isAllowedInKey(reader.peek())) {
             reader.skip();
         }
 
-        String input = reader.getString().substring(start, reader.getCursor());
-        String full = input.contains(":") ? input : "minecraft:" + input;
+        final String input = reader.getString().substring(start, reader.getCursor());
+        final String full = input.contains(":") ? input : "minecraft:" + input;
 
         if (!Key.parseable(full)) {
             reader.setCursor(start);
@@ -63,13 +63,13 @@ public final class DimensionArgument<T> implements ArgumentType<T> {
         return converter.apply(Key.key(full));
     }
 
-    private boolean isAllowedInKey(char c) {
+    private boolean isAllowedInKey(final char c) {
         return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        for (World world : FidorialServer.getInstance().worldManager().worlds()) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        for (final World world : FidorialServer.getInstance().worldManager().worlds()) {
             builder.suggest(world.key().asString());
         }
         return builder.buildFuture();
@@ -83,20 +83,20 @@ public final class DimensionArgument<T> implements ArgumentType<T> {
     public static final class Info implements ArgumentTypeRegistrar<DimensionArgument<?>, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(DimensionArgument<?> argument) {
+        public Spec access(final DimensionArgument<?> argument) {
             return new Spec();
         }
 

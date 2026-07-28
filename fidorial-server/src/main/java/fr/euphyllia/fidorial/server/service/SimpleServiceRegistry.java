@@ -18,34 +18,34 @@ public final class SimpleServiceRegistry implements ServiceRegistry {
     private final Map<Class<?>, List<Provider<?>>> providers = new ConcurrentHashMap<>();
 
     @Override
-    public <T> void register(Class<T> service, T implementation, Object owner, ServicePriority priority) {
+    public <T> void register(final Class<T> service, final T implementation, final Object owner, final ServicePriority priority) {
         if (!service.isInstance(implementation)) {
             throw new IllegalArgumentException(
-                    implementation.getClass().getName() + " n'implemente pas " + service.getName());
+                    implementation.getClass().getName() + " does not implement " + service.getName());
         }
-        List<Provider<?>> list = providers.computeIfAbsent(service, s -> new ArrayList<>());
+        final List<Provider<?>> list = providers.computeIfAbsent(service, s -> new ArrayList<>());
         synchronized (list) {
             list.add(new Provider<>(implementation, owner, priority));
             list.sort(Comparator.comparing((Provider<?> p) -> p.priority).reversed());
         }
         LOGGER.debug(
-                "Service {} fourni par {} (priorite {})",
+                "Service {} provided by {} (priority {})",
                 service.getSimpleName(),
                 implementation.getClass().getName(),
                 priority);
     }
 
     @Override
-    public <T> T get(Class<T> service) {
+    public <T> T get(final Class<T> service) {
         return find(service)
                 .orElseThrow(
-                        () -> new IllegalStateException("Aucune implementation enregistree pour " + service.getName()));
+                        () -> new IllegalStateException("No implementation recorded for " + service.getName()));
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> find(Class<T> service) {
-        List<Provider<?>> list = providers.get(service);
+    public <T> Optional<T> find(final Class<T> service) {
+        final List<Provider<?>> list = providers.get(service);
         if (list == null) {
             return Optional.empty();
         }
@@ -55,8 +55,8 @@ public final class SimpleServiceRegistry implements ServiceRegistry {
     }
 
     @Override
-    public void unregisterAll(Object owner) {
-        for (List<Provider<?>> list : providers.values()) {
+    public void unregisterAll(final Object owner) {
+        for (final List<Provider<?>> list : providers.values()) {
             synchronized (list) {
                 list.removeIf(p -> p.owner == owner);
             }

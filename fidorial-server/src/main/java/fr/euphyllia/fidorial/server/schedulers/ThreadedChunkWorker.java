@@ -22,23 +22,23 @@ public class ThreadedChunkWorker implements AsyncChunkLoader {
 
     private final Map<String, CompletableFuture<ChunkColumn>> inFlight = new ConcurrentHashMap<>();
 
-    public ThreadedChunkWorker(int workerThreads) {
-        AtomicInteger id = new AtomicInteger();
+    public ThreadedChunkWorker(final int workerThreads) {
+        final AtomicInteger id = new AtomicInteger();
         this.workers = Executors.newScheduledThreadPool(
                 workerThreads, r -> new Thread(r, "fidorial-chunk-worker-" + id.incrementAndGet()));
         LOGGER.info("Chunk pool started with {} workers", workerThreads);
     }
 
-    private static String key(ServerWorld world, int chunkX, int chunkZ) {
+    private static String key(final ServerWorld world, final int chunkX, final int chunkZ) {
         return world.dimension().id() + ":" + chunkX + "," + chunkZ;
     }
 
     @Override
-    public CompletableFuture<ChunkColumn> loadAsync(ServerWorld world, int chunkX, int chunkZ) {
-        String key = key(world, chunkX, chunkZ);
+    public CompletableFuture<ChunkColumn> loadAsync(final ServerWorld world, final int chunkX, final int chunkZ) {
+        final String key = key(world, chunkX, chunkZ);
 
-        CompletableFuture<ChunkColumn> promise = new CompletableFuture<>();
-        CompletableFuture<ChunkColumn> existing = inFlight.putIfAbsent(key, promise);
+        final CompletableFuture<ChunkColumn> promise = new CompletableFuture<>();
+        final CompletableFuture<ChunkColumn> existing = inFlight.putIfAbsent(key, promise);
         if (existing != null) {
             return existing;
         }
@@ -47,9 +47,9 @@ public class ThreadedChunkWorker implements AsyncChunkLoader {
                         () -> {
                             try {
                                 return world.getChunk(chunkX, chunkZ);
-                            } catch (IOException e) {
+                            } catch (final IOException e) {
                                 throw new RuntimeException(
-                                        "Chargement du chunk " + chunkX + "," + chunkZ + " impossible", e);
+                                        "Unable to load chunk " + chunkX + "," + chunkZ, e);
                             }
                         },
                         workers)
@@ -71,7 +71,7 @@ public class ThreadedChunkWorker implements AsyncChunkLoader {
             if (!workers.awaitTermination(5, TimeUnit.SECONDS)) {
                 workers.shutdownNow();
             }
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             workers.shutdownNow();
             Thread.currentThread().interrupt();
         }

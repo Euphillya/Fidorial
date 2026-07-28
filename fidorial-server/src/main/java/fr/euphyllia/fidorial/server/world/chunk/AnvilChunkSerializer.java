@@ -22,12 +22,12 @@ public class AnvilChunkSerializer {
         this(DATA_VERSION_26_2);
     }
 
-    public AnvilChunkSerializer(int dataVersion) {
+    public AnvilChunkSerializer(final int dataVersion) {
         this.dataVersion = dataVersion;
     }
 
-    public NbtCompound toNbt(ChunkColumn chunk) {
-        NbtCompound root = new NbtCompound();
+    public NbtCompound toNbt(final ChunkColumn chunk) {
+        final NbtCompound root = new NbtCompound();
         root.putInt("DataVersion", dataVersion);
         root.putInt("xPos", chunk.chunkX());
         root.putInt("zPos", chunk.chunkZ());
@@ -38,13 +38,13 @@ public class AnvilChunkSerializer {
 
         root.putBoolean("isLightOn", false);
 
-        NbtList sections = new NbtList(NbtType.COMPOUND);
-        for (ChunkSection section : chunk.sections()) {
+        final NbtList sections = new NbtList(NbtType.COMPOUND);
+        for (final ChunkSection section : chunk.sections()) {
             sections.add(sectionToNbt(section));
         }
         root.put("sections", sections);
 
-        NbtCompound heightmaps = new NbtCompound();
+        final NbtCompound heightmaps = new NbtCompound();
         heightmaps.putLongArray("MOTION_BLOCKING", chunk.computeHeightmap(bs -> !bs.isAir()));
         heightmaps.putLongArray("WORLD_SURFACE", chunk.computeHeightmap(bs -> !bs.isAir()));
         root.put("Heightmaps", heightmaps);
@@ -55,31 +55,31 @@ public class AnvilChunkSerializer {
         return root;
     }
 
-    private NbtCompound sectionToNbt(ChunkSection section) {
-        NbtCompound c = new NbtCompound();
+    private NbtCompound sectionToNbt(final ChunkSection section) {
+        final NbtCompound c = new NbtCompound();
         c.putByte("Y", section.sectionY());
 
         // block_states
-        NbtCompound blockStates = new NbtCompound();
-        NbtList blockPalette = new NbtList(NbtType.COMPOUND);
-        for (BlockState state : section.blocks().palette()) {
+        final NbtCompound blockStates = new NbtCompound();
+        final NbtList blockPalette = new NbtList(NbtType.COMPOUND);
+        for (final BlockState state : section.blocks().palette()) {
             blockPalette.add(blockStateToNbt(state));
         }
         blockStates.put("palette", blockPalette);
-        long[] blockData = section.blocks().packedData();
+        final long[] blockData = section.blocks().packedData();
         if (blockData != null) {
             blockStates.putLongArray("tool/data", blockData);
         }
         c.put("block_states", blockStates);
 
         // biomes
-        NbtCompound biomes = new NbtCompound();
-        NbtList biomePalette = new NbtList(NbtType.STRING);
-        for (String biome : section.biomes().palette()) {
+        final NbtCompound biomes = new NbtCompound();
+        final NbtList biomePalette = new NbtList(NbtType.STRING);
+        for (final String biome : section.biomes().palette()) {
             biomePalette.addString(biome);
         }
         biomes.put("palette", biomePalette);
-        long[] biomeData = section.biomes().packedData();
+        final long[] biomeData = section.biomes().packedData();
         if (biomeData != null) {
             biomes.putLongArray("tool/data", biomeData);
         }
@@ -88,12 +88,12 @@ public class AnvilChunkSerializer {
         return c;
     }
 
-    private NbtCompound blockStateToNbt(BlockState state) {
-        NbtCompound c = new NbtCompound();
+    private NbtCompound blockStateToNbt(final BlockState state) {
+        final NbtCompound c = new NbtCompound();
         c.putString("Name", state.name());
         if (!state.properties().isEmpty()) {
-            NbtCompound props = new NbtCompound();
-            for (var e : state.properties().entrySet()) {
+            final NbtCompound props = new NbtCompound();
+            for (final var e : state.properties().entrySet()) {
                 props.putString(e.getKey(), e.getValue());
             }
             c.put("Properties", props);
@@ -101,20 +101,20 @@ public class AnvilChunkSerializer {
         return c;
     }
 
-    public ChunkColumn fromNbt(NbtCompound root, int minY, int height, BlockState defaultBlock, String defaultBiome) {
-        int chunkX = root.getInt("xPos");
-        int chunkZ = root.getInt("zPos");
+    public ChunkColumn fromNbt(final NbtCompound root, final int minY, final int height, final BlockState defaultBlock, final String defaultBiome) {
+        final int chunkX = root.getInt("xPos");
+        final int chunkZ = root.getInt("zPos");
 
-        ChunkColumn chunk = new ChunkColumn(chunkX, chunkZ, minY, height, defaultBlock, defaultBiome);
+        final ChunkColumn chunk = new ChunkColumn(chunkX, chunkZ, minY, height, defaultBlock, defaultBiome);
         chunk.setStatus(root.contains("Status") ? root.getString("Status") : "minecraft:full");
         chunk.setInhabitedTime(root.getLong("InhabitedTime"));
         chunk.setLastUpdate(root.getLong("LastUpdate"));
 
-        NbtList sections = root.getList("sections");
+        final NbtList sections = root.getList("sections");
         if (sections != null) {
-            for (Nbt tag : sections.items()) {
-                if (tag instanceof NbtCompound sc) {
-                    ChunkSection section = sectionFromNbt(sc, defaultBlock, defaultBiome);
+            for (final Nbt tag : sections.items()) {
+                if (tag instanceof final NbtCompound sc) {
+                    final ChunkSection section = sectionFromNbt(sc, defaultBlock, defaultBiome);
                     if (section != null) chunk.putSection(section);
                 }
             }
@@ -122,19 +122,19 @@ public class AnvilChunkSerializer {
         return chunk;
     }
 
-    private @Nullable ChunkSection sectionFromNbt(NbtCompound c, BlockState defaultBlock, String defaultBiome) {
+    private @Nullable ChunkSection sectionFromNbt(final NbtCompound c, final BlockState defaultBlock, final String defaultBiome) {
         if (!c.contains("Y")) return null;
-        int sectionY = c.getByte("Y");
+        final int sectionY = c.getByte("Y");
 
         // block_states
-        List<BlockState> blockPalette = new ArrayList<>();
+        final List<BlockState> blockPalette = new ArrayList<>();
         long[] blockData = new long[0];
-        NbtCompound bs = c.getCompound("block_states");
+        final NbtCompound bs = c.getCompound("block_states");
         if (bs != null) {
-            NbtList pal = bs.getList("palette");
+            final NbtList pal = bs.getList("palette");
             if (pal != null) {
-                for (Nbt t : pal.items()) {
-                    if (t instanceof NbtCompound entry) {
+                for (final Nbt t : pal.items()) {
+                    if (t instanceof final NbtCompound entry) {
                         blockPalette.add(blockStateFromNbt(entry));
                     }
                 }
@@ -142,38 +142,38 @@ public class AnvilChunkSerializer {
             blockData = bs.getLongArray("tool/data");
         }
         if (blockPalette.isEmpty()) blockPalette.add(defaultBlock);
-        PalettedContainer<BlockState> blocks =
+        final PalettedContainer<BlockState> blocks =
                 PalettedContainer.fromNbt(ChunkSection.BLOCK_COUNT, 4, blockPalette, blockData);
 
         // biomes
-        List<String> biomePalette = new ArrayList<>();
+        final List<String> biomePalette = new ArrayList<>();
         long[] biomeData = new long[0];
-        NbtCompound bio = c.getCompound("biomes");
+        final NbtCompound bio = c.getCompound("biomes");
         if (bio != null) {
-            NbtList pal = bio.getList("palette");
+            final NbtList pal = bio.getList("palette");
             if (pal != null) {
-                for (Nbt t : pal.items()) {
-                    if (t instanceof NbtString(String value)) biomePalette.add(value);
+                for (final Nbt t : pal.items()) {
+                    if (t instanceof NbtString(final String value)) biomePalette.add(value);
                 }
             }
             biomeData = bio.getLongArray("tool/data");
         }
         if (biomePalette.isEmpty()) biomePalette.add(defaultBiome);
-        PalettedContainer<String> biomes =
+        final PalettedContainer<String> biomes =
                 PalettedContainer.fromNbt(ChunkSection.BIOME_COUNT, 1, biomePalette, biomeData);
 
         return new ChunkSection(sectionY, blocks, biomes);
     }
 
-    private BlockState blockStateFromNbt(NbtCompound c) {
-        String name = c.getString("Name");
-        NbtCompound props = c.getCompound("Properties");
+    private BlockState blockStateFromNbt(final NbtCompound c) {
+        final String name = c.getString("Name");
+        final NbtCompound props = c.getCompound("Properties");
         if (props == null || props.tags().isEmpty()) {
             return BlockState.of(name);
         }
-        Map<String, String> map = new TreeMap<>();
-        for (var e : props.tags().entrySet()) {
-            if (e.getValue() instanceof NbtString(String value)) {
+        final Map<String, String> map = new TreeMap<>();
+        for (final var e : props.tags().entrySet()) {
+            if (e.getValue() instanceof NbtString(final String value)) {
                 map.put(e.getKey(), value);
             }
         }

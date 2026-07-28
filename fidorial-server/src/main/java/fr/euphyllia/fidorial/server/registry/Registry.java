@@ -12,15 +12,15 @@ public record Registry(String name, List<String> entries, Map<String, List<Strin
         tags = Collections.unmodifiableMap(new LinkedHashMap<>(tags));
     }
 
-    public static Registry of(String name, List<String> entries) {
+    public static Registry of(final String name, final List<String> entries) {
         return new Registry(name, entries, Map.of());
     }
 
-    public int networkId(String entry) {
+    public int networkId(final String entry) {
         return entries.indexOf(entry);
     }
 
-    public boolean contains(String entry) {
+    public boolean contains(final String entry) {
         return entries.contains(entry);
     }
 

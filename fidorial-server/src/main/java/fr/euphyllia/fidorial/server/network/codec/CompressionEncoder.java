@@ -12,35 +12,35 @@ public final class CompressionEncoder extends MessageToByteEncoder<ByteBuf> {
     private final int threshold;
     private final Deflater deflater = new Deflater(Deflater.DEFAULT_COMPRESSION);
 
-    public CompressionEncoder(int threshold) {
+    public CompressionEncoder(final int threshold) {
         this.threshold = threshold;
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) {
-        int uncompressed = msg.readableBytes();
+    protected void encode(final ChannelHandlerContext ctx, final ByteBuf msg, final ByteBuf out) {
+        final int uncompressed = msg.readableBytes();
         if (uncompressed < threshold) {
             VarInts.writeVarInt(out, 0);
             out.writeBytes(msg);
             return;
         }
 
-        byte[] input = new byte[uncompressed];
+        final byte[] input = new byte[uncompressed];
         msg.readBytes(input);
 
         VarInts.writeVarInt(out, uncompressed);
         deflater.setInput(input);
         deflater.finish();
-        byte[] buffer = new byte[8192];
+        final byte[] buffer = new byte[8192];
         while (!deflater.finished()) {
-            int n = deflater.deflate(buffer);
+            final int n = deflater.deflate(buffer);
             out.writeBytes(buffer, 0, n);
         }
         deflater.reset();
     }
 
     @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) {
+    public void handlerRemoved(final ChannelHandlerContext ctx) {
         deflater.end();
     }
 }

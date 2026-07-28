@@ -26,7 +26,7 @@ public class OperatorList {
     private final Path file;
     private final Map<UUID, Entry> operators = new ConcurrentHashMap<>();
 
-    public OperatorList(Path file) {
+    public OperatorList(final Path file) {
         this.file = Objects.requireNonNull(file, "file");
     }
 
@@ -34,35 +34,35 @@ public class OperatorList {
         if (!Files.exists(file)) {
             return;
         }
-        try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            List<Entry> entries = GSON.fromJson(reader, new TypeToken<List<Entry>>() {}.getType());
+        try (final Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+            final List<Entry> entries = GSON.fromJson(reader, new TypeToken<List<Entry>>() {}.getType());
             operators.clear();
             if (entries != null) {
-                for (Entry entry : entries) {
+                for (final Entry entry : entries) {
                     operators.put(entry.uuid, entry);
                 }
             }
-            LOGGER.info("{} operateur(s) charge(s)", operators.size());
-        } catch (Exception e) {
-            LOGGER.error("Lecture de {} impossible", file, e);
+            LOGGER.info("There are currently {} op", operators.size());
+        } catch (final Exception e) {
+            LOGGER.error("Unable to read {}", file, e);
         }
     }
 
     public synchronized void save() {
-        try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+        try (final Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             GSON.toJson(new ArrayList<>(operators.values()), writer);
-        } catch (IOException e) {
-            LOGGER.error("Sauvegarde de {} impossible", file, e);
+        } catch (final IOException e) {
+            LOGGER.error("Unable to save {}", file, e);
         }
     }
 
-    public boolean isOp(UUID uuid) {
+    public boolean isOp(final UUID uuid) {
         return operators.containsKey(uuid);
     }
 
-    public boolean setOp(UUID uuid, String name, boolean value) {
+    public boolean setOp(final UUID uuid, final String name, final boolean value) {
         Objects.requireNonNull(uuid, "uuid");
-        boolean changed;
+        final boolean changed;
         if (value) {
             changed = operators.putIfAbsent(uuid, new Entry(uuid, name)) == null;
         } else {

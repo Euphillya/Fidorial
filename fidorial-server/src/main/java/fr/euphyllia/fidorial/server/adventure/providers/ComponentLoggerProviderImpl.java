@@ -11,7 +11,7 @@ import java.util.Locale;
 
 public class ComponentLoggerProviderImpl implements ComponentLoggerProvider {
     @Override
-    public ComponentLogger logger(ComponentLoggerProvider.LoggerHelper helper, String name) {
+    public ComponentLogger logger(final ComponentLoggerProvider.LoggerHelper helper, final String name) {
         return helper.delegating(LoggerFactory.getLogger(name), this::serialize);
     }
 

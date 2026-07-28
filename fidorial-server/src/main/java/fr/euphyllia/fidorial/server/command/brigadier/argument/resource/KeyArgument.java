@@ -27,14 +27,14 @@ public final class KeyArgument implements ArgumentType<Key> {
     }
 
     @Override
-    public Key parse(StringReader reader) throws CommandSyntaxException {
-        int start = reader.getCursor();
+    public Key parse(final StringReader reader) throws CommandSyntaxException {
+        final int start = reader.getCursor();
 
         while (reader.canRead() && isAllowedInKey(reader.peek())) {
             reader.skip();
         }
 
-        String input = reader.getString().substring(start, reader.getCursor());
+        final String input = reader.getString().substring(start, reader.getCursor());
 
         if (!Key.parseable(input)) {
             reader.setCursor(start);
@@ -44,7 +44,7 @@ public final class KeyArgument implements ArgumentType<Key> {
         return Key.key(input);
     }
 
-    private boolean isAllowedInKey(char c) {
+    private boolean isAllowedInKey(final char c) {
         return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
     }
 
@@ -56,20 +56,20 @@ public final class KeyArgument implements ArgumentType<Key> {
     public static final class Info implements ArgumentTypeRegistrar<KeyArgument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(KeyArgument argument) {
+        public Spec access(final KeyArgument argument) {
             return new Spec();
         }
 

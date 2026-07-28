@@ -23,7 +23,7 @@ public final class WeatherCommand {
     private WeatherCommand() {
     }
 
-    private static Component describe(Weather weather) {
+    private static Component describe(final Weather weather) {
         return switch (weather) {
             case CLEAR -> Component.translatable("weather.clear");
             case RAIN -> Component.translatable("weather.rain");
@@ -41,7 +41,7 @@ public final class WeatherCommand {
                 .build();
     }
 
-    private static LiteralCommandNode<CommandSource> weather(String name, Weather weather) {
+    private static LiteralCommandNode<CommandSource> weather(final String name, final Weather weather) {
         return literal(name)
                 .executes(context -> set(context.getSource(), weather, 0))
                 .then(argument("duration", ArgumentTypes.time(0))
@@ -50,16 +50,16 @@ public final class WeatherCommand {
                 .build();
     }
 
-    private static int get(CommandContext<CommandSource> context) {
-        WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
+    private static int get(final CommandContext<CommandSource> context) {
+        final WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
         context.getSource()
                 .sender()
                 .sendMessage(Component.translatable("command.weather.current", describe(weather.weather())));
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int set(CommandSource source, Weather target, int durationTicks) {
-        WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
+    private static int set(final CommandSource source, final Weather target, final int durationTicks) {
+        final WeatherEngine weather = FidorialServer.getInstance().weatherEngine();
         weather.setWeather(target, durationTicks);
 
         if (durationTicks > 0) {

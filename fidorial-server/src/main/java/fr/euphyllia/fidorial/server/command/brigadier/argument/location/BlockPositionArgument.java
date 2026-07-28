@@ -29,19 +29,19 @@ public final class BlockPositionArgument implements ArgumentType<BlockPosResolve
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(
-            CommandContext<S> context,
-            SuggestionsBuilder builder
+            final CommandContext<S> context,
+            final SuggestionsBuilder builder
     ) {
-        if (!(context.getSource() instanceof CommandSource source)
+        if (!(context.getSource() instanceof final CommandSource source)
                 || !(source.sender() instanceof ServerPlayer)) {
             return Suggestions.empty();
         }
 
-        Location loc = source.location();
+        final Location loc = source.location();
 
-        int x = (int) Math.floor(loc.x());
-        int y = (int) Math.floor(loc.y());
-        int z = (int) Math.floor(loc.z());
+        final int x = (int) Math.floor(loc.x());
+        final int y = (int) Math.floor(loc.y());
+        final int z = (int) Math.floor(loc.z());
 
         return CommonPositionSuggestions.suggest(
                 builder,
@@ -52,11 +52,11 @@ public final class BlockPositionArgument implements ArgumentType<BlockPosResolve
     }
 
     @Override
-    public BlockPosResolver parse(StringReader reader) throws CommandSyntaxException {
+    public BlockPosResolver parse(final StringReader reader) throws CommandSyntaxException {
         if (reader.canRead() && reader.peek() == '^') {
-            LocalCoords coords = LocalCoords.parse(reader);
+            final LocalCoords coords = LocalCoords.parse(reader);
             return source -> {
-                Location loc = coords.resolve(source);
+                final Location loc = coords.resolve(source);
 
                 return new BlockPos(
                         (int) Math.floor(loc.x()),
@@ -66,18 +66,18 @@ public final class BlockPositionArgument implements ArgumentType<BlockPosResolve
             };
         }
 
-        Coordinate x = Coordinate.parse(reader);
+        final Coordinate x = Coordinate.parse(reader);
         reader.expect(' ');
-        Coordinate y = Coordinate.parse(reader);
+        final Coordinate y = Coordinate.parse(reader);
         reader.expect(' ');
-        Coordinate z = Coordinate.parse(reader);
+        final Coordinate z = Coordinate.parse(reader);
 
         return source -> {
-            Location origin = source.location();
+            final Location origin = source.location();
 
-            double px = x.resolve(origin.x());
-            double py = y.resolve(origin.y());
-            double pz = z.resolve(origin.z());
+            final double px = x.resolve(origin.x());
+            final double py = y.resolve(origin.y());
+            final double pz = z.resolve(origin.z());
 
             return new BlockPos(
                     (int) Math.floor(px),
@@ -94,7 +94,7 @@ public final class BlockPositionArgument implements ArgumentType<BlockPosResolve
 
     private record Coordinate(double value, boolean relative) {
 
-        static Coordinate parse(StringReader reader) throws CommandSyntaxException {
+        static Coordinate parse(final StringReader reader) throws CommandSyntaxException {
             boolean relative = false;
 
             if (reader.canRead() && reader.peek() == '~') {
@@ -106,11 +106,11 @@ public final class BlockPositionArgument implements ArgumentType<BlockPosResolve
                 }
             }
 
-            double value = reader.readDouble();
+            final double value = reader.readDouble();
             return new Coordinate(value, relative);
         }
 
-        double resolve(double origin) {
+        double resolve(final double origin) {
             return relative ? origin + value : value;
         }
     }
@@ -118,20 +118,20 @@ public final class BlockPositionArgument implements ArgumentType<BlockPosResolve
     public static final class Info implements ArgumentTypeRegistrar<BlockPositionArgument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(BlockPositionArgument argument) {
+        public Spec access(final BlockPositionArgument argument) {
             return new Spec();
         }
 

@@ -9,12 +9,12 @@ import net.kyori.adventure.text.Component;
 public final class MessageComponentSerializerImpl implements MessageComponentSerializer {
 
     @Override
-    public Component deserialize(Message input) {
+    public Component deserialize(final Message input) {
         return BrigadierAdventureHelper.convert(input, false);
     }
 
     @Override
-    public Message serialize(Component component) {
+    public Message serialize(final Component component) {
         return new FidorialTranslatableMessage(component);
     }
 }

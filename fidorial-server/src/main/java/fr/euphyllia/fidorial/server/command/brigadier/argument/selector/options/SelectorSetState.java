@@ -4,7 +4,7 @@ public final class SelectorSetState {
     private boolean positive;
     private boolean negative;
 
-    public boolean canAdd(boolean inverted) {
+    public boolean canAdd(final boolean inverted) {
         return inverted ? !positive : (!positive && !negative);
     }
 
@@ -12,7 +12,7 @@ public final class SelectorSetState {
         return !positive;
     }
 
-    public void add(boolean inverted) {
+    public void add(final boolean inverted) {
         if (inverted) {
             negative = true;
         } else {

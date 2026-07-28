@@ -37,35 +37,35 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
     private final RegistryKey<T> registryKey;
     private final Registry<T> registryLookup;
 
-    private ResourceArgument(RegistryKey<T> registryKey, Registry<T> registryLookup) {
+    private ResourceArgument(final RegistryKey<T> registryKey, final Registry<T> registryLookup) {
         this.registryKey = registryKey;
         this.registryLookup = registryLookup;
     }
 
-    public static <T> ResourceArgument<T> resource(RegistryKey<T> registryKey) {
-        Registry<T> registry = FidorialServer.getInstance().registries().registry(registryKey);
+    public static <T> ResourceArgument<T> resource(final RegistryKey<T> registryKey) {
+        final Registry<T> registry = FidorialServer.getInstance().registries().registry(registryKey);
         return new ResourceArgument<>(registryKey, registry);
     }
 
     public static <T> T getResource(
-            CommandContext<?> context,
-            String name,
-            @SuppressWarnings("unused") RegistryKey<T> registryKey
+            final CommandContext<?> context,
+            final String name,
+            @SuppressWarnings("unused") final RegistryKey<T> registryKey
     ) {
         return (T) context.getArgument(name, Object.class);
     }
 
     @Override
-    public T parse(StringReader reader) throws CommandSyntaxException {
-        int start = reader.getCursor();
+    public T parse(final StringReader reader) throws CommandSyntaxException {
+        final int start = reader.getCursor();
 
         while (reader.canRead() && isAllowedInKey(reader.peek())) {
             reader.skip();
         }
 
-        String input = reader.getString().substring(start, reader.getCursor());
-        Key key = parseKey(input);
-        TypedKey<T> typedKey = TypedKey.create(registryKey, key);
+        final String input = reader.getString().substring(start, reader.getCursor());
+        final Key key = parseKey(input);
+        final TypedKey<T> typedKey = TypedKey.create(registryKey, key);
 
         return registryLookup
                 .find(typedKey)
@@ -73,7 +73,7 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
                         reader, key.asString(), registryKey.key().asString()));
     }
 
-    private boolean isAllowedInKey(char c) {
+    private boolean isAllowedInKey(final char c) {
         return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
     }
 
@@ -85,12 +85,12 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        final String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
 
-        for (T value : registryLookup.values()) {
-            String full = registryLookup.key(value).key().asString();
-            String path = full.startsWith("minecraft:") ? full.substring("minecraft:".length()) : full;
+        for (final T value : registryLookup.values()) {
+            final String full = registryLookup.key(value).key().asString();
+            final String path = full.startsWith("minecraft:") ? full.substring("minecraft:".length()) : full;
 
             if (remaining.contains(":") ? full.contains(remaining) : path.contains(remaining)) {
                 builder.suggest(full);
@@ -112,23 +112,23 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
     public static final class Info<T> implements ArgumentTypeRegistrar<ResourceArgument<T>, Info<T>.Spec> {
 
         @Override
-        public Spec access(ResourceArgument<T> argument) {
+        public Spec access(final ResourceArgument<T> argument) {
             return new Spec(argument.registryKey());
         }
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
             buf.writeRegistryKey(spec.registryKey);
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
-            Key key = buf.readKey();
+        public Spec deserialize(final PacketBuffer buf) {
+            final Key key = buf.readKey();
             return new Spec(RegistryKey.of(key));
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
             json.addProperty("registry", spec.registryKey.key().asString());
         }
 
@@ -136,7 +136,7 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
 
             private final RegistryKey<T> registryKey;
 
-            public Spec(RegistryKey<T> registryKey) {
+            public Spec(final RegistryKey<T> registryKey) {
                 this.registryKey = registryKey;
             }
 

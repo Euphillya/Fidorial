@@ -7,13 +7,21 @@ import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 public record ClientboundRespawnPacket(String dimensionName, int dimensionTypeId, int gameMode, int dataToKeep)
         implements ClientboundPacket {
 
-    /** Keep nothing across the dimension change. */
+    /**
+     * Keep nothing across the dimension change.
+     */
     public static final int KEEP_NOTHING = 0;
-    /** Keep the player's attributes across the dimension change. */
+    /**
+     * Keep the player's attributes across the dimension change.
+     */
     public static final int KEEP_ATTRIBUTES = 1;
-    /** Keep the player's entity metadata across the dimension change. */
+    /**
+     * Keep the player's entity metadata across the dimension change.
+     */
     public static final int KEEP_METADATA = 2;
-    /** Keep both attributes and metadata across the dimension change. */
+    /**
+     * Keep both attributes and metadata across the dimension change.
+     */
     public static final int KEEP_ALL = KEEP_ATTRIBUTES | KEEP_METADATA;
 
     public ClientboundRespawnPacket(final String dimensionName, final int dimensionTypeId, final int gameMode) {

@@ -8,19 +8,19 @@ import fr.fidorial.world.Location;
 
 public record LocalCoords(LocalCoord x, LocalCoord y, LocalCoord z) {
 
-    public static LocalCoords parse(StringReader reader)
+    public static LocalCoords parse(final StringReader reader)
             throws CommandSyntaxException {
 
-        LocalCoord x = LocalCoord.parse(reader);
+        final LocalCoord x = LocalCoord.parse(reader);
         reader.expect(' ');
-        LocalCoord y = LocalCoord.parse(reader);
+        final LocalCoord y = LocalCoord.parse(reader);
         reader.expect(' ');
-        LocalCoord z = LocalCoord.parse(reader);
+        final LocalCoord z = LocalCoord.parse(reader);
 
         return new LocalCoords(x, y, z);
     }
 
-    public Location resolve(CommandSource source) {
+    public Location resolve(final CommandSource source) {
         return CoordMath.applyLocalCoords(
                 source.location(),
                 x.value(),

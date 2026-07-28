@@ -47,24 +47,24 @@ public record TimeArgument(int minimum) implements ArgumentType<Integer> {
         return new TimeArgument(0);
     }
 
-    public static TimeArgument time(int minimum) {
+    public static TimeArgument time(final int minimum) {
         return new TimeArgument(minimum);
     }
 
     @Override
-    public Integer parse(StringReader reader) throws CommandSyntaxException {
+    public Integer parse(final StringReader reader) throws CommandSyntaxException {
 
-        float value = reader.readFloat();
+        final float value = reader.readFloat();
 
-        String unit = reader.readUnquotedString();
+        final String unit = reader.readUnquotedString();
 
-        int factor = UNITS.getOrDefault(unit, 0);
+        final int factor = UNITS.getOrDefault(unit, 0);
 
         if (factor == 0) {
             throw ERROR_INVALID_UNIT.createWithContext(reader);
         }
 
-        int ticks = Math.round(value * factor);
+        final int ticks = Math.round(value * factor);
 
         if (ticks < minimum) {
             throw ERROR_TICK_COUNT_TOO_LOW.createWithContext(reader, ticks, minimum);
@@ -74,18 +74,18 @@ public record TimeArgument(int minimum) implements ArgumentType<Integer> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        StringReader reader = new StringReader(builder.getRemaining());
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        final StringReader reader = new StringReader(builder.getRemaining());
 
         try {
             reader.readFloat();
-        } catch (CommandSyntaxException exception) {
+        } catch (final CommandSyntaxException exception) {
             return builder.buildFuture();
         }
 
-        SuggestionsBuilder offset = builder.createOffset(builder.getStart() + reader.getCursor());
+        final SuggestionsBuilder offset = builder.createOffset(builder.getStart() + reader.getCursor());
 
-        for (String unit : UNITS.keySet()) {
+        for (final String unit : UNITS.keySet()) {
             offset.suggest(unit);
         }
 
@@ -100,22 +100,22 @@ public record TimeArgument(int minimum) implements ArgumentType<Integer> {
     public static final class Info implements ArgumentTypeRegistrar<TimeArgument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
             buf.writeInt(spec.minimum());
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec(buf.readInt());
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
             json.addProperty("min", spec.minimum());
         }
 
         @Override
-        public Spec access(TimeArgument argument) {
+        public Spec access(final TimeArgument argument) {
             return new Spec(argument.minimum());
         }
 

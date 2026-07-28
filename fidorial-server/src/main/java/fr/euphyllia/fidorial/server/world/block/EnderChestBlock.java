@@ -10,8 +10,6 @@ import java.util.Map;
 
 public final class EnderChestBlock {
 
-    public static final String ID = "minecraft:ender_chest";
-
     public static final int LIGHT_LEVEL = 7;
 
     public static final int OBSIDIAN_DROPS = 8;
@@ -19,15 +17,11 @@ public final class EnderChestBlock {
     private EnderChestBlock() {}
 
     public static boolean is(final BlockState state) {
-        return ID.equals(state.name());
+        return state.name().equalsIgnoreCase(BlockState.ENDER_CHEST.name());
     }
 
     public static BlockState placedBy(final Location placer, final boolean waterlogged) {
-        return new BlockState(
-                ID,
-                Map.of(
-                        "facing", oppositeOfFacing(placer.yaw()),
-                        "waterlogged", Boolean.toString(waterlogged)));
+        return BlockState.ENDER_CHEST;
     }
 
     private static String oppositeOfFacing(final float yaw) {

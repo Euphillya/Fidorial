@@ -115,7 +115,7 @@ public class DayNightThread implements AutoCloseable {
         final int networkId = registries.networkId(WorldClocks.REGISTRY, cycle.clockId());
         if (networkId < 0) {
             if (unknownClocks.add(cycle.clockId())) {
-                LOGGER.warn("Horloge absente du registre {} : {}", WorldClocks.REGISTRY, cycle.clockId());
+                LOGGER.warn("Clock missing from register {} : {}", WorldClocks.REGISTRY, cycle.clockId());
             }
             return null;
         }

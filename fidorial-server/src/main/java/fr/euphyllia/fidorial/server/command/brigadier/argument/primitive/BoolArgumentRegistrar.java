@@ -9,20 +9,20 @@ public final class BoolArgumentRegistrar
         implements ArgumentTypeRegistrar<BoolArgumentType, BoolArgumentRegistrar.Spec> {
 
     @Override
-    public void serialize(Spec spec, PacketBuffer buf) {
+    public void serialize(final Spec spec, final PacketBuffer buf) {
     }
 
     @Override
-    public Spec deserialize(PacketBuffer buf) {
+    public Spec deserialize(final PacketBuffer buf) {
         return new Spec();
     }
 
     @Override
-    public void serializeJson(Spec spec, JsonObject json) {
+    public void serializeJson(final Spec spec, final JsonObject json) {
     }
 
     @Override
-    public Spec access(BoolArgumentType argument) {
+    public Spec access(final BoolArgumentType argument) {
         return new Spec();
     }
 

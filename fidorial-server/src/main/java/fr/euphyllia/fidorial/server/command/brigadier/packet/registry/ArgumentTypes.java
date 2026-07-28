@@ -62,7 +62,7 @@ public final class ArgumentTypes {
         register(new UuidArgument.Info(), ArgumentTypeIds.UUID_ARGUMENT_ID);
     }
 
-    private static <A extends ArgumentType<?>> void register(ArgumentTypeRegistrar<A, ?> registrar, int networkId) {
+    private static <A extends ArgumentType<?>> void register(final ArgumentTypeRegistrar<A, ?> registrar, final int networkId) {
         ArgumentTypeRegistry.register(registrar);
         NetworkArgumentIds.register(networkId, registrar);
     }

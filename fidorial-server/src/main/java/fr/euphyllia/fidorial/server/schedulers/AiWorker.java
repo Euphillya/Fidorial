@@ -14,27 +14,27 @@ public class AiWorker {
 
     private final ExecutorService workers;
 
-    public AiWorker(int workerThreads) {
-        AtomicInteger id = new AtomicInteger();
+    public AiWorker(final int workerThreads) {
+        final AtomicInteger id = new AtomicInteger();
         this.workers = Executors.newFixedThreadPool(workerThreads, r -> {
-            Thread thread = new Thread(r, "fidorial-ai-worker-" + id.incrementAndGet());
+            final Thread thread = new Thread(r, "fidorial-ai-worker-" + id.incrementAndGet());
             thread.setDaemon(true);
             return thread;
         });
         LOGGER.info("AI pool started with {} workers", workerThreads);
     }
 
-    public boolean submit(Runnable task) {
+    public boolean submit(final Runnable task) {
         try {
             workers.execute(() -> {
                 try {
                     task.run();
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     LOGGER.error("Error in an AI task", t);
                 }
             });
             return true;
-        } catch (RejectedExecutionException e) {
+        } catch (final RejectedExecutionException e) {
             return false;
         }
     }
@@ -45,7 +45,7 @@ public class AiWorker {
             if (!workers.awaitTermination(5, TimeUnit.SECONDS)) {
                 workers.shutdownNow();
             }
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             workers.shutdownNow();
         }

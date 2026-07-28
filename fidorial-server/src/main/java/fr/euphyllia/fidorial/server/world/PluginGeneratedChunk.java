@@ -17,7 +17,7 @@ public class PluginGeneratedChunk implements GeneratedChunk {
     private final int minY;
     private final int height;
 
-    public PluginGeneratedChunk(int chunkX, int chunkZ, int minY, int height, String defaultBiome) {
+    public PluginGeneratedChunk(final int chunkX, final int chunkZ, final int minY, final int height, final String defaultBiome) {
         this.column = new ChunkColumn(chunkX, chunkZ, minY, height, BlockState.AIR, defaultBiome);
         this.minY = minY;
         this.height = height;
@@ -48,31 +48,31 @@ public class PluginGeneratedChunk implements GeneratedChunk {
     }
 
     @Override
-    public void setBlock(int x, int y, int z, Key block) {
+    public void setBlock(final int x, final int y, final int z, final Key block) {
         checkLocal(x, z);
         checkY(y);
-        BlockState state = BLOCK_CACHE.computeIfAbsent(block, k -> BlockState.of(k.toString()));
+        final BlockState state = BLOCK_CACHE.computeIfAbsent(block, k -> BlockState.of(k.toString()));
         column.setBlock(x, y, z, state);
     }
 
     @Override
-    public void setBiome(int x, int y, int z, Key biome) {
+    public void setBiome(final int x, final int y, final int z, final Key biome) {
         checkLocal(x, z);
         checkY(y);
-        ChunkSection section = column.sections()[(y >> 4) - column.minSectionY()];
+        final ChunkSection section = column.sections()[(y >> 4) - column.minSectionY()];
         section.setBiome(x >> 2, (y & 15) >> 2, z >> 2, biome.toString());
     }
 
-    private void checkLocal(int x, int z) {
+    private void checkLocal(final int x, final int z) {
         if (x < 0 || x > 15 || z < 0 || z > 15) {
-            throw new IllegalArgumentException("coordonnees locales hors bornes : x=" + x + ", z=" + z);
+            throw new IllegalArgumentException("Local coordinates outside bounds:: x=" + x + ", z=" + z);
         }
     }
 
-    private void checkY(int y) {
+    private void checkY(final int y) {
         if (y < minY || y >= minY + height) {
             throw new IllegalArgumentException(
-                    "y hors bornes : " + y + " (attendu [" + minY + ", " + (minY + height) + "[)");
+                    "y out of bounds: " + y + " (expected [" + minY + ", " + (minY + height) + "[)");
         }
     }
 }

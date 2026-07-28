@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.protocol.packet.serverbound.play;
 
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
-import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
-import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.listener.PlayPacketListener;
+import fr.fidorial.protocol.PacketListener;
+import fr.fidorial.protocol.ServerboundPacket;
 
 /**
  * A player clicking a slot in a window.

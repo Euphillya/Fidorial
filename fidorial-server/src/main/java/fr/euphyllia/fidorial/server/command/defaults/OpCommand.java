@@ -31,8 +31,8 @@ public final class OpCommand {
         return create("deop", false);
     }
 
-    private static LiteralCommandNode<CommandSource> create(String name, boolean grant) {
-        ArgumentType<PlayerProfileListResolver> playerArgument = ArgumentTypes.playerProfiles(player -> player.isOperator() != grant);
+    private static LiteralCommandNode<CommandSource> create(final String name, final boolean grant) {
+        final ArgumentType<PlayerProfileListResolver> playerArgument = ArgumentTypes.playerProfiles(player -> player.isOperator() != grant);
         return literal(name)
                 .requires(source ->
                         source.sender().hasPermission(grant ? "fidorial.command.op" : "fidorial.command.deop"))

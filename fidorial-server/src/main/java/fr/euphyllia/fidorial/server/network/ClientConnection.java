@@ -14,8 +14,8 @@ import fr.euphyllia.fidorial.server.network.listener.PlayPacketHandler;
 import fr.euphyllia.fidorial.server.network.listener.StatusPacketHandler;
 import fr.euphyllia.fidorial.server.protocol.ProtocolMap;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.PacketListener;
-import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPacket;
+import fr.fidorial.protocol.PacketListener;
+import fr.fidorial.protocol.ServerboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.ServerboundPackets;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.login.ClientboundLoginDisconnectPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundKeepAlivePacket;
@@ -81,12 +81,12 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
 
         final String name = protocol.serverboundName(state, packetId);
         if (name == null) {
-            LOGGER.trace("Paquet {} 0x{} inconnu (ignore)", state, Integer.toHexString(packetId));
+            LOGGER.trace("Unknown packet {} 0x{} (ignored)", state, Integer.toHexString(packetId));
             return;
         }
         final ServerboundPacket packet = ServerboundPackets.decode(state, name, buf);
         if (packet == null) {
-            LOGGER.trace("{} : {} recu (non gere, ignore)", state, name);
+            LOGGER.trace("{}: {} received (unmanaged, ignored)", state, name);
             return;
         }
         packet.handle(listener);
@@ -120,7 +120,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         if (state == ConnectionState.LOGIN) {
             sendAndClose(ClientboundLoginDisconnectPacket.ofText(reason));
         } else {
-            LOGGER.info("Deconnexion de {} : {}", username, reason);
+            LOGGER.info("Disconnection of {}: {}", username, reason);
             close();
         }
     }
@@ -182,7 +182,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         try {
             listener.onDisconnect();
         } catch (final Throwable t) {
-            LOGGER.error("Erreur pendant onDisconnect", t);
+            LOGGER.error("Error during onDisconnect", t);
         }
         server.removePlayerConnection(this);
         saveInventoryOnDisconnect();
@@ -200,9 +200,9 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
                 server.playerEnderChestStorage().save(disconnecting.uuid(), disconnecting.enderChest());
                 server.playerDataStorage()
                         .save(disconnecting.uuid(), new PlayerDataStorage.PlayerData(disconnecting.gameMode()));
-                LOGGER.info("Inventaire et donnees de {} sauvegardés", disconnecting.name());
+                LOGGER.debug("Inventory + Ender Chest and data for {} saved", disconnecting.name());
             } catch (final Exception e) {
-                LOGGER.error("Sauvegarde de l'inventaire de {} impossible", disconnecting.name(), e);
+                LOGGER.error("Unable to save inventory for {}", disconnecting.name(), e);
             }
         });
     }

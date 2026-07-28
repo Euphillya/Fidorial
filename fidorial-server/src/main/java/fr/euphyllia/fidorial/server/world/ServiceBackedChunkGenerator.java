@@ -15,7 +15,7 @@ public class ServiceBackedChunkGenerator implements ChunkGenerator {
     private final int minY;
     private final int height;
 
-    public ServiceBackedChunkGenerator(ServiceRegistry services, ChunkGenerator fallback, int minY, int height) {
+    public ServiceBackedChunkGenerator(final ServiceRegistry services, final ChunkGenerator fallback, final int minY, final int height) {
         this.services = services;
         this.fallback = fallback;
         this.minY = minY;
@@ -23,19 +23,19 @@ public class ServiceBackedChunkGenerator implements ChunkGenerator {
     }
 
     @Override
-    public ChunkColumn generate(int chunkX, int chunkZ) {
-        WorldGenerator custom = services.find(WorldGenerator.class).orElse(null);
+    public ChunkColumn generate(final int chunkX, final int chunkZ) {
+        final WorldGenerator custom = services.find(WorldGenerator.class).orElse(null);
         if (custom == null) {
             return fallback.generate(chunkX, chunkZ);
         }
 
-        PluginGeneratedChunk chunk = new PluginGeneratedChunk(chunkX, chunkZ, minY, height, DEFAULT_BIOME);
+        final PluginGeneratedChunk chunk = new PluginGeneratedChunk(chunkX, chunkZ, minY, height, DEFAULT_BIOME);
         try {
             custom.generate(chunk);
             return chunk.column();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.error(
-                    "Le WorldGenerator {} a echoue, retour au generateur par defaut",
+                    "The World Generator {} failed; reverting to the default generator.",
                     custom.getClass().getName(),
                     e);
             return fallback.generate(chunkX, chunkZ);

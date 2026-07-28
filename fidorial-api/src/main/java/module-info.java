@@ -35,6 +35,8 @@ module fr.fidorial {
     exports fr.fidorial.command.argument.predicate;
     exports fr.fidorial.command.argument.range;
     exports fr.fidorial.command.argument.resolvers;
+    exports fr.fidorial.world.entity;
+    exports fr.fidorial.protocol;
 
     requires com.google.common;
     requires com.google.gson;

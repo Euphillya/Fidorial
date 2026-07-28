@@ -28,12 +28,9 @@ public final class FluidEngine implements FluidManager {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(FluidEngine.class);
 
-    private static final BlockState OBSIDIAN = BlockState.of("minecraft:obsidian");
-    private static final BlockState COBBLESTONE = BlockState.of("minecraft:cobblestone");
-
     private static final BlockFace[] HORIZONTAL = {
-        BlockFace.NORTH, BlockFace.SOUTH,
-        BlockFace.WEST, BlockFace.EAST
+            BlockFace.NORTH, BlockFace.SOUTH,
+            BlockFace.WEST, BlockFace.EAST
     };
 
     private final WorldManager worlds;
@@ -61,21 +58,21 @@ public final class FluidEngine implements FluidManager {
 
     @Override
     public FluidState fluidAt(final Key world, final int x, final int y, final int z) {
-        final ServerWorld w = worldByName(world);
+        final ServerWorld w = worldByKey(world);
         if (w == null) {
             return FluidState.empty();
         }
         try {
             return FluidBlockCodec.fromBlock(w.getBlock(x, y, z));
         } catch (final IOException e) {
-            LOGGER.error("Lecture du fluide impossible en {},{},{}", x, y, z, e);
+            LOGGER.error("Fluid reading impossible at {},{},{}", x, y, z, e);
             return FluidState.empty();
         }
     }
 
     @Override
     public boolean placeSource(final Key world, final int x, final int y, final int z, final FluidType type) {
-        final ServerWorld w = worldByName(world);
+        final ServerWorld w = worldByKey(world);
         if (w == null) {
             return false;
         }
@@ -88,7 +85,7 @@ public final class FluidEngine implements FluidManager {
 
     @Override
     public boolean removeFluid(final Key world, final int x, final int y, final int z) {
-        final ServerWorld w = worldByName(world);
+        final ServerWorld w = worldByKey(world);
         if (w == null) {
             return false;
         }
@@ -139,7 +136,7 @@ public final class FluidEngine implements FluidManager {
     }
 
     private void tick(final Key worldName, final int x, final int y, final int z) throws IOException {
-        final ServerWorld world = worldByName(worldName);
+        final ServerWorld world = worldByKey(worldName);
         if (world == null) {
             return;
         }
@@ -152,7 +149,7 @@ public final class FluidEngine implements FluidManager {
 
         // 1) Interactions lave <-> eau : la lave touchée par de l'eau se fige.
         if (type == FluidType.LAVA && touches(world, x, y, z, FluidType.WATER)) {
-            final BlockState solidified = self.isSource() ? OBSIDIAN : COBBLESTONE;
+            final BlockState solidified = self.isSource() ? BlockState.OBSIDIAN : BlockState.COBBLESTONE;
             if (setAndBroadcast(world, x, y, z, solidified)) {
                 notifyBlockChanged(worldName, x, y, z);
             }
@@ -227,8 +224,7 @@ public final class FluidEngine implements FluidManager {
     }
 
     private FluidState applyIfChanged(
-            final ServerWorld world, final Key worldName, final int x, final int y, final int z, final FluidState current, final FluidState wanted)
-            throws IOException {
+            final ServerWorld world, final Key worldName, final int x, final int y, final int z, final FluidState current, final FluidState wanted) {
         if (wanted.equals(current)) {
             return current;
         }
@@ -245,7 +241,7 @@ public final class FluidEngine implements FluidManager {
 
         // La lave qui tombe dans l'eau se fige en pierre taillée.
         if (type == FluidType.LAVA && below.type() == FluidType.WATER) {
-            if (setAndBroadcast(world, x, y - 1, z, COBBLESTONE)) {
+            if (setAndBroadcast(world, x, y - 1, z, BlockState.COBBLESTONE)) {
                 notifyBlockChanged(worldName, x, y - 1, z);
             }
             return false;
@@ -308,7 +304,7 @@ public final class FluidEngine implements FluidManager {
         }
         for (final BlockFace dir : HORIZONTAL) {
             if (FluidBlockCodec.fromBlock(world.getBlock(x + dir.dx(), y, z + dir.dz()))
-                            .type()
+                    .type()
                     == other) {
                 return true;
             }
@@ -322,17 +318,17 @@ public final class FluidEngine implements FluidManager {
                 return false;
             }
         } catch (final IOException e) {
-            LOGGER.error("Écriture du fluide impossible en {},{},{}", x, y, z, e);
+            LOGGER.error("Fluid writing impossible in {},{},{}", x, y, z, e);
             return false;
         }
         broadcaster.accept(new ClientboundBlockUpdatePacket(new BlockPos(x, y, z), blockRegistry.networkId(state)));
         return true;
     }
 
-    private ServerWorld worldByName(@Nullable final Key name) {
-        if (name == null || Dimension.OVERWORLD.id().equals(name)) {
+    private ServerWorld worldByKey(@Nullable final Key key) {
+        if (key == null || Dimension.OVERWORLD.id().equals(key)) {
             return worlds.overworld();
         }
-        return worlds.dimension(Dimension.datapack(name.namespace(), name.value()));
+        return worlds.dimension(Dimension.datapack(key.namespace(), key.value()));
     }
 }

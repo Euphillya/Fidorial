@@ -46,29 +46,29 @@ public final class BuiltInTranslationStore implements TranslationStore {
     }
 
     private void loadBuiltin() {
-        Map<Locale, String> languages = Map.of(
+        final Map<Locale, String> languages = Map.of(
                 Locale.FRANCE, "languages/fr_fr.json",
                 Locale.US, "languages/en_us.json");
-        for (Map.Entry<Locale, String> entry : languages.entrySet()) {
+        for (final Map.Entry<Locale, String> entry : languages.entrySet()) {
             try {
-                InputStream stream = Main.class.getClassLoader().getResourceAsStream(entry.getValue());
+                final InputStream stream = Main.class.getClassLoader().getResourceAsStream(entry.getValue());
 
                 if (stream == null) {
                     FidorialServer.LOGGER.warn("Missing builtin language: {}", entry.getValue());
                     continue;
                 }
 
-                try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+                try (final Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
                     load(entry.getKey(), reader);
                 }
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 FidorialServer.LOGGER.error("Couldn't load language {}", entry.getKey(), ex);
             }
         }
     }
 
     private void load(final Locale locale, final Reader reader) throws IOException {
-        Map<String, String> entries = GSON.fromJson(reader, LANGUAGE_TYPE);
+        final Map<String, String> entries = GSON.fromJson(reader, LANGUAGE_TYPE);
         if (entries == null) {
             return;
         }
@@ -89,7 +89,7 @@ public final class BuiltInTranslationStore implements TranslationStore {
     }
 
     @Override
-    public Component renderComponent(Component component, Locale locale) {
+    public Component renderComponent(final Component component, final Locale locale) {
         return GlobalTranslator.render(component, resolveLocale(locale));
     }
 

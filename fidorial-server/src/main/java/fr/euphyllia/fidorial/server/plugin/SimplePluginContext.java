@@ -21,8 +21,8 @@ final class SimplePluginContext implements PluginContext {
     private final Path dataFolder;
     private final ComponentLogger logger;
 
-    SimplePluginContext(PluginMeta meta, Server server, EventBus events,
-                        ServiceRegistry services, Path dataFolder) {
+    SimplePluginContext(final PluginMeta meta, final Server server, final EventBus events,
+                        final ServiceRegistry services, final Path dataFolder) {
         this.meta = meta;
         this.server = server;
         this.events = events;
@@ -60,8 +60,8 @@ final class SimplePluginContext implements PluginContext {
     public Path dataFolder() {
         try {
             Files.createDirectories(dataFolder);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Dossier de donnees de " + meta.id() + " impossible a creer", e);
+        } catch (final IOException e) {
+            throw new UncheckedIOException("Unable to create data file for " + meta.id() + ".", e);
         }
         return dataFolder;
     }

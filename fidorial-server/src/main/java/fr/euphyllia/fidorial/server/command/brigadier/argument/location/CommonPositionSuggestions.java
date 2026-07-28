@@ -11,12 +11,12 @@ public final class CommonPositionSuggestions {
     }
 
     public static CompletableFuture<Suggestions> suggest(
-            SuggestionsBuilder builder,
-            String x,
-            String y,
-            String z
+            final SuggestionsBuilder builder,
+            final String x,
+            final String y,
+            final String z
     ) {
-        String remainder = builder.getRemaining();
+        final String remainder = builder.getRemaining();
 
         if (remainder.isEmpty()) {
             builder.suggest(x);
@@ -27,7 +27,7 @@ public final class CommonPositionSuggestions {
             builder.suggest("~ ~");
             builder.suggest("~ ~ ~");
         } else {
-            String[] fields = remainder.split(" ", -1);
+            final String[] fields = remainder.split(" ", -1);
 
             if (fields.length == 1) {
                 builder.suggest(fields[0] + " " + y);
@@ -40,7 +40,7 @@ public final class CommonPositionSuggestions {
         return builder.buildFuture();
     }
 
-    private static void suggest(SuggestionsBuilder builder, String value) {
+    private static void suggest(final SuggestionsBuilder builder, final String value) {
         if (value.startsWith(builder.getRemaining())) {
             builder.suggest(value);
         }

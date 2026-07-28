@@ -34,7 +34,7 @@ public final class EntitySelectorOptions {
     private EntitySelectorOptions() {
     }
 
-    private static void register(String name, Modifier modifier, Predicate<EntitySelectorParser> canUse) {
+    private static void register(final String name, final Modifier modifier, final Predicate<EntitySelectorParser> canUse) {
         OPTIONS.put(name, new Option(modifier, canUse));
     }
 
@@ -42,21 +42,21 @@ public final class EntitySelectorOptions {
         if (!OPTIONS.isEmpty()) return;
 
         register("name", parser -> {
-            boolean inverted = parser.shouldInvertValue();
-            String name = parser.getReader().readString();
-            var state = parser.nameOption();
+            final boolean inverted = parser.shouldInvertValue();
+            final String name = parser.getReader().readString();
+            final var state = parser.nameOption();
             if (!state.canAdd(inverted)) {
                 throw parser.getReader().canRead()
                         ? EntitySelectorParser.ERROR_INAPPLICABLE_OPTION.createWithContext(parser.getReader(), "name")
                         : EntitySelectorParser.ERROR_INAPPLICABLE_OPTION.create("name");
             }
             state.add(inverted);
-            parser.addPredicate(e -> (e instanceof Player p && p.name().equalsIgnoreCase(name)) != inverted);
+            parser.addPredicate(e -> (e instanceof final Player p && p.name().equalsIgnoreCase(name)) != inverted);
         }, s -> s.nameOption().canAddAny());
 
         register("distance", parser -> {
-            int start = parser.getReader().getCursor();
-            DoubleRange range = DoubleRange.fromReader(parser.getReader());
+            final int start = parser.getReader().getCursor();
+            final DoubleRange range = DoubleRange.fromReader(parser.getReader());
             if ((range.min() != null && range.min() < 0.0) || (range.max() != null && range.max() < 0.0)) {
                 parser.getReader().setCursor(start);
                 throw ERROR_RANGE_NEGATIVE.createWithContext(parser.getReader());
@@ -72,8 +72,8 @@ public final class EntitySelectorOptions {
         register("dz", parser -> parser.setDeltaZ(parser.getReader().readDouble()), s -> s.getDeltaZ() == null);
 
         register("limit", parser -> {
-            int start = parser.getReader().getCursor();
-            int count = parser.getReader().readInt();
+            final int start = parser.getReader().getCursor();
+            final int count = parser.getReader().readInt();
             if (count < 1) {
                 parser.getReader().setCursor(start);
                 throw ERROR_LIMIT_TOO_SMALL.createWithContext(parser.getReader());
@@ -83,8 +83,8 @@ public final class EntitySelectorOptions {
         }, s -> !s.isCurrentEntity() && s.limitedOption().available());
 
         register("sort", parser -> {
-            int start = parser.getReader().getCursor();
-            String name = parser.getReader().readUnquotedString();
+            final int start = parser.getReader().getCursor();
+            final String name = parser.getReader().readUnquotedString();
             parser.setSuggestions((b, n) -> {
                 b.suggest("nearest"); b.suggest("furthest"); b.suggest("random"); b.suggest("arbitrary");
                 return b.buildFuture();
@@ -103,31 +103,31 @@ public final class EntitySelectorOptions {
         }, s -> !s.isCurrentEntity() && s.sortedOption().available());
 
         register("gamemode", parser -> {
-            var state = parser.gamemodeOption();
-            boolean inverted = parser.shouldInvertValue();
+            final var state = parser.gamemodeOption();
+            final boolean inverted = parser.shouldInvertValue();
             if (!state.canAdd(inverted)) {
                 throw EntitySelectorParser.ERROR_INAPPLICABLE_OPTION.createWithContext(parser.getReader(), "gamemode");
             }
-            String name = parser.getReader().readUnquotedString().toLowerCase(Locale.ROOT);
+            final String name = parser.getReader().readUnquotedString().toLowerCase(Locale.ROOT);
             parser.setIncludesEntities(false);
-            parser.addPredicate(e -> (e instanceof Player p && p.gameMode().name().equalsIgnoreCase(name)) != inverted);
+            parser.addPredicate(e -> (e instanceof final Player p && p.gameMode().name().equalsIgnoreCase(name)) != inverted);
             state.add(inverted);
         }, s -> s.gamemodeOption().canAddAny());
 
         register("type", parser -> {
-            var state = parser.typeOption();
-            boolean inverted = parser.shouldInvertValue();
+            final var state = parser.typeOption();
+            final boolean inverted = parser.shouldInvertValue();
             if (!state.canAdd(inverted)) {
                 throw EntitySelectorParser.ERROR_INAPPLICABLE_OPTION.createWithContext(parser.getReader(), "type");
             }
-            String type = parser.getReader().readUnquotedString();
+            final String type = parser.getReader().readUnquotedString();
             parser.addPredicate(e -> e.type().key().value().equals(type) != inverted);
             state.add(inverted);
         }, s -> s.typeOption().canAddAny());
     }
 
-    public static Modifier get(EntitySelectorParser parser, String key, int start) throws CommandSyntaxException {
-        Option option = OPTIONS.get(key);
+    public static Modifier get(final EntitySelectorParser parser, final String key, final int start) throws CommandSyntaxException {
+        final Option option = OPTIONS.get(key);
         if (option == null) {
             throw EntitySelectorParser.ERROR_UNKNOWN_OPTION.createWithContext(rewind(parser, start), key);
         }
@@ -137,14 +137,14 @@ public final class EntitySelectorOptions {
         return option.modifier;
     }
 
-    private static StringReader rewind(EntitySelectorParser parser, int start) {
+    private static StringReader rewind(final EntitySelectorParser parser, final int start) {
         parser.getReader().setCursor(start);
         return parser.getReader();
     }
 
-    public static void suggestNames(EntitySelectorParser parser, SuggestionsBuilder builder) {
-        String prefix = builder.getRemaining().toLowerCase(Locale.ROOT);
-        for (Map.Entry<String, Option> entry : OPTIONS.entrySet()) {
+    public static void suggestNames(final EntitySelectorParser parser, final SuggestionsBuilder builder) {
+        final String prefix = builder.getRemaining().toLowerCase(Locale.ROOT);
+        for (final Map.Entry<String, Option> entry : OPTIONS.entrySet()) {
             if (entry.getValue().canUse.test(parser) && entry.getKey().toLowerCase(Locale.ROOT).startsWith(prefix)) {
                 builder.suggest(entry.getKey() + "=");
             }

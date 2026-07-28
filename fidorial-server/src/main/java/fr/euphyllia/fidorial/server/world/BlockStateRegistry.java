@@ -41,6 +41,7 @@ public record BlockStateRegistry(BlockRegistry registry) {
     }
 
     public @Nullable BlockState blockForItem(final @Nullable Key itemId) {
+        // Todo : Match the item to the block it is actually supposed to relate to. This method is just for testing purposes and will need to be removed!
         if (itemId == null) {
             return null;
         }

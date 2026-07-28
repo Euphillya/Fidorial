@@ -19,7 +19,7 @@ public final class FidorialContext extends SimpleContext {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    private FidorialContext(Factory factory, LoggerFactory loggerFactory, @Token String token) {
+    private FidorialContext(final Factory factory, final LoggerFactory loggerFactory, @Token final String token) {
         super(
                 factory,
                 loggerFactory,

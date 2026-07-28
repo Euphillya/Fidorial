@@ -9,12 +9,12 @@ public final class HandshakePacketHandler implements HandshakePacketListener {
 
     private final ClientConnection connection;
 
-    public HandshakePacketHandler(ClientConnection connection) {
+    public HandshakePacketHandler(final ClientConnection connection) {
         this.connection = connection;
     }
 
     @Override
-    public void handleIntention(ServerboundIntentionPacket packet) {
+    public void handleIntention(final ServerboundIntentionPacket packet) {
         connection.setClientProtocol(packet.protocolVersion());
         switch (packet.nextState()) {
             case 1 -> connection.setState(ConnectionState.STATUS);

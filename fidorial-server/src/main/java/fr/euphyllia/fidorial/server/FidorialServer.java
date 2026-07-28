@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server;
 
+import com.google.common.collect.Iterables;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.faststats.ErrorTracker;
 import dev.faststats.Metrics;
@@ -20,7 +21,7 @@ import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerEnderChestStorage;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStorage;
-import fr.euphyllia.fidorial.server.event.SimpleEventBus;
+import fr.euphyllia.fidorial.server.events.SimpleEventBus;
 import fr.euphyllia.fidorial.server.inventory.ChestViewerTracker;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
@@ -50,7 +51,8 @@ import fr.euphyllia.fidorial.server.world.ServiceBackedChunkGenerator;
 import fr.euphyllia.fidorial.server.world.WorldConstants;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
-import fr.euphyllia.fidorial.server.world.entity.EntitySpawnBridge;
+import fr.fidorial.entity.Entity;
+import fr.fidorial.world.entity.EntitySpawnBridge;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.Server;
@@ -75,6 +77,7 @@ import fr.fidorial.world.WorldBuilder;
 import fr.fidorial.world.block.Blocks;
 import fr.fidorial.world.fluid.FluidManager;
 import fr.fidorial.world.weather.WeatherManager;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -87,6 +90,7 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -159,7 +163,7 @@ public final class FidorialServer implements Server {
             .metrics(Metrics.Factory::create)
             .create();
     private final ConsoleSender console = new ConsoleSender(this);
-    private @Nullable Iterable<? extends net.kyori.adventure.audience.Audience> adventure$audiences;
+    private @Nullable Iterable<? extends Audience> adventure$audiences;
 
     private @Nullable Favicon favicon = loadFavicon();
     private Component description = MiniMessage
@@ -190,7 +194,7 @@ public final class FidorialServer implements Server {
         if (!running.compareAndSet(false, true)) {
             return;
         }
-        LOGGER.info("Demarrage de Fidorial (Minecraft {} / protocole {})", minecraftVersion(), protocolVersion());
+        LOGGER.info("Starting Fidorial (Minecraft {} / protocol {})", minecraftVersion(), protocolVersion());
         try {
             metrics.ready();
             loadData();
@@ -217,7 +221,7 @@ public final class FidorialServer implements Server {
         if (!running.compareAndSet(true, false)) {
             return;
         }
-        LOGGER.info("Arret de Fidorial...");
+        LOGGER.info("Stopping the Fidorial server...");
         events.post(new ServerStoppingEvent(this));
         closeQuietly("plugins", pluginManager::close);
         closeQuietly("reseau", network::shutdown);
@@ -229,7 +233,7 @@ public final class FidorialServer implements Server {
         closeQuietly("cycle jour/nuit", dayNightEngine::close);
         closeQuietly("monde", worldManager::close);
         closeQuietly("metriques", metrics::shutdown);
-        LOGGER.info("Arret termine");
+        LOGGER.info("Stop complete");
     }
 
     private @Nullable Favicon loadFavicon() {
@@ -254,7 +258,7 @@ public final class FidorialServer implements Server {
         worldManager.setChunkLoader(chunkWorker);
         worldManager.setEntityBridge(entityIds::allocate, new EntitySpawnBridge() {
             @Override
-            public void onEntityAppear(final AbstractEntity entity) {
+            public void onEntityAppear(final Entity entity) {
                 if (entity instanceof Mob && entity.world() instanceof final ServerWorld world) {
                     regionizer.addTicket(world.dimension().id(), entity.chunk());
                 }
@@ -262,7 +266,7 @@ public final class FidorialServer implements Server {
             }
 
             @Override
-            public void onEntityDisappear(final AbstractEntity entity) {
+            public void onEntityDisappear(final Entity entity) {
                 if (entity instanceof Mob && entity.world() instanceof final ServerWorld world) {
                     regionizer.removeTicket(world.dimension().id(), entity.chunk());
                 }
@@ -301,11 +305,9 @@ public final class FidorialServer implements Server {
                     try {
                         worldManager.saveDirty();
                         final int n = worldManager.unloadUnusedChunks();
-                        if (n > 0) LOGGER.debug("{} chunks décharges", n);
-                    } catch (final IOException e) {
-                        LOGGER.error("Sauvegarde periodique impossible", e);
+                        if (n > 0) LOGGER.debug("{} unloaded chunks", n);
                     } catch (final Throwable t) {
-                        LOGGER.error("Sauvegarde periodique en echec inattendu", t);
+                        LOGGER.error("An error occurred during the automatic save:", t);
                     }
                 },
                 config.autoSaveSeconds(),
@@ -317,7 +319,7 @@ public final class FidorialServer implements Server {
         try {
             action.run();
         } catch (final Throwable t) {
-            LOGGER.error("Arret du sous-systeme '{}' en erreur", what, t);
+            LOGGER.error("Stopping subsystem '{}' due to an error", what, t);
         }
     }
 
@@ -326,10 +328,10 @@ public final class FidorialServer implements Server {
     }
 
     @Override
-    public Iterable<? extends net.kyori.adventure.audience.Audience> audiences() {
+    public Iterable<? extends Audience> audiences() {
         if (this.adventure$audiences == null) {
-            this.adventure$audiences = com.google.common.collect.Iterables.concat(
-                    java.util.Collections.singleton(console), onlinePlayers());
+            this.adventure$audiences = Iterables.concat(
+                    Collections.singleton(console), onlinePlayers());
         }
         return this.adventure$audiences;
     }
@@ -554,7 +556,7 @@ public final class FidorialServer implements Server {
 
     public void spawnEntity(final AbstractEntity entity) {
         if (!(entity.world() instanceof final ServerWorld world)) {
-            throw new IllegalArgumentException("Entite sans monde serveur : " + entity);
+            throw new IllegalArgumentException("Cannot summon an entity into a non-existent or unloaded world :" + entity);
         }
 
         world.addEntity(entity);

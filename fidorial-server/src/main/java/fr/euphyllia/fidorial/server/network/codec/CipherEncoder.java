@@ -10,13 +10,13 @@ public final class CipherEncoder extends MessageToByteEncoder<ByteBuf> {
 
     private final Cipher cipher;
 
-    public CipherEncoder(Cipher cipher) {
+    public CipherEncoder(final Cipher cipher) {
         this.cipher = cipher;
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
-        byte[] input = new byte[msg.readableBytes()];
+    protected void encode(final ChannelHandlerContext ctx, final ByteBuf msg, final ByteBuf out) throws Exception {
+        final byte[] input = new byte[msg.readableBytes()];
         msg.readBytes(input);
         out.writeBytes(cipher.update(input));
     }

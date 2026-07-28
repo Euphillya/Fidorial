@@ -9,15 +9,15 @@ final class AdventureJsonReader {
     private AdventureJsonReader() {
     }
 
-    static String readRawJson(StringReader reader, DynamicCommandExceptionType errorType) throws CommandSyntaxException {
+    static String readRawJson(final StringReader reader, final DynamicCommandExceptionType errorType) throws CommandSyntaxException {
         reader.skipWhitespace();
 
         if (!reader.canRead()) {
             throw errorType.createWithContext(reader, "");
         }
 
-        int start = reader.getCursor();
-        char first = reader.peek();
+        final int start = reader.getCursor();
+        final char first = reader.peek();
 
         if (first == '"' || first == '\'') {
             return readQuotedString(reader, first);
@@ -28,13 +28,13 @@ final class AdventureJsonReader {
         }
     }
 
-    private static String readQuotedString(StringReader reader, char quote) {
+    private static String readQuotedString(final StringReader reader, final char quote) {
         reader.skip();
-        StringBuilder raw = new StringBuilder();
+        final StringBuilder raw = new StringBuilder();
         boolean escaped = false;
 
         while (reader.canRead()) {
-            char c = reader.read();
+            final char c = reader.read();
             if (escaped) {
                 raw.append(c);
                 escaped = false;
@@ -57,16 +57,16 @@ final class AdventureJsonReader {
     }
 
     private static String readBalanced(
-            StringReader reader, char open, DynamicCommandExceptionType errorType, int start
+            final StringReader reader, final char open, final DynamicCommandExceptionType errorType, final int start
     ) throws CommandSyntaxException {
-        char close = open == '{' ? '}' : ']';
+        final char close = open == '{' ? '}' : ']';
         int depth = 0;
         boolean inString = false;
         boolean escaped = false;
-        StringBuilder raw = new StringBuilder();
+        final StringBuilder raw = new StringBuilder();
 
         while (reader.canRead()) {
-            char c = reader.read();
+            final char c = reader.read();
             raw.append(c);
 
             if (inString) {

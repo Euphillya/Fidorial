@@ -4,13 +4,13 @@ import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundRemoveEntitiesPacket;
+import fr.fidorial.entity.Entity;
 import fr.fidorial.world.Location;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 
 public final class EntityTracker {
 
@@ -31,12 +31,12 @@ public final class EntityTracker {
         this.untrackDistanceSq = (range + UNTRACK_MARGIN) * (range + UNTRACK_MARGIN);
     }
 
-    public static boolean shouldUpdate(final AbstractEntity entity, final long currentTick) {
+    public static boolean shouldUpdate(final Entity entity, final long currentTick) {
         return Math.floorMod(currentTick + entity.entityId(), UPDATE_INTERVAL_TICKS) == 0;
     }
 
 
-    public void update(final AbstractEntity entity, final Collection<ServerPlayer> players) {
+    public void update(final Entity entity, final Collection<ServerPlayer> players) {
         if (entity.isRemoved()) {
             untrack(entity);
             return;
@@ -45,9 +45,11 @@ public final class EntityTracker {
             return;
         }
 
+        final AbstractEntity abstractEntity = (AbstractEntity) entity;
+
         final Set<ClientConnection> current =
-                viewers.computeIfAbsent(entity.entityId(), key -> ConcurrentHashMap.newKeySet());
-        final Location self = entity.location();
+                viewers.computeIfAbsent(abstractEntity.entityId(), key -> ConcurrentHashMap.newKeySet());
+        final Location self = abstractEntity.location();
 
         for (final ServerPlayer player : players) {
             if (player.isRemoved()) {
@@ -57,15 +59,15 @@ public final class EntityTracker {
             final boolean tracked = current.contains(connection);
             final double limit = tracked ? untrackDistanceSq : trackDistanceSq;
             final boolean visible =
-                    player.world() == entity.world() && distanceSq(self, player.location()) <= limit;
+                    player.world() == abstractEntity.world() && distanceSq(self, player.location()) <= limit;
 
             if (visible && !tracked) {
                 if (current.add(connection)) {
-                    entity.sendSpawnPackets(connection);
+                    abstractEntity.sendSpawnPackets(connection);
                 }
             } else if (!visible && tracked) {
                 if (current.remove(connection)) {
-                    connection.send(new ClientboundRemoveEntitiesPacket(entity.entityId()));
+                    connection.send(new ClientboundRemoveEntitiesPacket(abstractEntity.entityId()));
                 }
             }
         }
@@ -81,7 +83,7 @@ public final class EntityTracker {
         }
     }
 
-    public void untrack(final AbstractEntity entity) {
+    public void untrack(final Entity entity) {
         final Set<ClientConnection> current = viewers.remove(entity.entityId());
         if (current == null || current.isEmpty()) {
             return;

@@ -20,41 +20,40 @@ public final class ProtocolMap {
     private final Map<ConnectionState, Map<Boolean, Direction>> table = new EnumMap<>(ConnectionState.class);
     private final boolean available;
 
-    private ProtocolMap(boolean available) {
+    private ProtocolMap(final boolean available) {
         this.available = available;
         seedFixedStates();
     }
 
     public static ProtocolMap load() {
-        try (InputStream in = ProtocolMap.class.getResourceAsStream(RESOURCE)) {
+        try (final InputStream in = ProtocolMap.class.getResourceAsStream(RESOURCE)) {
             if (in == null) {
                 LOGGER.warn(
-                        "Ressource {} absente : lance tools/extract-protocol.sh <server.jar> "
-                                + "pour generer la table. Les phases Configuration/Play sont desactivees.",
+                        "Resource {} missing",
                         RESOURCE);
                 return new ProtocolMap(false);
             }
-            JsonObject root = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))
+            final JsonObject root = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))
                     .getAsJsonObject();
 
-            ProtocolMap map = new ProtocolMap(true);
-            for (ConnectionState state : new ConnectionState[] {ConnectionState.CONFIGURATION, ConnectionState.PLAY}) {
-                JsonObject stateJson = root.getAsJsonObject(state.name().toLowerCase());
+            final ProtocolMap map = new ProtocolMap(true);
+            for (final ConnectionState state : new ConnectionState[]{ConnectionState.CONFIGURATION, ConnectionState.PLAY}) {
+                final JsonObject stateJson = root.getAsJsonObject(state.name().toLowerCase());
                 map.put(state, false, parse(stateJson, "serverbound"));
                 map.put(state, true, parse(stateJson, "clientbound"));
             }
-            LOGGER.info("Table de protocole 26.2 chargee (Configuration + Play).");
+            LOGGER.info("Loaded 26.2 protocol table (Configuration + Play).");
             return map;
-        } catch (Exception e) {
-            LOGGER.error("Table de protocole illisible", e);
+        } catch (final Exception e) {
+            LOGGER.error("Illegible protocol table", e);
             return new ProtocolMap(false);
         }
     }
 
-    private static Map<String, Integer> parse(@Nullable JsonObject stateJson, String direction) {
+    private static Map<String, Integer> parse(@Nullable final JsonObject stateJson, final String direction) {
         if (stateJson == null || !stateJson.has(direction)) return Map.of();
-        Map<String, Integer> byName = new HashMap<>();
-        for (var entry : stateJson.getAsJsonObject(direction).entrySet()) {
+        final Map<String, Integer> byName = new HashMap<>();
+        for (final var entry : stateJson.getAsJsonObject(direction).entrySet()) {
             byName.put(entry.getKey(), entry.getValue().getAsInt());
         }
         return byName;
@@ -97,7 +96,7 @@ public final class ProtocolMap {
                         "minecraft:cookie_response", 4));
     }
 
-    private void put(ConnectionState state, boolean clientbound, Map<String, Integer> byName) {
+    private void put(final ConnectionState state, final boolean clientbound, final Map<String, Integer> byName) {
         table.computeIfAbsent(state, s -> new HashMap<>()).put(clientbound, Direction.of(byName));
     }
 
@@ -105,23 +104,23 @@ public final class ProtocolMap {
         return available;
     }
 
-    private Direction dir(ConnectionState state, boolean clientbound) {
+    private Direction dir(final ConnectionState state, final boolean clientbound) {
         return table.getOrDefault(state, Map.of()).getOrDefault(clientbound, Direction.empty());
     }
 
-    public int clientboundId(ConnectionState state, String name) {
-        Integer id = dir(state, true).byName().get(name);
+    public int clientboundId(final ConnectionState state, final String name) {
+        final Integer id = dir(state, true).byName().get(name);
         if (id == null)
             throw new IllegalStateException("Paquet clientbound inconnu dans la table : " + state + "/" + name);
         return id;
     }
 
-    public @Nullable String serverboundName(ConnectionState state, int id) {
+    public @Nullable String serverboundName(final ConnectionState state, final int id) {
         return dir(state, false).byId().get(id);
     }
 
-    public int serverboundId(ConnectionState state, String name) {
-        Integer id = dir(state, false).byName().get(name);
+    public int serverboundId(final ConnectionState state, final String name) {
+        final Integer id = dir(state, false).byName().get(name);
         if (id == null)
             throw new IllegalStateException("Paquet serverbound inconnu dans la table : " + state + "/" + name);
         return id;
@@ -132,8 +131,8 @@ public final class ProtocolMap {
             return new Direction(Map.of(), Map.of());
         }
 
-        static Direction of(Map<String, Integer> byName) {
-            Map<Integer, String> byId = new HashMap<>();
+        static Direction of(final Map<String, Integer> byName) {
+            final Map<Integer, String> byId = new HashMap<>();
             byName.forEach((n, i) -> byId.put(i, n));
             return new Direction(Map.copyOf(byName), Map.copyOf(byId));
         }

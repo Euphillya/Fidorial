@@ -94,11 +94,11 @@ public final class EntityArgument<T> implements ArgumentType<T> {
     }
 
     @Override
-    public T parse(StringReader reader) throws CommandSyntaxException {
+    public T parse(final StringReader reader) throws CommandSyntaxException {
 
-        int start = reader.getCursor();
+        final int start = reader.getCursor();
 
-        EntitySelector selector = new EntitySelectorParser(reader).parse();
+        final EntitySelector selector = new EntitySelectorParser(reader).parse();
 
         if (selector.maxResults() > 1 && single) {
 
@@ -121,15 +121,15 @@ public final class EntityArgument<T> implements ArgumentType<T> {
         return converter.apply(selector.withPredicate(predicate));
     }
 
-    public static Entity getEntity(CommandContext<CommandSource> context, String name) throws CommandSyntaxException {
+    public static Entity getEntity(final CommandContext<CommandSource> context, final String name) throws CommandSyntaxException {
 
         return context.getArgument(name, EntitySelector.class).findSingleEntity(context.getSource());
     }
 
-    public static Collection<? extends Entity> getEntities(CommandContext<CommandSource> context, String name)
+    public static Collection<? extends Entity> getEntities(final CommandContext<CommandSource> context, final String name)
             throws CommandSyntaxException {
 
-        Collection<? extends Entity> entities = getOptionalEntities(context, name);
+        final Collection<? extends Entity> entities = getOptionalEntities(context, name);
 
         if (entities.isEmpty()) {
             throw NO_ENTITIES_FOUND.create();
@@ -138,27 +138,27 @@ public final class EntityArgument<T> implements ArgumentType<T> {
         return entities;
     }
 
-    public static Collection<? extends Entity> getOptionalEntities(CommandContext<CommandSource> context, String name)
+    public static Collection<? extends Entity> getOptionalEntities(final CommandContext<CommandSource> context, final String name)
             throws CommandSyntaxException {
 
         return context.getArgument(name, EntitySelector.class).findEntities(context.getSource());
     }
 
-    public static Player getPlayer(CommandContext<CommandSource> context, String name) throws CommandSyntaxException {
+    public static Player getPlayer(final CommandContext<CommandSource> context, final String name) throws CommandSyntaxException {
 
         return context.getArgument(name, EntitySelector.class).findSinglePlayer(context.getSource());
     }
 
-    public static Collection<Player> getOptionalPlayers(CommandContext<CommandSource> context, String name)
+    public static Collection<Player> getOptionalPlayers(final CommandContext<CommandSource> context, final String name)
             throws CommandSyntaxException {
 
         return context.getArgument(name, EntitySelector.class).findPlayers(context.getSource());
     }
 
-    public static Collection<Player> getPlayers(CommandContext<CommandSource> context, String name)
+    public static Collection<Player> getPlayers(final CommandContext<CommandSource> context, final String name)
             throws CommandSyntaxException {
 
-        Collection<Player> players = getOptionalPlayers(context, name);
+        final Collection<Player> players = getOptionalPlayers(context, name);
 
         if (players.isEmpty()) {
             throw NO_PLAYERS_FOUND.create();
@@ -168,31 +168,31 @@ public final class EntityArgument<T> implements ArgumentType<T> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        if (!(context.getSource() instanceof CommandSource source)) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        if (!(context.getSource() instanceof final CommandSource source)) {
             return Suggestions.empty();
         }
 
-        StringReader reader = new StringReader(builder.getInput());
+        final StringReader reader = new StringReader(builder.getInput());
         reader.setCursor(builder.getStart());
 
-        EntitySelectorParser parser = new EntitySelectorParser(reader);
+        final EntitySelectorParser parser = new EntitySelectorParser(reader);
 
         try {
             parser.parse();
-        } catch (CommandSyntaxException ignored) {
+        } catch (final CommandSyntaxException ignored) {
         }
 
         return parser.fillSuggestions(builder, suggestionsBuilder -> {
-            Collection<String> playerNames = source.server().onlinePlayers().stream()
+            final Collection<String> playerNames = source.server().onlinePlayers().stream()
                     .map(Player::name)
                     .toList();
 
-            Iterable<String> suggestedNames = this.playersOnly
+            final Iterable<String> suggestedNames = this.playersOnly
                     ? playerNames
                     : playerNames; // extend here in the future
 
-            for (String name : suggestedNames) {
+            for (final String name : suggestedNames) {
                 if (name.toLowerCase(Locale.ROOT).startsWith(suggestionsBuilder.getRemaining().toLowerCase(Locale.ROOT))) {
                     suggestionsBuilder.suggest(name);
                 }
@@ -208,7 +208,7 @@ public final class EntityArgument<T> implements ArgumentType<T> {
     public static final class Info implements ArgumentTypeRegistrar<EntityArgument<?>, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
             int flags = 0;
 
             if (spec.single()) flags |= 1;
@@ -219,19 +219,19 @@ public final class EntityArgument<T> implements ArgumentType<T> {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
-            int flags = buf.readByte();
+        public Spec deserialize(final PacketBuffer buf) {
+            final int flags = buf.readByte();
             return new Spec((flags & 1) != 0, (flags & 2) != 0);
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
             json.addProperty("single", spec.single());
             json.addProperty("players_only", spec.playersOnly());
         }
 
         @Override
-        public Spec access(EntityArgument<?> argument) {
+        public Spec access(final EntityArgument<?> argument) {
             return new Spec(argument.single(), argument.playersOnly());
         }
 

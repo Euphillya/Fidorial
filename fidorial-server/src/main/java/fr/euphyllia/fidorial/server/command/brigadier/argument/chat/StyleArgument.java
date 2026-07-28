@@ -40,34 +40,34 @@ public final class StyleArgument implements ArgumentType<Style> {
     }
 
     @Override
-    public Style parse(StringReader reader) throws CommandSyntaxException {
-        String raw = AdventureJsonReader.readRawJson(reader, ERROR_INVALID_STYLE);
+    public Style parse(final StringReader reader) throws CommandSyntaxException {
+        final String raw = AdventureJsonReader.readRawJson(reader, ERROR_INVALID_STYLE);
 
-        JsonElement element;
+        final JsonElement element;
         try {
             element = JsonParser.parseString(raw);
-        } catch (JsonParseException ex) {
+        } catch (final JsonParseException ex) {
             throw ERROR_INVALID_STYLE.createWithContext(reader, raw);
         }
 
-        if (!(element instanceof JsonObject object)) {
+        if (!(element instanceof final JsonObject object)) {
             throw ERROR_INVALID_STYLE.createWithContext(reader, raw);
         }
 
-        boolean hasContent = CONTENT_KEYS.stream().anyMatch(object::has);
+        final boolean hasContent = CONTENT_KEYS.stream().anyMatch(object::has);
         if (!hasContent) {
             object.addProperty("text", "");
         }
 
         try {
-            Component component = GsonComponentSerializer.gson().deserializeFromTree(object);
+            final Component component = GsonComponentSerializer.gson().deserializeFromTree(object);
             return component.style();
-        } catch (JsonParseException | IllegalArgumentException ex) {
+        } catch (final JsonParseException | IllegalArgumentException ex) {
             throw ERROR_INVALID_STYLE.createWithContext(reader, raw);
         }
     }
 
-    public static Style getStyle(CommandContext<CommandSource> context, String name) {
+    public static Style getStyle(final CommandContext<CommandSource> context, final String name) {
         return context.getArgument(name, Style.class);
     }
 
@@ -79,20 +79,20 @@ public final class StyleArgument implements ArgumentType<Style> {
     public static final class Info implements ArgumentTypeRegistrar<StyleArgument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(StyleArgument argument) {
+        public Spec access(final StyleArgument argument) {
             return new Spec();
         }
 

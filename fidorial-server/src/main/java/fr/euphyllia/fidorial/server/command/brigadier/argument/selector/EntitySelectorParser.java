@@ -76,7 +76,7 @@ public final class EntitySelectorParser {
     private final SelectorSetState gamemodeOption = new SelectorSetState();
     private final SelectorSetState typeOption = new SelectorSetState();
 
-    public EntitySelectorParser(StringReader reader) {
+    public EntitySelectorParser(final StringReader reader) {
         this.reader = reader;
         EntitySelectorOptions.bootStrap();
     }
@@ -129,10 +129,10 @@ public final class EntitySelectorParser {
         while (reader.canRead() && reader.peek() != ']') {
             reader.skipWhitespace();
 
-            int start = reader.getCursor();
-            String key = reader.readString();
+            final int start = reader.getCursor();
+            final String key = reader.readString();
 
-            EntitySelectorOptions.Modifier modifier = EntitySelectorOptions.get(this, key, start);
+            final EntitySelectorOptions.Modifier modifier = EntitySelectorOptions.get(this, key, start);
 
             reader.skipWhitespace();
 
@@ -173,7 +173,7 @@ public final class EntitySelectorParser {
     private void parseNameOrUuid() throws CommandSyntaxException {
         suggestions = this::suggestName;
 
-        String value = reader.readString();
+        final String value = reader.readString();
         if (value.isEmpty()) {
             throw INVALID.create();
         }
@@ -181,7 +181,7 @@ public final class EntitySelectorParser {
         try {
             targetUuid = UUID.fromString(value);
             includesEntities = true;
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             targetName = value;
             includesEntities = false;
         }
@@ -212,7 +212,7 @@ public final class EntitySelectorParser {
         return selfSelector;
     }
 
-    public void addPredicate(Predicate<Entity> predicate) {
+    public void addPredicate(final Predicate<Entity> predicate) {
         predicates.add(predicate);
     }
 
@@ -226,7 +226,7 @@ public final class EntitySelectorParser {
         return false;
     }
 
-    public void setSuggestions(SuggestionProviderLike provider) {
+    public void setSuggestions(final SuggestionProviderLike provider) {
         this.suggestions = provider::apply;
     }
 
@@ -239,29 +239,29 @@ public final class EntitySelectorParser {
         return distance;
     }
 
-    public void setDistance(DoubleRange distance) {
+    public void setDistance(final DoubleRange distance) {
         this.distance = distance;
     }
 
     public Double getX() { return x; }
     public Double getY() { return y; }
     public Double getZ() { return z; }
-    public void setX(double x) { this.x = x; }
-    public void setY(double y) { this.y = y; }
-    public void setZ(double z) { this.z = z; }
+    public void setX(final double x) { this.x = x; }
+    public void setY(final double y) { this.y = y; }
+    public void setZ(final double z) { this.z = z; }
 
     public Double getDeltaX() { return deltaX; }
     public Double getDeltaY() { return deltaY; }
     public Double getDeltaZ() { return deltaZ; }
-    public void setDeltaX(double deltaX) { this.deltaX = deltaX; }
-    public void setDeltaY(double deltaY) { this.deltaY = deltaY; }
-    public void setDeltaZ(double deltaZ) { this.deltaZ = deltaZ; }
+    public void setDeltaX(final double deltaX) { this.deltaX = deltaX; }
+    public void setDeltaY(final double deltaY) { this.deltaY = deltaY; }
+    public void setDeltaZ(final double deltaZ) { this.deltaZ = deltaZ; }
 
-    public void setMaxResults(int maxResults) {
+    public void setMaxResults(final int maxResults) {
         this.maxResults = maxResults;
     }
 
-    public void setIncludesEntities(boolean includesEntities) {
+    public void setIncludesEntities(final boolean includesEntities) {
         this.includesEntities = includesEntities;
     }
 
@@ -269,7 +269,7 @@ public final class EntitySelectorParser {
         return sort;
     }
 
-    public void setOrder(EntitySelector.SortType sort) {
+    public void setOrder(final EntitySelector.SortType sort) {
         this.sort = sort;
     }
 
@@ -279,45 +279,45 @@ public final class EntitySelectorParser {
     public SelectorSetState gamemodeOption() { return gamemodeOption; }
     public SelectorSetState typeOption() { return typeOption; }
 
-    public CompletableFuture<Suggestions> fillSuggestions(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
+    public CompletableFuture<Suggestions> fillSuggestions(final SuggestionsBuilder builder, final Consumer<SuggestionsBuilder> names) {
         return suggestions.apply(builder.createOffset(reader.getCursor()), names);
     }
 
-    private CompletableFuture<Suggestions> suggestNameOrSelector(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
+    private CompletableFuture<Suggestions> suggestNameOrSelector(final SuggestionsBuilder builder, final Consumer<SuggestionsBuilder> names) {
         names.accept(builder);
         builder.suggest("@p"); builder.suggest("@a"); builder.suggest("@r"); builder.suggest("@s"); builder.suggest("@e"); builder.suggest("@n");
         return builder.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestSelector(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
-        SuggestionsBuilder sub = builder.createOffset(builder.getStart() - 1);
+    private CompletableFuture<Suggestions> suggestSelector(final SuggestionsBuilder builder, final Consumer<SuggestionsBuilder> names) {
+        final SuggestionsBuilder sub = builder.createOffset(builder.getStart() - 1);
         sub.suggest("@p"); sub.suggest("@a"); sub.suggest("@r"); sub.suggest("@s"); sub.suggest("@e"); sub.suggest("@n");
         builder.add(sub);
         return builder.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestOpenOptions(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
+    private CompletableFuture<Suggestions> suggestOpenOptions(final SuggestionsBuilder builder, final Consumer<SuggestionsBuilder> names) {
         builder.suggest("[");
         return builder.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestOptionsKey(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
+    private CompletableFuture<Suggestions> suggestOptionsKey(final SuggestionsBuilder builder, final Consumer<SuggestionsBuilder> names) {
         EntitySelectorOptions.suggestNames(this, builder);
         return builder.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestOptionsKeyOrClose(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
+    private CompletableFuture<Suggestions> suggestOptionsKeyOrClose(final SuggestionsBuilder builder, final Consumer<SuggestionsBuilder> names) {
         builder.suggest("]");
         return suggestOptionsKey(builder, names);
     }
 
-    private CompletableFuture<Suggestions> suggestOptionsNextOrClose(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
+    private CompletableFuture<Suggestions> suggestOptionsNextOrClose(final SuggestionsBuilder builder, final Consumer<SuggestionsBuilder> names) {
         builder.suggest(","); builder.suggest("]");
         return builder.buildFuture();
     }
 
-    private CompletableFuture<Suggestions> suggestName(SuggestionsBuilder builder, Consumer<SuggestionsBuilder> names) {
-        SuggestionsBuilder sub = builder.createOffset(startPosition);
+    private CompletableFuture<Suggestions> suggestName(final SuggestionsBuilder builder, final Consumer<SuggestionsBuilder> names) {
+        final SuggestionsBuilder sub = builder.createOffset(startPosition);
         names.accept(sub);
         return builder.add(sub).buildFuture();
     }

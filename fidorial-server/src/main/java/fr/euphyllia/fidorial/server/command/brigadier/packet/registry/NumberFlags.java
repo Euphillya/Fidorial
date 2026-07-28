@@ -7,18 +7,18 @@ public final class NumberFlags {
     private NumberFlags() {
     }
 
-    public static byte create(boolean hasMin, boolean hasMax) {
+    public static byte create(final boolean hasMin, final boolean hasMax) {
         byte flags = 0;
         if (hasMin) flags |= HAS_MIN;
         if (hasMax) flags |= HAS_MAX;
         return flags;
     }
 
-    public static boolean hasMin(byte flags) {
+    public static boolean hasMin(final byte flags) {
         return (flags & HAS_MIN) != 0;
     }
 
-    public static boolean hasMax(byte flags) {
+    public static boolean hasMax(final byte flags) {
         return (flags & HAS_MAX) != 0;
     }
 }

@@ -25,12 +25,12 @@ public final class ChunkStorage implements AutoCloseable {
     private final Map<String, RegionFile> regionCache = new ConcurrentHashMap<>();
 
     public ChunkStorage(
-            WorldPaths paths,
-            AnvilChunkSerializer serializer,
-            int minY,
-            int height,
-            BlockState defaultBlock,
-            String defaultBiome
+            final WorldPaths paths,
+            final AnvilChunkSerializer serializer,
+            final int minY,
+            final int height,
+            final BlockState defaultBlock,
+            final String defaultBiome
     ) {
         this.paths = paths;
         this.serializer = serializer;
@@ -40,37 +40,37 @@ public final class ChunkStorage implements AutoCloseable {
         this.defaultBiome = defaultBiome;
     }
 
-    private static String key(Dimension dim, int rx, int rz) {
+    private static String key(final Dimension dim, final int rx, final int rz) {
         return dim.id() + "@" + rx + "," + rz;
     }
 
-    private RegionFile region(Dimension dim, int chunkX, int chunkZ) {
-        int rx = RegionConstants.chunkToRegion(chunkX);
-        int rz = RegionConstants.chunkToRegion(chunkZ);
+    private RegionFile region(final Dimension dim, final int chunkX, final int chunkZ) {
+        final int rx = RegionConstants.chunkToRegion(chunkX);
+        final int rz = RegionConstants.chunkToRegion(chunkZ);
         return regionCache.computeIfAbsent(key(dim, rx, rz), k -> {
-            Path file = paths.regionDir(dim).resolve(RegionConstants.fileName(rx, rz));
+            final Path file = paths.regionDir(dim).resolve(RegionConstants.fileName(rx, rz));
             try {
                 return new RegionFile(file);
-            } catch (IOException e) {
-                throw new RuntimeException("Impossible d'ouvrir le fichier région " + file, e);
+            } catch (final IOException e) {
+                throw new RuntimeException("Unable to open the region file: " + file, e);
             }
         });
     }
 
-    public @Nullable ChunkColumn load(Dimension dim, int chunkX, int chunkZ) throws IOException {
-        RegionFile rf = region(dim, chunkX, chunkZ);
+    public @Nullable ChunkColumn load(final Dimension dim, final int chunkX, final int chunkZ) throws IOException {
+        final RegionFile rf = region(dim, chunkX, chunkZ);
         synchronized (rf) {
             if (!rf.hasChunk(chunkX, chunkZ)) return null;
-            NbtCompound nbt = rf.readChunk(chunkX, chunkZ);
+            final NbtCompound nbt = rf.readChunk(chunkX, chunkZ);
             if (nbt == null) return null;
             return serializer.fromNbt(nbt, minY, height, defaultBlock, defaultBiome);
         }
     }
 
-    public void save(Dimension dim, ChunkColumn chunk) throws IOException {
+    public void save(final Dimension dim, final ChunkColumn chunk) throws IOException {
         chunk.setLastUpdate(System.currentTimeMillis() / 20L); // en ticks approx.
-        NbtCompound nbt = serializer.toNbt(chunk);
-        RegionFile rf = region(dim, chunk.chunkX(), chunk.chunkZ());
+        final NbtCompound nbt = serializer.toNbt(chunk);
+        final RegionFile rf = region(dim, chunk.chunkX(), chunk.chunkZ());
         synchronized (rf) {
             rf.writeChunk(chunk.chunkX(), chunk.chunkZ(), nbt);
         }
@@ -78,11 +78,11 @@ public final class ChunkStorage implements AutoCloseable {
 
     @Override
     public void close() {
-        for (RegionFile rf : regionCache.values()) {
+        for (final RegionFile rf : regionCache.values()) {
             synchronized (rf) {
                 try {
                     rf.close();
-                } catch (IOException ignored) {
+                } catch (final IOException ignored) {
                 }
             }
         }

@@ -26,42 +26,42 @@ public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
 
     private final RegistryKey<T> registryKey;
 
-    private ResourceKeyArgument(RegistryKey<T> registryKey) {
+    private ResourceKeyArgument(final RegistryKey<T> registryKey) {
         this.registryKey = registryKey;
     }
 
-    public static <T> ResourceKeyArgument<T> resourceKey(RegistryKey<T> registryKey) {
+    public static <T> ResourceKeyArgument<T> resourceKey(final RegistryKey<T> registryKey) {
         return new ResourceKeyArgument<>(registryKey);
     }
 
     @Override
-    public TypedKey<T> parse(StringReader reader) throws CommandSyntaxException {
+    public TypedKey<T> parse(final StringReader reader) throws CommandSyntaxException {
 
-        int start = reader.getCursor();
+        final int start = reader.getCursor();
 
         while (reader.canRead() && isAllowedInKey(reader.peek())) {
             reader.skip();
         }
 
-        String input = reader.getString().substring(start, reader.getCursor());
+        final String input = reader.getString().substring(start, reader.getCursor());
 
         return TypedKey.create(registryKey, Key.key(input));
     }
 
-    private boolean isAllowedInKey(char c) {
+    private boolean isAllowedInKey(final char c) {
         return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
     }
 
     private static final String SPLITTERS = "._/";
 
-    private static boolean matchesSubStr(String pattern, String input) {
+    private static boolean matchesSubStr(final String pattern, final String input) {
         int index = 0;
 
         while (!input.startsWith(pattern, index)) {
             int next = -1;
 
-            for (char c : SPLITTERS.toCharArray()) {
-                int i = input.indexOf(c, index);
+            for (final char c : SPLITTERS.toCharArray()) {
+                final int i = input.indexOf(c, index);
 
                 if (i != -1 && (next == -1 || i < next)) {
                     next = i;
@@ -79,20 +79,20 @@ public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        Registry<T> registry = registry();
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        final Registry<T> registry = registry();
 
-        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+        final String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
 
-        boolean hasNamespace = remaining.indexOf(':') >= 0;
+        final boolean hasNamespace = remaining.indexOf(':') >= 0;
 
-        for (T value : registry.values()) {
-            Key key = registry.key(value).key();
+        for (final T value : registry.values()) {
+            final Key key = registry.key(value).key();
 
-            String namespace = key.namespace();
-            String path = key.value();
+            final String namespace = key.namespace();
+            final String path = key.value();
 
-            String full = key.asString();
+            final String full = key.asString();
 
             if (hasNamespace) {
                 if (matchesSubStr(remaining, full)) {
@@ -124,23 +124,23 @@ public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
     public static final class Info<T> implements ArgumentTypeRegistrar<ResourceKeyArgument<T>, Info<T>.Spec> {
 
         @Override
-        public Spec access(ResourceKeyArgument<T> argument) {
+        public Spec access(final ResourceKeyArgument<T> argument) {
             return new Spec(argument.registryKey());
         }
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
             buf.writeRegistryKey(spec.registryKey);
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
-            Key key = buf.readKey();
+        public Spec deserialize(final PacketBuffer buf) {
+            final Key key = buf.readKey();
             return new Spec(RegistryKey.of(key));
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject value) {
+        public void serializeJson(final Spec spec, final JsonObject value) {
             value.addProperty("registry", spec.registryKey.key().asString());
         }
 
@@ -148,7 +148,7 @@ public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
 
             private final RegistryKey<T> registryKey;
 
-            public Spec(RegistryKey<T> registryKey) {
+            public Spec(final RegistryKey<T> registryKey) {
                 this.registryKey = registryKey;
             }
 

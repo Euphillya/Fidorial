@@ -9,13 +9,13 @@ public final class Main {
     private Main() {
     }
 
-    static void main(String[] args) {
+    static void main(final String[] args) {
         try {
-            FidorialServer server = new FidorialServer();
+            final FidorialServer server = new FidorialServer();
             Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown, "fidorial-shutdown"));
             server.start();
-        } catch (Throwable t) {
-            LOGGER.error("Fidorial n'a pas pu demarrer", t);
+        } catch (final Throwable t) {
+            LOGGER.error("Fidorial could not start : ", t);
             System.exit(1);
         }
     }

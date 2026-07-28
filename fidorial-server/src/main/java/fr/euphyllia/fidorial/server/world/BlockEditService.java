@@ -31,7 +31,7 @@ public final class BlockEditService {
                 return false;
             }
         } catch (final IOException e) {
-            LOGGER.error("Changement de bloc impossible en {},{},{}", pos.x(), pos.y(), pos.z(), e);
+            LOGGER.error("Block change impossible at {},{},{}", pos.x(), pos.y(), pos.z(), e);
             return false;
         }
         broadcaster.broadcast(pos, blockRegistry.networkId(state));

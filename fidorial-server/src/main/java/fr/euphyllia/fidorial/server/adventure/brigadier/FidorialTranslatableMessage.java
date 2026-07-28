@@ -12,7 +12,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
  */
 public record FidorialTranslatableMessage(Component component) implements Message {
 
-    public FidorialTranslatableMessage(String key, ComponentLike... args) {
+    public FidorialTranslatableMessage(final String key, final ComponentLike... args) {
         this(Component.translatable(key, args));
     }
 

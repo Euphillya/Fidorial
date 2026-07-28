@@ -80,7 +80,7 @@ public class NbtPlayerEnderChestStorage implements PlayerEnderChestStorage {
         } catch (final IOException atomicFailure) {
             Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING);
         }
-        LOGGER.debug("Ender chest de {} sauvegardée ({} octets{})", uuid, data.length, gzip ? ", gzip" : "");
+        LOGGER.debug("Ender chest for {} saved ({} bytes{})", uuid, data.length, gzip ? ", gzip" : "");
     }
 
     public Path enderChestsDir() {

@@ -42,7 +42,7 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
     private final Predicate<Player> filter;
     private final Function<Result, T> converter;
 
-    private PlayerProfileArgument(Predicate<Player> filter, Function<Result, T> converter) {
+    private PlayerProfileArgument(final Predicate<Player> filter, final Function<Result, T> converter) {
         this.filter = filter;
         this.converter = converter;
     }
@@ -51,31 +51,31 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
         return playerProfile(ALL, Function.identity());
     }
 
-    public static <T> PlayerProfileArgument<T> playerProfile(Function<Result, T> converter) {
+    public static <T> PlayerProfileArgument<T> playerProfile(final Function<Result, T> converter) {
         return playerProfile(ALL, converter);
     }
 
-    public static PlayerProfileArgument<Result> playerProfile(Predicate<Player> filter) {
+    public static PlayerProfileArgument<Result> playerProfile(final Predicate<Player> filter) {
         return playerProfile(filter, Function.identity());
     }
 
-    public static <T> PlayerProfileArgument<T> playerProfile(Predicate<Player> filter, Function<Result, T> converter) {
+    public static <T> PlayerProfileArgument<T> playerProfile(final Predicate<Player> filter, final Function<Result, T> converter) {
         return new PlayerProfileArgument<>(filter, converter);
     }
 
-    public static Collection<PlayerProfileMeta> getPlayerProfiles(CommandContext<CommandSource> context, String name)
+    public static Collection<PlayerProfileMeta> getPlayerProfiles(final CommandContext<CommandSource> context, final String name)
             throws CommandSyntaxException {
 
         return context.getArgument(name, Result.class).getNames(context.getSource());
     }
 
     @Override
-    public T parse(StringReader reader) throws CommandSyntaxException {
+    public T parse(final StringReader reader) throws CommandSyntaxException {
 
-        Result result;
+        final Result result;
 
         if (reader.canRead() && reader.peek() == '@') {
-            EntitySelector selector = new EntitySelectorParser(reader).parse();
+            final EntitySelector selector = new EntitySelectorParser(reader).parse();
 
             if (selector.includesEntities()) {
                 throw EntityArgument.ERROR_ONLY_PLAYERS_ALLOWED.create();
@@ -84,18 +84,18 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
             result = new SelectorResult(selector, filter);
         } else {
 
-            int start = reader.getCursor();
+            final int start = reader.getCursor();
 
             while (reader.canRead() && reader.peek() != ' ') {
                 reader.skip();
             }
 
-            String name = reader.getString().substring(start, reader.getCursor());
+            final String name = reader.getString().substring(start, reader.getCursor());
 
             result = source -> {
-                FidorialServer server = (FidorialServer) source.server();
+                final FidorialServer server = (FidorialServer) source.server();
 
-                Optional<? extends Player> player = server.player(name);
+                final Optional<? extends Player> player = server.player(name);
 
                 if (player.isEmpty() || !filter.test(player.get())) {
                     throw ERROR_UNKNOWN_PLAYER.create();
@@ -110,14 +110,14 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(
-            CommandContext<S> context,
-            SuggestionsBuilder builder
+            final CommandContext<S> context,
+            final SuggestionsBuilder builder
     ) {
-        if (!(context.getSource() instanceof CommandSource source)) {
+        if (!(context.getSource() instanceof final CommandSource source)) {
             return Suggestions.empty();
         }
 
-        String remaining = builder.getRemainingLowerCase();
+        final String remaining = builder.getRemainingLowerCase();
 
         source.server().onlinePlayers().stream()
                 .filter(filter)
@@ -144,15 +144,15 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
         private final EntitySelector selector;
         private final Predicate<Player> filter;
 
-        public SelectorResult(EntitySelector selector, Predicate<Player> filter) {
+        public SelectorResult(final EntitySelector selector, final Predicate<Player> filter) {
             this.selector = selector;
             this.filter = filter;
         }
 
         @Override
-        public Collection<PlayerProfileMeta> getNames(CommandSource source) throws CommandSyntaxException {
+        public Collection<PlayerProfileMeta> getNames(final CommandSource source) throws CommandSyntaxException {
 
-            List<Player> players = selector.findPlayers(source).stream()
+            final List<Player> players = selector.findPlayers(source).stream()
                     .filter(filter)
                     .toList();
 
@@ -170,20 +170,20 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
     public static final class Info implements ArgumentTypeRegistrar<PlayerProfileArgument<?>, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(PlayerProfileArgument<?> argument) {
+        public Spec access(final PlayerProfileArgument<?> argument) {
             return new Spec();
         }
 

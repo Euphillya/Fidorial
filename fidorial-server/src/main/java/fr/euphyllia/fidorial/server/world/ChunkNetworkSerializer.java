@@ -18,33 +18,23 @@ public final class ChunkNetworkSerializer {
     private final BlockStateRegistry blockRegistry;
     private final int biomeNetworkId;
 
-    public ChunkNetworkSerializer(BlockStateRegistry blockRegistry, int biomeNetworkId) {
+    public ChunkNetworkSerializer(final BlockStateRegistry blockRegistry, final int biomeNetworkId) {
         this.blockRegistry = blockRegistry;
         this.biomeNetworkId = biomeNetworkId;
     }
 
-    private static long[] bits(int count) {
-        long[] words = new long[(count + 63) / 64];
+    private static long[] bits(final int count) {
+        final long[] words = new long[(count + 63) / 64];
         for (int i = 0; i < count; i++) words[i / 64] |= 1L << (i % 64);
         return words;
     }
 
-    public void writeChunk(PacketBuffer p, ByteBufAllocator alloc, ChunkColumn chunk) {
+    public void writeChunk(final PacketBuffer p, final ByteBufAllocator alloc, final ChunkColumn chunk) {
         p.writeInt(chunk.chunkX());
         p.writeInt(chunk.chunkZ());
         p.writeVarInt(0); // heightmaps : 0 → le client recalcule
 
-        if (chunk.chunkX() == 0 && chunk.chunkZ() == 0) {
-            int idx = 0;
-            for (ChunkSection s : chunk.sections()) {
-                var pal = s.blocks().palette();
-                LOGGER.info("sec {} nonAir={} single={} palette={} -> ids={}",
-                        idx++, s.nonAirCount(), s.blocks().isSingleValue(),
-                        pal, pal.stream().map(blockRegistry::networkId).toList());
-            }
-        }
-
-        byte[] sections = buildSections(alloc, chunk);
+        final byte[] sections = buildSections(alloc, chunk);
         p.writeByteArray(sections);
 
         p.writeVarInt(0); // block entities
@@ -52,14 +42,14 @@ public final class ChunkNetworkSerializer {
         writeLight(p, chunk.sectionCount());
     }
 
-    private byte[] buildSections(ByteBufAllocator alloc, ChunkColumn chunk) {
-        ByteBuf sec = alloc.buffer();
+    private byte[] buildSections(final ByteBufAllocator alloc, final ChunkColumn chunk) {
+        final ByteBuf sec = alloc.buffer();
         try {
-            PacketBuffer sp = new PacketBuffer(sec);
-            for (ChunkSection section : chunk.sections()) {
+            final PacketBuffer sp = new PacketBuffer(sec);
+            for (final ChunkSection section : chunk.sections()) {
                 writeSection(sp, section);
             }
-            byte[] out = new byte[sec.readableBytes()];
+            final byte[] out = new byte[sec.readableBytes()];
             sec.readBytes(out);
             return out;
         } finally {
@@ -67,14 +57,14 @@ public final class ChunkNetworkSerializer {
         }
     }
 
-    private void writeSection(PacketBuffer sp, ChunkSection section) {
-        PalettedContainer<BlockState> blocks = section.blocks();
+    private void writeSection(final PacketBuffer sp, final ChunkSection section) {
+        final PalettedContainer<BlockState> blocks = section.blocks();
 
         sp.writeShort(section.nonAirCount());   // nonEmptyBlockCount
         sp.writeShort(0);                        // fluidCount (0 pour plat)
 
         if (blocks.isSingleValue()) {
-            int stateId = blockRegistry.networkId(blocks.palette().getFirst());
+            final int stateId = blockRegistry.networkId(blocks.palette().getFirst());
             sp.writeByte(0);           // bitsPerEntry = 0 (single value)
             sp.writeVarInt(stateId);   // valeur unique, pas de tableau de longs
 
@@ -85,17 +75,17 @@ public final class ChunkNetworkSerializer {
         }
     }
 
-    private void writeIndirectSection(PacketBuffer sp, PalettedContainer<BlockState> blocks) {
-        int bits = Math.max(4, blocks.bitsPerEntry());
+    private void writeIndirectSection(final PacketBuffer sp, final PalettedContainer<BlockState> blocks) {
+        final int bits = Math.max(4, blocks.bitsPerEntry());
         sp.writeByte(bits);
         sp.writeVarInt(blocks.palette().size());
-        for (BlockState state : blocks.palette()) {
+        for (final BlockState state : blocks.palette()) {
             sp.writeVarInt(blockRegistry.networkId(state));
         }
 
-        int entriesPerLong = 64 / bits;
-        int expectedLongs = (4096 + entriesPerLong - 1) / entriesPerLong;
-        long[] data = blocks.packedData();
+        final int entriesPerLong = 64 / bits;
+        final int expectedLongs = (4096 + entriesPerLong - 1) / entriesPerLong;
+        final long[] data = blocks.packedData();
         for (int i = 0; i < expectedLongs; i++) {
             sp.writeLong(data != null && i < data.length ? data[i] : 0L);
         }
@@ -105,16 +95,16 @@ public final class ChunkNetworkSerializer {
         sp.writeVarInt(biomeNetworkId);
     }
 
-    private void writeLight(PacketBuffer p, int sectionCount) {
-        int lightSections = sectionCount + 2;
-        long[] allSet = bits(lightSections);
+    private void writeLight(final PacketBuffer p, final int sectionCount) {
+        final int lightSections = sectionCount + 2;
+        final long[] allSet = bits(lightSections);
 
         p.writeBitSet(allSet);
         p.writeBitSet(new long[0]);
         p.writeBitSet(new long[0]);
         p.writeBitSet(allSet);
 
-        byte[] full = new byte[2048];
+        final byte[] full = new byte[2048];
         Arrays.fill(full, (byte) 0xFF);
         p.writeVarInt(lightSections);
         for (int i = 0; i < lightSections; i++) {

@@ -1,4 +1,4 @@
-package fr.euphyllia.fidorial.server.event;
+package fr.euphyllia.fidorial.server.events;
 
 import fr.fidorial.event.Event;
 import fr.fidorial.event.EventBus;
@@ -25,8 +25,8 @@ public final class SimpleEventBus implements EventBus {
     private final ThreadLocal<@Nullable Object> owner = new ThreadLocal<>();
 
     @Override
-    public <E extends Event> Subscription subscribe(Class<E> type, EventPriority priority, Consumer<E> listener) {
-        Registration<E> registration = new Registration<>(type, priority, listener, owner.get());
+    public <E extends Event> Subscription subscribe(final Class<E> type, final EventPriority priority, final Consumer<E> listener) {
+        final Registration<E> registration = new Registration<>(type, priority, listener, owner.get());
         byType.computeIfAbsent(type, t -> new CopyOnWriteArrayList<>()).add(registration);
         resolved.clear();
         return registration;
@@ -34,14 +34,14 @@ public final class SimpleEventBus implements EventBus {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <E extends Event> E post(E event) {
-        for (Registration<?> registration : resolve(event.getClass())) {
+    public <E extends Event> E post(final E event) {
+        for (final Registration<?> registration : resolve(event.getClass())) {
             if (!registration.active) {
                 continue;
             }
             try {
                 ((Registration<E>) registration).listener.accept(event);
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
                 LOGGER.error(
                         "Listener en erreur sur {} (proprietaire : {})",
                         event.getClass().getSimpleName(),
@@ -53,10 +53,10 @@ public final class SimpleEventBus implements EventBus {
     }
 
     @Override
-    public void unsubscribeAll(Object owner) {
-        for (List<Registration<?>> registrations : byType.values()) {
+    public void unsubscribeAll(final Object owner) {
+        for (final List<Registration<?>> registrations : byType.values()) {
             registrations.removeIf(r -> {
-                boolean match = r.owner == owner;
+                final boolean match = r.owner == owner;
                 if (match) {
                     r.active = false;
                 }
@@ -66,8 +66,8 @@ public final class SimpleEventBus implements EventBus {
         resolved.clear();
     }
 
-    public void withOwner(Object pluginOwner, Runnable action) {
-        Object previous = owner.get();
+    public void withOwner(final Object pluginOwner, final Runnable action) {
+        final Object previous = owner.get();
         owner.set(pluginOwner);
         try {
             action.run();
@@ -80,26 +80,26 @@ public final class SimpleEventBus implements EventBus {
         }
     }
 
-    private List<Registration<?>> resolve(Class<?> eventType) {
+    private List<Registration<?>> resolve(final Class<?> eventType) {
         return resolved.computeIfAbsent(eventType, type -> {
-            List<Registration<?>> out = new ArrayList<>();
+            final List<Registration<?>> out = new ArrayList<>();
             collect(type, out);
             out.sort(Comparator.comparing(r -> r.priority));
             return List.copyOf(out);
         });
     }
 
-    private void collect(@Nullable Class<?> type, List<Registration<?>> out) {
+    private void collect(@Nullable final Class<?> type, final List<Registration<?>> out) {
         if (type == null || !Event.class.isAssignableFrom(type)) {
             return;
         }
-        List<Registration<?>> direct = byType.get(type);
+        final List<Registration<?>> direct = byType.get(type);
         if (direct != null) {
             out.addAll(direct);
         }
         collect(type.getSuperclass(), out);
 
-        for (Class<?> itf : type.getInterfaces()) {
+        for (final Class<?> itf : type.getInterfaces()) {
             collect(itf, out);
         }
     }
@@ -112,7 +112,7 @@ public final class SimpleEventBus implements EventBus {
         private final @Nullable Object owner;
         private volatile boolean active = true;
 
-        Registration(Class<E> type, EventPriority priority, Consumer<E> listener, @Nullable Object owner) {
+        Registration(final Class<E> type, final EventPriority priority, final Consumer<E> listener, @Nullable final Object owner) {
             this.type = type;
             this.priority = priority;
             this.listener = listener;
@@ -130,7 +130,7 @@ public final class SimpleEventBus implements EventBus {
                 return;
             }
             active = false;
-            List<Registration<?>> registrations = byType.get(type);
+            final List<Registration<?>> registrations = byType.get(type);
             if (registrations != null) {
                 registrations.remove(this);
             }

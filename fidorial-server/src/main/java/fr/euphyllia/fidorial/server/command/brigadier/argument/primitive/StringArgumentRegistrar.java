@@ -10,18 +10,18 @@ public final class StringArgumentRegistrar
         implements ArgumentTypeRegistrar<StringArgumentType, StringArgumentRegistrar.Spec> {
 
     @Override
-    public void serialize(Spec spec, PacketBuffer buf) {
+    public void serialize(final Spec spec, final PacketBuffer buf) {
         buf.writeVarInt(spec.stringType().ordinal());
     }
 
     @Override
-    public Spec deserialize(PacketBuffer buf) {
-        StringType stringType = StringType.values()[buf.readVarInt()];
+    public Spec deserialize(final PacketBuffer buf) {
+        final StringType stringType = StringType.values()[buf.readVarInt()];
         return new Spec(stringType);
     }
 
     @Override
-    public void serializeJson(Spec spec, JsonObject json) {
+    public void serializeJson(final Spec spec, final JsonObject json) {
         json.addProperty(
                 "type",
                 switch (spec.stringType()) {
@@ -32,7 +32,7 @@ public final class StringArgumentRegistrar
     }
 
     @Override
-    public Spec access(StringArgumentType argument) {
+    public Spec access(final StringArgumentType argument) {
         return new Spec(argument.getType());
     }
 

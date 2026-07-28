@@ -14,9 +14,9 @@ public final class Registries {
     private final Map<RegistryKey<?>, Registry<?>> typedRegistries;
 
     private Registries(
-            RegistryHolder dynamic,
-            RegistryHolder frozen,
-            Map<RegistryKey<?>, Registry<?>> typedRegistries
+            final RegistryHolder dynamic,
+            final RegistryHolder frozen,
+            final Map<RegistryKey<?>, Registry<?>> typedRegistries
     ) {
         this.dynamic = dynamic;
         this.frozen = frozen;
@@ -24,11 +24,11 @@ public final class Registries {
     }
 
     public static Registries load() {
-        RegistryDataLoader data = RegistryDataLoader.load();
+        final RegistryDataLoader data = RegistryDataLoader.load();
 
-        Map<RegistryKey<?>, Registry<?>> registries = new HashMap<>();
+        final Map<RegistryKey<?>, Registry<?>> registries = new HashMap<>();
 
-        EntityTypeRegistry entityTypes = new EntityTypeRegistry();
+        final EntityTypeRegistry entityTypes = new EntityTypeRegistry();
 
         registries.put(RegistryKey.ENTITY_TYPE, entityTypes);
 
@@ -44,8 +44,8 @@ public final class Registries {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Registry<T> registry(RegistryKey<T> key) {
-        Registry<T> registry = (Registry<T>) typedRegistries.get(key);
+    public <T> Registry<T> registry(final RegistryKey<T> key) {
+        final Registry<T> registry = (Registry<T>) typedRegistries.get(key);
 
         if (registry == null) {
             throw new IllegalArgumentException("Unknown registry: " + key);

@@ -9,7 +9,8 @@ public final class ItemStackWriter {
 
     private static final int AIR_ITEM = 0;
 
-    private ItemStackWriter() {}
+    private ItemStackWriter() {
+    }
 
     public static void writeSlot(final PacketBuffer buf, final ItemStack stack, final RegistryHolder frozen) {
         if (stack.isEmpty()) {

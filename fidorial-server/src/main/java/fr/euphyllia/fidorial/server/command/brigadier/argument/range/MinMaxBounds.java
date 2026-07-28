@@ -51,42 +51,42 @@ public interface MinMaxBounds<T extends Number & Comparable<T>> {
             return new Bounds<T>(Optional.<T>empty(), Optional.<T>empty()); // <T> is needed for javac even tho idea doesnt flag this
         }
 
-        public static <T extends Number & Comparable<T>> Bounds<T> exactly(T value) {
-            Optional<T> wrapped = Optional.of(value);
+        public static <T extends Number & Comparable<T>> Bounds<T> exactly(final T value) {
+            final Optional<T> wrapped = Optional.of(value);
             return new Bounds<>(wrapped, wrapped);
         }
 
-        public static <T extends Number & Comparable<T>> Bounds<T> between(T min, T max) {
+        public static <T extends Number & Comparable<T>> Bounds<T> between(final T min, final T max) {
             return new Bounds<>(Optional.of(min), Optional.of(max));
         }
 
-        public static <T extends Number & Comparable<T>> Bounds<T> atLeast(T value) {
+        public static <T extends Number & Comparable<T>> Bounds<T> atLeast(final T value) {
             return new Bounds<>(Optional.of(value), Optional.empty());
         }
 
-        public static <T extends Number & Comparable<T>> Bounds<T> atMost(T value) {
+        public static <T extends Number & Comparable<T>> Bounds<T> atMost(final T value) {
             return new Bounds<>(Optional.empty(), Optional.of(value));
         }
 
-        public <U extends Number & Comparable<U>> Bounds<U> map(Function<T, U> mapper) {
+        public <U extends Number & Comparable<U>> Bounds<U> map(final Function<T, U> mapper) {
             return new Bounds<>(this.min.map(mapper), this.max.map(mapper));
         }
 
         public static <T extends Number & Comparable<T>> Bounds<T> fromReader(
-                StringReader reader,
-                Function<String, T> converter,
-                Supplier<DynamicCommandExceptionType> parseExc
+                final StringReader reader,
+                final Function<String, T> converter,
+                final Supplier<DynamicCommandExceptionType> parseExc
         ) throws CommandSyntaxException {
 
             if (!reader.canRead()) {
                 throw ERROR_EMPTY.createWithContext(reader);
             }
 
-            int start = reader.getCursor();
+            final int start = reader.getCursor();
 
             try {
-                Optional<T> min = readNumber(reader, converter, parseExc);
-                Optional<T> max;
+                final Optional<T> min = readNumber(reader, converter, parseExc);
+                final Optional<T> max;
 
                 if (reader.canRead(2) && reader.peek() == '.' && reader.peek(1) == '.') {
                     reader.skip();
@@ -101,38 +101,38 @@ public interface MinMaxBounds<T extends Number & Comparable<T>> {
                 }
 
                 return new Bounds<>(min, max);
-            } catch (CommandSyntaxException e) {
+            } catch (final CommandSyntaxException e) {
                 reader.setCursor(start);
                 throw e;
             }
         }
 
         private static <T extends Number> Optional<T> readNumber(
-                StringReader reader,
-                Function<String, T> converter,
-                Supplier<DynamicCommandExceptionType> parseExc
+                final StringReader reader,
+                final Function<String, T> converter,
+                final Supplier<DynamicCommandExceptionType> parseExc
         ) throws CommandSyntaxException {
 
-            int start = reader.getCursor();
+            final int start = reader.getCursor();
 
             while (reader.canRead() && isAllowedInputChar(reader)) {
                 reader.skip();
             }
 
-            String number = reader.getString().substring(start, reader.getCursor());
+            final String number = reader.getString().substring(start, reader.getCursor());
             if (number.isEmpty()) {
                 return Optional.empty();
             }
 
             try {
                 return Optional.of(converter.apply(number));
-            } catch (NumberFormatException ex) {
+            } catch (final NumberFormatException ex) {
                 throw parseExc.get().createWithContext(reader, number);
             }
         }
 
-        private static boolean isAllowedInputChar(StringReader reader) {
-            char c = reader.peek();
+        private static boolean isAllowedInputChar(final StringReader reader) {
+            final char c = reader.peek();
             return (c >= '0' && c <= '9') || c == '-'
                     || (c == '.' && (!reader.canRead(2) || reader.peek(1) != '.'));
         }
@@ -142,39 +142,39 @@ public interface MinMaxBounds<T extends Number & Comparable<T>> {
 
         public static final Doubles ANY = new Doubles(Bounds.any());
 
-        private Doubles(Bounds<Double> bounds) {
+        private Doubles(final Bounds<Double> bounds) {
             this(bounds, bounds.map(v -> v * v));
         }
 
-        public static Doubles exactly(double value) {
+        public static Doubles exactly(final double value) {
             return new Doubles(Bounds.exactly(value));
         }
 
-        public static Doubles between(double min, double max) {
+        public static Doubles between(final double min, final double max) {
             return new Doubles(Bounds.between(min, max));
         }
 
-        public static Doubles atLeast(double value) {
+        public static Doubles atLeast(final double value) {
             return new Doubles(Bounds.atLeast(value));
         }
 
-        public static Doubles atMost(double value) {
+        public static Doubles atMost(final double value) {
             return new Doubles(Bounds.atMost(value));
         }
 
-        public boolean matches(double value) {
+        public boolean matches(final double value) {
             return this.bounds.min().map(min -> min <= value).orElse(true)
                     && this.bounds.max().map(max -> max >= value).orElse(true);
         }
 
-        public boolean matchesSqr(double valueSqr) {
+        public boolean matchesSqr(final double valueSqr) {
             return this.boundsSqr.min().map(min -> min <= valueSqr).orElse(true)
                     && this.boundsSqr.max().map(max -> max >= valueSqr).orElse(true);
         }
 
-        public static Doubles fromReader(StringReader reader) throws CommandSyntaxException {
-            int start = reader.getCursor();
-            Bounds<Double> bounds = Bounds.fromReader(
+        public static Doubles fromReader(final StringReader reader) throws CommandSyntaxException {
+            final int start = reader.getCursor();
+            final Bounds<Double> bounds = Bounds.fromReader(
                     reader, Double::parseDouble, CommandSyntaxException.BUILT_IN_EXCEPTIONS::readerInvalidDouble);
 
             if (bounds.areSwapped()) {
@@ -190,39 +190,39 @@ public interface MinMaxBounds<T extends Number & Comparable<T>> {
 
         public static final Ints ANY = new Ints(Bounds.any());
 
-        private Ints(Bounds<Integer> bounds) {
+        private Ints(final Bounds<Integer> bounds) {
             this(bounds, bounds.map(v -> (long) v * (long) v));
         }
 
-        public static Ints exactly(int value) {
+        public static Ints exactly(final int value) {
             return new Ints(Bounds.exactly(value));
         }
 
-        public static Ints between(int min, int max) {
+        public static Ints between(final int min, final int max) {
             return new Ints(Bounds.between(min, max));
         }
 
-        public static Ints atLeast(int value) {
+        public static Ints atLeast(final int value) {
             return new Ints(Bounds.atLeast(value));
         }
 
-        public static Ints atMost(int value) {
+        public static Ints atMost(final int value) {
             return new Ints(Bounds.atMost(value));
         }
 
-        public boolean matches(int value) {
+        public boolean matches(final int value) {
             return this.bounds.min().map(min -> min <= value).orElse(true)
                     && this.bounds.max().map(max -> max >= value).orElse(true);
         }
 
-        public boolean matchesSqr(long valueSqr) {
+        public boolean matchesSqr(final long valueSqr) {
             return this.boundsSqr.min().map(min -> min <= valueSqr).orElse(true)
                     && this.boundsSqr.max().map(max -> max >= valueSqr).orElse(true);
         }
 
-        public static Ints fromReader(StringReader reader) throws CommandSyntaxException {
-            int start = reader.getCursor();
-            Bounds<Integer> bounds = Bounds.fromReader(
+        public static Ints fromReader(final StringReader reader) throws CommandSyntaxException {
+            final int start = reader.getCursor();
+            final Bounds<Integer> bounds = Bounds.fromReader(
                     reader, Integer::parseInt, CommandSyntaxException.BUILT_IN_EXCEPTIONS::readerInvalidInt);
 
             if (bounds.areSwapped()) {

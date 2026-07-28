@@ -26,7 +26,7 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
     private final Consumer<ClientboundPacket> broadcaster;
     private final ScheduledExecutorService ticker;
 
-    public WeatherEngine(LevelData level, Consumer<ClientboundPacket> broadcaster) {
+    public WeatherEngine(final LevelData level, final Consumer<ClientboundPacket> broadcaster) {
         this.level = level;
         this.broadcaster = broadcaster;
         this.ticker = Executors.newSingleThreadScheduledExecutor(
@@ -62,14 +62,14 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
                 () -> {
                     try {
                         tick();
-                    } catch (Throwable t) {
-                        LOGGER.error("Tick meteo en echec", t);
+                    } catch (final Throwable t) {
+                        LOGGER.error("Error during weather tick", t);
                     }
                 },
                 50,
                 50,
                 TimeUnit.MILLISECONDS);
-        LOGGER.info("Meteo initiale : {}", weather());
+        LOGGER.debug("Initial weather: {}", weather());
     }
 
     private synchronized void tick() {
@@ -104,14 +104,14 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
         return level.raining;
     }
 
-    private void setRaining(boolean raining) {
+    private void setRaining(final boolean raining) {
         if (level.raining == raining) {
             return;
         }
         level.raining = raining;
         broadcaster.accept(new ClientboundGameEventPacket(
                 raining ? ClientboundGameEventPacket.BEGIN_RAINING : ClientboundGameEventPacket.END_RAINING, 0f));
-        LOGGER.debug("Pluie : {}", raining);
+        LOGGER.debug("Rain : {}", raining);
     }
 
     @Override
@@ -119,18 +119,18 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
         return level.raining && level.thundering;
     }
 
-    private void setThundering(boolean thundering) {
+    private void setThundering(final boolean thundering) {
         if (level.thundering == thundering) {
             return;
         }
         level.thundering = thundering;
         broadcaster.accept(
                 new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, thundering ? 1f : 0f));
-        LOGGER.debug("Orage : {}", thundering);
+        LOGGER.debug("Thunderstorm : {}", thundering);
     }
 
     @Override
-    public synchronized void setWeather(Weather weather, int durationTicks) {
+    public synchronized void setWeather(final Weather weather, final int durationTicks) {
         switch (weather) {
             case CLEAR -> {
                 setRaining(false);
@@ -150,14 +150,14 @@ public final class WeatherEngine implements WeatherManager, AutoCloseable {
                 level.clearWeatherTime = 0;
                 setRaining(true);
                 setThundering(true);
-                int d = durationTicks > 0 ? durationTicks : nextThunderDuration();
+                final int d = durationTicks > 0 ? durationTicks : nextThunderDuration();
                 level.rainTime = d;
                 level.thunderTime = d;
             }
         }
     }
 
-    public synchronized void syncTo(Consumer<ClientboundPacket> target) {
+    public synchronized void syncTo(final Consumer<ClientboundPacket> target) {
         if (!level.raining) {
             return; // le client demarre au beau fixe par defaut
         }

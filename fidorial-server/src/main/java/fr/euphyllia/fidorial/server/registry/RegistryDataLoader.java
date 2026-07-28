@@ -24,13 +24,13 @@ public class RegistryDataLoader {
     }
 
     static RegistryDataLoader load() {
-        RegistryDataLoader loader = new RegistryDataLoader();
-        try (InputStream raw = RegistryDataLoader.class.getResourceAsStream(RESOURCE)) {
+        final RegistryDataLoader loader = new RegistryDataLoader();
+        try (final InputStream raw = RegistryDataLoader.class.getResourceAsStream(RESOURCE)) {
             if (raw == null) {
                 throw new IllegalStateException("Missing resource " + RESOURCE);
             }
             loader.read(new GZIPInputStream(raw));
-        } catch (IOException exception) {
+        } catch (final IOException exception) {
             throw new UncheckedIOException("Failed to load " + RESOURCE, exception);
         }
         return loader;
@@ -44,8 +44,8 @@ public class RegistryDataLoader {
         return frozen;
     }
 
-    private void read(InputStream input) throws IOException {
-        try (JsonReader reader = new JsonReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
+    private void read(final InputStream input) throws IOException {
+        try (final JsonReader reader = new JsonReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
             reader.beginObject();
             while (reader.hasNext()) {
                 switch (reader.nextName()) {
@@ -58,16 +58,16 @@ public class RegistryDataLoader {
         }
     }
 
-    private void readGroup(JsonReader reader, Map<String, Registry> target) throws IOException {
+    private void readGroup(final JsonReader reader, final Map<String, Registry> target) throws IOException {
         reader.beginObject();
         while (reader.hasNext()) {
-            String name = reader.nextName();
+            final String name = reader.nextName();
             target.put(name, readRegistry(name, reader));
         }
         reader.endObject();
     }
 
-    private Registry readRegistry(String name, JsonReader reader) throws IOException {
+    private Registry readRegistry(final String name, final JsonReader reader) throws IOException {
         List<String> entries = List.of();
         Map<String, List<String>> tags = Map.of();
 
@@ -90,8 +90,8 @@ public class RegistryDataLoader {
         return new Registry(name, entries, tags);
     }
 
-    private List<String> readStrings(JsonReader reader) throws IOException {
-        List<String> values = new ArrayList<>();
+    private List<String> readStrings(final JsonReader reader) throws IOException {
+        final List<String> values = new ArrayList<>();
         reader.beginArray();
         while (reader.hasNext()) {
             values.add(reader.nextString());

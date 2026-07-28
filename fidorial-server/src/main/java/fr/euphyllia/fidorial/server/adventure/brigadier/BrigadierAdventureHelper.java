@@ -13,13 +13,13 @@ public final class BrigadierAdventureHelper {
     private BrigadierAdventureHelper() {
     }
 
-    public static Component convert(Message message, boolean isConsole) {
-        if (message instanceof FidorialTranslatableMessage(Component component)) {
+    public static Component convert(final Message message, final boolean isConsole) {
+        if (message instanceof FidorialTranslatableMessage(final Component component)) {
             if (!isConsole) {
                 return component;
             }
 
-            if (component instanceof TranslatableComponent translatable) {
+            if (component instanceof final TranslatableComponent translatable) {
                 return Component.translatable(
                         "console." + translatable.key(),
                         translatable.arguments().toArray(ComponentLike[]::new)

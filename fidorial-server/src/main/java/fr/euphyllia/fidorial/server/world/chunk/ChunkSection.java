@@ -10,22 +10,22 @@ public final class ChunkSection {
     private final PalettedContainer<String> biomes;
     private int nonAirCount;
 
-    public ChunkSection(int sectionY, BlockState fillBlock, String fillBiome) {
+    public ChunkSection(final int sectionY, final BlockState fillBlock, final String fillBiome) {
         this.sectionY = sectionY;
         this.blocks = new PalettedContainer<>(BLOCK_COUNT, 4, fillBlock);
         this.biomes = new PalettedContainer<>(BIOME_COUNT, 1, fillBiome);
         this.nonAirCount = fillBlock.isAir() ? 0 : BLOCK_COUNT;
     }
 
-    public ChunkSection(int sectionY, PalettedContainer<BlockState> blocks,
-                        PalettedContainer<String> biomes) {
+    public ChunkSection(final int sectionY, final PalettedContainer<BlockState> blocks,
+                        final PalettedContainer<String> biomes) {
         this.sectionY = sectionY;
         this.blocks = blocks;
         this.biomes = biomes;
         recomputeNonAir();
     }
 
-    private static int blockIndex(int x, int y, int z) {
+    private static int blockIndex(final int x, final int y, final int z) {
         return (y << 8) | (z << 4) | x;
     }
 
@@ -49,20 +49,20 @@ public final class ChunkSection {
         return nonAirCount == 0;
     }
 
-    public void setBlock(int x, int y, int z, BlockState state) {
-        int i = blockIndex(x, y, z);
-        boolean wasAir = blocks.get(i).isAir();
-        boolean isAir = state.isAir();
+    public void setBlock(final int x, final int y, final int z, final BlockState state) {
+        final int i = blockIndex(x, y, z);
+        final boolean wasAir = blocks.get(i).isAir();
+        final boolean isAir = state.isAir();
         if (wasAir && !isAir) nonAirCount++;
         else if (!wasAir && isAir) nonAirCount--;
         blocks.set(i, state);
     }
 
-    public BlockState getBlock(int x, int y, int z) {
+    public BlockState getBlock(final int x, final int y, final int z) {
         return blocks.get(blockIndex(x, y, z));
     }
 
-    public void setBiome(int bx, int by, int bz, String biome) {
+    public void setBiome(final int bx, final int by, final int bz, final String biome) {
         biomes.set((by << 4) | (bz << 2) | bx, biome);
     }
 

@@ -10,30 +10,30 @@ public final class LongArgumentRegistrar
         implements ArgumentTypeRegistrar<LongArgumentType, LongArgumentRegistrar.Spec> {
 
     @Override
-    public void serialize(Spec spec, PacketBuffer buf) {
-        boolean hasMin = spec.min() != Long.MIN_VALUE;
-        boolean hasMax = spec.max() != Long.MAX_VALUE;
+    public void serialize(final Spec spec, final PacketBuffer buf) {
+        final boolean hasMin = spec.min() != Long.MIN_VALUE;
+        final boolean hasMax = spec.max() != Long.MAX_VALUE;
         buf.writeByte(NumberFlags.create(hasMin, hasMax));
         if (hasMin) buf.writeLong(spec.min());
         if (hasMax) buf.writeLong(spec.max());
     }
 
     @Override
-    public Spec deserialize(PacketBuffer buf) {
-        byte flags = buf.readByte();
-        long min = NumberFlags.hasMin(flags) ? buf.readLong() : Long.MIN_VALUE;
-        long max = NumberFlags.hasMax(flags) ? buf.readLong() : Long.MAX_VALUE;
+    public Spec deserialize(final PacketBuffer buf) {
+        final byte flags = buf.readByte();
+        final long min = NumberFlags.hasMin(flags) ? buf.readLong() : Long.MIN_VALUE;
+        final long max = NumberFlags.hasMax(flags) ? buf.readLong() : Long.MAX_VALUE;
         return new Spec(min, max);
     }
 
     @Override
-    public void serializeJson(Spec spec, JsonObject json) {
+    public void serializeJson(final Spec spec, final JsonObject json) {
         if (spec.min() != Long.MIN_VALUE) json.addProperty("min", spec.min());
         if (spec.max() != Long.MAX_VALUE) json.addProperty("max", spec.max());
     }
 
     @Override
-    public Spec access(LongArgumentType argument) {
+    public Spec access(final LongArgumentType argument) {
         return new Spec(argument.getMinimum(), argument.getMaximum());
     }
 

@@ -32,9 +32,9 @@ public final class NamedColorArgument implements ArgumentType<NamedTextColor> {
     }
 
     @Override
-    public NamedTextColor parse(StringReader reader) throws CommandSyntaxException {
-        String id = reader.readUnquotedString();
-        NamedTextColor result = NamedTextColor.NAMES.value(id);
+    public NamedTextColor parse(final StringReader reader) throws CommandSyntaxException {
+        final String id = reader.readUnquotedString();
+        final NamedTextColor result = NamedTextColor.NAMES.value(id);
         if (result == null) {
             throw ERROR_INVALID_VALUE.createWithContext(reader, id);
         }
@@ -42,8 +42,8 @@ public final class NamedColorArgument implements ArgumentType<NamedTextColor> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        for (NamedTextColor color : NamedTextColor.NAMES.values()) {
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        for (final NamedTextColor color : NamedTextColor.NAMES.values()) {
             builder.suggest(NamedTextColor.NAMES.key(color));
         }
         return builder.buildFuture();
@@ -57,20 +57,20 @@ public final class NamedColorArgument implements ArgumentType<NamedTextColor> {
     public static final class Info implements ArgumentTypeRegistrar<NamedColorArgument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(NamedColorArgument argument) {
+        public Spec access(final NamedColorArgument argument) {
             return new Spec();
         }
 

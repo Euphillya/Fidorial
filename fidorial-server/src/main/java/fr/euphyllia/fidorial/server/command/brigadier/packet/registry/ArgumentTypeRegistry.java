@@ -15,17 +15,17 @@ public final class ArgumentTypeRegistry {
     }
 
     public static <A extends ArgumentType<?>, S extends ArgumentTypeRegistrar.Spec<A>> void register(
-            ArgumentTypeRegistrar<A, S> registrar
+            final ArgumentTypeRegistrar<A, S> registrar
     ) {
         final Class<?> type = resolveArgumentTypeClass(registrar);
         REGISTRARS.put(type, registrar);
     }
 
-    private static Class<?> resolveArgumentTypeClass(ArgumentTypeRegistrar<?, ?> registrar) {
+    private static Class<?> resolveArgumentTypeClass(final ArgumentTypeRegistrar<?, ?> registrar) {
 
         for (final Type genericInterface : registrar.getClass().getGenericInterfaces()) {
 
-            if (genericInterface instanceof ParameterizedType parameterized
+            if (genericInterface instanceof final ParameterizedType parameterized
                     && parameterized.getRawType() == ArgumentTypeRegistrar.class) {
 
                 return rawClassOf(parameterized.getActualTypeArguments()[0], registrar);
@@ -37,13 +37,13 @@ public final class ArgumentTypeRegistry {
                         + " — it must directly implement ArgumentTypeRegistrar<T, ...>");
     }
 
-    private static Class<?> rawClassOf(Type type, ArgumentTypeRegistrar<?, ?> registrar) {
+    private static Class<?> rawClassOf(final Type type, final ArgumentTypeRegistrar<?, ?> registrar) {
 
-        if (type instanceof Class<?> clazz) {
+        if (type instanceof final Class<?> clazz) {
             return clazz;
         }
 
-        if (type instanceof ParameterizedType parameterized && parameterized.getRawType() instanceof Class<?> clazz) {
+        if (type instanceof final ParameterizedType parameterized && parameterized.getRawType() instanceof final Class<?> clazz) {
             return clazz;
         }
 
@@ -54,8 +54,8 @@ public final class ArgumentTypeRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    public static <A extends ArgumentType<?>> ArgumentTypeRegistrar<A, ?> registrar(A argument) {
-        ArgumentTypeRegistrar<?, ?> registrar = REGISTRARS.get(argument.getClass());
+    public static <A extends ArgumentType<?>> ArgumentTypeRegistrar<A, ?> registrar(final A argument) {
+        final ArgumentTypeRegistrar<?, ?> registrar = REGISTRARS.get(argument.getClass());
 
         if (registrar == null) {
             throw new IllegalArgumentException(

@@ -32,7 +32,7 @@ public final class UuidArgument implements ArgumentType<UUID> {
         return new UuidArgument();
     }
 
-    public static UUID getUuid(CommandContext<CommandSource> context, String name) {
+    public static UUID getUuid(final CommandContext<CommandSource> context, final String name) {
         return context.getArgument(name, UUID.class);
     }
 
@@ -40,16 +40,16 @@ public final class UuidArgument implements ArgumentType<UUID> {
     }
 
     @Override
-    public UUID parse(StringReader reader) throws CommandSyntaxException {
+    public UUID parse(final StringReader reader) throws CommandSyntaxException {
 
-        String remaining = reader.getRemaining();
-        Matcher matcher = ALLOWED_CHARACTERS.matcher(remaining);
+        final String remaining = reader.getRemaining();
+        final Matcher matcher = ALLOWED_CHARACTERS.matcher(remaining);
 
         if (matcher.find()) {
-            String value = matcher.group(1);
+            final String value = matcher.group(1);
 
             try {
-                UUID uuid = UUID.fromString(value);
+                final UUID uuid = UUID.fromString(value);
                 reader.setCursor(reader.getCursor() + value.length());
                 return uuid;
             } catch (IllegalArgumentException _) {
@@ -67,20 +67,20 @@ public final class UuidArgument implements ArgumentType<UUID> {
     public static final class Info implements ArgumentTypeRegistrar<UuidArgument, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(UuidArgument argument) {
+        public Spec access(final UuidArgument argument) {
             return new Spec();
         }
 

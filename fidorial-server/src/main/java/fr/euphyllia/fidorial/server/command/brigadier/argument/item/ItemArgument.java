@@ -33,7 +33,7 @@ public final class ItemArgument<T> implements ArgumentType<T> {
 
     private final Function<ItemInput, T> converter;
 
-    private ItemArgument(Function<ItemInput, T> converter) {
+    private ItemArgument(final Function<ItemInput, T> converter) {
         this.converter = converter;
     }
 
@@ -41,24 +41,24 @@ public final class ItemArgument<T> implements ArgumentType<T> {
         return item(Function.identity());
     }
 
-    public static <T> ItemArgument<T> item(Function<ItemInput, T> converter) {
+    public static <T> ItemArgument<T> item(final Function<ItemInput, T> converter) {
         return new ItemArgument<>(converter);
     }
 
-    private boolean exists(Key key) {
+    private boolean exists(final Key key) {
         return ItemKeys.values().anyMatch(item -> item.key().equals(key));
     }
 
     @Override
-    public T parse(StringReader reader) throws CommandSyntaxException {
-        int start = reader.getCursor();
+    public T parse(final StringReader reader) throws CommandSyntaxException {
+        final int start = reader.getCursor();
 
         while (reader.canRead() && isAllowedInKey(reader.peek())) {
             reader.skip();
         }
 
-        String input = reader.getString().substring(start, reader.getCursor());
-        Key key = input.contains(":") ? Key.key(input) : Key.key("minecraft", input);
+        final String input = reader.getString().substring(start, reader.getCursor());
+        final Key key = input.contains(":") ? Key.key(input) : Key.key("minecraft", input);
 
         if (!exists(key)) {
             reader.setCursor(start);
@@ -76,13 +76,13 @@ public final class ItemArgument<T> implements ArgumentType<T> {
         return converter.apply(new ItemInput(key));
     }
 
-    private boolean isAllowedInKey(char c) {
+    private boolean isAllowedInKey(final char c) {
         return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        final String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
         ItemKeys.values()
                 .map(TypedKey::key)
                 .map(Key::asString)
@@ -97,7 +97,7 @@ public final class ItemArgument<T> implements ArgumentType<T> {
     }
 
     public record ItemInput(Key id) {
-        public fr.euphyllia.fidorial.server.entity.ItemStack createItemStack(int count) {
+        public fr.euphyllia.fidorial.server.entity.ItemStack createItemStack(final int count) {
             return fr.euphyllia.fidorial.server.entity.ItemStack.of(id, count);
         }
     }
@@ -105,20 +105,20 @@ public final class ItemArgument<T> implements ArgumentType<T> {
     public static final class Info implements ArgumentTypeRegistrar<ItemArgument<?>, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(ItemArgument<?> argument) {
+        public Spec access(final ItemArgument<?> argument) {
             return new Spec();
         }
 

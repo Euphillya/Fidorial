@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.world.storage;
 import fr.euphyllia.fidorial.server.world.anvil.RegionConstants;
 import fr.euphyllia.fidorial.server.world.anvil.RegionFile;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,36 +15,36 @@ public final class EntityRegionStorage implements AutoCloseable {
     private final WorldPaths paths;
     private final Map<String, RegionFile> regionCache = new ConcurrentHashMap<>();
 
-    public EntityRegionStorage(WorldPaths paths) {
+    public EntityRegionStorage(final WorldPaths paths) {
         this.paths = paths;
     }
 
-    private static String key(Dimension dim, int rx, int rz) {
+    private static String key(final Dimension dim, final int rx, final int rz) {
         return dim.id() + "@" + rx + "," + rz;
     }
 
-    private RegionFile region(Dimension dim, int chunkX, int chunkZ) {
-        int rx = RegionConstants.chunkToRegion(chunkX);
-        int rz = RegionConstants.chunkToRegion(chunkZ);
+    private RegionFile region(final Dimension dim, final int chunkX, final int chunkZ) {
+        final int rx = RegionConstants.chunkToRegion(chunkX);
+        final int rz = RegionConstants.chunkToRegion(chunkZ);
         return regionCache.computeIfAbsent(key(dim, rx, rz), k -> {
-            Path file = paths.entitiesDir(dim).resolve(RegionConstants.fileName(rx, rz));
+            final Path file = paths.entitiesDir(dim).resolve(RegionConstants.fileName(rx, rz));
             try {
                 return new RegionFile(file);
-            } catch (IOException e) {
-                throw new RuntimeException("Impossible d'ouvrir le fichier entities " + file, e);
+            } catch (final IOException e) {
+                throw new RuntimeException("Unable to open the entities file: " + file, e);
             }
         });
     }
 
-    public boolean hasChunk(Dimension dim, int chunkX, int chunkZ) {
-        RegionFile rf = region(dim, chunkX, chunkZ);
+    public boolean hasChunk(final Dimension dim, final int chunkX, final int chunkZ) {
+        final RegionFile rf = region(dim, chunkX, chunkZ);
         synchronized (rf) {
             return rf.hasChunk(chunkX, chunkZ);
         }
     }
 
-    public NbtCompound load(Dimension dim, int chunkX, int chunkZ) throws IOException {
-        RegionFile rf = region(dim, chunkX, chunkZ);
+    public @Nullable NbtCompound load(final Dimension dim, final int chunkX, final int chunkZ) throws IOException {
+        final RegionFile rf = region(dim, chunkX, chunkZ);
         synchronized (rf) {
             if (!rf.hasChunk(chunkX, chunkZ)) {
                 return null;
@@ -52,8 +53,8 @@ public final class EntityRegionStorage implements AutoCloseable {
         }
     }
 
-    public void save(Dimension dim, int chunkX, int chunkZ, NbtCompound nbt) throws IOException {
-        RegionFile rf = region(dim, chunkX, chunkZ);
+    public void save(final Dimension dim, final int chunkX, final int chunkZ, final NbtCompound nbt) throws IOException {
+        final RegionFile rf = region(dim, chunkX, chunkZ);
         synchronized (rf) {
             rf.writeChunk(chunkX, chunkZ, nbt);
         }
@@ -61,11 +62,11 @@ public final class EntityRegionStorage implements AutoCloseable {
 
     @Override
     public void close() {
-        for (RegionFile rf : regionCache.values()) {
+        for (final RegionFile rf : regionCache.values()) {
             synchronized (rf) {
                 try {
                     rf.close();
-                } catch (IOException ignored) {
+                } catch (final IOException ignored) {
                 }
             }
         }

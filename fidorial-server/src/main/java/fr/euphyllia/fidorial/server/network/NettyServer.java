@@ -34,7 +34,7 @@ public final class NettyServer {
     private final Class<? extends ServerChannel> channelClass;
     private @Nullable Channel channel;
 
-    public NettyServer(FidorialServer server, int port) {
+    public NettyServer(final FidorialServer server, final int port) {
         this.server = server;
         this.port = port;
 
@@ -62,13 +62,13 @@ public final class NettyServer {
     }
 
     public void bind() throws InterruptedException {
-        ServerBootstrap bootstrap = new ServerBootstrap()
+        final ServerBootstrap bootstrap = new ServerBootstrap()
                 .group(bossGroup, workerGroup)
                 .channel(channelClass)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(SocketChannel ch) {
+                    protected void initChannel(final SocketChannel ch) {
                         ch.pipeline()
                                 .addLast("frame-decoder", new FrameDecoder())
                                 .addLast("frame-encoder", new FrameEncoder())

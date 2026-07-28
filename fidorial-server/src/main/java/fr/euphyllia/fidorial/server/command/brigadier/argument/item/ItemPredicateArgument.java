@@ -39,7 +39,7 @@ public final class ItemPredicateArgument<T> implements ArgumentType<T> {
 
     private final Function<Predicate<ItemStack>, T> converter;
 
-    private ItemPredicateArgument(Function<Predicate<ItemStack>, T> converter) {
+    private ItemPredicateArgument(final Function<Predicate<ItemStack>, T> converter) {
         this.converter = converter;
     }
 
@@ -47,29 +47,29 @@ public final class ItemPredicateArgument<T> implements ArgumentType<T> {
         return itemPredicate(Function.identity());
     }
 
-    public static <T> ItemPredicateArgument<T> itemPredicate(Function<Predicate<ItemStack>, T> converter) {
+    public static <T> ItemPredicateArgument<T> itemPredicate(final Function<Predicate<ItemStack>, T> converter) {
         return new ItemPredicateArgument<>(converter);
     }
 
-    private boolean exists(Key key) {
+    private boolean exists(final Key key) {
         return ItemKeys.values().anyMatch(item -> item.key().equals(key));
     }
 
     @Override
-    public T parse(StringReader reader) throws CommandSyntaxException {
+    public T parse(final StringReader reader) throws CommandSyntaxException {
         if (reader.canRead() && reader.peek() == '#') {
             // TBD
             throw ERROR_TAGS_UNSUPPORTED.createWithContext(reader);
         }
 
-        int start = reader.getCursor();
+        final int start = reader.getCursor();
 
         while (reader.canRead() && isAllowedInKey(reader.peek())) {
             reader.skip();
         }
 
-        String input = reader.getString().substring(start, reader.getCursor());
-        Key key = input.contains(":") ? Key.key(input) : Key.key("minecraft", input);
+        final String input = reader.getString().substring(start, reader.getCursor());
+        final Key key = input.contains(":") ? Key.key(input) : Key.key("minecraft", input);
 
         if (!exists(key)) {
             reader.setCursor(start);
@@ -84,18 +84,18 @@ public final class ItemPredicateArgument<T> implements ArgumentType<T> {
             if (reader.canRead()) reader.skip();
         }
 
-        Predicate<ItemStack> predicate = stack -> !stack.isEmpty() && stack.id().equals(key);
+        final Predicate<ItemStack> predicate = stack -> !stack.isEmpty() && stack.id().equals(key);
 
         return converter.apply(predicate);
     }
 
-    private boolean isAllowedInKey(char c) {
+    private boolean isAllowedInKey(final char c) {
         return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
+        final String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
         ItemKeys.values()
                 .map(TypedKey::key)
                 .map(Key::asString)
@@ -112,20 +112,20 @@ public final class ItemPredicateArgument<T> implements ArgumentType<T> {
     public static final class Info implements ArgumentTypeRegistrar<ItemPredicateArgument<?>, Info.Spec> {
 
         @Override
-        public void serialize(Spec spec, PacketBuffer buf) {
+        public void serialize(final Spec spec, final PacketBuffer buf) {
         }
 
         @Override
-        public Spec deserialize(PacketBuffer buf) {
+        public Spec deserialize(final PacketBuffer buf) {
             return new Spec();
         }
 
         @Override
-        public void serializeJson(Spec spec, JsonObject json) {
+        public void serializeJson(final Spec spec, final JsonObject json) {
         }
 
         @Override
-        public Spec access(ItemPredicateArgument<?> argument) {
+        public Spec access(final ItemPredicateArgument<?> argument) {
             return new Spec();
         }
 

@@ -10,30 +10,30 @@ public final class DoubleArgumentRegistrar
         implements ArgumentTypeRegistrar<DoubleArgumentType, DoubleArgumentRegistrar.Spec> {
 
     @Override
-    public void serialize(Spec spec, PacketBuffer buf) {
-        boolean hasMin = spec.min() != -Double.MAX_VALUE;
-        boolean hasMax = spec.max() != Double.MAX_VALUE;
+    public void serialize(final Spec spec, final PacketBuffer buf) {
+        final boolean hasMin = spec.min() != -Double.MAX_VALUE;
+        final boolean hasMax = spec.max() != Double.MAX_VALUE;
         buf.writeByte(NumberFlags.create(hasMin, hasMax));
         if (hasMin) buf.writeDouble(spec.min());
         if (hasMax) buf.writeDouble(spec.max());
     }
 
     @Override
-    public Spec deserialize(PacketBuffer buf) {
-        byte flags = buf.readByte();
-        double min = NumberFlags.hasMin(flags) ? buf.readDouble() : -Double.MAX_VALUE;
-        double max = NumberFlags.hasMax(flags) ? buf.readDouble() : Double.MAX_VALUE;
+    public Spec deserialize(final PacketBuffer buf) {
+        final byte flags = buf.readByte();
+        final double min = NumberFlags.hasMin(flags) ? buf.readDouble() : -Double.MAX_VALUE;
+        final double max = NumberFlags.hasMax(flags) ? buf.readDouble() : Double.MAX_VALUE;
         return new Spec(min, max);
     }
 
     @Override
-    public void serializeJson(Spec spec, JsonObject json) {
+    public void serializeJson(final Spec spec, final JsonObject json) {
         if (spec.min() != -Double.MAX_VALUE) json.addProperty("min", spec.min());
         if (spec.max() != Double.MAX_VALUE) json.addProperty("max", spec.max());
     }
 
     @Override
-    public Spec access(DoubleArgumentType argument) {
+    public Spec access(final DoubleArgumentType argument) {
         return new Spec(argument.getMinimum(), argument.getMaximum());
     }
 
