@@ -224,6 +224,7 @@ public final class FidorialServer implements Server {
         LOGGER.info("Stopping the Fidorial server...");
         events.post(new ServerStoppingEvent(this));
         closeQuietly("plugins", pluginManager::close);
+        closeQuietly("click callbacks", clickCallbackManager::close);
         closeQuietly("reseau", network::shutdown);
         closeQuietly("auto-save", autoSave::shutdownNow);
         closeQuietly("ia", aiWorker::shutdown);
