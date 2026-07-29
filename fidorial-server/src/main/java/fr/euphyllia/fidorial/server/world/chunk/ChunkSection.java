@@ -66,6 +66,10 @@ public final class ChunkSection {
         biomes.set((by << 4) | (bz << 2) | bx, biome);
     }
 
+    public String getBiome(final int bx, final int by, final int bz) {
+        return biomes.get((by << 4) | (bz << 2) | bx);
+    }
+
     /**
      * Recalcule le compteur de blocs pleins (après reconstruction depuis le NBT).
      */

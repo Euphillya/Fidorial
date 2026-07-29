@@ -48,7 +48,9 @@ public final class Bat extends FlyingMob implements Category.Ambient {
     private static final int FLAG_ON_FIRE = 0x01;
     private static final int FLAG_RESTING = 0x01;
 
-    /** Evenement de monde joue par le client quand une chauve-souris s'envole. */
+    /**
+     * Evenement de monde joue par le client quand une chauve-souris s'envole.
+     */
     private static final int LEVEL_EVENT_BAT_TAKEOFF = 1025;
 
     private static final double WAKE_UP_RADIUS = 4.0;

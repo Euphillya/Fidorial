@@ -23,7 +23,8 @@ public final class PlayerEnderChestCodec {
     static final String ROOT_NAME = "PlayerEnderChest";
     static final String LIST_NAME = "EnderItems";
 
-    private PlayerEnderChestCodec() {}
+    private PlayerEnderChestCodec() {
+    }
 
     public static NbtList toNbt(final EnderChestInventory enderChest) {
         final NbtList list = new NbtList(NbtType.COMPOUND);

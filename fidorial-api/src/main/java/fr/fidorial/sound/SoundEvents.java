@@ -18,6 +18,19 @@ public class SoundEvents {
     public static final Sound.Type CHICKEN_STEP = of("entity.chicken.step");
     public static final Sound.Type CHICKEN_EGG = of("entity.chicken.egg");
 
+    // --- Cow ---
+    public static final Sound.Type COW_AMBIENT = of("entity.cow.ambient");
+    public static final Sound.Type COW_HURT = of("entity.cow.hurt");
+    public static final Sound.Type COW_DEATH = of("entity.cow.death");
+    public static final Sound.Type COW_STEP = of("entity.cow.step");
+    public static final Sound.Type COW_MILK = of("entity.cow.milk");
+
+    // --- Cow (variante sonore "moody") ---
+    public static final Sound.Type COW_MOODY_AMBIENT = of("entity.cow_moody.ambient");
+    public static final Sound.Type COW_MOODY_HURT = of("entity.cow_moody.hurt");
+    public static final Sound.Type COW_MOODY_DEATH = of("entity.cow_moody.death");
+
+
     // --- Bat ---
     public static final Sound.Type BAT_AMBIENT = of("entity.bat.ambient");
     public static final Sound.Type BAT_HURT = of("entity.bat.hurt");

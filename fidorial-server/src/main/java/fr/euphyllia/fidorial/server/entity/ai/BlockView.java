@@ -45,6 +45,15 @@ public class BlockView {
         return state != null && !isPassable(state);
     }
 
+    public static @Nullable String biomeAt(final ServerWorld world, final int x, final int y, final int z) {
+        final Optional<Chunk> optionalChunk = world.getChunkIfLoaded(x >> 4, z >> 4);
+        if (optionalChunk.isEmpty()) return null;
+        final Chunk chunk = optionalChunk.get();
+        return chunk instanceof final ServerChunk serverChunk
+                ? serverChunk.column().getBiome(x & 15, y, z & 15)
+                : null;
+    }
+
     public static boolean hasLineOfSight(
             final ServerWorld world,
             final double fromX,

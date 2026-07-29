@@ -19,8 +19,13 @@ public class AStarPathfinder {
     private AStarPathfinder() {
     }
 
-    public static @Nullable Path find(ServerWorld world, BlockPos start, BlockPos goal, int maxNodes) {
-        BlockPos from = snapToGround(world, start);
+    public static @Nullable Path find(final ServerWorld world, final BlockPos start, final BlockPos goal, final int maxNodes) {
+        return find(world, start, goal, maxNodes, null);
+    }
+
+    public static @Nullable Path find(final ServerWorld world, final BlockPos start, final BlockPos goal, final int maxNodes,
+                                      @Nullable final PathPenalty penalty) {
+        final BlockPos from = snapToGround(world, start);
         BlockPos to = snapToGround(world, goal);
         if (from == null) {
             return null;
@@ -32,10 +37,10 @@ public class AStarPathfinder {
             return null;
         }
 
-        Map<Long, Node> nodes = new HashMap<>();
-        PriorityQueue<Node> open = new PriorityQueue<>();
+        final Map<Long, Node> nodes = new HashMap<>();
+        final PriorityQueue<Node> open = new PriorityQueue<>();
 
-        Node startNode = new Node(from.x(), from.y(), from.z(), null, 0.0, heuristic(from, to));
+        final Node startNode = new Node(from.x(), from.y(), from.z(), null, 0.0, heuristic(from, to));
         nodes.put(pack(from.x(), from.y(), from.z()), startNode);
         open.add(startNode);
 
@@ -43,7 +48,7 @@ public class AStarPathfinder {
         int visited = 0;
 
         while (!open.isEmpty() && visited < maxNodes) {
-            Node current = open.poll();
+            final Node current = open.poll();
             if (current.closed) {
                 continue;
             }
@@ -57,16 +62,20 @@ public class AStarPathfinder {
                 return buildPath(current, true);
             }
 
-            for (int[] dir : CARDINALS) {
-                int nx = current.x + dir[0];
-                int nz = current.z + dir[1];
-                int ny = stepHeight(world, current.x, current.y, current.z, nx, nz);
+            for (final int[] dir : CARDINALS) {
+                final int nx = current.x + dir[0];
+                final int nz = current.z + dir[1];
+                final int ny = stepHeight(world, current.x, current.y, current.z, nx, nz);
                 if (ny == Integer.MIN_VALUE) {
                     continue;
                 }
-                double moveCost = 1.0 + verticalCost(ny - current.y);
-                double g = current.g + moveCost;
-                long key = pack(nx, ny, nz);
+                final double extra = penalty == null ? 0.0 : penalty.cost(world, nx, ny, nz);
+                if (extra == PathPenalty.BLOCKED) {
+                    continue;
+                }
+                final double moveCost = 1.0 + verticalCost(ny - current.y) + extra;
+                final double g = current.g + moveCost;
+                final long key = pack(nx, ny, nz);
                 Node neighbor = nodes.get(key);
                 if (neighbor == null) {
                     neighbor = new Node(nx, ny, nz, current, g, heuristic(new BlockPos(nx, ny, nz), to));
@@ -83,7 +92,7 @@ public class AStarPathfinder {
         return best == startNode ? null : buildPath(best, false);
     }
 
-    private static int stepHeight(ServerWorld world, int x, int y, int z, int nx, int nz) {
+    private static int stepHeight(final ServerWorld world, final int x, final int y, final int z, final int nx, final int nz) {
         if (isStandable(world, nx, y, nz)) {
             return y;
         }
@@ -94,7 +103,7 @@ public class AStarPathfinder {
 
         if (BlockView.isPassable(world, nx, y, nz) && BlockView.isPassable(world, nx, y + 1, nz)) {
             for (int drop = 1; drop <= MAX_DROP; drop++) {
-                int ny = y - drop;
+                final int ny = y - drop;
                 if (!BlockView.isPassable(world, nx, ny, nz)) {
                     return Integer.MIN_VALUE;
                 }
@@ -106,13 +115,13 @@ public class AStarPathfinder {
         return Integer.MIN_VALUE;
     }
 
-    private static boolean isStandable(ServerWorld world, int x, int y, int z) {
+    private static boolean isStandable(final ServerWorld world, final int x, final int y, final int z) {
         return BlockView.isPassable(world, x, y, z)
                 && BlockView.isPassable(world, x, y + 1, z)
                 && BlockView.isSolidGround(world, x, y - 1, z);
     }
 
-    private static @Nullable BlockPos snapToGround(ServerWorld world, BlockPos pos) {
+    private static @Nullable BlockPos snapToGround(final ServerWorld world, final BlockPos pos) {
         for (int dy = 0; dy >= -MAX_DROP; dy--) {
             if (isStandable(world, pos.x(), pos.y() + dy, pos.z())) {
                 return new BlockPos(pos.x(), pos.y() + dy, pos.z());
@@ -126,33 +135,33 @@ public class AStarPathfinder {
         return null;
     }
 
-    private static double verticalCost(int dy) {
+    private static double verticalCost(final int dy) {
         if (dy > 0) {
             return 0.5;
         }
         return dy < 0 ? -dy * 0.1 : 0.0;
     }
 
-    private static double heuristic(BlockPos a, BlockPos b) {
-        double dx = a.x() - b.x();
-        double dy = a.y() - b.y();
-        double dz = a.z() - b.z();
+    private static double heuristic(final BlockPos a, final BlockPos b) {
+        final double dx = a.x() - b.x();
+        final double dy = a.y() - b.y();
+        final double dz = a.z() - b.z();
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
-    private static @Nullable Path buildPath(Node end, boolean reachedGoal) {
-        List<BlockPos> waypoints = new ArrayList<>();
+    private static @Nullable Path buildPath(final Node end, final boolean reachedGoal) {
+        final List<BlockPos> waypoints = new ArrayList<>();
         for (Node node = end; node.parent != null; node = node.parent) {
             waypoints.add(new BlockPos(node.x, node.y, node.z));
         }
         if (waypoints.isEmpty()) {
             return null;
         }
-        List<BlockPos> ordered = waypoints.reversed();
+        final List<BlockPos> ordered = waypoints.reversed();
         return new Path(ordered, reachedGoal);
     }
 
-    private static long pack(int x, int y, int z) {
+    private static long pack(final int x, final int y, final int z) {
         return ((long) (x & 0x3FFFFFF) << 38) | ((long) (z & 0x3FFFFFF) << 12) | (y & 0xFFF);
     }
 
@@ -167,7 +176,7 @@ public class AStarPathfinder {
         double g;
         boolean closed;
 
-        Node(int x, int y, int z, @Nullable Node parent, double g, double h) {
+        Node(final int x, final int y, final int z, @Nullable final Node parent, final double g, final double h) {
             this.x = x;
             this.y = y;
             this.z = z;
@@ -177,7 +186,7 @@ public class AStarPathfinder {
         }
 
         @Override
-        public int compareTo(Node other) {
+        public int compareTo(final Node other) {
             return Double.compare(g + h, other.g + other.h);
         }
     }

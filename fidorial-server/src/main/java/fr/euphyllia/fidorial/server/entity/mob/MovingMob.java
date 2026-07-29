@@ -58,7 +58,7 @@ public abstract class MovingMob extends Mob {
         this.sentHeadYaw = yaw;
     }
 
-    protected final ServerWorld serverWorld() {
+    public final ServerWorld serverWorld() {
         return (ServerWorld) world();
     }
 

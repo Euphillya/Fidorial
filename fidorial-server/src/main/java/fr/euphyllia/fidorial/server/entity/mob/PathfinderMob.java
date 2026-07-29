@@ -217,7 +217,7 @@ public abstract class PathfinderMob extends MovingMob {
             }
         } else if (velocityY > 0.0) {
             onGround = false;
-            if (isBoxBlocked(newX, newY + height() - 1.0, newZ)) {
+            if (isBoxBlocked(newX, newY, newZ)) {
                 newY = y;
                 velocityY = 0.0;
             }

@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.registry;
 
+import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -39,6 +40,10 @@ public final class RegistryHolder {
 
     public @Nullable Registry get(final String name) {
         return registries.get(name);
+    }
+
+    public int networkId(final Key registry, final String entry) {
+        return networkId(registry.asString(), entry);
     }
 
     public int networkId(final String registry, final String entry) {

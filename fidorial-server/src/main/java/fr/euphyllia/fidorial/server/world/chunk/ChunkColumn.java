@@ -76,6 +76,11 @@ public final class ChunkColumn {
         }
     }
 
+    public @Nullable String getBiome(final int localX, final int worldY, final int localZ) {
+        final ChunkSection chunkSection = sectionForY(worldY);
+        return chunkSection == null ? null : chunkSection.getBiome(localX >> 2, (worldY & 15) >> 2, localZ >> 2);
+    }
+
     public long inhabitedTime() {
         return inhabitedTime;
     }

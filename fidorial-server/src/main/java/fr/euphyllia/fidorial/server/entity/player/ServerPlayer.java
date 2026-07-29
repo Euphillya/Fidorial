@@ -250,7 +250,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     @Override
     public void sendMessage(final Component message) {
-        Component resolved = ComponentResolver.resolve(message, this);
+        final Component resolved = ComponentResolver.resolve(message, this);
         connection.send(new ClientboundSystemChatPacket(TranslationStore.render(resolved, locale()), false));
     }
 
@@ -288,6 +288,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
 
     private record BossBarEntry(UUID id, BossBar.Listener listener) {
     }
+
     private final Map<BossBar, BossBarEntry> activeBossBars = new ConcurrentHashMap<>();
 
     @Override
@@ -296,23 +297,27 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         final UUID id = UUID.randomUUID();
         final BossBar.Listener listener = new BossBar.Listener() {
             @Override
-            public void bossBarProgressChanged(BossBar bar, float old, float now) {
+            public void bossBarProgressChanged(final BossBar bar, final float old, final float now) {
                 connection.send(new ClientboundBossEventPacket.UpdateProgress(id, now));
             }
+
             @Override
-            public void bossBarNameChanged(BossBar bar, Component old, Component now) {
+            public void bossBarNameChanged(final BossBar bar, final Component old, final Component now) {
                 connection.send(new ClientboundBossEventPacket.UpdateName(id, now));
             }
+
             @Override
-            public void bossBarColorChanged(BossBar bar, BossBar.Color old, BossBar.Color now) {
+            public void bossBarColorChanged(final BossBar bar, final BossBar.Color old, final BossBar.Color now) {
                 connection.send(new ClientboundBossEventPacket.UpdateStyle(id, now, bar.overlay()));
             }
+
             @Override
-            public void bossBarOverlayChanged(BossBar bar, BossBar.Overlay old, BossBar.Overlay now) {
+            public void bossBarOverlayChanged(final BossBar bar, final BossBar.Overlay old, final BossBar.Overlay now) {
                 connection.send(new ClientboundBossEventPacket.UpdateStyle(id, bar.color(), now));
             }
+
             @Override
-            public void bossBarFlagsChanged(BossBar ba, Set<BossBar.Flag> added, Set<BossBar.Flag> removed) {
+            public void bossBarFlagsChanged(final BossBar ba, final Set<BossBar.Flag> added, final Set<BossBar.Flag> removed) {
                 connection.send(new ClientboundBossEventPacket.UpdateProperties(id, encodeFlags(ba.flags())));
             }
         };

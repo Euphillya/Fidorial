@@ -21,6 +21,7 @@ public class Navigation {
     private final ServerWorld world;
     private final AtomicReference<@Nullable PathResult> pendingResult = new AtomicReference<>();
 
+    private @Nullable PathPenalty pathPenalty;
     private @Nullable Path path;
     private int waypointIndex;
     private @Nullable BlockPos requestedGoal;
@@ -32,22 +33,26 @@ public class Navigation {
     private double lastDistanceSq = Double.MAX_VALUE;
     private int stuckTicks;
 
-    public Navigation(ServerWorld world) {
+    public Navigation(final ServerWorld world) {
         this.world = world;
     }
 
-    private static double distanceSq(BlockPos a, BlockPos b) {
-        double dx = a.x() - b.x();
-        double dy = a.y() - b.y();
-        double dz = a.z() - b.z();
+    private static double distanceSq(final BlockPos a, final BlockPos b) {
+        final double dx = a.x() - b.x();
+        final double dy = a.y() - b.y();
+        final double dz = a.z() - b.z();
         return dx * dx + dy * dy + dz * dz;
     }
 
-    public void moveTo(Location from, BlockPos goal) {
+    public void setPathPenalty(@Nullable final PathPenalty pathPenalty) {
+        this.pathPenalty = pathPenalty;
+    }
+
+    public void moveTo(final Location from, final BlockPos goal) {
         if (requestInFlight) {
             return;
         }
-        boolean sameGoal = requestedGoal != null && distanceSq(requestedGoal, goal) < REPATH_TARGET_MOVED_SQ;
+        final boolean sameGoal = requestedGoal != null && distanceSq(requestedGoal, goal) < REPATH_TARGET_MOVED_SQ;
         if (sameGoal && path != null) {
             return;
         }
@@ -55,18 +60,20 @@ public class Navigation {
             return;
         }
 
-        BlockPos start =
+        final BlockPos start =
                 new BlockPos((int) Math.floor(from.x()), (int) Math.floor(from.y()), (int) Math.floor(from.z()));
         requestedGoal = goal;
         lastRequestTick = age;
+        final PathPenalty penalty = this.pathPenalty;
         requestInFlight = FidorialServer.getInstance()
                 .aiWorker()
-                .submit(() -> pendingResult.set(new PathResult(AStarPathfinder.find(world, start, goal, MAX_NODES))));
+                .submit(() -> pendingResult.set(
+                        new PathResult(AStarPathfinder.find(world, start, goal, MAX_NODES, penalty))));
     }
 
-    public void tick(double x, double z) {
+    public void tick(final double x, final double z) {
         age++;
-        PathResult result = pendingResult.getAndSet(null);
+        final PathResult result = pendingResult.getAndSet(null);
         if (result != null) {
             requestInFlight = false;
             path = result.path();
@@ -78,13 +85,13 @@ public class Navigation {
             return;
         }
 
-        BlockPos waypoint = currentWaypoint();
+        final BlockPos waypoint = currentWaypoint();
         if (waypoint == null) {
             return;
         }
-        double dx = waypoint.x() + 0.5 - x;
-        double dz = waypoint.z() + 0.5 - z;
-        double distSq = dx * dx + dz * dz;
+        final double dx = waypoint.x() + 0.5 - x;
+        final double dz = waypoint.z() + 0.5 - z;
+        final double distSq = dx * dx + dz * dz;
         if (distSq < WAYPOINT_REACHED_SQ) {
             waypointIndex++;
             lastDistanceSq = Double.MAX_VALUE;
