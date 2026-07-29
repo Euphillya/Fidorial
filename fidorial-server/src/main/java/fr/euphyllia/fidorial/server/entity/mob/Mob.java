@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.entity.mob;
 
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundEntityPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.entity.LivingEntity;
@@ -43,10 +44,14 @@ public abstract class Mob extends AbstractEntity implements LivingEntity {
         remove();
     }
 
-    protected final void playSound(final Sound.Type type, final Sound.Source source,
-                                   final float volume, final float pitch) {
+    protected final void playPositionalSound(final Sound.Type type, final float volume, final float pitch) {
         final Location loc = location();
         sendToTrackers(new ClientboundSoundPacket(
-                Sound.sound(type, source, volume, pitch), loc.x(), loc.y(), loc.z()));
+                Sound.sound(type, soundSource(), volume, pitch), loc.x(), loc.y(), loc.z()));
+    }
+
+    protected final void playSound(final Sound.Type type, final float volume, final float pitch) {
+        sendToTrackers(new ClientboundSoundEntityPacket(
+                Sound.sound(type, soundSource(), volume, pitch), entityId()));
     }
 }

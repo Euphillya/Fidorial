@@ -14,7 +14,6 @@ import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
-import net.kyori.adventure.sound.Sound;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
@@ -312,7 +311,7 @@ public final class Bat extends FlyingMob implements Category.Ambient {
         if (resting && random.nextInt(ROOSTING_SILENCE_CHANCE) != 0) {
             return;
         }
-        playSound(SoundEvents.BAT_DEATH, this.soundSource(), SOUND_VOLUME, voicePitch());
+        playSound(SoundEvents.BAT_DEATH, SOUND_VOLUME, voicePitch());
     }
 
     private void tickEnvironment(final long currentTick) {
@@ -386,14 +385,14 @@ public final class Bat extends FlyingMob implements Category.Ambient {
 
         final float remaining = health() - amount;
         if (remaining > 0f) {
-            playSound(SoundEvents.BAT_HURT, this.soundSource(), SOUND_VOLUME, voicePitch());
+            playSound(SoundEvents.BAT_HURT, SOUND_VOLUME, voicePitch());
         }
         setHealth(remaining);
     }
 
     @Override
     protected void onDeath() {
-        playSound(SoundEvents.BAT_DEATH, this.soundSource(), SOUND_VOLUME, voicePitch());
+        playSound(SoundEvents.BAT_DEATH, SOUND_VOLUME, voicePitch());
         // Aucun objet ni experience : la chauve-souris ne laisse rien tomber.
         super.onDeath();
     }
