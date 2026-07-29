@@ -1,17 +1,25 @@
 package fr.euphyllia.fidorial.server.entity.mob.monster;
 
+import fr.euphyllia.fidorial.server.entity.Category;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.text.event.HoverEvent;
 
 import java.util.UUID;
+import java.util.function.UnaryOperator;
 
-public final class Witch extends Mob {
+public final class Witch extends Mob implements Category.Monster {
 
     public static final float MAX_HEALTH = 26f;
 
     public Witch(int entityId, World world, Location location) {
         super(entityId, UUID.randomUUID(), EntityTypes.WITCH, world, location, MAX_HEALTH);
+    }
+
+    @Override
+    public HoverEvent<HoverEvent.ShowEntity> asHoverEvent(UnaryOperator<HoverEvent.ShowEntity> op) {
+        return null;
     }
 }

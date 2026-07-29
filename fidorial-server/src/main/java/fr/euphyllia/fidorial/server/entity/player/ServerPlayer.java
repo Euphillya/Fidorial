@@ -281,6 +281,11 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         connection.send(new ClientboundStopSoundPacket(stop.source(), stop.sound()));
     }
 
+    @Override
+    public Sound.Source soundSource() {
+        return Sound.Source.PLAYER;
+    }
+
     private record BossBarEntry(UUID id, BossBar.Listener listener) {
     }
     private final Map<BossBar, BossBarEntry> activeBossBars = new ConcurrentHashMap<>();

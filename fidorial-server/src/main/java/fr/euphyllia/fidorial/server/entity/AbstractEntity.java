@@ -12,11 +12,13 @@ import fr.fidorial.entity.EntityType;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.UnaryOperator;
 
 public abstract class AbstractEntity implements Entity {
 
@@ -186,5 +188,10 @@ public abstract class AbstractEntity implements Entity {
             LOGGER.error("An error occurred while teleporting the player : ", exception);
             return false;
         }
+    }
+
+    @Override
+    public HoverEvent<HoverEvent.ShowEntity> asHoverEvent(final UnaryOperator<HoverEvent.ShowEntity> op) {
+        return HoverEvent.showEntity(op.apply(HoverEvent.ShowEntity.showEntity(type().key(), uuid(), displayName())));
     }
 }

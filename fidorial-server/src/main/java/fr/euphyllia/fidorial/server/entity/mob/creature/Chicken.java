@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.mob.creature;
 
+import fr.euphyllia.fidorial.server.entity.Category;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.ai.goal.LookAtTargetGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.RandomStrollGoal;
@@ -15,7 +16,7 @@ import net.kyori.adventure.sound.Sound;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-public final class Chicken extends PathfinderMob {
+public final class Chicken extends PathfinderMob implements Category.Neutral {
 
     public static final float MAX_HEALTH = 4f;
 
