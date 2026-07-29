@@ -333,6 +333,13 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         return result;
     }
 
+    public void clearActiveBossBars() {
+        for (final Map.Entry<BossBar, BossBarEntry> entry : activeBossBars.entrySet()) {
+            entry.getKey().removeListener(entry.getValue().listener());
+        }
+        activeBossBars.clear();
+    }
+
     @Override
     public void kick(final String reason) {
         connection.disconnect(reason);

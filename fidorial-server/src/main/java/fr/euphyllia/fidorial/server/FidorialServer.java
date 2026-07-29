@@ -610,6 +610,9 @@ public final class FidorialServer implements Server {
     }
 
     public void removePlayerConnection(final ClientConnection connection) {
+        if (connection.player() != null) {
+            connection.player().clearActiveBossBars();
+        }
         connections.remove(connection);
         entityTracker.removeViewer(connection);
         refreshPlayerSnapshot();
