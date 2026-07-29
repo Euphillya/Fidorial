@@ -18,6 +18,12 @@ public class SoundEvents {
     public static final Sound.Type CHICKEN_STEP = of("entity.chicken.step");
     public static final Sound.Type CHICKEN_EGG = of("entity.chicken.egg");
 
+    // --- Bat ---
+    public static final Sound.Type BAT_AMBIENT = of("entity.bat.ambient");
+    public static final Sound.Type BAT_HURT = of("entity.bat.hurt");
+    public static final Sound.Type BAT_DEATH = of("entity.bat.death");
+    public static final Sound.Type BAT_TAKEOFF = of("entity.bat.takeoff");
+
     // --- Zombie ---
     public static final Sound.Type ZOMBIE_AMBIENT = of("entity.zombie.ambient");
     public static final Sound.Type ZOMBIE_HURT = of("entity.zombie.hurt");
