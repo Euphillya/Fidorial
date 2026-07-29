@@ -72,7 +72,7 @@ public final class Creeper extends PathfinderMob implements Category.Monster {
     @Override
     protected void onDeath() {
         setPrimed(false);
-        playSound(SoundEvents.CREEPER_DEATH, this.soundSource(), 1.0f, 1.0f);
+        playSound(SoundEvents.CREEPER_DEATH, 1.0f, 1.0f);
         super.onDeath();
     }
 
@@ -93,7 +93,7 @@ public final class Creeper extends PathfinderMob implements Category.Monster {
         sendToTrackers(ClientboundSetEntityMetadataPacket.of(
                 entityId(), ClientboundSetEntityMetadataPacket.Entry.varInt(MD_STATE, primed ? 1 : -1)));
         if (primed) {
-            playSound(SoundEvents.CREEPER_PRIMED, this.soundSource(), 1.0f, 0.5f);
+            playSound(SoundEvents.CREEPER_PRIMED, 1.0f, 0.5f);
         }
     }
 
@@ -103,7 +103,7 @@ public final class Creeper extends PathfinderMob implements Category.Monster {
         }
         final float remaining = health() - amount;
         if (remaining > 0f) {
-            playSound(SoundEvents.CREEPER_HURT, this.soundSource(), 1.0f, 1.0f);
+            playSound(SoundEvents.CREEPER_HURT, 1.0f, 1.0f);
         }
         setHealth(remaining);
     }
