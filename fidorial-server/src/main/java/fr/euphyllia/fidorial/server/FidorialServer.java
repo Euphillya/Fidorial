@@ -209,10 +209,10 @@ public final class FidorialServer implements Server {
         try {
             metrics.ready();
             loadData();
-            openWorlds();
-            regionizer.registerTickHandler(new EntityTickHandler(worldManager, this));
             registerDefaultServices();
             loadPlugins();
+            openWorlds();
+            regionizer.registerTickHandler(new EntityTickHandler(worldManager, this));
             network.bind();
             startAutoSave();
             console.setLocale(Locale.getDefault());
