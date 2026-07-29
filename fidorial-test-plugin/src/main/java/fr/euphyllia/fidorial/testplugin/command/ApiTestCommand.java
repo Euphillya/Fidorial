@@ -2,12 +2,15 @@ package fr.euphyllia.fidorial.testplugin.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.testplugin.CounterService;
 import fr.euphyllia.fidorial.testplugin.TestPlugin;
 import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
+import fr.fidorial.command.MessageComponentSerializer;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.scheduler.RegionTps;
@@ -17,6 +20,7 @@ import fr.fidorial.world.World;
 import fr.fidorial.world.WorldBuilder;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
@@ -28,19 +32,47 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static fr.fidorial.command.Commands.argument;
 import static fr.fidorial.command.Commands.literal;
 
 public final class ApiTestCommand {
-
     private final TestPlugin plugin;
+
+    private final Map<UUID, Map<Key, BossBar>> playerBossBars = new ConcurrentHashMap<>();
 
     public ApiTestCommand(final TestPlugin plugin) {
         this.plugin = plugin;
     }
+
+    private Map<Key, BossBar> bossBarsOf(final Player player) {
+        return playerBossBars.getOrDefault(player.uuid(), Map.of());
+    }
+
+    private static final DynamicCommandExceptionType ERROR_BOSSBAR_EXISTS =
+            new DynamicCommandExceptionType(
+                    id -> MessageComponentSerializer.message().serialize(
+                            Component.translatable(
+                                    "commands.bossbar.create.failed",
+                                    Component.text(id.toString())
+                            )
+                    )
+            );
+
+    private static final DynamicCommandExceptionType ERROR_BOSSBAR_UNKNOWN =
+            new DynamicCommandExceptionType(
+                    id -> MessageComponentSerializer.message().serialize(
+                            Component.translatable(
+                                    "commands.bossbar.unknown",
+                                    Component.text(id.toString())
+                            )
+                    )
+            );
 
     public LiteralCommandNode<CommandSource> create() {
         return literal("apitest")
@@ -81,6 +113,44 @@ public final class ApiTestCommand {
                         .then(argument("key", ArgumentTypes.key()).executes(ApiTestCommand::stopSound)))
                 .then(literal("callback")
                         .executes(ctx -> clickCallback(ctx, plugin)))
+                // TODO: should become a standalone command in fidorial tbh like vanilla /bossbar, and be expanded to match vanilla args too (with our additional flags)
+                .then(literal("bossbar")
+                        .then(literal("show")
+                                .then(argument("name", ArgumentTypes.key())
+                                        .executes(this::bossBarShow)
+                                        .then(argument("progress", ArgumentTypes.floatArg(0f, 1f))
+                                                .executes(this::bossBarShowWithProgress)
+                                                .then(argument("color", ArgumentTypes.bossBarColor())
+                                                        .then(argument("overlay", ArgumentTypes.bossBarOverlay())
+                                                                .then(argument("flag", ArgumentTypes.bossBarFlag())
+                                                                        .executes(this::bossBarShowCustom)))))))
+                        .then(literal("hide")
+                                .requires(source -> {
+                                    final CommandSender sender = source.sender();
+                                    if (!(sender instanceof Player player)) {
+                                        // placeholder, the server command should support non players executors as it will need the players selected
+                                        // look at mc brigadier commands https://mcsrc.dev/1/26.2/net/minecraft/server/commands/BossBarCommands
+                                        return false;
+                                    }
+
+                                    return !bossBarsOf(player).isEmpty();
+                                })
+                                .then(argument("name", ArgumentTypes.key())
+                                        .suggests((ctx, builder) -> {
+                                            final CommandSender sender = ctx.getSource().sender();
+
+                                            if (!(sender instanceof Player player)) {
+                                                return builder.buildFuture();
+                                            }
+
+                                            bossBarsOf(player).keySet().forEach(key ->
+                                                    builder.suggest(key.asString())
+                                            );
+
+                                            return builder.buildFuture();
+                                        })
+                                        .executes(this::bossBarHide)))
+                )
                 .build();
     }
 
@@ -144,6 +214,8 @@ public final class ApiTestCommand {
         final CommandSender sender = ctx.getSource().sender();
 
         if (!(sender instanceof final Player player)) {
+            // placeholder, the server command should support non players executors as it will need the players selected
+            // look at mc brigadier commands https://mcsrc.dev/1/26.2/net/minecraft/server/commands/BossBarCommands
             msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
             return Command.SINGLE_SUCCESS;
         }
@@ -396,6 +468,112 @@ public final class ApiTestCommand {
 
         Component callbackComponent = Component.text("[Click me!]", NamedTextColor.GREEN).clickEvent(ClickEvent.callback(callback, options));
         ctx.getSource().sender().sendMessage(callbackComponent);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private int bossBarShow(final CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        return createBossBar(ctx, ctx.getArgument("name", Key.class), 1.0f);
+    }
+
+    private int bossBarShowCustom(final CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        return createBossBar(
+                ctx,
+                ctx.getArgument("name", Key.class),
+                ctx.getArgument("progress", Float.class),
+                ctx.getArgument("color", BossBar.Color.class),
+                ctx.getArgument("overlay", BossBar.Overlay.class),
+                Set.of(ctx.getArgument("flag", BossBar.Flag.class))
+        );
+    }
+
+    private int bossBarShowWithProgress(final CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        return createBossBar(ctx, ctx.getArgument("name", Key.class), ctx.getArgument("progress", Float.class));
+    }
+
+    private int createBossBar(final CommandContext<CommandSource> ctx, final Key name, final float progress) throws CommandSyntaxException {
+        return createBossBar(
+                ctx,
+                name,
+                progress,
+                BossBar.Color.RED,
+                BossBar.Overlay.PROGRESS,
+                Set.of(BossBar.Flag.DARKEN_SCREEN)
+        );
+    }
+
+    private int createBossBar(
+            final CommandContext<CommandSource> ctx,
+            final Key name,
+            final float progress,
+            final BossBar.Color color,
+            final BossBar.Overlay overlay,
+            final Set<BossBar.Flag> flags
+    ) throws CommandSyntaxException {
+        final CommandSender sender = ctx.getSource().sender();
+
+        if (!(sender instanceof final Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        final Map<Key, BossBar> bars = playerBossBars.computeIfAbsent(
+                player.uuid(),
+                _ -> new ConcurrentHashMap<>()
+        );
+
+        if (bars.containsKey(name)) {
+            throw ERROR_BOSSBAR_EXISTS.create(name);
+        }
+
+        final BossBar bar = BossBar.bossBar(
+                Component.text("Test Boss Bar", NamedTextColor.RED),
+                Math.clamp(progress, 0.0f, 1.0f),
+                color,
+                overlay,
+                flags
+        );
+
+        bars.put(name, bar);
+        player.showBossBar(bar);
+        player.refreshCommands();
+
+        player.sendMessage(
+                Component.translatable(
+                        "commands.bossbar.create.success",
+                        Component.text(name.toString())
+                )
+        );
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private int bossBarHide(final CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        final CommandSender sender = ctx.getSource().sender();
+
+        if (!(sender instanceof final Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        final Key key = ctx.getArgument("name", Key.class);
+
+        final Map<Key, BossBar> bars = playerBossBars.get(player.uuid());
+        final BossBar bar = bars == null ? null : bars.remove(key);
+
+        if (bar == null) {
+            throw ERROR_BOSSBAR_UNKNOWN.create(key);
+        }
+
+        player.hideBossBar(bar);
+        player.refreshCommands();
+
+        player.sendMessage(
+                Component.translatable(
+                        "commands.bossbar.hide.success",
+                        Component.text(key.toString())
+                )
+        );
+
         return Command.SINGLE_SUCCESS;
     }
 }

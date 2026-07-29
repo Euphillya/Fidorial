@@ -177,13 +177,13 @@ public class AnvilEntitySerializer {
         return list.get(index) instanceof NbtFloat(final float value) ? value : 0f;
     }
 
-    static int[] uuidToInts(final UUID uuid) {
+    public static int[] uuidToInts(final UUID uuid) {
         final long msb = uuid.getMostSignificantBits();
         final long lsb = uuid.getLeastSignificantBits();
         return new int[] {(int) (msb >> 32), (int) msb, (int) (lsb >> 32), (int) lsb};
     }
 
-    static UUID uuidFromInts(final int[] ints) {
+    public static UUID uuidFromInts(final int[] ints) {
         final long msb = ((long) ints[0] << 32) | (ints[1] & 0xFFFFFFFFL);
         final long lsb = ((long) ints[2] << 32) | (ints[3] & 0xFFFFFFFFL);
         return new UUID(msb, lsb);

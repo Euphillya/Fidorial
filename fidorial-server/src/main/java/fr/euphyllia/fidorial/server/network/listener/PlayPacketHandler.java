@@ -203,6 +203,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         server.weatherEngine().syncTo(connection::send);
         server.dayNightEngine().syncTo(world, connection::send);
+        server.bossBarRegistry().syncTo(player);
     }
 
     private void openChunkView(final ServerWorld world, final RegistryHolder dynamic, final ChunkPos spawnChunk) {

@@ -1,24 +1,34 @@
 package fr.euphyllia.fidorial.server.world.storage;
 
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
+import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
 import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import fr.euphyllia.fidorial.server.world.nbt.NbtIntArray;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
 import fr.euphyllia.fidorial.server.world.nbt.NbtList;
 import fr.euphyllia.fidorial.server.world.nbt.NbtType;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class LevelData {
 
     private static final String FIDORIAL = "Fidorial";
     private static final String WORLD_CLOCKS = "WorldClocks";
+    private static final String CUSTOM_BOSS_EVENTS = "CustomBossEvents";
 
     public String levelName = "Fidorial";
     public long seed = 0L;
@@ -44,6 +54,7 @@ public class LevelData {
     public boolean doDaylightCycle = true;
 
     public final Map<Key, WorldTime> worldTimes = new LinkedHashMap<>();
+    public final Map<Key, BossBarData> bossBars = new LinkedHashMap<>();
 
     public @Nullable WorldTime worldTime(final Key dimensionId) {
         final WorldTime stored = worldTimes.get(dimensionId);
@@ -66,6 +77,17 @@ public class LevelData {
     }
 
     public record WorldTime(long worldAge, long dayTime, boolean doDaylightCycle) {
+    }
+
+    public record BossBarData(
+            Component name,
+            float progress,
+            BossBar.Color color,
+            BossBar.Overlay overlay,
+            Set<BossBar.Flag> flags,
+            boolean visible,
+            Set<UUID> players
+    ) {
     }
 
     public static LevelData read(final Path levelDat) throws IOException {
@@ -97,6 +119,7 @@ public class LevelData {
             l.doDaylightCycle = !"false".equals(gameRules.getString("doDaylightCycle"));
         }
         l.readWorldClocks(data);
+        l.readCustomBossEvents(data);
 
         final NbtCompound wgs = data.getCompound("WorldGenSettings");
         if (wgs != null) l.seed = wgs.getLong("seed");
@@ -105,28 +128,58 @@ public class LevelData {
 
     private void readWorldClocks(final NbtCompound data) {
         final NbtCompound fidorial = data.getCompound(FIDORIAL);
-        if (fidorial == null) {
-            return;
-        }
+        if (fidorial == null) return;
+
         final NbtList clocks = fidorial.getList(WORLD_CLOCKS);
-        if (clocks == null) {
-            return;
-        }
+        if (clocks == null) return;
+
         for (final Nbt entry : clocks) {
-            if (!(entry instanceof final NbtCompound clock)) {
-                continue;
-            }
+            if (!(entry instanceof final NbtCompound clock)) continue;
             final String dimension = clock.getString("Dimension");
-            if (dimension.isEmpty()) {
-                continue;
-            }
+            if (dimension.isEmpty()) continue;
             final Key key = Key.key(dimension);
-            worldTimes.put(
-                    key,
-                    new WorldTime(
-                            clock.getLong("WorldAge"),
-                            clock.getLong("DayTime"),
-                            !clock.contains("DoDaylightCycle") || clock.getBoolean("DoDaylightCycle")));
+            worldTimes.put(key, new WorldTime(
+                    clock.getLong("WorldAge"),
+                    clock.getLong("DayTime"),
+                    !clock.contains("DoDaylightCycle") || clock.getBoolean("DoDaylightCycle")));
+        }
+    }
+
+    private void readCustomBossEvents(final NbtCompound data) {
+        final NbtCompound events = data.getCompound(CUSTOM_BOSS_EVENTS);
+        if (events == null) return;
+
+        for (final String id : events.keys()) {
+            final NbtCompound bar = events.getCompound(id);
+            if (bar == null) continue;
+
+            final Set<UUID> players = new HashSet<>();
+            final NbtList playerList = bar.getList("Players");
+            if (playerList != null) {
+                for (final Nbt entry : playerList) {
+                    if (entry instanceof NbtIntArray(int[] value)) {
+                        players.add(AnvilEntitySerializer.uuidFromInts(value));
+                    }
+                }
+            }
+
+            final Set<BossBar.Flag> flags = new HashSet<>();
+            if (bar.getBoolean("DarkenScreen")) flags.add(BossBar.Flag.DARKEN_SCREEN);
+            if (bar.getBoolean("PlayBossMusic")) flags.add(BossBar.Flag.PLAY_BOSS_MUSIC);
+            if (bar.getBoolean("CreateWorldFog")) flags.add(BossBar.Flag.CREATE_WORLD_FOG);
+
+            final int max = bar.contains("Max") ? bar.getInt("Max") : 100;
+            final int value = bar.getInt("Value");
+            final float progress = max > 0 ? Math.clamp(value / (float) max, 0f, 1f) : 0f;
+
+            bossBars.put(Key.key(id), new BossBarData(
+                    GsonComponentSerializer.gson().deserialize(bar.getString("Name")),
+                    progress,
+                    BossBar.Color.valueOf(bar.getString("Color").toUpperCase(Locale.ROOT)),
+                    BossBar.Overlay.valueOf(bar.getString("Overlay").toUpperCase(Locale.ROOT)),
+                    flags,
+                    bar.getBoolean("Visible"),
+                    players));
         }
     }
 
@@ -172,6 +225,7 @@ public class LevelData {
         data.put("GameRules", gameRules);
 
         data.put(FIDORIAL, buildFidorialData());
+        data.put(CUSTOM_BOSS_EVENTS, buildCustomBossEvents());
 
         // Bordure de monde (valeurs par défaut vanilla)
         data.putDouble("BorderCenterX", 0d);
@@ -217,6 +271,36 @@ public class LevelData {
         final NbtCompound fidorial = new NbtCompound();
         fidorial.put(WORLD_CLOCKS, clocks);
         return fidorial;
+    }
+
+    // this is the framework for built-in /bossbars command which DOES persist, unlike plugin ones
+    private NbtCompound buildCustomBossEvents() {
+        final NbtCompound root = new NbtCompound();
+
+        for (final Map.Entry<Key, BossBarData> entry : bossBars.entrySet()) {
+            final BossBarData value = entry.getValue();
+            final NbtCompound bar = new NbtCompound();
+
+            final NbtList players = new NbtList(NbtType.INT_ARRAY);
+            for (final UUID uuid : value.players()) {
+                players.add(new NbtIntArray(AnvilEntitySerializer.uuidToInts(uuid)));
+            }
+            bar.put("Players", players);
+
+            bar.putString("Color", value.color().name().toLowerCase(Locale.ROOT));
+            bar.putString("Overlay", value.overlay().name().toLowerCase(Locale.ROOT));
+            bar.putBoolean("CreateWorldFog", value.flags().contains(BossBar.Flag.CREATE_WORLD_FOG));
+            bar.putBoolean("DarkenScreen", value.flags().contains(BossBar.Flag.DARKEN_SCREEN));
+            bar.putBoolean("PlayBossMusic", value.flags().contains(BossBar.Flag.PLAY_BOSS_MUSIC));
+            bar.putInt("Max", 100);
+            bar.putInt("Value", Math.round(value.progress() * 100f));
+            bar.putString("Name", GsonComponentSerializer.gson().serialize(value.name()));
+            bar.putBoolean("Visible", value.visible());
+
+            root.put(entry.getKey().asString(), bar);
+        }
+
+        return root;
     }
 
     private NbtCompound buildWorldGenSettings() {

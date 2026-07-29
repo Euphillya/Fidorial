@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.nbt.ComponentResolver;
+import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundBossEventPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundContainerClosePacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundEntityEventPacket;
 import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
@@ -31,12 +32,18 @@ import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class ServerPlayer extends AbstractEntity implements Player, PermissionStateHolder {
 
@@ -274,6 +281,65 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         connection.send(new ClientboundStopSoundPacket(stop.source(), stop.sound()));
     }
 
+    private record BossBarEntry(UUID id, BossBar.Listener listener) {
+    }
+    private final Map<BossBar, BossBarEntry> activeBossBars = new ConcurrentHashMap<>();
+
+    @Override
+    public void showBossBar(final BossBar bar) {
+        if (activeBossBars.containsKey(bar)) return;
+        final UUID id = UUID.randomUUID();
+        final BossBar.Listener listener = new BossBar.Listener() {
+            @Override
+            public void bossBarProgressChanged(BossBar bar, float old, float now) {
+                connection.send(new ClientboundBossEventPacket.UpdateProgress(id, now));
+            }
+            @Override
+            public void bossBarNameChanged(BossBar bar, Component old, Component now) {
+                connection.send(new ClientboundBossEventPacket.UpdateName(id, now));
+            }
+            @Override
+            public void bossBarColorChanged(BossBar bar, BossBar.Color old, BossBar.Color now) {
+                connection.send(new ClientboundBossEventPacket.UpdateStyle(id, now, bar.overlay()));
+            }
+            @Override
+            public void bossBarOverlayChanged(BossBar bar, BossBar.Overlay old, BossBar.Overlay now) {
+                connection.send(new ClientboundBossEventPacket.UpdateStyle(id, bar.color(), now));
+            }
+            @Override
+            public void bossBarFlagsChanged(BossBar ba, Set<BossBar.Flag> added, Set<BossBar.Flag> removed) {
+                connection.send(new ClientboundBossEventPacket.UpdateProperties(id, encodeFlags(ba.flags())));
+            }
+        };
+        activeBossBars.put(bar, new BossBarEntry(id, listener));
+        bar.addListener(listener);
+        connection.send(new ClientboundBossEventPacket.Add(id, bar.name(), bar.progress(),
+                bar.color(), bar.overlay(), encodeFlags(bar.flags())));
+    }
+
+    @Override
+    public void hideBossBar(final BossBar bar) {
+        final BossBarEntry entry = activeBossBars.remove(bar);
+        if (entry == null) return;
+        bar.removeListener(entry.listener());
+        connection.send(new ClientboundBossEventPacket.Remove(entry.id()));
+    }
+
+    private static int encodeFlags(final Set<BossBar.Flag> flags) {
+        int result = 0;
+        if (flags.contains(BossBar.Flag.DARKEN_SCREEN)) result |= 1;
+        if (flags.contains(BossBar.Flag.PLAY_BOSS_MUSIC)) result |= 2;
+        if (flags.contains(BossBar.Flag.CREATE_WORLD_FOG)) result |= 4;
+        return result;
+    }
+
+    public void clearActiveBossBars() {
+        for (final Map.Entry<BossBar, BossBarEntry> entry : activeBossBars.entrySet()) {
+            entry.getKey().removeListener(entry.getValue().listener());
+        }
+        activeBossBars.clear();
+    }
+
     @Override
     public void kick(final String reason) {
         connection.disconnect(reason);
@@ -293,6 +359,11 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, gameMode.id()));
         connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(gameMode));
         connection.server().broadcast(new ClientboundPlayerInfoGameModePacket(uuid(), gameMode.id()));
+    }
+
+    @Override
+    public Collection<? extends BossBar> bossBars() {
+        return Set.copyOf(activeBossBars.keySet());
     }
 
     public int selectedSlot() {

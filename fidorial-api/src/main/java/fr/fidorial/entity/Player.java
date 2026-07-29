@@ -5,7 +5,9 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.PlayerInventory;
 import fr.fidorial.permission.PermissionHolder;
+import net.kyori.adventure.bossbar.BossBar;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public interface Player extends LivingEntity, PermissionHolder, CommandSource, CommandSender {
@@ -33,4 +35,6 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
     GameMode gameMode();
 
     void setGameMode(GameMode gameMode);
+
+    Collection<? extends BossBar> bossBars();
 }

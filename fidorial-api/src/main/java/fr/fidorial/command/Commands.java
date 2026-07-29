@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import fr.fidorial.command.argument.ForceServerSuggestions;
 
 public interface Commands {
 
@@ -35,6 +36,12 @@ public interface Commands {
         Preconditions.checkNotNull(name, "name");
         Preconditions.checkNotNull(argumentType, "argumentType");
 
-        return RequiredArgumentBuilder.argument(name, argumentType);
+        final RequiredArgumentBuilder<CommandSource, T> builder = RequiredArgumentBuilder.argument(name, argumentType);
+
+        if (argumentType instanceof final ForceServerSuggestions forced) {
+            builder.suggests(forced.suggestionProvider());
+        }
+
+        return builder;
     }
 }
