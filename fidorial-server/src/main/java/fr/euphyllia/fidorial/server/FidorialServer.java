@@ -238,7 +238,7 @@ public final class FidorialServer implements Server {
         closeQuietly("plugins", pluginManager::close);
         closeQuietly("click callbacks", clickCallbackManager::close);
         closeQuietly("bossbars", bossBarRegistry::close);
-        closeQuietly("cycle jour/nuit", dayNightEngine::close);
+        closeQuietly("day/night cycle", dayNightEngine::close);
         closeQuietly("reseau", network::shutdown);
         closeQuietly("auto-save", autoSave::shutdownNow);
         closeQuietly("ia", aiWorker::shutdown);
