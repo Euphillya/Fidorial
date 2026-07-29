@@ -1,8 +1,10 @@
 package fr.euphyllia.fidorial.server.registry;
 
 import fr.euphyllia.fidorial.server.registry.entity.EntityTypeRegistry;
+import fr.euphyllia.fidorial.server.registry.sound.SoundEventRegistry;
 import fr.fidorial.registry.Registry;
 import fr.fidorial.registry.RegistryKey;
+import fr.fidorial.registry.keys.SoundEventKeys;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +31,13 @@ public final class Registries {
         final Map<RegistryKey<?>, Registry<?>> registries = new HashMap<>();
 
         final EntityTypeRegistry entityTypes = new EntityTypeRegistry();
+        final SoundEventRegistry soundEvents = new SoundEventRegistry();
+
+        SoundEventKeys.values()
+                .forEach(soundEvents::register);
 
         registries.put(RegistryKey.ENTITY_TYPE, entityTypes);
+        registries.put(RegistryKey.SOUND_EVENT, soundEvents);
 
         return new Registries(RegistryHolder.of(data.dynamic()), RegistryHolder.of(data.frozen()), registries);
     }
