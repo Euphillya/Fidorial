@@ -18,6 +18,7 @@ import fr.fidorial.registry.Registry;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.world.World;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -202,6 +203,33 @@ public final class ArgumentTypes {
      */
     public static ArgumentType<TextColor> hexColor() {
         return provider().hexColor();
+    }
+
+    /**
+     * A boss bar color argument.
+     *
+     * @return argument
+     */
+    public static ArgumentType<BossBar.Color> bossBarColor() {
+        return provider().bossBarColor();
+    }
+
+    /**
+     * A boss bar overlay argument.
+     *
+     * @return argument
+     */
+    public static ArgumentType<BossBar.Overlay> bossBarOverlay() {
+        return provider().bossBarOverlay();
+    }
+
+    /**
+     * A boss bar flag argument.
+     *
+     * @return argument
+     */
+    public static ArgumentType<BossBar.Flag> bossBarFlag() {
+        return provider().bossBarFlag();
     }
 
     /**

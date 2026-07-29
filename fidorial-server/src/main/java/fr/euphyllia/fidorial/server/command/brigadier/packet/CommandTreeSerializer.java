@@ -10,6 +10,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTy
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.NetworkArgumentIds;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.util.PermissionlessCommandSource;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
+import fr.euphyllia.fidorial.server.registry.data.ArgumentTypeIds;
 import fr.fidorial.command.CommandSource;
 import net.kyori.adventure.key.Key;
 
@@ -182,7 +183,23 @@ public final class CommandTreeSerializer {
     }
 
     private static void writeArgumentType(final PacketBuffer buf, final ArgumentType<?> argument) {
+        if (argument instanceof fr.fidorial.command.argument.ForceServerSuggestions) {
+            writeAliasedAsString(buf, argument, ArgumentTypeRegistry.registrar(argument));
+            return;
+        }
+
         writeArgumentTypeCaptured(buf, argument, ArgumentTypeRegistry.registrar(argument));
+    }
+
+    private static <A extends ArgumentType<?>, S extends ArgumentTypeRegistrar.Spec<A>> void writeAliasedAsString(
+            final PacketBuffer buf,
+            final A argument,
+            final ArgumentTypeRegistrar<A, S> registrar
+    ) {
+        buf.writeVarInt(ArgumentTypeIds.STRING_ARGUMENT_ID);
+
+        final S spec = registrar.access(argument);
+        registrar.serialize(spec, buf);
     }
 
     private static <A extends ArgumentType<?>, S extends ArgumentTypeRegistrar.Spec<A>> void writeArgumentTypeCaptured(

@@ -9,6 +9,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.bossbar.BossBarColorArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.bossbar.BossBarFlagArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.bossbar.BossBarOverlayArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.ComponentArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.HexColorArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.NamedColorArgument;
@@ -48,6 +51,7 @@ import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.world.World;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -137,6 +141,21 @@ public class ArgumentProviderImpl implements ArgumentProvider {
     @Override
     public ArgumentType<TextColor> hexColor() {
         return HexColorArgument.hexColor(TextColor::color);
+    }
+
+    @Override
+    public ArgumentType<BossBar.Color> bossBarColor() {
+        return BossBarColorArgument.bossBarColor();
+    }
+
+    @Override
+    public ArgumentType<BossBar.Overlay> bossBarOverlay() {
+        return BossBarOverlayArgument.bossBarOverlay();
+    }
+
+    @Override
+    public ArgumentType<BossBar.Flag> bossBarFlag() {
+        return BossBarFlagArgument.bossBarFlag();
     }
 
     @Override

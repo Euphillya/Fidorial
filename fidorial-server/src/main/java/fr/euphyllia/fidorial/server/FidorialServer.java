@@ -45,6 +45,7 @@ import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
 import fr.euphyllia.fidorial.server.translation.BuiltInTranslationStore;
 import fr.euphyllia.fidorial.server.world.BlockEditService;
 import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
+import fr.euphyllia.fidorial.server.world.BossBarRegistry;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.FlatChunkGenerator;
 import fr.euphyllia.fidorial.server.world.FlatWorld;
@@ -152,6 +153,7 @@ public final class FidorialServer implements Server {
     private final FluidEngine fluidEngine =
             new FluidEngine(worldManager, regionizer, blockStateRegistry, this::broadcast);
     private final WeatherEngine weatherEngine = new WeatherEngine(worldManager.levelData(), this::broadcast);
+    private final BossBarRegistry bossBarRegistry = new BossBarRegistry(worldManager.levelData(), this::players);
     private final DayNightThread dayNightEngine = new DayNightThread(worldManager, registries.dynamic());
     private final ChunkNetworkSerializer lightSerializer = new ChunkNetworkSerializer(blockStateRegistry, 0);
     private final LightUpdateDispatcher lightDispatcher = new LightUpdateDispatcher(
@@ -241,6 +243,7 @@ public final class FidorialServer implements Server {
         closeQuietly("chunks", chunkWorker::shutdown);
         closeQuietly("meteo", weatherEngine::close);
         closeQuietly("cycle jour/nuit", dayNightEngine::close);
+        closeQuietly("bossbars", bossBarRegistry::close);
         closeQuietly("monde", worldManager::close);
         closeQuietly("metriques", metrics::shutdown);
         LOGGER.info("Stop complete");
@@ -293,6 +296,7 @@ public final class FidorialServer implements Server {
         worldManager.overworld();
         weatherEngine.start();
         dayNightEngine.start();
+        bossBarRegistry.loadFromLevelData();
     }
 
     private void registerDefaultServices() {
@@ -304,6 +308,7 @@ public final class FidorialServer implements Server {
         services.register(PlayerInventoryStorage.class, defaultInventoryStorage, this, ServicePriority.LOWEST);
         services.register(PlayerDataStorage.class, defaultPlayerDataStorage, this, ServicePriority.LOWEST);
         services.register(PlayerEnderChestStorage.class, defaultEnderChestStorage, this, ServicePriority.LOWEST);
+        services.register(BossBarRegistry.class, bossBarRegistry, this, ServicePriority.LOWEST);
     }
 
     private void loadPlugins() throws IOException {
@@ -540,6 +545,10 @@ public final class FidorialServer implements Server {
 
     public PlayerDataStorage playerDataStorage() {
         return services.find(PlayerDataStorage.class).orElse(defaultPlayerDataStorage);
+    }
+
+    public BossBarRegistry bossBarRegistry() {
+        return services.find(BossBarRegistry.class).orElse(bossBarRegistry);
     }
 
     public BlockStateRegistry blockStateRegistry() {

@@ -17,6 +17,7 @@ import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.world.World;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -69,6 +70,12 @@ public interface ArgumentProvider {
     ArgumentType<NamedTextColor> namedColor();
 
     ArgumentType<TextColor> hexColor();
+
+    ArgumentType<BossBar.Color> bossBarColor();
+
+    ArgumentType<BossBar.Overlay> bossBarOverlay();
+
+    ArgumentType<BossBar.Flag> bossBarFlag();
 
     ArgumentType<Component> component();
 
