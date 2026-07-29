@@ -27,6 +27,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
     private final ServerWorld world;
     private final ChunkNetworkSerializer serializer;
     private final int radius;
+    private volatile boolean closed;
 
     private final Object lock = new Object();
     private final Set<Long> sent = new HashSet<>();
@@ -59,6 +60,9 @@ public final class ChunkViewTracker implements ChunkViewSource {
 
     public void init(final ChunkPos center) {
         synchronized (lock) {
+            if (closed) {
+                return;
+            }
             centerX = center.x();
             centerZ = center.z();
         }
@@ -68,6 +72,9 @@ public final class ChunkViewTracker implements ChunkViewSource {
 
     public boolean moveTo(final int chunkX, final int chunkZ) {
         synchronized (lock) {
+            if (closed) {
+                return false;
+            }
             if (chunkX == centerX && chunkZ == centerZ) {
                 return false;
             }
@@ -80,6 +87,11 @@ public final class ChunkViewTracker implements ChunkViewSource {
     }
 
     private void stream(final int centerX, final int centerZ) {
+        synchronized (lock) {
+            if (closed) {
+                return;
+            }
+        }
         forgetOutOfRange(centerX, centerZ);
         requestInRange(centerX, centerZ);
     }
@@ -126,6 +138,11 @@ public final class ChunkViewTracker implements ChunkViewSource {
         final long key = ChunkPos.chunkKey(cx, cz);
         synchronized (lock) {
             pending.remove(key);
+
+            if (closed) {
+                return;
+            }
+
             if (error != null) {
                 LOGGER.error("Unable to load chunk {},{} for {}", cx, cz, connection.username(), error);
                 return;
@@ -135,6 +152,11 @@ public final class ChunkViewTracker implements ChunkViewSource {
                 return;
             }
         }
+
+        if (closed) {
+            return;
+        }
+
         connection.send(new ClientboundLevelChunkWithLightPacket(serializer, column));
     }
 
@@ -155,6 +177,9 @@ public final class ChunkViewTracker implements ChunkViewSource {
     @Override
     public void collectViewedChunks(final LongConsumer keys) {
         synchronized (lock) {
+            if (closed) {
+                return;
+            }
             emit(sent, keys);
             emit(pending, keys);
         }
@@ -163,6 +188,17 @@ public final class ChunkViewTracker implements ChunkViewSource {
     public int sentCount() {
         synchronized (lock) {
             return sent.size();
+        }
+    }
+
+    public void close() {
+        synchronized (lock) {
+            if (closed) {
+                return;
+            }
+            closed = true;
+            pending.clear();
+            sent.clear();
         }
     }
 }

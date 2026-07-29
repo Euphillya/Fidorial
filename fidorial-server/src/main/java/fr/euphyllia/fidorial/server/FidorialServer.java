@@ -235,15 +235,16 @@ public final class FidorialServer implements Server {
         LOGGER.info("Stopping the Fidorial server...");
         events.post(new ServerStoppingEvent(this));
         closeQuietly("plugins", pluginManager::close);
+        onlinePlayers().forEach(player -> player.kick(Component.translatable("commands.stop.stopping")));
         closeQuietly("click callbacks", clickCallbackManager::close);
         closeQuietly("bossbars", bossBarRegistry::close);
+        closeQuietly("cycle jour/nuit", dayNightEngine::close);
         closeQuietly("reseau", network::shutdown);
         closeQuietly("auto-save", autoSave::shutdownNow);
         closeQuietly("ia", aiWorker::shutdown);
         closeQuietly("regions", regionizer::shutdown);
         closeQuietly("chunks", chunkWorker::shutdown);
         closeQuietly("meteo", weatherEngine::close);
-        closeQuietly("cycle jour/nuit", dayNightEngine::close);
         closeQuietly("monde", worldManager::close);
         closeQuietly("metriques", metrics::shutdown);
         LOGGER.info("Stop complete");

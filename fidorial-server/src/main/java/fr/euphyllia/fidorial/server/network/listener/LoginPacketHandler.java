@@ -6,7 +6,6 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.ServerConfig;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.ConnectionState;
-import fr.euphyllia.fidorial.server.network.proxy.VelocityForwarding;
 import fr.euphyllia.fidorial.server.network.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.login.ClientboundCustomQueryPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.login.ClientboundHelloPacket;
@@ -18,7 +17,9 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.Se
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.ServerboundHelloPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.ServerboundKeyPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.ServerboundLoginAcknowledgedPacket;
+import fr.euphyllia.fidorial.server.network.proxy.VelocityForwarding;
 import fr.fidorial.entity.PlayerProfile;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -197,6 +198,6 @@ public final class LoginPacketHandler implements LoginPacketListener {
     }
 
     private void disconnect(final String reason) {
-        connection.sendAndClose(ClientboundLoginDisconnectPacket.ofText(reason));
+        connection.sendAndClose(ClientboundLoginDisconnectPacket.ofComponent(Component.text(reason)));
     }
 }

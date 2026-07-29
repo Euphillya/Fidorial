@@ -341,7 +341,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     @Override
-    public void kick(final String reason) {
+    public void kick(final Component reason) {
         connection.disconnect(reason);
     }
 

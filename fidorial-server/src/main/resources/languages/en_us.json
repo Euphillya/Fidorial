@@ -53,6 +53,8 @@
   "command.summon.unknown" : "Unknown entity type: <arg:0>",
   "command.summon.usage" : "Usage: /<arg:0> <type> [x y z]",
 
+  "commands.stop.stopping": "Stopping the server",
+
   "console.argument.double.low": "Double must not be less than '<arg:0>': found '<arg:1>'",
   "console.argument.double.big": "Double must not be more than '<arg:0>': found '<arg:1>'",
   "console.argument.float.low": "Float must not be less than '<arg:0>': found '<arg:1>'",
