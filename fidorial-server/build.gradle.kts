@@ -66,7 +66,8 @@ fidorialRegistryGenerator {
 
     registries.set(
         mapOf(
-            "minecraft:command_argument_type" to "ArgumentType"
+            "minecraft:command_argument_type" to "ArgumentType",
+            "minecraft:block_entity_type" to "BlockEntityType"
         )
     )
 }

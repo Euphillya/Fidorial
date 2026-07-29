@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntity;
 import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
 import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
@@ -12,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class AnvilChunkSerializer {
@@ -57,10 +59,78 @@ public class AnvilChunkSerializer {
         heightmaps.putLongArray("WORLD_SURFACE", chunk.computeHeightmap(bs -> !bs.isAir()));
         root.put("Heightmaps", heightmaps);
 
-        root.put("block_entities", new NbtList(NbtType.COMPOUND));
+        root.put("block_entities", blockEntitiesToNbt(chunk));
         root.put("block_ticks", new NbtList(NbtType.COMPOUND));
         root.put("fluid_ticks", new NbtList(NbtType.COMPOUND));
         return root;
+    }
+
+    /**
+     * Keys owned by the Anvil container itself; they are stripped from the
+     * payload kept in memory because the protocol sends the block entity data
+     * without its X, Y and Z values.
+     */
+    private static final Set<String> BLOCK_ENTITY_CONTAINER_KEYS = Set.of("id", "x", "y", "z", "keepPacked");
+
+    private NbtList blockEntitiesToNbt(final ChunkColumn chunk) {
+
+        final NbtList list = new NbtList(NbtType.COMPOUND);
+
+        for (final BlockEntity blockEntity : chunk.blockEntities()) {
+
+            final NbtCompound compound = new NbtCompound();
+
+            final NbtCompound data = blockEntity.data();
+            if (data != null) {
+                for (final Map.Entry<String, Nbt> entry : data.tags().entrySet()) {
+                    if (!BLOCK_ENTITY_CONTAINER_KEYS.contains(entry.getKey())) {
+                        compound.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
+
+            compound.putString("id", blockEntity.type());
+            compound.putInt("x", (chunk.chunkX() << 4) + blockEntity.localX());
+            compound.putInt("y", blockEntity.y());
+            compound.putInt("z", (chunk.chunkZ() << 4) + blockEntity.localZ());
+            compound.putBoolean("keepPacked", false);
+
+            list.add(compound);
+        }
+
+        return list;
+    }
+
+    private void blockEntitiesFromNbt(final NbtCompound root, final ChunkColumn chunk) {
+
+        final NbtList list = root.getList("block_entities");
+        if (list == null) {
+            return;
+        }
+
+        for (final Nbt tag : list.items()) {
+
+            if (!(tag instanceof final NbtCompound compound) || !compound.contains("id")) {
+                continue;
+            }
+
+            final int localX = compound.getInt("x") & 15;
+            final int localZ = compound.getInt("z") & 15;
+            final int y = compound.getInt("y");
+
+            final NbtCompound data = new NbtCompound();
+            for (final Map.Entry<String, Nbt> entry : compound.tags().entrySet()) {
+                if (!BLOCK_ENTITY_CONTAINER_KEYS.contains(entry.getKey())) {
+                    data.put(entry.getKey(), entry.getValue());
+                }
+            }
+
+            chunk.putBlockEntity(new BlockEntity(localX,
+                    y,
+                    localZ,
+                    compound.getString("id"),
+                    data.tags().isEmpty() ? null : data));
+        }
     }
 
     private NbtCompound sectionToNbt(final ChunkSection section, final byte @Nullable [] blockLight, final byte @Nullable [] skyLight) {
@@ -134,6 +204,9 @@ public class AnvilChunkSerializer {
                 }
             }
         }
+
+        blockEntitiesFromNbt(root, chunk);
+
         return chunk;
     }
 
