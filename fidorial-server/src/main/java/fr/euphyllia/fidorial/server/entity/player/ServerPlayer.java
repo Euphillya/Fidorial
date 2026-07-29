@@ -272,7 +272,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         } else if (emitter instanceof final Entity entity) {
             connection.send(new ClientboundSoundEntityPacket(sound, entity.entityId()));
         } else {
-            playSound(sound);
+            throw new IllegalArgumentException("Sound emitter must be an Entity or self(), but was: " + emitter);
         }
     }
 
