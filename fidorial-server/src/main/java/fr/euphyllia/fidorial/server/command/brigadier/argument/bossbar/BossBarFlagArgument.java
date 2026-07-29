@@ -37,7 +37,7 @@ public final class BossBarFlagArgument implements ArgumentType<BossBar.Flag>, Fo
     public static final DynamicCommandExceptionType ERROR_INVALID_VALUE =
             new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
                     Component.translatable(
-                            "argument.bossbar.flag.invalid",
+                            "argument.enum.invalid",
                             Component.text(String.valueOf(value)))));
 
     public static BossBarFlagArgument bossBarFlag() {

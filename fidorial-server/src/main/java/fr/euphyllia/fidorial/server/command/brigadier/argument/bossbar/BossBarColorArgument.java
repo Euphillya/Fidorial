@@ -37,7 +37,7 @@ public final class BossBarColorArgument implements ArgumentType<BossBar.Color>, 
 
     public static final DynamicCommandExceptionType ERROR_INVALID_VALUE =
             new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
-                    Component.translatable("argument.bossbar.color.invalid",
+                    Component.translatable("argument.enum.invalid",
                             Component.text(String.valueOf(value)))));
 
     public static BossBarColorArgument bossBarColor() {

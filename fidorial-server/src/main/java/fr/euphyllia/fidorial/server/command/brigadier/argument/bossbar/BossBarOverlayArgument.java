@@ -37,7 +37,7 @@ public final class BossBarOverlayArgument implements ArgumentType<BossBar.Overla
     public static final DynamicCommandExceptionType ERROR_INVALID_VALUE =
             new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
                     Component.translatable(
-                            "argument.bossbar.overlay.invalid",
+                            "argument.enum.invalid",
                             Component.text(String.valueOf(value)))));
 
     public static BossBarOverlayArgument bossBarOverlay() {
