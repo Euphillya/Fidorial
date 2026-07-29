@@ -81,7 +81,8 @@ public class LevelData {
 
     public record BossBarData(
             Component name,
-            float progress,
+            int value,
+            int max,
             BossBar.Color color,
             BossBar.Overlay overlay,
             Set<BossBar.Flag> flags,
@@ -170,11 +171,11 @@ public class LevelData {
 
             final int max = bar.contains("Max") ? bar.getInt("Max") : 100;
             final int value = bar.getInt("Value");
-            final float progress = max > 0 ? Math.clamp(value / (float) max, 0f, 1f) : 0f;
 
             bossBars.put(Key.key(id), new BossBarData(
                     GsonComponentSerializer.gson().deserialize(bar.getString("Name")),
-                    progress,
+                    value,
+                    max,
                     BossBar.Color.valueOf(bar.getString("Color").toUpperCase(Locale.ROOT)),
                     BossBar.Overlay.valueOf(bar.getString("Overlay").toUpperCase(Locale.ROOT)),
                     flags,
@@ -292,8 +293,8 @@ public class LevelData {
             bar.putBoolean("CreateWorldFog", value.flags().contains(BossBar.Flag.CREATE_WORLD_FOG));
             bar.putBoolean("DarkenScreen", value.flags().contains(BossBar.Flag.DARKEN_SCREEN));
             bar.putBoolean("PlayBossMusic", value.flags().contains(BossBar.Flag.PLAY_BOSS_MUSIC));
-            bar.putInt("Max", 100);
-            bar.putInt("Value", Math.round(value.progress() * 100f));
+            bar.putInt("Max", value.max());
+            bar.putInt("Value", value.value());
             bar.putString("Name", GsonComponentSerializer.gson().serialize(value.name()));
             bar.putBoolean("Visible", value.visible());
 

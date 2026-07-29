@@ -33,6 +33,7 @@ public final class DefaultPermissions {
                 command("op", "Promote a player to operator."),
                 command("deop", "Remove operator status from a player."),
                 command("stop", "Stop the server."),
+                command("bossbar", "Create a bossbar."),
                 PermissionDefinition.operatorOnly(
                         "minecraft.command.selector", "Use entity selectors (@a, @p, @e, @s).")));
     }

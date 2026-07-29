@@ -32,8 +32,9 @@ public final class ComponentArgument implements ArgumentType<Component> {
 
     public static final DynamicCommandExceptionType ERROR_INVALID_COMPONENT = new DynamicCommandExceptionType(
             message -> MSG_SERIALIZER.serialize(
-                    net.kyori.adventure.text.Component.translatable("argument.component.invalid")
-                            .append(net.kyori.adventure.text.Component.text(message.toString()))));
+                    net.kyori.adventure.text.Component.translatable(
+                            "argument.component.invalid",
+                            net.kyori.adventure.text.Component.text(message.toString()))));
 
     private ComponentArgument() {
     }
