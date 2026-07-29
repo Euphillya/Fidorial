@@ -23,9 +23,26 @@ final class AdventureJsonReader {
             return readQuotedString(reader, first);
         } else if (first == '{' || first == '[') {
             return readBalanced(reader, first, errorType, start);
+        } else if (StringReader.isAllowedInUnquotedString(first)) {
+            return readUnquotedAsJsonString(reader);
         } else {
             throw errorType.createWithContext(reader, String.valueOf(first));
         }
+    }
+
+    private static String readUnquotedAsJsonString(final StringReader reader) {
+        final String word = reader.readUnquotedString();
+        final StringBuilder escaped = new StringBuilder(word.length() + 2);
+        escaped.append('"');
+        for (int i = 0; i < word.length(); i++) {
+            final char c = word.charAt(i);
+            if (c == '"' || c == '\\') {
+                escaped.append('\\');
+            }
+            escaped.append(c);
+        }
+        escaped.append('"');
+        return escaped.toString();
     }
 
     private static String readQuotedString(final StringReader reader, final char quote) {

@@ -14,6 +14,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.defaults.BossBarCommand;
 import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.StopCommand;
@@ -66,6 +67,7 @@ public final class CommandManager implements CommandRegistry {
         register(GameModeCommand.create(), Set.of("gm"));
         register(TpsCommand.create());
         register(TimeCommand.create());
+        register(BossBarCommand.create());
     }
 
     @Override

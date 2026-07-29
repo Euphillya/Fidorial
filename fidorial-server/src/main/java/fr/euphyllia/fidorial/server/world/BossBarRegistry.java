@@ -20,6 +20,8 @@ public final class BossBarRegistry {
     public record BossBarEntry(
             Key id,
             BossBar bar,
+            int value,
+            int max,
             boolean visible,
             Set<UUID> players
     ) {
@@ -28,15 +30,24 @@ public final class BossBarRegistry {
     private static final class Entry {
         final Key id;
         final BossBar bar;
+        volatile int value;
+        volatile int max;
         volatile boolean visible;
         volatile Set<UUID> players;
         BossBar.Listener listener;
 
-        Entry(final Key id, final BossBar bar, final boolean visible, final Set<UUID> players) {
+        Entry(final Key id, final BossBar bar, final int value, final int max,
+              final boolean visible, final Set<UUID> players) {
             this.id = id;
             this.bar = bar;
+            this.value = value;
+            this.max = max;
             this.visible = visible;
             this.players = players;
+        }
+
+        float progress() {
+            return max > 0 ? Math.clamp(value / (float) max, 0f, 1f) : 0f;
         }
     }
 
@@ -53,9 +64,21 @@ public final class BossBarRegistry {
         this.onlinePlayers = onlinePlayers;
     }
 
-    public void register(
+    public boolean create(final Key id, final Component name) {
+        if (registered.containsKey(id)) {
+            return false;
+        }
+
+        final BossBar bar = BossBar.bossBar(name, 0f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
+        register(id, bar, 0, 100, true, Set.of());
+        return true;
+    }
+
+    private void register(
             final Key id,
             final BossBar bar,
+            final int value,
+            final int max,
             final boolean visible,
             final Set<UUID> players
     ) {
@@ -63,8 +86,7 @@ public final class BossBarRegistry {
             unregister(id);
         }
 
-        final Entry entry = new Entry(id, bar, visible, Set.copyOf(players));
-
+        final Entry entry = new Entry(id, bar, value, max, visible, Set.copyOf(players));
         final BossBar.Listener listener = new BossBar.Listener() {
             @Override
             public void bossBarProgressChanged(final BossBar b, final float old, final float now) {
@@ -99,7 +121,7 @@ public final class BossBarRegistry {
 
         if (visible) {
             for (final ServerPlayer player : onlinePlayers.get()) {
-                if (entry.players.isEmpty() || entry.players.contains(player.uuid())) {
+                if (entry.players.contains(player.uuid())) {
                     player.showBossBar(bar);
                 }
             }
@@ -118,6 +140,27 @@ public final class BossBarRegistry {
         }
     }
 
+    public void setValue(final Key id, final int value) {
+        final Entry entry = registered.get(id);
+        if (entry == null) return;
+
+        synchronized (entry) {
+            entry.value = Math.min(value, entry.max);
+            entry.bar.progress(entry.progress());
+        }
+    }
+
+    public void setMax(final Key id, final int max) {
+        final Entry entry = registered.get(id);
+        if (entry == null) return;
+
+        synchronized (entry) {
+            entry.max = max;
+            if (entry.value > max) entry.value = max;
+            entry.bar.progress(entry.progress());
+        }
+    }
+
     public void setVisible(final Key id, final boolean visible) {
         final Entry entry = registered.get(id);
         if (entry == null) return;
@@ -128,12 +171,11 @@ public final class BossBarRegistry {
             persist(entry);
 
             for (final ServerPlayer player : onlinePlayers.get()) {
-                if (entry.players.isEmpty() || entry.players.contains(player.uuid())) {
-                    if (visible) {
-                        player.showBossBar(entry.bar);
-                    } else {
-                        player.hideBossBar(entry.bar);
-                    }
+                if (!entry.players.contains(player.uuid())) continue;
+                if (visible) {
+                    player.showBossBar(entry.bar);
+                } else {
+                    player.hideBossBar(entry.bar);
                 }
             }
         }
@@ -153,8 +195,7 @@ public final class BossBarRegistry {
         if (entry == null) return;
 
         synchronized (entry) {
-            if (entry.players.isEmpty() || entry.players.contains(playerId)) return;
-
+            if (entry.players.contains(playerId)) return;
             final Set<UUID> updated = new HashSet<>(entry.players);
             updated.add(playerId);
             applyPlayers(entry, updated);
@@ -166,21 +207,9 @@ public final class BossBarRegistry {
         if (entry == null) return;
 
         synchronized (entry) {
-            final Set<UUID> updated;
-
-            if (entry.players.isEmpty()) {
-                updated = new HashSet<>();
-                for (final ServerPlayer player : onlinePlayers.get()) {
-                    if (!player.uuid().equals(playerId)) {
-                        updated.add(player.uuid());
-                    }
-                }
-            } else {
-                if (!entry.players.contains(playerId)) return;
-                updated = new HashSet<>(entry.players);
-                updated.remove(playerId);
-            }
-
+            if (!entry.players.contains(playerId)) return;
+            final Set<UUID> updated = new HashSet<>(entry.players);
+            updated.remove(playerId);
             applyPlayers(entry, updated);
         }
     }
@@ -195,12 +224,12 @@ public final class BossBarRegistry {
         if (!entry.visible) return;
 
         for (final ServerPlayer player : onlinePlayers.get()) {
-            final boolean wasTargeted = old.isEmpty() || old.contains(player.uuid());
-            final boolean isTargeted = updated.isEmpty() || updated.contains(player.uuid());
+            final boolean was = old.contains(player.uuid());
+            final boolean is = updated.contains(player.uuid());
 
-            if (wasTargeted && !isTargeted) {
+            if (was && !is) {
                 player.hideBossBar(entry.bar);
-            } else if (!wasTargeted && isTargeted) {
+            } else if (!was && is) {
                 player.showBossBar(entry.bar);
             }
         }
@@ -208,6 +237,7 @@ public final class BossBarRegistry {
 
     public void close() {
         for (final Entry entry : registered.values()) {
+            persist(entry);
             entry.bar.removeListener(entry.listener);
         }
         registered.clear();
@@ -224,14 +254,11 @@ public final class BossBarRegistry {
     }
 
     public Collection<BossBarEntry> entries() {
-        return registered.values()
-                .stream()
-                .map(this::toPublicEntry)
-                .toList();
+        return registered.values().stream().map(this::toPublicEntry).toList();
     }
 
     private BossBarEntry toPublicEntry(final Entry entry) {
-        return new BossBarEntry(entry.id, entry.bar, entry.visible, entry.players);
+        return new BossBarEntry(entry.id, entry.bar, entry.value, entry.max, entry.visible, entry.players);
     }
 
     private void persist(final Entry entry) {
@@ -239,7 +266,8 @@ public final class BossBarRegistry {
                 entry.id,
                 new LevelData.BossBarData(
                         entry.bar.name(),
-                        entry.bar.progress(),
+                        entry.value,
+                        entry.max,
                         entry.bar.color(),
                         entry.bar.overlay(),
                         entry.bar.flags(),
@@ -251,7 +279,7 @@ public final class BossBarRegistry {
 
     public void syncTo(final ServerPlayer player) {
         for (final Entry entry : registered.values()) {
-            if (entry.visible && (entry.players.isEmpty() || entry.players.contains(player.uuid()))) {
+            if (entry.visible && entry.players.contains(player.uuid())) {
                 player.showBossBar(entry.bar);
             }
         }
@@ -262,10 +290,14 @@ public final class BossBarRegistry {
             final LevelData.BossBarData data = entry.getValue();
 
             final BossBar bar = BossBar.bossBar(
-                    data.name(), data.progress(), data.color(), data.overlay(), data.flags()
+                    data.name(),
+                    data.max() > 0 ? Math.clamp(data.value() / (float) data.max(), 0f, 1f) : 0f,
+                    data.color(),
+                    data.overlay(),
+                    data.flags()
             );
 
-            register(entry.getKey(), bar, data.visible(), data.players());
+            register(entry.getKey(), bar, data.value(), data.max(), data.visible(), data.players());
         }
     }
 }
