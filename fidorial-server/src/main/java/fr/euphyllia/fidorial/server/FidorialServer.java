@@ -173,7 +173,7 @@ public final class FidorialServer implements Server {
             .metrics(Metrics.Factory::create)
             .create();
     private final ConsoleSender console = new ConsoleSender(this);
-    private @Nullable Iterable<? extends Audience> adventure$audiences;
+    private volatile @Nullable Iterable<? extends Audience> adventure$audiences;
 
     private @Nullable Favicon favicon = loadFavicon();
     private Component description = MiniMessage
@@ -234,8 +234,8 @@ public final class FidorialServer implements Server {
         }
         LOGGER.info("Stopping the Fidorial server...");
         events.post(new ServerStoppingEvent(this));
-        closeQuietly("plugins", pluginManager::close);
         onlinePlayers().forEach(player -> player.kick(Component.translatable("commands.stop.stopping")));
+        closeQuietly("plugins", pluginManager::close);
         closeQuietly("click callbacks", clickCallbackManager::close);
         closeQuietly("bossbars", bossBarRegistry::close);
         closeQuietly("cycle jour/nuit", dayNightEngine::close);
@@ -347,11 +347,13 @@ public final class FidorialServer implements Server {
 
     @Override
     public Iterable<? extends Audience> audiences() {
-        if (this.adventure$audiences == null) {
-            this.adventure$audiences = Iterables.concat(
+        Iterable<? extends Audience> audiences = this.adventure$audiences;
+        if (audiences == null) {
+            audiences = Iterables.concat(
                     Collections.singleton(console), onlinePlayers());
+            this.adventure$audiences = audiences;
         }
-        return this.adventure$audiences;
+        return audiences;
     }
 
     @Override
@@ -455,11 +457,7 @@ public final class FidorialServer implements Server {
 
     @Override
     public Collection<? extends Player> onlinePlayers() {
-        return connections.stream()
-                .map(ClientConnection::player)
-                .filter(Objects::nonNull)
-                .map(p -> (Player) p)
-                .toList();
+        return playerSnapshot;
     }
 
     @Override
