@@ -132,7 +132,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
         try {
             final byte[] token = EncryptionUtils.decryptRsa(server.keyPair().getPrivate(), packet.encryptedToken());
             if (!Arrays.equals(token, verifyToken)) {
-                disconnect("Verify token invalide");
+                disconnect(Component.translatable("disconnect.loginFailedInfo.invalidSession"));
                 return;
             }
             final byte[] sharedSecret = EncryptionUtils.decryptRsa(server.keyPair().getPrivate(), packet.encryptedSecret());
@@ -145,7 +145,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
             Thread.startVirtualThread(() -> authenticate(username, serverHash));
         } catch (final Exception e) {
             LOGGER.warn("Echec du chiffrement pour {}", pendingUsername, e);
-            connection.close();
+            disconnect(Component.translatable("disconnect.packetError"));
         }
     }
 
@@ -154,7 +154,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
             final Optional<GameProfile> profile = server.sessionService().hasJoined(username, serverHash);
             connection.execute(() -> {
                 if (profile.isEmpty()) {
-                    disconnect("Mojang authentication refused");
+                    disconnect(Component.translatable("disconnect.loginFailedInfo.invalidSession"));
                 } else {
                     enableCompression();
                     sendLoginSuccess(profile.get());
@@ -162,7 +162,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
             });
         } catch (final Exception e) {
             LOGGER.warn("Mojang session unreachable for {}", username, e);
-            connection.execute(() -> disconnect("Authentication servers unavailable"));
+            connection.execute(() -> disconnect(Component.translatable("disconnect.loginFailedInfo.serversUnavailable")));
         }
     }
 
@@ -190,7 +190,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
     public void handleLoginAcknowledged(final ServerboundLoginAcknowledgedPacket packet) {
         if (!loginComplete || connection.profile() == null) {
             LOGGER.warn("login_acknowledged refuses for {}: login not completed", pendingUsername);
-            disconnect("Login not completed");
+            disconnect(Component.translatable("disconnect.packetError"));
             return;
 
         }
@@ -199,5 +199,9 @@ public final class LoginPacketHandler implements LoginPacketListener {
 
     private void disconnect(final String reason) {
         connection.sendAndClose(ClientboundLoginDisconnectPacket.ofComponent(Component.text(reason)));
+    }
+
+    private void disconnect(final Component reason) {
+        connection.sendAndClose(ClientboundLoginDisconnectPacket.ofComponent(reason));
     }
 }
