@@ -11,7 +11,6 @@ import fr.fidorial.registry.keys.ChickenVariantKeys;
 import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
-import net.kyori.adventure.sound.Sound;
 
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -59,18 +58,18 @@ public final class Chicken extends PathfinderMob implements Category.Neutral {
         }
 
         if (ThreadLocalRandom.current().nextInt(AMBIENT_CHANCE) == 0) {
-            playSound(SoundEvents.CHICKEN_AMBIENT, Sound.Source.NEUTRAL, 1.0f, voicePitch());
+            playSound(SoundEvents.CHICKEN_AMBIENT, this.soundSource(), 1.0f, voicePitch());
         }
 
         if (--eggTimer <= 0) {
-            playSound(SoundEvents.CHICKEN_EGG, Sound.Source.NEUTRAL, 1.0f, voicePitch());
+            playSound(SoundEvents.CHICKEN_EGG, this.soundSource(), 1.0f, voicePitch());
             eggTimer = nextEggDelay();
         }
     }
 
     @Override
     protected void onStep() {
-        playSound(SoundEvents.CHICKEN_STEP, Sound.Source.NEUTRAL, 0.15f, 1.0f);
+        playSound(SoundEvents.CHICKEN_STEP, this.soundSource(), 0.15f, 1.0f);
     }
 
 
@@ -80,14 +79,14 @@ public final class Chicken extends PathfinderMob implements Category.Neutral {
         }
         final float remaining = health() - amount;
         if (remaining > 0f) {
-            playSound(SoundEvents.CHICKEN_HURT, Sound.Source.NEUTRAL, 1.0f, voicePitch());
+            playSound(SoundEvents.CHICKEN_HURT, this.soundSource(), 1.0f, voicePitch());
         }
         setHealth(remaining);
     }
 
     @Override
     protected void onDeath() {
-        playSound(SoundEvents.CHICKEN_DEATH, Sound.Source.NEUTRAL, 1.0f, voicePitch());
+        playSound(SoundEvents.CHICKEN_DEATH, this.soundSource(), 1.0f, voicePitch());
         super.onDeath();
     }
 

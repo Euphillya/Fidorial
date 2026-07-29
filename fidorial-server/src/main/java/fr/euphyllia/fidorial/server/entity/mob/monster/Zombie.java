@@ -23,7 +23,6 @@ import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
-import net.kyori.adventure.sound.Sound;
 
 import java.util.List;
 import java.util.UUID;
@@ -196,7 +195,7 @@ public class Zombie extends PathfinderMob implements Category.Monster {
 
     private void tickAmbientSound() {
         if (ThreadLocalRandom.current().nextInt(AMBIENT_CHANCE) == 0) {
-            playSound(SoundEvents.ZOMBIE_AMBIENT, Sound.Source.HOSTILE, 1.0f, voicePitch());
+            playSound(SoundEvents.ZOMBIE_AMBIENT, this.soundSource(), 1.0f, voicePitch());
         }
     }
 
@@ -227,7 +226,7 @@ public class Zombie extends PathfinderMob implements Category.Monster {
         }
         if (fireTicks % 20 == 0) {
             if (health() - BURN_DAMAGE > 0f) {
-                playSound(SoundEvents.ZOMBIE_HURT, Sound.Source.HOSTILE, 1.0f, voicePitch());
+                playSound(SoundEvents.ZOMBIE_HURT, this.soundSource(), 1.0f, voicePitch());
             }
             setHealth(health() - BURN_DAMAGE);
         }
@@ -258,7 +257,7 @@ public class Zombie extends PathfinderMob implements Category.Monster {
         fireTicks = 0;
         sendToTrackers(ClientboundSetEntityMetadataPacket.of(entityId(),
                 ClientboundSetEntityMetadataPacket.Entry.ofBoolean(MD_CONVERTING_TO_DROWNED, true)));
-        playSound(SoundEvents.ZOMBIE_CONVERTED_TO_DROWNED, Sound.Source.HOSTILE, 2.0f, voicePitch());
+        playSound(SoundEvents.ZOMBIE_CONVERTED_TO_DROWNED, this.soundSource(), 2.0f, voicePitch());
     }
 
     protected void convertToDrowned() {
@@ -279,7 +278,7 @@ public class Zombie extends PathfinderMob implements Category.Monster {
         if (fireTicks > 0
                 && ThreadLocalRandom.current().nextDouble() < 0.30 * clampedRegionalDifficulty()) {
             // TODO : Apply the fire effect to the player
-            playSound(SoundEvents.GENERIC_BURN, Sound.Source.HOSTILE, 1.0f, 1.0f);
+            playSound(SoundEvents.GENERIC_BURN, this.soundSource(), 1.0f, 1.0f);
         }
     }
 
@@ -292,7 +291,7 @@ public class Zombie extends PathfinderMob implements Category.Monster {
         final float remaining = health() - reduced;
 
         if (remaining > 0f) {
-            playSound(SoundEvents.ZOMBIE_HURT, Sound.Source.HOSTILE, 1.0f, voicePitch());
+            playSound(SoundEvents.ZOMBIE_HURT, this.soundSource(), 1.0f, voicePitch());
         }
 
         final ServerPlayer attacker = target();
@@ -387,7 +386,7 @@ public class Zombie extends PathfinderMob implements Category.Monster {
 
     @Override
     protected void onDeath() {
-        playSound(SoundEvents.ZOMBIE_DEATH, Sound.Source.HOSTILE, 1.0f, voicePitch());
+        playSound(SoundEvents.ZOMBIE_DEATH, this.soundSource(), 1.0f, voicePitch());
         // TODO: drops (rotten flesh 0-2, iron ingot / carrot / potato 0.83%)
         //       and experience (5 adult, 12 baby)
         super.onDeath();
@@ -395,7 +394,7 @@ public class Zombie extends PathfinderMob implements Category.Monster {
 
     @Override
     protected void onStep() {
-        playSound(SoundEvents.ZOMBIE_STEP, Sound.Source.HOSTILE, 0.15f, 1.0f);
+        playSound(SoundEvents.ZOMBIE_STEP, this.soundSource(), 0.15f, 1.0f);
     }
 
     private LevelData levelData() {

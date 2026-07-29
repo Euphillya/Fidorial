@@ -43,11 +43,6 @@ public abstract class Mob extends AbstractEntity implements LivingEntity {
         remove();
     }
 
-    protected final void playSound(final Sound.Type type, final Sound.Source.Provider source,
-                                   final float volume, final float pitch) {
-        playSound(type, source.soundSource(), volume, pitch);
-    }
-
     protected final void playSound(final Sound.Type type, final Sound.Source source,
                                    final float volume, final float pitch) {
         final Location loc = location();
