@@ -312,7 +312,7 @@ public final class Bat extends FlyingMob implements Category.Ambient {
         if (resting && random.nextInt(ROOSTING_SILENCE_CHANCE) != 0) {
             return;
         }
-        playSound(SoundEvents.BAT_AMBIENT, Sound.Source.NEUTRAL, SOUND_VOLUME, voicePitch());
+        playSound(SoundEvents.BAT_DEATH, this, SOUND_VOLUME, voicePitch());
     }
 
     private void tickEnvironment(final long currentTick) {
@@ -386,14 +386,14 @@ public final class Bat extends FlyingMob implements Category.Ambient {
 
         final float remaining = health() - amount;
         if (remaining > 0f) {
-            playSound(SoundEvents.BAT_HURT, Sound.Source.NEUTRAL, SOUND_VOLUME, voicePitch());
+            playSound(SoundEvents.BAT_HURT, this, SOUND_VOLUME, voicePitch());
         }
         setHealth(remaining);
     }
 
     @Override
     protected void onDeath() {
-        playSound(SoundEvents.BAT_DEATH, Sound.Source.NEUTRAL, SOUND_VOLUME, voicePitch());
+        playSound(SoundEvents.BAT_DEATH, this, SOUND_VOLUME, voicePitch());
         // Aucun objet ni experience : la chauve-souris ne laisse rien tomber.
         super.onDeath();
     }
