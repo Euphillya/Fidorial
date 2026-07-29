@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.world.time;
 
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetTimePacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetTimePacket;
 import fr.fidorial.world.time.DayNightCycle;
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;

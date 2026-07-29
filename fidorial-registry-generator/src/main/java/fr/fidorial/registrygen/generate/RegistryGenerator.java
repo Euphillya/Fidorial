@@ -1,9 +1,10 @@
 package fr.fidorial.registrygen.generate;
 
+import fr.fidorial.registrygen.model.ProtocolIdRegistries;
+import fr.fidorial.registrygen.model.ProtocolIdTarget;
 import fr.fidorial.registrygen.model.RegistriesHolder;
 import fr.fidorial.registrygen.model.RegistryDefinition;
 import fr.fidorial.registrygen.model.RegistryTypeDefinition;
-import fr.fidorial.registrygen.model.SupportedRegistries;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,7 +25,7 @@ public final class RegistryGenerator {
     private final RegistryDataGenerator dataGenerator;
     private final RegistryKeysGenerator keysGenerator;
     private final RegistryKeyGenerator registryKeyGenerator;
-    private final RegistryArgumentTypeIdGenerator argumentIdGenerator;
+    private final RegistryProtocolIdGenerator protocolIdGenerator;
 
     /**
      * Creates a registry generator using the standard parser and
@@ -33,10 +34,10 @@ public final class RegistryGenerator {
     public RegistryGenerator() {
 
         this(new RegistryReportParser(),
-             new RegistryDataGenerator(),
-             new RegistryKeysGenerator(),
-             new RegistryKeyGenerator(),
-                new RegistryArgumentTypeIdGenerator());
+                new RegistryDataGenerator(),
+                new RegistryKeysGenerator(),
+                new RegistryKeyGenerator(),
+                new RegistryProtocolIdGenerator());
     }
 
     /**
@@ -45,22 +46,23 @@ public final class RegistryGenerator {
      * <p>This constructor is useful for testing or replacing individual
      * generation stages.</p>
      *
-     * @param parser               registry report parser
-     * @param dataGenerator        marker-interface generator
-     * @param keysGenerator        typed registry-entry key generator
+     * @param parser              registry report parser
+     * @param dataGenerator       marker-interface generator
+     * @param keysGenerator       typed registry-entry key generator
      * @param registryKeyGenerator central registry-key generator
+     * @param protocolIdGenerator raw protocol ID constant generator
      */
     public RegistryGenerator(final RegistryReportParser parser,
                              final RegistryDataGenerator dataGenerator,
                              final RegistryKeysGenerator keysGenerator,
                              final RegistryKeyGenerator registryKeyGenerator,
-                             final RegistryArgumentTypeIdGenerator argumentIdGenerator) {
+                             final RegistryProtocolIdGenerator protocolIdGenerator) {
 
         this.parser = Objects.requireNonNull(parser, "parser");
         this.dataGenerator = Objects.requireNonNull(dataGenerator, "dataGenerator");
         this.keysGenerator = Objects.requireNonNull(keysGenerator, "keysGenerator");
         this.registryKeyGenerator = Objects.requireNonNull(registryKeyGenerator, "registryKeyGenerator");
-        this.argumentIdGenerator = Objects.requireNonNull(argumentIdGenerator, "argumentIdGenerator");
+        this.protocolIdGenerator = Objects.requireNonNull(protocolIdGenerator, "protocolIdGenerator");
     }
 
     /**
@@ -69,7 +71,7 @@ public final class RegistryGenerator {
      *
      * @param registriesJson  path to Mojang's {@code registries.json}
      * @param outputDirectory generated Java source root
-     * @param registryTypes the registries to generate
+     * @param registryTypes   the registries to generate
      *
      * @throws IOException if parsing or source generation fails
      */
@@ -95,8 +97,15 @@ public final class RegistryGenerator {
                 continue;
             }
 
-            if (registryType.identifier().equals(SupportedRegistries.ARGUMENT_TYPE.identifier())) {
-                argumentIdGenerator.generate(registryDefinition.get(), outputDirectory);
+            /*
+             * Registries that only ever travel over the wire as a VarInt are
+             * emitted as plain int constants instead of typed keys.
+             */
+            final Optional<ProtocolIdTarget> protocolIdTarget =
+                    ProtocolIdRegistries.byIdentifier(registryType.identifier());
+
+            if (protocolIdTarget.isPresent()) {
+                protocolIdGenerator.generate(registryDefinition.get(), protocolIdTarget.get(), outputDirectory);
                 continue;
             }
 
@@ -104,7 +113,15 @@ public final class RegistryGenerator {
             keysGenerator.generate(registryType, registryDefinition.get(), outputDirectory);
         }
 
-        registryKeyGenerator.generate(registryTypes, outputDirectory);
+        /*
+         * Protocol-ID-only registries have no marker type in
+         * fr.fidorial.registry.data, so they must not appear in RegistryKey.
+         */
+        final List<RegistryTypeDefinition> keyedRegistryTypes = registryTypes.stream()
+                .filter(registryType -> ProtocolIdRegistries.byIdentifier(registryType.identifier()).isEmpty())
+                .toList();
+
+        registryKeyGenerator.generate(keyedRegistryTypes, outputDirectory);
     }
 
     /**

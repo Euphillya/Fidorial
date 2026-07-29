@@ -2,8 +2,8 @@ package fr.euphyllia.fidorial.server.network.listener;
 
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.ConnectionState;
-import fr.euphyllia.fidorial.server.protocol.packet.listener.HandshakePacketListener;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.handshake.ServerboundIntentionPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.listener.HandshakePacketListener;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.handshake.ServerboundIntentionPacket;
 
 public final class HandshakePacketHandler implements HandshakePacketListener {
 

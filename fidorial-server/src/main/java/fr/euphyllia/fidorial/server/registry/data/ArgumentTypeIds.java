@@ -1,9 +1,18 @@
 package fr.euphyllia.fidorial.server.registry.data;
 
+import java.util.Map;
+
 /**
  * Network IDs for entries in the {@code minecraft:command_argument_type} registry.
+ *
+ * <p>Generated from Mojang's registry report; do not edit.</p>
  */
 public interface ArgumentTypeIds {
+    /**
+     * Returned by {@link #id(String)} when the identifier is unknown.
+     */
+    int UNKNOWN = -1;
+
     /**
      * {@code brigadier:bool}
      */
@@ -288,4 +297,77 @@ public interface ArgumentTypeIds {
      * {@code minecraft:vec3}
      */
     int VEC3_ARGUMENT_ID = 10;
+
+    /**
+     * Immutable identifier to protocol ID lookup table.
+     */
+    Map<String, Integer> BY_IDENTIFIER = Map.ofEntries(
+        Map.entry("brigadier:bool", BOOL_ARGUMENT_ID),
+        Map.entry("brigadier:double", DOUBLE_ARGUMENT_ID),
+        Map.entry("brigadier:float", FLOAT_ARGUMENT_ID),
+        Map.entry("brigadier:integer", INTEGER_ARGUMENT_ID),
+        Map.entry("brigadier:long", LONG_ARGUMENT_ID),
+        Map.entry("brigadier:string", STRING_ARGUMENT_ID),
+        Map.entry("minecraft:angle", ANGLE_ARGUMENT_ID),
+        Map.entry("minecraft:block_pos", BLOCK_POS_ARGUMENT_ID),
+        Map.entry("minecraft:block_predicate", BLOCK_PREDICATE_ARGUMENT_ID),
+        Map.entry("minecraft:block_state", BLOCK_STATE_ARGUMENT_ID),
+        Map.entry("minecraft:column_pos", COLUMN_POS_ARGUMENT_ID),
+        Map.entry("minecraft:component", COMPONENT_ARGUMENT_ID),
+        Map.entry("minecraft:dialog", DIALOG_ARGUMENT_ID),
+        Map.entry("minecraft:dimension", DIMENSION_ARGUMENT_ID),
+        Map.entry("minecraft:entity", ENTITY_ARGUMENT_ID),
+        Map.entry("minecraft:entity_anchor", ENTITY_ANCHOR_ARGUMENT_ID),
+        Map.entry("minecraft:float_range", FLOAT_RANGE_ARGUMENT_ID),
+        Map.entry("minecraft:function", FUNCTION_ARGUMENT_ID),
+        Map.entry("minecraft:game_profile", GAME_PROFILE_ARGUMENT_ID),
+        Map.entry("minecraft:gamemode", GAMEMODE_ARGUMENT_ID),
+        Map.entry("minecraft:heightmap", HEIGHTMAP_ARGUMENT_ID),
+        Map.entry("minecraft:hex_color", HEX_COLOR_ARGUMENT_ID),
+        Map.entry("minecraft:int_range", INT_RANGE_ARGUMENT_ID),
+        Map.entry("minecraft:item_predicate", ITEM_PREDICATE_ARGUMENT_ID),
+        Map.entry("minecraft:item_slot", ITEM_SLOT_ARGUMENT_ID),
+        Map.entry("minecraft:item_slots", ITEM_SLOTS_ARGUMENT_ID),
+        Map.entry("minecraft:item_stack", ITEM_STACK_ARGUMENT_ID),
+        Map.entry("minecraft:loot_modifier", LOOT_MODIFIER_ARGUMENT_ID),
+        Map.entry("minecraft:loot_predicate", LOOT_PREDICATE_ARGUMENT_ID),
+        Map.entry("minecraft:loot_table", LOOT_TABLE_ARGUMENT_ID),
+        Map.entry("minecraft:message", MESSAGE_ARGUMENT_ID),
+        Map.entry("minecraft:nbt_compound_tag", NBT_COMPOUND_TAG_ARGUMENT_ID),
+        Map.entry("minecraft:nbt_path", NBT_PATH_ARGUMENT_ID),
+        Map.entry("minecraft:nbt_tag", NBT_TAG_ARGUMENT_ID),
+        Map.entry("minecraft:objective", OBJECTIVE_ARGUMENT_ID),
+        Map.entry("minecraft:objective_criteria", OBJECTIVE_CRITERIA_ARGUMENT_ID),
+        Map.entry("minecraft:operation", OPERATION_ARGUMENT_ID),
+        Map.entry("minecraft:particle", PARTICLE_ARGUMENT_ID),
+        Map.entry("minecraft:resource", RESOURCE_ARGUMENT_ID),
+        Map.entry("minecraft:resource_key", RESOURCE_KEY_ARGUMENT_ID),
+        Map.entry("minecraft:resource_location", RESOURCE_LOCATION_ARGUMENT_ID),
+        Map.entry("minecraft:resource_or_tag", RESOURCE_OR_TAG_ARGUMENT_ID),
+        Map.entry("minecraft:resource_or_tag_key", RESOURCE_OR_TAG_KEY_ARGUMENT_ID),
+        Map.entry("minecraft:resource_selector", RESOURCE_SELECTOR_ARGUMENT_ID),
+        Map.entry("minecraft:rotation", ROTATION_ARGUMENT_ID),
+        Map.entry("minecraft:score_holder", SCORE_HOLDER_ARGUMENT_ID),
+        Map.entry("minecraft:scoreboard_slot", SCOREBOARD_SLOT_ARGUMENT_ID),
+        Map.entry("minecraft:style", STYLE_ARGUMENT_ID),
+        Map.entry("minecraft:swizzle", SWIZZLE_ARGUMENT_ID),
+        Map.entry("minecraft:team", TEAM_ARGUMENT_ID),
+        Map.entry("minecraft:team_color", TEAM_COLOR_ARGUMENT_ID),
+        Map.entry("minecraft:template_mirror", TEMPLATE_MIRROR_ARGUMENT_ID),
+        Map.entry("minecraft:template_rotation", TEMPLATE_ROTATION_ARGUMENT_ID),
+        Map.entry("minecraft:time", TIME_ARGUMENT_ID),
+        Map.entry("minecraft:uuid", UUID_ARGUMENT_ID),
+        Map.entry("minecraft:vec2", VEC2_ARGUMENT_ID),
+        Map.entry("minecraft:vec3", VEC3_ARGUMENT_ID)
+    );
+
+    /**
+     * Resolves the protocol ID for a namespaced identifier.
+     *
+     * @param identifier namespaced identifier, e.g. {@code minecraft:chest}
+     * @return the protocol ID, or {@link #UNKNOWN} when the identifier is unknown
+     */
+    static int id(final String identifier) {
+        return BY_IDENTIFIER.getOrDefault(identifier, UNKNOWN);
+    }
 }

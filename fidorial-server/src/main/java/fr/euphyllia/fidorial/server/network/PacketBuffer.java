@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.network;
 
 import fr.euphyllia.fidorial.server.network.nbt.NetworkNbtHelper;
 import fr.euphyllia.fidorial.server.world.nbt.Nbt;
+import fr.euphyllia.fidorial.server.world.nbt.NbtType;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.world.BlockPos;
 import io.netty.buffer.ByteBuf;
@@ -225,6 +226,16 @@ public final class PacketBuffer {
 
     public Component readComponent(final int maxLength) {
         return VarInts.readComponent(buf, maxLength);
+    }
+
+    public PacketBuffer writeNbt(final @Nullable Nbt nbt) {
+        if (nbt == null) {
+            buf.writeByte(NbtType.END.id());
+            return this;
+        }
+
+        NetworkNbtHelper.writeNbt(buf, nbt);
+        return this;
     }
 
     public PacketBuffer writeRawBytes(final byte[] data) {

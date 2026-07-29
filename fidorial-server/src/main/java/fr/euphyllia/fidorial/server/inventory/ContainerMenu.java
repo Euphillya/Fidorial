@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.inventory;
 
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundContainerSetContentPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundContainerSetContentPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.fidorial.inventory.Container;
 import fr.fidorial.inventory.ItemStack;

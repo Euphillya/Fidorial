@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.network.session;
 
 import fr.euphyllia.fidorial.server.network.ClientConnection;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundForgetLevelChunkPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundLevelChunkWithLightPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetChunkCacheCenterPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundForgetLevelChunkPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundLevelChunkWithLightPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetChunkCacheCenterPacket;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ChunkViewSource;

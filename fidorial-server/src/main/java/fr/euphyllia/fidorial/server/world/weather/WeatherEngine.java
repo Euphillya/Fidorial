@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.world.weather;
 
-import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundGameEventPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundGameEventPacket;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
 import fr.fidorial.world.weather.Weather;
 import fr.fidorial.world.weather.WeatherManager;

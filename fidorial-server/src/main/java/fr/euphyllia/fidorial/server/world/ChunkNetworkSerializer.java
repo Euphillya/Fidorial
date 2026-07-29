@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
+import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntity;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkSection;
@@ -42,9 +43,46 @@ public final class ChunkNetworkSerializer {
         final byte[] sections = buildSections(alloc, chunk);
         p.writeByteArray(sections);
 
-        p.writeVarInt(0); // block entities
+        writeBlockEntities(p, chunk);
 
         writeLightData(p, chunk);
+    }
+
+    /**
+     * Writes the {@code Block Entities} prefixed array of
+     * {@code level_chunk_with_light}.
+     *
+     * <p>Each entry is a packed XZ byte, the absolute height as a short, the
+     * {@code minecraft:block_entity_type} protocol ID as a VarInt, and the block
+     * entity NBT stripped of its X, Y and Z values.</p>
+     */
+    private void writeBlockEntities(final PacketBuffer p, final ChunkColumn chunk) {
+
+        final List<BlockEntity> encodable = new ArrayList<>();
+
+        for (final BlockEntity blockEntity : chunk.blockEntities()) {
+            if (blockEntity.isKnown()) {
+                encodable.add(blockEntity);
+            } else {
+                LOGGER.warn("Skipping block entity with unknown type '{}' at {},{},{} in chunk {},{}.",
+                        blockEntity.type(),
+                        blockEntity.localX(),
+                        blockEntity.y(),
+                        blockEntity.localZ(),
+                        chunk.chunkX(),
+                        chunk.chunkZ());
+            }
+        }
+
+        p.writeVarInt(encodable.size());
+
+        for (final BlockEntity blockEntity : encodable) {
+            p.writeByte(blockEntity.packedXz());
+            p.writeShort(blockEntity.y());
+            p.writeVarInt(blockEntity.protocolId());
+            p.writeNbt(blockEntity.data());
+            LOGGER.info("BlockEntity : " + blockEntity.type() + " protocolId : " + blockEntity.protocolId());
+        }
     }
 
     private byte[] buildSections(final ByteBufAllocator alloc, final ChunkColumn chunk) {

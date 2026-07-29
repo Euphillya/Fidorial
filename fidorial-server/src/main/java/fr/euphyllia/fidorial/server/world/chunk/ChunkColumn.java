@@ -1,7 +1,14 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntity;
+import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntityTypes;
 import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class ChunkColumn {
 
@@ -12,6 +19,7 @@ public final class ChunkColumn {
     private final int minSectionY;
     private final int sectionCount;
     private final ChunkSection[] sections;
+    private final Map<Integer, BlockEntity> blockEntities = new ConcurrentHashMap<>();
 
     private long inhabitedTime;
     private long lastUpdate;
@@ -109,6 +117,40 @@ public final class ChunkColumn {
         this.lightPopulated = populated;
     }
 
+    /**
+     * Returns every block entity of this column, in no particular order.
+     *
+     * @return an unmodifiable view of the block entities
+     */
+    public Collection<BlockEntity> blockEntities() {
+        return Collections.unmodifiableCollection(blockEntities.values());
+    }
+
+    public int blockEntityCount() {
+        return blockEntities.size();
+    }
+
+    public @Nullable BlockEntity blockEntity(final int localX, final int worldY, final int localZ) {
+        return blockEntities.get(BlockEntity.positionKey(localX, worldY, localZ));
+    }
+
+    /**
+     * Adds or replaces a block entity.
+     *
+     * @param blockEntity the block entity to store
+     */
+    public void putBlockEntity(final BlockEntity blockEntity) {
+        blockEntities.put(blockEntity.positionKey(), blockEntity);
+    }
+
+    public @Nullable BlockEntity removeBlockEntity(final int localX, final int worldY, final int localZ) {
+        return blockEntities.remove(BlockEntity.positionKey(localX, worldY, localZ));
+    }
+
+    public void clearBlockEntities() {
+        blockEntities.clear();
+    }
+
     private @Nullable ChunkSection sectionForY(final int worldY) {
         final int idx = (worldY >> 4) - minSectionY;
         if (idx < 0 || idx >= sectionCount) return null;
@@ -117,9 +159,21 @@ public final class ChunkColumn {
 
     public void setBlock(final int localX, final int worldY, final int localZ, final BlockState state) {
         final ChunkSection s = sectionForY(worldY);
-        if (s != null) {
-            s.setBlock(localX, worldY & 15, localZ, state);
+        if (s == null) {
+            return;
         }
+
+        final BlockState previous = s.getBlock(localX, worldY & 15, localZ);
+        s.setBlock(localX, worldY & 15, localZ, state);
+
+        if (previous.name().equals(state.name())) {
+            return;
+        }
+
+        removeBlockEntity(localX, worldY, localZ);
+
+        BlockEntityTypes.typeIdentifier(state.name())
+                .ifPresent(type -> putBlockEntity(BlockEntity.of(localX, worldY, localZ, type)));
     }
 
     public BlockState getBlock(final int localX, final int worldY, final int localZ) {
