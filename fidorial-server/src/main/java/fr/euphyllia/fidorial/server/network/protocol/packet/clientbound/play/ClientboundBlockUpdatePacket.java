@@ -1,0 +1,21 @@
+package fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play;
+
+import fr.euphyllia.fidorial.server.network.PacketBuffer;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
+import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import fr.fidorial.world.BlockPos;
+
+// https://minecraft.wiki/w/Java_Edition_protocol/Packets#Block_Update
+public record ClientboundBlockUpdatePacket(BlockPos pos, int blockStateId) implements ClientboundPacket {
+
+    @Override
+    public String name() {
+        return PlayClientboundPackets.BLOCK_UPDATE;
+    }
+
+    @Override
+    public void write(PacketBuffer buf) {
+        buf.writePosition(pos.x(), pos.y(), pos.z());
+        buf.writeVarInt(blockStateId);
+    }
+}

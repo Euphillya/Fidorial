@@ -13,7 +13,7 @@ import fr.euphyllia.fidorial.server.entity.mob.Mobs;
 import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;

@@ -3,9 +3,9 @@ package fr.euphyllia.fidorial.server.entity.ai;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundHurtAnimationPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetEntityMotionPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetHealthPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundHurtAnimationPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetEntityMotionPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetHealthPacket;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.world.Location;
 

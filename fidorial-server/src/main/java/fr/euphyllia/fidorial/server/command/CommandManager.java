@@ -22,7 +22,7 @@ import fr.euphyllia.fidorial.server.command.defaults.TimeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TpsCommand;
 import fr.euphyllia.fidorial.server.command.defaults.WeatherCommand;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundCommandsPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundCommandsPacket;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.command.CommandSource;
 import net.kyori.adventure.text.Component;

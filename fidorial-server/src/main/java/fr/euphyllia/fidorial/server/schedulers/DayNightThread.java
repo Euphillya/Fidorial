@@ -2,8 +2,8 @@ package fr.euphyllia.fidorial.server.schedulers;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
-import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundSetTimePacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetTimePacket;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;

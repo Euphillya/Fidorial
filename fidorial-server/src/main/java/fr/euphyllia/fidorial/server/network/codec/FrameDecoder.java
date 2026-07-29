@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.network.codec;
 
-import fr.euphyllia.fidorial.server.protocol.ProtocolConstants;
+import fr.euphyllia.fidorial.server.network.protocol.ProtocolConstants;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;

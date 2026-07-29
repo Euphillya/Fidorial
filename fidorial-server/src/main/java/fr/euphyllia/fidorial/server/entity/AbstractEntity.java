@@ -2,9 +2,9 @@ package fr.euphyllia.fidorial.server.entity;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
-import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundAddEntityPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundEntityPositionSyncPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundAddEntityPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundEntityPositionSyncPacket;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.entity.Entity;

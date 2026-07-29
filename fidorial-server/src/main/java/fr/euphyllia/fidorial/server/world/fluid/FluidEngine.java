@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.world.fluid;
 
-import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundBlockUpdatePacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBlockUpdatePacket;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
 import fr.euphyllia.fidorial.server.world.ServerWorld;

@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.schedulers;
 
-import fr.euphyllia.fidorial.server.protocol.packet.ClientboundPacket;
-import fr.euphyllia.fidorial.server.protocol.packet.clientbound.play.ClientboundLightUpdatePacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundLightUpdatePacket;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
