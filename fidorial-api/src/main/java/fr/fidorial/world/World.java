@@ -2,7 +2,7 @@ package fr.fidorial.world;
 
 import fr.fidorial.entity.Entity;
 import fr.fidorial.world.time.DayNightCycle;
-import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.key.Keyed;
 
 import java.util.Collection;
@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public interface World extends Keyed /* ForwardingAudience */ { // make it extend when we have enough features
+public interface World extends Keyed, ForwardingAudience {
 
     int minY();
 
@@ -49,9 +49,6 @@ public interface World extends Keyed /* ForwardingAudience */ { // make it exten
     Entity entity(UUID uuid);
 
     Entity entity(int entityId);
-
-    // to remove once we extend forwarding audience
-    Iterable<? extends Audience> audiences();
 
     CompletableFuture<Boolean> unloadChunkAsync(int chunkX, int chunkZ);
 

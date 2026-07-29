@@ -8,7 +8,6 @@ import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
 import fr.euphyllia.fidorial.server.inventory.EnderChestMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
-import fr.euphyllia.fidorial.server.network.session.ChunkViewTracker;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBlockChangedAckPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBlockEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundCommandSuggestionsPacket;
@@ -41,6 +40,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.Ser
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundSetCarriedItemPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundSetCreativeModeSlotPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
+import fr.euphyllia.fidorial.server.network.session.ChunkViewTracker;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
@@ -120,6 +120,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     @Override
     public void onDisconnect() {
         if (chunkView != null) {
+            chunkView.close();
             chunkView.world().removeViewer(chunkView);
             chunkView = null;
         }
@@ -568,6 +569,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             throw new RuntimeException("Attempt to teleport a player who does not exist!");
         }
         if (chunkView != null) {
+            chunkView.close();
             from.removeViewer(chunkView);
             chunkView = null;
         }

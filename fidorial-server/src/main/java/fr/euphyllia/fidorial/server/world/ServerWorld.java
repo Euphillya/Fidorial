@@ -62,7 +62,7 @@ public final class ServerWorld implements World {
     private volatile @Nullable AsyncChunkLoader chunkLoader;
     private volatile @Nullable IntSupplier entityIdSupplier;
     private volatile @Nullable EntitySpawnBridge entityBridge;
-    private @Nullable Iterable<? extends Audience> adventure$audiences;
+    private volatile @Nullable Iterable<? extends Audience> adventure$audiences;
 
     public ServerWorld(
             final Dimension dimension,
@@ -200,12 +200,16 @@ public final class ServerWorld implements World {
 
     public void addEntity(final AbstractEntity entity) {
         entities.add(entity);
-        invalidateAudiences();
+        if (entity instanceof ServerPlayer) {
+            invalidateAudiences();
+        }
     }
 
     public void removeEntity(final AbstractEntity entity) {
         entities.remove(entity);
-        invalidateAudiences();
+        if (entity instanceof ServerPlayer) {
+            invalidateAudiences();
+        }
     }
 
     public ChunkColumn getChunk(final int chunkX, final int chunkZ) throws IOException {
@@ -424,13 +428,15 @@ public final class ServerWorld implements World {
 
     @Override
     public Iterable<? extends Audience> audiences() {
-        if (adventure$audiences == null) {
-            adventure$audiences = this.entities().stream()
+        Iterable<? extends Audience> audiences = adventure$audiences;
+        if (audiences == null) {
+            audiences = this.entities().stream()
                     .filter(ServerPlayer.class::isInstance)
                     .map(ServerPlayer.class::cast)
                     .toList();
+            adventure$audiences = audiences;
         }
-        return adventure$audiences;
+        return audiences;
     }
 
     @Override

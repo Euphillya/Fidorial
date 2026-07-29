@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.entity.mob.monster;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.entity.Category;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.ai.BlockView;
 import fr.euphyllia.fidorial.server.entity.ai.Damage;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Zombie extends PathfinderMob {
+public class Zombie extends PathfinderMob implements Category.Monster {
 
     public static final float MAX_HEALTH = 20f;
 

@@ -16,6 +16,7 @@ import fr.euphyllia.fidorial.server.network.protocol.ProtocolMap;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ServerboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.login.ClientboundLoginDisconnectPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundDisconnectPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.entity.PlayerProfile;
@@ -30,6 +31,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -118,12 +120,17 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         write(packet).addListener(ChannelFutureListener.CLOSE);
     }
 
-    public void disconnect(final String reason) {
+    public void disconnect(final Component reason) {
         if (state == ConnectionState.LOGIN) {
-            sendAndClose(ClientboundLoginDisconnectPacket.ofText(reason));
+            sendAndClose(ClientboundLoginDisconnectPacket.ofComponent(reason));
         } else {
-            LOGGER.info("Disconnection of {}: {}", username, reason);
-            close();
+            LOGGER.info(
+                    Component.text("Disconnection of ")
+                            .append(Component.text(username == null ? "<unknown>" : username)) // shouldn't ever be null but idea doesn't want to shut up
+                            .append(Component.text(": "))
+                            .append(reason)
+            );
+            sendAndClose(new ClientboundDisconnectPacket(reason));
         }
     }
 

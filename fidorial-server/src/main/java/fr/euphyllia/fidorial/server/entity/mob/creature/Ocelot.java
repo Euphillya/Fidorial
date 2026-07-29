@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.mob.creature;
 
+import fr.euphyllia.fidorial.server.entity.Category;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.fidorial.world.Location;
@@ -7,7 +8,7 @@ import fr.fidorial.world.World;
 
 import java.util.UUID;
 
-public final class Ocelot extends Mob {
+public final class Ocelot extends Mob implements Category.Neutral {
 
     public static final float MAX_HEALTH = 10f;
 

@@ -272,13 +272,18 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
         } else if (emitter instanceof final Entity entity) {
             connection.send(new ClientboundSoundEntityPacket(sound, entity.entityId()));
         } else {
-            playSound(sound);
+            throw new IllegalArgumentException("Sound emitter must be an Entity or self(), but was: " + emitter);
         }
     }
 
     @Override
     public void stopSound(final SoundStop stop) {
         connection.send(new ClientboundStopSoundPacket(stop.source(), stop.sound()));
+    }
+
+    @Override
+    public Sound.Source soundSource() {
+        return Sound.Source.PLAYER;
     }
 
     private record BossBarEntry(UUID id, BossBar.Listener listener) {
@@ -341,7 +346,7 @@ public final class ServerPlayer extends AbstractEntity implements Player, Permis
     }
 
     @Override
-    public void kick(final String reason) {
+    public void kick(final Component reason) {
         connection.disconnect(reason);
     }
 

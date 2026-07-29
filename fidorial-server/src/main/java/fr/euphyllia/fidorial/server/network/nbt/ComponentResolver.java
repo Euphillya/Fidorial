@@ -6,7 +6,6 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Entity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.SelectorComponent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.ArrayList;
@@ -59,12 +58,7 @@ public final class ComponentResolver {
         for (int i = 0; i < matches.size(); i++) {
             Entity entity = matches.get(i);
 
-            Component name = entity.displayName()
-                    .hoverEvent(HoverEvent.showEntity(
-                            entity.type().key(),
-                            entity.uuid(),
-                            entity.displayName()
-                    ));
+            Component name = entity.displayName().hoverEvent(entity.asHoverEvent());
 
             if (i != 0) {
                 result = result.append(separator);

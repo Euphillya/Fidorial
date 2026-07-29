@@ -13,6 +13,9 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.MessageComponentSerializer;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
+import fr.fidorial.registry.RegistryKey;
+import fr.fidorial.registry.TypedKey;
+import fr.fidorial.registry.data.SoundEvent;
 import fr.fidorial.scheduler.RegionTps;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
@@ -102,7 +105,7 @@ public final class ApiTestCommand {
                                 .executes(ctx -> unloadWorld(plugin, ctx, ctx.getArgument("name", Key.class)))))
                 .then(literal("sound")
                         .executes(ApiTestCommand::soundDemo)
-                        .then(argument("key", ArgumentTypes.key())
+                        .then(argument("key", ArgumentTypes.resourceKey(RegistryKey.SOUND_EVENT))
                                 .executes(ApiTestCommand::soundDefault)
                                 .then(argument("volume", ArgumentTypes.floatArg())
                                         .executes(ApiTestCommand::soundVolume)
@@ -179,11 +182,12 @@ public final class ApiTestCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        final Key key = ctx.getArgument("key", Key.class);
+        final TypedKey<SoundEvent> soundTypedKey = ctx.getArgument("key", TypedKey.class);
+        final Key soundKey = soundTypedKey.key();
 
-        player.playSound(Sound.sound(key, Sound.Source.MASTER, volume, pitch));
+        player.playSound(Sound.sound(soundKey, Sound.Source.MASTER, volume, pitch));
 
-        msg(player, "[TestPlugin] Played sound " + key + " (volume=" + volume + ", pitch=" + pitch + ")");
+        msg(player, "[TestPlugin] Played sound " + soundKey + " (volume=" + volume + ", pitch=" + pitch + ")");
 
         return Command.SINGLE_SUCCESS;
     }

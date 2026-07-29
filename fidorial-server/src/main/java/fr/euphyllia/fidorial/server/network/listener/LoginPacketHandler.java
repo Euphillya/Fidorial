@@ -6,7 +6,6 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.ServerConfig;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.ConnectionState;
-import fr.euphyllia.fidorial.server.network.proxy.VelocityForwarding;
 import fr.euphyllia.fidorial.server.network.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.login.ClientboundCustomQueryPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.login.ClientboundHelloPacket;
@@ -18,7 +17,9 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.Se
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.ServerboundHelloPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.ServerboundKeyPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.ServerboundLoginAcknowledgedPacket;
+import fr.euphyllia.fidorial.server.network.proxy.VelocityForwarding;
 import fr.fidorial.entity.PlayerProfile;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -131,7 +132,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
         try {
             final byte[] token = EncryptionUtils.decryptRsa(server.keyPair().getPrivate(), packet.encryptedToken());
             if (!Arrays.equals(token, verifyToken)) {
-                disconnect("Verify token invalide");
+                disconnect(Component.translatable("disconnect.loginFailedInfo.invalidSession"));
                 return;
             }
             final byte[] sharedSecret = EncryptionUtils.decryptRsa(server.keyPair().getPrivate(), packet.encryptedSecret());
@@ -144,7 +145,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
             Thread.startVirtualThread(() -> authenticate(username, serverHash));
         } catch (final Exception e) {
             LOGGER.warn("Echec du chiffrement pour {}", pendingUsername, e);
-            connection.close();
+            disconnect(Component.translatable("disconnect.packetError"));
         }
     }
 
@@ -153,7 +154,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
             final Optional<GameProfile> profile = server.sessionService().hasJoined(username, serverHash);
             connection.execute(() -> {
                 if (profile.isEmpty()) {
-                    disconnect("Mojang authentication refused");
+                    disconnect(Component.translatable("disconnect.loginFailedInfo.invalidSession"));
                 } else {
                     enableCompression();
                     sendLoginSuccess(profile.get());
@@ -161,7 +162,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
             });
         } catch (final Exception e) {
             LOGGER.warn("Mojang session unreachable for {}", username, e);
-            connection.execute(() -> disconnect("Authentication servers unavailable"));
+            connection.execute(() -> disconnect(Component.translatable("disconnect.loginFailedInfo.serversUnavailable")));
         }
     }
 
@@ -189,7 +190,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
     public void handleLoginAcknowledged(final ServerboundLoginAcknowledgedPacket packet) {
         if (!loginComplete || connection.profile() == null) {
             LOGGER.warn("login_acknowledged refuses for {}: login not completed", pendingUsername);
-            disconnect("Login not completed");
+            disconnect(Component.translatable("disconnect.packetError"));
             return;
 
         }
@@ -197,6 +198,10 @@ public final class LoginPacketHandler implements LoginPacketListener {
     }
 
     private void disconnect(final String reason) {
-        connection.sendAndClose(ClientboundLoginDisconnectPacket.ofText(reason));
+        connection.sendAndClose(ClientboundLoginDisconnectPacket.ofComponent(Component.text(reason)));
+    }
+
+    private void disconnect(final Component reason) {
+        connection.sendAndClose(ClientboundLoginDisconnectPacket.ofComponent(reason));
     }
 }

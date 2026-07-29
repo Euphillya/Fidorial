@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.mob.monster;
 
+import fr.euphyllia.fidorial.server.entity.Category;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.ai.goal.ChaseTargetGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.LookAtTargetGoal;
@@ -18,7 +19,7 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.UUID;
 
-public final class Creeper extends PathfinderMob {
+public final class Creeper extends PathfinderMob implements Category.Monster {
 
     public static final float MAX_HEALTH = 20f;
     private static final ComponentLogger LOGGER = ComponentLogger.logger(Creeper.class);

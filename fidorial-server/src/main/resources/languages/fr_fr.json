@@ -52,6 +52,8 @@
   "command.summon.unknown" : "Type d'entité inconnu : <arg:0>",
   "command.summon.usage" : "Utilisation : /<arg:0> <type> [x y z]",
 
+  "commands.stop.stopping": "Arrêt du serveur",
+
   "console.argument.double.low": "Le double ne doit pas être inférieur à <arg:0> (valeur trouvée : <arg:1>)",
   "console.argument.double.big": "Le double ne doit pas être supérieur à <arg:0> (valeur trouvée : <arg:1>)",
   "console.argument.float.low": "Le flottant ne doit pas être inférieur à <arg:0> (valeur trouvée : <arg:1>)",
