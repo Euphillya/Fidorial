@@ -7,22 +7,11 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public final class EntityTypeRegistry implements Registry<EntityType> {
-
-    private final Map<TypedKey<EntityType>, EntityType> entries = new ConcurrentHashMap<>();
-
-    private final Map<TypedKey<EntityType>, Integer> networkIds = new ConcurrentHashMap<>();
-
-    public EntityTypeRegistry() {
-        for (final EntityType type : EntityTypes.values()) {
-            register(type, EntityTypes.networkId(type));
-        }
-    }
 
     @Override
     public RegistryKey<EntityType> registryKey() {
@@ -31,12 +20,12 @@ public final class EntityTypeRegistry implements Registry<EntityType> {
 
     @Override
     public EntityType get(final TypedKey<EntityType> key) {
-        return entries.get(key);
+        return EntityTypes.get(key.key());
     }
 
     @Override
     public Optional<EntityType> find(final TypedKey<EntityType> key) {
-        return Optional.ofNullable(entries.get(key));
+        return Optional.ofNullable(EntityTypes.get(key.key()));
     }
 
     @Override
@@ -46,43 +35,19 @@ public final class EntityTypeRegistry implements Registry<EntityType> {
 
     @Override
     public Collection<EntityType> values() {
-        return entries.values();
+        return StreamSupport.stream(EntityTypes.values().spliterator(), false).toList();
     }
 
     @Override
     public Stream<EntityType> stream() {
-        return entries.values().stream();
-    }
-
-    public EntityType register(final EntityType type) {
-        return register(type, -1);
-    }
-
-    public EntityType register(final EntityType type, final int networkId) {
-        final TypedKey<EntityType> key = key(type);
-
-        if (entries.putIfAbsent(key, type) != null) {
-            throw new IllegalStateException("Duplicate entity type: " + type.key());
-        }
-
-        if (networkId >= 0) {
-            networkIds.put(key, networkId);
-        }
-
-        return type;
+        return StreamSupport.stream(EntityTypes.values().spliterator(), false);
     }
 
     public int networkId(final EntityType type) {
-        final Integer id = networkIds.get(key(type));
-
-        if (id == null) {
-            throw new IllegalStateException("Missing network id for " + type.key());
-        }
-
-        return id;
+        return EntityTypes.networkId(type);
     }
 
     public boolean hasNetworkId(final EntityType type) {
-        return networkIds.containsKey(key(type));
+        return EntityTypes.hasNetworkId(type);
     }
 }
