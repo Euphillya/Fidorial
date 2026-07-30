@@ -39,9 +39,10 @@ import fr.fidorial.registry.data.WolfSoundVariant;
 import fr.fidorial.registry.data.WolfVariant;
 import fr.fidorial.registry.data.WorldClock;
 import fr.fidorial.registry.data.ZombieNautilusVariant;
-import java.util.Objects;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
+
+import java.util.Objects;
 
 /**
  * Identifies a Minecraft registry.
@@ -249,7 +250,7 @@ public record RegistryKey<T>(Key key) {
         Objects.requireNonNull(key, "key");
     }
 
-    public static <T> RegistryKey<T> of(@KeyPattern final String path) {
+    private static <T> RegistryKey<T> of(@KeyPattern final String path) {
         return new RegistryKey<>(Key.key(path));
     }
 
