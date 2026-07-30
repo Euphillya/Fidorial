@@ -1,6 +1,7 @@
 package fr.fidorial;
 
 import fr.fidorial.command.CommandRegistry;
+import fr.fidorial.entity.OfflinePlayers;
 import fr.fidorial.entity.Player;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.permission.PermissionRegistry;
@@ -175,6 +176,9 @@ public interface Server extends ForwardingAudience {
     Optional<? extends Player> player(UUID uuid);
 
     Optional<? extends Player> player(String name);
+
+    @Contract(pure = true)
+    OfflinePlayers offlinePlayers();
 
     boolean isRunning();
 

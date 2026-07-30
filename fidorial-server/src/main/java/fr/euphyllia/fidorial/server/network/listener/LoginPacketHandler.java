@@ -182,7 +182,9 @@ public final class LoginPacketHandler implements LoginPacketListener {
         final List<PlayerProfile.Property> properties = profile.properties().stream()
                 .map(p -> new PlayerProfile.Property(p.name(), p.value(), p.signature()))
                 .toList();
-        connection.setProfile(new PlayerProfile(profile.uuid(), profile.name(), properties));
+        final PlayerProfile playerProfile = new PlayerProfile(profile.uuid(), profile.name(), properties);
+        connection.setProfile(playerProfile);
+        server.offlinePlayers().remember(playerProfile);
         connection.send(new ClientboundLoginFinishedPacket(profile));
     }
 

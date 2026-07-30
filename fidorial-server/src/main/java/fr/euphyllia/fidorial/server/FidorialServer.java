@@ -18,6 +18,7 @@ import fr.euphyllia.fidorial.server.entity.EntityTickHandler;
 import fr.euphyllia.fidorial.server.entity.EntityTracker;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.euphyllia.fidorial.server.entity.player.profile.FidorialOfflinePlayers;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerEnderChestStorage;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStorage;
@@ -61,6 +62,7 @@ import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.entity.Entity;
+import fr.fidorial.entity.OfflinePlayers;
 import fr.fidorial.entity.Player;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.event.server.ServerStartedEvent;
@@ -93,6 +95,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -112,6 +115,9 @@ public final class FidorialServer implements Server {
 
     public static final ComponentLogger LOGGER = ComponentLogger.logger(FidorialServer.class);
     private static final ErrorTracker ERROR_TRACKER = ErrorTracker.contextAware();
+
+    private static final Duration PROFILE_CACHE_TTL = Duration.ofDays(30);
+    private static final int PROFILE_CACHE_MAX_ENTRIES = 65_536;
 
     private static @Nullable FidorialServer instance;
 
@@ -167,6 +173,12 @@ public final class FidorialServer implements Server {
     private final JavaPluginManager pluginManager =
             new JavaPluginManager(this, events, services, permissionRegistry, config.pluginsPath());
     private final OperatorList operators = new OperatorList(Path.of("ops.json"));
+    private final FidorialOfflinePlayers offlinePlayers = new FidorialOfflinePlayers(
+            this,
+            config.worldPath().resolve("player").resolve("profiles.fop"),
+            PROFILE_CACHE_TTL,
+            PROFILE_CACHE_MAX_ENTRIES,
+            config.onlineMode());
     private final NettyServer network = new NettyServer(this, config.port());
     private final FidorialContext metrics = new FidorialContext.Factory("6c8c21fe427163e998ea50f54a0ce855")
             .errorTrackerService(ERROR_TRACKER)
@@ -245,6 +257,7 @@ public final class FidorialServer implements Server {
         closeQuietly("regions", regionizer::shutdown);
         closeQuietly("chunks", chunkWorker::shutdown);
         closeQuietly("meteo", weatherEngine::close);
+        closeQuietly("profils", offlinePlayers::close);
         closeQuietly("monde", worldManager::close);
         closeQuietly("metriques", metrics::shutdown);
         LOGGER.info("Stop complete");
@@ -266,6 +279,11 @@ public final class FidorialServer implements Server {
         ArgumentTypes.bootstrap();
         commandManager = new CommandManager();
         operators.load();
+        try {
+            offlinePlayers.load();
+        } catch (final IOException e) {
+            LOGGER.error("Profile cache unreadable, starting with an empty one", e);
+        }
     }
 
     private void openWorlds() {
@@ -310,6 +328,7 @@ public final class FidorialServer implements Server {
         services.register(PlayerDataStorage.class, defaultPlayerDataStorage, this, ServicePriority.LOWEST);
         services.register(PlayerEnderChestStorage.class, defaultEnderChestStorage, this, ServicePriority.LOWEST);
         services.register(BossBarRegistry.class, bossBarRegistry, this, ServicePriority.LOWEST);
+        services.register(OfflinePlayers.class, offlinePlayers, this, ServicePriority.LOWEST);
     }
 
     private void loadPlugins() throws IOException {
@@ -322,6 +341,7 @@ public final class FidorialServer implements Server {
                 () -> {
                     try {
                         worldManager.saveDirty();
+                        offlinePlayers.maintain();
                         final int n = worldManager.unloadUnusedChunks();
                         if (n > 0) LOGGER.debug("{} unloaded chunks", n);
                     } catch (final Throwable t) {
@@ -470,6 +490,11 @@ public final class FidorialServer implements Server {
         return onlinePlayers().stream()
                 .filter(p -> p.name().equalsIgnoreCase(name))
                 .findFirst();
+    }
+
+    @Override
+    public FidorialOfflinePlayers offlinePlayers() {
+        return offlinePlayers;
     }
 
     @Override

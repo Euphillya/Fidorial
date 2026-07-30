@@ -17,6 +17,16 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
 
     PlayerProfile profile();
 
+    /**
+     * Gets the offline handle for this player's identity.
+     *
+     * @return the handle for this player's identity
+     * @since 0.1.0
+     */
+    default OfflinePlayer offline() {
+        return server().offlinePlayers().of(this);
+    }
+
     @Override
     default UUID uuid() {
         return profile().uuid();

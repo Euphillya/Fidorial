@@ -49,6 +49,11 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
     }
 
     @Override
+    public boolean exists(final UUID uuid) {
+        return Files.isRegularFile(fileFor(uuid));
+    }
+
+    @Override
     public PlayerData load(final UUID uuid, final PlayerData defaults) throws IOException {
         final Path file = fileFor(uuid);
         if (!Files.isRegularFile(file)) {

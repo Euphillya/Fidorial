@@ -20,10 +20,13 @@ import fr.fidorial.entity.PlayerProfileMeta;
 import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -97,11 +100,13 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
 
                 final Optional<? extends Player> player = server.player(name);
 
-                if (player.isEmpty() || !filter.test(player.get())) {
-                    throw ERROR_UNKNOWN_PLAYER.create();
+                if (player.isPresent() && filter.test(player.get())) {
+                    return List.of(new PlayerProfileMeta(player.get().profile()));
                 }
 
-                return List.of(new PlayerProfileMeta(player.get().profile()));
+                return server.offlinePlayers().cached(name)
+                        .map(offline -> List.of(new PlayerProfileMeta(offline.uuid(), offline.label())))
+                        .orElseThrow(ERROR_UNKNOWN_PLAYER::create);
             };
         }
 
@@ -119,10 +124,20 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
 
         final String remaining = builder.getRemainingLowerCase();
 
-        source.server().onlinePlayers().stream()
+        final Set<String> online = source.server().onlinePlayers().stream()
                 .filter(filter)
                 .map(Player::name)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        online.stream()
                 .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
+                .forEach(builder::suggest);
+
+        source.server().offlinePlayers().known().stream()
+                .flatMap(offline -> offline.name().stream())
+                .filter(name -> !online.contains(name))
+                .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
+                .limit(64)
                 .forEach(builder::suggest);
 
         return builder.buildFuture();
