@@ -41,7 +41,7 @@ public final class EntityTracker {
             untrack(entity);
             return;
         }
-        if (entity instanceof ServerPlayer || !EntityTypes.hasNetworkId(entity.type())) {
+        if (!EntityTypes.hasNetworkId(entity.type())) {
             return;
         }
 
@@ -52,7 +52,7 @@ public final class EntityTracker {
         final Location self = abstractEntity.location();
 
         for (final ServerPlayer player : players) {
-            if (player.isRemoved()) {
+            if (player.isRemoved() || player == entity) {
                 continue;
             }
             final ClientConnection connection = player.connection();

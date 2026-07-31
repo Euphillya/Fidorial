@@ -12,12 +12,15 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBlockEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundCommandSuggestionsPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundContainerSetContentPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundEntityPositionSyncPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundGameEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundLoginPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundPlayerAbilitiesPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundPlayerInfoRemovePacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundPlayerInfoUpdatePacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundPlayerPositionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundRespawnPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundRotateHeadPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket.Entry;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundPacket;
@@ -113,6 +116,11 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
         connection.startKeepAlive();
         server.addPlayerConnection(connection);
+        for (final ServerPlayer other : server.players()) {
+            if (other == player) continue;
+            connection.send(new ClientboundPlayerInfoUpdatePacket(other.profile(), other.gameMode().id(), 0));
+            other.connection().send(new ClientboundPlayerInfoUpdatePacket(player.profile(), player.gameMode().id(), 0));
+        }
         server.events().post(new PlayerJoinEvent(player));
         LOGGER.info("{} logged with uuid {}", player.name(), player.uuid());
     }
@@ -134,6 +142,11 @@ public final class PlayPacketHandler implements PlayPacketListener {
             server.worldManager().overworld().removeEntity(player);
             player.permissions().revokeAll();
             player.remove();
+            server.entityTracker().untrack(player);
+            for (final ServerPlayer other : server.players()) {
+                if (other == player) continue;
+                other.connection().send(new ClientboundPlayerInfoRemovePacket(player.uuid()));
+            }
         }
     }
 
@@ -532,6 +545,11 @@ public final class PlayPacketHandler implements PlayPacketListener {
         player.setLocation(current);
         server.worldManager().overworld().entityManager().moved(player, previous.chunk(), current.chunk());
 
+        player.sendToTrackers(new ClientboundEntityPositionSyncPacket(
+                player.entityId(), x, y, z, 0, 0, 0, yaw, pitch, false));
+        player.sendToTrackers(new ClientboundRotateHeadPacket(player.entityId(), yaw));
+        server.entityTracker().update(player, server.players());
+
         final ChunkPos chunk = current.chunk();
         if (!chunkView.moveTo(chunk.x(), chunk.z())) {
             return;
@@ -553,6 +571,12 @@ public final class PlayPacketHandler implements PlayPacketListener {
             from.entityManager().moved(player, previous.chunk(), destChunk);
             connection.send(new ClientboundPlayerPositionPacket(
                     player.nextTeleportId(), location.x(), location.y(), location.z()));
+
+            player.sendToTrackers(new ClientboundEntityPositionSyncPacket(
+                    player.entityId(), location.x(), location.y(), location.z(),
+                    0, 0, 0, location.yaw(), location.pitch(), false));
+            player.sendToTrackers(new ClientboundRotateHeadPacket(player.entityId(), location.yaw()));
+
             if (chunkView != null && chunkView.moveTo(destChunk.x(), destChunk.z()) && ticket != null) {
                 server.regionizer().moveTicket(from.dimension().id(), ticket, destChunk);
                 ticket = destChunk;
