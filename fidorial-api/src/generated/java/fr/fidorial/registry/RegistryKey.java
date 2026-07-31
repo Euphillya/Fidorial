@@ -249,7 +249,7 @@ public record RegistryKey<T>(Key key) {
         Objects.requireNonNull(key, "key");
     }
 
-    public static <T> RegistryKey<T> of(@KeyPattern final String path) {
+    private static <T> RegistryKey<T> of(@KeyPattern final String path) {
         return new RegistryKey<>(Key.key(path));
     }
 
