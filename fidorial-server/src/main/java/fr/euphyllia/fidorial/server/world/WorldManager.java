@@ -82,7 +82,7 @@ public final class WorldManager implements AutoCloseable {
         }
 
         final AnvilChunkSerializer serializer = new AnvilChunkSerializer();
-        final ChunkStorage storage = new ChunkStorage(paths, serializer, minY, height, BlockState.AIR, "minecraft:plains");
+        final ChunkStorage storage = new ChunkStorage(paths, serializer, minY, height, BlockState.AIR, Key.key("minecraft", "plains"));
 
         final EntityRegionStorage entityStorage = new EntityRegionStorage(paths);
         final AnvilEntitySerializer entitySerializer = new AnvilEntitySerializer();

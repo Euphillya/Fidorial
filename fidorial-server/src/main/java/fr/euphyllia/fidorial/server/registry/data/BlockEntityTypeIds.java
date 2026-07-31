@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.registry.data;
 
+import net.kyori.adventure.key.Key;
+
 import java.util.Map;
 
 /**
@@ -9,7 +11,7 @@ import java.util.Map;
  */
 public interface BlockEntityTypeIds {
     /**
-     * Returned by {@link #id(String)} when the identifier is unknown.
+     * Returned by {@link #id(Key)} when the identifier is unknown.
      */
     int UNKNOWN = -1;
 
@@ -261,65 +263,65 @@ public interface BlockEntityTypeIds {
     /**
      * Immutable identifier to protocol ID lookup table.
      */
-    Map<String, Integer> BY_IDENTIFIER = Map.ofEntries(
-        Map.entry("minecraft:banner", BANNER_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:barrel", BARREL_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:beacon", BEACON_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:beehive", BEEHIVE_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:bell", BELL_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:blast_furnace", BLAST_FURNACE_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:brewing_stand", BREWING_STAND_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:brushable_block", BRUSHABLE_BLOCK_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:calibrated_sculk_sensor", CALIBRATED_SCULK_SENSOR_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:campfire", CAMPFIRE_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:chest", CHEST_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:chiseled_bookshelf", CHISELED_BOOKSHELF_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:command_block", COMMAND_BLOCK_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:comparator", COMPARATOR_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:conduit", CONDUIT_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:copper_golem_statue", COPPER_GOLEM_STATUE_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:crafter", CRAFTER_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:creaking_heart", CREAKING_HEART_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:daylight_detector", DAYLIGHT_DETECTOR_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:decorated_pot", DECORATED_POT_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:dispenser", DISPENSER_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:dropper", DROPPER_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:enchanting_table", ENCHANTING_TABLE_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:end_gateway", END_GATEWAY_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:end_portal", END_PORTAL_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:ender_chest", ENDER_CHEST_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:furnace", FURNACE_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:hanging_sign", HANGING_SIGN_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:hopper", HOPPER_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:jigsaw", JIGSAW_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:jukebox", JUKEBOX_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:lectern", LECTERN_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:mob_spawner", MOB_SPAWNER_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:piston", PISTON_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:potent_sulfur", POTENT_SULFUR_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:sculk_catalyst", SCULK_CATALYST_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:sculk_sensor", SCULK_SENSOR_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:sculk_shrieker", SCULK_SHRIEKER_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:shelf", SHELF_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:shulker_box", SHULKER_BOX_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:sign", SIGN_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:skull", SKULL_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:smoker", SMOKER_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:structure_block", STRUCTURE_BLOCK_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:test_block", TEST_BLOCK_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:test_instance_block", TEST_INSTANCE_BLOCK_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:trapped_chest", TRAPPED_CHEST_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:trial_spawner", TRIAL_SPAWNER_BLOCK_ENTITY_ID),
-        Map.entry("minecraft:vault", VAULT_BLOCK_ENTITY_ID)
+    Map<Key, Integer> BY_IDENTIFIER = Map.ofEntries(
+            Map.entry(Key.key("minecraft:banner"), BANNER_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:barrel"), BARREL_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:beacon"), BEACON_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:beehive"), BEEHIVE_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:bell"), BELL_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:blast_furnace"), BLAST_FURNACE_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:brewing_stand"), BREWING_STAND_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:brushable_block"), BRUSHABLE_BLOCK_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:calibrated_sculk_sensor"), CALIBRATED_SCULK_SENSOR_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:campfire"), CAMPFIRE_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:chest"), CHEST_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:chiseled_bookshelf"), CHISELED_BOOKSHELF_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:command_block"), COMMAND_BLOCK_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:comparator"), COMPARATOR_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:conduit"), CONDUIT_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:copper_golem_statue"), COPPER_GOLEM_STATUE_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:crafter"), CRAFTER_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:creaking_heart"), CREAKING_HEART_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:daylight_detector"), DAYLIGHT_DETECTOR_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:decorated_pot"), DECORATED_POT_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:dispenser"), DISPENSER_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:dropper"), DROPPER_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:enchanting_table"), ENCHANTING_TABLE_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:end_gateway"), END_GATEWAY_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:end_portal"), END_PORTAL_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:ender_chest"), ENDER_CHEST_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:furnace"), FURNACE_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:hanging_sign"), HANGING_SIGN_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:hopper"), HOPPER_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:jigsaw"), JIGSAW_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:jukebox"), JUKEBOX_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:lectern"), LECTERN_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:mob_spawner"), MOB_SPAWNER_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:piston"), PISTON_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:potent_sulfur"), POTENT_SULFUR_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:sculk_catalyst"), SCULK_CATALYST_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:sculk_sensor"), SCULK_SENSOR_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:sculk_shrieker"), SCULK_SHRIEKER_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:shelf"), SHELF_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:shulker_box"), SHULKER_BOX_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:sign"), SIGN_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:skull"), SKULL_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:smoker"), SMOKER_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:structure_block"), STRUCTURE_BLOCK_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:test_block"), TEST_BLOCK_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:test_instance_block"), TEST_INSTANCE_BLOCK_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:trapped_chest"), TRAPPED_CHEST_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:trial_spawner"), TRIAL_SPAWNER_BLOCK_ENTITY_ID),
+            Map.entry(Key.key("minecraft:vault"), VAULT_BLOCK_ENTITY_ID)
     );
 
     /**
      * Resolves the protocol ID for a namespaced identifier.
      *
-     * @param identifier namespaced identifier, e.g. {@code minecraft:chest}
+     * @param identifier namespaced identifier, e.g. {@code Key.key("minecraft", "chest")}
      * @return the protocol ID, or {@link #UNKNOWN} when the identifier is unknown
      */
-    static int id(final String identifier) {
+    static int id(final Key identifier) {
         return BY_IDENTIFIER.getOrDefault(identifier, UNKNOWN);
     }
 }

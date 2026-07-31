@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.world.ServerChunk;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.world.Chunk;
+import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -11,8 +12,7 @@ import java.util.Set;
 
 public class BlockView {
 
-    private static final Set<String> PASSABLE = Set.of( // Todo : Remplacer par key
-            "minecraft:water");
+    private static final Set<Key> PASSABLE = Set.of(Key.key("minecraft", "water"));
 
     private BlockView() {
     }
@@ -36,7 +36,7 @@ public class BlockView {
         if (state.isAir()) {
             return true;
         }
-        final String name = state.name();
+        final Key name = state.name();
         return PASSABLE.contains(name);
     }
 
@@ -45,7 +45,7 @@ public class BlockView {
         return state != null && !isPassable(state);
     }
 
-    public static @Nullable String biomeAt(final ServerWorld world, final int x, final int y, final int z) {
+    public static @Nullable Key biomeAt(final ServerWorld world, final int x, final int y, final int z) {
         final Optional<Chunk> optionalChunk = world.getChunkIfLoaded(x >> 4, z >> 4);
         if (optionalChunk.isEmpty()) return null;
         final Chunk chunk = optionalChunk.get();

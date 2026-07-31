@@ -1,10 +1,12 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import net.kyori.adventure.key.Key;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-public record BlockState(String name, Map<String, String> properties) {
+public record BlockState(Key name, Map<String, String> properties) {
 
     public static final BlockState AIR = of("minecraft:air");
     public static final BlockState CAVE_AIR = of("minecraft:cave_air");
@@ -18,8 +20,12 @@ public record BlockState(String name, Map<String, String> properties) {
                 properties.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(new TreeMap<>(properties));
     }
 
-    public static BlockState of(final String name) {
+    public static BlockState of(final Key name) {
         return new BlockState(name, Collections.emptyMap());
+    }
+
+    private static BlockState of(final String name) {
+        return new BlockState(Key.key(name), Collections.emptyMap());
     }
 
     public boolean isAir() {

@@ -3,6 +3,8 @@ package fr.euphyllia.fidorial.server.world.chunk;
 import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntity;
 import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntityTypes;
 import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
+import net.kyori.adventure.key.Key;
+import org.jetbrains.annotations.UnknownNullability;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -23,12 +25,12 @@ public final class ChunkColumn {
 
     private long inhabitedTime;
     private long lastUpdate;
-    private String status = "minecraft:full";
+    private Key status = Key.key("minecraft", "full");
 
     private volatile boolean lightPopulated;
     private @Nullable ChunkLightData lightData;
 
-    public ChunkColumn(final int chunkX, final int chunkZ, final int minY, final int height, final BlockState fillBlock, final String fillBiome) {
+    public ChunkColumn(final int chunkX, final int chunkZ, final int minY, final int height, final BlockState fillBlock, final @UnknownNullability Key fillBiome) {
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
         this.minY = minY;
@@ -76,7 +78,7 @@ public final class ChunkColumn {
         }
     }
 
-    public @Nullable String getBiome(final int localX, final int worldY, final int localZ) {
+    public @Nullable Key getBiome(final int localX, final int worldY, final int localZ) {
         final ChunkSection chunkSection = sectionForY(worldY);
         return chunkSection == null ? null : chunkSection.getBiome(localX >> 2, (worldY & 15) >> 2, localZ >> 2);
     }
@@ -97,11 +99,11 @@ public final class ChunkColumn {
         this.lastUpdate = t;
     }
 
-    public String status() {
+    public Key status() {
         return status;
     }
 
-    public void setStatus(final String s) {
+    public void setStatus(final Key s) {
         this.status = s;
     }
 

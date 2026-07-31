@@ -17,7 +17,7 @@ public class PluginGeneratedChunk implements GeneratedChunk {
     private final int minY;
     private final int height;
 
-    public PluginGeneratedChunk(final int chunkX, final int chunkZ, final int minY, final int height, final String defaultBiome) {
+    public PluginGeneratedChunk(final int chunkX, final int chunkZ, final int minY, final int height, final Key defaultBiome) {
         this.column = new ChunkColumn(chunkX, chunkZ, minY, height, BlockState.AIR, defaultBiome);
         this.minY = minY;
         this.height = height;
@@ -51,7 +51,7 @@ public class PluginGeneratedChunk implements GeneratedChunk {
     public void setBlock(final int x, final int y, final int z, final Key block) {
         checkLocal(x, z);
         checkY(y);
-        final BlockState state = BLOCK_CACHE.computeIfAbsent(block, k -> BlockState.of(k.toString()));
+        final BlockState state = BLOCK_CACHE.computeIfAbsent(block, BlockState::of);
         column.setBlock(x, y, z, state);
     }
 
@@ -60,7 +60,7 @@ public class PluginGeneratedChunk implements GeneratedChunk {
         checkLocal(x, z);
         checkY(y);
         final ChunkSection section = column.sections()[(y >> 4) - column.minSectionY()];
-        section.setBiome(x >> 2, (y & 15) >> 2, z >> 2, biome.toString());
+        section.setBiome(x >> 2, (y & 15) >> 2, z >> 2, biome);
     }
 
     private void checkLocal(final int x, final int z) {

@@ -38,6 +38,8 @@ module fr.fidorial {
     exports fr.fidorial.world.entity;
     exports fr.fidorial.protocol;
     exports fr.fidorial.world.light;
+    exports fr.fidorial.testing;
+    exports fr.fidorial.testing.annotation;
 
     requires com.google.common;
     requires com.google.gson;

@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ public final class ChunkStorage implements AutoCloseable {
     private final int minY;
     private final int height;
     private final BlockState defaultBlock;
-    private final String defaultBiome;
+    private final Key defaultBiome;
 
     private final Map<String, RegionFile> regionCache = new ConcurrentHashMap<>();
 
@@ -30,7 +31,7 @@ public final class ChunkStorage implements AutoCloseable {
             final int minY,
             final int height,
             final BlockState defaultBlock,
-            final String defaultBiome
+            final Key defaultBiome
     ) {
         this.paths = paths;
         this.serializer = serializer;

@@ -192,11 +192,17 @@ public final class FidorialServer implements Server {
             .miniMessage(MiniMessage.Preset.FORMATTED_TEXT)
             .deserialize(config.motd());
     private int maxPlayers = config.maxPlayers();
+    private final boolean headless;
 
     public FidorialServer() throws IOException {
+        this(false);
+    }
+
+    public FidorialServer(final boolean headless) throws IOException {
         if (instance != null) {
             throw new IllegalStateException("FidorialServer is already initialized");
         }
+        this.headless = headless;
         instance = this;
     }
 
@@ -225,13 +231,17 @@ public final class FidorialServer implements Server {
             loadPlugins();
             openWorlds();
             regionizer.registerTickHandler(new EntityTickHandler(worldManager, this));
-            network.bind();
-            startAutoSave();
-            console.setLocale(Locale.getDefault());
-            new ConsoleCommandReader(commandManager, running::get).start();
-            pluginManager.enableAll();
+            if (!headless) {
+                network.bind();
+                startAutoSave();
+                console.setLocale(Locale.getDefault());
+                new ConsoleCommandReader(commandManager, running::get).start();
+                pluginManager.enableAll();
+                LOGGER.info("En ecoute sur le port {}", config.port());
+            } else {
+                pluginManager.enableAll();
+            }
             events.post(new ServerStartedEvent(this));
-            LOGGER.info("En ecoute sur le port {}", config.port());
         } catch (final Exception e) {
             LOGGER.error("Demarrage interrompu, arret en cours", e);
             shutdown();

@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.entity.ai;
 
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import net.kyori.adventure.key.Key;
 
 @FunctionalInterface
 public interface PathPenalty {
@@ -14,11 +15,11 @@ public interface PathPenalty {
         if (state == null) {
             return 0.0;
         }
-        final String name = state.name();
-        if (name.equals("minecraft:water")) {
+        final Key name = state.name();
+        if (name.equals(Key.key("minecraft", "water"))) {
             return 8.0;
         }
-        if (name.endsWith("rail")) {
+        if (name.asString().endsWith("rail")) {
             return 16.0;
         }
         return 0.0;

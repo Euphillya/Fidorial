@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.jline.reader)
     implementation(libs.logback.classic)
     implementation(libs.netty.all)
+    implementation(libs.classgraph)
     implementation(projects.fidorialApi)
     implementation(projects.fidorialAuth)
     runtimeOnly(libs.netty.epoll)
@@ -33,9 +34,35 @@ tasks.run {
     standardInput = System.`in`
     classpath(sourceSets.main.map { it.runtimeClasspath })
     workingDir = project.file("run")
-    workingDir.mkdirs()
     jvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
-    dependsOn(":fidorial-test-plugin:build")
+    dependsOn(":fidorial-test-plugin:deployToRun")
+    doFirst {
+        workingDir.mkdirs()
+    }
+}
+
+tasks.register<JavaExec>("testScenarios") {
+    description = "Run scenario tests against a real server"
+    group = "verification"
+
+    val pluginsDir = layout.projectDirectory.dir("run/plugins").asFile
+
+    standardInput = System.`in`
+    classpath(sourceSets.main.map { it.runtimeClasspath })
+    workingDir = layout.projectDirectory.file("build/tmp/scenario-tests").asFile
+    jvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
+    mainClass = "fr.euphyllia.fidorial.server.testing.ScenarioTestMain"
+    args = listOf("fr.euphyllia.fidorial.server.tests", "fr.euphyllia.fidorial.testplugin.tests")
+    dependsOn(":fidorial-test-plugin:deployToRun")
+    doFirst {
+        workingDir.deleteRecursively()
+        workingDir.mkdirs()
+        pluginsDir.resolve("TestPlugin.jar").copyTo(workingDir.resolve("plugins/TestPlugin.jar"))
+    }
+}
+
+tasks.test {
+    dependsOn("testScenarios")
 }
 
 tasks.shadowJar {

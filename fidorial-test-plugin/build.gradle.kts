@@ -20,10 +20,10 @@ tasks.shadowJar {
 
 val deployToRun = tasks.register<Copy>("deployToRun") {
     from(tasks.shadowJar)
-    rootProject.layout.projectDirectory.file("fidorial-server/run/plugins/TestPlugin.jar").asFile.delete()
-    into(rootProject.layout.projectDirectory.dir("fidorial-server/run/plugins"))
-}
-
-tasks.build {
-    finalizedBy(deployToRun)
+    rename { "TestPlugin.jar" }
+    val destination = rootProject.layout.projectDirectory.dir("fidorial-server/run/plugins").asFile
+    into(destination)
+    doFirst {
+        destination.resolve("TestPlugin.jar").delete()
+    }
 }
