@@ -15,6 +15,7 @@ import fr.fidorial.entity.GameMode;
 import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 
 import java.util.ArrayList;
@@ -303,8 +304,8 @@ public final class Explosion {
     }
 
     private static boolean isFluid(final BlockState state) {
-        final String name = state.name();
-        return name.equals("minecraft:water") || name.equals("minecraft:lava"); // Todo : Add isFluid to BlockState
+        final Key name = state.name();
+        return name.equals(Key.key("minecraft", "water")) || name.equals(Key.key("minecraft", "lava")); // Todo : Add isFluid to BlockState
     }
 
     private static double eyeHeight(final AbstractEntity entity) {

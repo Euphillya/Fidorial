@@ -2,12 +2,13 @@ package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.fidorial.world.generation.WorldGenerator;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 public final class PluginBackedChunkGenerator implements ChunkGenerator {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(PluginBackedChunkGenerator.class);
-    private static final String DEFAULT_BIOME = "minecraft:plains";
+    private static final Key DEFAULT_BIOME = Key.key("minecraft", "plains");
 
     private final WorldGenerator generator;
     private final ChunkGenerator fallback;

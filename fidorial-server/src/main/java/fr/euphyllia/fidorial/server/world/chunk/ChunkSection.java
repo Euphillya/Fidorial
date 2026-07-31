@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import net.kyori.adventure.key.Key;
+
 public final class ChunkSection {
 
     public static final int BLOCK_COUNT = 4096; // 16^3
@@ -7,10 +9,10 @@ public final class ChunkSection {
 
     private final int sectionY; // indice de section (ex. -4 pour y=-64)
     private final PalettedContainer<BlockState> blocks;
-    private final PalettedContainer<String> biomes;
+    private final PalettedContainer<Key> biomes;
     private int nonAirCount;
 
-    public ChunkSection(final int sectionY, final BlockState fillBlock, final String fillBiome) {
+    public ChunkSection(final int sectionY, final BlockState fillBlock, final Key fillBiome) {
         this.sectionY = sectionY;
         this.blocks = new PalettedContainer<>(BLOCK_COUNT, 4, fillBlock);
         this.biomes = new PalettedContainer<>(BIOME_COUNT, 1, fillBiome);
@@ -18,7 +20,7 @@ public final class ChunkSection {
     }
 
     public ChunkSection(final int sectionY, final PalettedContainer<BlockState> blocks,
-                        final PalettedContainer<String> biomes) {
+                        final PalettedContainer<Key> biomes) {
         this.sectionY = sectionY;
         this.blocks = blocks;
         this.biomes = biomes;
@@ -37,7 +39,7 @@ public final class ChunkSection {
         return blocks;
     }
 
-    public PalettedContainer<String> biomes() {
+    public PalettedContainer<Key> biomes() {
         return biomes;
     }
 
@@ -62,11 +64,11 @@ public final class ChunkSection {
         return blocks.get(blockIndex(x, y, z));
     }
 
-    public void setBiome(final int bx, final int by, final int bz, final String biome) {
+    public void setBiome(final int bx, final int by, final int bz, final Key biome) {
         biomes.set((by << 4) | (bz << 2) | bx, biome);
     }
 
-    public String getBiome(final int bx, final int by, final int bz) {
+    public Key getBiome(final int bx, final int by, final int bz) {
         return biomes.get((by << 4) | (bz << 2) | bx);
     }
 

@@ -146,6 +146,19 @@ public final class ServerWorld implements World {
         return Optional.ofNullable(cached).map(this::wrap);
     }
 
+    @Override
+    public Optional<Key> blockKeyAt(final BlockPos pos) {
+        try {
+            final BlockState state = getBlock(pos.x(), pos.y(), pos.z());
+            if (state.isAir()) {
+                return Optional.empty();
+            }
+            return Optional.of(state.name());
+        } catch (final IOException e) {
+            throw new UncheckedIOException("Unable to read block at " + pos, e);
+        }
+    }
+
     private ServerChunk wrap(final ChunkColumn column) {
         return new ServerChunk(this, column, blockStates);
     }

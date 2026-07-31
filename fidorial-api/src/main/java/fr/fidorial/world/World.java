@@ -3,6 +3,7 @@ package fr.fidorial.world;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.world.time.DayNightCycle;
 import net.kyori.adventure.audience.ForwardingAudience;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
 
 import java.util.Collection;
@@ -33,6 +34,8 @@ public interface World extends Keyed, ForwardingAudience {
     default boolean isChunkLoaded(final int chunkX, final int chunkZ) {
         return getChunkIfLoaded(chunkX, chunkZ).isPresent();
     }
+
+    Optional<Key> blockKeyAt(BlockPos pos);
 
     int getBlockStateId(BlockPos pos);
 

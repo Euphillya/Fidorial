@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.world.block.blockentity;
 
 import fr.euphyllia.fidorial.server.registry.data.BlockEntityTypeIds;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -26,13 +27,13 @@ import java.util.Objects;
  *
  * @since 0.1.0
  */
-public record BlockEntity(int localX, int y, int localZ, String type, @Nullable NbtCompound data) {
+public record BlockEntity(int localX, int y, int localZ, Key type, @Nullable NbtCompound data) {
 
     public BlockEntity {
 
         Objects.requireNonNull(type, "type");
 
-        if (type.isBlank()) {
+        if (type.value().isBlank()) {
             throw new IllegalArgumentException("Block entity type cannot be blank.");
         }
 
@@ -49,7 +50,7 @@ public record BlockEntity(int localX, int y, int localZ, String type, @Nullable 
         }
     }
 
-    public static BlockEntity of(final int localX, final int y, final int localZ, final String type) {
+    public static BlockEntity of(final int localX, final int y, final int localZ, final Key type) {
         return new BlockEntity(localX, y, localZ, type, null);
     }
 

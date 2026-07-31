@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.world.block.blockentity;
 
 import fr.euphyllia.fidorial.server.registry.data.BlockEntityTypeIds;
+import net.kyori.adventure.key.Key;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -25,20 +26,18 @@ import java.util.Set;
  */
 public final class BlockEntityTypes {
 
-    private static final String NAMESPACE = "minecraft:";
-
     /**
      * Suffix rules, evaluated in insertion order. The first match wins, so the
      * more specific suffixes must be declared first.
      */
-    private static final Map<String, String> SUFFIX_RULES = suffixRules();
+    private static final Map<String, Key> SUFFIX_RULES = suffixRules();
 
-    private static final Map<String, String> EXACT_BLOCKS = exactBlocks();
+    private static final Map<Key, Key> EXACT_BLOCKS = exactBlocks();
 
     /**
      * Blocks whose name matches a suffix rule but which carry no block entity.
      */
-    private static final Set<String> SUFFIX_EXCLUSIONS = Set.of(NAMESPACE + "piston_head");
+    private static final Set<Key> SUFFIX_EXCLUSIONS = Set.of(Key.key("piston_head"));
 
     private BlockEntityTypes() {
         throw new UnsupportedOperationException();
@@ -52,21 +51,18 @@ public final class BlockEntityTypes {
      * @return the block entity type identifier, or {@link Optional#empty()} when
      *         the block has no block entity
      */
-    public static Optional<String> typeIdentifier(final String blockIdentifier) {
-
-        final String identifier = normalise(blockIdentifier);
-
-        final String exact = EXACT_BLOCKS.get(identifier);
+    public static Optional<Key> typeIdentifier(final Key blockIdentifier) {
+        final Key exact = EXACT_BLOCKS.get(blockIdentifier);
         if (exact != null) {
             return Optional.of(exact);
         }
 
-        if (SUFFIX_EXCLUSIONS.contains(identifier)) {
+        if (SUFFIX_EXCLUSIONS.contains(blockIdentifier)) {
             return Optional.empty();
         }
 
-        for (final Map.Entry<String, String> rule : SUFFIX_RULES.entrySet()) {
-            if (identifier.endsWith(rule.getKey())) {
+        for (final Map.Entry<String, Key> rule : SUFFIX_RULES.entrySet()) {
+            if (blockIdentifier.value().endsWith(rule.getKey())) {
                 return Optional.of(rule.getValue());
             }
         }
@@ -83,7 +79,7 @@ public final class BlockEntityTypes {
      *         block carries no block entity, or when the resolved type is absent
      *         from the current registry
      */
-    public static int protocolId(final String blockIdentifier) {
+    public static int protocolId(final Key blockIdentifier) {
 
         return typeIdentifier(blockIdentifier)
                 .map(BlockEntityTypeIds::id)
@@ -97,34 +93,25 @@ public final class BlockEntityTypes {
      *
      * @return {@code true} when a protocol ID could be resolved
      */
-    public static boolean hasBlockEntity(final String blockIdentifier) {
+    public static boolean hasBlockEntity(final Key blockIdentifier) {
         return protocolId(blockIdentifier) != BlockEntityTypeIds.UNKNOWN;
     }
 
-    private static String normalise(final String blockIdentifier) {
+    private static Map<String, Key> suffixRules() {
 
-        if (blockIdentifier == null || blockIdentifier.isBlank()) {
-            return "";
-        }
+        final Map<String, Key> rules = new LinkedHashMap<>();
 
-        return blockIdentifier.indexOf(':') >= 0 ? blockIdentifier : NAMESPACE + blockIdentifier;
-    }
-
-    private static Map<String, String> suffixRules() {
-
-        final Map<String, String> rules = new LinkedHashMap<>();
-
-        rules.put("_hanging_sign", NAMESPACE + "hanging_sign");
-        rules.put("_wall_sign", NAMESPACE + "sign");
-        rules.put("_sign", NAMESPACE + "sign");
-        rules.put("_bed", NAMESPACE + "bed");
-        rules.put("_banner", NAMESPACE + "banner");
-        rules.put("_shulker_box", NAMESPACE + "shulker_box");
-        rules.put("_skull", NAMESPACE + "skull");
-        rules.put("_head", NAMESPACE + "skull");
-        rules.put("_campfire", NAMESPACE + "campfire");
-        rules.put("_beehive", NAMESPACE + "beehive");
-        rules.put("_command_block", NAMESPACE + "command_block");
+        rules.put("_hanging_sign", Key.key("hanging_sign"));
+        rules.put("_wall_sign", Key.key("sign"));
+        rules.put("_sign", Key.key("sign"));
+        rules.put("_bed", Key.key("bed"));
+        rules.put("_banner", Key.key("banner"));
+        rules.put("_shulker_box", Key.key("shulker_box"));
+        rules.put("_skull", Key.key("skull"));
+        rules.put("_head", Key.key("skull"));
+        rules.put("_campfire", Key.key("campfire"));
+        rules.put("_beehive", Key.key("beehive"));
+        rules.put("_command_block", Key.key("command_block"));
 
         /*
          * Iteration order is significant, so the map cannot be copied into an
@@ -133,9 +120,9 @@ public final class BlockEntityTypes {
         return Collections.unmodifiableMap(rules);
     }
 
-    private static Map<String, String> exactBlocks() {
+    private static Map<Key, Key> exactBlocks() {
 
-        final Map<String, String> blocks = new LinkedHashMap<>();
+        final Map<Key, Key> blocks = new LinkedHashMap<>();
 
         put(blocks, "barrel", "barrel");
         put(blocks, "beacon", "beacon");
@@ -187,7 +174,7 @@ public final class BlockEntityTypes {
         return Map.copyOf(blocks);
     }
 
-    private static void put(final Map<String, String> blocks, final String block, final String blockEntityType) {
-        blocks.put(NAMESPACE + block, NAMESPACE + blockEntityType);
+    private static void put(final Map<Key, Key> blocks, final String block, final String blockEntityType) {
+        blocks.put(Key.key(block), Key.key(blockEntityType));
     }
 }

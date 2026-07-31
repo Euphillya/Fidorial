@@ -12,6 +12,7 @@ import fr.fidorial.entity.ai.Goal;
 import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import org.jspecify.annotations.Nullable;
 
@@ -42,8 +43,8 @@ public final class BreakDoorGoal implements Goal {
     }
 
     public static boolean isBreakableDoor(final BlockState state) {
-        final String name = state.name();
-        return name.endsWith("_door") && !name.equals("minecraft:iron_door");
+        final Key name = state.name();
+        return name.asString().endsWith("_door") && !name.equals(Key.key("minecraft", "iron_door"));
     }
 
     private static boolean isClosed(final BlockState state) {

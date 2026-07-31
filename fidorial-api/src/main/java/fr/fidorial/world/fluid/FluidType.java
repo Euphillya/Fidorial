@@ -21,9 +21,9 @@ public enum FluidType {
         this.canFormSources = canFormSources;
     }
 
-    public static @Nullable FluidType byBlockKey(String key) {
+    public static @Nullable FluidType byBlockKey(Key key) {
         for (FluidType type : values()) {
-            if (type.blockKey.asString().equals(key)) {
+            if (type.blockKey.equals(key)) {
                 return type;
             }
         }

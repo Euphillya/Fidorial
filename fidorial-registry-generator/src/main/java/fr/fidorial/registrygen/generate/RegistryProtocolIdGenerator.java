@@ -35,6 +35,8 @@ public final class RegistryProtocolIdGenerator {
     private static final String LOOKUP_FIELD = "BY_IDENTIFIER";
     private static final String UNKNOWN_FIELD = "UNKNOWN";
 
+    private static final ClassName KEY_CLASS_NAME = ClassName.get("net.kyori.adventure.key", "Key");
+
     /**
      * Generates the protocol ID holder for a registry.
      *
@@ -66,7 +68,7 @@ public final class RegistryProtocolIdGenerator {
         typeBuilder.addField(FieldSpec
                 .builder(int.class, UNKNOWN_FIELD, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("$L", -1)
-                .addJavadoc("Returned by {@link #id(String)} when the identifier is unknown.\n")
+                .addJavadoc("Returned by {@link #id($T)} when the identifier is unknown.\n", KEY_CLASS_NAME)
                 .build());
 
         final Map<String, String> constantsByIdentifier = new LinkedHashMap<>();
@@ -101,7 +103,7 @@ public final class RegistryProtocolIdGenerator {
 
         final ClassName map = ClassName.get(Map.class);
         final ParameterizedTypeName mapType = ParameterizedTypeName.get(map,
-                ClassName.get(String.class),
+                KEY_CLASS_NAME,
                 ClassName.get(Integer.class));
 
         final CodeBlock.Builder initializer = CodeBlock.builder().add("$T.ofEntries(", map);
@@ -115,7 +117,7 @@ public final class RegistryProtocolIdGenerator {
 
             for (final Map.Entry<String, String> entry : constantsByIdentifier.entrySet()) {
 
-                initializer.add("    $T.entry($S, $N)", map, entry.getKey(), entry.getValue());
+                initializer.add("    $T.entry($T.key($S), $N)", map, KEY_CLASS_NAME, entry.getKey(), entry.getValue());
 
                 if (index < last) {
                     initializer.add(",");
@@ -136,14 +138,14 @@ public final class RegistryProtocolIdGenerator {
 
     private static MethodSpec createLookupMethod() {
 
-        final ParameterSpec identifier = ParameterSpec.builder(String.class, "identifier", Modifier.FINAL).build();
+        final ParameterSpec identifier = ParameterSpec.builder(KEY_CLASS_NAME, "identifier", Modifier.FINAL).build();
 
         return MethodSpec.methodBuilder("id")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .returns(int.class)
                 .addParameter(identifier)
                 .addJavadoc("Resolves the protocol ID for a namespaced identifier.\n\n")
-                .addJavadoc("@param identifier namespaced identifier, e.g. {@code minecraft:chest}\n")
+                .addJavadoc("@param identifier namespaced identifier, e.g. {@code Key.key(\"minecraft\", \"chest\")}\n")
                 .addJavadoc("@return the protocol ID, or {@link #$L} when the identifier is unknown\n", UNKNOWN_FIELD)
                 .addStatement("return $N.getOrDefault($N, $L)", LOOKUP_FIELD, "identifier", UNKNOWN_FIELD)
                 .build();

@@ -2,16 +2,17 @@ package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import net.kyori.adventure.key.Key;
 
 public final class FlatChunkGenerator implements ChunkGenerator {
 
     private final int minY;
     private final int height;
     private final BlockState floor;
-    private final String biome;
+    private final Key biome;
     private final int floorThickness;
 
-    public FlatChunkGenerator(int minY, int height, BlockState floor, String biome, int floorThickness) {
+    public FlatChunkGenerator(int minY, int height, BlockState floor, Key biome, int floorThickness) {
         this.minY = minY;
         this.height = height;
         this.floor = floor;
@@ -21,7 +22,7 @@ public final class FlatChunkGenerator implements ChunkGenerator {
 
     public static FlatChunkGenerator cobblestone(int minY, int height) {
         return new FlatChunkGenerator(minY, height,
-                BlockState.of("minecraft:cobblestone"), "minecraft:plains", 16);
+                BlockState.of(Key.key("minecraft", "cobblestone")), Key.key("minecraft", "plains"), 16);
     }
 
     @Override

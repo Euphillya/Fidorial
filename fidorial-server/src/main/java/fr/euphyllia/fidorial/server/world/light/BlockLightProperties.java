@@ -6,7 +6,6 @@ import fr.fidorial.world.block.BlockData;
 import fr.fidorial.world.block.BlockRegistry;
 import fr.fidorial.world.block.BlockType;
 import fr.fidorial.world.block.Blocks;
-import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 public class BlockLightProperties {
@@ -41,8 +40,7 @@ public class BlockLightProperties {
         } catch (final IllegalStateException notBootstrapped) {
             return null;
         }
-        final Key key = Key.key(state.name());
-        final BlockBehaviour behaviour = registry.behaviour(key).orElse(null);
+        final BlockBehaviour behaviour = registry.behaviour(state.name()).orElse(null);
         if (behaviour == null) {
             return null;
         }

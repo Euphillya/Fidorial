@@ -28,7 +28,7 @@ public record BlockStateRegistry(BlockRegistry registry) {
         if (data == null) {
             return BlockState.AIR;
         }
-        return new BlockState(data.key().asString(), data.propertyMap());
+        return new BlockState(data.key(), data.propertyMap());
     }
 
     public boolean contains(final BlockState state) {
@@ -36,12 +36,12 @@ public record BlockStateRegistry(BlockRegistry registry) {
     }
 
     public BlockState toBlockState(final BlockData data) {
-        return new BlockState(data.key().asString(), data.propertyMap());
+        return new BlockState(data.key(), data.propertyMap());
     }
 
     @SuppressWarnings("PatternValidation")
     public @Nullable BlockState placementState(final BlockState state, final BlockPlaceContext context) {
-        final BlockBehaviour behaviour = registry.behaviour(Key.key(state.name())).orElse(null);
+        final BlockBehaviour behaviour = registry.behaviour(state.name()).orElse(null);
         if (behaviour == null) {
             return state;
         }
@@ -61,7 +61,7 @@ public record BlockStateRegistry(BlockRegistry registry) {
 
     @SuppressWarnings("PatternValidation")
     public @Nullable BlockData resolve(final BlockState state) {
-        final BlockType type = registry.type(Key.key(state.name())).orElse(null);
+        final BlockType type = registry.type(state.name()).orElse(null);
         if (type == null) {
             return null;
         }
@@ -74,21 +74,21 @@ public record BlockStateRegistry(BlockRegistry registry) {
             return null;
         }
 
-        if (itemId.asString().equals("minecraft:water_bucket")) {
-            return new BlockState("minecraft:water", Map.of("level", "0"));
+        if (itemId.equals(Key.key("minecraft", "water_bucket"))) {
+            return new BlockState(Key.key("minecraft", "water"), Map.of("level", "0"));
         }
 
-        if (itemId.asString().equals("minecraft:lava_bucket")) {
-            return new BlockState("minecraft:lava", Map.of("level", "0"));
+        if (itemId.equals(Key.key("minecraft", "lava_bucket"))) {
+            return new BlockState(Key.key("minecraft", "lava"), Map.of("level", "0"));
         }
 
-        final BlockState candidate = BlockState.of(itemId.asString());
+        final BlockState candidate = BlockState.of(itemId);
         if (candidate.isAir()) {
             return null;
         }
         if (contains(candidate)) {
             return candidate;
         }
-        return BlockState.of("minecraft:cobblestone");
+        return BlockState.of(Key.key("minecraft", "cobblestone"));
     }
 }
