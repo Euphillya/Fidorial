@@ -14,7 +14,6 @@ import fr.fidorial.command.MessageComponentSerializer;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.registry.RegistryKey;
-import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.SoundEvent;
 import fr.fidorial.scheduler.RegionTps;
 import fr.fidorial.world.ChunkPos;
