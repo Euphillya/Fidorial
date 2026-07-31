@@ -4,6 +4,7 @@ import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.TypeSpec;
 import fr.fidorial.registrygen.model.RegistryTypeDefinition;
+import net.kyori.adventure.key.Keyed;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
@@ -43,12 +44,10 @@ public final class RegistryDataGenerator {
                 "ApiStatus",
                 "NonExtendable");
 
-        final ClassName keyed = ClassName.get("net.kyori.adventure.key", "Keyed");
-
         final TypeSpec markerInterface = TypeSpec
                 .interfaceBuilder(registryType.typeName())
                 .addModifiers(Modifier.PUBLIC)
-                .addSuperinterface(keyed)
+                .addSuperinterface(Keyed.class)
                 .addAnnotation(apiStatus)
                 .addJavadoc("Marker type for entries in the {@code $L} registry.\n", registryType.identifier())
                 .addJavadoc("\n<p>This interface is used as the generic type for typed registry keys.</p>\n")
