@@ -29,6 +29,13 @@ application {
     mainClass.set("fr.euphyllia.fidorial.server.Main")
 }
 
+java {
+    sourceSets.main {
+        java.srcDir("src/generated/java")
+        resources.srcDir("src/generated/resources")
+    }
+}
+
 tasks.run {
     description = "Spin up a test server without assembling a jar"
     standardInput = System.`in`
@@ -82,8 +89,8 @@ fidorialRegistryGenerator {
     )
 
     generatedSourcesDirectory.set(
-        layout.buildDirectory.dir(
-            "generated/sources/registries/java/main"
+        layout.projectDirectory.dir(
+            "src/generated/java"
         )
     )
 
@@ -97,4 +104,6 @@ fidorialRegistryGenerator {
             "minecraft:block_entity_type" to "BlockEntityType"
         )
     )
+
+    generateRegistryKey = false
 }

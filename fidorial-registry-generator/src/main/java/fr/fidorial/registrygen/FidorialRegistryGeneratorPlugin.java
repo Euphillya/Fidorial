@@ -100,6 +100,7 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
       task.getMinecraftVersion().set(extension.getMinecraftVersion());
       task.getGeneratedPackage().set(extension.getGeneratedPackage());
       task.getRegistries().set(extension.getRegistries());
+      task.getGenerateRegistryKey().set(extension.getGenerateRegistryKey().orElse(true));
 
       task.getReportsDirectory().set(reportsTask.flatMap(GenerateReportsTask::getDataDirectory)
                                              .map(directory -> directory.dir("generated/reports")));

@@ -42,4 +42,13 @@ public abstract class FidorialRegistryGeneratorExtension {
      * Additional arguments passed to Mojang's data generator.
      */
     public abstract ListProperty<String> getDataGeneratorArguments();
+
+    /**
+     * Whether to generate the central {@code RegistryKey} class.
+     *
+     * <p>Defaults to {@code true}. Set this to {@code false} if you supply
+     * your own {@code RegistryKey} type, or only generate protocol-ID-only
+     * registries that don't need typed keys.</p>
+     */
+    public abstract Property<Boolean> getGenerateRegistryKey();
 }
