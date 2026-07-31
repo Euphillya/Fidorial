@@ -77,7 +77,8 @@ public final class RegistryGenerator {
      */
     public void generate(final Path registriesJson,
                          final Path outputDirectory,
-                         final List<RegistryTypeDefinition> registryTypes) throws IOException {
+                         final List<RegistryTypeDefinition> registryTypes,
+                         final boolean generateRegistryKey) throws IOException {
 
         Objects.requireNonNull(registriesJson, "registriesJson");
         Objects.requireNonNull(outputDirectory, "outputDirectory");
@@ -120,6 +121,10 @@ public final class RegistryGenerator {
         final List<RegistryTypeDefinition> keyedRegistryTypes = registryTypes.stream()
                 .filter(registryType -> ProtocolIdRegistries.byIdentifier(registryType.identifier()).isEmpty())
                 .toList();
+
+        if (!generateRegistryKey) {
+            return;
+        }
 
         registryKeyGenerator.generate(keyedRegistryTypes, outputDirectory);
     }

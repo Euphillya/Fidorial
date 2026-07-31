@@ -22,6 +22,10 @@ dependencies {
 java {
     withJavadocJar()
     withSourcesJar()
+    sourceSets.main {
+        java.srcDir("src/generated/java")
+        resources.srcDir("src/generated/resources")
+    }
 }
 
 publishing {
@@ -57,8 +61,8 @@ fidorialRegistryGenerator {
     )
 
     generatedSourcesDirectory.set(
-        layout.buildDirectory.dir(
-            "generated/sources/registries/java/main"
+        layout.projectDirectory.dir(
+            "src/generated/java"
         )
     )
 

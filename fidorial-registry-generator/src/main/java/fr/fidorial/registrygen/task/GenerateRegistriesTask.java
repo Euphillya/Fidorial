@@ -39,6 +39,9 @@ public abstract class GenerateRegistriesTask extends DefaultTask {
     @Input
     public abstract MapProperty<String, String> getRegistries();
 
+    @Input
+    public abstract Property<Boolean> getGenerateRegistryKey();
+
     @InputDirectory
     @PathSensitive(PathSensitivity.RELATIVE)
     public abstract DirectoryProperty getReportsDirectory();
@@ -61,6 +64,6 @@ public abstract class GenerateRegistriesTask extends DefaultTask {
                         entry.getKey(), entry.getValue(), entry.getValue() + "Keys"))
                 .toList();
 
-        new RegistryGenerator().generate(registriesJson, outputDirectory, registryTypes);
+        new RegistryGenerator().generate(registriesJson, outputDirectory, registryTypes, getGenerateRegistryKey().get());
     }
 }

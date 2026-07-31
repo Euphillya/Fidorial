@@ -135,7 +135,7 @@ public final class RegistryKeyGenerator {
         final ParameterSpec pathParameter = ParameterSpec.builder(String.class, "path", Modifier.FINAL).addAnnotation(KEY_PATTERN).build();
 
         return MethodSpec.methodBuilder("of")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                 .addTypeVariable(typeVariable)
                 .returns(returnType)
                 .addParameter(pathParameter)

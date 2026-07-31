@@ -28,6 +28,10 @@ spotless {
 
     java {
         target("**/*.java")
+        targetExclude(
+            "**/build/**",
+            "**/generated/**",
+        )
 
         //palantirJavaFormat("2.96.0")
         forbidWildcardImports()
