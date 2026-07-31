@@ -30,6 +30,7 @@ final class KeyStubs {
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) {
             return switch (method.getName()) {
+                case "key" -> key;
                 case "toString" -> type.getSimpleName() + "[" + key + "]";
                 case "hashCode" -> key.hashCode();
                 case "equals" -> args.length == 1 && proxy == args[0];

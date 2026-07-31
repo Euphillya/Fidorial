@@ -65,11 +65,4 @@ fidorialRegistryGenerator {
     dataGeneratorArguments.set(
         listOf("--reports")
     )
-
-    registries.set(
-        mapOf(
-            "minecraft:item" to "Item",
-            "minecraft:worldgen/biome" to "Biome"
-        )
-    )
 }
