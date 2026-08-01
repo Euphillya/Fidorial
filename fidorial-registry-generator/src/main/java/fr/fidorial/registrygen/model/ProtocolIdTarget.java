@@ -17,29 +17,31 @@ import java.util.Objects;
  * @param packageName        package of the generated constant holder
  * @param className          simple name of the generated constant holder
  * @param constantSuffix     suffix appended to every generated constant name
+ * @param valueKind          the type of the protocol value
  *
  * @since 0.1.0
  */
 public record ProtocolIdTarget(String registryIdentifier,
                                String packageName,
                                String className,
-                               String constantSuffix) {
+                               String constantSuffix,
+                               ProtocolIdValueKind valueKind,
+                               String classJavadoc,
+                               String registryDescription) {
 
     public ProtocolIdTarget {
-
         Objects.requireNonNull(registryIdentifier, "registryIdentifier");
         Objects.requireNonNull(packageName, "packageName");
         Objects.requireNonNull(className, "className");
         Objects.requireNonNull(constantSuffix, "constantSuffix");
+        Objects.requireNonNull(valueKind, "valueKind");
 
         if (registryIdentifier.isBlank()) {
             throw new IllegalArgumentException("Protocol ID target registry identifier cannot be blank.");
         }
-
         if (packageName.isBlank()) {
             throw new IllegalArgumentException("Protocol ID target package cannot be blank.");
         }
-
         if (className.isBlank()) {
             throw new IllegalArgumentException("Protocol ID target class name cannot be blank.");
         }

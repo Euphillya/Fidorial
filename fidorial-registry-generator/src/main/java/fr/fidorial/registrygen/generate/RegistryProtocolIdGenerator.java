@@ -10,6 +10,7 @@ import com.palantir.javapoet.ParameterizedTypeName;
 import com.palantir.javapoet.TypeSpec;
 import fr.fidorial.registrygen.GenerationUtils;
 import fr.fidorial.registrygen.model.ProtocolIdTarget;
+import fr.fidorial.registrygen.model.ProtocolIdValueKind;
 import fr.fidorial.registrygen.model.RegistryDefinition;
 import fr.fidorial.registrygen.model.RegistryEntryDefinition;
 
@@ -28,6 +29,11 @@ import java.util.Objects;
  * emitted so callers can resolve an ID at runtime without depending on a
  * compile-time constant name that may disappear in a future Minecraft version.</p>
  *
+ * <p>Since the addition of packet catalogs, this generator also supports emitting
+ * a plain {@code String}-constant holder (see {@link ProtocolIdValueKind#IDENTIFIER}),
+ * for registries whose entries are looked up by namespaced identifier rather than
+ * by network ID.</p>
+ *
  * @since 0.1.0
  */
 public final class RegistryProtocolIdGenerator {
@@ -41,7 +47,7 @@ public final class RegistryProtocolIdGenerator {
      * Generates the protocol ID holder for a registry.
      *
      * @param registry        parsed Mojang registry definition
-     * @param target          generation target (package, class name, constant suffix)
+     * @param target          generation target (package, class name, constant suffix, value kind)
      * @param outputDirectory generated Java source root
      *
      * @throws IOException if the source file cannot be written
@@ -60,43 +66,49 @@ public final class RegistryProtocolIdGenerator {
                     + registry.identifier() + "'.");
         }
 
-        final TypeSpec.Builder typeBuilder = TypeSpec.interfaceBuilder(target.className())
-                .addModifiers(Modifier.PUBLIC)
-                .addJavadoc("Network IDs for entries in the {@code $L} registry.\n", registry.identifier())
-                .addJavadoc("\n<p>Generated from Mojang's registry report; do not edit.</p>\n");
+        final boolean isProtocolId = target.valueKind() == ProtocolIdValueKind.PROTOCOL_ID;
+        final Class<?> fieldType = isProtocolId ? int.class : String.class;
 
-        typeBuilder.addField(FieldSpec
-                .builder(int.class, UNKNOWN_FIELD, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$L", -1)
-                .addJavadoc("Returned by {@link #id($T)} when the identifier is unknown.\n", KEY_CLASS_NAME)
-                .build());
+        final TypeSpec.Builder typeBuilder = (isProtocolId
+                ? TypeSpec.interfaceBuilder(target.className())
+                : TypeSpec.classBuilder(target.className()).addModifiers(Modifier.FINAL))
+                .addModifiers(Modifier.PUBLIC)
+                .addJavadoc(target.classJavadoc())
+                .addJavadoc("\n<p>$L</p>\n", target.registryDescription());
+
+        if (isProtocolId) {
+            typeBuilder.addField(FieldSpec.builder(int.class, UNKNOWN_FIELD, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                    .initializer("$L", -1)
+                    .addJavadoc("Returned by {@link #id($T)} when the identifier is unknown.\n", KEY_CLASS_NAME)
+                    .build());
+        }
 
         final Map<String, String> constantsByIdentifier = new LinkedHashMap<>();
 
         for (final RegistryEntryDefinition entry : registry.entries()) {
-
             final String fieldName = GenerationUtils.constantName(entry.identifier()) + target.constantSuffix();
 
             if (constantsByIdentifier.putIfAbsent(entry.identifier(), fieldName) != null) {
-                throw new IllegalStateException("Duplicate registry entry '" + entry.identifier()
-                        + "' in registry '" + registry.identifier() + "'.");
+                throw new IllegalStateException("Duplicate entry '" + entry.identifier() + "' in '" + registry.identifier() + "'.");
             }
 
-            typeBuilder.addField(FieldSpec
-                    .builder(int.class, fieldName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer("$L", entry.protocolId())
-                    .addJavadoc("{@code $L}\n", entry.identifier())
-                    .build());
+            final FieldSpec.Builder field = FieldSpec.builder(fieldType, fieldName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                    .addJavadoc("{@code $L}\n", entry.identifier());
+
+            field.initializer(isProtocolId ? "$L" : "$S", isProtocolId ? entry.protocolId() : entry.identifier());
+
+            typeBuilder.addField(field.build());
         }
 
-        typeBuilder.addField(createLookupField(constantsByIdentifier));
-        typeBuilder.addMethod(createLookupMethod());
+        if (isProtocolId) {
+            typeBuilder.addField(createLookupField(constantsByIdentifier));
+            typeBuilder.addMethod(createLookupMethod());
+        } else {
+            typeBuilder.addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build());
+        }
 
         JavaFile.builder(target.packageName(), typeBuilder.build())
-                .indent("    ")
-                .skipJavaLangImports(true)
-                .build()
-                .writeTo(outputDirectory);
+                .indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
     }
 
     private static FieldSpec createLookupField(final Map<String, String> constantsByIdentifier) {

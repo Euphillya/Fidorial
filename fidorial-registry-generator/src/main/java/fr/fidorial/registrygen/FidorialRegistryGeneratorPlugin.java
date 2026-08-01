@@ -1,6 +1,7 @@
 package fr.fidorial.registrygen;
 
 import fr.fidorial.registrygen.task.DownloadServerJarTask;
+import fr.fidorial.registrygen.task.GeneratePacketsTask;
 import fr.fidorial.registrygen.task.GenerateRegistriesTask;
 import fr.fidorial.registrygen.task.GenerateReportsTask;
 import org.gradle.api.Plugin;
@@ -26,6 +27,7 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
   public static final String DOWNLOAD_TASK_NAME = "downloadMinecraftServer";
   public static final String REPORTS_TASK_NAME = "generateMinecraftReports";
   public static final String REGISTRIES_TASK_NAME = "generateRegistries";
+  public static final String PACKET_CATALOGS_TASK_NAME = "generatePacketCatalogs";
 
   @Override
   public void apply(final Project project) {
@@ -37,6 +39,7 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
     final TaskProvider<DownloadServerJarTask> downloadTask = registerDownloadTask(project, extension);
     final TaskProvider<GenerateReportsTask> reportsTask = registerReportsTask(project, extension, downloadTask);
     final TaskProvider<GenerateRegistriesTask> registriesTask = registerRegistriesTask(project, extension, reportsTask);
+    registerPacketsTask(project, extension, reportsTask);
 
     registerLifecycleTask(project, registriesTask);
   }
@@ -106,6 +109,23 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
                                              .map(directory -> directory.dir("generated/reports")));
 
       task.getGeneratedSourcesDirectory().set(extension.getGeneratedSourcesDirectory());
+    });
+  }
+
+  private static TaskProvider<GeneratePacketsTask> registerPacketsTask(final Project project,
+                                                                       final FidorialRegistryGeneratorExtension extension,
+                                                                       final TaskProvider<GenerateReportsTask> reportsTask) {
+    return project.getTasks().register(PACKET_CATALOGS_TASK_NAME, GeneratePacketsTask.class, task -> {
+       task.setGroup("fidorial registry generation");
+       task.setDescription("Generates packet identifier catalog classes.");
+       task.dependsOn(reportsTask);
+
+       task.onlyIf(_ -> extension.getGeneratePacketCatalogs().getOrElse(false));
+
+       task.getPacketsReport().set(reportsTask.flatMap(GenerateReportsTask::getDataDirectory)
+               .map(dir -> dir.file("generated/reports/packets.json")));
+
+       task.getGeneratedSourcesDirectory().set(extension.getGeneratedSourcesDirectory());
     });
   }
 

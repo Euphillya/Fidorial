@@ -39,6 +39,11 @@ public abstract class FidorialRegistryGeneratorExtension {
     public abstract MapProperty<String, String> getRegistries();
 
     /**
+     * Whether the {@code generatePacketCatalogs} task should be registered.
+     */
+    public abstract Property<Boolean> getGeneratePacketCatalogs();
+
+    /**
      * Additional arguments passed to Mojang's data generator.
      */
     public abstract ListProperty<String> getDataGeneratorArguments();

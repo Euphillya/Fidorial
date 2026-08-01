@@ -106,4 +106,5 @@ fidorialRegistryGenerator {
     )
 
     generateRegistryKey = false
+    generatePacketCatalogs = true
 }
