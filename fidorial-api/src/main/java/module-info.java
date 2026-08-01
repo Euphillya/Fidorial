@@ -3,6 +3,7 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 module fr.fidorial {
     exports fr.fidorial.attribute;
+    exports fr.fidorial.combat;
     exports fr.fidorial.command;
     exports fr.fidorial.entity.ai;
     exports fr.fidorial.entity;
