@@ -1,5 +1,6 @@
 package fr.fidorial.registrygen.generate;
 
+import fr.fidorial.registrygen.model.PacketCatalogs;
 import fr.fidorial.registrygen.model.ProtocolIdRegistries;
 import fr.fidorial.registrygen.model.ProtocolIdTarget;
 import fr.fidorial.registrygen.model.RegistriesHolder;
@@ -127,6 +128,20 @@ public final class RegistryGenerator {
         }
 
         registryKeyGenerator.generate(keyedRegistryTypes, outputDirectory);
+    }
+
+    public void generatePackets(final Path packetsJson, final Path outputDirectory) throws IOException {
+
+        final List<RegistryDefinition> packetCatalogs = new PacketReportParser().parse(packetsJson);
+
+        for (final RegistryDefinition catalog : packetCatalogs) {
+            final Optional<ProtocolIdTarget> target = PacketCatalogs.byIdentifier(catalog.identifier());
+            if (target.isEmpty()) {
+                System.out.println("No PacketCatalogs target configured for: " + catalog.identifier());
+                continue;
+            }
+            protocolIdGenerator.generate(catalog, target.get(), outputDirectory);
+        }
     }
 
     /**

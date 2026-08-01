@@ -19,7 +19,10 @@ public final class ProtocolIdRegistries {
             "minecraft:command_argument_type",
             SERVER_DATA_PACKAGE,
             "ArgumentTypeIds",
-            "_ARGUMENT_ID");
+            "_ARGUMENT_ID",
+            ProtocolIdValueKind.PROTOCOL_ID,
+            "Network IDs for entries in the {@code minecraft:command_argument_type} registry.\n",
+            "Generated from Mojang's registry report; do not edit.");
 
     /**
      * {@code minecraft:block_entity_type} &rarr; {@code BlockEntityTypeIds}.
@@ -31,7 +34,10 @@ public final class ProtocolIdRegistries {
             "minecraft:block_entity_type",
             SERVER_DATA_PACKAGE,
             "BlockEntityTypeIds",
-            "_BLOCK_ENTITY_ID");
+            "_BLOCK_ENTITY_ID",
+            ProtocolIdValueKind.PROTOCOL_ID,
+            "Network IDs for entries in the {@code minecraft:block_entity_type} registry.\n",
+            "Generated from Mojang's registry report; do not edit.");
 
     public static final List<ProtocolIdTarget> ALL = List.of(ARGUMENT_TYPE, BLOCK_ENTITY_TYPE);
 
