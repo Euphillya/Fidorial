@@ -86,10 +86,12 @@ public final class RegistryProtocolIdGenerator {
         final Map<String, String> constantsByIdentifier = new LinkedHashMap<>();
 
         for (final RegistryEntryDefinition entry : registry.entries()) {
+
             final String fieldName = GenerationUtils.constantName(entry.identifier()) + target.constantSuffix();
 
             if (constantsByIdentifier.putIfAbsent(entry.identifier(), fieldName) != null) {
-                throw new IllegalStateException("Duplicate entry '" + entry.identifier() + "' in '" + registry.identifier() + "'.");
+                throw new IllegalStateException("Duplicate entry '" + entry.identifier()
+                        + "' in '" + registry.identifier() + "'.");
             }
 
             final FieldSpec.Builder field = FieldSpec.builder(fieldType, fieldName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
@@ -108,7 +110,10 @@ public final class RegistryProtocolIdGenerator {
         }
 
         JavaFile.builder(target.packageName(), typeBuilder.build())
-                .indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
+                .indent("    ")
+                .skipJavaLangImports(true)
+                .build()
+                .writeTo(outputDirectory);
     }
 
     private static FieldSpec createLookupField(final Map<String, String> constantsByIdentifier) {
