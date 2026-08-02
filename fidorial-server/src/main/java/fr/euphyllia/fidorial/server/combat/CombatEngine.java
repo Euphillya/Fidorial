@@ -6,8 +6,11 @@ import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.euphyllia.fidorial.server.entity.mob.MovingMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundEntityEventPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundHurtAnimationPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundPlayerCombatKillPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetEntityMotionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetHealthPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.fidorial.combat.CombatService;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
@@ -137,7 +140,33 @@ public final class CombatEngine implements CombatService {
 
         final Location to = target.location();
         final float knockYaw = source == null ? to.yaw() : hurtYaw(source.location(), to);
+        if (source != null && knockback > 0.0) {
+            final double[] push = knockbackVector(source.location(), to, knockback);
+            target.connection()
+                    .send(new ClientboundSetEntityMotionPacket(
+                            target.entityId(), push[0], KNOCKBACK_UP, push[1]));
+        }
 
+        server.broadcastNear(
+                target.world(),
+                to.x(),
+                to.y(),
+                to.z(),
+                new ClientboundHurtAnimationPacket(target.entityId(), knockYaw));
+        server.broadcastNear(
+                target.world(),
+                to.x(),
+                to.y(),
+                to.z(),
+                new ClientboundSoundPacket(
+                        Sound.sound(SoundEvents.PLAYER_HURT, Sound.Source.PLAYER, 1.0f, 1.0f),
+                        to.x(),
+                        to.y(),
+                        to.z()));
+
+        if (target.health() <= 0f) {
+            die(target, source);
+        }
 
         return true;
     }
