@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.entity.player;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.fidorial.combat.Damageable;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
@@ -49,7 +50,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class ServerPlayer extends AbstractEntity implements Player, PermissionStateHolder {
+public final class ServerPlayer extends AbstractEntity implements Player, PermissionStateHolder, Damageable {
 
     // https://minecraft.wiki/w/Java_Edition_protocol/Entity_metadata#Avatar
     public static final int MD_MAIN_HAND = 15; // Main hand (0: left, 1: right)
