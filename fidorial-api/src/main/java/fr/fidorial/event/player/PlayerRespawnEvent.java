@@ -2,40 +2,57 @@ package fr.fidorial.event.player;
 
 import fr.fidorial.entity.Player;
 import fr.fidorial.world.Location;
+import fr.fidorial.world.World;
 
 /**
+ * Fired when a dead player clicks respawn, before they are placed back in the world.
+ *
  * @since 0.1.0
  */
 public final class PlayerRespawnEvent implements PlayerEvent {
 
     private final Player player;
+    private World world;
+    private Location location;
 
-    private Location respawnLocation;
-
-    public PlayerRespawnEvent(final Player player, final Location respawnLocation) {
+    public PlayerRespawnEvent(final Player player, final World world, final Location location) {
         this.player = player;
-        this.respawnLocation = respawnLocation;
+        this.world = world;
+        this.location = location;
     }
 
-    /**
-     * @return the player coming back to life
-     */
     @Override
     public Player player() {
         return player;
     }
 
     /**
-     * @return where the player is about to reappear
+     * @return the world the player is about to respawn in
      */
-    public Location respawnLocation() {
-        return respawnLocation;
+    public World world() {
+        return world;
     }
 
     /**
-     * @param respawnLocation where the player should reappear instead
+     * @return the position the player is about to respawn at
      */
-    public void setRespawnLocation(final Location respawnLocation) {
-        this.respawnLocation = respawnLocation;
+    public Location location() {
+        return location;
+    }
+
+    /**
+     * @param world    the world to respawn in instead
+     * @param location the position to respawn at instead
+     */
+    public void setRespawnLocation(final World world, final Location location) {
+        this.world = world;
+        this.location = location;
+    }
+
+    /**
+     * @param location the position to respawn at instead, in the same world
+     */
+    public void setRespawnLocation(final Location location) {
+        this.location = location;
     }
 }
