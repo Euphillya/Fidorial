@@ -58,19 +58,6 @@ public interface LivingEntity extends Entity {
     }
 
     /**
-     * The remaining invulnerability frames. While these run, only a hit strictly stronger than the
-     * one that started them lands, and it only deals the difference.
-     *
-     * @return the remaining invulnerability ticks
-     */
-    int invulnerabilityTicks();
-
-    /**
-     * @param ticks the invulnerability ticks to set
-     */
-    void setInvulnerabilityTicks(int ticks);
-
-    /**
      * @return the remaining ticks this entity keeps burning, {@code 0} when not on fire
      */
     int fireTicks();
