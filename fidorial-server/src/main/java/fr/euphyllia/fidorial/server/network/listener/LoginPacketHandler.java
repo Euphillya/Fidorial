@@ -19,6 +19,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.Se
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.ServerboundLoginAcknowledgedPacket;
 import fr.euphyllia.fidorial.server.network.proxy.VelocityForwarding;
 import fr.fidorial.entity.PlayerProfile;
+import fr.fidorial.event.player.PlayerLoginAttemptEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
@@ -177,12 +178,38 @@ public final class LoginPacketHandler implements LoginPacketListener {
     }
 
     private void sendLoginSuccess(final GameProfile profile) {
-        this.loginComplete = true;
-        LOGGER.info("Authenticates: {} ({})", profile.name(), profile.uuid());
         final List<PlayerProfile.Property> properties = profile.properties().stream()
                 .map(p -> new PlayerProfile.Property(p.name(), p.value(), p.signature()))
                 .toList();
         final PlayerProfile playerProfile = new PlayerProfile(profile.uuid(), profile.name(), properties);
+        final boolean authenticated = server.config().onlineMode()
+                || server.config().proxyMode() == ServerConfig.ProxyMode.VELOCITY;
+        final String address = connection.remoteAddress();
+
+        final PlayerLoginAttemptEvent event;
+        try {
+            event = server.events().post(new PlayerLoginAttemptEvent(playerProfile, address, authenticated));
+        } catch (final Throwable t) {
+            LOGGER.error("Login attempt of {} failed, connection refused", playerProfile.name(), t);
+            connection.execute(() -> disconnect(Component.translatable("multiplayer.disconnect.generic")));
+            return;
+        }
+        connection.execute(() -> {
+            if (!connection.isActive()) {
+                return;
+            }
+            if (event.isCancelled()) {
+                LOGGER.info("Login refused for {} ({})", playerProfile.name(), playerProfile.uuid());
+                disconnect(event.refusal().orElseGet(() -> Component.translatable("multiplayer.disconnect.generic")));
+                return;
+            }
+            completeLogin(profile, playerProfile);
+        });
+    }
+
+    private void completeLogin(final GameProfile profile, final PlayerProfile playerProfile) {
+        this.loginComplete = true;
+        LOGGER.info("Authenticates: {} ({})", profile.name(), profile.uuid());
         connection.setProfile(playerProfile);
         server.offlinePlayers().remember(playerProfile);
         connection.send(new ClientboundLoginFinishedPacket(profile));

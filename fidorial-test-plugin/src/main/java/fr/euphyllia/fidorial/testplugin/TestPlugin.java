@@ -13,6 +13,7 @@ import fr.fidorial.event.player.BlockBreakEvent;
 import fr.fidorial.event.player.BlockPlaceEvent;
 import fr.fidorial.event.player.PlayerChatEvent;
 import fr.fidorial.event.player.PlayerJoinEvent;
+import fr.fidorial.event.player.PlayerLoginAttemptEvent;
 import fr.fidorial.event.player.PlayerQuitEvent;
 import fr.fidorial.event.server.ServerStartedEvent;
 import fr.fidorial.event.server.ServerStatusRequestEvent;
@@ -23,6 +24,7 @@ import fr.fidorial.service.ServicePriority;
 import fr.fidorial.status.ServerStatus;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -178,6 +180,14 @@ public final class TestPlugin implements Plugin {
         events.subscribe(BlockPlaceEvent.class, e -> {
             eventCount.incrementAndGet();
          //   logger.info("[TestPlugin][event] {} pose un bloc", e.player().name());
+        });
+        final boolean cancelLogin = false;
+        events.subscribe(PlayerLoginAttemptEvent.class, e -> {
+            eventCount.incrementAndGet();
+            logger.info("[TestPlugin][event] login attempt de {} (auth={})", e.profile().name(), e.authenticated());
+            if (!cancelLogin) return;
+            e.setCancelled(cancelLogin);
+            e.refuse(Component.text("Serveur en maintenance", NamedTextColor.RED));
         });
     }
 

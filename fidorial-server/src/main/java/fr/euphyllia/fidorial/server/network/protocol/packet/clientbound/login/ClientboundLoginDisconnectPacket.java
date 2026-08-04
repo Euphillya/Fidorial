@@ -4,10 +4,11 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.LoginClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 public record ClientboundLoginDisconnectPacket(Component reason) implements ClientboundPacket {
 
-    public static ClientboundLoginDisconnectPacket ofComponent(Component reason) {
+    public static ClientboundLoginDisconnectPacket ofComponent(final Component reason) {
         return new ClientboundLoginDisconnectPacket(reason);
     }
 
@@ -17,7 +18,8 @@ public record ClientboundLoginDisconnectPacket(Component reason) implements Clie
     }
 
     @Override
-    public void write(PacketBuffer buf) {
-        buf.writeComponent(reason);
+    public void write(final PacketBuffer buf) {
+        //buf.writeComponent(reason);
+        buf.writeString(GsonComponentSerializer.gson().serialize(reason));
     }
 }

@@ -37,6 +37,8 @@ import org.jspecify.annotations.Nullable;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.security.GeneralSecurityException;
 import java.util.Locale;
 import java.util.concurrent.ScheduledFuture;
@@ -151,6 +153,15 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         ctx.close();
     }
 
+    /**
+     * Checks whether this connection is still usable.
+     *
+     * @return {@code true} if the underlying channel is open and connected
+     */
+    public boolean isActive() {
+        return ctx != null && ctx.channel().isActive();
+    }
+
     public void execute(final Runnable task) {
         ctx.channel().eventLoop().execute(task);
     }
@@ -248,6 +259,25 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
 
     public @Nullable String forwardedAddress() {
         return forwardedAddress;
+    }
+
+    /**
+     * Gets the address this client is connecting from.
+     *
+     * <p>When a proxy is in front of the server, the address it forwarded takes precedence over the
+     * socket's own, which would be the proxy.</p>
+     *
+     * @return the client address, or {@code "unknown"} if the channel has none
+     */
+    public String remoteAddress() {
+        if (forwardedAddress != null) {
+            return forwardedAddress;
+        }
+        final SocketAddress address = ctx.channel().remoteAddress();
+        if (address instanceof final InetSocketAddress inet) {
+            return inet.getHostString();
+        }
+        return address == null ? "unknown" : address.toString();
     }
 
     public void setForwardedAddress(final String forwardedAddress) {
