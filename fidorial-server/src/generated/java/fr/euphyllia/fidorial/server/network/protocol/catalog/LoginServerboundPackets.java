@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.network.protocol.catalog;
 
+import net.kyori.adventure.key.Key;
+
 /**
  * Packet identifiers for the {@code login/serverbound} state/direction.
  *
@@ -9,27 +11,27 @@ public final class LoginServerboundPackets {
     /**
      * {@code minecraft:cookie_response}
      */
-    public static final String COOKIE_RESPONSE = "minecraft:cookie_response";
+    public static final Key COOKIE_RESPONSE = Key.key("cookie_response");
 
     /**
      * {@code minecraft:custom_query_answer}
      */
-    public static final String CUSTOM_QUERY_ANSWER = "minecraft:custom_query_answer";
+    public static final Key CUSTOM_QUERY_ANSWER = Key.key("custom_query_answer");
 
     /**
      * {@code minecraft:hello}
      */
-    public static final String HELLO = "minecraft:hello";
+    public static final Key HELLO = Key.key("hello");
 
     /**
      * {@code minecraft:key}
      */
-    public static final String KEY = "minecraft:key";
+    public static final Key KEY = Key.key("key");
 
     /**
      * {@code minecraft:login_acknowledged}
      */
-    public static final String LOGIN_ACKNOWLEDGED = "minecraft:login_acknowledged";
+    public static final Key LOGIN_ACKNOWLEDGED = Key.key("login_acknowledged");
 
     private LoginServerboundPackets() {
     }

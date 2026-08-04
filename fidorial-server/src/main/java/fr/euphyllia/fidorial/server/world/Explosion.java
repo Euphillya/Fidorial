@@ -305,7 +305,7 @@ public final class Explosion {
 
     private static boolean isFluid(final BlockState state) {
         final Key name = state.name();
-        return name.equals(Key.key("minecraft", "water")) || name.equals(Key.key("minecraft", "lava")); // Todo : Add isFluid to BlockState
+        return name.equals(Key.key("water")) || name.equals(Key.key("lava")); // Todo : Add isFluid to BlockState
     }
 
     private static double eyeHeight(final AbstractEntity entity) {

@@ -30,7 +30,7 @@ public record ClientboundRespawnPacket(Key dimensionKey, int dimensionTypeId, in
     }
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.RESPAWN;
     }
 

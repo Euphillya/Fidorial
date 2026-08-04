@@ -12,7 +12,7 @@ import net.kyori.adventure.key.Key;
 
 public final class BlockStateTests {
 
-    private static final Key STONE = Key.key("minecraft", "stone");
+    private static final Key STONE = Key.key("stone");
 
     @ScenarioTest(timeoutTicks = 20)
     public static void belowWorldIsAir(final ScenarioTestHelper helper) {

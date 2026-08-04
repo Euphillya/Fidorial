@@ -23,7 +23,7 @@ public final class ChunkStorage implements AutoCloseable {
     private final BlockState defaultBlock;
     private final Key defaultBiome;
 
-    private final Map<String, RegionFile> regionCache = new ConcurrentHashMap<>();
+    private final Map<RegionKey, RegionFile> regionCache = new ConcurrentHashMap<>();
 
     public ChunkStorage(
             final WorldPaths paths,
@@ -41,14 +41,14 @@ public final class ChunkStorage implements AutoCloseable {
         this.defaultBiome = defaultBiome;
     }
 
-    private static String key(final Dimension dim, final int rx, final int rz) {
-        return dim.id() + "@" + rx + "," + rz;
+    private record RegionKey(Key dimension, int regionX, int regionZ) {
     }
 
     private RegionFile region(final Dimension dim, final int chunkX, final int chunkZ) {
         final int rx = RegionConstants.chunkToRegion(chunkX);
         final int rz = RegionConstants.chunkToRegion(chunkZ);
-        return regionCache.computeIfAbsent(key(dim, rx, rz), k -> {
+        final RegionKey key = new RegionKey(dim.id(), rx, rz);
+        return regionCache.computeIfAbsent(key, k -> {
             final Path file = paths.regionDir(dim).resolve(RegionConstants.fileName(rx, rz));
             try {
                 return new RegionFile(file);

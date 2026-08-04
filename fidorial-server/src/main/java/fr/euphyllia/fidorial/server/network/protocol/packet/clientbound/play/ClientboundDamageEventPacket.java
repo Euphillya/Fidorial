@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.fidorial.world.Location;
+import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -29,7 +30,7 @@ public record ClientboundDamageEventPacket(
         @Nullable Location sourcePosition) implements ClientboundPacket {
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.DAMAGE_EVENT;
     }
 

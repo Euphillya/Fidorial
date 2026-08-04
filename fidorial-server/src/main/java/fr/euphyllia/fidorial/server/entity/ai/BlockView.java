@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class BlockView {
 
-    private static final Set<Key> PASSABLE = Set.of(Key.key("minecraft", "water"));
+    private static final Set<Key> PASSABLE = Set.of(Key.key("water"));
 
     private BlockView() {
     }

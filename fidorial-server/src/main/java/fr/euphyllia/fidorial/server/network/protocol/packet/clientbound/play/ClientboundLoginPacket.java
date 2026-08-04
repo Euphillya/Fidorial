@@ -11,7 +11,7 @@ public record ClientboundLoginPacket(
         implements ClientboundPacket {
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.LOGIN;
     }
 

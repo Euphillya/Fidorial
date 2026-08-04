@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.fidorial.entity.GameMode;
+import net.kyori.adventure.key.Key;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Packets#Player_Abilities_(clientbound)
 public record ClientboundPlayerAbilitiesPacket(byte flags, float flyingSpeed, float fovModifier)
@@ -28,7 +29,7 @@ public record ClientboundPlayerAbilitiesPacket(byte flags, float flyingSpeed, fl
     }
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.PLAYER_ABILITIES;
     }
 

@@ -74,12 +74,12 @@ public record BlockStateRegistry(BlockRegistry registry) {
             return null;
         }
 
-        if (itemId.equals(Key.key("minecraft", "water_bucket"))) {
-            return new BlockState(Key.key("minecraft", "water"), Map.of("level", "0"));
+        if (itemId.equals(Key.key("water_bucket"))) {
+            return new BlockState(Key.key("water"), Map.of("level", "0"));
         }
 
-        if (itemId.equals(Key.key("minecraft", "lava_bucket"))) {
-            return new BlockState(Key.key("minecraft", "lava"), Map.of("level", "0"));
+        if (itemId.equals(Key.key("lava_bucket"))) {
+            return new BlockState(Key.key("lava"), Map.of("level", "0"));
         }
 
         final BlockState candidate = BlockState.of(itemId);
@@ -89,6 +89,6 @@ public record BlockStateRegistry(BlockRegistry registry) {
         if (contains(candidate)) {
             return candidate;
         }
-        return BlockState.of(Key.key("minecraft", "cobblestone"));
+        return BlockState.of(Key.key("cobblestone"));
     }
 }

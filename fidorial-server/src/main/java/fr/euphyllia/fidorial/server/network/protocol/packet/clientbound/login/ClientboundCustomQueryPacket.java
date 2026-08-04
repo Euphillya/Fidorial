@@ -9,7 +9,7 @@ public record ClientboundCustomQueryPacket(int transactionId, Key channel, byte[
         implements ClientboundPacket {
 
     @Override
-    public String name() {
+    public Key name() {
         return LoginClientboundPackets.CUSTOM_QUERY;
     }
 

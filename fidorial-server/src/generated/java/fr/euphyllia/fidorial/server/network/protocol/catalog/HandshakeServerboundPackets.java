@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.network.protocol.catalog;
 
+import net.kyori.adventure.key.Key;
+
 /**
  * Packet identifiers for the {@code handshake/serverbound} state/direction.
  *
@@ -9,7 +11,7 @@ public final class HandshakeServerboundPackets {
     /**
      * {@code minecraft:intention}
      */
-    public static final String INTENTION = "minecraft:intention";
+    public static final Key INTENTION = Key.key("intention");
 
     private HandshakeServerboundPackets() {
     }

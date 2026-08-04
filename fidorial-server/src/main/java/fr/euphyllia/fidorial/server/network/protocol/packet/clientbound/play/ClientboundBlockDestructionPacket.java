@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.fidorial.world.BlockPos;
+import net.kyori.adventure.key.Key;
 
 /**
  * <p>0–9 are the displayable destroy stages and each other number means that there is no animation on this coordinate. Block break animations can still be applied on air; the animation will remain visible, although there is no block being broken.</p>
@@ -30,7 +31,7 @@ public record ClientboundBlockDestructionPacket(int entityId, BlockPos location,
                                                 int destroyStage) implements ClientboundPacket {
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.BLOCK_DESTRUCTION;
     }
 

@@ -31,6 +31,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
@@ -85,7 +86,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         final PacketBuffer buf = new PacketBuffer(raw);
         final int packetId = buf.readVarInt();
 
-        final String name = protocol.serverboundName(state, packetId);
+        final Key name = protocol.serverboundName(state, packetId);
         if (name == null) {
             LOGGER.trace("Unknown packet {} 0x{} (ignored)", state, Integer.toHexString(packetId));
             return;

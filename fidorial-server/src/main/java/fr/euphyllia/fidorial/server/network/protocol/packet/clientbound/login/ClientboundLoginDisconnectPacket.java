@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.login;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.LoginClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
@@ -13,7 +14,7 @@ public record ClientboundLoginDisconnectPacket(Component reason) implements Clie
     }
 
     @Override
-    public String name() {
+    public Key name() {
         return LoginClientboundPackets.LOGIN_DISCONNECT;
     }
 

@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.fidorial.world.BlockPos;
+import net.kyori.adventure.key.Key;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Packets#World_Event
 public record ClientboundLevelEventPacket(int event, BlockPos position, int data, boolean global)
@@ -12,7 +13,7 @@ public record ClientboundLevelEventPacket(int event, BlockPos position, int data
     public static final int BLOCK_BREAK = 2001;
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.LEVEL_EVENT;
     }
 

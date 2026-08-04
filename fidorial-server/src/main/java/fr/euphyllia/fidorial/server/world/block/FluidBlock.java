@@ -8,9 +8,9 @@ import net.kyori.adventure.key.Key;
 
 public final class FluidBlock implements BlockBehaviour {
 
-    public static final FluidBlock WATER = new FluidBlock(Key.key("minecraft", "water"), 86, 1, 0);
+    public static final FluidBlock WATER = new FluidBlock(Key.key("water"), 86, 1, 0);
 
-    public static final FluidBlock LAVA = new FluidBlock(Key.key("minecraft", "lava"), 102, 15, 15);
+    public static final FluidBlock LAVA = new FluidBlock(Key.key("lava"), 102, 15, 15);
 
     private final BlockType type;
     private final int opacity;

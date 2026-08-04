@@ -4,6 +4,7 @@ import com.mojang.brigadier.Message;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import net.kyori.adventure.key.Key;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public record ClientboundCommandSuggestionsPacket(int id, int start, int length,
         implements ClientboundPacket {
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.COMMAND_SUGGESTIONS;
     }
 

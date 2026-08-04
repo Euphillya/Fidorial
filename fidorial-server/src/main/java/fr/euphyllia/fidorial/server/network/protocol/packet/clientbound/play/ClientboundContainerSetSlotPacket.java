@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.utils.ItemStackWriter;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.fidorial.inventory.ItemStack;
+import net.kyori.adventure.key.Key;
 
 /**
  * Updates a single slot of a window.
@@ -26,7 +27,7 @@ public record ClientboundContainerSetSlotPacket(
         implements ClientboundPacket {
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.CONTAINER_SET_SLOT;
     }
 

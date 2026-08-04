@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.fidorial.entity.PlayerProfile;
+import net.kyori.adventure.key.Key;
 
 public record ClientboundPlayerInfoUpdatePacket(PlayerProfile profile, int gameMode, int ping)
         implements ClientboundPacket {
@@ -11,7 +12,7 @@ public record ClientboundPlayerInfoUpdatePacket(PlayerProfile profile, int gameM
     private static final int ACTIONS = 0x01 | 0x04 | 0x08 | 0x10; // add_player | game_mode | listed | latency
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.PLAYER_INFO_UPDATE;
     }
 

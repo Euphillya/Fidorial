@@ -209,7 +209,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private void sendLoginSequence(final RegistryHolder dynamic, final ServerWorld world) {
-        final int dimensionType = Math.max(0, dynamic.networkId("minecraft:dimension_type", worldId().asString()));
+        final int dimensionType = Math.max(0, dynamic.networkId(Key.key("dimension_type"), worldId()));
         connection.send(new ClientboundLoginPacket(
                 player.entityId(),
                 worldId(),
@@ -230,7 +230,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private void openChunkView(final ServerWorld world, final RegistryHolder dynamic, final ChunkPos spawnChunk) {
-        final int biome = Math.max(0, dynamic.networkId("minecraft:worldgen/biome", "minecraft:plains"));
+        final int biome = Math.max(0, dynamic.networkId(Key.key("worldgen/biome"), Key.key("plains")));
         this.chunkView = new ChunkViewTracker(
                 connection,
                 server.chunkWorker(),
@@ -301,12 +301,12 @@ public final class PlayPacketHandler implements PlayPacketListener {
             player.inventory().set(slot, ItemStack.EMPTY);
             return;
         }
-        final Registry items = server.registries().frozen().get("minecraft:item");
+        final Registry items = server.registries().frozen().get(Key.key("item"));
         if (items == null || packet.itemId() >= items.entries().size()) {
             LOGGER.warn("{} envoie un id d'item hors borne : {}", player.name(), packet.itemId());
             return;
         }
-        player.inventory().set(slot, new ItemStack(Key.key(items.entries().get(packet.itemId())), packet.count()));
+        player.inventory().set(slot, new ItemStack(items.entries().get(packet.itemId()), packet.count()));
     }
 
     @Override
@@ -620,7 +620,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
         final RegistryHolder dynamic = server.dynamicRegistries();
         final int dimensionType =
-                Math.max(0, dynamic.networkId("minecraft:dimension_type", target.dimension().id().asString()));
+                Math.max(0, dynamic.networkId(Key.key("dimension_type"), target.dimension().id()));
         connection.send(new ClientboundRespawnPacket(
                 target.dimension().id(),
                 dimensionType,
@@ -700,7 +700,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
         final RegistryHolder dynamic = server.dynamicRegistries();
         final int dimensionType =
-                Math.max(0, dynamic.networkId("minecraft:dimension_type", world.dimension().id().asString()));
+                Math.max(0, dynamic.networkId(Key.key("dimension_type"), world.dimension().id()));
         connection.send(new ClientboundRespawnPacket(
                 world.dimension().id(),
                 dimensionType,

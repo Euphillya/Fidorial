@@ -16,7 +16,7 @@ public interface PathPenalty {
             return 0.0;
         }
         final Key name = state.name();
-        if (name.equals(Key.key("minecraft", "water"))) {
+        if (name.equals(Key.key("water"))) {
             return 8.0;
         }
         if (name.asString().endsWith("rail")) {

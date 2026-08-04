@@ -7,7 +7,7 @@ import net.kyori.adventure.key.Key;
 
 public class WorldClocks {
 
-    public static final String REGISTRY = RegistryKey.WORLD_CLOCK.key().asString();
+    public static final Key REGISTRY = RegistryKey.WORLD_CLOCK.key();
 
     private WorldClocks() {
     }

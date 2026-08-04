@@ -21,7 +21,7 @@ public final class EnderChestBlock implements BlockBehaviour {
 
     public static final EnderChestBlock INSTANCE = new EnderChestBlock();
 
-    public static final Key KEY = Key.key("minecraft", "ender_chest");
+    public static final Key KEY = Key.key("ender_chest");
 
     public static final int FIRST_STATE_ID = 9575;
 
@@ -37,7 +37,8 @@ public final class EnderChestBlock implements BlockBehaviour {
             .defaultValue("waterlogged", "false")
             .build();
 
-    private EnderChestBlock() {}
+    private EnderChestBlock() {
+    }
 
     public static boolean is(final BlockState state) {
         return KEY.asString().equals(state.name());

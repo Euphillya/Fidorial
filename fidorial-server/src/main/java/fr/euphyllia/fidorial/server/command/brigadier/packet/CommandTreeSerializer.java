@@ -135,7 +135,7 @@ public final class CommandTreeSerializer {
                 writeArgumentType(buf, argument.getType());
 
                 if (argument.getCustomSuggestions() != null) {
-                    buf.writeKey(Key.key("minecraft", "ask_server"));
+                    buf.writeKey(Key.key("ask_server"));
                 }
             }
 
