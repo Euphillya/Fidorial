@@ -7,6 +7,7 @@ import net.kyori.adventure.key.Key;
 @FunctionalInterface
 public interface PathPenalty {
 
+    Key WATER = Key.key("water");
     double BLOCKED = Double.POSITIVE_INFINITY;
 
 
@@ -16,10 +17,10 @@ public interface PathPenalty {
             return 0.0;
         }
         final Key name = state.name();
-        if (name.equals(Key.key("water"))) {
+        if (name.equals(WATER)) {
             return 8.0;
         }
-        if (name.asString().endsWith("rail")) {
+        if (name.value().endsWith("rail")) {
             return 16.0;
         }
         return 0.0;

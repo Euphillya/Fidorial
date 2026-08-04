@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.KeyReader;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.registry.TypedKey;
@@ -53,12 +54,10 @@ public final class ItemArgument<T> implements ArgumentType<T> {
     public T parse(final StringReader reader) throws CommandSyntaxException {
         final int start = reader.getCursor();
 
-        while (reader.canRead() && isAllowedInKey(reader.peek())) {
-            reader.skip();
-        }
-
-        final String input = reader.getString().substring(start, reader.getCursor());
-        final Key key = input.contains(":") ? Key.key(input) : Key.key("minecraft", input);
+        final KeyReader.ParsedKey parsed = KeyReader.readKeyStringDetailed(reader);
+        final Key key = parsed.hasNamespace()
+                ? Key.key(parsed.value())
+                : Key.key(Key.MINECRAFT_NAMESPACE, parsed.value());
 
         if (!exists(key)) {
             reader.setCursor(start);
@@ -74,10 +73,6 @@ public final class ItemArgument<T> implements ArgumentType<T> {
         }
 
         return converter.apply(new ItemInput(key));
-    }
-
-    private boolean isAllowedInKey(final char c) {
-        return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
     }
 
     @Override

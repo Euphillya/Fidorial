@@ -6,6 +6,10 @@ import java.util.Map;
 
 public interface BlockData {
 
+    Key AIR = Key.key("air");
+    Key CAVE_AIR = Key.key("cave_air");
+    Key VOID_AIR = Key.key("void_air");
+
     BlockType type();
 
     default Key key() {
@@ -21,10 +25,8 @@ public interface BlockData {
     Map<String, String> propertyMap();
 
     default boolean isAir() {
-        String name = key().asString();
-        return name.equals("minecraft:air")
-                || name.equals("minecraft:cave_air")
-                || name.equals("minecraft:void_air");
+        Key name = key();
+        return name.equals(AIR) || name.equals(CAVE_AIR) || name.equals(VOID_AIR);
     }
 
     default String asString() {

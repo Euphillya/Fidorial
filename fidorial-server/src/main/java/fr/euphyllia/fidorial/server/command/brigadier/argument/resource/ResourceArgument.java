@@ -9,6 +9,8 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.KeyReader;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.KeyReader.ParsedKey;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.registry.Registry;
@@ -49,14 +51,8 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
 
     @Override
     public T parse(final StringReader reader) throws CommandSyntaxException {
-        final int start = reader.getCursor();
-
-        while (reader.canRead() && isAllowedInKey(reader.peek())) {
-            reader.skip();
-        }
-
-        final String input = reader.getString().substring(start, reader.getCursor());
-        final Key key = parseKey(input);
+        final ParsedKey parsed = KeyReader.readKeyStringDetailed(reader);
+        final Key key = parseKey(parsed);
         final TypedKey<T> typedKey = TypedKey.create(registryKey, key);
 
         return registryLookup
@@ -65,26 +61,24 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
                         reader, key.asString(), registryKey.key().asString()));
     }
 
-    private boolean isAllowedInKey(final char c) {
-        return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
-    }
-
-    private Key parseKey(String input) {
-        if (!input.contains(":")) {
-            input = "minecraft:" + input;
-        }
+    private Key parseKey(final ParsedKey parsed) {
+        final String input = parsed.hasNamespace()
+                ? parsed.value()
+                : Key.MINECRAFT_NAMESPACE + Key.DEFAULT_SEPARATOR + parsed.value();
         return Key.key(input);
     }
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
         final String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+        final boolean remainingHasNamespace = remaining.indexOf(Key.DEFAULT_SEPARATOR) >= 0;
+        final String minecraftPrefix = Key.MINECRAFT_NAMESPACE + Key.DEFAULT_SEPARATOR;
 
         for (final T value : registryLookup.values()) {
             final String full = registryLookup.key(value).key().asString();
-            final String path = full.startsWith("minecraft:") ? full.substring("minecraft:".length()) : full;
+            final String path = full.startsWith(minecraftPrefix) ? full.substring(minecraftPrefix.length()) : full;
 
-            if (remaining.contains(":") ? full.contains(remaining) : path.contains(remaining)) {
+            if (remainingHasNamespace ? full.contains(remaining) : path.contains(remaining)) {
                 builder.suggest(full);
             }
         }

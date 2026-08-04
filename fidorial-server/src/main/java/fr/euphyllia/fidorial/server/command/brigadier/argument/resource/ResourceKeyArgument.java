@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.KeyReader;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.registry.Registry;
@@ -36,20 +37,9 @@ public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
 
     @Override
     public TypedKey<T> parse(final StringReader reader) throws CommandSyntaxException {
-
-        final int start = reader.getCursor();
-
-        while (reader.canRead() && isAllowedInKey(reader.peek())) {
-            reader.skip();
-        }
-
-        final String input = reader.getString().substring(start, reader.getCursor());
+        final String input = KeyReader.readKeyString(reader);
 
         return TypedKey.create(registryKey, Key.key(input));
-    }
-
-    private boolean isAllowedInKey(final char c) {
-        return Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':' || c == '/';
     }
 
     private static final String SPLITTERS = "._/";
