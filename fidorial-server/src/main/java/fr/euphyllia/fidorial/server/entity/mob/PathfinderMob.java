@@ -37,7 +37,20 @@ public abstract class PathfinderMob extends MovingMob {
 
     @Override
     public void tick(final long currentTick) {
-        if (isRemoved() || isDead()) {
+        if (isRemoved()) {
+            return;
+        }
+        tickLiving(currentTick);
+        if (isRemoved()) {
+            return;
+        }
+
+        if (isDead()) {
+            moveSpeed = 0.0;
+            final Location fallingFrom = location();
+            applyPhysics();
+            updateChunkMembership(fallingFrom, location());
+            syncToClients();
             return;
         }
 
@@ -67,6 +80,12 @@ public abstract class PathfinderMob extends MovingMob {
     protected void onDeath() {
         navigation.stop();
         goals.stopAll();
+        setTarget(null);
+        super.onDeath();
+    }
+
+    @Override
+    protected void onDeathAnimationFinished() {
         server().despawnEntity(this);
     }
 

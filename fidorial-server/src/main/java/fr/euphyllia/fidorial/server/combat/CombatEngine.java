@@ -2,21 +2,29 @@ package fr.euphyllia.fidorial.server.combat;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
+import fr.euphyllia.fidorial.server.entity.AbstractLivingEntity;
 import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.euphyllia.fidorial.server.entity.mob.MovingMob;
+import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
+import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundAnimatePacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundDamageEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundEntityEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundHurtAnimationPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundPlayerCombatKillPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetEntityMotionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetHealthPacket;
-import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
+import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.combat.CombatService;
+import fr.fidorial.combat.DamageSource;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.LivingEntity;
 import fr.fidorial.entity.Player;
 import fr.fidorial.event.entity.EntityDamageEvent;
+import fr.fidorial.event.entity.EntityDeathEvent;
 import fr.fidorial.event.player.PlayerAttackEntityEvent;
 import fr.fidorial.event.player.PlayerDeathEvent;
 import fr.fidorial.inventory.ItemStack;
@@ -27,105 +35,379 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class CombatEngine implements CombatService {
 
-    private static final ComponentLogger LOGGER = ComponentLogger.logger(CombatEngine.class);
-    private final FidorialServer server;
+    private static final double SURVIVAL_REACH = 3.0;
+    private static final double CREATIVE_REACH = 5.0;
+    private static final double REACH_TOLERANCE = 1.0;
 
-    private static final double ATTACK_RANGE_SQ = 36.0;
+    private static final double BASE_KNOCKBACK = 0.4;
+    private static final double SPRINT_KNOCKBACK = 0.5;
 
-    public static final double BASE_KNOCKBACK = 0.4;
-    private static final double KNOCKBACK_UP = 0.4;
+    private static final float CRITICAL_MULTIPLIER = 1.5f;
+
+    private static final float FULL_CHARGE_THRESHOLD = 0.9f;
+
+    private static final double SWEEP_RADIUS = 1.0;
+    private static final double SWEEP_HEIGHT = 0.25;
+    private static final float SWEEP_DAMAGE = 1.0f;
+
+    private static final double MAX_UPWARD_KNOCKBACK = 0.4;
 
     private static final byte ENTITY_EVENT_DEATH = 3;
 
-    private static final int FOOD_LEVEL = 20;
-    private static final float SATURATION = 5f;
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(CombatEngine.class);
 
-
+    private final FidorialServer server;
+    // Todo : This is a temporary hack to make the combat system work without implementing item stats yet.
+    private final int fakeItemDamage = 1;
+    private final int fakeAttackSpeed = 1;
     public CombatEngine(final FidorialServer server) {
         this.server = server;
     }
 
     @Override
     public boolean attack(final Player attacker, final Entity target) {
-        if (!(attacker instanceof final ServerPlayer player) || !(target instanceof final AbstractEntity victim)) {
+        if (!(attacker instanceof final ServerPlayer player) || !(target instanceof final AbstractLivingEntity victim)) {
             return false;
         }
-        if (!(victim instanceof final LivingEntity living) || !canAttack(player, victim)) {
+        if (player.gameMode() == GameMode.SPECTATOR || player.isDead() || player.isRemoved()) {
+            return false;
+        }
+        if (!victim.isAlive() || victim == player) {
+            return false;
+        }
+        if (!canHarm(player, victim) || !isWithinReach(player, victim)) {
             return false;
         }
 
+        final ItemStack weapon = player.heldItem();
+        final float strength = attackStrengthScale(player);
+        final boolean critical = isCriticalHit(player, strength);
+        final boolean sweeping = isSweepingHit(player, weapon, strength);
 
-        final ItemStack weapon = heldItem(player);
-        final float strength = 1; // TODO: calculate strength based on weapon and player stats
+        float damage = fakeItemDamage * CombatRules.attackDamageScale(strength);
+        if (critical) {
+            damage *= CRITICAL_MULTIPLIER;
+        }
 
-        final float damage = 1; // TODO: calculate damage based on weapon and player stats
-        final double knockback = strength > 0.9f ? attackKnockback(player) : attackKnockback(player) * 0.5;
-
-        final PlayerAttackEntityEvent event =
-                server.events().post(new PlayerAttackEntityEvent(player, victim, damage, knockback));
+        final PlayerAttackEntityEvent event = server.events().post(new PlayerAttackEntityEvent(
+                player, victim, damage, attackKnockback(player), strength, critical, sweeping));
+        player.resetAttackCooldown();
         if (event.isCancelled()) {
             return false;
         }
 
-        final boolean hit = damage(living, event.damage(), player, event.knockback());
-        player.playSound(Sound.sound(
-                hit ? (strength > 0.9f ? SoundEvents.PLAYER_ATTACK_STRONG : SoundEvents.PLAYER_ATTACK_WEAK)
-                        : SoundEvents.PLAYER_ATTACK_NODAMAGE,
-                Sound.Source.PLAYER,
-                1.0f,
-                1.0f));
-        return hit;
+        final DamageSource source = DamageSource.playerAttack(player);
+        final boolean hurt = applyDamage(victim, source, event.damage(), event.knockback());
+        if (!hurt) {
+            player.playSound(Sound.sound(SoundEvents.PLAYER_ATTACK_NODAMAGE, Sound.Source.PLAYER, 1.0f, 1.0f));
+            return false;
+        }
+
+        if (critical) {
+            sendToViewersAndSelf(victim, ClientboundAnimatePacket.criticalHit(victim.entityId()));
+        }
+        playAttackSound(player, strength, critical, event.knockback() > BASE_KNOCKBACK);
+
+        if (event.isSweeping()) {
+            sweep(player, victim, source);
+        }
+        return true;
     }
 
     @Override
-    public boolean damage(final LivingEntity target, final float amount, @Nullable final Entity source, final double knockback) {
-        if (amount <= 0f || target.isRemoved() || target.isDead()) {
+    public boolean damage(final LivingEntity target, final DamageSource source, final float amount) {
+        if (!(target instanceof final AbstractLivingEntity victim)) {
             return false;
         }
-        if (!(target instanceof final fr.fidorial.combat.Damageable damageable)) {
+        return applyDamage(victim, source, amount, source.noKnockback() ? 0.0 : BASE_KNOCKBACK);
+    }
+
+    private boolean applyDamage(
+            final AbstractLivingEntity victim,
+            final DamageSource source,
+            final float amount,
+            final double knockback) {
+        if (amount <= 0f || victim.isRemoved() || victim.isDead()) {
             return false;
         }
-        if (target instanceof final ServerPlayer player && isProtected(player)) {
+        if (victim instanceof final ServerPlayer player
+                && player.isInvulnerableToDamage()
+                && !source.bypassesInvulnerability()) {
             return false;
         }
 
-        final AbstractEntity attacker = source instanceof final AbstractEntity entity ? entity : null;
+        float incoming = amount;
+        if (!source.bypassesInvulnerability()) {
+            if (amount <= victim.lastDamage()) {
+                return false;
+            }
+            incoming = amount - victim.lastDamage();
+        }
 
-        final EntityDamageEvent event = server.events().post(new EntityDamageEvent(target, attacker, amount));
+        final EntityDamageEvent event =
+                server.events().post(new EntityDamageEvent(victim, source, incoming, knockback));
         if (event.isCancelled()) {
             return false;
         }
 
-        return switch (target) {
-            case final ServerPlayer player -> hurtPlayer(player, event.damage(), attacker, knockback);
-            case final Mob mob -> hurtMob(mob, event.damage(), attacker, knockback);
-            default -> false;
-        };
+        final float reduced = reduce(victim, source, event.damage());
+        if (reduced <= 0f) {
+            return false;
+        }
+
+        victim.setLastDamage(amount);
+
+        final float dealt = soakWithAbsorption(victim, reduced);
+        broadcastHurt(victim, source);
+
+        if (dealt > 0f) {
+            victim.setHealth(victim.health() - dealt);
+        }
+        syncHealth(victim);
+
+        if (event.knockback() > 0.0) {
+            final Location origin = knockbackOrigin(source, victim);
+            if (origin != null) {
+                knockback(victim, event.knockback(), origin.x(), origin.z());
+            }
+        }
+
+        if (victim.isDead()) {
+            die(victim, source.causingEntity());
+        } else if (victim instanceof final Mob mob) {
+            mob.playHurtSound();
+            mob.onHurt(source, dealt);
+            aggro(mob, source.causingEntity());
+        }
+        return true;
+    }
+
+    private float reduce(final AbstractLivingEntity victim, final DamageSource source, final float amount) {
+        float damage = amount;
+        if (!source.bypassesArmor()) {
+            damage = CombatRules.damageAfterArmor(damage, (float) victim.armor(), (float) victim.armorToughness());
+        }
+        damage = CombatRules.damageAfterProtection(damage, 0f);
+        return Math.max(0f, damage);
+    }
+
+    private float soakWithAbsorption(final AbstractLivingEntity victim, final float damage) {
+        final float absorption = victim.absorptionAmount();
+        if (absorption <= 0f) {
+            return damage;
+        }
+        final float soaked = Math.min(absorption, damage);
+        victim.setAbsorptionAmount(absorption - soaked);
+        return damage - soaked;
     }
 
     @Override
-    public void kill(final LivingEntity target, @Nullable final Entity killer) {
-        final AbstractEntity source = killer instanceof final AbstractEntity entity ? entity : null;
-        switch (target) {
-            case final ServerPlayer player -> die(player, source);
-            case final Mob mob -> {
-                mob.setHealth(0f);
+    public void knockback(final LivingEntity target, final double strength, final double fromX, final double fromZ) {
+        if (!(target instanceof final AbstractLivingEntity victim)) {
+            return;
+        }
+        final double scaled = strength * (1.0 - Math.clamp(victim.knockbackResistance(), 0.0, 1.0));
+        if (scaled <= 0.0) {
+            return;
+        }
+
+        final Location location = victim.location();
+        double dx = location.x() - fromX;
+        double dz = location.z() - fromZ;
+        final double length = Math.sqrt(dx * dx + dz * dz);
+        if (length < 1.0E-4) {
+            dx = 0.0;
+            dz = 1.0;
+        } else {
+            dx /= length;
+            dz /= length;
+        }
+
+        if (victim instanceof final MovingMob mob) {
+            final double newX = mob.velocityX() / 2.0 + dx * scaled;
+            final double newZ = mob.velocityZ() / 2.0 + dz * scaled;
+            final double newY = mob.onGround()
+                    ? Math.min(MAX_UPWARD_KNOCKBACK, mob.velocityY() / 2.0 + scaled)
+                    : mob.velocityY();
+            mob.setVelocity(newX, newY, newZ);
+            mob.sendToTrackers(new ClientboundSetEntityMotionPacket(mob.entityId(), newX, newY, newZ));
+            return;
+        }
+
+        if (victim instanceof final ServerPlayer player) {
+            player.connection().send(new ClientboundSetEntityMotionPacket(
+                    player.entityId(), dx * scaled, MAX_UPWARD_KNOCKBACK, dz * scaled));
+        }
+    }
+
+    @Override
+    public void kill(final LivingEntity target, final @Nullable Entity killer) {
+        if (!(target instanceof final AbstractLivingEntity victim) || victim.isDead()) {
+            return;
+        }
+        victim.setAbsorptionAmount(0f);
+        victim.setHealth(0f);
+        syncHealth(victim);
+        die(victim, killer);
+    }
+
+    private void die(final AbstractLivingEntity victim, final @Nullable Entity killer) {
+        if (victim instanceof final ServerPlayer player) {
+            killPlayer(player, killer);
+            return;
+        }
+        sendToViewersAndSelf(victim, new ClientboundEntityEventPacket(victim.entityId(), ENTITY_EVENT_DEATH));
+        server.events().post(new EntityDeathEvent(victim, killer));
+    }
+
+    private void killPlayer(final ServerPlayer player, final @Nullable Entity killer) {
+        if (player.isAwaitingRespawn()) {
+            return;
+        }
+        player.setAwaitingRespawn(true);
+
+        final Component message = deathMessage(player, killer);
+        final PlayerDeathEvent event = server.events().post(new PlayerDeathEvent(player, killer, message));
+
+        sendToViewersAndSelf(player, new ClientboundEntityEventPacket(player.entityId(), ENTITY_EVENT_DEATH));
+        player.playSound(Sound.sound(SoundEvents.PLAYER_DEATH, Sound.Source.PLAYER, 1.0f, 1.0f));
+        player.connection().send(new ClientboundPlayerCombatKillPacket(
+                player.entityId(), event.deathMessage() == null ? Component.empty() : event.deathMessage()));
+
+        if (event.deathMessage() != null) {
+            server.broadcast(new ClientboundSystemChatPacket(event.deathMessage(), false));
+        }
+    }
+
+    private Component deathMessage(final ServerPlayer player, final @Nullable Entity killer) {
+        if (killer == null) {
+            return Component.text(player.name() + " died");
+        }
+        return Component.text(player.name() + " was slain by ").append(killer.displayName());
+    }
+
+    private void aggro(final Mob mob, final @Nullable Entity attacker) {
+        if (mob instanceof final PathfinderMob pathfinder && attacker instanceof final ServerPlayer player) {
+            pathfinder.setTarget(player);
+        }
+    }
+
+    private void broadcastHurt(final AbstractLivingEntity victim, final DamageSource source) {
+        final int damageTypeId =
+                server.dynamicRegistries().networkId("minecraft:damage_type", source.type().key().asString());
+        if (damageTypeId >= 0) {
+            sendToViewersAndSelf(victim, new ClientboundDamageEventPacket(
+                    victim.entityId(),
+                    damageTypeId,
+                    source.causingEntity() == null ? null : source.causingEntity().entityId(),
+                    source.directEntity() == null ? null : source.directEntity().entityId(),
+                    null));
+        } else {
+            LOGGER.debug("Type de degat inconnu du registre : {}", source.type().key());
+        }
+        sendToViewersAndSelf(victim, new ClientboundHurtAnimationPacket(victim.entityId(), hurtYaw(victim, source)));
+    }
+
+    private float hurtYaw(final AbstractLivingEntity victim, final DamageSource source) {
+        final Location origin = knockbackOrigin(source, victim);
+        if (origin == null) {
+            return 0f;
+        }
+        final Location self = victim.location();
+        return (float) (Math.toDegrees(Math.atan2(origin.z() - self.z(), origin.x() - self.x())) - 90.0);
+    }
+
+    private @Nullable Location knockbackOrigin(final DamageSource source, final AbstractLivingEntity victim) {
+        if (source.position() != null) {
+            return source.position();
+        }
+        final Entity direct = source.directEntity() != null ? source.directEntity() : source.causingEntity();
+        return direct == null || direct == victim ? null : direct.location();
+    }
+
+    private void sendToViewersAndSelf(final AbstractLivingEntity victim, final ClientboundPacket packet) {
+        victim.sendToTrackers(packet);
+        if (victim instanceof final ServerPlayer player) {
+            player.connection().send(packet);
+        }
+    }
+
+    private void syncHealth(final AbstractLivingEntity victim) {
+        if (victim instanceof final ServerPlayer player) {
+            player.connection().send(new ClientboundSetHealthPacket(player.health(), 20, 5.0f));
+        }
+    }
+
+    private void sweep(final ServerPlayer attacker, final AbstractLivingEntity primary, final DamageSource source) {
+        final Location center = primary.location();
+        for (final AbstractLivingEntity nearby : nearbyLivingEntities(attacker, center)) {
+            if (nearby == primary || nearby == attacker || !nearby.isAlive() || !canHarm(attacker, nearby)) {
+                continue;
             }
-            default -> {
+            applyDamage(nearby, source, SWEEP_DAMAGE, BASE_KNOCKBACK);
+        }
+        attacker.playSound(Sound.sound(SoundEvents.PLAYER_ATTACK_SWEEP, Sound.Source.PLAYER, 1.0f, 1.0f));
+    }
+
+    private List<AbstractLivingEntity> nearbyLivingEntities(final ServerPlayer attacker, final Location center) {
+        final List<AbstractLivingEntity> found = new ArrayList<>();
+        for (final ServerPlayer player : server.players()) {
+            if (player.world() == attacker.world() && withinSweepBox(center, player.location())) {
+                found.add(player);
             }
         }
+        ((ServerWorld) attacker.world()).entityManager().forEachInChunkRange(
+                center.chunk().x(), center.chunk().z(), 1, entity -> {
+                    if (entity instanceof final Mob mob && withinSweepBox(center, mob.location())) {
+                        found.add(mob);
+                    }
+                });
+        return found;
+    }
+
+    private boolean withinSweepBox(final Location center, final Location other) {
+        return Math.abs(other.x() - center.x()) <= SWEEP_RADIUS
+                && Math.abs(other.z() - center.z()) <= SWEEP_RADIUS
+                && Math.abs(other.y() - center.y()) <= SWEEP_HEIGHT + 1.0;
     }
 
     @Override
     public float attackDamage(final Player attacker) {
-        return 1; // TODO: calculate damage based on weapon and player stats
+        if (!(attacker instanceof final ServerPlayer player)) {
+            return fakeItemDamage;
+        }
+        return fakeItemDamage;
     }
 
     @Override
     public double attackKnockback(final Player attacker) {
-        return BASE_KNOCKBACK;
+        final boolean sprinting = attacker instanceof final ServerPlayer player && player.isSprinting();
+        return BASE_KNOCKBACK + (sprinting ? SPRINT_KNOCKBACK : 0.0);
+    }
+
+    @Override
+    public float attackStrengthScale(final Player attacker) {
+        if (!(attacker instanceof final ServerPlayer player)) {
+            return 1.0f;
+        }
+        final int cooldown = attackCooldownTicks(player);
+        if (cooldown <= 0) {
+            return 1.0f;
+        }
+        return Math.clamp((player.ticksSinceLastAttack() + 0.5f) / cooldown, 0.0f, 1.0f);
+    }
+
+    @Override
+    public int attackCooldownTicks(final Player attacker) {
+        final ItemStack weapon =
+                attacker instanceof final ServerPlayer player ? player.heldItem() : ItemStack.EMPTY;
+        final float speed = fakeAttackSpeed;
+        return speed <= 0f ? 1 : Math.max(1, Math.round(20.0f / speed));
     }
 
     @Override
@@ -133,136 +415,52 @@ public final class CombatEngine implements CombatService {
         return server.config().pvp();
     }
 
-    private boolean hurtPlayer(
-            final ServerPlayer target, final float amount, final @Nullable AbstractEntity source, final double knockback) {
-        target.setHealth(target.health() - amount);
-        target.connection().send(new ClientboundSetHealthPacket(target.health(), FOOD_LEVEL, SATURATION));
-
-        final Location to = target.location();
-        final float knockYaw = source == null ? to.yaw() : hurtYaw(source.location(), to);
-        if (source != null && knockback > 0.0) {
-            final double[] push = knockbackVector(source.location(), to, knockback);
-            target.connection()
-                    .send(new ClientboundSetEntityMotionPacket(
-                            target.entityId(), push[0], KNOCKBACK_UP, push[1]));
+    private boolean canHarm(final ServerPlayer attacker, final AbstractLivingEntity victim) {
+        if (!(victim instanceof final ServerPlayer other)) {
+            return true;
         }
-
-        server.broadcastNear(
-                target.world(),
-                to.x(),
-                to.y(),
-                to.z(),
-                new ClientboundHurtAnimationPacket(target.entityId(), knockYaw));
-        server.broadcastNear(
-                target.world(),
-                to.x(),
-                to.y(),
-                to.z(),
-                new ClientboundSoundPacket(
-                        Sound.sound(SoundEvents.PLAYER_HURT, Sound.Source.PLAYER, 1.0f, 1.0f),
-                        to.x(),
-                        to.y(),
-                        to.z()));
-
-        if (target.health() <= 0f) {
-            die(target, source);
-        }
-
-        return true;
+        return pvpEnabled() && !other.isInvulnerableToDamage();
     }
 
-    private boolean hurtMob(
-            final Mob target, final float amount, final @Nullable AbstractEntity source, final double knockback) {
-        if (source != null && knockback > 0.0 && target instanceof final MovingMob moving) {
-            final double[] push = knockbackVector(source.location(), target.location(), knockback);
-            moving.setVelocity(moving.velocityX() + push[0], KNOCKBACK_UP, moving.velocityZ() + push[1]);
-        }
-        target.setHealth(target.health() - amount);
-        return true;
+    private boolean isWithinReach(final ServerPlayer attacker, final AbstractEntity victim) {
+        final double reach =
+                (attacker.gameMode() == GameMode.CREATIVE ? CREATIVE_REACH : SURVIVAL_REACH) + REACH_TOLERANCE;
+        final Location from = attacker.location();
+        final Location to = victim.location();
+        final double dx = from.x() - to.x();
+        final double dy = from.y() - to.y();
+        final double dz = from.z() - to.z();
+        return dx * dx + dy * dy + dz * dz <= reach * reach;
     }
 
-    private void die(final ServerPlayer player, final @Nullable AbstractEntity killer) {
-        if (player.health() <= 0f) {
-            return;
-        }
-        player.setHealth(0f);
-        player.connection().send(new ClientboundSetHealthPacket(0f, FOOD_LEVEL, SATURATION));
-
-        final Component defaultMessage = deathMessage(player, killer);
-        final PlayerDeathEvent event =
-                server.events().post(new PlayerDeathEvent(player, killer, defaultMessage));
-
-        player.sendToTrackers(new ClientboundEntityEventPacket(player.entityId(), ENTITY_EVENT_DEATH));
-        player.connection().send(new ClientboundEntityEventPacket(player.entityId(), ENTITY_EVENT_DEATH));
-        player.playSound(Sound.sound(SoundEvents.PLAYER_DEATH, Sound.Source.PLAYER, 1.0f, 1.0f));
-
-        final Component message = event.deathMessage();
-        player.connection()
-                .send(new ClientboundPlayerCombatKillPacket(
-                        player.entityId(), message == null ? Component.empty() : message));
-
-        if (message != null) {
-            for (final ServerPlayer online : server.players()) {
-                online.sendMessage(message);
-            }
-            LOGGER.info(message);
-        }
+    private boolean isCriticalHit(final ServerPlayer attacker, final float strength) {
+        return strength > FULL_CHARGE_THRESHOLD
+                && attacker.isFalling()
+                && attacker.fallDistance() > 0.0
+                && !attacker.isSprinting()
+                && attacker.gameMode() != GameMode.CREATIVE;
     }
 
-    private boolean canAttack(final ServerPlayer player, final AbstractEntity victim) {
-        if (player == victim || player.isRemoved() || victim.isRemoved() || player.isDead()) {
-            return false;
-        }
-        if (player.world() != victim.world()) {
-            return false;
-        }
-        if (player.location().distanceSquared(victim.location()) > ATTACK_RANGE_SQ) {
-            LOGGER.debug("{} attacks {} out of reach (ignored)", player.name(), victim);
-            return false;
-        }
-        if (victim instanceof final ServerPlayer other) {
-            return pvpEnabled() && !isProtected(other);
-        }
-        return true;
+    private boolean isSweepingHit(final ServerPlayer attacker, final ItemStack weapon, final float strength) {
+        return strength > FULL_CHARGE_THRESHOLD
+                && !attacker.isSprinting()
+                && !attacker.isFalling()
+                //&& Todo : check weapon is sword)
+                ;
     }
 
-    private static boolean isProtected(final ServerPlayer player) {
-        final GameMode mode = player.gameMode();
-        return mode == GameMode.CREATIVE || mode == GameMode.SPECTATOR;
-    }
-
-    private static ItemStack heldItem(final Player player) {
-        if (player instanceof final ServerPlayer serverPlayer) {
-            return serverPlayer.inventory().get(serverPlayer.selectedSlot());
+    private void playAttackSound(
+            final ServerPlayer attacker, final float strength, final boolean critical, final boolean knockedBack) {
+        final Sound.Type type;
+        if (critical) {
+            type = SoundEvents.PLAYER_ATTACK_CRIT;
+        } else if (knockedBack) {
+            type = SoundEvents.PLAYER_ATTACK_KNOCKBACK;
+        } else if (strength > FULL_CHARGE_THRESHOLD) {
+            type = SoundEvents.PLAYER_ATTACK_STRONG;
+        } else {
+            type = SoundEvents.PLAYER_ATTACK_WEAK;
         }
-        return ItemStack.EMPTY;
-    }
-
-    private static Component deathMessage(final ServerPlayer player, final @Nullable AbstractEntity killer) {
-        final Component victim = player.displayName();
-        if (killer == null) {
-            return Component.translatable("death.attack.generic", victim);
-        }
-        if (killer instanceof ServerPlayer) {
-            return Component.translatable("death.attack.player", victim, killer.displayName());
-        }
-        return Component.translatable("death.attack.mob", victim, killer.displayName());
-    }
-
-    private static double [] knockbackVector(
-            final Location from, final Location to, final double strength) {
-        final double dx = to.x() - from.x();
-        final double dz = to.z() - from.z();
-        final double length = Math.sqrt(dx * dx + dz * dz);
-        if (length <= 1.0E-4) {
-            return new double[]{0.0, 0.0};
-        }
-        return new double[]{dx / length * strength, dz / length * strength};
-    }
-
-    private static float hurtYaw(final Location from, final Location to) {
-        final double dx = to.x() - from.x();
-        final double dz = to.z() - from.z();
-        return (float) (Math.toDegrees(Math.atan2(dz, dx)) - 90.0);
+        attacker.playSound(Sound.sound(type, Sound.Source.PLAYER, 1.0f, 1.0f));
     }
 }

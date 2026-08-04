@@ -11,6 +11,7 @@ import fr.euphyllia.fidorial.server.entity.ai.goal.TemptGoal;
 import fr.euphyllia.fidorial.server.entity.mob.AgeableMob;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.fidorial.combat.DamageSource;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.CowSoundVariant;
@@ -23,6 +24,7 @@ import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
@@ -216,26 +218,28 @@ public final class Cow extends AgeableMob implements Category.Neutral {
         playSound(SoundEvents.COW_STEP, STEP_VOLUME, 1.0f);
     }
 
-    public void hurt(final float amount) {
-        if (isRemoved() || isDead() || amount <= 0f) {
-            return;
-        }
-
-        final float remaining = health() - amount;
-        if (remaining > 0f) {
-            playSound(isMoody() ? SoundEvents.COW_MOODY_HURT : SoundEvents.COW_HURT,
-                    SOUND_VOLUME, voicePitch());
-        }
-
+    @Override
+    public void onHurt(final DamageSource source, final float amount) {
         panicGoal.panic();
+    }
 
-        setHealth(remaining);
+    @Override
+    protected float soundVolume() {
+        return SOUND_VOLUME;
+    }
+
+    @Override
+    protected Sound.Type hurtSound() {
+        return isMoody() ? SoundEvents.COW_MOODY_HURT : SoundEvents.COW_HURT;
+    }
+
+    @Override
+    protected Sound.Type deathSound() {
+        return isMoody() ? SoundEvents.COW_MOODY_DEATH : SoundEvents.COW_DEATH;
     }
 
     @Override
     protected void onDeath() {
-        playSound(isMoody() ? SoundEvents.COW_MOODY_DEATH : SoundEvents.COW_DEATH,
-                SOUND_VOLUME, voicePitch());
         super.onDeath();
     }
 
@@ -256,7 +260,8 @@ public final class Cow extends AgeableMob implements Category.Neutral {
         return soundVariant.equals(CowSoundVariantKeys.MOODY);
     }
 
-    private float voicePitch() {
+    @Override
+    protected float voicePitch() {
         return voicePitch(PITCH_MIN, PITCH_MAX, BABY_PITCH_BONUS);
     }
 

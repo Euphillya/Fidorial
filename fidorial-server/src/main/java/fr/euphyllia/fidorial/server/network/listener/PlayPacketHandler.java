@@ -3,11 +3,13 @@ package fr.euphyllia.fidorial.server.network.listener;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.ServerConfig;
 import fr.euphyllia.fidorial.server.adventure.ClickCallbackManager;
+import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.player.InventorySlots;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
 import fr.euphyllia.fidorial.server.inventory.EnderChestMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundAnimatePacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBlockChangedAckPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBlockEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundCommandSuggestionsPacket;
@@ -23,25 +25,31 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundRotateHeadPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket.Entry;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetHealthPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.listener.PlayPacketListener;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.common.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundAttackPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundChatCommandPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundChatPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundClientCommandPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundContainerClosePacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundInteractPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundMovePlayerPosRotPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundPlayerAbilitiesPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundPlayerActionPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundPlayerInputPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundSetCarriedItemPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundSetCreativeModeSlotPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundSwingPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
 import fr.euphyllia.fidorial.server.network.session.ChunkViewTracker;
 import fr.euphyllia.fidorial.server.registry.Registry;
@@ -58,6 +66,7 @@ import fr.fidorial.event.player.PlayerChatEvent;
 import fr.fidorial.event.player.PlayerJoinEvent;
 import fr.fidorial.event.player.PlayerOpenEnderChestEvent;
 import fr.fidorial.event.player.PlayerQuitEvent;
+import fr.fidorial.event.player.PlayerRespawnEvent;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
@@ -542,6 +551,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     private void onMoved(final double x, final double y, final double z, final float yaw, final float pitch) {
         final Location previous = player.location();
         final Location current = new Location(x, y, z, yaw, pitch);
+        trackFall(previous, current);
         player.setLocation(current);
         server.worldManager().overworld().entityManager().moved(player, previous.chunk(), current.chunk());
 
@@ -624,6 +634,140 @@ public final class PlayPacketHandler implements PlayPacketListener {
         server.dayNightEngine().syncTo(target, connection::send);
         server.entityTracker().update(player, server.players());
         return true;
+    }
+
+    @Override
+    public void handleAttack(final ServerboundAttackPacket packet) {
+        if (player == null || player.isAwaitingRespawn()) {
+            return;
+        }
+        final AbstractEntity target =
+                ((ServerWorld) player.world()).entityManager().byId(packet.entityId());
+        if (target == null) {
+            LOGGER.debug("{} attaque l'entite {} qui n'existe pas ou plus", player.name(), packet.entityId());
+            return;
+        }
+        server.combat().attack(player, target);
+    }
+
+    @Override
+    public void handleInteract(final ServerboundInteractPacket packet) {
+        LOGGER.debug("{} interagit avec l'entite {}", player.name(), packet.entityId());
+    }
+
+    @Override
+    public void handleSwing(final ServerboundSwingPacket packet) {
+        if (player == null) {
+            return;
+        }
+        player.resetAttackCooldown();
+        player.sendToTrackers(ClientboundAnimatePacket.swing(
+                player.entityId(), packet.hand() == ServerboundInteractPacket.HAND_OFF));
+    }
+
+    @Override
+    public void handlePlayerInput(final ServerboundPlayerInputPacket packet) {
+        if (player == null) {
+            return;
+        }
+        player.setSprinting(packet.sprinting());
+        player.setSneaking(packet.sneaking());
+    }
+
+    @Override
+    public void handleClientCommand(final ServerboundClientCommandPacket packet) {
+        if (packet.action() == ServerboundClientCommandPacket.PERFORM_RESPAWN) {
+            respawn();
+        }
+    }
+
+
+    private void respawn() {
+        if (player == null || !player.isAwaitingRespawn()) {
+            return;
+        }
+        final ServerWorld defaultWorld = server.worldManager().overworld();
+        final Location defaultSpawn =
+                new Location(config.spawnX(), config.spawnY(), config.spawnZ(), 0f, 0f);
+
+        final PlayerRespawnEvent event =
+                server.events().post(new PlayerRespawnEvent(player, defaultWorld, defaultSpawn));
+        final ServerWorld world =
+                event.world() instanceof final ServerWorld target ? target : defaultWorld;
+        final Location spawn = event.location();
+
+        player.resetOnRespawn();
+
+        final RegistryHolder dynamic = server.dynamicRegistries();
+        final int dimensionType =
+                Math.max(0, dynamic.networkId("minecraft:dimension_type", world.dimension().id().asString()));
+        connection.send(new ClientboundRespawnPacket(
+                world.dimension().id(),
+                dimensionType,
+                player.gameMode().id(),
+                ClientboundRespawnPacket.KEEP_NOTHING));
+        connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(player.gameMode()));
+        connection.send(new ClientboundSetHealthPacket(player.health(), 20, 5.0f));
+
+        moveToRespawnPoint(world, spawn);
+
+        connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
+        connection.send(new ClientboundPlayerPositionPacket(
+                player.nextTeleportId(), spawn.x(), spawn.y(), spawn.z()));
+        server.dayNightEngine().syncTo(world, connection::send);
+        server.entityTracker().update(player, server.players());
+        LOGGER.debug("{} est reapparu en {}", player.name(), spawn);
+    }
+
+
+    private void moveToRespawnPoint(final ServerWorld world, final Location spawn) {
+        final ServerWorld from = (ServerWorld) player.world();
+        final ChunkPos destination = spawn.chunk();
+
+        if (from == world) {
+            final Location previous = player.location();
+            player.setLocation(spawn);
+            from.entityManager().moved(player, previous.chunk(), destination);
+            if (chunkView != null && chunkView.moveTo(destination.x(), destination.z()) && ticket != null) {
+                server.regionizer().moveTicket(from.dimension().id(), ticket, destination);
+                ticket = destination;
+            }
+            return;
+        }
+
+        if (chunkView != null) {
+            chunkView.close();
+            from.removeViewer(chunkView);
+            chunkView = null;
+        }
+        if (ticket != null) {
+            server.regionizer().removeTicket(from.dimension().id(), ticket);
+            ticket = null;
+        }
+        from.removeEntity(player);
+        server.entityTracker().untrack(player);
+        player.setWorld(world);
+        player.setLocation(spawn);
+        world.addEntity(player);
+        openChunkView(world, server.dynamicRegistries(), destination);
+    }
+
+    private void trackFall(final Location previous, final Location current) {
+        if (player.gameMode() == GameMode.CREATIVE || player.gameMode() == GameMode.SPECTATOR) {
+            player.setFallDistance(0.0);
+            player.setFalling(false);
+            return;
+        }
+        final double dy = current.y() - previous.y();
+        if (dy < 0.0) {
+            player.setFallDistance(player.fallDistance() - dy);
+            player.setFalling(true);
+            return;
+        }
+
+        if (player.isFalling()) {
+            player.landAfterFall();
+        }
     }
 
     private Key worldId() {
