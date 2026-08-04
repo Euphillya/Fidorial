@@ -268,7 +268,9 @@ public final class CombatEngine implements CombatService {
             killPlayer(player, killer);
             return;
         }
-        sendToViewersAndSelf(victim, new ClientboundEntityEventPacket(victim.entityId(), ENTITY_EVENT_DEATH));
+        if (!(victim instanceof Mob)) {
+            sendToViewersAndSelf(victim, new ClientboundEntityEventPacket(victim.entityId(), ENTITY_EVENT_DEATH));
+        }
         server.events().post(new EntityDeathEvent(victim, killer));
     }
 

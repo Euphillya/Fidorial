@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.entity.mob;
 
 import fr.euphyllia.fidorial.server.entity.AbstractLivingEntity;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundEntityEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundEntityPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.fidorial.combat.DamageSource;
@@ -15,25 +16,23 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class Mob extends AbstractLivingEntity {
 
-    private final float maxHealth;
-    private volatile float health;
+    private static final byte ENTITY_EVENT_DEATH = 3;
 
     protected Mob(final int entityId, final UUID uuid, final EntityType type, final World world, final Location location, final float maxHealth) {
         super(entityId, uuid, type, world, location, maxHealth);
-        this.maxHealth = maxHealth;
-        this.health = maxHealth;
     }
 
     @Override
     public final void setHealth(final float health) {
-        this.health = Math.clamp(health, 0f, maxHealth);
-        if (this.health == 0f) {
+        super.setHealth(health);
+        if (health() <= 0f && !isDying()) {
             onDeath();
         }
     }
 
     protected void onDeath() {
-        remove();
+        sendToTrackers(new ClientboundEntityEventPacket(entityId(), ENTITY_EVENT_DEATH));
+        startDeathAnimation();
     }
 
     protected Sound.@Nullable Type hurtSound() {
