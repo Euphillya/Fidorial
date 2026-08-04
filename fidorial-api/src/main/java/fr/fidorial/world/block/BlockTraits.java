@@ -28,6 +28,7 @@ public class BlockTraits {
     private static final Set<String> AXES = Set.of("x", "y", "z");
     private static final Set<String> HALVES = Set.of("top", "bottom", "upper", "lower");
     private static final Set<String> SLAB_TYPES = Set.of("top", "bottom", "double");
+    private static final Key NOTE_BLOCK = Key.key("note_block");
 
     private BlockTraits() {
     }
@@ -74,7 +75,7 @@ public class BlockTraits {
             traits.add(Rotatable.class);
         }
 
-        if (key.asString().equals("minecraft:note_block")) {
+        if (key.equals(NOTE_BLOCK)) {
             traits.add(NoteBlock.class);
         }
         if (facing != null && half != null && find(properties, "shape") != null && traits.contains(Bisected.class)) {

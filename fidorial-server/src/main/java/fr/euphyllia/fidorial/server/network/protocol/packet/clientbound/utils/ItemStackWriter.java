@@ -9,6 +9,8 @@ import net.kyori.adventure.key.Key;
 
 public final class ItemStackWriter {
 
+    private static final Key ITEM_REGISTRY = Key.key("item");
+
     private ItemStackWriter() {
     }
 
@@ -24,7 +26,7 @@ public final class ItemStackWriter {
     }
 
     public static int networkId(final ItemStack stack, final RegistryHolder frozen) {
-        final int id = frozen.networkId(Key.key("minecraft", "item"), stack.id());
+        final int id = frozen.networkId(ITEM_REGISTRY, stack.id());
         return Math.max(id, FidorialServer.getInstance().blockStateRegistry().networkId(BlockState.AIR));
     }
 }
