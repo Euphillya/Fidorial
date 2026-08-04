@@ -53,7 +53,8 @@ public final class BanList implements BanService {
             return;
         }
         try (final Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            final List<BanEntry> entries = GSON.fromJson(reader, new TypeToken<List<BanEntry>>() {}.getType());
+            final List<BanEntry> entries = GSON.fromJson(reader, new TypeToken<List<BanEntry>>() {
+            }.getType());
             bans.clear();
             if (entries != null) {
                 for (final BanEntry entry : entries) {
