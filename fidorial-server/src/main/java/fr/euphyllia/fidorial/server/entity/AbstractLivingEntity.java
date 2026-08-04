@@ -11,11 +11,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class AbstractLivingEntity extends AbstractEntity implements LivingEntity {
 
     public static final int DEATH_TICKS = 20;
+    public static final int INVULNERABILITY_TICKS = 20;
+    public static final int INVULNERABILITY_OVERRIDE_THRESHOLD = 10;
+
     private volatile float maxHealth;
     private volatile float health;
     private volatile float absorption;
     private volatile float lastDamage;
     private volatile int fireTicks;
+    private final AtomicInteger invulnerableTicks = new AtomicInteger();
     private final AtomicInteger deathTicks = new AtomicInteger(-1);
 
     protected AbstractLivingEntity(
@@ -78,6 +82,14 @@ public abstract class AbstractLivingEntity extends AbstractEntity implements Liv
         this.lastDamage = lastDamage;
     }
 
+    public final int invulnerableTicks() {
+        return invulnerableTicks.get();
+    }
+
+    public final void setInvulnerableTicks(final int ticks) {
+        this.invulnerableTicks.set(Math.max(0, ticks));
+    }
+
 
     public final boolean isDying() {
         return deathTicks.get() >= 0;
@@ -90,6 +102,7 @@ public abstract class AbstractLivingEntity extends AbstractEntity implements Liv
     }
 
     protected void tickLiving(final long currentTick) {
+        invulnerableTicks.updateAndGet(ticks -> ticks > 0 ? ticks - 1 : 0);
         if (deathTicks.get() > 0 && deathTicks.decrementAndGet() == 0) {
             onDeathAnimationFinished();
         }

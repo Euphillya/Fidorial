@@ -141,8 +141,11 @@ public final class CombatEngine implements CombatService {
             return false;
         }
 
+        final boolean withinInvulnerability = !source.bypassesInvulnerability()
+                && victim.invulnerableTicks() > AbstractLivingEntity.INVULNERABILITY_OVERRIDE_THRESHOLD;
+
         float incoming = amount;
-        if (!source.bypassesInvulnerability()) {
+        if (withinInvulnerability) {
             if (amount <= victim.lastDamage()) {
                 return false;
             }
@@ -161,6 +164,10 @@ public final class CombatEngine implements CombatService {
         }
 
         victim.setLastDamage(amount);
+
+        if (!withinInvulnerability) {
+            victim.setInvulnerableTicks(AbstractLivingEntity.INVULNERABILITY_TICKS);
+        }
 
         final float dealt = soakWithAbsorption(victim, reduced);
         broadcastHurt(victim, source);

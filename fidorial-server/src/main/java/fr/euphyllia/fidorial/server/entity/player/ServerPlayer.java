@@ -354,6 +354,7 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         setAbsorptionAmount(0f);
         setFireTicks(0);
         setLastDamage(0f);
+        setInvulnerableTicks(0);
         setAirSupply(MAX_AIR_SUPPLY);
         setFallDistance(0.0);
         setAwaitingRespawn(false);
