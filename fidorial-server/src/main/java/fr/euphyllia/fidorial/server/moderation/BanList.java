@@ -19,13 +19,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 public final class BanList implements BanService {
 
@@ -77,6 +78,27 @@ public final class BanList implements BanService {
         }
     }
 
+    /**
+     * Discards every entry whose expiry has passed.
+     *
+     * @return the number of entries discarded
+     */
+    public int purgeExpired() {
+        int removed = 0;
+
+        for (final BanEntry entry : bans.values()) {
+            if (entry.expired() && bans.remove(entry.uuid(), entry)) {
+                removed++;
+            }
+        }
+
+        if (removed > 0) {
+            save();
+        }
+
+        return removed;
+    }
+
     @Override
     public Optional<BanEntry> find(final UUID uuid) {
         final BanEntry entry = bans.get(uuid);
@@ -120,29 +142,30 @@ public final class BanList implements BanService {
     }
 
     @Override
-    public Collection<BanEntry> bans() {
-        return List.copyOf(bans.values());
+    public Stream<BanEntry> bans() {
+        return bans.values().stream()
+                .filter(entry -> !entry.expired())
+                .sorted(Comparator.comparing(BanEntry::created).reversed());
     }
 
     @Override
     public Component disconnectMessage(final BanEntry entry) {
         Objects.requireNonNull(entry, "entry");
 
-        Component message = entry.reason() == null
+        final Component reason = entry.reason() == null
                 ? Component.translatable("multiplayer.disconnect.banned")
                 : Component.translatable("multiplayer.disconnect.banned.reason", entry.reason());
 
-        if (!entry.permanent()) {
-            message = message.appendNewline()
-                    .append(Component.translatable(
-                            "multiplayer.disconnect.banned.expiration",
-                            Component.text(entry.expiresLabel())));
-        }
-        return message;
+        return entry.permanent()
+                ? reason
+                : reason.appendNewline()
+                  .append(Component.translatable(
+                          "multiplayer.disconnect.banned.expiration",
+                          Component.text(entry.expiresLabel())));
     }
 
     @Override
-    public int size() {
+    public int totalBans() {
         int count = 0;
         for (final BanEntry entry : bans.values()) {
             if (!entry.expired()) {

@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -86,6 +87,32 @@ public record BanEntry(
     }
 
     /**
+     * Creates a ban lasting the given amount of time, counted from now.
+     *
+     * @param uuid     the identity to ban
+     * @param name     the name to record for display
+     * @param reason   why the player is banned, or {@code null}
+     * @param source   who is issuing the ban
+     * @param duration how long the ban lasts
+     * @return the ban
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    public static BanEntry lasting(
+            final UUID uuid,
+            @Nullable final String name,
+            @Nullable final Component reason,
+            @Nullable final String source,
+            final Duration duration
+    ) {
+        Objects.requireNonNull(duration, "duration");
+
+        final Instant created = Instant.now();
+
+        return new BanEntry(uuid, name, reason, source, created, created.plus(duration));
+    }
+
+    /**
      * Checks whether this ban never lifts on its own.
      *
      * @return {@code true} when the ban has no expiry
@@ -108,6 +135,24 @@ public record BanEntry(
     @Contract(pure = true)
     public boolean expired() {
         return expires != null && expires.isBefore(Instant.now());
+    }
+
+    /**
+     * Gets how long is left before the ban lifts.
+     *
+     * @return the remaining time, or empty for a permanent ban; {@link Duration#ZERO} once the
+     * expiry has passed
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    public Optional<Duration> remaining() {
+        if (expires == null) {
+            return Optional.empty();
+        }
+
+        final Duration left = Duration.between(Instant.now(), expires);
+
+        return Optional.of(left.isNegative() ? Duration.ZERO : left);
     }
 
     /**

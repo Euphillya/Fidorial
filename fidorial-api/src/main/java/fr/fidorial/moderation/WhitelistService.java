@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * A service for managing the whitelist of allowed players.
@@ -96,7 +97,7 @@ public interface WhitelistService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Collection<WhitelistEntry> entries();
+    Stream<WhitelistEntry> entries();
 
     /**
      * Gets how many identities are listed.
@@ -105,7 +106,5 @@ public interface WhitelistService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    default int size() {
-        return entries().size();
-    }
+    int totalEntries();
 }

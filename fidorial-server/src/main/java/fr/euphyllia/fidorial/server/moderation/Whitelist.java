@@ -15,12 +15,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 public final class Whitelist implements WhitelistService {
 
@@ -117,12 +119,13 @@ public final class Whitelist implements WhitelistService {
     }
 
     @Override
-    public Collection<WhitelistEntry> entries() {
-        return List.copyOf(entries.values());
+    public Stream<WhitelistEntry> entries() {
+        return entries.values().stream()
+                .sorted(Comparator.comparing(WhitelistEntry::label, String.CASE_INSENSITIVE_ORDER));
     }
 
     @Override
-    public int size() {
+    public int totalEntries() {
         return entries.size();
     }
 

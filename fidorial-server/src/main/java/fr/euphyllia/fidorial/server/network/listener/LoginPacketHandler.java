@@ -186,9 +186,13 @@ public final class LoginPacketHandler implements LoginPacketListener {
                 || server.config().proxyMode() == ServerConfig.ProxyMode.VELOCITY;
         final String address = connection.remoteAddress();
 
+        final PlayerLoginAttemptEvent attempt = new PlayerLoginAttemptEvent(playerProfile, address, authenticated);
+
+        server.loginRefusal(playerProfile).ifPresent(attempt::refuse);
+
         final PlayerLoginAttemptEvent event;
         try {
-            event = server.events().post(new PlayerLoginAttemptEvent(playerProfile, address, authenticated));
+            event = server.events().post(attempt);
         } catch (final Throwable t) {
             LOGGER.error("Login attempt of {} failed, connection refused", playerProfile.name(), t);
             connection.execute(() -> disconnect(Component.translatable("multiplayer.disconnect.generic")));

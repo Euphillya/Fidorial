@@ -130,5 +130,35 @@
   "time.phase.day": "day",
   "time.phase.dusk": "dusk",
   "time.phase.night": "night",
-  "time.phase.dawn": "dawn"
+  "time.phase.dawn": "dawn",
+
+  "argument.duration.invalid": "Invalid duration: '<arg:0>' (expected for example 30m, 12h, 7d, 1w12h)",
+  "argument.duration.too_long": "Duration too long: '<arg:0>'",
+  "console.argument.duration.invalid": "Invalid duration: '<arg:0>' (expected for example 30m, 12h, 7d, 1w12h)",
+  "console.argument.duration.too_long": "Duration too long: '<arg:0>'",
+
+  "commands.ban.success": "Banned <arg:0> (until: <arg:1>) - reason: <arg:2>",
+  "commands.ban.updated": "Updated the ban on <arg:0> (until: <arg:1>) - reason: <arg:2>",
+  "commands.ban.expires.never": "never",
+  "commands.ban.reason.none": "no reason given",
+
+  "commands.pardon.success": "Unbanned <arg:0>",
+  "commands.pardon.failed": "Nothing changed. <arg:0> is not banned",
+
+  "commands.banlist.none": "There are no banned players",
+  "commands.banlist.header": "There are <arg:0> banned player(s):",
+  "commands.banlist.entry": " - <arg:0> banned by <arg:1> (until: <arg:2>) - reason: <arg:3>",
+
+  "commands.whitelist.enabled": "Whitelist is now enforced",
+  "commands.whitelist.disabled": "Whitelist is no longer enforced",
+  "commands.whitelist.alreadyOn": "Nothing changed. The whitelist is already enforced",
+  "commands.whitelist.alreadyOff": "Nothing changed. The whitelist is already off",
+  "commands.whitelist.add.success": "Added <arg:0> to the whitelist",
+  "commands.whitelist.add.failed": "Nothing changed. <arg:0> is already whitelisted",
+  "commands.whitelist.remove.success": "Removed <arg:0> from the whitelist",
+  "commands.whitelist.remove.failed": "Nothing changed. <arg:0> is not whitelisted",
+  "commands.whitelist.list": "There are <arg:0> whitelisted player(s): <arg:1>",
+  "commands.whitelist.none": "There are no whitelisted players",
+  "commands.whitelist.reloaded": "Whitelist reloaded",
+  "commands.whitelist.kicked": "Disconnected <arg:0> player(s) the whitelist no longer allows"
 }

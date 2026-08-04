@@ -26,6 +26,8 @@ import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStor
 import fr.euphyllia.fidorial.server.events.SimpleEventBus;
 import fr.euphyllia.fidorial.server.inventory.ChestViewerTracker;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
+import fr.euphyllia.fidorial.server.moderation.BanList;
+import fr.euphyllia.fidorial.server.moderation.Whitelist;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.NettyServer;
 import fr.euphyllia.fidorial.server.network.protocol.ProtocolConstants;
@@ -65,9 +67,11 @@ import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.OfflinePlayers;
 import fr.fidorial.entity.Player;
+import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.event.server.ServerStartedEvent;
 import fr.fidorial.event.server.ServerStoppingEvent;
+import fr.fidorial.moderation.BanEntry;
 import fr.fidorial.permission.PermissionRegistry;
 import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.scheduler.RegionizedScheduler;
@@ -175,6 +179,8 @@ public final class FidorialServer implements Server {
     private final JavaPluginManager pluginManager =
             new JavaPluginManager(this, events, services, permissionRegistry, config.pluginsPath());
     private final OperatorList operators = new OperatorList(Path.of("ops.json"));
+    private final BanList banList = new BanList(Path.of("banned-players.json"));
+    private final Whitelist whitelist = new Whitelist(Path.of("whitelist.json"));
     private final FidorialOfflinePlayers offlinePlayers = new FidorialOfflinePlayers(
             this,
             config.worldPath().resolve("player").resolve("profiles.fop"),
@@ -291,6 +297,8 @@ public final class FidorialServer implements Server {
         ArgumentTypes.bootstrap();
         commandManager = new CommandManager();
         operators.load();
+        banList.load();
+        whitelist.load();
         try {
             offlinePlayers.load();
         } catch (final IOException e) {
@@ -342,6 +350,8 @@ public final class FidorialServer implements Server {
         services.register(PlayerEnderChestStorage.class, defaultEnderChestStorage, this, ServicePriority.LOWEST);
         services.register(BossBarRegistry.class, bossBarRegistry, this, ServicePriority.LOWEST);
         services.register(OfflinePlayers.class, offlinePlayers, this, ServicePriority.LOWEST);
+        services.register(BanList.class, banList, this, ServicePriority.LOWEST);
+        services.register(Whitelist.class, whitelist, this, ServicePriority.LOWEST);
     }
 
     private void loadPlugins() throws IOException {
@@ -355,6 +365,7 @@ public final class FidorialServer implements Server {
                     try {
                         worldManager.saveDirty();
                         offlinePlayers.maintain();
+                        banList.purgeExpired();
                         final int n = worldManager.unloadUnusedChunks();
                         if (n > 0) LOGGER.debug("{} unloaded chunks", n);
                     } catch (final Throwable t) {
@@ -451,6 +462,49 @@ public final class FidorialServer implements Server {
 
     public OperatorList operators() {
         return operators;
+    }
+
+    @Override
+    public BanList banList() {
+        return banList;
+    }
+
+    @Override
+    public Whitelist whitelist() {
+        return whitelist;
+    }
+
+    public Optional<Component> loginRefusal(final PlayerProfile profile) {
+        final Optional<BanEntry> ban = banList.find(profile.uuid());
+
+        if (ban.isPresent()) {
+            return Optional.of(banList.disconnectMessage(ban.get()));
+        }
+
+        if (!whitelist.allows(profile.uuid()) && !operators.isOp(profile.uuid())) {
+            return Optional.of(Component.translatable("multiplayer.disconnect.not_whitelisted"));
+        }
+
+        return Optional.empty();
+    }
+
+    public int enforceWhitelist() {
+        if (!whitelist.enabled()) {
+            return 0;
+        }
+
+        int kicked = 0;
+
+        for (final ServerPlayer player : players()) {
+            if (whitelist.contains(player.uuid()) || operators.isOp(player.uuid())) {
+                continue;
+            }
+
+            player.kick(Component.translatable("multiplayer.disconnect.not_whitelisted"));
+            kicked++;
+        }
+
+        return kicked;
     }
 
     @Override

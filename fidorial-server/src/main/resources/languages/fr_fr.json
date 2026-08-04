@@ -129,5 +129,35 @@
   "time.phase.day": "jour",
   "time.phase.dusk": "crépuscule",
   "time.phase.night": "nuit",
-  "time.phase.dawn": "aube"
+  "time.phase.dawn": "aube",
+
+  "argument.duration.invalid": "Durée invalide : '<arg:0>' (attendu par exemple 30m, 12h, 7d, 1w12h)",
+  "argument.duration.too_long": "Durée trop longue : '<arg:0>'",
+  "console.argument.duration.invalid": "Durée invalide : '<arg:0>' (attendu par exemple 30m, 12h, 7d, 1w12h)",
+  "console.argument.duration.too_long": "Durée trop longue : '<arg:0>'",
+
+  "commands.ban.success": "<arg:0> banni (jusqu'au : <arg:1>) - raison : <arg:2>",
+  "commands.ban.updated": "Bannissement de <arg:0> mis à jour (jusqu'au : <arg:1>) - raison : <arg:2>",
+  "commands.ban.expires.never": "jamais",
+  "commands.ban.reason.none": "aucune raison donnée",
+
+  "commands.pardon.success": "<arg:0> n'est plus banni",
+  "commands.pardon.failed": "Aucun changement. <arg:0> n'est pas banni",
+
+  "commands.banlist.none": "Aucun joueur banni",
+  "commands.banlist.header": "<arg:0> joueur(s) banni(s) :",
+  "commands.banlist.entry": " - <arg:0> banni par <arg:1> (jusqu'au : <arg:2>) - raison : <arg:3>",
+
+  "commands.whitelist.enabled": "La whitelist est désormais appliquée",
+  "commands.whitelist.disabled": "La whitelist n'est plus appliquée",
+  "commands.whitelist.alreadyOn": "Aucun changement. La whitelist est déjà appliquée",
+  "commands.whitelist.alreadyOff": "Aucun changement. La whitelist est déjà désactivée",
+  "commands.whitelist.add.success": "<arg:0> ajouté à la whitelist",
+  "commands.whitelist.add.failed": "Aucun changement. <arg:0> est déjà dans la whitelist",
+  "commands.whitelist.remove.success": "<arg:0> retiré de la whitelist",
+  "commands.whitelist.remove.failed": "Aucun changement. <arg:0> n'est pas dans la whitelist",
+  "commands.whitelist.list": "<arg:0> joueur(s) dans la whitelist : <arg:1>",
+  "commands.whitelist.none": "Aucun joueur dans la whitelist",
+  "commands.whitelist.reloaded": "Whitelist rechargée",
+  "commands.whitelist.kicked": "<arg:0> joueur(s) déconnecté(s), la whitelist ne les autorise plus"
 }

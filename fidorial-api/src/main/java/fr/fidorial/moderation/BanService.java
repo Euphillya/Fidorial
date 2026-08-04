@@ -4,11 +4,11 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public interface BanService {
 
@@ -22,7 +22,7 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Optional<BanEntry> find(UUID uuid);
+    Optional<BanEntry> find(final UUID uuid);
 
     /**
      * Checks whether an identity is currently banned.
@@ -46,7 +46,7 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Optional<BanEntry> find(String name);
+    Optional<BanEntry> find(final String name);
 
     /**
      * Records a ban, replacing any existing entry for the same identity.
@@ -98,13 +98,34 @@ public interface BanService {
     }
 
     /**
+     * Bans an identity for the given amount of time, counted from now.
+     *
+     * @param uuid     the identity to ban
+     * @param name     the name to record for display
+     * @param reason   why the player is banned, or {@code null}
+     * @param source   who is issuing the ban
+     * @param duration how long the ban lasts
+     * @return {@code true} when the player was not already banned
+     * @since 0.1.0
+     */
+    default boolean ban(
+            final UUID uuid,
+            @Nullable final String name,
+            @Nullable final Component reason,
+            @Nullable final String source,
+            final Duration duration
+    ) {
+        return ban(BanEntry.lasting(uuid, name, reason, source, duration));
+    }
+
+    /**
      * Lifts the ban on an identity.
      *
      * @param uuid the player identity
      * @return {@code true} when a ban was actually lifted
      * @since 0.1.0
      */
-    boolean pardon(UUID uuid);
+    boolean pardon(final UUID uuid);
 
     /**
      * Gets the active bans.
@@ -113,7 +134,7 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Collection<BanEntry> bans();
+    Stream<BanEntry> bans();
 
     /**
      * Gets how many players are currently banned.
@@ -122,12 +143,13 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    default int size() {
-        return bans().size();
-    }
+    int totalBans();
 
     /**
      * Builds the message shown on the disconnect screen of a banned player.
+     *
+     * <p>This is the single place the message is produced: callers must not assemble their own,
+     * so that an implementation replacing this one is actually the message players see.</p>
      *
      * @param entry the ban
      * @return the disconnect message

@@ -10,6 +10,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.NamedColorAr
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.StyleArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.DurationArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.item.ItemArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.item.ItemPredicateArgument;
@@ -67,6 +68,7 @@ public final class ArgumentTypes {
         ArgumentTypeRegistry.register(new BossBarColorArgument.Info());
         ArgumentTypeRegistry.register(new BossBarOverlayArgument.Info());
         ArgumentTypeRegistry.register(new BossBarFlagArgument.Info());
+        ArgumentTypeRegistry.register(new DurationArgument.Info());
         // end - custom arguments
     }
 
