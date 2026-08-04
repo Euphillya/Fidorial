@@ -19,7 +19,6 @@ import java.util.concurrent.CountDownLatch;
 public final class ScenarioTestMain {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(ScenarioTestMain.class);
-    private static final long POLL_INTERVAL_MS = 50;
 
     private ScenarioTestMain() {
     }
@@ -40,8 +39,13 @@ public final class ScenarioTestMain {
                 ScenarioTestScanner.scanPackages(collectClassLoaders(server), args);
 
         runner.start(tests, world);
+        final CountDownLatch done = new CountDownLatch(1);
+        runner.onComplete(done::countDown);
+        if (runner.isDone()) {
+            done.countDown();
+        }
         wireIntoWorldTick(server, world, runner);
-        awaitCompletion(runner);
+        done.await();
 
         logResults(runner);
 
@@ -68,22 +72,6 @@ public final class ScenarioTestMain {
                 runner.tick((int) tick);
             }
         });
-    }
-
-    private static void awaitCompletion(final ScenarioTestRunner runner) throws InterruptedException {
-        final CountDownLatch done = new CountDownLatch(1);
-        Thread.ofVirtual().start(() -> {
-            try {
-                while (!runner.isDone()) {
-                    Thread.sleep(POLL_INTERVAL_MS);
-                }
-            } catch (final InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-            done.countDown();
-        });
-        done.await();
     }
 
     private static void logResults(final ScenarioTestRunner runner) {
