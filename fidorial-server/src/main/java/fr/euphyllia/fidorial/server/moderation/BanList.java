@@ -2,9 +2,11 @@ package fr.euphyllia.fidorial.server.moderation;
 
 import fr.fidorial.moderation.BanEntry;
 import fr.fidorial.moderation.BanService;
+import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,5 +29,22 @@ public final class BanList implements BanService {
     @Override
     public Collection<BanEntry> bans() {
         return List.of();
+    }
+
+    @Override
+    public Component disconnectMessage(final BanEntry entry) {
+        Objects.requireNonNull(entry, "entry");
+
+        Component message = entry.reason() == null
+                ? Component.translatable("multiplayer.disconnect.banned")
+                : Component.translatable("multiplayer.disconnect.banned.reason", entry.reason());
+
+        if (!entry.permanent()) {
+            message = message.appendNewline()
+                    .append(Component.translatable(
+                            "multiplayer.disconnect.banned.expiration",
+                            Component.text(entry.expiresLabel())));
+        }
+        return message;
     }
 }

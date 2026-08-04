@@ -117,28 +117,10 @@ public interface BanService {
     /**
      * Builds the message shown on the disconnect screen of a banned player.
      *
-     * <p>Only vanilla translation keys are used. That matters at this point in the connection:
-     * the client has not told the server its language yet, so a custom key would reach it as a
-     * raw string.</p>
-     *
      * @param entry the ban
      * @return the disconnect message
      * @since 0.1.0
      */
     @Contract(pure = true)
-    static Component disconnectMessage(final BanEntry entry) {
-        Objects.requireNonNull(entry, "entry");
-
-        Component message = entry.reason() == null
-                ? Component.translatable("multiplayer.disconnect.banned")
-                : Component.translatable("multiplayer.disconnect.banned.reason", entry.reason());
-
-        if (!entry.permanent()) {
-            message = message.appendNewline()
-                    .append(Component.translatable(
-                            "multiplayer.disconnect.banned.expiration",
-                            Component.text(entry.expiresLabel())));
-        }
-        return message;
-    }
+    Component disconnectMessage(final BanEntry entry);
 }
