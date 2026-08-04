@@ -37,6 +37,18 @@ public interface BanService {
     }
 
     /**
+     * Gets the active ban on a name.
+     *
+     * <p>An expired entry must not be returned; implementations are free to discard it.</p>
+     *
+     * @param name the player name
+     * @return the active ban, or empty when the player may connect
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    Optional<BanEntry> find(String name);
+
+    /**
      * Records a ban, replacing any existing entry for the same identity.
      *
      * @param entry the ban to record
