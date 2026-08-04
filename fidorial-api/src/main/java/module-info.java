@@ -42,6 +42,7 @@ module fr.fidorial {
     exports fr.fidorial.world.light;
     exports fr.fidorial.testing;
     exports fr.fidorial.testing.annotation;
+    exports fr.fidorial.moderation;
 
     requires com.google.common;
     requires com.google.gson;
