@@ -11,6 +11,7 @@ import fr.fidorial.registry.keys.ChickenVariantKeys;
 import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.sound.Sound;
 
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -41,13 +42,14 @@ public final class Chicken extends PathfinderMob implements Category.Neutral {
         goals.add(new LookAtTargetGoal(this, 2, 6.0));
     }
 
-    private static float voicePitch() {
-        final ThreadLocalRandom random = ThreadLocalRandom.current();
-        return (random.nextFloat() - random.nextFloat()) * 0.2f + 1.0f;
-    }
-
     private static int nextEggDelay() {
         return ThreadLocalRandom.current().nextInt(EGG_MIN_TICKS, EGG_MAX_TICKS + 1);
+    }
+
+    @Override
+    protected float voicePitch() {
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
+        return (random.nextFloat() - random.nextFloat()) * 0.2f + 1.0f;
     }
 
     @Override
@@ -73,20 +75,18 @@ public final class Chicken extends PathfinderMob implements Category.Neutral {
     }
 
 
-    public void hurt(final float amount) {
-        if (isRemoved() || isDead()) {
-            return;
-        }
-        final float remaining = health() - amount;
-        if (remaining > 0f) {
-            playSound(SoundEvents.CHICKEN_HURT, 1.0f, voicePitch());
-        }
-        setHealth(remaining);
+    @Override
+    protected Sound.Type hurtSound() {
+        return SoundEvents.CHICKEN_HURT;
+    }
+
+    @Override
+    protected Sound.Type deathSound() {
+        return SoundEvents.CHICKEN_DEATH;
     }
 
     @Override
     protected void onDeath() {
-        playSound(SoundEvents.CHICKEN_DEATH, 1.0f, voicePitch());
         super.onDeath();
     }
 

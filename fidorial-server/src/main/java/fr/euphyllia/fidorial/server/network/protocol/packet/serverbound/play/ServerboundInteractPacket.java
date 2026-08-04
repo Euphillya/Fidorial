@@ -1,0 +1,43 @@
+package fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play;
+
+import fr.euphyllia.fidorial.server.network.PacketBuffer;
+import fr.euphyllia.fidorial.server.network.protocol.packet.listener.PlayPacketListener;
+import fr.fidorial.protocol.PacketListener;
+import fr.fidorial.protocol.ServerboundPacket;
+
+/**
+ * Sent when the player right-clicks an entity.
+ *
+ * <p><a href="https://minecraft.wiki/w/Java_Edition_protocol/Packets#Interact">Interact</a></p>
+ *
+ * @param entityId the entity being used
+ * @param hand     {@link #HAND_MAIN} or {@link #HAND_OFF}
+ * @param x        the hit position relative to the target, on the x axis
+ * @param y        the hit position relative to the target, on the y axis
+ * @param z        the hit position relative to the target, on the z axis
+ * @param sneaking whether the player was holding the sneak key, which suppresses most interactions
+ */
+public record ServerboundInteractPacket(
+        int entityId, int hand, double x, double y, double z, boolean sneaking)
+        implements ServerboundPacket {
+
+    public static final int HAND_MAIN = 0;
+    public static final int HAND_OFF = 1;
+
+    public static ServerboundInteractPacket read(final PacketBuffer buf) {
+        final int entityId = buf.readVarInt();
+        final int hand = buf.readVarInt();
+        final double[] location = buf.readLpVec3();
+        final boolean sneaking = buf.readBoolean();
+        return new ServerboundInteractPacket(entityId, hand, location[0], location[1], location[2], sneaking);
+    }
+
+    public boolean isOffHand() {
+        return hand == HAND_OFF;
+    }
+
+    @Override
+    public void handle(final PacketListener listener) {
+        ((PlayPacketListener) listener).handleInteract(this);
+    }
+}

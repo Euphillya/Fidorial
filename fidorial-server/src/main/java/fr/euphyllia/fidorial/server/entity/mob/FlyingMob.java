@@ -21,7 +21,19 @@ public abstract class FlyingMob extends MovingMob {
 
     @Override
     public void tick(final long currentTick) {
-        if (isRemoved() || isDead()) {
+        if (isRemoved()) {
+            return;
+        }
+        tickLiving(currentTick);
+        if (isRemoved()) {
+            return;
+        }
+
+        if (isDead()) {
+            final Location falling = location();
+            applyFlightPhysics();
+            updateChunkMembership(falling, location());
+            syncToClients();
             return;
         }
 
@@ -43,6 +55,11 @@ public abstract class FlyingMob extends MovingMob {
     @Override
     protected void onDeath() {
         goals.stopAll();
+        super.onDeath();
+    }
+
+    @Override
+    protected void onDeathAnimationFinished() {
         server().despawnEntity(this);
     }
 

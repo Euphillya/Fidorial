@@ -282,6 +282,32 @@ public final class PacketBuffer {
         return Math.round((value * 0.5 + 0.5) * LP_VEC3_MAX_QUANTIZED);
     }
 
+
+    public double[] readLpVec3() {
+        final int first = readUByte();
+        if (first == 0) {
+            return new double[]{0.0, 0.0, 0.0};
+        }
+        final long second = readUByte();
+        final long rest = readInt() & 0xFFFFFFFFL;
+        final long packed = first | second << 8 | rest << 16;
+
+        final long flags = packed & 0b111L;
+        final long scale = (flags & 0b100L) != 0
+                ? ((long) readVarInt() << 2) | (flags & 0b11L)
+                : flags;
+
+        return new double[]{
+                lpUnpack(packed >> 3, scale),
+                lpUnpack(packed >> 18, scale),
+                lpUnpack(packed >> 33, scale)};
+    }
+
+    private static double lpUnpack(final long packed, final long scale) {
+        final long quantized = packed & 0x7FFFL;
+        return (quantized / LP_VEC3_MAX_QUANTIZED - 0.5) * 2.0 * scale;
+    }
+
     public UUID readUuid() {
         return new UUID(buf.readLong(), buf.readLong());
     }

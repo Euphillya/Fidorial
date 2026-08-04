@@ -123,7 +123,8 @@ public final class Bat extends FlyingMob implements Category.Ambient {
         return true;
     }
 
-    private static float voicePitch() {
+    @Override
+    protected float voicePitch() {
         return 0.76f + ThreadLocalRandom.current().nextFloat() * 0.38f;
     }
 

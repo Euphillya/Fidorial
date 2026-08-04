@@ -14,6 +14,7 @@ import fr.fidorial.entity.ai.Goal;
 import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.UUID;
@@ -30,13 +31,11 @@ public final class Creeper extends PathfinderMob implements Category.Monster {
     private static final float EXPLOSION_POWER = 3.0f;
     private static final double CHASE_SPEED = 0.16;
     private static final double STROLL_SPEED = 0.09;
-
-    private int swell;
-    private boolean primed;
-
     private static final int MD_STATE = 16;
     private static final int MD_CHARGED = 17;
     private static final int MD_IGNITED = 18;
+    private int swell;
+    private boolean primed;
 
     public Creeper(final int entityId, final World world, final Location location) {
         super(entityId, UUID.randomUUID(), EntityTypes.CREEPER, world, location, MAX_HEALTH);
@@ -72,7 +71,6 @@ public final class Creeper extends PathfinderMob implements Category.Monster {
     @Override
     protected void onDeath() {
         setPrimed(false);
-        playSound(SoundEvents.CREEPER_DEATH, 1.0f, 1.0f);
         super.onDeath();
     }
 
@@ -97,15 +95,19 @@ public final class Creeper extends PathfinderMob implements Category.Monster {
         }
     }
 
-    public void hurt(final float amount) {
-        if (isRemoved() || isDead()) {
-            return;
-        }
-        final float remaining = health() - amount;
-        if (remaining > 0f) {
-            playSound(SoundEvents.CREEPER_HURT, 1.0f, 1.0f);
-        }
-        setHealth(remaining);
+    @Override
+    protected Sound.Type hurtSound() {
+        return SoundEvents.CREEPER_HURT;
+    }
+
+    @Override
+    protected Sound.Type deathSound() {
+        return SoundEvents.CREEPER_DEATH;
+    }
+
+    @Override
+    protected float voicePitch() {
+        return 1.0f;
     }
 
     private final class SwellGoal implements Goal {

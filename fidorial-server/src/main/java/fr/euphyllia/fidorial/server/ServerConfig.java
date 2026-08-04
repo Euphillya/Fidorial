@@ -32,6 +32,7 @@ public record ServerConfig(
         double spawnZ,
         String motd,
         int maxPlayers,
+        boolean pvp,
         ProxyMode proxyMode,
         @Nullable String velocitySecret,
         boolean useIoUring
@@ -89,6 +90,7 @@ public record ServerConfig(
                 WorldConstants.DEFAULT_SPAWN_Z,
                 "",
                 100,
+                true,
                 ProxyMode.NONE,
                 "",
         false);
@@ -129,6 +131,7 @@ public record ServerConfig(
                 readDouble(props, "spawn-z", defaults.spawnZ()),
                 readString(props, "motd", "<red>Fidorial <white>| <blue>Alternative Minecraft Server"),
                 readInt(props, "max-players", defaults.maxPlayers()),
+                readBool(props, "pvp", defaults.pvp()),
                 readProxyMode(props, "proxy-mode", defaults.proxyMode()),
                 readString(props, "velocity-secret", "").strip(),
                 readBool(props, "use-io-uring", false));
@@ -221,6 +224,7 @@ public record ServerConfig(
         props.setProperty("spawn-z", Double.toString(spawnZ));
         props.setProperty("motd", motd);
         props.setProperty("max-players", Integer.toString(maxPlayers));
+        props.setProperty("pvp", Boolean.toString(pvp));
         props.setProperty("proxy-mode", proxyMode.name().toLowerCase(Locale.ROOT));
         props.setProperty("velocity-secret", velocitySecret == null ? "" : velocitySecret);
         props.setProperty("use-io-uring", Boolean.toString(useIoUring));

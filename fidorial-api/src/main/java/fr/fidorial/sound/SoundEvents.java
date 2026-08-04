@@ -51,7 +51,20 @@ public class SoundEvents {
     // --- Generic ---
     public static final Sound.Type GENERIC_EXPLODE = of("entity.generic.explode");
     public static final Sound.Type GENERIC_BURN = of("entity.generic.burn");
+
+    // -- Player ---
     public static final Sound.Type PLAYER_ATTACK_STRONG = of("entity.player.attack.strong");
+    public static final Sound.Type PLAYER_ATTACK_WEAK = of("entity.player.attack.weak");
+    public static final Sound.Type PLAYER_ATTACK_NODAMAGE = of("entity.player.attack.nodamage");
+    public static final Sound.Type PLAYER_ATTACK_KNOCKBACK = of("entity.player.attack.knockback");
+    public static final Sound.Type PLAYER_ATTACK_CRIT = of("entity.player.attack.crit");
+    public static final Sound.Type PLAYER_ATTACK_SWEEP = of("entity.player.attack.sweep");
+    public static final Sound.Type PLAYER_BIG_FALL = of("entity.player.big_fall");
+    public static final Sound.Type PLAYER_SMALL_FALL = of("entity.player.small_fall");
+    public static final Sound.Type PLAYER_BURP = of("entity.player.burp");
+    public static final Sound.Type PLAYER_SPLASH = of("entity.player.splash");
+    public static final Sound.Type PLAYER_HURT = of("entity.player.hurt");
+    public static final Sound.Type PLAYER_DEATH = of("entity.player.death");
 
     private SoundEvents() {
     }

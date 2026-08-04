@@ -4,7 +4,6 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.Category;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.ai.BlockView;
-import fr.euphyllia.fidorial.server.entity.ai.Damage;
 import fr.euphyllia.fidorial.server.entity.ai.goal.BreakDoorGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.LookAtTargetGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.MeleeAttackGoal;
@@ -18,11 +17,13 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
+import fr.fidorial.combat.DamageSource;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.sound.Sound;
 
 import java.util.List;
 import java.util.UUID;
@@ -140,12 +141,24 @@ public class Zombie extends PathfinderMob implements Category.Monster {
         return canBreakDoors;
     }
 
-    public final double knockbackResistance() {
+    @Override
+    public double armor() {
+        return ARMOR_POINTS;
+    }
+
+    @Override
+    public double knockbackResistance() {
         return knockbackResistance;
     }
 
-    public final float armor() {
-        return ARMOR_POINTS;
+    @Override
+    protected Sound.Type hurtSound() {
+        return SoundEvents.ZOMBIE_HURT;
+    }
+
+    @Override
+    protected Sound.Type deathSound() {
+        return SoundEvents.ZOMBIE_DEATH;
     }
 
     protected double movementSpeed() {
@@ -166,7 +179,8 @@ public class Zombie extends PathfinderMob implements Category.Monster {
         return followRange;
     }
 
-    protected float attackDamage() {
+    @Override
+    public float attackDamage() {
         return switch (difficulty()) {
             case 0 -> 0f;
             case 1 -> 2.5f;
@@ -225,10 +239,7 @@ public class Zombie extends PathfinderMob implements Category.Monster {
             return;
         }
         if (fireTicks % 20 == 0) {
-            if (health() - BURN_DAMAGE > 0f) {
-                playSound(SoundEvents.ZOMBIE_HURT, 1.0f, voicePitch());
-            }
-            setHealth(health() - BURN_DAMAGE);
+            damage(DamageSource.onFire(), BURN_DAMAGE);
         }
         fireTicks--;
     }
@@ -273,7 +284,7 @@ public class Zombie extends PathfinderMob implements Category.Monster {
         if (damage <= 0f) {
             return;
         }
-        Damage.hurt(target, damage, this, Damage.BASE_KNOCKBACK);
+        server().combat().damage(target, DamageSource.mobAttack(this), damage);
 
         if (fireTicks > 0
                 && ThreadLocalRandom.current().nextDouble() < 0.30 * clampedRegionalDifficulty()) {
@@ -282,27 +293,15 @@ public class Zombie extends PathfinderMob implements Category.Monster {
         }
     }
 
-    public void hurt(final float amount) {
-        if (isRemoved() || isDead() || amount <= 0f) {
+    @Override
+    public void onHurt(final DamageSource source, final float amount) {
+        if (!(source.causingEntity() instanceof final ServerPlayer attacker)) {
             return;
         }
-
-        final float reduced = amount * (1f - Math.min(ARMOR_POINTS * 0.04f, 0.8f));
-        final float remaining = health() - reduced;
-
-        if (remaining > 0f) {
-            playSound(SoundEvents.ZOMBIE_HURT, 1.0f, voicePitch());
+        callForHelp(attacker);
+        if (difficulty() == 3) {
+            trySpawnReinforcement(attacker);
         }
-
-        final ServerPlayer attacker = target();
-        if (attacker != null) {
-            callForHelp(attacker);
-            if (difficulty() == 3) {
-                trySpawnReinforcement(attacker);
-            }
-        }
-
-        setHealth(remaining);
     }
 
     private void callForHelp(final ServerPlayer attacker) {
@@ -386,7 +385,6 @@ public class Zombie extends PathfinderMob implements Category.Monster {
 
     @Override
     protected void onDeath() {
-        playSound(SoundEvents.ZOMBIE_DEATH, 1.0f, voicePitch());
         // TODO: drops (rotten flesh 0-2, iron ingot / carrot / potato 0.83%)
         //       and experience (5 adult, 12 baby)
         super.onDeath();
@@ -472,7 +470,8 @@ public class Zombie extends PathfinderMob implements Category.Monster {
         }
     }
 
-    private float voicePitch() {
+    @Override
+    protected float voicePitch() {
         final ThreadLocalRandom random = ThreadLocalRandom.current();
         return baby
                 ? 1.3f + random.nextFloat() * 0.4f

@@ -7,6 +7,7 @@ import dev.faststats.Metrics;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.auth.MojangSessionService;
 import fr.euphyllia.fidorial.server.adventure.ClickCallbackManager;
+import fr.euphyllia.fidorial.server.combat.CombatEngine;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleSender;
 import fr.euphyllia.fidorial.server.command.brigadier.builtin.exceptions.TranslatableExceptions;
@@ -131,6 +132,7 @@ public final class FidorialServer implements Server {
     private final EntityIdAllocator entityIds = new EntityIdAllocator();
     private final EntityTracker entityTracker = new EntityTracker(config.sendDistance());
     private final SimpleEventBus events = new SimpleEventBus();
+    private final CombatEngine combat = new CombatEngine(this);
     private final ServiceRegistry services = new SimpleServiceRegistry();
     private final Set<ClientConnection> connections = ConcurrentHashMap.newKeySet();
     private volatile List<ServerPlayer> playerSnapshot = List.of();
@@ -332,6 +334,7 @@ public final class FidorialServer implements Server {
         services.register(PermissionRegistry.class, permissionRegistry, this, ServicePriority.LOWEST);
         services.register(FluidManager.class, fluidEngine, this, ServicePriority.LOWEST);
         services.register(WeatherManager.class, weatherEngine, this, ServicePriority.LOWEST);
+        services.register(CombatEngine.class, combat, this, ServicePriority.LOWEST);
         services.register(BlockEditService.class, blockEdits, this, ServicePriority.LOWEST);
         services.register(CommandManager.class, commandManager, this, ServicePriority.LOWEST);
         services.register(PlayerInventoryStorage.class, defaultInventoryStorage, this, ServicePriority.LOWEST);
@@ -699,6 +702,10 @@ public final class FidorialServer implements Server {
     @Override
     public int playerCount() {
         return connections.size();
+    }
+
+    public CombatEngine combat() {
+        return combat;
     }
 
     @Override
