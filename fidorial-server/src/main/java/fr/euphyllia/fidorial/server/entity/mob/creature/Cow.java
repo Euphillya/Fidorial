@@ -187,11 +187,11 @@ public final class Cow extends AgeableMob implements Category.Neutral {
     }
 
     public int variantNetworkId() {
-        final String entry = variant.key().asString();
-        final int dynamicId = server().registries().dynamic().networkId(RegistryKey.COW_VARIANT.key().asString(), entry);
+        final Key entry = variant.key();
+        final int dynamicId = server().registries().dynamic().networkId(RegistryKey.COW_VARIANT.key(), entry);
         return dynamicId >= 0
                 ? dynamicId
-                : server().registries().frozen().networkId(RegistryKey.COW_VARIANT.key().asString(), entry);
+                : server().registries().frozen().networkId(RegistryKey.COW_VARIANT.key(), entry);
     }
 
     @Override

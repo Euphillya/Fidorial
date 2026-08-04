@@ -17,12 +17,12 @@ public final class ClientboundUpdateTagsPacket implements ClientboundPacket {
     public ClientboundUpdateTagsPacket(RegistryHolder dynamic) {
         this.withTags = dynamic.all().stream()
                 .filter(Registry::hasTags)
-                .filter(r -> !r.name().contains("enchantment"))
+                .filter(r -> !r.name().value().contains("enchantment"))
                 .toList();
     }
 
     @Override
-    public String name() {
+    public Key name() {
         return ConfigurationClientboundPackets.UPDATE_TAGS;
     }
 
@@ -31,25 +31,25 @@ public final class ClientboundUpdateTagsPacket implements ClientboundPacket {
         buf.writeVarInt(withTags.size() + 1);
 
         for (Registry reg : withTags) {
-            List<String> entries = reg.entries();
-            buf.writeIdentifier(reg.name());
+            List<Key> entries = reg.entries();
+            buf.writeKey(reg.name());
             buf.writeVarInt(reg.tags().size());
-            for (Map.Entry<String, List<String>> tag : reg.tags().entrySet()) {
-                buf.writeIdentifier(tag.getKey());
+            for (Map.Entry<Key, List<Key>> tag : reg.tags().entrySet()) {
+                buf.writeKey(tag.getKey());
                 buf.writeVarInt(tag.getValue().size());
-                for (String entry : tag.getValue()) {
+                for (Key entry : tag.getValue()) {
                     buf.writeVarInt(entries.indexOf(entry));
                 }
             }
         }
 
-        buf.writeKey(Key.key("minecraft", "block"));
+        buf.writeKey(Key.key("block"));
         buf.writeVarInt(3);
-        buf.writeKey(Key.key("minecraft", "infiniburn_overworld"));
+        buf.writeKey(Key.key("infiniburn_overworld"));
         buf.writeVarInt(2).writeVarInt(285).writeVarInt(671);
-        buf.writeKey(Key.key("minecraft", "infiniburn_nether"));
+        buf.writeKey(Key.key("infiniburn_nether"));
         buf.writeVarInt(2).writeVarInt(285).writeVarInt(671);
-        buf.writeKey(Key.key("minecraft", "infiniburn_end"));
+        buf.writeKey(Key.key("infiniburn_end"));
         buf.writeVarInt(3).writeVarInt(285).writeVarInt(671).writeVarInt(34);
     }
 }

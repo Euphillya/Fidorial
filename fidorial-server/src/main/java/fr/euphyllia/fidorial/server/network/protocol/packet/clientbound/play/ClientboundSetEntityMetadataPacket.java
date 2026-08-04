@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import net.kyori.adventure.key.Key;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -17,7 +18,7 @@ public record ClientboundSetEntityMetadataPacket(int entityId, List<Entry> metad
     }
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.SET_ENTITY_DATA;
     }
 

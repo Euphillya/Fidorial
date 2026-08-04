@@ -192,7 +192,7 @@ public class AnvilChunkSerializer {
         final int chunkZ = root.getInt("zPos");
 
         final ChunkColumn chunk = new ChunkColumn(chunkX, chunkZ, minY, height, defaultBlock, defaultBiome);
-        chunk.setStatus(root.contains("Status") ? Key.key(root.getString("Status")) : Key.key("minecraft", "full"));
+        chunk.setStatus(root.contains("Status") ? Key.key(root.getString("Status")) : Key.key("full"));
         chunk.setInhabitedTime(root.getLong("InhabitedTime"));
         chunk.setLastUpdate(root.getLong("LastUpdate"));
 

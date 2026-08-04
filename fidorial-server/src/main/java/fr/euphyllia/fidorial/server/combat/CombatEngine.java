@@ -30,6 +30,7 @@ import fr.fidorial.event.player.PlayerDeathEvent;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.Location;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -308,7 +309,7 @@ public final class CombatEngine implements CombatService {
 
     private void broadcastHurt(final AbstractLivingEntity victim, final DamageSource source) {
         final int damageTypeId =
-                server.dynamicRegistries().networkId("minecraft:damage_type", source.type().key().asString());
+                server.dynamicRegistries().networkId(Key.key("minecraft", "damage_type"), source.type().key());
         if (damageTypeId >= 0) {
             sendToViewersAndSelf(victim, new ClientboundDamageEventPacket(
                     victim.entityId(),

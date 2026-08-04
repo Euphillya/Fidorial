@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.world.storage;
 import fr.euphyllia.fidorial.server.world.anvil.RegionConstants;
 import fr.euphyllia.fidorial.server.world.anvil.RegionFile;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
+import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -13,20 +14,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class EntityRegionStorage implements AutoCloseable {
 
     private final WorldPaths paths;
-    private final Map<String, RegionFile> regionCache = new ConcurrentHashMap<>();
+    private final Map<RegionKey, RegionFile> regionCache = new ConcurrentHashMap<>();
 
     public EntityRegionStorage(final WorldPaths paths) {
         this.paths = paths;
     }
 
-    private static String key(final Dimension dim, final int rx, final int rz) {
-        return dim.id() + "@" + rx + "," + rz;
+    private record RegionKey(Key dimension, int regionX, int regionZ) {
     }
 
     private RegionFile region(final Dimension dim, final int chunkX, final int chunkZ) {
         final int rx = RegionConstants.chunkToRegion(chunkX);
         final int rz = RegionConstants.chunkToRegion(chunkZ);
-        return regionCache.computeIfAbsent(key(dim, rx, rz), k -> {
+        final RegionKey key = new RegionKey(dim.id(), rx, rz);
+        return regionCache.computeIfAbsent(key, k -> {
             final Path file = paths.entitiesDir(dim).resolve(RegionConstants.fileName(rx, rz));
             try {
                 return new RegionFile(file);

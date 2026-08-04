@@ -1,10 +1,11 @@
 package fr.euphyllia.fidorial.server.network.protocol.packet;
 
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
+import net.kyori.adventure.key.Key;
 
 public interface ClientboundPacket {
 
-    String name();
+    Key name();
 
     void write(PacketBuffer buf);
 }

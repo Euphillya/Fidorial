@@ -9,7 +9,7 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 public class ServiceBackedChunkGenerator implements ChunkGenerator {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(ServiceBackedChunkGenerator.class);
-    private static final Key DEFAULT_BIOME = Key.key("minecraft", "plains");
+    private static final Key DEFAULT_BIOME = Key.key("plains");
 
     private final ServiceRegistry services;
     private final ChunkGenerator fallback;

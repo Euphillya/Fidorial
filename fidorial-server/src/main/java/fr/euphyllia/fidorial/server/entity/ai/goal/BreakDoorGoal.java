@@ -44,7 +44,7 @@ public final class BreakDoorGoal implements Goal {
 
     public static boolean isBreakableDoor(final BlockState state) {
         final Key name = state.name();
-        return name.asString().endsWith("_door") && !name.equals(Key.key("minecraft", "iron_door"));
+        return name.asString().endsWith("_door") && !name.equals(Key.key("iron_door"));
     }
 
     private static boolean isClosed(final BlockState state) {

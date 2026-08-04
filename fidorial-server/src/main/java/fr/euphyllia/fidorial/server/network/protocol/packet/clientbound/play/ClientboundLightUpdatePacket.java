@@ -5,12 +5,13 @@ import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPack
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import net.kyori.adventure.key.Key;
 
 public record ClientboundLightUpdatePacket(ChunkNetworkSerializer serializer, ChunkColumn column)
         implements ClientboundPacket {
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.LIGHT_UPDATE;
     }
 

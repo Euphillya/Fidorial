@@ -12,13 +12,13 @@ public final class RegistryHolder {
 
     private static final RegistryHolder EMPTY = new RegistryHolder(Map.of());
 
-    private final Map<String, Registry> registries;
+    private final Map<Key, Registry> registries;
 
-    private RegistryHolder(final Map<String, Registry> registries) {
+    private RegistryHolder(final Map<Key, Registry> registries) {
         this.registries = registries;
     }
 
-    public static RegistryHolder of(final Map<String, Registry> registries) {
+    public static RegistryHolder of(final Map<Key, Registry> registries) {
         return new RegistryHolder(Collections.unmodifiableMap(new LinkedHashMap<>(registries)));
     }
 
@@ -38,15 +38,11 @@ public final class RegistryHolder {
         return registries.values();
     }
 
-    public @Nullable Registry get(final String name) {
+    public @Nullable Registry get(final Key name) {
         return registries.get(name);
     }
 
-    public int networkId(final Key registry, final String entry) {
-        return networkId(registry.asString(), entry);
-    }
-
-    public int networkId(final String registry, final String entry) {
+    public int networkId(final Key registry, final Key entry) {
         final Registry reg = registries.get(registry);
         return reg == null ? -1 : reg.networkId(entry);
     }

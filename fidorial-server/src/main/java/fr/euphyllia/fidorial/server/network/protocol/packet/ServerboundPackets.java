@@ -38,6 +38,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.Ser
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.status.ServerboundPingRequestPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.status.ServerboundStatusRequestPacket;
 import fr.fidorial.protocol.ServerboundPacket;
+import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -46,7 +47,7 @@ import java.util.Map;
 
 public class ServerboundPackets {
 
-    private static final Map<ConnectionState, Map<String, Reader>> READERS = new EnumMap<>(ConnectionState.class);
+    private static final Map<ConnectionState, Map<Key, Reader>> READERS = new EnumMap<>(ConnectionState.class);
 
     static {
         register(ConnectionState.HANDSHAKE, HandshakeServerboundPackets.INTENTION, ServerboundIntentionPacket::read);
@@ -137,11 +138,11 @@ public class ServerboundPackets {
     private ServerboundPackets() {
     }
 
-    private static void register(final ConnectionState state, final String name, final Reader reader) {
+    private static void register(final ConnectionState state, final Key name, final Reader reader) {
         READERS.computeIfAbsent(state, s -> new HashMap<>()).put(name, reader);
     }
 
-    public static @Nullable ServerboundPacket decode(final ConnectionState state, final String name, final PacketBuffer buf) {
+    public static @Nullable ServerboundPacket decode(final ConnectionState state, final Key name, final PacketBuffer buf) {
         final Reader reader = READERS.getOrDefault(state, Map.of()).get(name);
         return reader == null ? null : reader.read(buf);
     }

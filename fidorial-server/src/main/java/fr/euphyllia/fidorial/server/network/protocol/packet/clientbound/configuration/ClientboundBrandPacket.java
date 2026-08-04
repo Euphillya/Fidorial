@@ -7,10 +7,10 @@ import net.kyori.adventure.key.Key;
 
 public record ClientboundBrandPacket(String brand) implements ClientboundPacket {
 
-    private static final Key BRAND_CHANNEL = Key.key("minecraft", "brand");
+    private static final Key BRAND_CHANNEL = Key.key("brand");
 
     @Override
-    public String name() {
+    public Key name() {
         return ConfigurationClientboundPackets.CUSTOM_PAYLOAD;
     }
 

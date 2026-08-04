@@ -64,7 +64,7 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
             return;
         }
         for (final Registry reg : dynamic.all()) {
-            if (reg.name().contains("minecraft:enchantment")) { // Todo
+            if (reg.name().asString().contains("minecraft:enchantment")) { // Todo
                 continue;
             }
             connection.send(new ClientboundRegistryDataPacket(reg.name(), reg.entries()));

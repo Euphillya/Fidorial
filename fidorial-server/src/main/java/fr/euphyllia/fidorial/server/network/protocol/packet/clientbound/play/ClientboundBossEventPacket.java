@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 
 import java.util.UUID;
@@ -13,7 +14,7 @@ public sealed interface ClientboundBossEventPacket extends ClientboundPacket {
     UUID id();
 
     @Override
-    default String name() {
+    default Key name() {
         return PlayClientboundPackets.BOSS_EVENT;
     }
 

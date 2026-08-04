@@ -12,7 +12,6 @@ public final class WorldTimeEngine implements DayNightCycle {
     public static final float DEFAULT_RATE = 1.0f;
 
     private final Key clock;
-    private final String clockId;
 
     private long worldAge;
     private long time;
@@ -24,16 +23,11 @@ public final class WorldTimeEngine implements DayNightCycle {
 
     public WorldTimeEngine(final Key clock) {
         this.clock = clock;
-        this.clockId = clock.asString();
     }
 
     @Override
     public Key clock() {
         return clock;
-    }
-
-    public String clockId() {
-        return clockId;
     }
 
     public void setBroadcaster(@Nullable final Consumer<WorldTimeEngine> broadcaster) {

@@ -167,16 +167,6 @@ public final class PacketBuffer {
         return this;
     }
 
-    /**
-     * Use {@link PacketBuffer#writeKey(Key)} or {@link PacketBuffer#writeRegistryKey(RegistryKey)} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public PacketBuffer writeIdentifier(final String identifier) {
-        Key.key(identifier); // for validation
-        VarInts.writeString(buf, identifier);
-        return this;
-    }
-
     public Key readKey() {
         final String read = this.readString(32767);
         return Key.key(read);

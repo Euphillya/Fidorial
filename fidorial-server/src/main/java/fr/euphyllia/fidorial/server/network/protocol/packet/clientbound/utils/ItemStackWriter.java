@@ -1,13 +1,13 @@
 package fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.utils;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.inventory.ItemStack;
-
+import net.kyori.adventure.key.Key;
 
 public final class ItemStackWriter {
-
-    private static final int AIR_ITEM = 0;
 
     private ItemStackWriter() {
     }
@@ -24,7 +24,7 @@ public final class ItemStackWriter {
     }
 
     public static int networkId(final ItemStack stack, final RegistryHolder frozen) {
-        final int id = frozen.networkId("minecraft:item", stack.id().asString());
-        return Math.max(id, AIR_ITEM);
+        final int id = frozen.networkId(Key.key("minecraft", "item"), stack.id());
+        return Math.max(id, FidorialServer.getInstance().blockStateRegistry().networkId(BlockState.AIR));
     }
 }

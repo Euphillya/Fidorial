@@ -3,23 +3,24 @@ package fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.configu
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.ConfigurationClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import net.kyori.adventure.key.Key;
 
 import java.util.List;
 
-public record ClientboundRegistryDataPacket(String registryId, List<String> entries)
+public record ClientboundRegistryDataPacket(Key registryId, List<Key> entries)
         implements ClientboundPacket {
 
     @Override
-    public String name() {
+    public Key name() {
         return ConfigurationClientboundPackets.REGISTRY_DATA;
     }
 
     @Override
     public void write(PacketBuffer buf) {
-        buf.writeIdentifier(registryId);
+        buf.writeKey(registryId);
         buf.writeVarInt(entries.size());
-        for (String entry : entries) {
-            buf.writeIdentifier(entry);
+        for (Key entry : entries) {
+            buf.writeKey(entry);
             buf.writeBoolean(false);
         }
     }

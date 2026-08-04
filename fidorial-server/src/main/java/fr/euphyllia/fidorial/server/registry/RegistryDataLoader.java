@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.registry;
 
 import com.google.gson.stream.JsonReader;
+import net.kyori.adventure.key.Key;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,8 +18,8 @@ public class RegistryDataLoader {
 
     private static final String RESOURCE = "/data/registries.json.gz";
 
-    private final Map<String, Registry> dynamic = new LinkedHashMap<>();
-    private final Map<String, Registry> frozen = new LinkedHashMap<>();
+    private final Map<Key, Registry> dynamic = new LinkedHashMap<>();
+    private final Map<Key, Registry> frozen = new LinkedHashMap<>();
 
     private RegistryDataLoader() {
     }
@@ -36,11 +37,11 @@ public class RegistryDataLoader {
         return loader;
     }
 
-    Map<String, Registry> dynamic() {
+    Map<Key, Registry> dynamic() {
         return dynamic;
     }
 
-    Map<String, Registry> frozen() {
+    Map<Key, Registry> frozen() {
         return frozen;
     }
 
@@ -58,28 +59,28 @@ public class RegistryDataLoader {
         }
     }
 
-    private void readGroup(final JsonReader reader, final Map<String, Registry> target) throws IOException {
+    private void readGroup(final JsonReader reader, final Map<Key, Registry> target) throws IOException {
         reader.beginObject();
         while (reader.hasNext()) {
-            final String name = reader.nextName();
+            final Key name = Key.key(reader.nextName());
             target.put(name, readRegistry(name, reader));
         }
         reader.endObject();
     }
 
-    private Registry readRegistry(final String name, final JsonReader reader) throws IOException {
-        List<String> entries = List.of();
-        Map<String, List<String>> tags = Map.of();
+    private Registry readRegistry(final Key name, final JsonReader reader) throws IOException {
+        List<Key> entries = List.of();
+        Map<Key, List<Key>> tags = Map.of();
 
         reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
-                case "entries" -> entries = readStrings(reader);
+                case "entries" -> entries = readKeys(reader);
                 case "tags" -> {
                     tags = new LinkedHashMap<>();
                     reader.beginObject();
                     while (reader.hasNext()) {
-                        tags.put(reader.nextName(), readStrings(reader));
+                        tags.put(Key.key(reader.nextName()), readKeys(reader));
                     }
                     reader.endObject();
                 }
@@ -90,11 +91,11 @@ public class RegistryDataLoader {
         return new Registry(name, entries, tags);
     }
 
-    private List<String> readStrings(final JsonReader reader) throws IOException {
-        final List<String> values = new ArrayList<>();
+    private List<Key> readKeys(final JsonReader reader) throws IOException {
+        final List<Key> values = new ArrayList<>();
         reader.beginArray();
         while (reader.hasNext()) {
-            values.add(reader.nextString());
+            values.add(Key.key(reader.nextString()));
         }
         reader.endArray();
         return values;

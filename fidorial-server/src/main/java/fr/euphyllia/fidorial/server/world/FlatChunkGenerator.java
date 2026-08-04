@@ -22,7 +22,7 @@ public final class FlatChunkGenerator implements ChunkGenerator {
 
     public static FlatChunkGenerator cobblestone(int minY, int height) {
         return new FlatChunkGenerator(minY, height,
-                BlockState.of(Key.key("minecraft", "cobblestone")), Key.key("minecraft", "plains"), 16);
+                BlockState.of(Key.key("cobblestone")), Key.key("plains"), 16);
     }
 
     @Override

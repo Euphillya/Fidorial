@@ -7,12 +7,14 @@ import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.ParameterSpec;
 import com.palantir.javapoet.ParameterizedTypeName;
+import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
 import fr.fidorial.registrygen.GenerationUtils;
 import fr.fidorial.registrygen.model.ProtocolIdTarget;
 import fr.fidorial.registrygen.model.ProtocolIdValueKind;
 import fr.fidorial.registrygen.model.RegistryDefinition;
 import fr.fidorial.registrygen.model.RegistryEntryDefinition;
+import net.kyori.adventure.key.Key;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
@@ -30,9 +32,11 @@ import java.util.Objects;
  * compile-time constant name that may disappear in a future Minecraft version.</p>
  *
  * <p>Since the addition of packet catalogs, this generator also supports emitting
- * a plain {@code String}-constant holder (see {@link ProtocolIdValueKind#IDENTIFIER}),
+ * a {@link Key}-constant holder (see {@link ProtocolIdValueKind#IDENTIFIER}),
  * for registries whose entries are looked up by namespaced identifier rather than
- * by network ID.</p>
+ * by network ID. The {@code minecraft} namespace is stripped when emitting these
+ * keys, so {@code minecraft:core} becomes {@code Key.key("core")} while
+ * {@code brigadier:boolean} becomes {@code Key.key("brigadier", "boolean")}.</p>
  *
  * @since 0.1.0
  */
@@ -40,8 +44,6 @@ public final class RegistryProtocolIdGenerator {
 
     private static final String LOOKUP_FIELD = "BY_IDENTIFIER";
     private static final String UNKNOWN_FIELD = "UNKNOWN";
-
-    private static final ClassName KEY_CLASS_NAME = ClassName.get("net.kyori.adventure.key", "Key");
 
     /**
      * Generates the protocol ID holder for a registry.
@@ -67,7 +69,7 @@ public final class RegistryProtocolIdGenerator {
         }
 
         final boolean isProtocolId = target.valueKind() == ProtocolIdValueKind.PROTOCOL_ID;
-        final Class<?> fieldType = isProtocolId ? int.class : String.class;
+        final TypeName fieldType = isProtocolId ? TypeName.get(int.class) : TypeName.get(Key.class);
 
         final TypeSpec.Builder typeBuilder = (isProtocolId
                 ? TypeSpec.interfaceBuilder(target.className())
@@ -79,7 +81,7 @@ public final class RegistryProtocolIdGenerator {
         if (isProtocolId) {
             typeBuilder.addField(FieldSpec.builder(int.class, UNKNOWN_FIELD, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                     .initializer("$L", -1)
-                    .addJavadoc("Returned by {@link #id($T)} when the identifier is unknown.\n", KEY_CLASS_NAME)
+                    .addJavadoc("Returned by {@link #id($T)} when the identifier is unknown.\n", Key.class)
                     .build());
         }
 
@@ -97,7 +99,11 @@ public final class RegistryProtocolIdGenerator {
             final FieldSpec.Builder field = FieldSpec.builder(fieldType, fieldName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                     .addJavadoc("{@code $L}\n", entry.identifier());
 
-            field.initializer(isProtocolId ? "$L" : "$S", isProtocolId ? entry.protocolId() : entry.identifier());
+            if (isProtocolId) {
+                field.initializer("$L", entry.protocolId());
+            } else {
+                field.initializer(createKeyInitializer(entry.identifier()));
+            }
 
             typeBuilder.addField(field.build());
         }
@@ -120,7 +126,7 @@ public final class RegistryProtocolIdGenerator {
 
         final ClassName map = ClassName.get(Map.class);
         final ParameterizedTypeName mapType = ParameterizedTypeName.get(map,
-                KEY_CLASS_NAME,
+                ClassName.get(Key.class),
                 ClassName.get(Integer.class));
 
         final CodeBlock.Builder initializer = CodeBlock.builder().add("$T.ofEntries(", map);
@@ -134,7 +140,7 @@ public final class RegistryProtocolIdGenerator {
 
             for (final Map.Entry<String, String> entry : constantsByIdentifier.entrySet()) {
 
-                initializer.add("    $T.entry($T.key($S), $N)", map, KEY_CLASS_NAME, entry.getKey(), entry.getValue());
+                initializer.add("    $T.entry($T.key($S), $N)", map, Key.class, entry.getKey(), entry.getValue());
 
                 if (index < last) {
                     initializer.add(",");
@@ -155,7 +161,7 @@ public final class RegistryProtocolIdGenerator {
 
     private static MethodSpec createLookupMethod() {
 
-        final ParameterSpec identifier = ParameterSpec.builder(KEY_CLASS_NAME, "identifier", Modifier.FINAL).build();
+        final ParameterSpec identifier = ParameterSpec.builder(Key.class, "identifier", Modifier.FINAL).build();
 
         return MethodSpec.methodBuilder("id")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -166,5 +172,23 @@ public final class RegistryProtocolIdGenerator {
                 .addJavadoc("@return the protocol ID, or {@link #$L} when the identifier is unknown\n", UNKNOWN_FIELD)
                 .addStatement("return $N.getOrDefault($N, $L)", LOOKUP_FIELD, "identifier", UNKNOWN_FIELD)
                 .build();
+    }
+
+    private static CodeBlock createKeyInitializer(final String identifier) {
+
+        final int separator = identifier.indexOf(':');
+
+        if (separator < 0) {
+            return CodeBlock.of("$T.key($S)", Key.class, identifier);
+        }
+
+        final String namespace = identifier.substring(0, separator);
+        final String path = identifier.substring(separator + 1);
+
+        if (namespace.equalsIgnoreCase(Key.MINECRAFT_NAMESPACE)) {
+            return CodeBlock.of("$T.key($S)", Key.class, path);
+        }
+
+        return CodeBlock.of("$T.key($S, $S)", Key.class, namespace, path);
     }
 }

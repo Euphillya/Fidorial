@@ -13,7 +13,7 @@ public record ClientboundStopSoundPacket(
 ) implements ClientboundPacket {
 
     @Override
-    public String name() {
+    public Key name() {
         return PlayClientboundPackets.STOP_SOUND;
     }
 

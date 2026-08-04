@@ -30,7 +30,7 @@ public class DayNightThread implements AutoCloseable {
     private final WorldManager worldManager;
     private final RegistryHolder registries;
     private final ScheduledExecutorService ticker;
-    private final Set<String> unknownClocks = ConcurrentHashMap.newKeySet();
+    private final Set<Key> unknownClocks = ConcurrentHashMap.newKeySet();
     private final Set<Key> attached = ConcurrentHashMap.newKeySet();
 
     private int sinceLastSync;
@@ -65,7 +65,7 @@ public class DayNightThread implements AutoCloseable {
                     world.dimension().id(),
                     cycle.phase(),
                     cycle.timeOfDay(),
-                    cycle.clockId());
+                    cycle.clock());
         }
     }
 
@@ -112,10 +112,10 @@ public class DayNightThread implements AutoCloseable {
     }
 
     private @Nullable ClientboundSetTimePacket packetFor(final WorldTimeEngine cycle) {
-        final int networkId = registries.networkId(WorldClocks.REGISTRY, cycle.clockId());
+        final int networkId = registries.networkId(WorldClocks.REGISTRY, cycle.clock());
         if (networkId < 0) {
-            if (unknownClocks.add(cycle.clockId())) {
-                LOGGER.warn("Clock missing from register {} : {}", WorldClocks.REGISTRY, cycle.clockId());
+            if (unknownClocks.add(cycle.clock())) {
+                LOGGER.warn("Clock missing from register {} : {}", WorldClocks.REGISTRY, cycle.clock());
             }
             return null;
         }

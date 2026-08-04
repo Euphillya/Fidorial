@@ -25,7 +25,7 @@ public final class ChunkColumn {
 
     private long inhabitedTime;
     private long lastUpdate;
-    private Key status = Key.key("minecraft", "full");
+    private Key status = Key.key("full");
 
     private volatile boolean lightPopulated;
     private @Nullable ChunkLightData lightData;
