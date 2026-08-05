@@ -97,8 +97,7 @@ public final class ServerJarURLGrabber {
      * @throws IllegalArgumentException if the specified version is not recognized.
      * @throws IOException if there is an error during the HTTP request or if the response is malformed.
      */
-    @Nullable
-    private static String fetchVersionJsonUrl(final String version) throws IOException {
+    @Nullable private static String fetchVersionJsonUrl(final String version) throws IOException {
 
         final URL url = URI.create(DOWNLOAD_MANIFEST_URL).toURL();
         final HttpURLConnection connection = (HttpURLConnection) url.openConnection();

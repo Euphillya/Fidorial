@@ -1,6 +1,5 @@
 package fr.fidorial.registrygen.generate;
 
-import com.palantir.javapoet.AnnotationSpec;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.CodeBlock;
 import com.palantir.javapoet.FieldSpec;
@@ -16,15 +15,10 @@ import fr.fidorial.registrygen.model.RegistryTypeDefinition;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**

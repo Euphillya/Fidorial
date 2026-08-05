@@ -123,12 +123,12 @@ public final class FidorialPluginMeta implements PluginMeta {
         private final Set<Dependency> dependencies = new HashSet<>();
         private final Set<PermissionEntry> permissions = new HashSet<>();
 
-        public Builder id(String id) {
+        public Builder id(@Nullable String id) {
             this.id = id;
             return this;
         }
 
-        public Builder description(String description) {
+        public Builder description(@Nullable String description) {
             this.description = description;
             return this;
         }

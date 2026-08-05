@@ -11,6 +11,7 @@ module fr.fidorial.server {
     requires dev.faststats;
     requires fr.fidorial.auth;
     requires fr.fidorial;
+    requires io.github.classgraph;
     requires io.netty.buffer;
     requires io.netty.codec;
     requires io.netty.transport.classes.epoll;
@@ -21,19 +22,19 @@ module fr.fidorial.server {
     requires java.management;
     requires net.kyori.adventure.api;
     requires net.kyori.adventure.key;
+    requires net.kyori.adventure.nbt;
     requires net.kyori.adventure.text.logger.slf4j;
     requires net.kyori.adventure.text.minimessage;
     requires net.kyori.adventure.text.serializer.ansi;
     requires net.kyori.adventure.text.serializer.gson;
     requires net.kyori.adventure.text.serializer.plain;
+    requires org.apache.maven.resolver;
     requires org.jline.reader;
     requires org.jline.terminal;
     requires org.slf4j;
 
     requires static org.jetbrains.annotations;
     requires static org.jspecify;
-    requires net.kyori.adventure.nbt;
-    requires io.github.classgraph;
 
     opens fr.euphyllia.fidorial.server.tests to fr.fidorial;
 }
