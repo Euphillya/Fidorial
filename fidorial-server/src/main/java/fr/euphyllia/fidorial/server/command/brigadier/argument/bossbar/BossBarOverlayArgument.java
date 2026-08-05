@@ -27,18 +27,17 @@ public final class BossBarOverlayArgument implements ArgumentType<BossBar.Overla
 
     private static final List<String> EXAMPLES = List.of("progress", "notched_10");
 
-    public static final SuggestionProvider<CommandSource> SUGGESTIONS = (_, builder) -> {
-        for (final BossBar.Overlay overlay : BossBar.Overlay.values()) {
-            builder.suggest(overlay.name().toLowerCase(Locale.ROOT));
-        }
-        return builder.buildFuture();
-    };
-
     public static final DynamicCommandExceptionType ERROR_INVALID_VALUE =
             new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
                     Component.translatable(
                             "argument.enum.invalid",
                             Component.text(String.valueOf(value)))));
+
+    private final SuggestionProvider<CommandSource> suggestions;
+
+    public BossBarOverlayArgument() {
+        this.suggestions = this::listSuggestions;
+    }
 
     public static BossBarOverlayArgument bossBarOverlay() {
         return new BossBarOverlayArgument();
@@ -74,7 +73,7 @@ public final class BossBarOverlayArgument implements ArgumentType<BossBar.Overla
 
     @Override
     public SuggestionProvider<CommandSource> suggestionProvider() {
-        return SUGGESTIONS;
+        return suggestions;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<BossBarOverlayArgument, Info.Spec> {

@@ -3,15 +3,18 @@ package fr.euphyllia.fidorial.server.command.brigadier.argument.entity;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySelectorParser;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
+import fr.fidorial.command.argument.ForceServerSuggestions;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.Player;
 import net.kyori.adventure.text.Component;
@@ -25,7 +28,7 @@ import java.util.function.Predicate;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public final class EntityArgument<T> implements ArgumentType<T> {
+public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSuggestions {
 
     private static final Collection<String> EXAMPLES =
             List.of("Player", "0123", "@e", "@e[type=zombie]", "dd12be42-52a9-4a91-a8a1-11c01849e498");
@@ -50,6 +53,8 @@ public final class EntityArgument<T> implements ArgumentType<T> {
 
     private final boolean single;
     private final boolean playersOnly;
+    private final boolean hasFilter;
+    private final SuggestionProvider<CommandSource> suggestions;
 
     private final Predicate<Entity> predicate;
     private final Function<EntitySelector, T> converter;
@@ -57,32 +62,46 @@ public final class EntityArgument<T> implements ArgumentType<T> {
     public EntityArgument(
             final boolean single,
             final boolean playersOnly,
+            final boolean hasFilter,
             final Predicate<Entity> predicate,
             final Function<EntitySelector, T> converter
     ) {
         this.single = single;
         this.playersOnly = playersOnly;
+        this.hasFilter = hasFilter;
+        this.suggestions = this::listSuggestions;
         this.predicate = predicate;
         this.converter = converter;
+
     }
 
     // Identity-converter factories: used internally, where the parsed EntitySelector
     // itself is what commands want (see getEntity/getPlayer/... below).
 
     public static EntityArgument<EntitySelector> entity() {
-        return new EntityArgument<>(true, false, _ -> true, Function.identity());
+        return new EntityArgument<>(true, false, false, _ -> true, Function.identity());
     }
 
     public static EntityArgument<EntitySelector> entities() {
-        return new EntityArgument<>(false, false, _ -> true, Function.identity());
+        return new EntityArgument<>(false, false, false, _ -> true, Function.identity());
     }
 
     public static EntityArgument<EntitySelector> player() {
-        return new EntityArgument<>(true, true, Player.class::isInstance, Function.identity());
+        return new EntityArgument<>(true, true, false, Player.class::isInstance, Function.identity());
     }
 
     public static EntityArgument<EntitySelector> players() {
-        return new EntityArgument<>(false, true, Player.class::isInstance, Function.identity());
+        return new EntityArgument<>(false, true, false, Player.class::isInstance, Function.identity());
+    }
+
+    @Override
+    public boolean shouldForceServerSuggestions() {
+        return hasFilter;
+    }
+
+    @Override
+    public SuggestionProvider<CommandSource> suggestionProvider() {
+        return suggestions;
     }
 
     public boolean single() {
@@ -180,7 +199,7 @@ public final class EntityArgument<T> implements ArgumentType<T> {
 
         try {
             parser.parse();
-        } catch (final CommandSyntaxException ignored) {
+        } catch (final CommandSyntaxException _) {
         }
 
         return parser.fillSuggestions(builder, suggestionsBuilder -> {
@@ -209,6 +228,11 @@ public final class EntityArgument<T> implements ArgumentType<T> {
 
         @Override
         public void serialize(final Spec spec, final PacketBuffer buf) {
+            if (spec.hasFilter()) {
+                buf.writeVarInt(StringArgumentType.StringType.SINGLE_WORD.ordinal());
+                return;
+            }
+
             int flags = 0;
 
             if (spec.single()) flags |= 1;
@@ -221,7 +245,7 @@ public final class EntityArgument<T> implements ArgumentType<T> {
         @Override
         public Spec deserialize(final PacketBuffer buf) {
             final int flags = buf.readByte();
-            return new Spec((flags & 1) != 0, (flags & 2) != 0);
+            return new Spec((flags & 1) != 0, (flags & 2) != 0, false);
         }
 
         @Override
@@ -232,14 +256,14 @@ public final class EntityArgument<T> implements ArgumentType<T> {
 
         @Override
         public Spec access(final EntityArgument<?> argument) {
-            return new Spec(argument.single(), argument.playersOnly());
+            return new Spec(argument.single(), argument.playersOnly(), argument.hasFilter);
         }
 
-        public record Spec(boolean single, boolean playersOnly) implements ArgumentTypeRegistrar.Spec<EntityArgument<?>> {
+        public record Spec(boolean single, boolean playersOnly, boolean hasFilter) implements ArgumentTypeRegistrar.Spec<EntityArgument<?>> {
 
             @Override
             public EntityArgument<?> instantiate() {
-                return new EntityArgument<>(single, playersOnly, _ -> true, Function.identity());
+                return new EntityArgument<>(single, playersOnly, hasFilter, _ -> true, Function.identity());
             }
 
             @Override

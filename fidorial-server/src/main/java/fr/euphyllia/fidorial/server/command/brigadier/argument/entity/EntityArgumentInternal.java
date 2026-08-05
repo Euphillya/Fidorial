@@ -31,18 +31,18 @@ public final class EntityArgumentInternal {
     }
 
     public static <T> ArgumentType<T> entity(final Predicate<Entity> filter, final Function<EntitySelector, T> converter) {
-        return new EntityArgument<>(true, false, filter, converter);
+        return new EntityArgument<>(true, false, true, filter, converter);
     }
 
     public static <T> ArgumentType<T> entities(final Predicate<Entity> filter, final Function<EntitySelector, T> converter) {
-        return new EntityArgument<>(false, false, filter, converter);
+        return new EntityArgument<>(false, false, true, filter, converter);
     }
 
     public static <T> ArgumentType<T> player(final Predicate<Player> filter, final Function<EntitySelector, T> converter) {
-        return new EntityArgument<>(true, true, entity -> entity instanceof final Player player && filter.test(player), converter);
+        return new EntityArgument<>(true, true, true, entity -> entity instanceof final Player player && filter.test(player), converter);
     }
 
     public static <T> ArgumentType<T> players(final Predicate<Player> filter, final Function<EntitySelector, T> converter) {
-        return new EntityArgument<>(false, true, entity -> entity instanceof final Player player && filter.test(player), converter);
+        return new EntityArgument<>(false, true, true, entity -> entity instanceof final Player player && filter.test(player), converter);
     }
 }

@@ -28,17 +28,16 @@ public final class BossBarColorArgument implements ArgumentType<BossBar.Color>, 
 
     private static final Collection<String> EXAMPLES = Arrays.asList("red", "blue");
 
-    public static final SuggestionProvider<CommandSource> SUGGESTIONS = (_, builder) -> {
-        for (final BossBar.Color color : BossBar.Color.values()) {
-            builder.suggest(color.name().toLowerCase(Locale.ROOT));
-        }
-        return builder.buildFuture();
-    };
-
     public static final DynamicCommandExceptionType ERROR_INVALID_VALUE =
             new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
                     Component.translatable("argument.enum.invalid",
                             Component.text(String.valueOf(value)))));
+
+    private final SuggestionProvider<CommandSource> suggestions;
+
+    public BossBarColorArgument() {
+        this.suggestions = this::listSuggestions;
+    }
 
     public static BossBarColorArgument bossBarColor() {
         return new BossBarColorArgument();
@@ -68,10 +67,9 @@ public final class BossBarColorArgument implements ArgumentType<BossBar.Color>, 
         return builder.buildFuture();
     }
 
-
     @Override
     public SuggestionProvider<CommandSource> suggestionProvider() {
-        return SUGGESTIONS;
+        return suggestions;
     }
 
     @Override
