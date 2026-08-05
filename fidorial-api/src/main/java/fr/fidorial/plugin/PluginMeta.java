@@ -365,12 +365,12 @@ public interface PluginMeta {
         PermissionNode permission();
 
         /**
-         * Returns the permission description.
+         * Returns the permission description, if declared.
          *
-         * @return the description
+         * @return the description, or empty
          */
         @Contract(pure = true)
-        String description();
+        Optional<String> description();
 
         /**
          * Returns the default permission scope.
@@ -396,7 +396,7 @@ public interface PluginMeta {
          */
         @Contract(value = " -> new", pure = true)
         default PermissionDefinition definition() { // todo: make PermissionDefinition an interface and extend it?
-            return new PermissionDefinition(permission(), description(), switch (scope()) {
+            return new PermissionDefinition(permission(), description().orElse(""), switch (scope()) {
                 case TRUE -> TriState.TRUE;
                 case NOT_SET -> TriState.NOT_SET;
                 default -> TriState.FALSE;
