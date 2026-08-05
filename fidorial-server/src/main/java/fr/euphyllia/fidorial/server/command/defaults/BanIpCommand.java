@@ -2,13 +2,14 @@ package fr.euphyllia.fidorial.server.command.defaults;
 
 import com.google.common.net.InetAddresses;
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
+import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.entity.Player;
 import fr.fidorial.moderation.BanEntry;
 import fr.fidorial.moderation.BanService;
@@ -18,7 +19,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.net.InetAddress;
 import java.time.Duration;
-import java.util.Locale;
 import java.util.Optional;
 
 import static fr.fidorial.command.Commands.argument;
@@ -29,16 +29,7 @@ public final class BanIpCommand {
     private static final String PERMISSION = "fidorial.command.banip";
     private static final FidorialServer server = FidorialServer.getInstance();
 
-    private static final SuggestionProvider<CommandSource> ONLINE = (_, builder) -> {
-        final String remaining = builder.getRemainingLowerCase();
-
-        server.onlinePlayers().stream()
-                .map(Player::name)
-                .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
-                .forEach(builder::suggest);
-
-        return builder.buildFuture();
-    };
+    private static final ArgumentType<PlayerProfileListResolver> ONLINE = ArgumentTypes.playerProfiles();
 
     private BanIpCommand() {
     }
@@ -47,7 +38,7 @@ public final class BanIpCommand {
         return literal("ban-ip")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
                 .then(argument("target", ArgumentTypes.word())
-                        .suggests(ONLINE)
+                        .suggests(ONLINE::listSuggestions)
                         .executes(context -> ban(context, null, null))
                         .then(argument("duration", ArgumentTypes.duration())
                                 .executes(context -> ban(context, duration(context), null))

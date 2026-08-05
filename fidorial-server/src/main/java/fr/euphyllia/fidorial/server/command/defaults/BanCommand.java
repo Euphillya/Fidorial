@@ -39,7 +39,6 @@ public final class BanCommand {
         return literal("ban")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
                 .then(argument("player", playerArgument)
-                        .suggests(playerArgument::listSuggestions)
                         .executes(context -> ban(context, null, null))
                         .then(argument("duration", ArgumentTypes.duration())
                                 .executes(context -> ban(context, duration(context), null))

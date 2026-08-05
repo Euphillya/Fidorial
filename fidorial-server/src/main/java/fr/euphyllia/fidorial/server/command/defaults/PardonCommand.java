@@ -35,7 +35,6 @@ public final class PardonCommand {
         return literal("pardon")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
                 .then(argument("player", playerArgument)
-                        .suggests(playerArgument::listSuggestions)
                         .executes(PardonCommand::pardon))
                 .build();
     }
