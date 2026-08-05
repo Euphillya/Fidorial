@@ -38,7 +38,7 @@ public interface Commands {
 
         final RequiredArgumentBuilder<CommandSource, T> builder = RequiredArgumentBuilder.argument(name, argumentType);
 
-        if (argumentType instanceof final ForceServerSuggestions forced) {
+        if (argumentType instanceof final ForceServerSuggestions forced && forced.shouldForceServerSuggestions()) {
             builder.suggests(forced.suggestionProvider());
         }
 

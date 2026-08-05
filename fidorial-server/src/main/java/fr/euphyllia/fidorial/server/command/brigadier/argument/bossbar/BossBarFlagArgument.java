@@ -27,18 +27,17 @@ public final class BossBarFlagArgument implements ArgumentType<BossBar.Flag>, Fo
 
     private static final List<String> EXAMPLES = List.of("darken_screen", "play_boss_music");
 
-    public static final SuggestionProvider<CommandSource> SUGGESTIONS = (_, builder) -> {
-        for (final BossBar.Flag flag : BossBar.Flag.values()) {
-            builder.suggest(flag.name().toLowerCase(Locale.ROOT));
-        }
-        return builder.buildFuture();
-    };
-
     public static final DynamicCommandExceptionType ERROR_INVALID_VALUE =
             new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
                     Component.translatable(
                             "argument.enum.invalid",
                             Component.text(String.valueOf(value)))));
+
+    private final SuggestionProvider<CommandSource> suggestions;
+
+    public BossBarFlagArgument() {
+        this.suggestions = this::listSuggestions;
+    }
 
     public static BossBarFlagArgument bossBarFlag() {
         return new BossBarFlagArgument();
@@ -74,7 +73,7 @@ public final class BossBarFlagArgument implements ArgumentType<BossBar.Flag>, Fo
 
     @Override
     public SuggestionProvider<CommandSource> suggestionProvider() {
-        return SUGGESTIONS;
+        return suggestions;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<BossBarFlagArgument, Info.Spec> {

@@ -37,7 +37,6 @@ public final class OpCommand {
                 .requires(source ->
                         source.sender().hasPermission(grant ? "fidorial.command.op" : "fidorial.command.deop"))
                 .then(argument("player", playerArgument)
-                        .suggests(playerArgument::listSuggestions)
                         .executes(context -> execute(context, grant))).build();
     }
 
