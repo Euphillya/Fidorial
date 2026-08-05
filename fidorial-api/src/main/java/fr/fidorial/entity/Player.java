@@ -5,7 +5,9 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.PlayerInventory;
 import fr.fidorial.permission.PermissionHolder;
-import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.bossbar.BossBarViewer;
+import net.kyori.adventure.identity.Identified;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 
 import java.net.InetAddress;
@@ -13,7 +15,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface Player extends LivingEntity, PermissionHolder, CommandSource, CommandSender {
+public interface Player extends LivingEntity, PermissionHolder, CommandSource, CommandSender, Identified, BossBarViewer {
 
     void refreshCommands();
 
@@ -27,6 +29,11 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
      */
     default OfflinePlayer offline() {
         return server().offlinePlayers().of(this);
+    }
+
+    @Override
+    default Identity identity() {
+        return Identity.identity(this.uuid());
     }
 
     @Override
@@ -56,6 +63,4 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
     GameMode gameMode();
 
     void setGameMode(GameMode gameMode);
-
-    Collection<? extends BossBar> bossBars();
 }

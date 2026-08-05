@@ -1,5 +1,35 @@
 import org.jspecify.annotations.NullMarked;
 
+/**
+ * Public API for writing Fidorial plugins.
+ *
+ * <p>Fidorial has no Forge, no Fabric and no Mixin. A plugin implements
+ * {@link fr.fidorial.plugin.Plugin}, receives a
+ * {@link fr.fidorial.plugin.PluginContext} on load, then <em>subscribes to
+ * events</em> and <em>registers services</em> from there.
+ *
+ * <h2>Getting started</h2>
+ * <ul>
+ *   <li>{@link fr.fidorial.plugin} — plugin entry point and context</li>
+ *   <li>{@link fr.fidorial.event} — observe and cancel server events</li>
+ *   <li>{@link fr.fidorial.service} — replace default server behaviour</li>
+ *   <li>{@link fr.fidorial.scheduler} — hand long work off the region threads</li>
+ *   <li>{@link fr.fidorial.registry.keys} — generated keys for blocks, items and more</li>
+ * </ul>
+ *
+ * <h2>Threading</h2>
+ * <p>The world is split into independent 32×32-chunk regions, each ticking at
+ * 20 TPS on its own thread. Event listeners run on the thread of the region
+ * owning the block or entity — never block inside one, hand long work to the
+ * {@linkplain fr.fidorial.scheduler scheduler}.
+ *
+ * <h2>Nullability</h2>
+ * <p>This module is {@link org.jspecify.annotations.NullMarked}: every type is
+ * non-null unless explicitly annotated {@code @Nullable}.
+ *
+ * @see <a href="https://fidorial.euphyllia.moe">Documentation</a>
+ * @see <a href="https://github.com/Euphillya/Fidorial">GitHub</a>
+ */
 @NullMarked
 module fr.fidorial {
     exports fr.fidorial.attribute;

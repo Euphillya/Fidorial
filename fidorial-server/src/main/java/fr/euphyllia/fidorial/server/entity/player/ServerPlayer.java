@@ -44,10 +44,12 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 
 import java.net.InetAddress;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -514,8 +516,8 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     }
 
     @Override
-    public Collection<? extends BossBar> bossBars() {
-        return Set.copyOf(activeBossBars.keySet());
+    public @UnmodifiableView Iterable<? extends BossBar> activeBossBars() {
+        return Collections.unmodifiableSet(activeBossBars.keySet());
     }
 
     public int selectedSlot() {

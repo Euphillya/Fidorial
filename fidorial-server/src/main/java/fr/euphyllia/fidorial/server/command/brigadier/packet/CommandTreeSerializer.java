@@ -12,6 +12,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.packet.util.Permissionless
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.registry.data.ArgumentTypeIds;
 import fr.fidorial.command.CommandSource;
+import fr.fidorial.command.argument.ForceServerSuggestions;
 import net.kyori.adventure.key.Key;
 
 import java.util.ArrayDeque;
@@ -183,7 +184,7 @@ public final class CommandTreeSerializer {
     }
 
     private static void writeArgumentType(final PacketBuffer buf, final ArgumentType<?> argument) {
-        if (argument instanceof fr.fidorial.command.argument.ForceServerSuggestions) {
+        if (argument instanceof fr.fidorial.command.argument.ForceServerSuggestions && ((ForceServerSuggestions) argument).shouldForceServerSuggestions()) {
             writeAliasedAsString(buf, argument, ArgumentTypeRegistry.registrar(argument));
             return;
         }

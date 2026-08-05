@@ -28,6 +28,31 @@ java {
     }
 }
 
+tasks.javadoc {
+    val opt = options as StandardJavadocDocletOptions
+
+    opt.encoding = "UTF-8"
+    opt.docEncoding = "UTF-8"
+    opt.charSet = "UTF-8"
+    opt.docTitle = "Fidorial API ${project.version}"
+    opt.windowTitle = "fidorial-api ${project.version}"
+    opt.addBooleanOption("html5", true)
+    opt.noTimestamp(true)
+    opt.addStringOption("Xdoclint:all,-missing", "-quiet")
+
+    opt.links(
+        "https://docs.oracle.com/en/java/javase/25/docs/api/",
+        "https://jd.papermc.io/adventure/5.2.0/",
+        "https://www.slf4j.org/apidocs/",
+        "https://javadoc.io/doc/org.jspecify/jspecify/1.0.1/",
+    )
+
+    opt.bottom(
+        "MIT © 2026 Euphyllia Bierque — " +
+                "<a href=\"https://github.com/Euphillya/Fidorial\">GitHub</a>"
+    )
+}
+
 publishing {
     publications {
         register<MavenPublication>("maven") {
