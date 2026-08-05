@@ -4,7 +4,6 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.fidorial.command.CommandSender;
@@ -18,48 +17,34 @@ import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
 
 import static fr.fidorial.command.Commands.argument;
 import static fr.fidorial.command.Commands.literal;
 
-/**
- * /whitelist on|off|add &lt;player&gt;|remove &lt;player&gt;|list|reload
- */
 public final class WhitelistCommand {
 
     private static final String PERMISSION = "fidorial.command.whitelist";
-
-    private static final SuggestionProvider<CommandSource> LISTED = (context, builder) -> {
-        final String remaining = builder.getRemainingLowerCase();
-
-        context.getSource().server().whitelist().entries()
-                .map(WhitelistEntry::label)
-                .filter(label -> label.toLowerCase(Locale.ROOT).startsWith(remaining))
-                .forEach(builder::suggest);
-
-        return builder.buildFuture();
-    };
 
     private WhitelistCommand() {
     }
 
     public static LiteralCommandNode<CommandSource> create() {
-        final ArgumentType<PlayerProfileListResolver> playerArgument = ArgumentTypes.playerProfiles();
+        final ArgumentType<PlayerProfileListResolver> unlistedArgument =
+                ArgumentTypes.playerProfiles(player -> !player.server().whitelist().contains(player.uuid()));
+        final ArgumentType<PlayerProfileListResolver> listedArgument =
+                ArgumentTypes.playerProfiles(player -> player.server().whitelist().contains(player.uuid()));
 
         return literal("whitelist")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
                 .then(literal("on").executes(context -> enforce(context, true)))
                 .then(literal("off").executes(context -> enforce(context, false)))
                 .then(literal("add")
-                        .then(argument("player", playerArgument)
-                                .suggests(playerArgument::listSuggestions)
+                        .then(argument("player", unlistedArgument)
+                                .suggests(unlistedArgument::listSuggestions)
                                 .executes(WhitelistCommand::add)))
                 .then(literal("remove")
-                        .then(argument("target", ArgumentTypes.word())
-                                .suggests(LISTED)
+                        .then(argument("player", listedArgument)
+                                .suggests(listedArgument::listSuggestions)
                                 .executes(WhitelistCommand::remove)))
                 .then(literal("list").executes(WhitelistCommand::list))
                 .then(literal("reload").executes(WhitelistCommand::reload))
@@ -109,26 +94,33 @@ public final class WhitelistCommand {
         return added > 0 ? Command.SINGLE_SUCCESS : 0;
     }
 
-    private static int remove(final CommandContext<CommandSource> context) {
+    private static int remove(final CommandContext<CommandSource> context) throws CommandSyntaxException {
         final CommandSource source = context.getSource();
         final CommandSender sender = source.sender();
         final WhitelistService whitelist = source.server().whitelist();
 
-        final String target = context.getArgument("target", String.class);
-        final Optional<WhitelistEntry> entry = find(whitelist, target);
+        final Collection<PlayerProfile> targets =
+                context.getArgument("player", PlayerProfileListResolver.class).resolve(source);
 
-        if (entry.isEmpty() || !whitelist.remove(entry.get().uuid())) {
-            sender.sendMessage(Component.translatable(
-                    "commands.whitelist.remove.failed", Component.text(target)));
-            return 0;
+        int removed = 0;
+
+        for (final PlayerProfile target : targets) {
+            final Component name = Component.text(target.name());
+
+            if (!whitelist.remove(target.uuid())) {
+                sender.sendMessage(Component.translatable("commands.whitelist.remove.failed", name));
+                continue;
+            }
+
+            sender.sendMessage(Component.translatable("commands.whitelist.remove.success", name));
+            removed++;
         }
 
-        sender.sendMessage(Component.translatable(
-                "commands.whitelist.remove.success", Component.text(entry.get().label())));
+        if (removed > 0) {
+            kickDisallowed(sender);
+        }
 
-        kickDisallowed(sender);
-
-        return Command.SINGLE_SUCCESS;
+        return removed > 0 ? Command.SINGLE_SUCCESS : 0;
     }
 
     private static int list(final CommandContext<CommandSource> context) {
@@ -166,24 +158,6 @@ public final class WhitelistCommand {
         if (kicked > 0) {
             sender.sendMessage(Component.translatable(
                     "commands.whitelist.kicked", Component.text(kicked)));
-        }
-    }
-
-    private static Optional<WhitelistEntry> find(final WhitelistService whitelist, final String target) {
-        final Optional<WhitelistEntry> byName = whitelist.find(target);
-
-        if (byName.isPresent()) {
-            return byName;
-        }
-
-        try {
-            final UUID uuid = UUID.fromString(target);
-
-            return whitelist.entries()
-                    .filter(entry -> entry.uuid().equals(uuid))
-                    .findFirst();
-        } catch (final IllegalArgumentException ignored) {
-            return Optional.empty();
         }
     }
 }

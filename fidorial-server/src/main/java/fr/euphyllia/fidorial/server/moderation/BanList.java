@@ -78,11 +78,6 @@ public final class BanList implements BanService {
         }
     }
 
-    /**
-     * Discards every entry whose expiry has passed.
-     *
-     * @return the number of entries discarded
-     */
     public int purgeExpired() {
         int removed = 0;
 

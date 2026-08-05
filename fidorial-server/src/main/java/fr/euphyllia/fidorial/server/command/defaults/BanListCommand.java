@@ -13,9 +13,6 @@ import java.util.List;
 
 import static fr.fidorial.command.Commands.literal;
 
-/**
- * /banlist
- */
 public final class BanListCommand {
 
     private static final String PERMISSION = "fidorial.command.banlist";
