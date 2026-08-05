@@ -3,7 +3,6 @@ package fr.euphyllia.fidorial.server.command.brigadier.argument.entity;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
@@ -14,10 +13,11 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySe
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.argument.ForceServerSuggestions;
+import fr.fidorial.command.Commands;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.Player;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSuggestions {
+public final class EntityArgument<T> implements ArgumentType<T>, Commands.ForceServerSuggestions {
 
     private static final Collection<String> EXAMPLES =
             List.of("Player", "0123", "@e", "@e[type=zombie]", "dd12be42-52a9-4a91-a8a1-11c01849e498");
@@ -53,8 +53,7 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
 
     private final boolean single;
     private final boolean playersOnly;
-    private final boolean hasFilter;
-    private final SuggestionProvider<CommandSource> suggestions;
+    private final @Nullable SuggestionProvider<CommandSource> suggestions;
 
     private final Predicate<Entity> predicate;
     private final Function<EntitySelector, T> converter;
@@ -68,8 +67,7 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
     ) {
         this.single = single;
         this.playersOnly = playersOnly;
-        this.hasFilter = hasFilter;
-        this.suggestions = this::listSuggestions;
+        this.suggestions = hasFilter ? this::listSuggestions : null;
         this.predicate = predicate;
         this.converter = converter;
 
@@ -95,12 +93,7 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
     }
 
     @Override
-    public boolean shouldForceServerSuggestions() {
-        return hasFilter;
-    }
-
-    @Override
-    public SuggestionProvider<CommandSource> suggestionProvider() {
+    public @Nullable SuggestionProvider<CommandSource> suggestionProvider() {
         return suggestions;
     }
 
@@ -204,6 +197,7 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
 
         return parser.fillSuggestions(builder, suggestionsBuilder -> {
             final Collection<String> playerNames = source.server().onlinePlayers().stream()
+                    .filter(this.predicate)
                     .map(Player::name)
                     .toList();
 
@@ -228,11 +222,6 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
 
         @Override
         public void serialize(final Spec spec, final PacketBuffer buf) {
-            if (spec.hasFilter()) {
-                buf.writeVarInt(StringArgumentType.StringType.SINGLE_WORD.ordinal());
-                return;
-            }
-
             int flags = 0;
 
             if (spec.single()) flags |= 1;
@@ -245,7 +234,7 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
         @Override
         public Spec deserialize(final PacketBuffer buf) {
             final int flags = buf.readByte();
-            return new Spec((flags & 1) != 0, (flags & 2) != 0, false);
+            return new Spec((flags & 1) != 0, (flags & 2) != 0);
         }
 
         @Override
@@ -256,14 +245,14 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
 
         @Override
         public Spec access(final EntityArgument<?> argument) {
-            return new Spec(argument.single(), argument.playersOnly(), argument.hasFilter);
+            return new Spec(argument.single(), argument.playersOnly());
         }
 
-        public record Spec(boolean single, boolean playersOnly, boolean hasFilter) implements ArgumentTypeRegistrar.Spec<EntityArgument<?>> {
+        public record Spec(boolean single, boolean playersOnly) implements ArgumentTypeRegistrar.Spec<EntityArgument<?>> {
 
             @Override
             public EntityArgument<?> instantiate() {
-                return new EntityArgument<>(single, playersOnly, hasFilter, _ -> true, Function.identity());
+                return new EntityArgument<>(single, playersOnly, false, _ -> true, Function.identity());
             }
 
             @Override
