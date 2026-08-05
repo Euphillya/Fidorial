@@ -13,7 +13,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.argument.ForceServerSuggestions;
+import fr.fidorial.command.Commands;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 
@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public final class BossBarFlagArgument implements ArgumentType<BossBar.Flag>, ForceServerSuggestions {
+public final class BossBarFlagArgument implements ArgumentType<BossBar.Flag>, Commands.ForceServerSuggestions {
 
     private static final List<String> EXAMPLES = List.of("darken_screen", "play_boss_music");
 

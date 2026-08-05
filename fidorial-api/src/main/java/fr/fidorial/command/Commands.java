@@ -4,9 +4,17 @@ import com.google.common.base.Preconditions;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import fr.fidorial.command.argument.ForceServerSuggestions;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import org.jetbrains.annotations.ApiStatus;
+import org.jspecify.annotations.Nullable;
 
 public interface Commands {
+
+    @ApiStatus.Internal
+    @ApiStatus.NonExtendable
+    interface ForceServerSuggestions {
+        @Nullable SuggestionProvider<CommandSource> suggestionProvider();
+    }
 
     /**
      * Creates a new {@link LiteralArgumentBuilder} of the required name.
@@ -38,8 +46,9 @@ public interface Commands {
 
         final RequiredArgumentBuilder<CommandSource, T> builder = RequiredArgumentBuilder.argument(name, argumentType);
 
-        if (argumentType instanceof final ForceServerSuggestions forced && forced.shouldForceServerSuggestions()) {
-            builder.suggests(forced.suggestionProvider());
+        if (argumentType instanceof final ForceServerSuggestions forced) {
+            final SuggestionProvider<CommandSource> provider = forced.suggestionProvider();
+            if (provider != null) builder.suggests(provider);
         }
 
         return builder;

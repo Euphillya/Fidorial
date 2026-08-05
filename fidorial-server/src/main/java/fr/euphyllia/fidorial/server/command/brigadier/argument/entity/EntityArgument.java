@@ -13,10 +13,11 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySe
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.argument.ForceServerSuggestions;
+import fr.fidorial.command.Commands;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.Player;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.function.Predicate;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSuggestions {
+public final class EntityArgument<T> implements ArgumentType<T>, Commands.ForceServerSuggestions {
 
     private static final Collection<String> EXAMPLES =
             List.of("Player", "0123", "@e", "@e[type=zombie]", "dd12be42-52a9-4a91-a8a1-11c01849e498");
@@ -52,8 +53,7 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
 
     private final boolean single;
     private final boolean playersOnly;
-    private final boolean hasFilter;
-    private final SuggestionProvider<CommandSource> suggestions;
+    private final @Nullable SuggestionProvider<CommandSource> suggestions;
 
     private final Predicate<Entity> predicate;
     private final Function<EntitySelector, T> converter;
@@ -67,8 +67,7 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
     ) {
         this.single = single;
         this.playersOnly = playersOnly;
-        this.hasFilter = hasFilter;
-        this.suggestions = this::listSuggestions;
+        this.suggestions = hasFilter ? this::listSuggestions : null;
         this.predicate = predicate;
         this.converter = converter;
 
@@ -94,12 +93,7 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
     }
 
     @Override
-    public boolean shouldForceServerSuggestions() {
-        return hasFilter;
-    }
-
-    @Override
-    public SuggestionProvider<CommandSource> suggestionProvider() {
+    public @Nullable SuggestionProvider<CommandSource> suggestionProvider() {
         return suggestions;
     }
 
