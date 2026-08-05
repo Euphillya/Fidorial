@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
@@ -24,15 +25,17 @@ import static fr.fidorial.command.Commands.literal;
 public final class WhitelistCommand {
 
     private static final String PERMISSION = "fidorial.command.whitelist";
+    private static final FidorialServer server = FidorialServer.getInstance();
 
     private WhitelistCommand() {
     }
 
     public static LiteralCommandNode<CommandSource> create() {
         final ArgumentType<PlayerProfileListResolver> unlistedArgument =
-                ArgumentTypes.playerProfiles(player -> !player.server().whitelist().contains(player.uuid()));
+                ArgumentTypes.playerProfiles(player -> !server.whitelist().contains(player.uuid()));
+
         final ArgumentType<PlayerProfileListResolver> listedArgument =
-                ArgumentTypes.playerProfiles(player -> player.server().whitelist().contains(player.uuid()));
+                ArgumentTypes.playerProfiles(player -> server.whitelist().contains(player.uuid()));
 
         return literal("whitelist")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
@@ -53,7 +56,7 @@ public final class WhitelistCommand {
 
     private static int enforce(final CommandContext<CommandSource> context, final boolean enabled) {
         final CommandSender sender = context.getSource().sender();
-        final WhitelistService whitelist = context.getSource().server().whitelist();
+        final WhitelistService whitelist = server.whitelist();
 
         if (!whitelist.enabled(enabled)) {
             sender.sendMessage(Component.translatable(
@@ -72,7 +75,7 @@ public final class WhitelistCommand {
     private static int add(final CommandContext<CommandSource> context) throws CommandSyntaxException {
         final CommandSource source = context.getSource();
         final CommandSender sender = source.sender();
-        final WhitelistService whitelist = source.server().whitelist();
+        final WhitelistService whitelist = server.whitelist();
 
         final Collection<PlayerProfile> targets =
                 context.getArgument("player", PlayerProfileListResolver.class).resolve(source);
@@ -97,7 +100,7 @@ public final class WhitelistCommand {
     private static int remove(final CommandContext<CommandSource> context) throws CommandSyntaxException {
         final CommandSource source = context.getSource();
         final CommandSender sender = source.sender();
-        final WhitelistService whitelist = source.server().whitelist();
+        final WhitelistService whitelist = server.whitelist();
 
         final Collection<PlayerProfile> targets =
                 context.getArgument("player", PlayerProfileListResolver.class).resolve(source);
@@ -125,7 +128,7 @@ public final class WhitelistCommand {
 
     private static int list(final CommandContext<CommandSource> context) {
         final CommandSender sender = context.getSource().sender();
-        final WhitelistService whitelist = context.getSource().server().whitelist();
+        final WhitelistService whitelist = server.whitelist();
 
         final List<WhitelistEntry> entries = whitelist.entries().toList();
 
@@ -143,7 +146,7 @@ public final class WhitelistCommand {
     }
 
     private static int reload(final CommandContext<CommandSource> context) {
-        FidorialServer.getInstance().whitelist().load();
+        server.whitelist().load();
 
         context.getSource().sender().sendMessage(Component.translatable("commands.whitelist.reloaded"));
 
@@ -153,11 +156,30 @@ public final class WhitelistCommand {
     }
 
     private static void kickDisallowed(final CommandSender sender) {
-        final int kicked = FidorialServer.getInstance().enforceWhitelist();
+        final int kicked = enforceWhitelist();
 
         if (kicked > 0) {
             sender.sendMessage(Component.translatable(
                     "commands.whitelist.kicked", Component.text(kicked)));
         }
+    }
+
+    private static int enforceWhitelist() {
+        if (!server.whitelist().enabled()) {
+            return 0;
+        }
+
+        int kicked = 0;
+
+        for (final ServerPlayer player : server.players()) {
+            if (server.whitelist().contains(player.uuid()) || server.operators().isOp(player.uuid())) {
+                continue;
+            }
+
+            player.kick(Component.translatable("multiplayer.disconnect.not_whitelisted"));
+            kicked++;
+        }
+
+        return kicked;
     }
 }

@@ -1,45 +1,53 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
+import com.google.common.net.InetAddresses;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
-import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
-import fr.fidorial.entity.PlayerProfile;
+import fr.fidorial.entity.Player;
 import fr.fidorial.moderation.BanEntry;
 import fr.fidorial.moderation.BanService;
 import fr.fidorial.moderation.BanTarget;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
+import java.net.InetAddress;
 import java.time.Duration;
-import java.util.Collection;
+import java.util.Locale;
+import java.util.Optional;
 
 import static fr.fidorial.command.Commands.argument;
 import static fr.fidorial.command.Commands.literal;
 
-public final class BanCommand {
+public final class BanIpCommand {
 
-    private static final String PERMISSION = "fidorial.command.ban";
+    private static final String PERMISSION = "fidorial.command.banip";
     private static final FidorialServer server = FidorialServer.getInstance();
 
-    private BanCommand() {
+    private static final SuggestionProvider<CommandSource> ONLINE = (_, builder) -> {
+        final String remaining = builder.getRemainingLowerCase();
+
+        server.onlinePlayers().stream()
+                .map(Player::name)
+                .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(remaining))
+                .forEach(builder::suggest);
+
+        return builder.buildFuture();
+    };
+
+    private BanIpCommand() {
     }
 
     public static LiteralCommandNode<CommandSource> create() {
-        final ArgumentType<PlayerProfileListResolver> playerArgument =
-                ArgumentTypes.playerProfiles(player ->
-                        !server.banList().isBanned(new BanTarget.Profile(player.uuid())));
-
-        return literal("ban")
+        return literal("ban-ip")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
-                .then(argument("player", playerArgument)
-                        .suggests(playerArgument::listSuggestions)
+                .then(argument("target", ArgumentTypes.word())
+                        .suggests(ONLINE)
                         .executes(context -> ban(context, null, null))
                         .then(argument("duration", ArgumentTypes.duration())
                                 .executes(context -> ban(context, duration(context), null))
@@ -62,50 +70,46 @@ public final class BanCommand {
             final CommandContext<CommandSource> context,
             @Nullable final Duration duration,
             @Nullable final Component reason
-    ) throws CommandSyntaxException {
-
+    ) {
         final CommandSource source = context.getSource();
-        final BanService bans = server.banList();
+        final String target = context.getArgument("target", String.class);
 
-        final Collection<PlayerProfile> targets =
-                context.getArgument("player", PlayerProfileListResolver.class).resolve(source);
+        final Optional<InetAddress> address = resolve(source, target);
 
-        final String issuer = source.sender().name();
-
-        int banned = 0;
-
-        for (final PlayerProfile target : targets) {
-            final BanTarget banTarget = new BanTarget.Profile(target.uuid());
-
-            final BanEntry entry = duration == null
-                    ? BanEntry.permanent(banTarget, target.name(), reason, issuer)
-                    : BanEntry.lasting(banTarget, target.name(), reason, issuer, duration);
-
-            final boolean added = bans.ban(entry);
-
-            kickBanned(entry);
-
+        if (address.isEmpty()) {
             source.sender()
-                    .sendMessage(Component.translatable(
-                            added ? "commands.ban.success" : "commands.ban.updated",
-                            Component.text(entry.label()),
-                            expiryOf(entry),
-                            reasonOf(entry)));
-
-            banned++;
+                    .sendMessage(Component.translatable("commands.banip.invalid", Component.text(target)));
+            return 0;
         }
 
-        return banned > 0 ? Command.SINGLE_SUCCESS : 0;
+        final BanService bans = server.banList();
+        final BanTarget banned = new BanTarget.Address(address.get());
+        final String issuer = source.sender().name();
+
+        final BanEntry entry = duration == null
+                ? BanEntry.permanent(banned, null, reason, issuer)
+                : BanEntry.lasting(banned, null, reason, issuer, duration);
+
+        final boolean added = bans.ban(entry);
+        final int kicked = kickBanned(entry);
+
+        source.sender()
+                .sendMessage(Component.translatable(
+                        added ? "commands.banip.success" : "commands.banip.updated",
+                        Component.text(entry.label()),
+                        Component.text(kicked),
+                        BanCommand.expiryOf(entry),
+                        BanCommand.reasonOf(entry)));
+
+        return Command.SINGLE_SUCCESS;
     }
 
-    static Component expiryOf(final BanEntry entry) {
-        return entry.permanent()
-                ? Component.translatable("commands.ban.expires.never")
-                : Component.text(entry.expiresLabel());
-    }
+    private static Optional<InetAddress> resolve(final CommandSource source, final String target) {
+        if (InetAddresses.isInetAddress(target)) {
+            return Optional.of(InetAddresses.forString(target));
+        }
 
-    static Component reasonOf(final BanEntry entry) {
-        return entry.describeReason().orElseGet(() -> Component.translatable("commands.ban.reason.none"));
+        return server.player(target).flatMap(Player::address);
     }
 
     private static int kickBanned(final BanEntry entry) {

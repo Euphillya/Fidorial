@@ -72,6 +72,7 @@ import fr.fidorial.event.EventBus;
 import fr.fidorial.event.server.ServerStartedEvent;
 import fr.fidorial.event.server.ServerStoppingEvent;
 import fr.fidorial.moderation.BanEntry;
+import fr.fidorial.moderation.BanTarget;
 import fr.fidorial.permission.PermissionRegistry;
 import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.scheduler.RegionizedScheduler;
@@ -98,6 +99,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.net.InetAddress;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.time.Duration;
@@ -179,7 +181,7 @@ public final class FidorialServer implements Server {
     private final JavaPluginManager pluginManager =
             new JavaPluginManager(this, events, services, permissionRegistry, config.pluginsPath());
     private final OperatorList operators = new OperatorList(Path.of("ops.json"));
-    private final BanList banList = new BanList(Path.of("banned-players.json"));
+    private final BanList banList = new BanList(Path.of("banned-players.json"), Path.of("banned-ips.json"));
     private final Whitelist whitelist = new Whitelist(Path.of("whitelist.json"));
     private final FidorialOfflinePlayers offlinePlayers = new FidorialOfflinePlayers(
             this,
@@ -472,39 +474,6 @@ public final class FidorialServer implements Server {
     @Override
     public Whitelist whitelist() {
         return whitelist;
-    }
-
-    public Optional<Component> loginRefusal(final PlayerProfile profile) {
-        final Optional<BanEntry> ban = banList.find(profile.uuid());
-
-        if (ban.isPresent()) {
-            return Optional.of(banList.disconnectMessage(ban.get()));
-        }
-
-        if (!whitelist.allows(profile.uuid()) && !operators.isOp(profile.uuid())) {
-            return Optional.of(Component.translatable("multiplayer.disconnect.not_whitelisted"));
-        }
-
-        return Optional.empty();
-    }
-
-    public int enforceWhitelist() {
-        if (!whitelist.enabled()) {
-            return 0;
-        }
-
-        int kicked = 0;
-
-        for (final ServerPlayer player : players()) {
-            if (whitelist.contains(player.uuid()) || operators.isOp(player.uuid())) {
-                continue;
-            }
-
-            player.kick(Component.translatable("multiplayer.disconnect.not_whitelisted"));
-            kicked++;
-        }
-
-        return kicked;
     }
 
     @Override

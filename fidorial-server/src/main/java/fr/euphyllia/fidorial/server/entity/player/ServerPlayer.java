@@ -46,10 +46,12 @@ import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
+import java.net.InetAddress;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -483,6 +485,11 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
             entry.getKey().removeListener(entry.getValue().listener());
         }
         activeBossBars.clear();
+    }
+
+    @Override
+    public Optional<InetAddress> address() {
+        return connection.remoteInetAddress();
     }
 
     @Override

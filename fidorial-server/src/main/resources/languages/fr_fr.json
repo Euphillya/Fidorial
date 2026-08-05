@@ -144,8 +144,15 @@
   "commands.pardon.success": "<arg:0> n'est plus banni",
   "commands.pardon.failed": "Aucun changement. <arg:0> n'est pas banni",
 
-  "commands.banlist.none": "Aucun joueur banni",
-  "commands.banlist.header": "<arg:0> joueur(s) banni(s) :",
+  "commands.banip.success": "IP <arg:0> bannie (<arg:1> joueur(s) expulsé(s), jusqu'au : <arg:2>) - raison : <arg:3>",
+  "commands.banip.updated": "Bannissement de l'IP <arg:0> mis à jour (<arg:1> joueur(s) expulsé(s), jusqu'au : <arg:2>) - raison : <arg:3>",
+  "commands.banip.invalid": "<arg:0> n'est ni une adresse ni un joueur connecté",
+
+  "commands.pardonip.success": "L'IP <arg:0> n'est plus bannie",
+  "commands.pardonip.failed": "Aucun changement. <arg:0> n'est pas bannie",
+
+  "commands.banlist.none": "Aucun bannissement",
+  "commands.banlist.header": "<arg:0> bannissement(s) :",
   "commands.banlist.entry": " - <arg:0> banni par <arg:1> (jusqu'au : <arg:2>) - raison : <arg:3>",
 
   "commands.whitelist.enabled": "La whitelist est désormais appliquée",

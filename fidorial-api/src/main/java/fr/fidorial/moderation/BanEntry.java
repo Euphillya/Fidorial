@@ -11,20 +11,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
- * Represents a ban entry for a player.
+ * Represents a ban.
  *
- * @param uuid    the unique identifier of the player
- * @param name    the name of the player (nullable)
+ * @param target  what the ban applies to
+ *  @param name    the name to display for the target (nullable); the target's own label is used
+ *                 when absent
  * @param reason  the reason for the ban (nullable)
  * @param source  the source of the ban (nullable)
  * @param created the timestamp when the ban was created
  * @param expires the timestamp when the ban expires (nullable)
  */
 public record BanEntry(
-        UUID uuid,
+        BanTarget target,
         @Nullable String name,
         @Nullable Component reason,
         @Nullable String source,
@@ -40,36 +40,36 @@ public record BanEntry(
 
 
     public BanEntry {
-        Objects.requireNonNull(uuid, "uuid");
+        Objects.requireNonNull(target, "target");
         Objects.requireNonNull(created, "created");
     }
 
     /**
      * Creates a ban that never lifts.
      *
-     * @param uuid   the identity to ban
+     * @param target what to ban
      * @param name   the name to record for display
-     * @param reason why the player is banned, or {@code null}
+     * @param reason why the target is banned, or {@code null}
      * @param source who is issuing the ban
      * @return the ban
      * @since 0.1.0
      */
     @Contract(pure = true)
     public static BanEntry permanent(
-            final UUID uuid,
+            final BanTarget target,
             @Nullable final String name,
             @Nullable final Component reason,
             @Nullable final String source
     ) {
-        return until(uuid, name, reason, source, null);
+        return until(target, name, reason, source, null);
     }
 
     /**
      * Creates a ban lifting at the given instant.
      *
-     * @param uuid    the identity to ban
+     * @param target  what to ban
      * @param name    the name to record for display
-     * @param reason  why the player is banned, or {@code null}
+     * @param reason  why the target is banned, or {@code null}
      * @param source  who is issuing the ban
      * @param expires when the ban lifts, or {@code null} for a permanent ban
      * @return the ban
@@ -77,21 +77,21 @@ public record BanEntry(
      */
     @Contract(pure = true)
     public static BanEntry until(
-            final UUID uuid,
+            final BanTarget target,
             @Nullable final String name,
             @Nullable final Component reason,
             @Nullable final String source,
             @Nullable final Instant expires
     ) {
-        return new BanEntry(uuid, name, reason, source, Instant.now(), expires);
+        return new BanEntry(target, name, reason, source, Instant.now(), expires);
     }
 
     /**
      * Creates a ban lasting the given amount of time, counted from now.
      *
-     * @param uuid     the identity to ban
+     * @param target   what to ban
      * @param name     the name to record for display
-     * @param reason   why the player is banned, or {@code null}
+     * @param reason   why the target is banned, or {@code null}
      * @param source   who is issuing the ban
      * @param duration how long the ban lasts
      * @return the ban
@@ -99,7 +99,7 @@ public record BanEntry(
      */
     @Contract(pure = true)
     public static BanEntry lasting(
-            final UUID uuid,
+            final BanTarget target,
             @Nullable final String name,
             @Nullable final Component reason,
             @Nullable final String source,
@@ -109,7 +109,7 @@ public record BanEntry(
 
         final Instant created = Instant.now();
 
-        return new BanEntry(uuid, name, reason, source, created, created.plus(duration));
+        return new BanEntry(target, name, reason, source, created, created.plus(duration));
     }
 
     /**
@@ -156,7 +156,7 @@ public record BanEntry(
     }
 
     /**
-     * Gets why the player was banned.
+     * Gets why the target is banned.
      *
      * @return the reason, or empty when none was given
      * @since 0.1.0
@@ -167,14 +167,14 @@ public record BanEntry(
     }
 
     /**
-     * Gets the label for the player.
+     * Gets the label for the target.
      *
-     * @return the label, or the UUID as a string if no name is available
+     * @return the recorded name, or the target's own label when no name is available
      * @since 0.1.0
      */
     @Contract(pure = true)
     public String label() {
-        return name != null ? name : uuid.toString();
+        return name != null ? name : target.label();
     }
 
     /**

@@ -15,11 +15,13 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.command.defaults.BanCommand;
+import fr.euphyllia.fidorial.server.command.defaults.BanIpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.BanListCommand;
 import fr.euphyllia.fidorial.server.command.defaults.BossBarCommand;
 import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.PardonCommand;
+import fr.euphyllia.fidorial.server.command.defaults.PardonIpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.StopCommand;
 import fr.euphyllia.fidorial.server.command.defaults.SummonCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TimeCommand;
@@ -76,6 +78,8 @@ public final class CommandManager implements CommandRegistry {
         register(PardonCommand.create(), Set.of("unban"));
         register(BanListCommand.create());
         register(WhitelistCommand.create());
+        register(BanIpCommand.create(), Set.of("banip"));
+        register(PardonIpCommand.create(), Set.of("unban-ip", "pardonip"));
     }
 
     @Override
@@ -268,8 +272,8 @@ public final class CommandManager implements CommandRegistry {
                 isConsole
                         ? Component.translatable("console.command.context.here")
                         : Component.translatable("command.context.here")
-                        .color(NamedTextColor.RED)
-                        .decorate(TextDecoration.ITALIC));
+                          .color(NamedTextColor.RED)
+                          .decorate(TextDecoration.ITALIC));
 
         source.sender().sendMessage(context);
     }

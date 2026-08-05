@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.network;
 
+import com.google.common.net.InetAddresses;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
@@ -38,10 +39,12 @@ import org.jspecify.annotations.Nullable;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.GeneralSecurityException;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -279,6 +282,20 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
             return inet.getHostString();
         }
         return address == null ? "unknown" : address.toString();
+    }
+
+    public Optional<InetAddress> remoteInetAddress() {
+        if (forwardedAddress != null) {
+            return InetAddresses.isInetAddress(forwardedAddress)
+                    ? Optional.of(InetAddresses.forString(forwardedAddress))
+                    : Optional.empty();
+        }
+
+        final SocketAddress address = ctx.channel().remoteAddress();
+
+        return address instanceof final InetSocketAddress inet
+                ? Optional.ofNullable(inet.getAddress())
+                : Optional.empty();
     }
 
     public void setForwardedAddress(final String forwardedAddress) {

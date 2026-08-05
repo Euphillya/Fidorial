@@ -20,11 +20,13 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.Se
 import fr.euphyllia.fidorial.server.network.proxy.VelocityForwarding;
 import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.event.player.PlayerLoginAttemptEvent;
+import fr.fidorial.moderation.BanEntry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
 import javax.crypto.SecretKey;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -188,7 +190,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
 
         final PlayerLoginAttemptEvent attempt = new PlayerLoginAttemptEvent(playerProfile, address, authenticated);
 
-        server.loginRefusal(playerProfile).ifPresent(attempt::refuse);
+        loginRefusal(playerProfile, connection.remoteInetAddress().orElse(null)).ifPresent(attempt::refuse);
 
         final PlayerLoginAttemptEvent event;
         try {
@@ -209,6 +211,20 @@ public final class LoginPacketHandler implements LoginPacketListener {
             }
             completeLogin(profile, playerProfile);
         });
+    }
+
+    private Optional<Component> loginRefusal(final PlayerProfile profile, @Nullable final InetAddress address) {
+        final Optional<BanEntry> ban = server.banList().findAny(profile.uuid(), address);
+
+        if (ban.isPresent()) {
+            return Optional.of(server.banList().disconnectMessage(ban.get()));
+        }
+
+        if (!server.whitelist().allows(profile.uuid()) && !server.operators().isOp(profile.uuid())) {
+            return Optional.of(Component.translatable("multiplayer.disconnect.not_whitelisted"));
+        }
+
+        return Optional.empty();
     }
 
     private void completeLogin(final GameProfile profile, final PlayerProfile playerProfile) {

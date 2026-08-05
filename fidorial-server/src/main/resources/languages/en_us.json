@@ -145,8 +145,15 @@
   "commands.pardon.success": "Unbanned <arg:0>",
   "commands.pardon.failed": "Nothing changed. <arg:0> is not banned",
 
-  "commands.banlist.none": "There are no banned players",
-  "commands.banlist.header": "There are <arg:0> banned player(s):",
+  "commands.banip.success": "Banned IP <arg:0> (<arg:1> player(s) kicked, until: <arg:2>) - reason: <arg:3>",
+  "commands.banip.updated": "Updated the ban on IP <arg:0> (<arg:1> player(s) kicked, until: <arg:2>) - reason: <arg:3>",
+  "commands.banip.invalid": "<arg:0> is neither an address nor an online player",
+
+  "commands.pardonip.success": "Unbanned IP <arg:0>",
+  "commands.pardonip.failed": "Nothing changed. <arg:0> is not banned",
+
+  "commands.banlist.none": "There are no bans",
+  "commands.banlist.header": "There are <arg:0> ban(s):",
   "commands.banlist.entry": " - <arg:0> banned by <arg:1> (until: <arg:2>) - reason: <arg:3>",
 
   "commands.whitelist.enabled": "Whitelist is now enforced",

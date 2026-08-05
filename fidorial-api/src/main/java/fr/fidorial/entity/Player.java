@@ -8,7 +8,9 @@ import fr.fidorial.permission.PermissionHolder;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 
+import java.net.InetAddress;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface Player extends LivingEntity, PermissionHolder, CommandSource, CommandSender {
@@ -36,6 +38,14 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
     default String name() {
         return profile().name();
     }
+
+    /**
+     * Gets the address this player is connected from.
+     *
+     * @return the client address, or empty when the connection has none
+     * @since 0.1.0
+     */
+    Optional<InetAddress> address();
 
     void kick(Component reason);
 

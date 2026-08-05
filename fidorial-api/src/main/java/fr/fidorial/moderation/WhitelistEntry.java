@@ -16,6 +16,7 @@ import java.util.UUID;
  */
 public record WhitelistEntry(UUID uuid, @Nullable String name) {
 
+    @Contract(pure = true)
     public WhitelistEntry {
         Objects.requireNonNull(uuid, "uuid");
     }

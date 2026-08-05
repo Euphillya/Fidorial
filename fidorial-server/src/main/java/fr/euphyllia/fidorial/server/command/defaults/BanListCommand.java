@@ -7,7 +7,9 @@ import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.moderation.BanEntry;
 import fr.fidorial.moderation.BanService;
+import fr.fidorial.moderation.BanTarget;
 import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -23,15 +25,20 @@ public final class BanListCommand {
     public static LiteralCommandNode<CommandSource> create() {
         return literal("banlist")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
-                .executes(BanListCommand::list)
+                .executes(context -> list(context, null))
+                .then(literal("players").executes(context -> list(context, BanTarget.Profile.class)))
+                .then(literal("ips").executes(context -> list(context, BanTarget.Address.class)))
                 .build();
     }
 
-    private static int list(final CommandContext<CommandSource> context) {
+    private static int list(
+            final CommandContext<CommandSource> context,
+            @Nullable final Class<? extends BanTarget> kind
+    ) {
         final CommandSender sender = context.getSource().sender();
         final BanService bans = context.getSource().server().banList();
 
-        final List<BanEntry> entries = bans.bans().toList();
+        final List<BanEntry> entries = (kind == null ? bans.bans() : bans.bans(kind)).toList();
 
         if (entries.isEmpty()) {
             sender.sendMessage(Component.translatable("commands.banlist.none"));

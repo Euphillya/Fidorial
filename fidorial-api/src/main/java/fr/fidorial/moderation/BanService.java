@@ -4,8 +4,7 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
-import java.time.Duration;
-import java.time.Instant;
+import java.net.InetAddress;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -13,119 +12,78 @@ import java.util.stream.Stream;
 public interface BanService {
 
     /**
-     * Gets the active ban on an identity.
+     * Gets the active ban on a target.
      *
      * <p>An expired entry must not be returned; implementations are free to discard it.</p>
      *
-     * @param uuid the player identity
+     * @param target the ban target
+     * @return the active ban, or empty when nothing bans the target
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    Optional<BanEntry> find(final BanTarget target);
+
+    /**
+     * Gets the active ban recorded under a name, matched case-insensitively.
+     *
+     * <p>Only entries carrying a recorded name can match, so this never resolves an address.</p>
+     *
+     * @param name the player name
+     * @return the active ban, or empty
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    Optional<BanEntry> findByName(final String name);
+
+    /**
+     * Gets whatever bans a connecting player, whether that is their identity or the address they
+     * connect from.
+     *
+     * @param uuid    the player identity
+     * @param address the address the client connects from, or {@code null} when unknown
      * @return the active ban, or empty when the player may connect
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Optional<BanEntry> find(final UUID uuid);
+    default Optional<BanEntry> findAny(final UUID uuid, @Nullable final InetAddress address) {
+        final Optional<BanEntry> byProfile = find(new BanTarget.Profile(uuid));
 
-    /**
-     * Checks whether an identity is currently banned.
-     *
-     * @param uuid the player identity
-     * @return {@code true} when the player is banned
-     * @since 0.1.0
-     */
-    @Contract(pure = true)
-    default boolean isBanned(final UUID uuid) {
-        return find(uuid).isPresent();
+        if (byProfile.isPresent() || address == null) {
+            return byProfile;
+        }
+
+        return find(new BanTarget.Address(address));
     }
 
     /**
-     * Gets the active ban on a name.
+     * Checks whether a target is currently banned.
      *
-     * <p>An expired entry must not be returned; implementations are free to discard it.</p>
-     *
-     * @param name the player name
-     * @return the active ban, or empty when the player may connect
+     * @param target the ban target
+     * @return {@code true} when the target is banned
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Optional<BanEntry> find(final String name);
+    default boolean isBanned(final BanTarget target) {
+        return find(target).isPresent();
+    }
 
     /**
-     * Records a ban, replacing any existing entry for the same identity.
+     * Records a ban, replacing any existing entry for the same target.
      *
      * @param entry the ban to record
-     * @return {@code true} when the player was not already banned
+     * @return {@code true} when the target was not already banned
      * @since 0.1.0
      */
     boolean ban(BanEntry entry);
 
     /**
-     * Bans an identity permanently.
+     * Lifts the ban on a target.
      *
-     * @param uuid   the identity to ban
-     * @param name   the name to record for display
-     * @param reason why the player is banned, or {@code null}
-     * @param source who is issuing the ban
-     * @return {@code true} when the player was not already banned
-     * @since 0.1.0
-     */
-    default boolean ban(
-            final UUID uuid,
-            @Nullable final String name,
-            @Nullable final Component reason,
-            @Nullable final String source
-    ) {
-        return ban(BanEntry.permanent(uuid, name, reason, source));
-    }
-
-    /**
-     * Bans an identity until the given instant.
-     *
-     * @param uuid    the identity to ban
-     * @param name    the name to record for display
-     * @param reason  why the player is banned, or {@code null}
-     * @param source  who is issuing the ban
-     * @param expires when the ban lifts, or {@code null} for a permanent ban
-     * @return {@code true} when the player was not already banned
-     * @since 0.1.0
-     */
-    default boolean ban(
-            final UUID uuid,
-            @Nullable final String name,
-            @Nullable final Component reason,
-            @Nullable final String source,
-            @Nullable final Instant expires
-    ) {
-        return ban(BanEntry.until(uuid, name, reason, source, expires));
-    }
-
-    /**
-     * Bans an identity for the given amount of time, counted from now.
-     *
-     * @param uuid     the identity to ban
-     * @param name     the name to record for display
-     * @param reason   why the player is banned, or {@code null}
-     * @param source   who is issuing the ban
-     * @param duration how long the ban lasts
-     * @return {@code true} when the player was not already banned
-     * @since 0.1.0
-     */
-    default boolean ban(
-            final UUID uuid,
-            @Nullable final String name,
-            @Nullable final Component reason,
-            @Nullable final String source,
-            final Duration duration
-    ) {
-        return ban(BanEntry.lasting(uuid, name, reason, source, duration));
-    }
-
-    /**
-     * Lifts the ban on an identity.
-     *
-     * @param uuid the player identity
+     * @param target the ban target
      * @return {@code true} when a ban was actually lifted
      * @since 0.1.0
      */
-    boolean pardon(final UUID uuid);
+    boolean pardon(final BanTarget target);
 
     /**
      * Gets the active bans.
@@ -137,7 +95,19 @@ public interface BanService {
     Stream<BanEntry> bans();
 
     /**
-     * Gets how many players are currently banned.
+     * Gets the active bans whose target is of the given kind.
+     *
+     * @param kind the target type to keep
+     * @return the bans, most recently issued first; expired entries are excluded
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    default Stream<BanEntry> bans(final Class<? extends BanTarget> kind) {
+        return bans().filter(entry -> kind.isInstance(entry.target()));
+    }
+
+    /**
+     * Gets how many targets are currently banned.
      *
      * @return the number of active bans
      * @since 0.1.0

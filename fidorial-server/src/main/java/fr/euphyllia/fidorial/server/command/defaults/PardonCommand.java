@@ -5,11 +5,13 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.moderation.BanService;
+import fr.fidorial.moderation.BanTarget;
 import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
@@ -20,13 +22,15 @@ import static fr.fidorial.command.Commands.literal;
 public final class PardonCommand {
 
     private static final String PERMISSION = "fidorial.command.pardon";
+    private static final FidorialServer server = FidorialServer.getInstance();
 
     private PardonCommand() {
     }
 
     public static LiteralCommandNode<CommandSource> create() {
         final ArgumentType<PlayerProfileListResolver> playerArgument =
-                ArgumentTypes.playerProfiles(player -> player.server().banList().isBanned(player.uuid()));
+                ArgumentTypes.playerProfiles(player ->
+                        server.banList().isBanned(new BanTarget.Profile(player.uuid())));
 
         return literal("pardon")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
@@ -38,7 +42,7 @@ public final class PardonCommand {
 
     private static int pardon(final CommandContext<CommandSource> context) throws CommandSyntaxException {
         final CommandSource source = context.getSource();
-        final BanService bans = source.server().banList();
+        final BanService bans = server.banList();
 
         final Collection<PlayerProfile> targets =
                 context.getArgument("player", PlayerProfileListResolver.class).resolve(source);
@@ -47,10 +51,12 @@ public final class PardonCommand {
 
         for (final PlayerProfile target : targets) {
             final Component name = Component.text(target.name());
-            if (!bans.pardon(target.uuid())) {
+
+            if (!bans.pardon(new BanTarget.Profile(target.uuid()))) {
                 source.sender().sendMessage(Component.translatable("commands.pardon.failed", name));
                 continue;
             }
+
             source.sender().sendMessage(Component.translatable("commands.pardon.success", name));
             pardoned++;
         }
