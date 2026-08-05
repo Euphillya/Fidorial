@@ -80,6 +80,7 @@ module fr.fidorial {
     requires net.kyori.adventure.key;
     requires net.kyori.adventure.text.logger.slf4j;
     requires net.kyori.adventure.text.minimessage;
+    requires org.apache.maven.resolver;
 
     requires static org.jetbrains.annotations;
     requires static org.jspecify;

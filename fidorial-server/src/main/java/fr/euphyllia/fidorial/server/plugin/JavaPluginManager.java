@@ -1,8 +1,16 @@
 package fr.euphyllia.fidorial.server.plugin;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import fr.euphyllia.fidorial.server.events.SimpleEventBus;
+import fr.euphyllia.fidorial.server.plugin.deserializer.AuthorDeserializer;
+import fr.euphyllia.fidorial.server.plugin.deserializer.DependencyDeserializer;
+import fr.euphyllia.fidorial.server.plugin.deserializer.JarDependencyDeserializer;
+import fr.euphyllia.fidorial.server.plugin.deserializer.PermissionEntryDeserializer;
+import fr.euphyllia.fidorial.server.plugin.deserializer.PluginDependencyDeserializer;
+import fr.euphyllia.fidorial.server.plugin.deserializer.PluginMetaDeserializer;
+import fr.euphyllia.fidorial.server.plugin.deserializer.RemoteDependencyDeserializer;
 import fr.fidorial.Server;
 import fr.fidorial.permission.PermissionDefinition;
 import fr.fidorial.permission.PermissionNode;
@@ -39,7 +47,15 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(JavaPluginManager.class);
     private static final String DESCRIPTOR = "fidorial.json";
-    private static final Gson GSON = new Gson();
+    private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(PluginMeta.class, new PluginMetaDeserializer())
+            .registerTypeAdapter(PluginMeta.Author.class, new AuthorDeserializer())
+            .registerTypeAdapter(PluginMeta.Dependency.class, new DependencyDeserializer())
+            .registerTypeAdapter(PluginMeta.JarDependency.class, new JarDependencyDeserializer())
+            .registerTypeAdapter(PluginMeta.PermissionEntry.class, new PermissionEntryDeserializer())
+            .registerTypeAdapter(PluginMeta.PluginDependency.class, new PluginDependencyDeserializer())
+            .registerTypeAdapter(PluginMeta.RemoteDependency.class, new RemoteDependencyDeserializer())
+            .create();
 
     private final Server server;
     private final SimpleEventBus events;
@@ -158,23 +174,37 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         }
         final List<PermissionDefinition> definitions = new ArrayList<>();
         final List<PermissionNode> nodes = new ArrayList<>();
-        for (final Map.Entry<String, PluginMeta.PermissionEntry> entry : meta.permissions().entrySet()) {
+        for (final PluginMeta.PermissionEntry entry : flattenPermissions(meta.permissions())) {
             try {
-                final PermissionNode node = PermissionNode.of(entry.getKey());
-                final PluginMeta.PermissionEntry declaration = entry.getValue();
-                definitions.add(new PermissionDefinition(
-                        node,
-                        declaration.description(),
-                        declaration.regular(),
-                        declaration.operator()));
+                final PermissionNode node = entry.permission();
+                definitions.add(entry.definition());
                 nodes.add(node);
             } catch (final IllegalArgumentException e) {
-                LOGGER.error("Invalid plugin {} permission '{}'", entry.getKey(), meta.id(), e);
+                LOGGER.error("Invalid plugin {} permission '{}'", entry.permission(), meta.id(), e);
             }
         }
         if (!definitions.isEmpty()) {
             permissions.defineAll(definitions);
             declaredByPlugin.put(meta.id(), List.copyOf(nodes));
+        }
+    }
+
+    private Set<PluginMeta.PermissionEntry> flattenPermissions(final Set<PluginMeta.PermissionEntry> permissions) {
+        final Set<PluginMeta.PermissionEntry> entries = new HashSet<>();
+        for (final PluginMeta.PermissionEntry permission : permissions) {
+            flattenPermission(permission, entries);
+        }
+        return entries;
+    }
+
+    private void flattenPermission(
+            final PluginMeta.PermissionEntry permission,
+            final Set<PluginMeta.PermissionEntry> entries
+    ) {
+        if (entries.add(permission)) {
+            for (final PluginMeta.PermissionEntry child : permission.children()) {
+                flattenPermission(child, entries);
+            }
         }
     }
 
@@ -191,7 +221,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             final URL url = jar.toUri().toURL();
             classLoader = new URLClassLoader(
                     "fidorial-plugin:" + jar.getFileName(),
-                    new URL[] {url},
+                    new URL[]{url},
                     getClass().getClassLoader());
             try (final InputStream in = classLoader.getResourceAsStream(DESCRIPTOR)) {
                 if (in == null) {
@@ -199,8 +229,16 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                     classLoader.close();
                     return Optional.empty();
                 }
-                final PluginMeta meta = GSON.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginMeta.class);
-                return Optional.of(new Candidate(meta, classLoader));
+                final ClassLoader previousContextClassLoader = Thread.currentThread().getContextClassLoader();
+                try {
+                    Thread.currentThread().setContextClassLoader(classLoader);
+                    final PluginMeta meta = GSON.fromJson(
+                            new InputStreamReader(in, StandardCharsets.UTF_8),
+                            PluginMeta.class);
+                    return Optional.of(new Candidate(meta, classLoader));
+                } finally {
+                    Thread.currentThread().setContextClassLoader(previousContextClassLoader);
+                }
             }
         } catch (final JsonSyntaxException | NullPointerException | IllegalArgumentException e) {
             LOGGER.error("{} ignored : {} invalid", jar.getFileName(), DESCRIPTOR, e);
@@ -214,7 +252,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
     private void instantiate(final Candidate candidate) {
         final PluginMeta meta = candidate.meta;
         try {
-            final Class<?> mainClass = Class.forName(meta.main(), true, candidate.classLoader);
+            final Class<?> mainClass = meta.main();
             if (!Plugin.class.isAssignableFrom(mainClass)) {
                 LOGGER.error("{} ignored: {} does not implement Plugin", meta.id(), meta.main());
                 candidate.classLoader.close();
@@ -267,10 +305,13 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             LOGGER.error("Cyclic dependency detected around '{}', plugin ignore", id);
             return;
         }
-        for (final String dependency : candidate.meta.depends()) {
-            final Candidate resolved = byId.get(dependency);
+        for (final PluginMeta.PluginDependency dependency : pluginDependencies(candidate.meta)) {
+            if (!dependency.required() || dependency.load() == PluginMeta.PluginDependency.RelativeLoadOrder.BEFORE) {
+                continue;
+            }
+            final Candidate resolved = byId.get(dependency.id());
             if (resolved == null) {
-                LOGGER.error("{} ignore : dependance '{}' introuvable", id, dependency);
+                LOGGER.error("{} ignore : dependance '{}' introuvable", id, dependency.id());
                 visiting.remove(id);
                 return;
             }
@@ -280,6 +321,16 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         if (done.add(id)) {
             ordered.add(candidate);
         }
+    }
+
+    private Set<PluginMeta.PluginDependency> pluginDependencies(final PluginMeta meta) {
+        final Set<PluginMeta.PluginDependency> dependencies = new HashSet<>();
+        for (final PluginMeta.Dependency dependency : meta.dependencies()) {
+            if (dependency instanceof PluginMeta.PluginDependency pluginDependency) {
+                dependencies.add(pluginDependency);
+            }
+        }
+        return dependencies;
     }
 
     private record Candidate(PluginMeta meta, URLClassLoader classLoader) {
