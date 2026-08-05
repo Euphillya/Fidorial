@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.command.brigadier.packet.registry;
 
+import com.mojang.brigadier.arguments.ArgumentType;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,5 +42,9 @@ public final class NetworkArgumentIds {
         }
 
         return registrar;
+    }
+
+    public static boolean hasId(ArgumentTypeRegistrar<? extends ArgumentType<?>,?> registrar) {
+        return IDS.containsKey(registrar);
     }
 }

@@ -3,7 +3,6 @@ package fr.euphyllia.fidorial.server.command.brigadier.argument.entity;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
@@ -204,6 +203,7 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
 
         return parser.fillSuggestions(builder, suggestionsBuilder -> {
             final Collection<String> playerNames = source.server().onlinePlayers().stream()
+                    .filter(this.predicate)
                     .map(Player::name)
                     .toList();
 
@@ -228,11 +228,6 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
 
         @Override
         public void serialize(final Spec spec, final PacketBuffer buf) {
-            if (spec.hasFilter()) {
-                buf.writeVarInt(StringArgumentType.StringType.SINGLE_WORD.ordinal());
-                return;
-            }
-
             int flags = 0;
 
             if (spec.single()) flags |= 1;
@@ -245,7 +240,7 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
         @Override
         public Spec deserialize(final PacketBuffer buf) {
             final int flags = buf.readByte();
-            return new Spec((flags & 1) != 0, (flags & 2) != 0, false);
+            return new Spec((flags & 1) != 0, (flags & 2) != 0);
         }
 
         @Override
@@ -256,14 +251,14 @@ public final class EntityArgument<T> implements ArgumentType<T>, ForceServerSugg
 
         @Override
         public Spec access(final EntityArgument<?> argument) {
-            return new Spec(argument.single(), argument.playersOnly(), argument.hasFilter);
+            return new Spec(argument.single(), argument.playersOnly());
         }
 
-        public record Spec(boolean single, boolean playersOnly, boolean hasFilter) implements ArgumentTypeRegistrar.Spec<EntityArgument<?>> {
+        public record Spec(boolean single, boolean playersOnly) implements ArgumentTypeRegistrar.Spec<EntityArgument<?>> {
 
             @Override
             public EntityArgument<?> instantiate() {
-                return new EntityArgument<>(single, playersOnly, hasFilter, _ -> true, Function.identity());
+                return new EntityArgument<>(single, playersOnly, false, _ -> true, Function.identity());
             }
 
             @Override

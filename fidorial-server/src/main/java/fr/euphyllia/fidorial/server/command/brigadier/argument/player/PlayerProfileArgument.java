@@ -3,7 +3,6 @@ package fr.euphyllia.fidorial.server.command.brigadier.argument.player;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
@@ -188,14 +187,11 @@ public class PlayerProfileArgument<T> implements ArgumentType<T>, ForceServerSug
 
         @Override
         public void serialize(final Spec spec, final PacketBuffer buf) {
-            if (spec.hasFilter()) {
-                buf.writeVarInt(StringArgumentType.StringType.SINGLE_WORD.ordinal());
-            }
         }
 
         @Override
         public Spec deserialize(final PacketBuffer buf) {
-            return new Spec(false);
+            return new Spec();
         }
 
         @Override
@@ -204,10 +200,10 @@ public class PlayerProfileArgument<T> implements ArgumentType<T>, ForceServerSug
 
         @Override
         public Spec access(final PlayerProfileArgument<?> argument) {
-            return new Spec(argument.hasFilter);
+            return new Spec();
         }
 
-        public record Spec(boolean hasFilter) implements ArgumentTypeRegistrar.Spec<PlayerProfileArgument<?>> {
+        public record Spec() implements ArgumentTypeRegistrar.Spec<PlayerProfileArgument<?>> {
 
             @Override
             public PlayerProfileArgument<?> instantiate() {
