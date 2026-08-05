@@ -11,7 +11,6 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 
 import java.net.InetAddress;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
