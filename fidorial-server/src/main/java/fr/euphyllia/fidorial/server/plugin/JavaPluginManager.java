@@ -200,7 +200,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                     return Optional.empty();
                 }
                 final PluginMeta meta = GSON.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginMeta.class);
-                return Optional.of(new Candidate(meta, classLoader));
+                return Optional.of(new Candidate(meta, jar, classLoader));
             }
         } catch (final JsonSyntaxException | NullPointerException | IllegalArgumentException e) {
             LOGGER.error("{} ignored : {} invalid", jar.getFileName(), DESCRIPTOR, e);
@@ -222,7 +222,9 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             }
             final Plugin plugin = (Plugin) mainClass.getDeclaredConstructor().newInstance();
             final PluginContext context =
-                    new SimplePluginContext(meta, server, events, services, pluginsFolder.resolve(meta.id()));
+                    new SimplePluginContext(
+                            meta, server, events, services,
+                            pluginsFolder.resolve(meta.id()), candidate.jarPath());
             registerDescriptorPermissions(meta);
             events.withOwner(plugin, () -> plugin.onLoad(context));
             plugins.put(meta.id(), new Loaded(meta, plugin, candidate.classLoader));
@@ -282,7 +284,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         }
     }
 
-    private record Candidate(PluginMeta meta, URLClassLoader classLoader) {
+    private record Candidate(PluginMeta meta, Path jarPath, URLClassLoader classLoader) {
     }
 
     private static final class Loaded {

@@ -8,4 +8,5 @@ module fr.fidorial.test {
     requires net.kyori.adventure.text.logger.slf4j;
     requires net.kyori.adventure.text.minimessage;
     requires net.kyori.adventure.text.serializer.plain;
+    requires com.google.gson;
 }

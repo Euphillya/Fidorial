@@ -5,11 +5,15 @@ import fr.fidorial.entity.Entity;
 import fr.fidorial.world.Location;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * @since 0.1.0
+ */
 public interface CommandSource {
     /**
      * Gets the location that this command is being executed at.
      *
      * @return a cloned location instance.
+     * @since 0.1.0
      */
     Location location();
 
@@ -19,6 +23,7 @@ public interface CommandSource {
      * It differs to {@link #executor()} as the executor can be changed by a command, e.g. {@literal /execute}.
      *
      * @return the command sender instance
+     * @since 0.1.0
      */
     CommandSender sender();
 
@@ -28,6 +33,7 @@ public interface CommandSource {
      * than the one that triggered the command.
      *
      * @return entity that executes this command
+     * @since 0.1.0
      */
     @Nullable Entity executor();
 
@@ -35,6 +41,7 @@ public interface CommandSource {
      * Gets the server associated with this source.
      *
      * @return the server
+     * @since 0.1.0
      */
     Server server();
 }

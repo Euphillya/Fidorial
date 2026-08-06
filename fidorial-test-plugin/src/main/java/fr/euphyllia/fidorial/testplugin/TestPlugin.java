@@ -90,6 +90,7 @@ public final class TestPlugin implements Plugin {
         registerServices();
         registerEvents();
         registerCommands();
+        TestPluginTranslations.register(context);
 
         logger.info("[TestPlugin] pret. Tape /apitest pour lancer les tests interactifs.");
     }
@@ -98,6 +99,7 @@ public final class TestPlugin implements Plugin {
     public void onDisable() {
         logger.info("[TestPlugin] onDisable - {} event(s) observe(s) pendant la session", eventCount.get());
         server.commands().unregister("apitest");
+        TestPluginTranslations.unregister();
     }
 
     private void msg(final CommandSender sender, final String miniMessageText) {

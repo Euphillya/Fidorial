@@ -4,7 +4,9 @@ import fr.fidorial.Server;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.service.ServiceRegistry;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 
 public interface PluginContext {
@@ -20,4 +22,6 @@ public interface PluginContext {
     ComponentLogger logger();
 
     Path dataFolder();
+
+    @Nullable InputStream resource(String path);
 }

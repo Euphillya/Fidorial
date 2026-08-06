@@ -7,6 +7,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.testplugin.CounterService;
 import fr.euphyllia.fidorial.testplugin.TestPlugin;
+import fr.euphyllia.fidorial.testplugin.command.argument.BaguetteArgument;
 import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
@@ -115,6 +116,9 @@ public final class ApiTestCommand {
                         .then(argument("key", ArgumentTypes.key()).executes(ApiTestCommand::stopSound)))
                 .then(literal("callback")
                         .executes(ctx -> clickCallback(ctx, plugin)))
+                .then(literal("baguette")
+                        .then(argument("type", BaguetteArgument.baguette())
+                                .executes(ApiTestCommand::baguette)))
                 // TODO: should become a standalone command in fidorial tbh like vanilla /bossbar, and be expanded to match vanilla args too (with our additional flags)
                 .then(literal("bossbar")
                         .then(literal("show")
@@ -576,6 +580,15 @@ public final class ApiTestCommand {
                         Component.text(key.toString())
                 )
         );
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int baguette(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
+        final BaguetteArgument.Baguette baguette = ctx.getArgument("type", BaguetteArgument.Baguette.class);
+
+        msg(sender, "[TestPlugin] You chose: " + baguette.name().toLowerCase(Locale.ROOT));
 
         return Command.SINGLE_SUCCESS;
     }

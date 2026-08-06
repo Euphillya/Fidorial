@@ -6,11 +6,15 @@ import fr.fidorial.plugin.PluginContext;
 import fr.fidorial.plugin.PluginMeta;
 import fr.fidorial.service.ServiceRegistry;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.jar.JarFile;
 
 final class SimplePluginContext implements PluginContext {
 
@@ -19,15 +23,17 @@ final class SimplePluginContext implements PluginContext {
     private final EventBus events;
     private final ServiceRegistry services;
     private final Path dataFolder;
+    private final Path jarPath;
     private final ComponentLogger logger;
 
     SimplePluginContext(final PluginMeta meta, final Server server, final EventBus events,
-                        final ServiceRegistry services, final Path dataFolder) {
+                        final ServiceRegistry services, final Path dataFolder, final Path jarPath) {
         this.meta = meta;
         this.server = server;
         this.events = events;
         this.services = services;
         this.dataFolder = dataFolder;
+        this.jarPath = jarPath;
         this.logger = ComponentLogger.logger("plugin/" + meta.id());
     }
 
@@ -64,5 +70,32 @@ final class SimplePluginContext implements PluginContext {
             throw new UncheckedIOException("Unable to create data file for " + meta.id() + ".", e);
         }
         return dataFolder;
+    }
+
+    @Override
+    public @Nullable InputStream resource(final String path) {
+        final String entryName = path.startsWith("/") ? path.substring(1) : path;
+        try {
+            final JarFile jar = new JarFile(jarPath.toFile());
+            final var entry = jar.getEntry(entryName);
+            if (entry == null) {
+                jar.close();
+                return null;
+            }
+            final InputStream raw = jar.getInputStream(entry);
+            return new FilterInputStream(raw) {
+                @Override
+                public void close() throws IOException {
+                    try {
+                        super.close();
+                    } finally {
+                        jar.close();
+                    }
+                }
+            };
+        } catch (final IOException e) {
+            logger.warn("Could not read resource '{}' from plugin jar", path, e);
+            return null;
+        }
     }
 }
