@@ -8,15 +8,15 @@ import fr.fidorial.service.ServiceRegistry;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
-final class SimplePluginContext implements PluginContext {
+final class SimplePluginContext implements PluginContext, AutoCloseable {
 
     private final PluginMeta meta;
     private final Server server;
@@ -25,6 +25,8 @@ final class SimplePluginContext implements PluginContext {
     private final Path dataFolder;
     private final Path jarPath;
     private final ComponentLogger logger;
+    private @Nullable JarFile jarFile;
+    private boolean jarOpenFailed;
 
     SimplePluginContext(final PluginMeta meta, final Server server, final EventBus events,
                         final ServiceRegistry services, final Path dataFolder, final Path jarPath) {
@@ -75,27 +77,50 @@ final class SimplePluginContext implements PluginContext {
     @Override
     public @Nullable InputStream resource(final String path) {
         final String entryName = path.startsWith("/") ? path.substring(1) : path;
+        final JarFile jar = openJar();
+        if (jar == null) {
+            return null;
+        }
+        final ZipEntry entry = jar.getEntry(entryName);
+        if (entry == null) {
+            return null;
+        }
         try {
-            final JarFile jar = new JarFile(jarPath.toFile());
-            final var entry = jar.getEntry(entryName);
-            if (entry == null) {
-                jar.close();
-                return null;
-            }
-            final InputStream raw = jar.getInputStream(entry);
-            return new FilterInputStream(raw) {
-                @Override
-                public void close() throws IOException {
-                    try {
-                        super.close();
-                    } finally {
-                        jar.close();
-                    }
-                }
-            };
+            return jar.getInputStream(entry);
         } catch (final IOException e) {
             logger.warn("Could not read resource '{}' from plugin jar", path, e);
             return null;
+        }
+    }
+
+    private synchronized @Nullable JarFile openJar() {
+        if (jarFile != null) {
+            return jarFile;
+        }
+        if (jarOpenFailed) {
+            return null;
+        }
+        try {
+            jarFile = new JarFile(jarPath.toFile());
+            return jarFile;
+        } catch (final IOException e) {
+            jarOpenFailed = true;
+            logger.warn("Could not open plugin jar '{}'", jarPath, e);
+            return null;
+        }
+    }
+
+    @Override
+    public synchronized void close() {
+        if (jarFile == null) {
+            return;
+        }
+        try {
+            jarFile.close();
+        } catch (final IOException e) {
+            logger.warn("Could not close plugin jar '{}'", jarPath, e);
+        } finally {
+            jarFile = null;
         }
     }
 }
