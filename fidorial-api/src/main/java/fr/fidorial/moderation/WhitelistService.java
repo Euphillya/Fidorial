@@ -1,7 +1,7 @@
 package fr.fidorial.moderation;
 
+import fr.fidorial.entity.PlayerProfile;
 import org.jetbrains.annotations.Contract;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -68,7 +68,7 @@ public interface WhitelistService {
      * @return {@code true} when the identity was not already listed
      * @since 0.1.0
      */
-    boolean add(UUID uuid, @Nullable String name);
+    boolean add(UUID uuid, String name);
 
     /**
      * Removes an identity from the list.
@@ -87,7 +87,7 @@ public interface WhitelistService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Optional<WhitelistEntry> find(String name);
+    Optional<PlayerProfile> find(String name);
 
     /**
      * Gets the listed identities.
@@ -96,7 +96,7 @@ public interface WhitelistService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Stream<WhitelistEntry> entries();
+    Stream<PlayerProfile> entries();
 
     /**
      * Gets how many identities are listed.

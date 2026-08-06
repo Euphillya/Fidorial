@@ -12,7 +12,6 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.entity.PlayerProfile;
-import fr.fidorial.moderation.WhitelistEntry;
 import fr.fidorial.moderation.WhitelistService;
 import net.kyori.adventure.text.Component;
 
@@ -128,7 +127,7 @@ public final class WhitelistCommand {
         final CommandSender sender = context.getSource().sender();
         final WhitelistService whitelist = server.whitelist();
 
-        final List<WhitelistEntry> entries = whitelist.entries().toList();
+        final List<PlayerProfile> entries = whitelist.entries().toList();
 
         if (entries.isEmpty()) {
             sender.sendMessage(Component.translatable("commands.whitelist.none"));
@@ -138,7 +137,7 @@ public final class WhitelistCommand {
         sender.sendMessage(Component.translatable(
                 "commands.whitelist.list",
                 Component.text(entries.size()),
-                Component.text(entries.stream().map(WhitelistEntry::label).reduce((a, b) -> a + ", " + b).orElse(""))));
+                Component.text(entries.stream().map(PlayerProfile::name).reduce((a, b) -> a + ", " + b).orElse(""))));
 
         return Command.SINGLE_SUCCESS;
     }

@@ -2,7 +2,7 @@ package fr.euphyllia.fidorial.server.moderation;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.fidorial.moderation.WhitelistEntry;
+import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.moderation.WhitelistService;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
@@ -29,7 +29,7 @@ public final class Whitelist implements WhitelistService {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private final Path file;
-    private final Map<UUID, WhitelistEntry> entries = new ConcurrentHashMap<>();
+    private final Map<UUID, PlayerProfile> entries = new ConcurrentHashMap<>();
     private volatile boolean enabled;
 
     public Whitelist(final Path file) {
@@ -46,7 +46,7 @@ public final class Whitelist implements WhitelistService {
             if (model != null) {
                 this.enabled = model.enabled();
                 if (model.entries() != null) {
-                    for (final WhitelistEntry entry : model.entries()) {
+                    for (final PlayerProfile entry : model.entries()) {
                         if (entry != null && entry.uuid() != null) {
                             entries.put(entry.uuid(), entry);
                         }
@@ -88,9 +88,10 @@ public final class Whitelist implements WhitelistService {
     }
 
     @Override
-    public boolean add(final UUID uuid, @Nullable final String name) {
+    public boolean add(final UUID uuid, final String name) {
         Objects.requireNonNull(uuid, "uuid");
-        if (entries.putIfAbsent(uuid, new WhitelistEntry(uuid, name)) != null) {
+        Objects.requireNonNull(name, "name");
+        if (entries.putIfAbsent(uuid, new PlayerProfile(uuid, name)) != null) {
             return false;
         }
         save();
@@ -108,9 +109,9 @@ public final class Whitelist implements WhitelistService {
     }
 
     @Override
-    public Optional<WhitelistEntry> find(final String name) {
-        for (final WhitelistEntry entry : entries.values()) {
-            if (entry.name() != null && entry.name().equalsIgnoreCase(name)) {
+    public Optional<PlayerProfile> find(final String name) {
+        for (final PlayerProfile entry : entries.values()) {
+            if (entry.name().equalsIgnoreCase(name)) {
                 return Optional.of(entry);
             }
         }
@@ -118,9 +119,9 @@ public final class Whitelist implements WhitelistService {
     }
 
     @Override
-    public Stream<WhitelistEntry> entries() {
+    public Stream<PlayerProfile> entries() {
         return entries.values().stream()
-                .sorted(Comparator.comparing(WhitelistEntry::label, String.CASE_INSENSITIVE_ORDER));
+                .sorted(Comparator.comparing(PlayerProfile::name, String.CASE_INSENSITIVE_ORDER));
     }
 
     @Override
@@ -128,6 +129,6 @@ public final class Whitelist implements WhitelistService {
         return entries.size();
     }
 
-    private record Model(boolean enabled, @Nullable List<WhitelistEntry> entries) {
+    private record Model(boolean enabled, @Nullable List<PlayerProfile> entries) {
     }
 }
