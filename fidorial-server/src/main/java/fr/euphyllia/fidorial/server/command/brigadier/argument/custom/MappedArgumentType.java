@@ -9,12 +9,15 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.custom.ArgumentMapper;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 public final class MappedArgumentType<N, T> implements ArgumentType<T>, ForceServerSuggestions {
+
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(MappedArgumentType.class);
 
     private final ArgumentType<N> nativeType;
     private final ArgumentMapper<N, T> mapper;
@@ -59,6 +62,7 @@ public final class MappedArgumentType<N, T> implements ArgumentType<T>, ForceSer
             try {
                 return customSuggestions.getSuggestions((CommandContext<CommandSource>) context, builder);
             } catch (final CommandSyntaxException e) {
+                LOGGER.warn("Suggestion provider for mapped argument type '{}' threw while computing suggestions", nativeType.getClass().getSimpleName(), e);
                 return Suggestions.empty();
             }
         }
