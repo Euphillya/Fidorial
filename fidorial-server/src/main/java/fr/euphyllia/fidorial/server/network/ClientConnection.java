@@ -284,18 +284,17 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         return address == null ? "unknown" : address.toString();
     }
 
-    public Optional<InetAddress> remoteInetAddress() {
+    public InetAddress remoteInetAddress() {
         if (forwardedAddress != null) {
-            return InetAddresses.isInetAddress(forwardedAddress)
-                    ? Optional.of(InetAddresses.forString(forwardedAddress))
-                    : Optional.empty();
+            return InetAddresses.forString(forwardedAddress);
         }
 
         final SocketAddress address = ctx.channel().remoteAddress();
+        if (address instanceof final InetSocketAddress inet && inet.getAddress() != null) {
+            return inet.getAddress();
+        }
 
-        return address instanceof final InetSocketAddress inet
-                ? Optional.ofNullable(inet.getAddress())
-                : Optional.empty();
+        throw new IllegalStateException("No IP address for this connection: " + address);
     }
 
     public void setForwardedAddress(final String forwardedAddress) {

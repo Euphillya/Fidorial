@@ -113,7 +113,7 @@ public final class BanCommand {
         for (final ServerPlayer player : server.players()) {
             final boolean matches = switch (entry.target()) {
                 case final BanTarget.Profile profile -> player.uuid().equals(profile.uuid());
-                case final BanTarget.Address address -> player.address().filter(address.address()::equals).isPresent();
+                case final BanTarget.Address address -> player.address().equals(address.address());
             };
 
             if (matches) {

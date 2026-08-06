@@ -190,7 +190,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
 
         final PlayerLoginAttemptEvent attempt = new PlayerLoginAttemptEvent(playerProfile, address, authenticated);
 
-        loginRefusal(playerProfile, connection.remoteInetAddress().orElse(null)).ifPresent(attempt::refuse);
+        loginRefusal(playerProfile, connection.remoteInetAddress()).ifPresent(attempt::refuse);
 
         final PlayerLoginAttemptEvent event;
         try {

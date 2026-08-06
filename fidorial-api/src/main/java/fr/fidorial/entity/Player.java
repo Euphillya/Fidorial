@@ -48,10 +48,12 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
     /**
      * Gets the address this player is connected from.
      *
-     * @return the client address, or empty when the connection has none
+     * @return the client address
+     * @throws IllegalStateException if the connection has no resolvable IP address
+     *
      * @since 0.1.0
      */
-    Optional<InetAddress> address();
+    InetAddress address();
 
     void kick(Component reason);
 

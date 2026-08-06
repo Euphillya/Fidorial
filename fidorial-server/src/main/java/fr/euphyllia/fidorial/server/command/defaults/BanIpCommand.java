@@ -100,7 +100,7 @@ public final class BanIpCommand {
             return Optional.of(InetAddresses.forString(target));
         }
 
-        return server.player(target).flatMap(Player::address);
+        return server.player(target).map(Player::address);
     }
 
     private static int kickBanned(final BanEntry entry) {
@@ -109,7 +109,7 @@ public final class BanIpCommand {
         for (final ServerPlayer player : server.players()) {
             final boolean matches = switch (entry.target()) {
                 case final BanTarget.Profile profile -> player.uuid().equals(profile.uuid());
-                case final BanTarget.Address address -> player.address().filter(address.address()::equals).isPresent();
+                case final BanTarget.Address address -> player.address().equals(address.address());
             };
 
             if (matches) {

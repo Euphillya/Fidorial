@@ -489,7 +489,7 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     }
 
     @Override
-    public Optional<InetAddress> address() {
+    public InetAddress address() {
         return connection.remoteInetAddress();
     }
 
