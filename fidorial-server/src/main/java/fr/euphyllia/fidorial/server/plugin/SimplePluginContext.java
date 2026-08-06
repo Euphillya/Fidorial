@@ -76,12 +76,11 @@ final class SimplePluginContext implements PluginContext, AutoCloseable {
 
     @Override
     public @Nullable InputStream resource(final String path) {
-        final String entryName = path.startsWith("/") ? path.substring(1) : path;
         final JarFile jar = openJar();
         if (jar == null) {
             return null;
         }
-        final ZipEntry entry = jar.getEntry(entryName);
+        final ZipEntry entry = jar.getEntry(path);
         if (entry == null) {
             return null;
         }

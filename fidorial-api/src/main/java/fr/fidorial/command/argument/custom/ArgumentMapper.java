@@ -7,6 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
  *
  * @param <N> native value type
  * @param <T> mapped result type
+ * @since 0.1.0
  */
 @FunctionalInterface
 public interface ArgumentMapper<N, T> {
