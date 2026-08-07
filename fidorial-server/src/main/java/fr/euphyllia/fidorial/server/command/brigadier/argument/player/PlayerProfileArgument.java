@@ -6,7 +6,6 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.FidorialServer;
@@ -16,11 +15,9 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySe
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.Commands;
 import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfileMeta;
 import net.kyori.adventure.text.Component;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,7 +29,7 @@ import java.util.function.Predicate;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public class PlayerProfileArgument<T> implements ArgumentType<T>, Commands.ForceServerSuggestions {
+public class PlayerProfileArgument<T> implements ArgumentType<T> {
 
     public static final SimpleCommandExceptionType ERROR_UNKNOWN_PLAYER =
             new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.player.unknown")));
@@ -44,12 +41,10 @@ public class PlayerProfileArgument<T> implements ArgumentType<T>, Commands.Force
 
     private final Predicate<Player> filter;
     private final Function<Result, T> converter;
-    private final @Nullable SuggestionProvider<CommandSource> suggestions;
 
     private PlayerProfileArgument(final Predicate<Player> filter, final Function<Result, T> converter) {
         this.filter = filter;
         this.converter = converter;
-        this.suggestions = filter != ALL ? this::listSuggestions : null;
     }
 
     public static PlayerProfileArgument<Result> playerProfile() {
@@ -136,11 +131,6 @@ public class PlayerProfileArgument<T> implements ArgumentType<T>, Commands.Force
     @Override
     public Collection<String> getExamples() {
         return EXAMPLES;
-    }
-
-    @Override
-    public @Nullable SuggestionProvider<CommandSource> suggestionProvider() {
-        return suggestions;
     }
 
     @FunctionalInterface

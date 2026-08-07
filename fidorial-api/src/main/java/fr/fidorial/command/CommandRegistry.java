@@ -18,6 +18,7 @@ public interface CommandRegistry {
      * Registers a command from the given builder.
      *
      * @param command the command builder to register
+     * @since 0.1.0
      */
     default void register(LiteralArgumentBuilder<CommandSource> command) {
         register(command.build());
@@ -27,6 +28,7 @@ public interface CommandRegistry {
      * Registers a command node without aliases.
      *
      * @param command the command node to register
+     * @since 0.1.0
      */
     default void register(LiteralCommandNode<CommandSource> command) {
         register(command, Set.of());
@@ -37,6 +39,7 @@ public interface CommandRegistry {
      *
      * @param command the command builder to register
      * @param aliases additional aliases that should point to this command
+     * @since 0.1.0
      */
     default void register(LiteralArgumentBuilder<CommandSource> command, Set<String> aliases) {
         register(command.build(), aliases);
@@ -50,6 +53,7 @@ public interface CommandRegistry {
      *
      * @param command the command node to register
      * @param aliases additional aliases that should point to this command
+     * @since 0.1.0
      */
     void register(LiteralCommandNode<CommandSource> command, Set<String> aliases);
 
@@ -58,6 +62,7 @@ public interface CommandRegistry {
      * Root literal names are also treated as aliases in this context.
      *
      * @param alias the command alias to unregister; if not currently registered, this method does nothing
+     * @since 0.1.0
      */
     void unregister(String alias);
 
@@ -68,6 +73,8 @@ public interface CommandRegistry {
      * @param cmdLine the command to run
      * @return a future that may be completed with the result of the command execution.
      * Can be completed exceptionally if an exception is thrown during execution.
+     *
+     * @since 0.1.0
      */
     CompletableFuture<Boolean> dispatchAsync(CommandSource source, String cmdLine);
 
@@ -78,6 +85,7 @@ public interface CommandRegistry {
      * @param source  the source to execute the command for
      * @param cmdLine the partially completed command
      * @return a {@link CompletableFuture} eventually completed with a {@link List}, possibly empty
+     * @since 0.1.0
      */
     CompletableFuture<List<String>> offerSuggestions(CommandSource source, String cmdLine);
 
@@ -89,6 +97,7 @@ public interface CommandRegistry {
      * @param cmdLine the partially completed command
      * @return a {@link CompletableFuture} eventually completed with {@link Suggestions}, possibly
      * empty
+     * @since 0.1.0
      */
     CompletableFuture<Suggestions> offerBrigadierSuggestions(CommandSource source, String cmdLine);
 
@@ -97,6 +106,7 @@ public interface CommandRegistry {
      *
      * @param alias the command alias to check
      * @return true if the alias is registered; false otherwise
+     * @since 0.1.0
      */
     boolean hasCommand(String alias);
 
@@ -108,6 +118,7 @@ public interface CommandRegistry {
      * @param alias  the command alias to check
      * @param source the command source
      * @return true if the alias is registered and usable; false otherwise
+     * @since 0.1.0
      */
     boolean hasCommand(String alias, CommandSource source);
 }
