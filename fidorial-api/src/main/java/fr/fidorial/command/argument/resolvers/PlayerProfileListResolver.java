@@ -8,7 +8,9 @@ import java.util.Collection;
 
 /**
  * An {@link ArgumentResolver} that's capable of resolving
- *  argument value using a {@link CommandSource}.
+ * argument value using a {@link CommandSource}.
+ *
+ * @since 0.1.0
  */
 @ApiStatus.NonExtendable
 public interface PlayerProfileListResolver extends ArgumentResolver<Collection<PlayerProfile>> {

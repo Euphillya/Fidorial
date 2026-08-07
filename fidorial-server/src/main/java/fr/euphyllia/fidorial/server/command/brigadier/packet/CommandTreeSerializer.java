@@ -5,6 +5,9 @@ import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.custom.ForceServerSuggestions;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.custom.ForcedSuggestionsArgumentType;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.custom.MappedArgumentType;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistry;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.NetworkArgumentIds;
@@ -12,7 +15,6 @@ import fr.euphyllia.fidorial.server.command.brigadier.packet.util.Permissionless
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.registry.data.ArgumentTypeIds;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.argument.ForceServerSuggestions;
 import net.kyori.adventure.key.Key;
 
 import java.util.ArrayDeque;
@@ -111,7 +113,10 @@ public final class CommandTreeSerializer {
             flags |= FLAG_RESTRICTED;
         }
 
-        if (node instanceof final ArgumentCommandNode<?, ?> argument && argument.getCustomSuggestions() != null) {
+        final boolean customSuggestions = node instanceof final ArgumentCommandNode<?, ?> argument
+                && (argument.getCustomSuggestions() != null || forcesSuggestions(argument.getType()));
+
+        if (customSuggestions) {
             flags |= FLAG_CUSTOM_SUGGESTIONS;
         }
 
@@ -135,7 +140,7 @@ public final class CommandTreeSerializer {
 
                 writeArgumentType(buf, argument.getType());
 
-                if (argument.getCustomSuggestions() != null) {
+                if (customSuggestions) {
                     buf.writeKey(Key.key("ask_server"));
                 }
             }
@@ -144,6 +149,11 @@ public final class CommandTreeSerializer {
                 // root has no payload
             }
         }
+    }
+
+    private static boolean forcesSuggestions(final ArgumentType<?> type) {
+        return type instanceof final ForceServerSuggestions forced
+                && forced.suggestionProvider() != null;
     }
 
     public static RootCommandNode<CommandSource> filter(final RootCommandNode<CommandSource> root, final CommandSource source) {
@@ -184,23 +194,18 @@ public final class CommandTreeSerializer {
     }
 
     private static void writeArgumentType(final PacketBuffer buf, final ArgumentType<?> argument) {
-        if (argument instanceof fr.fidorial.command.argument.ForceServerSuggestions && ((ForceServerSuggestions) argument).shouldForceServerSuggestions()) {
-            writeAliasedAsString(buf, argument, ArgumentTypeRegistry.registrar(argument));
-            return;
-        }
-
-        writeArgumentTypeCaptured(buf, argument, ArgumentTypeRegistry.registrar(argument));
+        final ArgumentType<?> resolved = unwrap(argument);
+        writeArgumentTypeCaptured(buf, resolved, ArgumentTypeRegistry.registrar(resolved));
     }
 
-    private static <A extends ArgumentType<?>, S extends ArgumentTypeRegistrar.Spec<A>> void writeAliasedAsString(
-            final PacketBuffer buf,
-            final A argument,
-            final ArgumentTypeRegistrar<A, S> registrar
-    ) {
-        buf.writeVarInt(ArgumentTypeIds.STRING_ARGUMENT_ID);
-
-        final S spec = registrar.access(argument);
-        registrar.serialize(spec, buf);
+    private static ArgumentType<?> unwrap(final ArgumentType<?> type) {
+        if (type instanceof final MappedArgumentType<?, ?> mapped) {
+            return unwrap(mapped.nativeType());
+        }
+        if (type instanceof final ForcedSuggestionsArgumentType<?> forced) {
+            return unwrap(forced.delegate());
+        }
+        return type;
     }
 
     private static <A extends ArgumentType<?>, S extends ArgumentTypeRegistrar.Spec<A>> void writeArgumentTypeCaptured(
@@ -208,8 +213,12 @@ public final class CommandTreeSerializer {
             final A argument,
             final ArgumentTypeRegistrar<A, S> registrar
     ) {
-        final int id = NetworkArgumentIds.getId(registrar);
-        buf.writeVarInt(id);
+        if (NetworkArgumentIds.hasId(registrar)) {
+            final int id = NetworkArgumentIds.getId(registrar);
+            buf.writeVarInt(id);
+        } else {
+            buf.writeVarInt(ArgumentTypeIds.STRING_ARGUMENT_ID);
+        }
 
         final S spec = registrar.access(argument);
         registrar.serialize(spec, buf);

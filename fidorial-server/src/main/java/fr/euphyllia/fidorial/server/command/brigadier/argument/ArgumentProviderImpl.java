@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.bossbar.BossBarColorArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.bossbar.BossBarFlagArgument;
@@ -16,6 +17,8 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.ComponentArg
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.HexColorArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.NamedColorArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.StyleArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.custom.ForcedSuggestionsArgumentType;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.custom.MappedArgumentType;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgumentInternal;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.DurationArgument;
@@ -33,7 +36,9 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.range.RangeArgume
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.KeyArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceKeyArgument;
+import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentProvider;
+import fr.fidorial.command.argument.custom.ArgumentMapper;
 import fr.fidorial.command.argument.predicate.ItemStackPredicate;
 import fr.fidorial.command.argument.range.DoubleRangeProvider;
 import fr.fidorial.command.argument.range.IntegerRangeProvider;
@@ -60,6 +65,7 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -74,7 +80,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<EntitySelectorArgumentResolver> entity(final Predicate<Entity> filter) {
-        return EntityArgumentInternal.entity(filter, selector -> source -> List.of(selector.findSingleEntity(source)));
+        return withServerSuggestions(EntityArgumentInternal.entity(filter, selector -> source -> List.of(selector.findSingleEntity(source))));
     }
 
     @Override
@@ -86,9 +92,9 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<EntitySelectorArgumentResolver> entities(final Predicate<Entity> filter) {
-        return EntityArgumentInternal.entities(filter, selector -> source -> selector.findEntities(source).stream()
+        return withServerSuggestions(EntityArgumentInternal.entities(filter, selector -> source -> selector.findEntities(source).stream()
                 .map(Entity.class::cast)
-                .toList());
+                .toList()));
     }
 
     @Override
@@ -98,7 +104,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<PlayerSelectorArgumentResolver> player(final Predicate<Player> filter) {
-        return EntityArgumentInternal.player(filter, selector -> source -> List.of(selector.findSinglePlayer(source)));
+        return withServerSuggestions(EntityArgumentInternal.player(filter, selector -> source -> List.of(selector.findSinglePlayer(source))));
     }
 
     @Override
@@ -108,7 +114,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<PlayerSelectorArgumentResolver> players(final Predicate<Player> filter) {
-        return EntityArgumentInternal.players(filter, selector -> selector::findPlayers);
+        return withServerSuggestions(EntityArgumentInternal.players(filter, selector -> selector::findPlayers));
     }
 
     @Override
@@ -291,9 +297,9 @@ public class ArgumentProviderImpl implements ArgumentProvider {
 
     @Override
     public ArgumentType<PlayerProfileListResolver> playerProfiles(final Predicate<Player> filter) {
-        return PlayerProfileArgument.playerProfile(filter, result -> source -> result.getNames(source).stream()
+        return withServerSuggestions(PlayerProfileArgument.playerProfile(filter, result -> source -> result.getNames(source).stream()
                 .map(PlayerProfile::new)
-                .toList());
+                .toList()));
     }
 
     //@Override
@@ -304,5 +310,30 @@ public class ArgumentProviderImpl implements ArgumentProvider {
     @Override
     public ArgumentType<PositionResolver> position() {
         return Vec3Argument.vec3();
+    }
+
+    @Override
+    public <N, T> ArgumentType<T> map(final ArgumentType<N> nativeType, final ArgumentMapper<N, T> mapper) {
+        return new MappedArgumentType<>(nativeType, mapper);
+    }
+
+    @Override
+    public <N, T> ArgumentType<T> map(final ArgumentType<N> nativeType, final ArgumentMapper<N, T> mapper, final SuggestionProvider<CommandSource> suggestions) {
+        return new MappedArgumentType<>(nativeType, mapper, suggestions);
+    }
+
+    @Override
+    public <N, T> ArgumentType<T> map(
+            final ArgumentType<N> nativeType,
+            final ArgumentMapper<N, T> mapper,
+            final SuggestionProvider<CommandSource> suggestions,
+            final Collection<String> examples
+    ) {
+        return new MappedArgumentType<>(nativeType, mapper, suggestions, examples);
+    }
+
+    @Override
+    public <T> ArgumentType<T> withServerSuggestions(final ArgumentType<T> type) {
+        return new ForcedSuggestionsArgumentType<>(type);
     }
 }

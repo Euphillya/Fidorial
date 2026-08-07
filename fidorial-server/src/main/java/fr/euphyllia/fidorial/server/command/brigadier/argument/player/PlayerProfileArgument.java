@@ -3,11 +3,9 @@ package fr.euphyllia.fidorial.server.command.brigadier.argument.player;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.FidorialServer;
@@ -17,7 +15,6 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySe
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.argument.ForceServerSuggestions;
 import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfileMeta;
 import net.kyori.adventure.text.Component;
@@ -32,7 +29,7 @@ import java.util.function.Predicate;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public class PlayerProfileArgument<T> implements ArgumentType<T>, ForceServerSuggestions {
+public class PlayerProfileArgument<T> implements ArgumentType<T> {
 
     public static final SimpleCommandExceptionType ERROR_UNKNOWN_PLAYER =
             new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.player.unknown")));
@@ -44,14 +41,10 @@ public class PlayerProfileArgument<T> implements ArgumentType<T>, ForceServerSug
 
     private final Predicate<Player> filter;
     private final Function<Result, T> converter;
-    private final boolean hasFilter;
-    private final SuggestionProvider<CommandSource> suggestions;
 
     private PlayerProfileArgument(final Predicate<Player> filter, final Function<Result, T> converter) {
         this.filter = filter;
         this.converter = converter;
-        this.hasFilter = filter != ALL;
-        this.suggestions = this::listSuggestions;
     }
 
     public static PlayerProfileArgument<Result> playerProfile() {
@@ -140,16 +133,6 @@ public class PlayerProfileArgument<T> implements ArgumentType<T>, ForceServerSug
         return EXAMPLES;
     }
 
-    @Override
-    public boolean shouldForceServerSuggestions() {
-        return hasFilter;
-    }
-
-    @Override
-    public SuggestionProvider<CommandSource> suggestionProvider() {
-        return suggestions;
-    }
-
     @FunctionalInterface
     public interface Result {
 
@@ -188,14 +171,11 @@ public class PlayerProfileArgument<T> implements ArgumentType<T>, ForceServerSug
 
         @Override
         public void serialize(final Spec spec, final PacketBuffer buf) {
-            if (spec.hasFilter()) {
-                buf.writeVarInt(StringArgumentType.StringType.SINGLE_WORD.ordinal());
-            }
         }
 
         @Override
         public Spec deserialize(final PacketBuffer buf) {
-            return new Spec(false);
+            return new Spec();
         }
 
         @Override
@@ -204,10 +184,10 @@ public class PlayerProfileArgument<T> implements ArgumentType<T>, ForceServerSug
 
         @Override
         public Spec access(final PlayerProfileArgument<?> argument) {
-            return new Spec(argument.hasFilter);
+            return new Spec();
         }
 
-        public record Spec(boolean hasFilter) implements ArgumentTypeRegistrar.Spec<PlayerProfileArgument<?>> {
+        public record Spec() implements ArgumentTypeRegistrar.Spec<PlayerProfileArgument<?>> {
 
             @Override
             public PlayerProfileArgument<?> instantiate() {

@@ -1,6 +1,9 @@
 package fr.fidorial.command.argument;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import fr.fidorial.command.CommandSource;
+import fr.fidorial.command.argument.custom.ArgumentMapper;
 import fr.fidorial.command.argument.predicate.ItemStackPredicate;
 import fr.fidorial.command.argument.range.DoubleRangeProvider;
 import fr.fidorial.command.argument.range.IntegerRangeProvider;
@@ -26,6 +29,7 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -34,6 +38,8 @@ import static fr.fidorial.command.argument.ArgumentProvider.provider;
 /**
  * Modeled after Paper's <a href="https://github.com/PaperMC/Paper/blob/main/paper-api/src/main/java/io/papermc/paper/command/brigadier/argument/ArgumentTypes.java">ArgumentTypes</a>
  * Originally contributed in <a href="https://github.com/PaperMC/Paper/pull/8235">#8235</a>, licensed under the MIT license.
+ *
+ * @since 0.1.0
  */
 public final class ArgumentTypes {
     /**
@@ -41,6 +47,7 @@ public final class ArgumentTypes {
      * single entity.
      *
      * @return argument that takes one entity
+     * @since 0.1.0
      */
     public static ArgumentType<EntitySelectorArgumentResolver> entity() {
         return provider().entity();
@@ -52,6 +59,7 @@ public final class ArgumentTypes {
      *
      * @param filter predicate the matched entity must satisfy
      * @return argument that takes one entity
+     * @since 0.1.0
      */
     public static ArgumentType<EntitySelectorArgumentResolver> entity(final Predicate<Entity> filter) {
         return provider().entity(filter);
@@ -62,6 +70,7 @@ public final class ArgumentTypes {
      * entities.
      *
      * @return argument that takes multiple entities
+     * @since 0.1.0
      */
     public static ArgumentType<EntitySelectorArgumentResolver> entities() {
         return provider().entities();
@@ -73,6 +82,7 @@ public final class ArgumentTypes {
      *
      * @param filter predicate each matched entity must satisfy
      * @return argument that takes multiple entities
+     * @since 0.1.0
      */
     public static ArgumentType<EntitySelectorArgumentResolver> entities(final Predicate<Entity> filter) {
         return provider().entities(filter);
@@ -83,6 +93,7 @@ public final class ArgumentTypes {
      * singular player entity.
      *
      * @return argument that takes one player
+     * @since 0.1.0
      */
     public static ArgumentType<PlayerSelectorArgumentResolver> player() {
         return provider().player();
@@ -94,6 +105,7 @@ public final class ArgumentTypes {
      *
      * @param filter predicate the matched player must satisfy
      * @return argument that takes one player
+     * @since 0.1.0
      */
     public static ArgumentType<PlayerSelectorArgumentResolver> player(final Predicate<Player> filter) {
         return provider().player(filter);
@@ -104,6 +116,7 @@ public final class ArgumentTypes {
      * player entities.
      *
      * @return argument that takes multiple players
+     * @since 0.1.0
      */
     public static ArgumentType<PlayerSelectorArgumentResolver> players() {
         return provider().players();
@@ -115,6 +128,7 @@ public final class ArgumentTypes {
      *
      * @param filter predicate each matched player must satisfy
      * @return argument that takes multiple players
+     * @since 0.1.0
      */
     public static ArgumentType<PlayerSelectorArgumentResolver> players(final Predicate<Player> filter) {
         return provider().players(filter);
@@ -125,6 +139,7 @@ public final class ArgumentTypes {
      * of player profiles.
      *
      * @return player profile argument
+     * @since 0.1.0
      */
     public static ArgumentType<PlayerProfileListResolver> playerProfiles() {
         return provider().playerProfiles();
@@ -136,6 +151,7 @@ public final class ArgumentTypes {
      *
      * @param filter predicate each matched player must satisfy
      * @return player profile argument
+     * @since 0.1.0
      */
     public static ArgumentType<PlayerProfileListResolver> playerProfiles(final Predicate<Player> filter) {
         return provider().playerProfiles(filter);
@@ -145,6 +161,7 @@ public final class ArgumentTypes {
      * A block position argument.
      *
      * @return block position argument
+     * @since 0.1.0
      */
     public static ArgumentType<BlockPosResolver> blockPosition() {
         return provider().blockPosition();
@@ -154,6 +171,7 @@ public final class ArgumentTypes {
      * An angle argument.
      *
      * @return angle argument
+     * @since 0.1.0
      */
     public static ArgumentType<AngleResolver> angle() {
         return provider().angle();
@@ -166,7 +184,7 @@ public final class ArgumentTypes {
      * @return argument
      */
     //public static ArgumentType<BlockState> blockState() {
-        //return provider().blockState();
+    //return provider().blockState();
     //}
 
     /**
@@ -174,6 +192,7 @@ public final class ArgumentTypes {
      * specifying item material and item NBT information.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<ItemStack> itemStack() {
         return provider().itemStack();
@@ -183,6 +202,7 @@ public final class ArgumentTypes {
      * An item predicate argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<ItemStackPredicate> itemPredicate() {
         return provider().itemStackPredicate();
@@ -192,6 +212,7 @@ public final class ArgumentTypes {
      * An argument for parsing {@link NamedTextColor}s.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<NamedTextColor> namedColor() {
         return provider().namedColor();
@@ -201,6 +222,7 @@ public final class ArgumentTypes {
      * A hex color argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<TextColor> hexColor() {
         return provider().hexColor();
@@ -210,6 +232,7 @@ public final class ArgumentTypes {
      * A boss bar color argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<BossBar.Color> bossBarColor() {
         return provider().bossBarColor();
@@ -219,6 +242,7 @@ public final class ArgumentTypes {
      * A boss bar overlay argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<BossBar.Overlay> bossBarOverlay() {
         return provider().bossBarOverlay();
@@ -228,6 +252,7 @@ public final class ArgumentTypes {
      * A boss bar flag argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<BossBar.Flag> bossBarFlag() {
         return provider().bossBarFlag();
@@ -237,6 +262,7 @@ public final class ArgumentTypes {
      * A component argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Component> component() {
         return provider().component();
@@ -246,6 +272,7 @@ public final class ArgumentTypes {
      * A key argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Key> key() {
         return provider().key();
@@ -255,6 +282,7 @@ public final class ArgumentTypes {
      * A style argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Style> style() {
         return provider().style();
@@ -264,6 +292,7 @@ public final class ArgumentTypes {
      * A boolean argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Boolean> bool() {
         return provider().bool();
@@ -273,6 +302,7 @@ public final class ArgumentTypes {
      * A single unquoted word string argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<String> word() {
         return provider().word();
@@ -282,6 +312,7 @@ public final class ArgumentTypes {
      * A string argument, either a single word or a quoted phrase.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<String> string() {
         return provider().string();
@@ -291,6 +322,7 @@ public final class ArgumentTypes {
      * A string argument that consumes the remainder of the input.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<String> greedyString() {
         return provider().greedyString();
@@ -300,6 +332,7 @@ public final class ArgumentTypes {
      * An unbounded integer argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Integer> integer() {
         return integer(Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -311,6 +344,7 @@ public final class ArgumentTypes {
      * @param min the minimum value, inclusive
      * @param max the maximum value, inclusive
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Integer> integer(final int min, final int max) {
         return provider().integer(min, max);
@@ -320,6 +354,7 @@ public final class ArgumentTypes {
      * An unbounded long argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Long> longArg() {
         return longArg(Long.MIN_VALUE, Long.MAX_VALUE);
@@ -331,6 +366,7 @@ public final class ArgumentTypes {
      * @param min the minimum value, inclusive
      * @param max the maximum value, inclusive
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Long> longArg(final long min, final long max) {
         return provider().longArg(min, max);
@@ -340,6 +376,7 @@ public final class ArgumentTypes {
      * An unbounded float argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Float> floatArg() {
         return floatArg(-Float.MAX_VALUE, Float.MAX_VALUE);
@@ -351,6 +388,7 @@ public final class ArgumentTypes {
      * @param min the minimum value, inclusive
      * @param max the maximum value, inclusive
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Float> floatArg(final float min, final float max) {
         return provider().floatArg(min, max);
@@ -360,6 +398,7 @@ public final class ArgumentTypes {
      * An unbounded double argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Double> doubleArg() {
         return doubleArg(-Double.MAX_VALUE, Double.MAX_VALUE);
@@ -371,6 +410,7 @@ public final class ArgumentTypes {
      * @param min the minimum value, inclusive
      * @param max the maximum value, inclusive
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Double> doubleArg(final double min, final double max) {
         return provider().doubleArg(min, max);
@@ -380,6 +420,7 @@ public final class ArgumentTypes {
      * An inclusive range of integers that may be unbounded on either end.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<IntegerRangeProvider> integerRange() {
         return provider().integerRange();
@@ -389,6 +430,7 @@ public final class ArgumentTypes {
      * An inclusive range of doubles that may be unbounded on either end.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<DoubleRangeProvider> doubleRange() {
         return provider().doubleRange();
@@ -398,6 +440,7 @@ public final class ArgumentTypes {
      * A world argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<World> world() {
         return provider().world();
@@ -407,6 +450,7 @@ public final class ArgumentTypes {
      * A game mode argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<GameMode> gameMode() {
         return provider().gameMode();
@@ -416,6 +460,7 @@ public final class ArgumentTypes {
      * A uuid argument.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<UUID> uuid() {
         return provider().uuid();
@@ -432,6 +477,7 @@ public final class ArgumentTypes {
      * </ul>
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Integer> time() {
         return time(0);
@@ -449,6 +495,7 @@ public final class ArgumentTypes {
      *
      * @param mintime The minimum time required for this argument.
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<Integer> time(final int mintime) {
         return provider().time(mintime);
@@ -482,6 +529,7 @@ public final class ArgumentTypes {
      * @param registryKey the registry's key
      * @return argument
      * @param <T> the registry value type
+     * @since 0.1.0
      */
     public static <T> ArgumentType<TypedKey<T>> resourceKey(final RegistryKey<T> registryKey) {
         return provider().resourceKey(registryKey);
@@ -496,6 +544,7 @@ public final class ArgumentTypes {
      * @param registryKey the registry's key
      * @return argument
      * @param <T> the registry value type
+     * @since 0.1.0
      */
     public static <T> ArgumentType<T> resource(final RegistryKey<T> registryKey) {
         return provider().resource(registryKey);
@@ -506,8 +555,90 @@ public final class ArgumentTypes {
      * and mixed coordinates for x, y, and z.
      *
      * @return argument
+     * @since 0.1.0
      */
     public static ArgumentType<PositionResolver> position() {
         return provider().position();
+    }
+
+    /**
+     * Reuses {@code nativeType}'s client-side grammar, highlighting, and suggestions,
+     * converting the parsed value into a custom result type.
+     *
+     * @param nativeType the native type providing grammar and suggestions
+     * @param mapper converts a parsed native value into the result type
+     * @return argument
+     * @param <N> the native value type
+     * @param <T> the mapped result type
+     * @since 0.1.0
+     */
+    public static <N, T> ArgumentType<T> map(final ArgumentType<N> nativeType, final ArgumentMapper<N, T> mapper) {
+        return provider().map(nativeType, mapper);
+    }
+
+    /**
+     * Reuses {@code nativeType}'s client-side grammar and highlighting, converting
+     * the parsed value into a custom result type and replacing the native type's
+     * suggestions with {@code suggestions}.
+     * <p>
+     * Use this when the native grammar fits but its default completions don't apply
+     * to the mapped domain (e.g. mapping a plain {@code word()} into an enum, where
+     * the enum's own values should be suggested instead of arbitrary words).
+     *
+     * @param nativeType the native type providing grammar and highlighting
+     * @param mapper converts a parsed native value into the result type
+     * @param suggestions replaces the native type's client-side suggestions
+     * @return argument
+     * @param <N> the native value type
+     * @param <T> the mapped result type
+     * @see #map(ArgumentType, ArgumentMapper)
+     * @since 0.1.0
+     */
+    public static <N, T> ArgumentType<T> map(
+            final ArgumentType<N> nativeType,
+            final ArgumentMapper<N, T> mapper,
+            final SuggestionProvider<CommandSource> suggestions
+    ) {
+        return provider().map(nativeType, mapper, suggestions);
+    }
+
+    /**
+     * Reuses {@code nativeType}'s client-side grammar and highlighting, converting
+     * the parsed value into a custom result type, replacing the native type's
+     * suggestions with {@code suggestions}, and replacing its examples with
+     * {@code examples} — useful when the native type's own examples (e.g. arbitrary
+     * words) don't reflect the mapped domain's actual valid values.
+     *
+     * @param nativeType the native type providing grammar and highlighting
+     * @param mapper converts a parsed native value into the result type
+     * @param suggestions replaces the native type's client-side suggestions
+     * @param examples replaces the native type's client-side examples
+     * @return argument
+     * @param <N> the native value type
+     * @param <T> the mapped result type
+     * @see #map(ArgumentType, ArgumentMapper, SuggestionProvider)
+     * @since 0.1.0
+     */
+    public static <N, T> ArgumentType<T> map(
+            final ArgumentType<N> nativeType,
+            final ArgumentMapper<N, T> mapper,
+            final SuggestionProvider<CommandSource> suggestions,
+            final Collection<String> examples
+    ) {
+        return provider().map(nativeType, mapper, suggestions, examples);
+    }
+
+    /**
+     * Wraps a custom {@link ArgumentType} so the client asks the server for
+     * suggestions instead of relying on client-side vanilla grammar. Use this for
+     * argument types with hand-rolled {@code parse}/{@code listSuggestions} logic.
+     *
+     * @param type the custom argument type
+     * @return argument that forces server-side suggestions
+     * @param <T> the parsed value type
+     * @since 0.1.0
+     */
+    public static <T> ArgumentType<T> withServerSuggestions(final ArgumentType<T> type) {
+        return provider().withServerSuggestions(type);
     }
 }

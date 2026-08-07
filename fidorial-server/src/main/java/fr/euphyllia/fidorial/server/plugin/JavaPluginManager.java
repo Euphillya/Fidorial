@@ -8,7 +8,6 @@ import fr.fidorial.permission.PermissionDefinition;
 import fr.fidorial.permission.PermissionNode;
 import fr.fidorial.permission.PermissionRegistry;
 import fr.fidorial.plugin.Plugin;
-import fr.fidorial.plugin.PluginContext;
 import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.plugin.PluginMeta;
 import fr.fidorial.service.ServiceRegistry;
@@ -144,6 +143,11 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         disableAll();
         for (final Loaded loaded : plugins.values()) {
             try {
+                loaded.context.close();
+            } catch (final Exception e) {
+                LOGGER.warn("Unable to close the plugin context for {}", loaded.meta.id(), e);
+            }
+            try {
                 loaded.classLoader.close();
             } catch (final IOException e) {
                 LOGGER.warn("Unable to close the classloader for {}", loaded.meta.id(), e);
@@ -200,7 +204,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                     return Optional.empty();
                 }
                 final PluginMeta meta = GSON.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginMeta.class);
-                return Optional.of(new Candidate(meta, classLoader));
+                return Optional.of(new Candidate(meta, jar, classLoader));
             }
         } catch (final JsonSyntaxException | NullPointerException | IllegalArgumentException e) {
             LOGGER.error("{} ignored : {} invalid", jar.getFileName(), DESCRIPTOR, e);
@@ -213,6 +217,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
 
     private void instantiate(final Candidate candidate) {
         final PluginMeta meta = candidate.meta;
+        SimplePluginContext context = null;
         try {
             final Class<?> mainClass = Class.forName(meta.main(), true, candidate.classLoader);
             if (!Plugin.class.isAssignableFrom(mainClass)) {
@@ -221,13 +226,18 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                 return;
             }
             final Plugin plugin = (Plugin) mainClass.getDeclaredConstructor().newInstance();
-            final PluginContext context =
-                    new SimplePluginContext(meta, server, events, services, pluginsFolder.resolve(meta.id()));
+            context = new SimplePluginContext(
+                    meta, server, events, services,
+                    pluginsFolder.resolve(meta.id()), candidate.jarPath());
             registerDescriptorPermissions(meta);
-            events.withOwner(plugin, () -> plugin.onLoad(context));
-            plugins.put(meta.id(), new Loaded(meta, plugin, candidate.classLoader));
+            final SimplePluginContext finalContext = context;
+            events.withOwner(plugin, () -> plugin.onLoad(finalContext));
+            plugins.put(meta.id(), new Loaded(meta, plugin, context, candidate.classLoader));
         } catch (final Throwable t) {
             LOGGER.error("Unable to load {}", meta.id(), t);
+            if (context != null) {
+                context.close();
+            }
             closeQuietly(candidate.classLoader);
         }
     }
@@ -282,18 +292,20 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         }
     }
 
-    private record Candidate(PluginMeta meta, URLClassLoader classLoader) {
+    private record Candidate(PluginMeta meta, Path jarPath, URLClassLoader classLoader) {
     }
 
     private static final class Loaded {
         final PluginMeta meta;
         final Plugin plugin;
+        final SimplePluginContext context;
         final URLClassLoader classLoader;
         boolean enabled;
 
-        Loaded(final PluginMeta meta, final Plugin plugin, final URLClassLoader classLoader) {
+        Loaded(final PluginMeta meta, final Plugin plugin, final SimplePluginContext context, final URLClassLoader classLoader) {
             this.meta = meta;
             this.plugin = plugin;
+            this.context = context;
             this.classLoader = classLoader;
         }
     }

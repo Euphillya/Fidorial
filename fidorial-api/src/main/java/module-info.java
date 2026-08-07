@@ -73,6 +73,7 @@ module fr.fidorial {
     exports fr.fidorial.testing;
     exports fr.fidorial.testing.annotation;
     exports fr.fidorial.moderation;
+    exports fr.fidorial.command.argument.custom;
 
     requires com.google.common;
     requires com.google.gson;

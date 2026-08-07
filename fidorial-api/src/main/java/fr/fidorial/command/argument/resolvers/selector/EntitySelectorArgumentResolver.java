@@ -5,6 +5,12 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
 
+/**
+ * A {@link SelectorArgumentResolver} that resolves to the {@link Entity}s
+ * matched by an entity selector.
+ *
+ * @since 0.1.0
+ */
 @ApiStatus.NonExtendable
-public interface EntitySelectorArgumentResolver extends SelectorArgumentResolver<List<Entity>> {
+public non-sealed interface EntitySelectorArgumentResolver extends SelectorArgumentResolver<List<Entity>> {
 }

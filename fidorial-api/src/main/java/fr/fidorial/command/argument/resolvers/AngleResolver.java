@@ -8,6 +8,7 @@ import org.jetbrains.annotations.ApiStatus;
  * An {@link ArgumentResolver} capable of resolving
  * an angle value using a {@link CommandSource}.
  *
+ * @since 0.1.0
  */
 @ApiStatus.NonExtendable
 public interface AngleResolver {

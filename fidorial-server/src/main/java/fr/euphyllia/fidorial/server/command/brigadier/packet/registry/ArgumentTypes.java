@@ -1,13 +1,11 @@
 package fr.euphyllia.fidorial.server.command.brigadier.packet.registry;
 
 import com.mojang.brigadier.arguments.ArgumentType;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.bossbar.BossBarColorArgument;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.bossbar.BossBarFlagArgument;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.bossbar.BossBarOverlayArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.ComponentArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.HexColorArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.NamedColorArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.StyleArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.custom.ForcedSuggestionsArgumentType;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.DurationArgument;
@@ -69,6 +67,7 @@ public final class ArgumentTypes {
         ArgumentTypeRegistry.register(new BossBarOverlayArgument.Info());
         ArgumentTypeRegistry.register(new BossBarFlagArgument.Info());
         ArgumentTypeRegistry.register(new DurationArgument.Info());
+        ArgumentTypeRegistry.register(new ForcedSuggestionsArgumentType.Info());
         // end - custom arguments
     }
 

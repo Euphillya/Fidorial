@@ -9,6 +9,7 @@ import org.jetbrains.annotations.ApiStatus;
  * an argument value using a {@link CommandSource}.
  *
  * @param <T> resolved type
+ * @since 0.1.0
  */
 @ApiStatus.NonExtendable
 public interface ArgumentResolver<T> {
