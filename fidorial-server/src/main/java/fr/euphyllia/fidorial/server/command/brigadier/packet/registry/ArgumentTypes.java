@@ -8,7 +8,6 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.chat.StyleArgumen
 import fr.euphyllia.fidorial.server.command.brigadier.argument.custom.ForcedSuggestionsArgumentType;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.DurationArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.item.ItemArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.item.ItemPredicateArgument;
@@ -62,13 +61,8 @@ public final class ArgumentTypes {
         register(new ResourceArgument.Info<>(), ArgumentTypeIds.RESOURCE_ARGUMENT_ID);
         register(new ResourceKeyArgument.Info<>(), ArgumentTypeIds.RESOURCE_KEY_ARGUMENT_ID);
         register(new UuidArgument.Info(), ArgumentTypeIds.UUID_ARGUMENT_ID);
-        // start - custom arguments
-        ArgumentTypeRegistry.register(new BossBarColorArgument.Info());
-        ArgumentTypeRegistry.register(new BossBarOverlayArgument.Info());
-        ArgumentTypeRegistry.register(new BossBarFlagArgument.Info());
-        ArgumentTypeRegistry.register(new DurationArgument.Info());
-        ArgumentTypeRegistry.register(new ForcedSuggestionsArgumentType.Info());
-        // end - custom arguments
+
+        ArgumentTypeRegistry.register(new ForcedSuggestionsArgumentType.Info()); // custom arguments
     }
 
     private static <A extends ArgumentType<?>> void register(final ArgumentTypeRegistrar<A, ?> registrar, final int networkId) {
