@@ -3,13 +3,17 @@ package fr.fidorial.inventory;
 import fr.fidorial.attribute.AttributeModifier;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.event.HoverEventSource;
+import net.kyori.adventure.translation.Translatable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 
-public final class ItemStack {
+public final class ItemStack implements Translatable, HoverEventSource<HoverEvent.ShowItem> {
 
     private static final Key AIR = Key.key("air");
     public static final ItemStack EMPTY = new ItemStack(AIR, 0);
@@ -148,5 +152,15 @@ public final class ItemStack {
                 + (hasLore() ? ", lore=" + lore.size() : "")
                 + (hasAttributeModifiers() ? ", attributes=" + attributeModifiers.size() : "")
                 + "}";
+    }
+
+    @Override
+    public HoverEvent<HoverEvent.ShowItem> asHoverEvent(final UnaryOperator<HoverEvent.ShowItem> op) {
+        return HoverEvent.showItem(op.apply(HoverEvent.ShowItem.showItem(id, count)));
+    }
+
+    @Override
+    public String translationKey() {
+        return "item." + id.asString().replace(":", ".");
     }
 }
