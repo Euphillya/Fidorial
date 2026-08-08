@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.command.brigadier.argument.generic;
 
-import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -10,15 +9,12 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
-import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.command.argument.ForceServerSuggestions;
+import fr.fidorial.command.argument.ArgumentTypes;
 import net.kyori.adventure.text.Component;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
@@ -34,15 +30,13 @@ import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventur
  * <p>The unit is always required: a bare number would be ambiguous between ticks, seconds and
  * minutes depending on who reads it.</p>
  */
-public final class DurationArgument implements ArgumentType<Duration>, ForceServerSuggestions {
+public final class DurationArgument {
 
     /**
      * Anything longer than this is a permanent ban with extra steps, and keeps the expiry away
      * from the range where {@link Instant} arithmetic overflows.
      */
     public static final Duration MAXIMUM = Duration.ofDays(36_500);
-
-    private static final Collection<String> EXAMPLES = List.of("30m", "12h", "7d", "1w12h");
 
     private static final List<String> COMMON = List.of("10m", "30m", "1h", "12h", "1d", "7d", "30d");
 
@@ -56,22 +50,24 @@ public final class DurationArgument implements ArgumentType<Duration>, ForceServ
             new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
                     Component.translatable("argument.duration.too_long", Component.text(String.valueOf(value)))));
 
-    public static final SuggestionProvider<CommandSource> SUGGESTIONS = (_, builder) -> suggest(builder);
+    public static final SuggestionProvider<CommandSource> SUGGESTIONS = DurationArgument::suggest;
 
-    public static DurationArgument duration() {
-        return new DurationArgument();
+    private DurationArgument() {
     }
+
+    public static ArgumentType<Duration> duration() {
+        return ArgumentTypes.map(StringArgumentType.word(), DurationArgument::parse, SUGGESTIONS, EXAMPLES);
+    }
+
+    private static final List<String> EXAMPLES = List.of("30m", "12h", "7d", "1w12h");
 
     public static Duration getDuration(final CommandContext<CommandSource> context, final String name) {
         return context.getArgument(name, Duration.class);
     }
 
-    @Override
-    public Duration parse(final StringReader reader) throws CommandSyntaxException {
-        final int start = reader.getCursor();
-        final String input = reader.readUnquotedString();
-
+    private static Duration parse(final String input, final StringReader reader) throws CommandSyntaxException {
         final Matcher matcher = UNITS.matcher(input);
+        final int start = reader.getCursor() - input.length();
 
         Duration total = Duration.ZERO;
         int read = 0;
@@ -104,7 +100,7 @@ public final class DurationArgument implements ArgumentType<Duration>, ForceServ
         };
     }
 
-    private static CompletableFuture<Suggestions> suggest(final SuggestionsBuilder builder) {
+    private static <S> CompletableFuture<Suggestions> suggest(final CommandContext<S> ctx, final SuggestionsBuilder builder) {
         final String remaining = builder.getRemainingLowerCase();
 
         COMMON.stream()
@@ -112,58 +108,5 @@ public final class DurationArgument implements ArgumentType<Duration>, ForceServ
                 .forEach(builder::suggest);
 
         return builder.buildFuture();
-    }
-
-    @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(
-            final CommandContext<S> context,
-            final SuggestionsBuilder builder
-    ) {
-        return suggest(builder);
-    }
-
-    @Override
-    public SuggestionProvider<CommandSource> suggestionProvider() {
-        return SUGGESTIONS;
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
-    }
-
-    public static final class Info implements ArgumentTypeRegistrar<DurationArgument, Info.Spec> {
-
-        @Override
-        public void serialize(final Spec spec, final PacketBuffer buf) {
-            buf.writeVarInt(StringArgumentType.StringType.SINGLE_WORD.ordinal());
-        }
-
-        @Override
-        public Spec deserialize(final PacketBuffer buf) {
-            return new Spec();
-        }
-
-        @Override
-        public void serializeJson(final Spec spec, final JsonObject json) {
-        }
-
-        @Override
-        public Spec access(final DurationArgument argument) {
-            return new Spec();
-        }
-
-        public record Spec() implements ArgumentTypeRegistrar.Spec<DurationArgument> {
-
-            @Override
-            public DurationArgument instantiate() {
-                return DurationArgument.duration();
-            }
-
-            @Override
-            public ArgumentTypeRegistrar<DurationArgument, ?> type() {
-                return new Info();
-            }
-        }
     }
 }
