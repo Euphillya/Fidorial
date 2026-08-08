@@ -40,12 +40,14 @@ public final class BanCommand {
                 .requires(source -> source.sender().hasPermission(PERMISSION))
                 .then(argument("player", playerArgument)
                         .executes(context -> ban(context, null, null))
+                        .then(literal("duration")
                         .then(argument("duration", ArgumentTypes.duration())
                                 .executes(context -> ban(context, duration(context), null))
                                 .then(argument("reason", ArgumentTypes.component())
-                                        .executes(context -> ban(context, duration(context), reason(context)))))
+                                        .executes(context -> ban(context, duration(context), reason(context))))))
+                        .then(literal("reason")
                         .then(argument("reason", ArgumentTypes.component())
-                                .executes(context -> ban(context, null, reason(context)))))
+                                .executes(context -> ban(context, null, reason(context))))))
                 .build();
     }
 

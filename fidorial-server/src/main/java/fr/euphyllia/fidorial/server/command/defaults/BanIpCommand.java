@@ -40,12 +40,14 @@ public final class BanIpCommand {
                 .then(argument("target", ArgumentTypes.word())
                         .suggests(ONLINE::listSuggestions)
                         .executes(context -> ban(context, null, null))
+                        .then(literal("duration")
                         .then(argument("duration", ArgumentTypes.duration())
                                 .executes(context -> ban(context, duration(context), null))
                                 .then(argument("reason", ArgumentTypes.component())
-                                        .executes(context -> ban(context, duration(context), reason(context)))))
+                                        .executes(context -> ban(context, duration(context), reason(context))))))
+                        .then(literal("reason")
                         .then(argument("reason", ArgumentTypes.component())
-                                .executes(context -> ban(context, null, reason(context)))))
+                                .executes(context -> ban(context, null, reason(context))))))
                 .build();
     }
 

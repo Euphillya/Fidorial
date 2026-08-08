@@ -40,6 +40,8 @@ public final class DurationArgument {
 
     private static final List<String> COMMON = List.of("10m", "30m", "1h", "12h", "1d", "7d", "30d");
 
+    private static final List<Character> UNIT_LETTERS = List.of('w', 'd', 'h', 'm', 's');
+
     private static final Pattern UNITS = Pattern.compile("(\\d{1,9})([wdhms])", Pattern.CASE_INSENSITIVE);
 
     private static final DynamicCommandExceptionType ERROR_INVALID =
@@ -101,11 +103,26 @@ public final class DurationArgument {
     }
 
     private static <S> CompletableFuture<Suggestions> suggest(final CommandContext<S> ctx, final SuggestionsBuilder builder) {
+        final String typed = builder.getRemaining();
         final String remaining = builder.getRemainingLowerCase();
 
         COMMON.stream()
                 .filter(value -> value.startsWith(remaining))
                 .forEach(builder::suggest);
+
+        final Matcher matcher = UNITS.matcher(remaining);
+        int read = 0;
+        while (matcher.find() && matcher.start() == read) {
+            read = matcher.end();
+        }
+
+        final String trailing = remaining.substring(read);
+
+        if (!trailing.isEmpty() && trailing.chars().allMatch(Character::isDigit)) {
+            for (final char unitLetter : UNIT_LETTERS) {
+                builder.suggest(typed + unitLetter);
+            }
+        }
 
         return builder.buildFuture();
     }
