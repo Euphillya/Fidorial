@@ -30,7 +30,6 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.listener.PlayPacketListener;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
-import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.common.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundAttackPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundChatCommandPacket;
@@ -39,6 +38,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.Ser
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundContainerClosePacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundInteractPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
@@ -47,6 +47,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.Ser
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundPlayerActionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundPlayerInputPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundPlayerLoadedPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundResourcePackPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundSetCarriedItemPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundSetCreativeModeSlotPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundSwingPacket;
@@ -123,6 +124,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         openChunkView(world, dynamic, spawn.chunk());
         spawnPlayer(spawn);
 
+        connection.flushPendingMessages();
         connection.startKeepAlive();
         server.addPlayerConnection(connection);
         for (final ServerPlayer other : server.players()) {
@@ -681,6 +683,12 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
     }
 
+    @Override
+    public void handleResourcePackResponse(final ServerboundResourcePackPacket packet) {
+        LOGGER.debug("{}: resource pack response {} -> {}",
+                player == null ? connection.username() : player.name(), packet.id(), packet.status());
+        connection.notifyResourcePackResponse(packet.id(), packet.status());
+    }
 
     private void respawn() {
         if (player == null || !player.isAwaitingRespawn()) {

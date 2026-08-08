@@ -13,8 +13,12 @@ import fr.euphyllia.fidorial.server.network.listener.LoginPacketHandler;
 import fr.euphyllia.fidorial.server.network.listener.PlayPacketHandler;
 import fr.euphyllia.fidorial.server.network.listener.StatusPacketHandler;
 import fr.euphyllia.fidorial.server.network.protocol.ProtocolMap;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.ConfigurationClientboundPackets;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ServerboundPackets;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.common.ClientboundResourcePackPopPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.common.ClientboundResourcePackPushPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.login.ClientboundLoginDisconnectPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundDisconnectPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundKeepAlivePacket;
@@ -32,6 +36,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.resource.ResourcePackCallback;
+import net.kyori.adventure.resource.ResourcePackInfo;
+import net.kyori.adventure.resource.ResourcePackRequest;
+import net.kyori.adventure.resource.ResourcePackStatus;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
@@ -41,11 +49,16 @@ import javax.crypto.SecretKey;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-// implement resource pack, pointers and dialog methods in the future from audience
+// implement pointers and dialog methods in the future from audience
 public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf> implements Audience {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(ClientConnection.class);
@@ -322,5 +335,83 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
             return play.teleport(target, location);
         }
         return false;
+    }
+
+    private final Map<UUID, ResourcePackCallback> pendingResourcePacks = new ConcurrentHashMap<>();
+
+    @Override
+    public void sendResourcePacks(final ResourcePackRequest request) {
+        LOGGER.info("ClientConnection.sendResourcePacks called for {} (packs={})", username, request.packs().size());
+        if (state != ConnectionState.CONFIGURATION && state != ConnectionState.PLAY) {
+            return;
+        }
+        final Key pushName = state == ConnectionState.PLAY
+                ? PlayClientboundPackets.RESOURCE_PACK_PUSH
+                : ConfigurationClientboundPackets.RESOURCE_PACK_PUSH;
+
+        final ResourcePackCallback cb = request.callback();
+        request.packs().forEach(pack -> pendingResourcePacks.put(pack.id(), cb));
+
+        for (final ResourcePackInfo pack : request.packs()) {
+            send(new ClientboundResourcePackPushPacket(
+                    pushName,
+                    pack.id(),
+                    pack.uri().toString(),
+                    pack.hash(),
+                    request.required(),
+                    request.prompt()));
+        }
+    }
+
+    @Override
+    public void removeResourcePacks(final UUID id, final UUID... others) {
+        popPack(id);
+        for (final UUID other : others) {
+            popPack(other);
+        }
+    }
+
+    @Override
+    public void clearResourcePacks() {
+        popPack(null);
+    }
+
+    private void popPack(final @Nullable UUID id) {
+        final Key popName = state == ConnectionState.PLAY
+                ? PlayClientboundPackets.RESOURCE_PACK_POP
+                : ConfigurationClientboundPackets.RESOURCE_PACK_POP;
+        send(new ClientboundResourcePackPopPacket(popName, id));
+    }
+
+    public void notifyResourcePackResponse(final UUID id, final ResourcePackStatus status) {
+        final ResourcePackCallback callback = status.intermediate()
+                ? pendingResourcePacks.get(id)
+                : pendingResourcePacks.remove(id);
+        if (callback != null) {
+            callback.packEventReceived(id, status, this.player != null ? this.player : this);
+        }
+    }
+
+    private final List<Component> pendingMessages = new ArrayList<>();
+
+    @Override
+    public void sendMessage(final Component message) {
+        if (state == ConnectionState.PLAY && this.player != null) {
+            this.player.sendMessage(message);
+            return;
+        }
+        // we're too early to send a message so just collect it
+        pendingMessages.add(message);
+    }
+
+    public void flushPendingMessages() {
+        if (pendingMessages.isEmpty()) {
+            return;
+        }
+        final List<Component> queued = List.copyOf(pendingMessages);
+        pendingMessages.clear();
+        for (final Component message : queued) {
+            sendMessage(message);
+        }
     }
 }

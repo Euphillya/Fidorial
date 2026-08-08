@@ -1,4 +1,4 @@
-package fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.common;
+package fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play;
 
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.packet.listener.PlayPacketListener;
