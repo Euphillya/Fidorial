@@ -26,6 +26,8 @@ import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStor
 import fr.euphyllia.fidorial.server.events.SimpleEventBus;
 import fr.euphyllia.fidorial.server.inventory.ChestViewerTracker;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
+import fr.euphyllia.fidorial.server.moderation.BanList;
+import fr.euphyllia.fidorial.server.moderation.Whitelist;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.NettyServer;
 import fr.euphyllia.fidorial.server.network.protocol.ProtocolConstants;
@@ -175,6 +177,8 @@ public final class FidorialServer implements Server {
     private final JavaPluginManager pluginManager =
             new JavaPluginManager(this, events, services, permissionRegistry, config.pluginsPath());
     private final OperatorList operators = new OperatorList(Path.of("ops.json"));
+    private final BanList banList = new BanList(Path.of("banned-players.json"), Path.of("banned-ips.json"));
+    private final Whitelist whitelist = new Whitelist(Path.of("whitelist.json"));
     private final FidorialOfflinePlayers offlinePlayers = new FidorialOfflinePlayers(
             this,
             config.worldPath().resolve("player").resolve("profiles.fop"),
@@ -291,6 +295,8 @@ public final class FidorialServer implements Server {
         ArgumentTypes.bootstrap();
         commandManager = new CommandManager();
         operators.load();
+        banList.load();
+        whitelist.load();
         try {
             offlinePlayers.load();
         } catch (final IOException e) {
@@ -342,6 +348,8 @@ public final class FidorialServer implements Server {
         services.register(PlayerEnderChestStorage.class, defaultEnderChestStorage, this, ServicePriority.LOWEST);
         services.register(BossBarRegistry.class, bossBarRegistry, this, ServicePriority.LOWEST);
         services.register(OfflinePlayers.class, offlinePlayers, this, ServicePriority.LOWEST);
+        services.register(BanList.class, banList, this, ServicePriority.LOWEST);
+        services.register(Whitelist.class, whitelist, this, ServicePriority.LOWEST);
     }
 
     private void loadPlugins() throws IOException {
@@ -355,6 +363,7 @@ public final class FidorialServer implements Server {
                     try {
                         worldManager.saveDirty();
                         offlinePlayers.maintain();
+                        banList.purgeExpired();
                         final int n = worldManager.unloadUnusedChunks();
                         if (n > 0) LOGGER.debug("{} unloaded chunks", n);
                     } catch (final Throwable t) {
@@ -451,6 +460,16 @@ public final class FidorialServer implements Server {
 
     public OperatorList operators() {
         return operators;
+    }
+
+    @Override
+    public BanList banList() {
+        return banList;
+    }
+
+    @Override
+    public Whitelist whitelist() {
+        return whitelist;
     }
 
     @Override

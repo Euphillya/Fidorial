@@ -21,6 +21,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.custom.ForcedSugg
 import fr.euphyllia.fidorial.server.command.brigadier.argument.custom.MappedArgumentType;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgumentInternal;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.UuidArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.DurationArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.generic.TimeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.item.ItemArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.item.ItemPredicateArgument;
@@ -63,6 +64,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -269,6 +271,11 @@ public class ArgumentProviderImpl implements ArgumentProvider {
     @Override
     public ArgumentType<Integer> time(final int minTicks) {
         return TimeArgument.time(minTicks);
+    }
+
+    @Override
+    public ArgumentType<Duration> duration() {
+        return DurationArgument.duration();
     }
 
     @Override

@@ -28,6 +28,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -498,6 +499,25 @@ public final class ArgumentTypes {
      */
     public static ArgumentType<Integer> time(final int mintime) {
         return provider().time(mintime);
+    }
+
+    /**
+     * A duration argument, accepting a chain of amount/unit pairs.
+     *
+     * <p>The supported units are {@code w} (weeks), {@code d} (days), {@code h} (hours),
+     * {@code m} (minutes) and {@code s} (seconds); a bare number is rejected, so that the unit is
+     * always explicit. Examples:
+     * <ul>
+     * <li> "30m"
+     * <li> "12h"
+     * <li> "7d"
+     * <li> "1w3d12h"
+     * </ul>
+     *
+     * @return argument
+     */
+    public static ArgumentType<Duration> duration() {
+        return provider().duration();
     }
 
     /**

@@ -47,6 +47,7 @@ import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -484,6 +485,11 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
             entry.getKey().removeListener(entry.getValue().listener());
         }
         activeBossBars.clear();
+    }
+
+    @Override
+    public InetAddress address() {
+        return connection.remoteInetAddress();
     }
 
     @Override
