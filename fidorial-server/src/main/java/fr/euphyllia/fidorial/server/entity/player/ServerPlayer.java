@@ -44,6 +44,7 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.object.ObjectContents;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 
@@ -587,6 +588,11 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         }
         heal(REGENERATION_AMOUNT);
         connection.send(new ClientboundSetHealthPacket(health(), 20, 5.0f));
+    }
+
+    @Override
+    public ObjectContents asObjectContents() {
+        return this.profile().asObjectContents();
     }
 
     private record BossBarEntry(UUID id, BossBar.Listener listener) {

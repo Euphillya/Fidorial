@@ -14,6 +14,7 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.MessageComponentSerializer;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
+import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.data.SoundEvent;
 import fr.fidorial.scheduler.RegionTps;
@@ -119,6 +120,8 @@ public final class ApiTestCommand {
                 .then(literal("baguette")
                         .then(argument("type", BaguetteArgument.baguette())
                                 .executes(ApiTestCommand::baguette)))
+                .then(literal("itemhover").executes(ApiTestCommand::itemHover))
+                .then(literal("playerhead").executes(ApiTestCommand::playerHead))
                 // TODO: should become a standalone command in fidorial tbh like vanilla /bossbar, and be expanded to match vanilla args too (with our additional flags)
                 .then(literal("bossbar")
                         .then(literal("show")
@@ -475,6 +478,38 @@ public final class ApiTestCommand {
 
         Component callbackComponent = Component.text("[Click me!]", NamedTextColor.GREEN).clickEvent(ClickEvent.callback(callback, options));
         ctx.getSource().sender().sendMessage(callbackComponent);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int itemHover(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
+
+        final ItemStack diamond = ItemStack.of(Key.key("diamond"), 64);
+
+        final Component item = Component.translatable(diamond)
+                .color(NamedTextColor.AQUA)
+                .hoverEvent(diamond);
+
+        sender.sendMessage(Component.text("[TestPlugin] Hover me: ").append(item));
+
+        msg(sender, "[TestPlugin] Translation key = " + diamond.translationKey());
+        sender.sendMessage(Component.text("[TestPlugin] Rendered key = ").append(Component.translatable(diamond.translationKey())));
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int playerHead(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
+
+        if (!(sender instanceof final Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        final Component head = Component.object(player);
+
+        sender.sendMessage(Component.text("[TestPlugin] Your head: ").append(head));
+
         return Command.SINGLE_SUCCESS;
     }
 
