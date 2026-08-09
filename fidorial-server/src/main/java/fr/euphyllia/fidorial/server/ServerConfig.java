@@ -2,7 +2,9 @@ package fr.euphyllia.fidorial.server;
 
 import fr.euphyllia.fidorial.server.world.WorldConstants;
 import fr.fidorial.entity.GameMode;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -12,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.UUID;
 
 public record ServerConfig(
         int port,
@@ -35,7 +38,12 @@ public record ServerConfig(
         boolean pvp,
         ProxyMode proxyMode,
         @Nullable String velocitySecret,
-        boolean useIoUring
+        boolean useIoUring,
+        @Nullable String resourcePackUrl,
+        @Nullable String resourcePackHash,
+        @Nullable String resourcePackId,
+        boolean resourcePackForced,
+        @Nullable Component resourcePackPrompt
 ) {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(ServerConfig.class);
@@ -52,6 +60,19 @@ public record ServerConfig(
         if (proxyMode == ProxyMode.VELOCITY && (velocitySecret == null || velocitySecret.isBlank())) {
             throw new IllegalArgumentException(
                     "proxy-mode=velocity requires velocity-secret (the content of the proxy's forwarding.secret file)");
+        }
+        if (resourcePackHash != null && !resourcePackHash.isBlank()
+                && !resourcePackHash.matches("[0-9a-f]{40}")) {
+            throw new IllegalArgumentException(
+                    "resource-pack-hash must be a 40-character lowercase SHA-1 hex string, or empty");
+        }
+        if (resourcePackId != null && !resourcePackId.isBlank()) {
+            try {
+                UUID.fromString(resourcePackId);
+            } catch (final IllegalArgumentException e) {
+                throw new IllegalArgumentException(
+                        "resource-pack-id must be a valid UUID: '" + resourcePackId + "'", e);
+            }
         }
     }
 
@@ -93,7 +114,12 @@ public record ServerConfig(
                 true,
                 ProxyMode.NONE,
                 "",
-        false);
+                false,
+                "",
+                "",
+                "",
+                false,
+                Component.empty());
     }
 
     public static ServerConfig load() throws IOException {
@@ -134,7 +160,12 @@ public record ServerConfig(
                 readBool(props, "pvp", defaults.pvp()),
                 readProxyMode(props, "proxy-mode", defaults.proxyMode()),
                 readString(props, "velocity-secret", "").strip(),
-                readBool(props, "use-io-uring", false));
+                readBool(props, "use-io-uring", false),
+                readString(props, "resource-pack-url", ""),
+                readString(props, "resource-pack-hash", ""),
+                readString(props, "resource-pack-id", ""),
+                readBool(props, "resource-pack-forced", false),
+                readComponent(props, "resource-pack-prompt", Component.empty()));
         LOGGER.info("Configuration loaded from {}", file);
         return config;
     }
@@ -171,6 +202,19 @@ public record ServerConfig(
             return fallback;
         }
         return raw;
+    }
+
+    private static Component readComponent(final Properties props, final String key, final Component fallback) {
+        final String raw = props.getProperty(key);
+        if (raw == null || raw.isBlank()) {
+            return fallback;
+        }
+        try {
+            return MiniMessage.miniMessage().deserialize(raw.strip());
+        } catch (final Exception e) {
+            LOGGER.warn("{} = '{}' could not be parsed as MiniMessage, default value used", key, raw, e);
+            return fallback;
+        }
     }
 
     private static GameMode readGameMode(final Properties props, final String key, final GameMode fallback) {
@@ -228,6 +272,11 @@ public record ServerConfig(
         props.setProperty("proxy-mode", proxyMode.name().toLowerCase(Locale.ROOT));
         props.setProperty("velocity-secret", velocitySecret == null ? "" : velocitySecret);
         props.setProperty("use-io-uring", Boolean.toString(useIoUring));
+        props.setProperty("resource-pack-url", resourcePackUrl == null ? "" : resourcePackUrl);
+        props.setProperty("resource-pack-hash", resourcePackHash == null ? "" : resourcePackHash);
+        props.setProperty("resource-pack-id", resourcePackId == null ? "" : resourcePackId);
+        props.setProperty("resource-pack-forced", Boolean.toString(resourcePackForced));
+        props.setProperty("resource-pack-prompt", resourcePackPrompt == null ? "" : MiniMessage.miniMessage().serialize(resourcePackPrompt));
         try (final OutputStream out = Files.newOutputStream(file)) {
             props.store(out, "Configuration Fidorial");
         }
