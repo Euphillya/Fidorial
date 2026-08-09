@@ -45,7 +45,7 @@ tasks.javadoc {
         "https://docs.oracle.com/en/java/javase/25/docs/api/",
         "https://jd.papermc.io/adventure/5.2.0/",
         "https://www.slf4j.org/apidocs/",
-        "https://javadoc.io/doc/org.jspecify/jspecify/1.0.1/",
+        "https://jspecify.dev/docs/api/",
     )
 
     opt.bottom(
