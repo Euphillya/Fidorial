@@ -146,8 +146,8 @@
 
   "commands.banip.success": "IP <arg:0> bannie (<arg:1> joueur(s) expulsé(s), jusqu'au : <arg:2>) - raison : <arg:3>",
   "commands.banip.updated": "Bannissement de l'IP <arg:0> mis à jour (<arg:1> joueur(s) expulsé(s), jusqu'au : <arg:2>) - raison : <arg:3>",
-  "commands.banip.invalid": "<arg:0> n'est ni une adresse ni un joueur connecté",
 
+  "commands.pardonip.invalid": "<arg:0> n'est pas une adresse IP valide",
   "commands.pardonip.success": "L'IP <arg:0> n'est plus bannie",
   "commands.pardonip.failed": "Aucun changement. <arg:0> n'est pas bannie",
 

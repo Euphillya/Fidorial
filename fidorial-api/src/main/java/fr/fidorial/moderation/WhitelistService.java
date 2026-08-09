@@ -48,8 +48,9 @@ public interface WhitelistService {
     /**
      * Checks whether an identity may connect as far as the whitelist is concerned.
      *
-     * <p>This is the question the login check asks. Note what it does not cover: operators
-     * bypass the whitelist, and that decision belongs to the caller, not here.</p>
+     * <p>This is the question the login check asks, and the only one it asks. The whitelist is
+     * enforced for everyone once enabled: operators are not exempt, so an operator who is not
+     * listed is refused like anyone else.</p>
      *
      * @param uuid the player identity
      * @return {@code true} when the whitelist is not enforced, or the identity is listed

@@ -220,7 +220,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
             return Optional.of(server.banList().disconnectMessage(ban.get()));
         }
 
-        if (!server.whitelist().allows(profile.uuid()) && !server.operators().isOp(profile.uuid())) {
+        if (!server.whitelist().allows(profile.uuid())) {
             return Optional.of(Component.translatable("multiplayer.disconnect.not_whitelisted"));
         }
 

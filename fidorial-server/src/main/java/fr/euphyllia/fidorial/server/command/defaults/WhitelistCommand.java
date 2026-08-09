@@ -169,7 +169,7 @@ public final class WhitelistCommand {
         int kicked = 0;
 
         for (final ServerPlayer player : server.players()) {
-            if (server.whitelist().contains(player.uuid()) || server.operators().isOp(player.uuid())) {
+            if (server.whitelist().contains(player.uuid())) {
                 continue;
             }
 

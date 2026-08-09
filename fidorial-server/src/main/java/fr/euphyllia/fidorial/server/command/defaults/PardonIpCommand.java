@@ -51,7 +51,7 @@ public final class PardonIpCommand {
 
         if (!InetAddresses.isInetAddress(address)) {
             source.sender()
-                    .sendMessage(Component.translatable("commands.banip.invalid", Component.text(address)));
+                    .sendMessage(Component.translatable("commands.pardonip.invalid", Component.text(address)));
             return 0;
         }
 

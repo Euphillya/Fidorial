@@ -147,8 +147,8 @@
 
   "commands.banip.success": "Banned IP <arg:0> (<arg:1> player(s) kicked, until: <arg:2>) - reason: <arg:3>",
   "commands.banip.updated": "Updated the ban on IP <arg:0> (<arg:1> player(s) kicked, until: <arg:2>) - reason: <arg:3>",
-  "commands.banip.invalid": "<arg:0> is neither an address nor an online player",
 
+  "commands.pardonip.invalid": "<arg:0> is not a valid IP address",
   "commands.pardonip.success": "Unbanned IP <arg:0>",
   "commands.pardonip.failed": "Nothing changed. <arg:0> is not banned",
 
