@@ -14,6 +14,7 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.MessageComponentSerializer;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
+import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.data.SoundEvent;
 import fr.fidorial.scheduler.RegionTps;
@@ -25,13 +26,18 @@ import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.resource.ResourcePackCallback;
+import net.kyori.adventure.resource.ResourcePackInfo;
+import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -119,6 +125,10 @@ public final class ApiTestCommand {
                 .then(literal("baguette")
                         .then(argument("type", BaguetteArgument.baguette())
                                 .executes(ApiTestCommand::baguette)))
+                .then(literal("itemhover").executes(ApiTestCommand::itemHover))
+                .then(literal("playerhead").executes(ApiTestCommand::playerHead))
+                .then(literal("resourcepack")
+                        .executes(ApiTestCommand::resourcePackBroadcast))
                 // TODO: should become a standalone command in fidorial tbh like vanilla /bossbar, and be expanded to match vanilla args too (with our additional flags)
                 .then(literal("bossbar")
                         .then(literal("show")
@@ -475,6 +485,63 @@ public final class ApiTestCommand {
 
         Component callbackComponent = Component.text("[Click me!]", NamedTextColor.GREEN).clickEvent(ClickEvent.callback(callback, options));
         ctx.getSource().sender().sendMessage(callbackComponent);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int itemHover(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
+
+        final ItemStack diamond = ItemStack.of(Key.key("diamond"), 64);
+
+        final Component item = Component.translatable(diamond)
+                .color(NamedTextColor.AQUA)
+                .hoverEvent(diamond);
+
+        sender.sendMessage(Component.text("[TestPlugin] Hover me: ").append(item));
+
+        msg(sender, "[TestPlugin] Translation key = " + diamond.translationKey());
+        sender.sendMessage(Component.text("[TestPlugin] Rendered key = ").append(Component.translatable(diamond.translationKey())));
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int playerHead(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
+
+        if (!(sender instanceof final Player player)) {
+            msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        final Component head = Component.object(player);
+
+        sender.sendMessage(Component.text("[TestPlugin] Your head: ").append(head));
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int resourcePackBroadcast(final CommandContext<CommandSource> ctx) {
+        final var server = ctx.getSource().server();
+
+        final ResourcePackInfo pack = ResourcePackInfo.resourcePackInfo(
+                UUID.fromString("2e26aec4-e14c-4947-bdc1-99c391d6d257"),
+                URI.create("https://download.mc-packs.net/pack/e7d205a0f0c8bef05cdd540e08b0437fbdb973d2.zip"),
+                "e7d205a0f0c8bef05cdd540e08b0437fbdb973d2");
+
+        final ResourcePackRequest request = ResourcePackRequest.resourcePackRequest()
+                .packs(pack)
+                .required(false)
+                .prompt(MiniMessage.miniMessage().deserialize(
+                        "<gradient:blue:white:red>[TestPlugin] Try the best custom resource pack!</gradient>"))
+                .callback(ResourcePackCallback.onTerminal(
+                        (id, audience) -> audience.sendMessage(Component.text("Pack loaded, thanks!", NamedTextColor.GREEN)),
+                        (id, audience) -> audience.sendMessage(Component.text("Pack failed or declined.", NamedTextColor.RED))))
+                .build();
+
+        server.sendResourcePacks(request);
+
+        msg(ctx.getSource().sender(), "[TestPlugin] Resource pack request sent to " + server.playerCount() + " player(s).");
+
         return Command.SINGLE_SUCCESS;
     }
 

@@ -41,9 +41,11 @@ import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.object.ObjectContents;
 import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.Nullable;
 
@@ -493,6 +495,21 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     }
 
     @Override
+    public void sendResourcePacks(final ResourcePackRequest request) {
+        connection.sendResourcePacks(request);
+    }
+
+    @Override
+    public void removeResourcePacks(final UUID id, final UUID... others) {
+        connection.removeResourcePacks(id, others);
+    }
+
+    @Override
+    public void clearResourcePacks() {
+        connection.clearResourcePacks();
+    }
+
+    @Override
     public void kick(final Component reason) {
         connection.disconnect(reason);
     }
@@ -593,6 +610,11 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         }
         heal(REGENERATION_AMOUNT);
         connection.send(new ClientboundSetHealthPacket(health(), 20, 5.0f));
+    }
+
+    @Override
+    public ObjectContents asObjectContents() {
+        return this.profile().asObjectContents();
     }
 
     private record BossBarEntry(UUID id, BossBar.Listener listener) {

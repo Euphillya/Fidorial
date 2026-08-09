@@ -8,8 +8,8 @@ import fr.euphyllia.fidorial.server.network.protocol.catalog.LoginServerboundPac
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayServerboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.StatusServerboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
-import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.common.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundFinishConfigurationPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundResourcePackPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundSelectKnownPacksPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.handshake.ServerboundIntentionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.login.ServerboundCustomQueryAnswerPacket;
@@ -24,6 +24,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.Ser
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundCommandSuggestionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundContainerClosePacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundInteractPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundMovePlayerPosPacket;
@@ -76,8 +77,12 @@ public class ServerboundPackets {
                 ServerboundClientInformationPacket::read);
         register(
                 ConnectionState.CONFIGURATION,
-                PlayServerboundPackets.CUSTOM_CLICK_ACTION,
-                ServerboundCustomClickActionPacket::read);
+                ConfigurationServerboundPackets.CUSTOM_CLICK_ACTION,
+                fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundCustomClickActionPacket::read);
+        register(
+                ConnectionState.CONFIGURATION,
+                ConfigurationServerboundPackets.RESOURCE_PACK,
+                ServerboundResourcePackPacket::read);
         register(
                 ConnectionState.CONFIGURATION,
                 ConfigurationServerboundPackets.FINISH_CONFIGURATION,
@@ -124,6 +129,8 @@ public class ServerboundPackets {
                 ConnectionState.PLAY,
                 PlayServerboundPackets.CUSTOM_CLICK_ACTION,
                 ServerboundCustomClickActionPacket::read);
+        register(ConnectionState.PLAY, PlayServerboundPackets.RESOURCE_PACK,
+                fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundResourcePackPacket::read);
 
         register(ConnectionState.PLAY, PlayServerboundPackets.ATTACK, ServerboundAttackPacket::read);
         register(ConnectionState.PLAY, PlayServerboundPackets.INTERACT, ServerboundInteractPacket::read);
