@@ -58,6 +58,7 @@ import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.Server;
+import fr.fidorial.combat.CombatService;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.OfflinePlayers;
@@ -330,13 +331,13 @@ public final class FidorialServer implements Server {
         services.register(PermissionRegistry.class, permissionRegistry, this, ServicePriority.LOWEST);
         services.register(FluidManager.class, fluidEngine, this, ServicePriority.LOWEST);
         services.register(WeatherManager.class, weatherEngine, this, ServicePriority.LOWEST);
-        services.register(CombatEngine.class, combat, this, ServicePriority.LOWEST);
-        services.register(BlockEditService.class, blockEdits, this, ServicePriority.LOWEST);
-        services.register(CommandManager.class, commandManager, this, ServicePriority.LOWEST);
+        services.register(CombatService.class, combat, this, ServicePriority.LOWEST);
+        services.register(BlockEditService.class, blockEdits, this, ServicePriority.LOWEST); // Todo : Currently, plugins cannot implement their own system.
+        services.register(CommandRegistry.class, commandManager, this, ServicePriority.LOWEST);
         services.register(PlayerInventoryStorage.class, defaultInventoryStorage, this, ServicePriority.LOWEST);
         services.register(PlayerDataStorage.class, defaultPlayerDataStorage, this, ServicePriority.LOWEST);
         services.register(PlayerEnderChestStorage.class, defaultEnderChestStorage, this, ServicePriority.LOWEST);
-        services.register(BossBarRegistry.class, bossBarRegistry, this, ServicePriority.LOWEST);
+        services.register(BossBarRegistry.class, bossBarRegistry, this, ServicePriority.LOWEST); // Todo : Currently, plugins cannot implement their own system.
         services.register(OfflinePlayers.class, offlinePlayers, this, ServicePriority.LOWEST);
     }
 
