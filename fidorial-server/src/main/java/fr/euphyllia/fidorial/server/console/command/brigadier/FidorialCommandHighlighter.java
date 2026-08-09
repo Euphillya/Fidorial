@@ -12,67 +12,72 @@ import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 
 public final class FidorialCommandHighlighter implements Highlighter {
 
-    private static final int[] COLORS = {
-            AttributedStyle.CYAN, AttributedStyle.YELLOW, AttributedStyle.GREEN,
-            AttributedStyle.MAGENTA, AttributedStyle.BLUE
-    };
+    private static final AttributedStyle LITERAL_STYLE = AttributedStyle.DEFAULT.bold();
+    private static final AttributedStyle UNRECOGNIZED_STYLE = AttributedStyle.DEFAULT.foreground(AttributedStyle.RED).underline();
 
     private final CommandManager commandManager;
-    private final Supplier<CommandSource> consoleSource;
+    private final Supplier<CommandSource> sourceFactory;
+    private final IntFunction<AttributedStyle> argumentPalette;
 
-    public FidorialCommandHighlighter(CommandManager commandManager, Supplier<CommandSource> consoleSource) {
+    public FidorialCommandHighlighter(final CommandManager commandManager, final Supplier<CommandSource> sourceFactory) {
+        this(commandManager, sourceFactory, FidorialCommandHighlighter::defaultPalette);
+    }
+
+    public FidorialCommandHighlighter(
+            final CommandManager commandManager,
+            final Supplier<CommandSource> sourceFactory,
+            final IntFunction<AttributedStyle> argumentPalette
+    ) {
         this.commandManager = commandManager;
-        this.consoleSource = consoleSource;
+        this.sourceFactory = sourceFactory;
+        this.argumentPalette = argumentPalette;
     }
 
     @Override
     public AttributedString highlight(final LineReader reader, final String buffer) {
-        final AttributedStringBuilder builder = new AttributedStringBuilder();
-        final ParseResults<CommandSource> results =
-                commandManager.parse(new StringReader(buffer), consoleSource.get());
+        final ParseResults<CommandSource> parseResults = this.commandManager.parse(new StringReader(buffer), this.sourceFactory.get());
+        final AttributedStringBuilder out = new AttributedStringBuilder();
 
-        int pos = 0;
-        int component = -1;
-
-        for (final ParsedCommandNode<CommandSource> node : results.getContext().getLastChild().getNodes()) {
-            if (node.getRange().getStart() >= buffer.length()) {
+        int cursor = 0;
+        int argumentOrdinal = 0;
+        for (final ParsedCommandNode<CommandSource> node : parseResults.getContext().getLastChild().getNodes()) {
+            final int start = node.getRange().getStart();
+            if (start >= buffer.length()) {
                 break;
             }
-
-            final int start = node.getRange().getStart();
             final int end = Math.min(node.getRange().getEnd(), buffer.length());
 
-            builder.append(buffer.substring(pos, start), AttributedStyle.DEFAULT);
+            appendGap(out, buffer, cursor, start);
 
-            if (node.getNode() instanceof LiteralCommandNode) {
-                builder.append(buffer.substring(start, end), AttributedStyle.DEFAULT);
-            } else {
-                if (++component >= COLORS.length) {
-                    component = 0;
-                }
-                builder.append(buffer.substring(start, end), AttributedStyle.DEFAULT.foreground(COLORS[component]));
+            final boolean literal = node.getNode() instanceof LiteralCommandNode<?>;
+            final AttributedStyle style = literal ? LITERAL_STYLE : this.argumentPalette.apply(argumentOrdinal);
+            out.append(buffer.substring(start, end), style);
+            if (!literal) {
+                argumentOrdinal++;
             }
 
-            pos = end;
+            cursor = end;
         }
 
-        if (pos < buffer.length()) {
-            builder.append(buffer.substring(pos), AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
+        appendGap(out, buffer, cursor, buffer.length());
+        return out.toAttributedString();
+    }
+
+    private static void appendGap(final AttributedStringBuilder out, final String buffer, final int from, final int to) {
+        if (from >= to) {
+            return;
         }
-
-        return builder.toAttributedString();
+        final boolean isTrailingUnparsed = to == buffer.length();
+        out.append(buffer.substring(from, to), isTrailingUnparsed ? UNRECOGNIZED_STYLE : AttributedStyle.DEFAULT);
     }
 
-    @Override
-    public void setErrorPattern(final Pattern errorPattern) {
-    }
-
-    @Override
-    public void setErrorIndex(final int errorIndex) {
+    private static AttributedStyle defaultPalette(final int ordinal) {
+        final int[] colors = { AttributedStyle.CYAN, AttributedStyle.YELLOW, AttributedStyle.GREEN, AttributedStyle.MAGENTA, AttributedStyle.BLUE };
+        return AttributedStyle.DEFAULT.foreground(colors[ordinal % colors.length]);
     }
 }

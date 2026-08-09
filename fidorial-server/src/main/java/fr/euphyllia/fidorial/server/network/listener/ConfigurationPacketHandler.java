@@ -24,6 +24,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 public final class ConfigurationPacketHandler implements ConfigurationPacketListener {
@@ -52,9 +53,9 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
         connection.send(new ClientboundBrandPacket("Fidorial"));
         if (sendResourcePackIfConfigured()) {
             awaitingResourcePackResponse = true;
-            return;
+        } else {
+            proceedToKnownPacks();
         }
-        proceedToKnownPacks();
     }
 
     private void proceedToKnownPacks() {
@@ -63,7 +64,6 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
 
     @Override
     public void handleResourcePackResponse(final ServerboundResourcePackPacket packet) {
-        LOGGER.debug("{}: resource pack response {} -> {}", connection.username(), packet.id(), packet.status());
         connection.notifyResourcePackResponse(packet.id(), packet.status());
 
         final boolean terminalFailure = switch (packet.status()) {
@@ -72,7 +72,7 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
         };
 
         if (terminalFailure && server.config().resourcePackForced()) {
-            connection.close();
+            connection.disconnect(Component.translatable("multiplayer.requiredTexturePrompt.disconnect"));
             return;
         }
 
@@ -113,16 +113,15 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
         if (url == null || url.isBlank()) {
             return false;
         }
-        final Component prompt = server.config().resourcePackPrompt();
-        final String idRaw = server.config().resourcePackId();
-        final UUID id = (idRaw == null || idRaw.isBlank()) ? UUID.randomUUID() : UUID.fromString(idRaw);
+        // the constructor of ServerConfig already guarantees this
+        final UUID id = Objects.requireNonNull(server.config().resourcePackId(), "resourcePackId must be set when resourcePackUrl is");
         connection.send(new ClientboundResourcePackPushPacket(
                 ConfigurationClientboundPackets.RESOURCE_PACK_PUSH,
                 id,
                 url,
                 server.config().resourcePackHash() == null ? "" : server.config().resourcePackHash(),
                 server.config().resourcePackForced(),
-                prompt));
+                server.config().resourcePackPrompt()));
         return true;
     }
 
