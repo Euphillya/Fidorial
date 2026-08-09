@@ -1,7 +1,6 @@
 package fr.euphyllia.fidorial.server;
 
 import com.google.common.collect.Iterables;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.faststats.ErrorTracker;
 import dev.faststats.Metrics;
 import fr.euphyllia.fidorial.auth.EncryptionUtils;
@@ -10,8 +9,6 @@ import fr.euphyllia.fidorial.server.adventure.ClickCallbackManager;
 import fr.euphyllia.fidorial.server.combat.CombatEngine;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.euphyllia.fidorial.server.command.ConsoleSender;
-import fr.euphyllia.fidorial.server.command.brigadier.builtin.exceptions.TranslatableExceptions;
-import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypes;
 import fr.euphyllia.fidorial.server.console.command.ConsoleCommandReader;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
@@ -140,7 +137,7 @@ public final class FidorialServer implements Server {
 
     private final ProtocolMap protocolMap = ProtocolMap.load();
     private final Registries registries = Registries.load();
-    private @Nullable CommandManager commandManager;
+    private final CommandManager commandManager;
     private final ClickCallbackManager clickCallbackManager = new ClickCallbackManager();
 
     private final ThreadedRegionRegionizer regionizer = new ThreadedRegionRegionizer(config.regionWorkers(), config.regionShift());
@@ -206,6 +203,7 @@ public final class FidorialServer implements Server {
         }
         this.headless = headless;
         instance = this;
+        commandManager = new CommandManager();
     }
 
     public static FidorialServer getInstance() {
@@ -259,6 +257,7 @@ public final class FidorialServer implements Server {
         LOGGER.info("Stopping the Fidorial server...");
         events.post(new ServerStoppingEvent(this));
         onlinePlayers().forEach(player -> player.kick(Component.translatable("commands.stop.stopping")));
+        closeQuietly("commands", commandManager::shutdown);
         closeQuietly("plugins", pluginManager::close);
         closeQuietly("click callbacks", clickCallbackManager::close);
         closeQuietly("bossbars", bossBarRegistry::close);
@@ -287,9 +286,6 @@ public final class FidorialServer implements Server {
 
     private void loadData() {
         TranslationStore.setStore(builtInTranslationStore);
-        CommandSyntaxException.BUILT_IN_EXCEPTIONS = new TranslatableExceptions();
-        ArgumentTypes.bootstrap();
-        commandManager = new CommandManager();
         operators.load();
         try {
             offlinePlayers.load();

@@ -514,7 +514,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
         final int offset = slash ? 1 : 0;
 
-        server.commandManager().offerBrigadierSuggestions(player, input).thenAccept(suggestions -> {
+        server.commandManager().offerSuggestions(player, input).thenAccept(suggestions -> {
             final var entries = suggestions.getList().stream()
                     .map(suggestion -> new ClientboundCommandSuggestionsPacket.Entry(
                             suggestion.getText(), suggestion.getTooltip()))
@@ -685,8 +685,6 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleResourcePackResponse(final ServerboundResourcePackPacket packet) {
-        LOGGER.debug("{}: resource pack response {} -> {}",
-                player == null ? connection.username() : player.name(), packet.id(), packet.status());
         connection.notifyResourcePackResponse(packet.id(), packet.status());
     }
 

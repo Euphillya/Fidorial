@@ -1,11 +1,9 @@
 package fr.euphyllia.fidorial.server.console.command.brigadier;
 
-import com.mojang.brigadier.ImmutableStringReader;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.context.ParsedCommandNode;
-import com.mojang.brigadier.context.StringRange;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.fidorial.command.CommandSource;
 import org.jline.reader.CompletingParsedLine;
@@ -20,83 +18,86 @@ import java.util.function.Supplier;
 public final class FidorialConsoleParser implements Parser {
 
     private final CommandManager commandManager;
-    private final Supplier<CommandSource> consoleSource;
+    private final Supplier<CommandSource> sourceFactory;
 
-    public FidorialConsoleParser(CommandManager commandManager, Supplier<CommandSource> consoleSource) {
+    public FidorialConsoleParser(final CommandManager commandManager, final Supplier<CommandSource> sourceFactory) {
         this.commandManager = commandManager;
-        this.consoleSource = consoleSource;
+        this.sourceFactory = sourceFactory;
     }
 
     @Override
     public ParsedLine parse(final String line, final int cursor, final ParseContext context) throws SyntaxError {
-        final ParseResults<CommandSource> results =
-                commandManager.parse(new StringReader(line), consoleSource.get());
-        final ImmutableStringReader reader = results.getReader();
-        final List<String> words = new ArrayList<>();
-        CommandContextBuilder<CommandSource> currentContext = results.getContext();
-        int currentWordIdx = -1;
-        int wordIdx = -1;
-        int inWordCursor = -1;
-
-        if (currentContext.getRange().getLength() > 0) {
-            do {
-                for (final ParsedCommandNode<CommandSource> node : currentContext.getNodes()) {
-                    final StringRange nodeRange = node.getRange();
-                    String current = nodeRange.get(reader);
-                    words.add(current);
-                    currentWordIdx++;
-                    if (wordIdx == -1 && nodeRange.getStart() <= cursor && nodeRange.getEnd() >= cursor) {
-                        wordIdx = currentWordIdx;
-                        inWordCursor = cursor - nodeRange.getStart();
-                    }
-                }
-                currentContext = currentContext.getChild();
-            } while (currentContext != null);
-        }
-
-        final String leftovers = reader.getRemaining();
-        if (!leftovers.isEmpty() && leftovers.isBlank()) {
-            currentWordIdx++;
-            words.add("");
-            if (wordIdx == -1) {
-                wordIdx = currentWordIdx;
-                inWordCursor = 0;
-            }
-        } else if (!leftovers.isEmpty()) {
-            currentWordIdx++;
-            words.add(leftovers);
-            if (wordIdx == -1) {
-                wordIdx = currentWordIdx;
-                inWordCursor = cursor - reader.getCursor();
-            }
-        }
-
-        if (wordIdx == -1) {
-            currentWordIdx++;
-            words.add("");
-            wordIdx = currentWordIdx;
-            inWordCursor = 0;
-        }
-
-        return new BrigadierParsedLine(words.get(wordIdx), inWordCursor, wordIdx, words, line, cursor);
+        final ParseResults<CommandSource> parseResults = this.commandManager.parse(new StringReader(line), this.sourceFactory.get());
+        final List<Segment> segments = segmentLine(parseResults, line);
+        return buildParsedLine(line, cursor, segments);
     }
 
-    record BrigadierParsedLine(String word, int wordCursor, int wordIndex, List<String> words, String line, int cursor)
-            implements ParsedLine, CompletingParsedLine {
+    private static <S> List<Segment> segmentLine(final ParseResults<S> parseResults, final String line) {
+        final List<Segment> segments = new ArrayList<>();
+
+        CommandContextBuilder<S> frame = parseResults.getContext();
+        while (frame != null && frame.getRange().getLength() > 0) {
+            for (final ParsedCommandNode<S> node : frame.getNodes()) {
+                final int start = node.getRange().getStart();
+                final int end = node.getRange().getEnd();
+                segments.add(new Segment(line.substring(start, end), start, end));
+            }
+            frame = frame.getChild();
+        }
+
+        final String remaining = parseResults.getReader().getRemaining();
+        if (!remaining.isEmpty()) {
+            final int start = parseResults.getReader().getCursor();
+            final boolean pendingGap = remaining.isBlank();
+            segments.add(new Segment(pendingGap ? "" : remaining, start, start + remaining.length()));
+        }
+
+        return segments;
+    }
+
+    private static ParsedLine buildParsedLine(final String line, final int cursor, final List<Segment> segments) {
+        final List<String> words = new ArrayList<>(segments.size() + 1);
+        for (final Segment segment : segments) {
+            words.add(segment.text());
+        }
+
+        for (int i = 0; i < segments.size(); i++) {
+            final Segment segment = segments.get(i);
+            if (cursor >= segment.start() && cursor <= segment.end()) {
+                final int offset = Math.min(cursor - segment.start(), segment.text().length());
+                return new BrigadierParsedLine(segment.text(), offset, i, List.copyOf(words), line, cursor);
+            }
+        }
+
+        words.add("");
+        return new BrigadierParsedLine("", 0, words.size() - 1, List.copyOf(words), line, cursor);
+    }
+
+    private record Segment(String text, int start, int end) {
+    }
+
+    private record BrigadierParsedLine(
+            String word,
+            int wordCursor,
+            int wordIndex,
+            List<String> words,
+            String line,
+            int cursor
+    ) implements ParsedLine, CompletingParsedLine {
 
         @Override
-        public CharSequence escape(CharSequence candidate, boolean complete) {
+        public CharSequence escape(final CharSequence candidate, final boolean complete) {
             return candidate;
         }
 
         @Override
         public int rawWordCursor() {
-            return wordCursor;
+            return this.wordCursor;
         }
 
         @Override
         public int rawWordLength() {
-            return word.length();
+            return this.word.length();
         }
     }
 }

@@ -27,7 +27,7 @@ public class ConsoleCommandReader {
     private final BooleanSupplier serverRunning;
     private final AtomicBoolean started = new AtomicBoolean(false);
 
-    public ConsoleCommandReader(CommandManager commandManager, BooleanSupplier serverRunning) {
+    public ConsoleCommandReader(final CommandManager commandManager, final BooleanSupplier serverRunning) {
         this.commandManager = commandManager;
         this.serverRunning = serverRunning;
     }
@@ -43,8 +43,8 @@ public class ConsoleCommandReader {
     private void run() {
         Supplier<CommandSource> consoleSource = () -> FidorialServer.getInstance().getConsole();
 
-        try (Terminal terminal = TerminalBuilder.builder().system(true).build()) {
-            LineReader lineReader = LineReaderBuilder.builder()
+        try (final Terminal terminal = TerminalBuilder.builder().system(true).build()) {
+            final LineReader lineReader = LineReaderBuilder.builder()
                     .terminal(terminal)
                     .appName("Fidorial")
                     .parser(new FidorialConsoleParser(commandManager, consoleSource))
@@ -52,7 +52,7 @@ public class ConsoleCommandReader {
                     .highlighter(new FidorialCommandHighlighter(commandManager, consoleSource))
                     .build();
 
-            String prompt = "> ";
+            final String prompt = "> ";
 
             while (serverRunning.getAsBoolean()) {
                 String line;
@@ -70,7 +70,7 @@ public class ConsoleCommandReader {
 
                 commandManager.dispatchAsync(FidorialServer.getInstance().getConsole(), line);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOGGER.warn("Lecture de la console interrompue : {}", e.getMessage());
         }
     }

@@ -14,7 +14,7 @@ public record ClientboundDisconnectPacket(Component reason) implements Clientbou
     }
 
     @Override
-    public void write(PacketBuffer buf) {
+    public void write(final PacketBuffer buf) {
         buf.writeComponent(reason);
     }
 }
