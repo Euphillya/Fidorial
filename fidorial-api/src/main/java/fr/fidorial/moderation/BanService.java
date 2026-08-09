@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
 import java.net.InetAddress;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -30,6 +31,22 @@ public interface BanService {
     <T extends BanTarget> Optional<BanEntry<T>> find(final T target);
 
     /**
+     * Gets the active ban on a target, assuming there is one.
+     *
+     * @param target the ban target
+     * @param <T>    what the ban applies to
+     * @return the active ban
+     * @throws NoSuchElementException when nothing bans the target
+     * @see #find(BanTarget)
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    default <T extends BanTarget> BanEntry<T> get(final T target) {
+        return find(target).orElseThrow(() ->
+                new NoSuchElementException("Not banned: " + target.label()));
+    }
+
+    /**
      * Gets the active ban recorded under a name, matched case-insensitively.
      *
      * <p>Only entries carrying a recorded name can match, so this never resolves an address.</p>
@@ -40,6 +57,21 @@ public interface BanService {
      */
     @Contract(pure = true)
     Optional<BanEntry<?>> findByName(final String name);
+
+    /**
+     * Gets the active ban recorded under a name, assuming there is one.
+     *
+     * @param name the player name
+     * @return the active ban
+     * @throws NoSuchElementException when no ban is recorded under the name
+     * @see #findByName(String)
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    default BanEntry<?> getByName(final String name) {
+        return findByName(name).orElseThrow(() ->
+                new NoSuchElementException("Not banned: " + name));
+    }
 
     /**
      * Gets whatever bans a connecting player, whether that is their identity or the address they
@@ -59,6 +91,22 @@ public interface BanService {
         }
 
         return find(new BanTarget.Address(address)).map(entry -> entry);
+    }
+
+    /**
+     * Gets whatever bans a connecting player, assuming something does.
+     *
+     * @param uuid    the player identity
+     * @param address the address the client connects from, or {@code null} when unknown
+     * @return the active ban
+     * @throws NoSuchElementException when the player may connect
+     * @see #findAny(UUID, InetAddress)
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    default BanEntry<?> getAny(final UUID uuid, @Nullable final InetAddress address) {
+        return findAny(uuid, address).orElseThrow(() ->
+                new NoSuchElementException("Not banned: " + uuid));
     }
 
     /**

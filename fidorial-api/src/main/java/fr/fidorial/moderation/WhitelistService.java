@@ -3,6 +3,7 @@ package fr.fidorial.moderation;
 import fr.fidorial.entity.PlayerProfile;
 import org.jetbrains.annotations.Contract;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -89,6 +90,21 @@ public interface WhitelistService {
      */
     @Contract(pure = true)
     Optional<PlayerProfile> find(String name);
+
+    /**
+     * Gets the entry recorded under a name, assuming there is one.
+     *
+     * @param name the player name
+     * @return the entry
+     * @throws NoSuchElementException when nobody is listed under the name
+     * @see #find(String)
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    default PlayerProfile get(final String name) {
+        return find(name).orElseThrow(() ->
+                new NoSuchElementException("Not whitelisted: " + name));
+    }
 
     /**
      * Gets the listed identities.
