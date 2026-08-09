@@ -139,6 +139,7 @@
 
   "commands.ban.success": "Banned <arg:0> (until: <arg:1>) - reason: <arg:2>",
   "commands.ban.updated": "Updated the ban on <arg:0> (until: <arg:1>) - reason: <arg:2>",
+  "commands.ban.source.server": "the server",
   "commands.ban.expires.never": "never",
   "commands.ban.reason.none": "no reason given",
 

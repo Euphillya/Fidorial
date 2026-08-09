@@ -138,6 +138,7 @@
 
   "commands.ban.success": "<arg:0> banni (jusqu'au : <arg:1>) - raison : <arg:2>",
   "commands.ban.updated": "Bannissement de <arg:0> mis à jour (jusqu'au : <arg:1>) - raison : <arg:2>",
+  "commands.ban.source.server": "le serveur",
   "commands.ban.expires.never": "jamais",
   "commands.ban.reason.none": "aucune raison donnée",
 

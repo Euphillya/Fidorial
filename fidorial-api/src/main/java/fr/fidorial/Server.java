@@ -115,7 +115,7 @@ public interface Server extends ForwardingAudience {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    BanService banList();
+    BanService banService();
 
     /**
      * Gets the service holding the players allowed to connect while the whitelist is enforced.

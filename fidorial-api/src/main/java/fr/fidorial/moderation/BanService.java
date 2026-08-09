@@ -17,11 +17,12 @@ public interface BanService {
      * <p>An expired entry must not be returned; implementations are free to discard it.</p>
      *
      * @param target the ban target
+     * @param <T>    what the ban applies to
      * @return the active ban, or empty when nothing bans the target
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Optional<BanEntry> find(final BanTarget target);
+    <T extends BanTarget> Optional<BanEntry<T>> find(final T target);
 
     /**
      * Gets the active ban recorded under a name, matched case-insensitively.
@@ -33,7 +34,7 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Optional<BanEntry> findByName(final String name);
+    Optional<BanEntry<?>> findByName(final String name);
 
     /**
      * Gets whatever bans a connecting player, whether that is their identity or the address they
@@ -45,14 +46,14 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    default Optional<BanEntry> findAny(final UUID uuid, @Nullable final InetAddress address) {
-        final Optional<BanEntry> byProfile = find(new BanTarget.Profile(uuid));
+    default Optional<BanEntry<?>> findAny(final UUID uuid, @Nullable final InetAddress address) {
+        final Optional<BanEntry<BanTarget.Profile>> byProfile = find(new BanTarget.Profile(uuid));
 
         if (byProfile.isPresent() || address == null) {
-            return byProfile;
+            return byProfile.map(entry -> entry);
         }
 
-        return find(new BanTarget.Address(address));
+        return find(new BanTarget.Address(address)).map(entry -> entry);
     }
 
     /**
@@ -74,7 +75,7 @@ public interface BanService {
      * @return {@code true} when the target was not already banned
      * @since 0.1.0
      */
-    boolean ban(BanEntry entry);
+    boolean ban(BanEntry<?> entry);
 
     /**
      * Lifts the ban on a target.
@@ -92,18 +93,19 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Stream<BanEntry> bans();
+    Stream<BanEntry<?>> bans();
 
     /**
-     * Gets the active bans whose target is of the given kind.
+     * Gets the active bans of the given kind.
      *
-     * @param kind the target type to keep
+     * @param kind the entry type to keep, such as {@link BanEntry.Address}
+     * @param <E>  the entry type
      * @return the bans, most recently issued first; expired entries are excluded
      * @since 0.1.0
      */
     @Contract(pure = true)
-    default Stream<BanEntry> bans(final Class<? extends BanTarget> kind) {
-        return bans().filter(entry -> kind.isInstance(entry.target()));
+    default <E extends BanEntry<?>> Stream<E> bans(final Class<E> kind) {
+        return bans().filter(kind::isInstance).map(kind::cast);
     }
 
     /**
@@ -126,5 +128,5 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Component disconnectMessage(final BanEntry entry);
+    Component disconnectMessage(final BanEntry<?> entry);
 }

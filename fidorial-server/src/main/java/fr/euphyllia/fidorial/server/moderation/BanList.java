@@ -38,7 +38,7 @@ public final class BanList implements BanService {
 
     private final Path profileFile;
     private final Path addressFile;
-    private final Map<BanTarget, BanEntry> bans = new ConcurrentHashMap<>();
+    private final Map<BanTarget, BanEntry<?>> bans = new ConcurrentHashMap<>();
 
     public BanList(final Path profileFile, final Path addressFile) {
         this.profileFile = Objects.requireNonNull(profileFile, "profileFile");
@@ -55,14 +55,14 @@ public final class BanList implements BanService {
     }
 
     public synchronized void save() {
-        write(profileFile, BanTarget.Profile.class, BanList::writeProfile);
-        write(addressFile, BanTarget.Address.class, BanList::writeAddress);
+        write(profileFile, BanEntry.Profile.class, BanList::writeProfile);
+        write(addressFile, BanEntry.Address.class, BanList::writeAddress);
     }
 
     public int purgeExpired() {
         int removed = 0;
 
-        for (final BanEntry entry : bans.values()) {
+        for (final BanEntry<?> entry : bans.values()) {
             if (entry.expired() && bans.remove(entry.target(), entry)) {
                 removed++;
             }
@@ -76,8 +76,9 @@ public final class BanList implements BanService {
     }
 
     @Override
-    public Optional<BanEntry> find(final BanTarget target) {
-        final BanEntry entry = bans.get(target);
+    @SuppressWarnings("unchecked")
+    public <T extends BanTarget> Optional<BanEntry<T>> find(final T target) {
+        final BanEntry<?> entry = bans.get(target);
 
         if (entry == null) {
             return Optional.empty();
@@ -90,11 +91,11 @@ public final class BanList implements BanService {
             return Optional.empty();
         }
 
-        return Optional.of(entry);
+        return Optional.of((BanEntry<T>) entry);
     }
 
     @Override
-    public Optional<BanEntry> findByName(final String name) {
+    public Optional<BanEntry<?>> findByName(final String name) {
         return bans.values().stream()
                 .filter(entry -> !entry.expired())
                 .filter(entry -> entry.name() != null && entry.name().equalsIgnoreCase(name))
@@ -102,7 +103,7 @@ public final class BanList implements BanService {
     }
 
     @Override
-    public boolean ban(final BanEntry entry) {
+    public boolean ban(final BanEntry<?> entry) {
         Objects.requireNonNull(entry, "entry");
 
         final boolean isNew = find(entry.target()).isEmpty();
@@ -127,19 +128,19 @@ public final class BanList implements BanService {
     }
 
     @Override
-    public Stream<BanEntry> bans() {
+    public Stream<BanEntry<?>> bans() {
         return bans.values().stream()
                 .filter(entry -> !entry.expired())
-                .sorted(Comparator.comparing(BanEntry::created).reversed());
+                .sorted(Comparator.<BanEntry<?>, Instant>comparing(BanEntry::created).reversed());
     }
 
     @Override
-    public Component disconnectMessage(final BanEntry entry) {
+    public Component disconnectMessage(final BanEntry<?> entry) {
         Objects.requireNonNull(entry, "entry");
 
-        final String key = switch (entry.target()) {
-            case BanTarget.Profile _ -> "multiplayer.disconnect.banned";
-            case BanTarget.Address _ -> "multiplayer.disconnect.banned_ip";
+        final String key = switch (entry) {
+            case BanEntry.Profile _ -> "multiplayer.disconnect.banned";
+            case BanEntry.Address _ -> "multiplayer.disconnect.banned_ip";
         };
 
         final Component reason = entry.reason() == null
@@ -158,7 +159,7 @@ public final class BanList implements BanService {
     public int totalBans() {
         int count = 0;
 
-        for (final BanEntry entry : bans.values()) {
+        for (final BanEntry<?> entry : bans.values()) {
             if (!entry.expired()) {
                 count++;
             }
@@ -167,7 +168,7 @@ public final class BanList implements BanService {
         return count;
     }
 
-    private void read(final Path file, final Function<JsonObject, BanEntry> reader) {
+    private void read(final Path file, final Function<JsonObject, BanEntry<?>> reader) {
         if (!Files.exists(file)) {
             return;
         }
@@ -181,7 +182,7 @@ public final class BanList implements BanService {
 
             for (final JsonElement element : array) {
                 try {
-                    final BanEntry entry = reader.apply(element.getAsJsonObject());
+                    final BanEntry<?> entry = reader.apply(element.getAsJsonObject());
 
                     if (!entry.expired()) {
                         bans.put(entry.target(), entry);
@@ -195,13 +196,14 @@ public final class BanList implements BanService {
         }
     }
 
-    private void write(
+    private <E extends BanEntry<?>> void write(
             final Path file,
-            final Class<? extends BanTarget> kind,
-            final Function<BanEntry, JsonObject> writer
+            final Class<E> kind,
+            final Function<E, JsonObject> writer
     ) {
-        final List<BanEntry> entries = bans.values().stream()
-                .filter(entry -> kind.isInstance(entry.target()))
+        final List<E> entries = bans.values().stream()
+                .filter(kind::isInstance)
+                .map(kind::cast)
                 .toList();
 
         final JsonArray array = new JsonArray();
@@ -214,49 +216,50 @@ public final class BanList implements BanService {
         }
     }
 
-    private static BanEntry readProfile(final JsonObject json) {
-        return new BanEntry(
+    private static BanEntry.Profile readProfile(final JsonObject json) {
+        return new BanEntry.Profile(
                 new BanTarget.Profile(UUID.fromString(json.get("uuid").getAsString())),
                 string(json, "name"),
                 reason(json),
-                string(json, "source"),
+                uuid(json, "source"),
                 Instant.parse(json.get("created").getAsString()),
                 instant(json, "expires"));
     }
 
-    private static BanEntry readAddress(final JsonObject json) {
-        return new BanEntry(
+    private static BanEntry.Address readAddress(final JsonObject json) {
+        return new BanEntry.Address(
                 BanTarget.Address.of(json.get("ip").getAsString()),
-                null,
+                string(json, "name"),
                 reason(json),
-                string(json, "source"),
+                uuid(json, "source"),
                 Instant.parse(json.get("created").getAsString()),
                 instant(json, "expires"));
     }
 
-    private static JsonObject writeProfile(final BanEntry entry) {
+    private static JsonObject writeProfile(final BanEntry.Profile entry) {
         final JsonObject json = new JsonObject();
 
-        json.addProperty("uuid", ((BanTarget.Profile) entry.target()).uuid().toString());
+        json.addProperty("uuid", entry.uuid().toString());
         json.addProperty("name", entry.name());
 
         return common(json, entry);
     }
 
-    private static JsonObject writeAddress(final BanEntry entry) {
+    private static JsonObject writeAddress(final BanEntry.Address entry) {
         final JsonObject json = new JsonObject();
 
-        json.addProperty("ip", entry.target().label());
+        json.addProperty("ip", entry.address().getHostAddress());
+        json.addProperty("name", entry.name());
 
         return common(json, entry);
     }
 
-    private static JsonObject common(final JsonObject json, final BanEntry entry) {
+    private static JsonObject common(final JsonObject json, final BanEntry<?> entry) {
         if (entry.reason() != null) {
             json.add("reason", GsonComponentSerializer.gson().serializeToTree(entry.reason()));
         }
 
-        json.addProperty("source", entry.source());
+        json.addProperty("source", entry.source() == null ? null : entry.source().toString());
         json.addProperty("created", entry.created().toString());
 
         if (entry.expires() != null) {
@@ -270,6 +273,12 @@ public final class BanList implements BanService {
         final JsonElement element = json.get(member);
 
         return element == null || element.isJsonNull() ? null : element.getAsString();
+    }
+
+    private static @Nullable UUID uuid(final JsonObject json, final String member) {
+        final String value = string(json, member);
+
+        return value == null ? null : UUID.fromString(value);
     }
 
     private static @Nullable Instant instant(final JsonObject json, final String member) {

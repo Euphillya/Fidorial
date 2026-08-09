@@ -25,8 +25,8 @@ public final class PardonIpCommand {
     private static final SuggestionProvider<CommandSource> BANNED = (_, builder) -> {
         final String remaining = builder.getRemainingLowerCase();
 
-        server.banList().bans(BanTarget.Address.class)
-                .map(BanEntry::label)
+        server.banService().bans(BanEntry.Address.class)
+                .map(BanEntry.Address::label)
                 .filter(label -> label.toLowerCase(Locale.ROOT).startsWith(remaining))
                 .forEach(builder::suggest);
 
@@ -55,7 +55,7 @@ public final class PardonIpCommand {
             return 0;
         }
 
-        if (!server.banList().pardon(BanTarget.Address.of(address))) {
+        if (!server.banService().pardon(BanTarget.Address.of(address))) {
             source.sender()
                     .sendMessage(Component.translatable("commands.pardonip.failed", Component.text(address)));
             return 0;

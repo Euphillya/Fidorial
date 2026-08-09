@@ -12,7 +12,6 @@ import fr.fidorial.command.argument.resolvers.selector.PlayerSelectorArgumentRes
 import fr.fidorial.entity.Player;
 import fr.fidorial.moderation.BanEntry;
 import fr.fidorial.moderation.BanService;
-import fr.fidorial.moderation.BanTarget;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
@@ -21,6 +20,7 @@ import java.time.Duration;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static fr.fidorial.command.Commands.argument;
 import static fr.fidorial.command.Commands.literal;
@@ -39,13 +39,13 @@ public final class BanIpCommand {
                 .then(argument("player", ArgumentTypes.players())
                         .executes(context -> ban(context, null, null))
                         .then(literal("duration")
-                        .then(argument("duration", ArgumentTypes.duration())
-                                .executes(context -> ban(context, duration(context), null))
-                                .then(argument("reason", ArgumentTypes.component())
-                                        .executes(context -> ban(context, duration(context), reason(context))))))
+                                .then(argument("duration", ArgumentTypes.duration())
+                                        .executes(context -> ban(context, duration(context), null))
+                                        .then(argument("reason", ArgumentTypes.component())
+                                                .executes(context -> ban(context, duration(context), reason(context))))))
                         .then(literal("reason")
-                        .then(argument("reason", ArgumentTypes.component())
-                                .executes(context -> ban(context, null, reason(context))))))
+                                .then(argument("reason", ArgumentTypes.component())
+                                        .executes(context -> ban(context, null, reason(context))))))
                 .build();
     }
 
@@ -64,12 +64,12 @@ public final class BanIpCommand {
     ) throws CommandSyntaxException {
 
         final CommandSource source = context.getSource();
-        final BanService bans = server.banList();
+        final BanService bans = server.banService();
 
         final List<Player> targets =
                 context.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(source);
 
-        final String issuer = source.sender().name();
+        final UUID issuer = source.sender() instanceof final Player player ? player.uuid() : null;
         final Set<InetAddress> seen = new LinkedHashSet<>();
 
         int banned = 0;
@@ -81,11 +81,9 @@ public final class BanIpCommand {
                 continue;
             }
 
-            final BanTarget banTarget = new BanTarget.Address(address);
-
-            final BanEntry entry = duration == null
-                    ? BanEntry.permanent(banTarget, target.name(), reason, issuer)
-                    : BanEntry.lasting(banTarget, target.name(), reason, issuer, duration);
+            final BanEntry.Address entry = duration == null
+                    ? BanEntry.Address.permanent(address, target.name(), reason, issuer)
+                    : BanEntry.Address.lasting(address, target.name(), reason, issuer, duration);
 
             final boolean added = bans.ban(entry);
             final int kicked = kickBanned(entry);
@@ -104,17 +102,12 @@ public final class BanIpCommand {
         return banned > 0 ? Command.SINGLE_SUCCESS : 0;
     }
 
-    private static int kickBanned(final BanEntry entry) {
+    private static int kickBanned(final BanEntry.Address entry) {
         int kicked = 0;
 
         for (final ServerPlayer player : server.players()) {
-            final boolean matches = switch (entry.target()) {
-                case final BanTarget.Profile profile -> player.uuid().equals(profile.uuid());
-                case final BanTarget.Address address -> player.address().equals(address.address());
-            };
-
-            if (matches) {
-                player.kick(server.banList().disconnectMessage(entry));
+            if (player.address().equals(entry.address())) {
+                player.kick(server.banService().disconnectMessage(entry));
                 kicked++;
             }
         }

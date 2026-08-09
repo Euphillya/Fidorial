@@ -30,7 +30,7 @@ public final class PardonCommand {
     public static LiteralCommandNode<CommandSource> create() {
         final ArgumentType<PlayerProfileListResolver> playerArgument =
                 ArgumentTypes.playerProfiles(player ->
-                        server.banList().isBanned(new BanTarget.Profile(player.uuid())));
+                        server.banService().isBanned(new BanTarget.Profile(player.uuid())));
 
         return literal("pardon")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
@@ -41,7 +41,7 @@ public final class PardonCommand {
 
     private static int pardon(final CommandContext<CommandSource> context) throws CommandSyntaxException {
         final CommandSource source = context.getSource();
-        final BanService bans = server.banList();
+        final BanService bans = server.banService();
 
         final Collection<PlayerProfile> targets =
                 context.getArgument("player", PlayerProfileListResolver.class).resolve(source);

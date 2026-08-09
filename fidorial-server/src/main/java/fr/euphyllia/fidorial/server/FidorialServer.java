@@ -463,7 +463,7 @@ public final class FidorialServer implements Server {
     }
 
     @Override
-    public BanList banList() {
+    public BanList banService() {
         return banList;
     }
 
