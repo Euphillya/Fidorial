@@ -17,11 +17,6 @@ import java.util.UUID;
 /**
  * Represents a ban.
  *
- * <p>The type parameter says what the ban applies to, so an address ban and a profile ban are not
- * interchangeable at compile time. {@link Profile} and {@link Address} expose the banned identity
- * directly, so callers rarely need to touch {@link BanTarget} at all: it exists to key a store of
- * bans, not to be unwrapped by hand.</p>
- *
  * @param <T> what the ban applies to
  * @since 0.1.0
  */
