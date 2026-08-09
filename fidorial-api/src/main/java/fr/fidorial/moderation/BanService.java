@@ -9,6 +9,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+/**
+ * A service that manages bans.
+ *
+ * @since 0.1.0
+ */
 public interface BanService {
 
     /**
