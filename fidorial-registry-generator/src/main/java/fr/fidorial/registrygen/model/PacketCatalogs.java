@@ -1,29 +1,38 @@
 package fr.fidorial.registrygen.model;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public final class PacketCatalogs {
 
     private static final String PACKAGE = "fr.euphyllia.fidorial.server.network.protocol.catalog";
 
     public static final List<ProtocolIdTarget> ALL = List.of(
-            target("play/clientbound", "PlayClientboundPackets"),
-            target("play/serverbound", "PlayServerboundPackets"),
-            target("configuration/clientbound", "ConfigurationClientboundPackets"),
-            target("configuration/serverbound", "ConfigurationServerboundPackets"),
-            target("handshake/serverbound", "HandshakeServerboundPackets"),
-            target("login/clientbound", "LoginClientboundPackets"),
-            target("login/serverbound", "LoginServerboundPackets"),
-            target("status/clientbound", "StatusClientboundPackets"),
-            target("status/serverbound", "StatusServerboundPackets")
+            keys("play/clientbound", "PlayClientboundPackets"),
+            ids("play/clientbound", "PlayClientboundPacketIds"),
+            keys("play/serverbound", "PlayServerboundPackets"),
+            ids("play/serverbound", "PlayServerboundPacketIds"),
+            keys("configuration/clientbound", "ConfigurationClientboundPackets"),
+            ids("configuration/clientbound", "ConfigurationClientboundPacketIds"),
+            keys("configuration/serverbound", "ConfigurationServerboundPackets"),
+            ids("configuration/serverbound", "ConfigurationServerboundPacketIds"),
+            keys("handshake/serverbound", "HandshakeServerboundPackets"),
+            ids("handshake/serverbound", "HandshakeServerboundPacketIds"),
+            keys("login/clientbound", "LoginClientboundPackets"),
+            ids("login/clientbound", "LoginClientboundPacketIds"),
+            keys("login/serverbound", "LoginServerboundPackets"),
+            ids("login/serverbound", "LoginServerboundPacketIds"),
+            keys("status/clientbound", "StatusClientboundPackets"),
+            ids("status/clientbound", "StatusClientboundPacketIds"),
+            keys("status/serverbound", "StatusServerboundPackets"),
+            ids("status/serverbound", "StatusServerboundPacketIds")
     );
 
     private PacketCatalogs() {
         throw new UnsupportedOperationException();
     }
 
-    private static ProtocolIdTarget target(final String stateAndBound, final String className) {
+    private static ProtocolIdTarget keys(final String stateAndBound, final String className) {
         return new ProtocolIdTarget(
                 "packet:" + stateAndBound,
                 PACKAGE,
@@ -34,7 +43,27 @@ public final class PacketCatalogs {
                 "Generated from Mojang's packets report; do not edit.");
     }
 
-    public static Optional<ProtocolIdTarget> byIdentifier(final String syntheticIdentifier) {
-        return ALL.stream().filter(t -> t.registryIdentifier().equals(syntheticIdentifier)).findFirst();
+    private static ProtocolIdTarget ids(final String stateAndBound, final String className) {
+        return new ProtocolIdTarget(
+                "packet:" + stateAndBound,
+                PACKAGE,
+                className,
+                "_ID",
+                ProtocolIdValueKind.PROTOCOL_ID,
+                "Network IDs for the {@code " + stateAndBound + "} state/direction.\n",
+                "Generated from Mojang's packets report; do not edit.");
+    }
+
+    public static List<ProtocolIdTarget> byIdentifier(final String syntheticIdentifier) {
+
+        final List<ProtocolIdTarget> targets = new ArrayList<>();
+
+        for (final ProtocolIdTarget target : ALL) {
+            if (target.registryIdentifier().equals(syntheticIdentifier)) {
+                targets.add(target);
+            }
+        }
+
+        return List.copyOf(targets);
     }
 }

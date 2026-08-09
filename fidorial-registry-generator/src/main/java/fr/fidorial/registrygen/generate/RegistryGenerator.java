@@ -135,12 +135,14 @@ public final class RegistryGenerator {
         final List<RegistryDefinition> packetCatalogs = new PacketReportParser().parse(packetsJson);
 
         for (final RegistryDefinition catalog : packetCatalogs) {
-            final Optional<ProtocolIdTarget> target = PacketCatalogs.byIdentifier(catalog.identifier());
-            if (target.isEmpty()) {
+            final List<ProtocolIdTarget> targets = PacketCatalogs.byIdentifier(catalog.identifier());
+            if (targets.isEmpty()) {
                 System.out.println("No PacketCatalogs target configured for: " + catalog.identifier());
                 continue;
             }
-            protocolIdGenerator.generate(catalog, target.get(), outputDirectory);
+            for (final ProtocolIdTarget target : targets) {
+                protocolIdGenerator.generate(catalog, target, outputDirectory);
+            }
         }
     }
 

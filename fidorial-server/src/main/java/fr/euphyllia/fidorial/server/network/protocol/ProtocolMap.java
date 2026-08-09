@@ -1,15 +1,19 @@
 package fr.euphyllia.fidorial.server.network.protocol;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import fr.euphyllia.fidorial.server.network.ConnectionState;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.ConfigurationClientboundPacketIds;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.ConfigurationServerboundPacketIds;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.HandshakeServerboundPacketIds;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.LoginClientboundPacketIds;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.LoginServerboundPacketIds;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPacketIds;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayServerboundPacketIds;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.StatusClientboundPacketIds;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.StatusServerboundPacketIds;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,84 +21,26 @@ import java.util.Map;
 public final class ProtocolMap {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(ProtocolMap.class);
-    private static final String RESOURCE = "/protocol/26.2.json";
     private final Map<ConnectionState, Map<Boolean, Direction>> table = new EnumMap<>(ConnectionState.class);
-    private final boolean available;
 
-    private ProtocolMap(final boolean available) {
-        this.available = available;
-        seedFixedStates();
+    private ProtocolMap() {
+        put(ConnectionState.HANDSHAKE, false, HandshakeServerboundPacketIds.BY_IDENTIFIER);
+        put(ConnectionState.STATUS, true, StatusClientboundPacketIds.BY_IDENTIFIER);
+        put(ConnectionState.STATUS, false, StatusServerboundPacketIds.BY_IDENTIFIER);
+        put(ConnectionState.LOGIN, true, LoginClientboundPacketIds.BY_IDENTIFIER);
+        put(ConnectionState.LOGIN, false, LoginServerboundPacketIds.BY_IDENTIFIER);
+        put(ConnectionState.CONFIGURATION, true, ConfigurationClientboundPacketIds.BY_IDENTIFIER);
+        put(ConnectionState.CONFIGURATION, false, ConfigurationServerboundPacketIds.BY_IDENTIFIER);
+        put(ConnectionState.PLAY, true, PlayClientboundPacketIds.BY_IDENTIFIER);
+        put(ConnectionState.PLAY, false, PlayServerboundPacketIds.BY_IDENTIFIER);
     }
 
     public static ProtocolMap load() {
-        try (final InputStream in = ProtocolMap.class.getResourceAsStream(RESOURCE)) {
-            if (in == null) {
-                LOGGER.warn(
-                        "Resource {} missing",
-                        RESOURCE);
-                return new ProtocolMap(false);
-            }
-            final JsonObject root = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))
-                    .getAsJsonObject();
-
-            final ProtocolMap map = new ProtocolMap(true);
-            for (final ConnectionState state : new ConnectionState[]{ConnectionState.CONFIGURATION, ConnectionState.PLAY}) {
-                final JsonObject stateJson = root.getAsJsonObject(state.name().toLowerCase());
-                map.put(state, false, parse(stateJson, "serverbound"));
-                map.put(state, true, parse(stateJson, "clientbound"));
-            }
-            LOGGER.info("Loaded 26.2 protocol table (Configuration + Play).");
-            return map;
-        } catch (final Exception e) {
-            LOGGER.error("Illegible protocol table", e);
-            return new ProtocolMap(false);
-        }
-    }
-
-    private static Map<Key, Integer> parse(@Nullable final JsonObject stateJson, final String direction) {
-        if (stateJson == null || !stateJson.has(direction)) return Map.of();
-        final Map<Key, Integer> byName = new HashMap<>();
-        for (final var entry : stateJson.getAsJsonObject(direction).entrySet()) {
-            byName.put(Key.key(entry.getKey()), entry.getValue().getAsInt());
-        }
-        return byName;
-    }
-
-    private void seedFixedStates() {
-        put(ConnectionState.HANDSHAKE, false, Map.of(Key.key("intention"), 0));
-
-        put(
-                ConnectionState.STATUS,
-                true,
-                Map.of(
-                        Key.key("status_response"), 0,
-                        Key.key("pong_response"), 1));
-        put(
-                ConnectionState.STATUS,
-                false,
-                Map.of(
-                        Key.key("status_request"), 0,
-                        Key.key("ping_request"), 1));
-
-        put(
-                ConnectionState.LOGIN,
-                true,
-                Map.of(
-                        Key.key("login_disconnect"), 0,
-                        Key.key("hello"), 1,
-                        Key.key("login_finished"), 2,
-                        Key.key("login_compression"), 3,
-                        Key.key("custom_query"), 4,
-                        Key.key("cookie_request"), 5));
-        put(
-                ConnectionState.LOGIN,
-                false,
-                Map.of(
-                        Key.key("hello"), 0,
-                        Key.key("key"), 1,
-                        Key.key("custom_query_answer"), 2,
-                        Key.key("login_acknowledged"), 3,
-                        Key.key("cookie_response"), 4));
+        final ProtocolMap map = new ProtocolMap();
+        LOGGER.info(
+                "Loaded {} protocol table from the generated packet catalogs.",
+                ProtocolConstants.MINECRAFT_VERSION);
+        return map;
     }
 
     private void put(final ConnectionState state, final boolean clientbound, final Map<Key, Integer> byName) {
@@ -102,7 +48,7 @@ public final class ProtocolMap {
     }
 
     public boolean isAvailable() {
-        return available;
+        return true;
     }
 
     private Direction dir(final ConnectionState state, final boolean clientbound) {

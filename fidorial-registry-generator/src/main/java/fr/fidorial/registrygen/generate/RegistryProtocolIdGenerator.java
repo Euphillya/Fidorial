@@ -140,7 +140,7 @@ public final class RegistryProtocolIdGenerator {
 
             for (final Map.Entry<String, String> entry : constantsByIdentifier.entrySet()) {
 
-                initializer.add("    $T.entry($T.key($S), $N)", map, Key.class, entry.getKey(), entry.getValue());
+                initializer.add("    $T.entry($L, $N)", map, createKeyInitializer(entry.getKey()), entry.getValue());
 
                 if (index < last) {
                     initializer.add(",");
