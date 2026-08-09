@@ -41,7 +41,7 @@ public record ServerConfig(
         boolean useIoUring,
         @Nullable String resourcePackUrl,
         @Nullable String resourcePackHash,
-        @Nullable String resourcePackId,
+        @Nullable UUID resourcePackId,
         boolean resourcePackForced,
         @Nullable Component resourcePackPrompt
 ) {
@@ -66,13 +66,8 @@ public record ServerConfig(
             throw new IllegalArgumentException(
                     "resource-pack-hash must be a 40-character lowercase SHA-1 hex string, or empty");
         }
-        if (resourcePackId != null && !resourcePackId.isBlank()) {
-            try {
-                UUID.fromString(resourcePackId);
-            } catch (final IllegalArgumentException e) {
-                throw new IllegalArgumentException(
-                        "resource-pack-id must be a valid UUID: '" + resourcePackId + "'", e);
-            }
+        if (resourcePackId != null && (resourcePackUrl == null || resourcePackUrl.isBlank())) {
+            throw new IllegalArgumentException("resource-pack-id set without a resource-pack-url");
         }
     }
 
@@ -117,7 +112,7 @@ public record ServerConfig(
                 false,
                 "",
                 "",
-                "",
+                null,
                 false,
                 Component.empty());
     }
@@ -138,6 +133,7 @@ public record ServerConfig(
         try (final InputStream in = Files.newInputStream(file)) {
             props.load(in);
         }
+        final String resourcePackUrl = readString(props, "resource-pack-url", "");
         final ServerConfig config = new ServerConfig(
                 readInt(props, "port", defaults.port()),
                 readBool(props, "online-mode", defaults.onlineMode()),
@@ -161,9 +157,9 @@ public record ServerConfig(
                 readProxyMode(props, "proxy-mode", defaults.proxyMode()),
                 readString(props, "velocity-secret", "").strip(),
                 readBool(props, "use-io-uring", false),
-                readString(props, "resource-pack-url", ""),
+                resourcePackUrl,
                 readString(props, "resource-pack-hash", ""),
-                readString(props, "resource-pack-id", ""),
+                resolveResourcePackId(props, resourcePackUrl),
                 readBool(props, "resource-pack-forced", false),
                 readComponent(props, "resource-pack-prompt", Component.empty()));
         LOGGER.info("Configuration loaded from {}", file);
@@ -214,6 +210,36 @@ public record ServerConfig(
         } catch (final Exception e) {
             LOGGER.warn("{} = '{}' could not be parsed as MiniMessage, default value used", key, raw, e);
             return fallback;
+        }
+    }
+
+    private static UUID readUuid(final Properties props, final String key, final UUID fallback) {
+        final String raw = props.getProperty(key);
+        if (raw == null || raw.isBlank()) {
+            return fallback;
+        }
+        try {
+            return UUID.fromString(raw.strip());
+        } catch (final IllegalArgumentException e) {
+            LOGGER.warn("{} = '{}' is not a valid UUID, default value {} used", key, raw, fallback, e);
+            return fallback;
+        }
+    }
+
+    private static @Nullable UUID resolveResourcePackId(final Properties props, final String resourcePackUrl) {
+        if (resourcePackUrl.isBlank()) {
+            return null;
+        }
+        final String raw = props.getProperty("resource-pack-id");
+        if (raw == null || raw.isBlank()) {
+            return UUID.randomUUID();
+        }
+        try {
+            return UUID.fromString(raw.strip());
+        } catch (final IllegalArgumentException e) {
+            final UUID generated = UUID.randomUUID();
+            LOGGER.warn("resource-pack-id = '{}' is not a valid UUID, generated {} instead", raw, generated, e);
+            return generated;
         }
     }
 
@@ -274,7 +300,7 @@ public record ServerConfig(
         props.setProperty("use-io-uring", Boolean.toString(useIoUring));
         props.setProperty("resource-pack-url", resourcePackUrl == null ? "" : resourcePackUrl);
         props.setProperty("resource-pack-hash", resourcePackHash == null ? "" : resourcePackHash);
-        props.setProperty("resource-pack-id", resourcePackId == null ? "" : resourcePackId);
+        props.setProperty("resource-pack-id", resourcePackId == null ? "" : resourcePackId.toString());
         props.setProperty("resource-pack-forced", Boolean.toString(resourcePackForced));
         props.setProperty("resource-pack-prompt", resourcePackPrompt == null ? "" : MiniMessage.miniMessage().serialize(resourcePackPrompt));
         try (final OutputStream out = Files.newOutputStream(file)) {

@@ -1,7 +1,6 @@
 package fr.euphyllia.fidorial.server.command;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -14,6 +13,8 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.builtin.exceptions.TranslatableExceptions;
+import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypes;
 import fr.euphyllia.fidorial.server.command.defaults.BanCommand;
 import fr.euphyllia.fidorial.server.command.defaults.BanIpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.BanListCommand;
@@ -39,12 +40,14 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -56,10 +59,15 @@ public final class CommandManager implements CommandRegistry {
     private final @GuardedBy("lock") CommandDispatcher<CommandSource> dispatcher;
     private final ReadWriteLock lock;
     private final Map<String, RegisteredCommand> commands = new ConcurrentHashMap<>();
+    private final ExecutorService commandExecutor =
+            Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("fidorial-command-worker-", 0).factory());
 
     public CommandManager() {
         this.lock = new ReentrantReadWriteLock();
         this.dispatcher = new CommandDispatcher<>();
+
+        CommandSyntaxException.BUILT_IN_EXCEPTIONS = new TranslatableExceptions();
+        ArgumentTypes.bootstrap();
 
         registerDefaults();
     }
@@ -203,7 +211,7 @@ public final class CommandManager implements CommandRegistry {
                                 .color(NamedTextColor.RED));
                 return false;
             }
-        }).exceptionally(ex -> {
+        }, commandExecutor).exceptionally(ex -> {
             FidorialServer.LOGGER.error("Encountered an exception while executing command: \"/{}\"", cmdLine, ex);
             return false;
         });
@@ -279,23 +287,16 @@ public final class CommandManager implements CommandRegistry {
     }
 
     @Override
-    public CompletableFuture<List<String>> offerSuggestions(final CommandSource source, final String cmdLine) {
-        return offerBrigadierSuggestions(source, cmdLine)
-                .thenApply(suggestions -> Lists.transform(
-                        suggestions.getList(), suggestion -> suggestion != null ? suggestion.getText() : null));
-    }
-
-    @Override
-    public CompletableFuture<Suggestions> offerBrigadierSuggestions(final CommandSource source, final String cmdLine) {
-        final ParseResults<CommandSource> parse;
-
-        lock.readLock().lock();
-        try {
-            parse = dispatcher.parse(cmdLine, source);
-            return dispatcher.getCompletionSuggestions(parse);
-        } finally {
-            lock.readLock().unlock();
-        }
+    public CompletableFuture<Suggestions> offerSuggestions(final CommandSource source, final String cmdLine) {
+        return CompletableFuture.supplyAsync(() -> {
+            lock.readLock().lock();
+            try {
+                final ParseResults<CommandSource> parse = dispatcher.parse(cmdLine, source);
+                return dispatcher.getCompletionSuggestions(parse).join();
+            } finally {
+                lock.readLock().unlock();
+            }
+        }, commandExecutor);
     }
 
     @Override
@@ -356,6 +357,18 @@ public final class CommandManager implements CommandRegistry {
             return new ClientboundCommandsPacket(dispatcher, player);
         } finally {
             lock.readLock().unlock();
+        }
+    }
+
+    public void shutdown() {
+        commandExecutor.shutdown();
+        try {
+            if (!commandExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                commandExecutor.shutdownNow();
+            }
+        } catch (final InterruptedException e) {
+            commandExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 

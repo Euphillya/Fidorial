@@ -4,6 +4,7 @@ import com.mojang.brigadier.Message;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.suggestion.Suggestion;
+import com.mojang.brigadier.suggestion.Suggestions;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.fidorial.command.CommandSource;
 import net.kyori.adventure.text.Component;
@@ -12,7 +13,6 @@ import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -22,41 +22,54 @@ import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventur
 public final class FidorialCommandCompleter implements Completer {
 
     private final CommandManager commandManager;
-    private final Supplier<CommandSource> consoleSource;
+    private final Supplier<CommandSource> sourceFactory;
+    private final CandidateFactory candidateFactory;
 
-    public FidorialCommandCompleter(CommandManager commandManager, Supplier<CommandSource> consoleSource) {
+    public FidorialCommandCompleter(final CommandManager commandManager, final Supplier<CommandSource> sourceFactory) {
+        this(commandManager, sourceFactory, FidorialCommandCompleter::adventureTooltip);
+    }
+
+    public FidorialCommandCompleter(
+            final CommandManager commandManager,
+            final Supplier<CommandSource> sourceFactory,
+            final CandidateFactory candidateFactory
+    ) {
         this.commandManager = commandManager;
-        this.consoleSource = consoleSource;
+        this.sourceFactory = sourceFactory;
+        this.candidateFactory = candidateFactory;
     }
 
     @Override
     public void complete(final LineReader reader, final ParsedLine line, final List<Candidate> candidates) {
-        final ParseResults<CommandSource> results =
-                commandManager.parse(new StringReader(line.line()), consoleSource.get());
+        final Suggestions suggestions = resolveSuggestions(line);
+        final int replaceFrom = suggestions.getRange().getStart();
 
-        List<Suggestion> suggestions = commandManager
-                .completionSuggestions(results, line.cursor())
-                .join()
-                .getList();
-
-        int suggestionStart = results.getContext().findSuggestionContext(line.cursor()).startPos;
-
-        for (Suggestion suggestion : suggestions) {
-            if (suggestion.getText().isEmpty()) continue;
-            candidates.add(toCandidate(suggestion, line.line(), suggestionStart));
+        for (final Suggestion suggestion : suggestions.getList()) {
+            if (suggestion.getText().isEmpty()) {
+                continue;
+            }
+            final String rangeGap = line.line().substring(replaceFrom, suggestion.getRange().getStart());
+            final String value = rangeGap + suggestion.getText();
+            candidates.add(this.candidateFactory.create(value, suggestion.getTooltip()));
         }
     }
 
-    private static Candidate toCandidate(Suggestion suggestion, String fullLine, int suggestionStart) {
-        String value = fullLine.substring(suggestionStart, suggestion.getRange().getStart()) + suggestion.getText();
+    private Suggestions resolveSuggestions(final ParsedLine line) {
+        final ParseResults<CommandSource> parseResults = this.commandManager.parse(new StringReader(line.line()), this.sourceFactory.get());
+        return this.commandManager.completionSuggestions(parseResults, line.cursor()).join();
+    }
 
-        @Nullable String tooltip = null;
-        Message rawTooltip = suggestion.getTooltip();
-        if (suggestion.getTooltip() != null) {
-            Component component = MSG_SERIALIZER.deserialize(rawTooltip);
-            tooltip = PlainTextComponentSerializer.plainText().serialize(component);
+    private static Candidate adventureTooltip(final String value, final Message tooltip) {
+        if (tooltip == null) {
+            return new Candidate(value, value, null, null, null, null, false);
         }
+        final Component component = MSG_SERIALIZER.deserialize(tooltip);
+        final String description = PlainTextComponentSerializer.plainText().serialize(component);
+        return new Candidate(value, value, null, description, null, null, false);
+    }
 
-        return new Candidate(value, value, null, tooltip, null, null, false);
+    @FunctionalInterface
+    public interface CandidateFactory {
+        Candidate create(final String value, final Message tooltip);
     }
 }

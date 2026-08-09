@@ -4,7 +4,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
@@ -80,17 +79,6 @@ public interface CommandRegistry {
 
     /**
      * Asynchronously collects suggestions to fill in the given command {@code cmdLine}.
-     * Returns only the raw completion suggestions without tooltips.
-     *
-     * @param source  the source to execute the command for
-     * @param cmdLine the partially completed command
-     * @return a {@link CompletableFuture} eventually completed with a {@link List}, possibly empty
-     * @since 0.1.0
-     */
-    CompletableFuture<List<String>> offerSuggestions(CommandSource source, String cmdLine);
-
-    /**
-     * Asynchronously collects suggestions to fill in the given command {@code cmdLine}.
      * Returns the brigadier {@link Suggestions} with tooltips for each result.
      *
      * @param source  the source to execute the command for
@@ -99,7 +87,7 @@ public interface CommandRegistry {
      * empty
      * @since 0.1.0
      */
-    CompletableFuture<Suggestions> offerBrigadierSuggestions(CommandSource source, String cmdLine);
+    CompletableFuture<Suggestions> offerSuggestions(CommandSource source, String cmdLine);
 
     /**
      * Returns whether the given alias is registered on this manager.
