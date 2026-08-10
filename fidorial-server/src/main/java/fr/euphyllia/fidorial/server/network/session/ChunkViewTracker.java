@@ -52,8 +52,8 @@ public final class ChunkViewTracker implements ChunkViewSource {
 
     private static void emit(final Set<Long> source, final LongConsumer keys) {
         for (final long key : source) {
-            final int cx = (int) key;
-            final int cz = (int) (key >> 32);
+            final int cx = (int) (key >> 32);
+            final int cz = (int) key;
             keys.accept(ChunkPos.chunkKey(cx, cz));
         }
     }
@@ -101,8 +101,8 @@ public final class ChunkViewTracker implements ChunkViewSource {
             final Iterator<Long> it = sent.iterator();
             while (it.hasNext()) {
                 final long key = it.next();
-                final int cx = (int) key;
-                final int cz = (int) (key >> 32);
+                final int cx = (int) (key >> 32);
+                final int cz = (int) key;
                 if (!inRange(cx, cz, centerX, centerZ)) {
                     connection.send(new ClientboundForgetLevelChunkPacket(cx, cz));
                     it.remove();

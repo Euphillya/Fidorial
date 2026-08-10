@@ -53,51 +53,33 @@ public class FloodFillLightEngine implements LightEngine {
             relight(one, access);
             return one;
         }
+
         final Set<Long> dirtyChunks = new HashSet<>();
-        final int[] skyRange = updateHeightmap(access, x, y, z, dirtyChunks);
-        for (final LightType type : LightType.values()) {
-            checkBlockForType(type, x, y, z, access, dirtyChunks);
-        }
-        if (skyRange != null) {
-            for (int cy = skyRange[0]; cy <= skyRange[1]; cy++) {
-                if (cy == y) {
-                    continue; // already handled above
-                }
-                checkBlockForType(LightType.SKY, x, cy, z, access, dirtyChunks);
-            }
-        }
+
+        checkBlockForType(LightType.BLOCK, x, y, z, access, dirtyChunks);
+        checkSkyColumn(access, x, y, z, dirtyChunks);
+
         return dirtyChunks;
     }
 
-    private int @Nullable [] updateHeightmap(final LightAccess access, final int x, final int y, final int z, final Set<Long> dirtyChunks) {
+    private void checkSkyColumn(final LightAccess access, final int x, final int y, final int z, final Set<Long> dirtyChunks) {
         final ChunkLightData data = access.lightAt(x >> 4, z >> 4);
         if (data == null) {
-            return null;
+            return;
         }
-        final int lx = x & 15;
-        final int lz = z & 15;
-        final int top = data.topOpaqueY(lx, lz);
-        final boolean occludes = BlockLightProperties.occludes(access.blockAt(x, y, z));
+        final int oldTop = data.topOpaqueY(x & 15, z & 15);
+        final boolean occludesNow = BlockLightProperties.occludes(access.blockAt(x, y, z));
+        final boolean verticalChange = (occludesNow && y > oldTop) || (!occludesNow && y == oldTop);
 
-        if (occludes) {
-            if (y > top) {
-                data.setTopOpaqueY(lx, lz, y);
-                dirtyChunks.add(ChunkPos.chunkKey(x >> 4, z >> 4));
-                return top + 1 <= y - 1 ? new int[]{top + 1, y - 1} : null;
-            }
-        } else if (y == top) {
-            int newTop = minY - 1;
-            for (int cy = y - 1; cy >= minY; cy--) {
-                if (BlockLightProperties.occludes(access.blockAt(x, cy, z))) {
-                    newTop = cy;
-                    break;
-                }
-            }
-            data.setTopOpaqueY(lx, lz, newTop);
-            dirtyChunks.add(ChunkPos.chunkKey(x >> 4, z >> 4));
-            return newTop + 1 <= top ? new int[]{newTop + 1, top} : null;
+        if (verticalChange) {
+            final Set<Long> one = new HashSet<>();
+            one.add(ChunkPos.chunkKey(x >> 4, z >> 4));
+            relight(one, access);
+            dirtyChunks.addAll(one);
+            return;
         }
-        return null;
+
+        checkBlockForType(LightType.SKY, x, y, z, access, dirtyChunks);
     }
 
     private void checkBlockForType(

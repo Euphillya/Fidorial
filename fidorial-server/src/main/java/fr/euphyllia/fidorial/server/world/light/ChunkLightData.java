@@ -53,8 +53,11 @@ public class ChunkLightData {
     }
 
     public int get(final LightType type, final int localX, final int worldY, final int localZ) {
-        if (type == LightType.SKY && worldY > skyFullFromY) {
-            return 15;
+        if (type == LightType.SKY) {
+            final int top = topOpaqueY(localX & 15, localZ & 15);
+            if (worldY > top) {
+                return 15;
+            }
         }
         final int section = sectionIndexForY(worldY);
         if (section < 0 || section >= sectionCount) {
