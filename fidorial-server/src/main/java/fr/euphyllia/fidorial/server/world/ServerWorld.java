@@ -355,7 +355,7 @@ public final class ServerWorld implements World {
     }
 
     public void saveDirty() throws IOException {
-        awaitLightFlush();
+        awaitLightFlush(dirty);
         for (final Long k : Set.copyOf(dirty)) {
             final ChunkColumn chunk = loaded.get(k);
             if (chunk != null) {
@@ -367,7 +367,7 @@ public final class ServerWorld implements World {
     }
 
     public void saveAll() throws IOException {
-        awaitLightFlush();
+        awaitLightFlush(loaded.keySet());
         for (final ChunkColumn chunk : loaded.values()) {
             storage.save(dimension, chunk);
         }
@@ -396,17 +396,24 @@ public final class ServerWorld implements World {
         if (loaded.isEmpty()) {
             return 0;
         }
-        awaitLightFlush();
         final Set<Long> wanted = new HashSet<>();
         for (final ChunkViewSource viewer : viewers) {
             viewer.collectViewedChunks(wanted::add);
         }
 
-        int unloaded = 0;
+        final Set<Long> toUnload = new HashSet<>();
         for (final Long k : loaded.keySet()) {
-            if (wanted.contains(k) || dirty.contains(k)) {
-                continue;
+            if (!wanted.contains(k) && !dirty.contains(k)) {
+                toUnload.add(k);
             }
+        }
+        if (toUnload.isEmpty()) {
+            return 0;
+        }
+        awaitLightFlush(toUnload);
+
+        int unloaded = 0;
+        for (final Long k : toUnload) {
             if (loaded.remove(k) != null) {
                 unloaded++;
                 final int cx = (int) (k >> 32);
@@ -423,7 +430,7 @@ public final class ServerWorld implements World {
     }
 
     public void unloadChunk(final int chunkX, final int chunkZ) throws IOException {
-        awaitLightFlush();
+        awaitLightFlush(Set.of(ChunkPos.chunkKey(chunkX, chunkZ)));
         final long k = ChunkPos.chunkKey(chunkX, chunkZ);
         if (dirty.remove(k)) {
             final ChunkColumn chunk = loaded.get(k);
@@ -493,10 +500,10 @@ public final class ServerWorld implements World {
         this.lightDispatcher = dispatcher;
     }
 
-    private void awaitLightFlush() {
+    private void awaitLightFlush(final Iterable<Long> chunkKeys) {
         final LightUpdateDispatcher dispatcher = lightDispatcher;
         if (dispatcher != null) {
-            dispatcher.flush(dimension.id()).join();
+            dispatcher.flush(dimension.id(), chunkKeys).join();
         }
     }
 
@@ -544,6 +551,12 @@ public final class ServerWorld implements World {
         public @Nullable ChunkLightData lightAt(final int chunkX, final int chunkZ) {
             final ChunkColumn column = loadedColumn(chunkX, chunkZ);
             return column == null ? null : column.lightData();
+        }
+
+        @Override
+        public int topNonEmptySectionY(int chunkX, int chunkZ) {
+            final ChunkColumn column = loadedColumn(chunkX, chunkZ);
+            return column == null ? (minY >> 4) - 1 : column.topNonEmptySectionY();
         }
     }
 }

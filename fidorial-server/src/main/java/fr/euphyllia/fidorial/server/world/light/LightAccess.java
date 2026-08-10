@@ -16,4 +16,6 @@ public interface LightAccess {
     BlockState blockAt(int x, int y, int z);
 
     @Nullable ChunkLightData lightAt(int chunkX, int chunkZ);
+
+    int topNonEmptySectionY(int chunkX, int chunkZ);
 }

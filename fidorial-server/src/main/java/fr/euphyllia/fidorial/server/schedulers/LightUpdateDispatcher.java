@@ -11,6 +11,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Queue;
@@ -33,10 +34,8 @@ public class LightUpdateDispatcher {
 
     private final Map<Key, WorldLightState> states = new ConcurrentHashMap<>();
 
-    // incremental
     private final Map<Key, Queue<BlockPos>> pendingBlocks = new ConcurrentHashMap<>();
     private final Set<Key> scheduledBlocks = ConcurrentHashMap.newKeySet();
-    // full
     private final Map<Key, Set<Long>> pendingChunks = new ConcurrentHashMap<>();
     private final Set<Key> scheduledChunks = ConcurrentHashMap.newKeySet();
 
@@ -53,37 +52,27 @@ public class LightUpdateDispatcher {
     }
 
     public void queueBlockChange(final Key world, final int x, final int y, final int z) {
-        increment(world, 1);
+        final long[] impacted = impactArea(x >> 4, z >> 4);
+        increment(world, impacted);
         pendingBlocks.computeIfAbsent(world, k -> new ConcurrentLinkedQueue<>()).add(new BlockPos(x, y, z));
         scheduleBlocks(world);
     }
 
     public void queueChunkLoad(final Key world, final int chunkX, final int chunkZ) {
         final Set<Long> set = pendingChunks.computeIfAbsent(world, k -> ConcurrentHashMap.newKeySet());
-        int added = 0;
+        final java.util.List<Long> added = new java.util.ArrayList<>(9);
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
-                if (set.add(ChunkPos.chunkKey(chunkX + dx, chunkZ + dz))) {
-                    added++;
+                final long key = ChunkPos.chunkKey(chunkX + dx, chunkZ + dz);
+                if (set.add(key)) {
+                    added.add(key);
                 }
             }
         }
-        if (added > 0) {
-            increment(world, added);
+        if (!added.isEmpty()) {
+            increment(world, added.stream().mapToLong(Long::longValue).toArray());
         }
         scheduleChunks(world);
-    }
-
-    private void scheduleBlocks(final Key world) {
-        if (scheduledBlocks.add(world)) {
-            worker.execute(() -> drainBlocks(world));
-        }
-    }
-
-    private void scheduleChunks(final Key world) {
-        if (scheduledChunks.add(world)) {
-            worker.execute(() -> drainChunks(world));
-        }
     }
 
     private void drainBlocks(final Key world) {
@@ -95,8 +84,10 @@ public class LightUpdateDispatcher {
             }
             final ServerWorld serverWorld = worldLookup.apply(world);
             if (serverWorld == null) {
-                while (queue.poll() != null) {
+                BlockPos drained;
+                while ((drained = queue.poll()) != null) {
                     processed++;
+                    decrement(world, impactArea(drained.x() >> 4, drained.z() >> 4));
                 }
                 return;
             }
@@ -106,6 +97,7 @@ public class LightUpdateDispatcher {
             while ((pos = queue.poll()) != null && processed < 4096) {
                 processed++;
                 dirtyChunks.addAll(serverWorld.checkBlockLight(pos.x(), pos.y(), pos.z()));
+                decrement(world, impactArea(pos.x() >> 4, pos.z() >> 4));
             }
 
             for (final long key : dirtyChunks) {
@@ -118,9 +110,6 @@ public class LightUpdateDispatcher {
             LOGGER.error("Lighting recalculation impossible for world {}", world, t);
         } finally {
             scheduledBlocks.remove(world);
-            if (processed > 0) {
-                decrement(world, processed);
-            }
         }
         final Queue<BlockPos> stragglers = pendingBlocks.get(world);
         if (stragglers != null && !stragglers.isEmpty()) {
@@ -135,8 +124,8 @@ public class LightUpdateDispatcher {
             if (batch != null && !batch.isEmpty()) {
                 final ServerWorld serverWorld = worldLookup.apply(world);
                 if (serverWorld != null) {
-                    final Set<Long> relit = serverWorld.relightChunks(batch);
-                    for (final long key : relit) {
+                    final Set<Long> dirty = serverWorld.relightChunks(batch);
+                    for (final long key : dirty) {
                         final ChunkColumn column = serverWorld.loadedColumn((int) (key >> 32), (int) key);
                         if (column != null) {
                             broadcaster.accept(new ClientboundLightUpdatePacket(serializer, column));
@@ -149,59 +138,85 @@ public class LightUpdateDispatcher {
         } finally {
             scheduledChunks.remove(world);
             if (batch != null && !batch.isEmpty()) {
-                decrement(world, batch.size());
+                decrement(world, batch.stream().mapToLong(Long::longValue).toArray());
             }
         }
-
         final Set<Long> stragglers = pendingChunks.get(world);
         if (stragglers != null && !stragglers.isEmpty()) {
             scheduleChunks(world);
         }
     }
 
-    private WorldLightState stateFor(final Key world) {
-        return states.computeIfAbsent(world, k -> new WorldLightState());
+    private void scheduleBlocks(final Key world) {
+        if (scheduledBlocks.add(world)) worker.execute(() -> drainBlocks(world));
     }
 
-    private void increment(final Key world, final int n) {
+    private void scheduleChunks(final Key world) {
+        if (scheduledChunks.add(world)) worker.execute(() -> drainChunks(world));
+    }
+
+    private static long[] impactArea(final int chunkX, final int chunkZ) {
+        final long[] keys = new long[9];
+        int i = 0;
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                keys[i++] = ChunkPos.chunkKey(chunkX + dx, chunkZ + dz);
+            }
+        }
+        return keys;
+    }
+
+    private WorldLightState stateFor(final Key world) {
+        return states.computeIfAbsent(world, _ -> new WorldLightState());
+    }
+
+    private void increment(final Key world, final long[] chunkKeys) {
         final WorldLightState state = stateFor(world);
         synchronized (state) {
-            if (state.pending == 0) {
-                state.idle = new CompletableFuture<>();
+            for (final long key : chunkKeys) {
+                state.refCounts.merge(key, 1, Integer::sum);
             }
-            state.pending += n;
         }
     }
 
-    private void decrement(final Key world, final int n) {
+    private void decrement(final Key world, final long[] chunkKeys) {
         final WorldLightState state = states.get(world);
-        if (state == null) {
-            return;
-        }
+        if (state == null) return;
         synchronized (state) {
-            state.pending -= n;
-            if (state.pending <= 0) {
-                if (state.pending < 0) {
-                    LOGGER.warn("Light pending count went negative for world {}, resetting", world);
-                    state.pending = 0;
+            for (final long key : chunkKeys) {
+                final Integer count = state.refCounts.get(key);
+                if (count == null) continue;
+                if (count <= 1) {
+                    state.refCounts.remove(key);
+                    final CompletableFuture<Void> waiter = state.waiters.remove(key);
+                    if (waiter != null) waiter.complete(null);
+                } else {
+                    state.refCounts.put(key, count - 1);
                 }
-                state.idle.complete(null);
             }
         }
     }
 
-    public CompletableFuture<Void> flush(final Key world) {
+    public CompletableFuture<Void> flush(final Key world, final Iterable<Long> chunkKeys) {
         final WorldLightState state = states.get(world);
         if (state == null) {
             return CompletableFuture.completedFuture(null);
         }
+        final java.util.List<CompletableFuture<Void>> futures = new java.util.ArrayList<>();
         synchronized (state) {
-            return state.idle;
+            for (final long key : chunkKeys) {
+                if (state.refCounts.containsKey(key)) {
+                    futures.add(state.waiters.computeIfAbsent(key, k -> new CompletableFuture<>()));
+                }
+            }
         }
+        return futures.isEmpty()
+                ? CompletableFuture.completedFuture(null)
+                : CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     private static final class WorldLightState {
-        private int pending;
-        private CompletableFuture<Void> idle = CompletableFuture.completedFuture(null);
+        private final Map<Long, Integer> refCounts = new HashMap<>();
+        private final Map<Long, CompletableFuture<Void>> waiters = new HashMap<>();
     }
 }

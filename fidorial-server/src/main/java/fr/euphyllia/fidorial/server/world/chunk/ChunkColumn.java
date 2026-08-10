@@ -205,4 +205,14 @@ public final class ChunkColumn {
         }
         return BitPacking.pack(values, bits);
     }
+
+    public int topNonEmptySectionY() {
+        for (int i = sectionCount - 1; i >= 0; i--) {
+            final ChunkSection section = sections[i];
+            if (section != null && !section.isEmpty()) {
+                return minSectionY + i;
+            }
+        }
+        return minSectionY - 1;
+    }
 }

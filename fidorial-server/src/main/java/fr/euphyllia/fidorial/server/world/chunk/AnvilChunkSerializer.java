@@ -196,17 +196,38 @@ public class AnvilChunkSerializer {
         chunk.setInhabitedTime(root.getLong("InhabitedTime"));
         chunk.setLastUpdate(root.getLong("LastUpdate"));
 
+        final ChunkLightData light = chunk.lightData();
+        final int minSectionY = chunk.minSectionY();
+
         final NbtList sections = root.getList("sections");
         if (sections != null) {
             for (final Nbt tag : sections.items()) {
                 if (tag instanceof final NbtCompound sc) {
                     final ChunkSection section = sectionFromNbt(sc, defaultBlock, defaultBiome);
-                    if (section != null) chunk.putSection(section);
+                    if (section != null) {
+                        chunk.putSection(section);
+                        final int lightIndex = section.sectionY() - minSectionY;
+                        if (sc.contains("BlockLight")) {
+                            light.setSectionArray(LightType.BLOCK, lightIndex, sc.getByteArray("BlockLight"));
+                        }
+                        if (sc.contains("SkyLight")) {
+                            light.setSectionArray(LightType.SKY, lightIndex, sc.getByteArray("SkyLight"));
+                        }
+                    }
                 }
             }
         }
 
         blockEntitiesFromNbt(root, chunk);
+
+        if (root.getBoolean("isLightOn")) {
+            chunk.setLightPopulated(true);
+            final int topSection = chunk.topNonEmptySectionY();
+            final int scanStart = Math.min(
+                    (minSectionY + chunk.sectionCount()) * 16 - 1,
+                    ((topSection + 1) << 4) + 15);
+            light.setSkyFullFromY(scanStart);
+        }
 
         return chunk;
     }

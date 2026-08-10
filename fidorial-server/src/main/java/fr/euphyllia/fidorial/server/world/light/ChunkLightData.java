@@ -16,6 +16,7 @@ public class ChunkLightData {
     private final byte[] @Nullable [] skyLight;
 
     private final int[] heightmap;
+    private int skyFullFromY = Integer.MAX_VALUE;
 
     public ChunkLightData(final int minY, final int height) {
         this.minY = minY;
@@ -52,6 +53,9 @@ public class ChunkLightData {
     }
 
     public int get(final LightType type, final int localX, final int worldY, final int localZ) {
+        if (type == LightType.SKY && worldY > skyFullFromY) {
+            return 15;
+        }
         final int section = sectionIndexForY(worldY);
         if (section < 0 || section >= sectionCount) {
             return 0;
@@ -99,11 +103,32 @@ public class ChunkLightData {
         return layerType[sectionIndex];
     }
 
+    public void setSectionArray(final LightType type, final int sectionIndex, final byte @Nullable [] data) {
+        if (sectionIndex < 0 || sectionIndex >= sectionCount) {
+            return;
+        }
+        final byte[] @Nullable [] layerType = layer(type);
+        if (data == null) {
+            layerType[sectionIndex] = null;
+        } else if (data.length == SECTION_BYTES) {
+            layerType[sectionIndex] = data;
+        }
+    }
+
+    public int skyFullFromY() {
+        return skyFullFromY;
+    }
+
+    public void setSkyFullFromY(final int worldY) {
+        this.skyFullFromY = worldY;
+    }
+
     public void clear() {
         for (int i = 0; i < sectionCount; i++) {
             blockLight[i] = null;
             skyLight[i] = null;
         }
         Arrays.fill(heightmap, minY - 1);
+        skyFullFromY = Integer.MAX_VALUE;
     }
 }

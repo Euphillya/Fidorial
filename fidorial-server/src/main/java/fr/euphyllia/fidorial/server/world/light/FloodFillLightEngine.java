@@ -46,6 +46,13 @@ public class FloodFillLightEngine implements LightEngine {
 
     @Override
     public Set<Long> checkBlock(final int x, final int y, final int z, final LightAccess access) {
+        final ChunkLightData data = access.lightAt(x >> 4, z >> 4);
+        if (data != null && y >= data.skyFullFromY()) {
+            final Set<Long> one = new HashSet<>();
+            one.add(ChunkPos.chunkKey(x >> 4, z >> 4));
+            relight(one, access);
+            return one;
+        }
         final Set<Long> dirtyChunks = new HashSet<>();
         final int[] skyRange = updateHeightmap(access, x, y, z, dirtyChunks);
         for (final LightType type : LightType.values()) {
@@ -265,11 +272,13 @@ public class FloodFillLightEngine implements LightEngine {
             final int chunkX = (int) (key >> 32);
             final int chunkZ = (int) key;
             final ChunkLightData data = access.lightAt(chunkX, chunkZ);
-            if (data == null) {
-                continue;
-            }
+            if (data == null) continue;
+
             final int baseX = chunkX << 4;
             final int baseZ = chunkZ << 4;
+            final int topSection = access.topNonEmptySectionY(chunkX, chunkZ);
+            final int scanStart = Math.min(maxY - 1, ((topSection + 1) << 4) + 15);
+            data.setSkyFullFromY(scanStart);
 
             for (int lx = 0; lx < 16; lx++) {
                 for (int lz = 0; lz < 16; lz++) {
@@ -277,23 +286,20 @@ public class FloodFillLightEngine implements LightEngine {
                     final int worldZ = baseZ + lz;
                     int sky = MAX_LEVEL;
                     int topOpaque = minY - 1;
-                    for (int y = maxY - 1; y >= minY; y--) {
+
+                    for (int y = scanStart; y >= minY; y--) {
                         final BlockState block = access.blockAt(worldX, y, worldZ);
                         if (BlockLightProperties.occludes(block)) {
                             topOpaque = y;
                             break;
                         }
-                        if (sky <= 0) {
-                            break;
-                        }
+                        if (sky <= 0) break;
                         data.set(LightType.SKY, worldX, y, worldZ, sky);
-                        if (sky == MAX_LEVEL) {
-                            queue.add(packPos(worldX, y, worldZ));
-                        }
+                        if (sky == MAX_LEVEL) queue.add(packPos(worldX, y, worldZ), -1);
                         final int opacity = BlockLightProperties.opacity(block);
                         if (opacity > 0) {
                             sky = Math.max(0, sky - opacity);
-                            queue.add(packPos(worldX, y, worldZ));
+                            queue.add(packPos(worldX, y, worldZ), -1);
                         }
                     }
                     data.setTopOpaqueY(lx, lz, topOpaque);
@@ -302,7 +308,6 @@ public class FloodFillLightEngine implements LightEngine {
         }
 
         seedBorders(chunks, access, LightType.SKY, queue);
-
         propagate(chunks, access, LightType.SKY, queue);
     }
 
@@ -313,22 +318,23 @@ public class FloodFillLightEngine implements LightEngine {
             final int chunkX = (int) (key >> 32);
             final int chunkZ = (int) key;
             final ChunkLightData data = access.lightAt(chunkX, chunkZ);
-            if (data == null) {
-                continue;
-            }
+            if (data == null) continue;
+
             final int baseX = chunkX << 4;
             final int baseZ = chunkZ << 4;
+            final int topSection = access.topNonEmptySectionY(chunkX, chunkZ);
+            final int scanTop = Math.min(maxY - 1, (topSection << 4) + 15);
 
             for (int lx = 0; lx < 16; lx++) {
                 for (int lz = 0; lz < 16; lz++) {
-                    for (int y = minY; y < maxY; y++) {
+                    for (int y = minY; y <= scanTop; y++) {
                         final BlockState block = access.blockAt(baseX + lx, y, baseZ + lz);
                         final int emission = BlockLightProperties.emission(block);
                         if (emission > 0) {
                             final int worldX = baseX + lx;
                             final int worldZ = baseZ + lz;
                             data.set(LightType.BLOCK, worldX, y, worldZ, emission);
-                            queue.add(packPos(worldX, y, worldZ));
+                            queue.add(packPos(worldX, y, worldZ), -1);
                         }
                     }
                 }
@@ -336,7 +342,6 @@ public class FloodFillLightEngine implements LightEngine {
         }
 
         seedBorders(chunks, access, LightType.BLOCK, queue);
-
         propagate(chunks, access, LightType.BLOCK, queue);
     }
 
@@ -376,7 +381,7 @@ public class FloodFillLightEngine implements LightEngine {
                 for (int y = minY; y < maxY; y++) {
                     final int level = data.get(type, worldX, y, worldZ);
                     if (level > 1) {
-                        queue.add(packPos(worldX, y, worldZ));
+                        queue.add(packPos(worldX, y, worldZ), -1);
                     }
                 }
             }
@@ -386,46 +391,34 @@ public class FloodFillLightEngine implements LightEngine {
     private void propagate(final Set<Long> chunks, final LightAccess access, final LightType type, final LongQueue queue) {
         while (!queue.isEmpty()) {
             final long packed = queue.poll();
+            final int skipDir = queue.lastSkipDir();
             final int x = unpackX(packed);
             final int y = unpackY(packed);
             final int z = unpackZ(packed);
 
             final ChunkLightData source = access.lightAt(x >> 4, z >> 4);
-            if (source == null) {
-                continue;
-            }
+            if (source == null) continue;
             final int level = source.get(type, x, y, z);
-            if (level <= 1) {
-                continue;
-            }
+            if (level <= 1) continue;
 
             for (int dir = 0; dir < 6; dir++) {
+                if (dir == skipDir) continue;
                 final int nx = x + DX[dir];
                 final int ny = y + DY[dir];
                 final int nz = z + DZ[dir];
-                if (ny < minY || ny >= maxY) {
-                    continue;
-                }
-                final long neighborKey = ChunkPos.chunkKey(nx >> 4, nz >> 4);
-                if (!chunks.contains(neighborKey)) {
-                    continue;
-                }
+                if (ny < minY || ny >= maxY) continue;
+                if (!chunks.contains(ChunkPos.chunkKey(nx >> 4, nz >> 4))) continue;
                 final ChunkLightData target = access.lightAt(nx >> 4, nz >> 4);
-                if (target == null) {
-                    continue;
-                }
+                if (target == null) continue;
                 final BlockState block = access.blockAt(nx, ny, nz);
-                if (BlockLightProperties.occludes(block)) {
-                    continue;
-                }
-                final int decrement = 1 + BlockLightProperties.opacity(block);
-                final int candidate = level - decrement;
-                if (candidate <= 0) {
-                    continue;
-                }
+                if (BlockLightProperties.occludes(block)) continue;
+                final int candidate = level - (1 + BlockLightProperties.opacity(block));
+                if (candidate <= 0) continue;
                 if (candidate > target.get(type, nx, ny, nz)) {
                     target.set(type, nx, ny, nz, candidate);
-                    queue.add(packPos(nx, ny, nz));
+                    if (candidate > 1) {
+                        queue.add(packPos(nx, ny, nz), dir ^ 1);
+                    }
                 }
             }
         }
@@ -433,18 +426,25 @@ public class FloodFillLightEngine implements LightEngine {
 
     private static final class LongQueue {
         private long[] data = new long[1024];
+        private int[] dirs = new int[1024];
         private int head;
         private int tail;
+        private int lastDir;
 
-        void add(final long value) {
-            if (tail == data.length) {
-                grow();
-            }
-            data[tail++] = value;
+        void add(final long value, final int skipDir) {
+            if (tail == data.length) grow();
+            data[tail] = value;
+            dirs[tail] = skipDir;
+            tail++;
         }
 
         long poll() {
+            lastDir = dirs[head];
             return data[head++];
+        }
+
+        int lastSkipDir() {
+            return lastDir;
         }
 
         boolean isEmpty() {
@@ -455,15 +455,13 @@ public class FloodFillLightEngine implements LightEngine {
             if (head > 0) {
                 final int size = tail - head;
                 System.arraycopy(data, head, data, 0, size);
+                System.arraycopy(dirs, head, dirs, 0, size);
                 head = 0;
                 tail = size;
-                if (tail < data.length) {
-                    return;
-                }
+                if (tail < data.length) return;
             }
-            final long[] bigger = new long[data.length * 2];
-            System.arraycopy(data, 0, bigger, 0, data.length);
-            data = bigger;
+            data = java.util.Arrays.copyOf(data, data.length * 2);
+            dirs = java.util.Arrays.copyOf(dirs, dirs.length * 2);
         }
     }
 }
