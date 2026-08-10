@@ -3,7 +3,6 @@ package fr.euphyllia.fidorial.server.world.light;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.light.LightType;
-import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -76,6 +75,10 @@ public class FloodFillLightEngine implements LightEngine {
             one.add(ChunkPos.chunkKey(x >> 4, z >> 4));
             relight(one, access);
             dirtyChunks.addAll(one);
+            return;
+        }
+
+        if (y > oldTop) {
             return;
         }
 

@@ -7,12 +7,15 @@ import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.ChunkPos;
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -174,7 +177,7 @@ public class LightUpdateDispatcher {
         final WorldLightState state = stateFor(world);
         synchronized (state) {
             for (final long key : chunkKeys) {
-                state.refCounts.merge(key, 1, Integer::sum);
+                state.refCounts.addTo(key, 1);
             }
         }
     }
@@ -184,8 +187,8 @@ public class LightUpdateDispatcher {
         if (state == null) return;
         synchronized (state) {
             for (final long key : chunkKeys) {
-                final Integer count = state.refCounts.get(key);
-                if (count == null) continue;
+                final int count = state.refCounts.get(key);
+                if (count == 0) continue;
                 if (count <= 1) {
                     state.refCounts.remove(key);
                     final CompletableFuture<Void> waiter = state.waiters.remove(key);
@@ -202,7 +205,7 @@ public class LightUpdateDispatcher {
         if (state == null) {
             return CompletableFuture.completedFuture(null);
         }
-        final java.util.List<CompletableFuture<Void>> futures = new java.util.ArrayList<>();
+        final List<CompletableFuture<Void>> futures = new ArrayList<>();
         synchronized (state) {
             for (final long key : chunkKeys) {
                 if (state.refCounts.containsKey(key)) {
@@ -216,7 +219,11 @@ public class LightUpdateDispatcher {
     }
 
     private static final class WorldLightState {
-        private final Map<Long, Integer> refCounts = new HashMap<>();
-        private final Map<Long, CompletableFuture<Void>> waiters = new HashMap<>();
+        private final Long2IntOpenHashMap refCounts = new Long2IntOpenHashMap();
+        private final Long2ObjectOpenHashMap<CompletableFuture<Void>> waiters = new Long2ObjectOpenHashMap<>();
+
+        WorldLightState() {
+            refCounts.defaultReturnValue(0);
+        }
     }
 }

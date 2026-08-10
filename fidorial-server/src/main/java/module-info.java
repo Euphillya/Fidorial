@@ -34,6 +34,7 @@ module fr.fidorial.server {
     requires static org.jspecify;
     requires net.kyori.adventure.nbt;
     requires io.github.classgraph;
+    requires it.unimi.dsi.fastutil;
 
     opens fr.euphyllia.fidorial.server.tests to fr.fidorial;
 }
