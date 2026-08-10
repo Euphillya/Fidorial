@@ -5,7 +5,6 @@ import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
 import java.net.InetAddress;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -18,33 +17,28 @@ import java.util.stream.Stream;
 public interface BanService {
 
     /**
-     * Gets the active ban on a target.
+     * Gets the active ban on a player identity.
      *
      * <p>An expired entry must not be returned; implementations are free to discard it.</p>
      *
-     * @param target the ban target
-     * @param <T>    what the ban applies to
-     * @return the active ban, or empty when nothing bans the target
+     * @param uuid the player identity
+     * @return the active ban, or empty when nothing bans the identity
      * @since 0.1.0
      */
     @Contract(pure = true)
-    <T extends BanTarget> Optional<BanEntry<T>> find(final T target);
+    Optional<BanEntry.Profile> find(final UUID uuid);
 
     /**
-     * Gets the active ban on a target, assuming there is one.
+     * Gets the active ban on a client address.
      *
-     * @param target the ban target
-     * @param <T>    what the ban applies to
-     * @return the active ban
-     * @throws NoSuchElementException when nothing bans the target
-     * @see #find(BanTarget)
+     * <p>An expired entry must not be returned; implementations are free to discard it.</p>
+     *
+     * @param address the client address
+     * @return the active ban, or empty when nothing bans the address
      * @since 0.1.0
      */
     @Contract(pure = true)
-    default <T extends BanTarget> BanEntry<T> get(final T target) {
-        return find(target).orElseThrow(() ->
-                new NoSuchElementException("Not banned: " + target.label()));
-    }
+    Optional<BanEntry.Address> find(final InetAddress address);
 
     /**
      * Gets the active ban recorded under a name, matched case-insensitively.
@@ -56,22 +50,7 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Optional<BanEntry<?>> findByName(final String name);
-
-    /**
-     * Gets the active ban recorded under a name, assuming there is one.
-     *
-     * @param name the player name
-     * @return the active ban
-     * @throws NoSuchElementException when no ban is recorded under the name
-     * @see #findByName(String)
-     * @since 0.1.0
-     */
-    @Contract(pure = true)
-    default BanEntry<?> getByName(final String name) {
-        return findByName(name).orElseThrow(() ->
-                new NoSuchElementException("Not banned: " + name));
-    }
+    Optional<BanEntry> findByName(final String name);
 
     /**
      * Gets whatever bans a connecting player, whether that is their identity or the address they
@@ -83,42 +62,38 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    default Optional<BanEntry<?>> findAny(final UUID uuid, @Nullable final InetAddress address) {
-        final Optional<BanEntry<BanTarget.Profile>> byProfile = find(new BanTarget.Profile(uuid));
+    default Optional<BanEntry> findAny(final UUID uuid, @Nullable final InetAddress address) {
+        final Optional<BanEntry.Profile> byProfile = find(uuid);
 
         if (byProfile.isPresent() || address == null) {
             return byProfile.map(entry -> entry);
         }
 
-        return find(new BanTarget.Address(address)).map(entry -> entry);
+        return find(address).map(entry -> entry);
     }
 
     /**
-     * Gets whatever bans a connecting player, assuming something does.
+     * Checks whether a player identity is currently banned.
      *
-     * @param uuid    the player identity
-     * @param address the address the client connects from, or {@code null} when unknown
-     * @return the active ban
-     * @throws NoSuchElementException when the player may connect
-     * @see #findAny(UUID, InetAddress)
+     * @param uuid the player identity
+     * @return {@code true} when the identity is banned
      * @since 0.1.0
      */
     @Contract(pure = true)
-    default BanEntry<?> getAny(final UUID uuid, @Nullable final InetAddress address) {
-        return findAny(uuid, address).orElseThrow(() ->
-                new NoSuchElementException("Not banned: " + uuid));
+    default boolean isBanned(final UUID uuid) {
+        return find(uuid).isPresent();
     }
 
     /**
-     * Checks whether a target is currently banned.
+     * Checks whether a client address is currently banned.
      *
-     * @param target the ban target
-     * @return {@code true} when the target is banned
+     * @param address the client address
+     * @return {@code true} when the address is banned
      * @since 0.1.0
      */
     @Contract(pure = true)
-    default boolean isBanned(final BanTarget target) {
-        return find(target).isPresent();
+    default boolean isBanned(final InetAddress address) {
+        return find(address).isPresent();
     }
 
     /**
@@ -128,16 +103,25 @@ public interface BanService {
      * @return {@code true} when the target was not already banned
      * @since 0.1.0
      */
-    boolean ban(BanEntry<?> entry);
+    boolean ban(BanEntry entry);
 
     /**
-     * Lifts the ban on a target.
+     * Lifts the ban on a player identity.
      *
-     * @param target the ban target
+     * @param uuid the player identity
      * @return {@code true} when a ban was actually lifted
      * @since 0.1.0
      */
-    boolean pardon(final BanTarget target);
+    boolean pardon(final UUID uuid);
+
+    /**
+     * Lifts the ban on a client address.
+     *
+     * @param address the client address
+     * @return {@code true} when a ban was actually lifted
+     * @since 0.1.0
+     */
+    boolean pardon(final InetAddress address);
 
     /**
      * Gets the active bans.
@@ -146,7 +130,7 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Stream<BanEntry<?>> bans();
+    Stream<BanEntry> bans();
 
     /**
      * Gets the active bans of the given kind.
@@ -157,7 +141,7 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    default <E extends BanEntry<?>> Stream<E> bans(final Class<E> kind) {
+    default <E extends BanEntry> Stream<E> bans(final Class<E> kind) {
         return bans().filter(kind::isInstance).map(kind::cast);
     }
 
@@ -181,5 +165,5 @@ public interface BanService {
      * @since 0.1.0
      */
     @Contract(pure = true)
-    Component disconnectMessage(final BanEntry<?> entry);
+    Component disconnectMessage(final BanEntry entry);
 }

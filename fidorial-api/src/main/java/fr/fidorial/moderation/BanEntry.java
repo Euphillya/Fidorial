@@ -17,22 +17,13 @@ import java.util.UUID;
 /**
  * Represents a ban.
  *
- * @param <T> what the ban applies to
  * @since 0.1.0
  */
-public sealed interface BanEntry<T extends BanTarget> {
+public sealed interface BanEntry permits BanEntry.Profile, BanEntry.Address {
 
     DateTimeFormatter FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT).withZone(ZoneId.systemDefault());
 
-    /**
-     * Gets what the ban applies to.
-     *
-     * @return the target
-     * @since 0.1.0
-     */
-    @Contract(pure = true)
-    T target();
 
     /**
      * Gets the name recorded for display, which is the last known name of the player the ban was
@@ -84,7 +75,7 @@ public sealed interface BanEntry<T extends BanTarget> {
     @Nullable Instant expires();
 
     /**
-     * Gets the label for the target.
+     * Gets the label for what the ban applies to.
      *
      * @return the text identifying the target in messages
      * @since 0.1.0
@@ -177,7 +168,7 @@ public sealed interface BanEntry<T extends BanTarget> {
     /**
      * A ban on a player identity.
      *
-     * @param target  the banned identity
+     * @param uuid  the banned identity
      * @param name    the last known name of the player, or {@code null}
      * @param reason  why the player is banned, or {@code null}
      * @param source  the identity of who issued the ban, or {@code null} for the server
@@ -186,16 +177,16 @@ public sealed interface BanEntry<T extends BanTarget> {
      * @since 0.1.0
      */
     record Profile(
-            BanTarget.Profile target,
+            UUID uuid,
             @Nullable String name,
             @Nullable Component reason,
             @Nullable UUID source,
             Instant created,
             @Nullable Instant expires
-    ) implements BanEntry<BanTarget.Profile> {
+    ) implements BanEntry {
 
         public Profile {
-            Objects.requireNonNull(target, "target");
+            Objects.requireNonNull(uuid, "uuid");
             Objects.requireNonNull(created, "created");
         }
 
@@ -242,7 +233,7 @@ public sealed interface BanEntry<T extends BanTarget> {
 
             final Instant created = Instant.now();
 
-            return new Profile(new BanTarget.Profile(uuid), name, reason, source, created, created.plus(duration));
+            return new Profile(uuid, name, reason, source, created, created.plus(duration));
         }
 
         /**
@@ -264,18 +255,7 @@ public sealed interface BanEntry<T extends BanTarget> {
                 @Nullable final UUID source,
                 @Nullable final Instant expires
         ) {
-            return new Profile(new BanTarget.Profile(uuid), name, reason, source, Instant.now(), expires);
-        }
-
-        /**
-         * Gets the banned identity.
-         *
-         * @return the identity
-         * @since 0.1.0
-         */
-        @Contract(pure = true)
-        public UUID uuid() {
-            return target.uuid();
+            return new Profile(uuid, name, reason, source, Instant.now(), expires);
         }
 
         /**
@@ -286,14 +266,14 @@ public sealed interface BanEntry<T extends BanTarget> {
         @Contract(pure = true)
         @Override
         public String label() {
-            return name != null ? name : target.label();
+            return name != null ? name : uuid.toString();
         }
     }
 
     /**
      * A ban on a client address.
      *
-     * @param target  the banned address
+     * @param address the banned address
      * @param name    the last known name of the player it was issued against, or {@code null}
      * @param reason  why the address is banned, or {@code null}
      * @param source  the identity of who issued the ban, or {@code null} for the server
@@ -302,16 +282,16 @@ public sealed interface BanEntry<T extends BanTarget> {
      * @since 0.1.0
      */
     record Address(
-            BanTarget.Address target,
+            InetAddress address,
             @Nullable String name,
             @Nullable Component reason,
             @Nullable UUID source,
             Instant created,
             @Nullable Instant expires
-    ) implements BanEntry<BanTarget.Address> {
+    ) implements BanEntry {
 
         public Address {
-            Objects.requireNonNull(target, "target");
+            Objects.requireNonNull(address, "address");
             Objects.requireNonNull(created, "created");
         }
 
@@ -358,7 +338,7 @@ public sealed interface BanEntry<T extends BanTarget> {
 
             final Instant created = Instant.now();
 
-            return new Address(new BanTarget.Address(address), name, reason, source, created, created.plus(duration));
+            return new Address(address, name, reason, source, created, created.plus(duration));
         }
 
         /**
@@ -380,18 +360,7 @@ public sealed interface BanEntry<T extends BanTarget> {
                 @Nullable final UUID source,
                 @Nullable final Instant expires
         ) {
-            return new Address(new BanTarget.Address(address), name, reason, source, Instant.now(), expires);
-        }
-
-        /**
-         * Gets the banned address.
-         *
-         * @return the address
-         * @since 0.1.0
-         */
-        @Contract(pure = true)
-        public InetAddress address() {
-            return target.address();
+            return new Address(address, name, reason, source, Instant.now(), expires);
         }
 
         /**
@@ -404,7 +373,7 @@ public sealed interface BanEntry<T extends BanTarget> {
         @Contract(pure = true)
         @Override
         public String label() {
-            return target.label();
+            return address.getHostAddress();
         }
     }
 }

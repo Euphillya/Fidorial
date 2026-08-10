@@ -33,13 +33,13 @@ public final class BanListCommand {
 
     private static int list(
             final CommandContext<CommandSource> context,
-            @Nullable final Class<? extends BanEntry<?>> kind
+            @Nullable final Class<? extends BanEntry> kind
     ) {
         final CommandSender sender = context.getSource().sender();
         final BanService bans = context.getSource().server().banService();
 
-        final Stream<? extends BanEntry<?>> stream = kind == null ? bans.bans() : bans.bans(kind);
-        final List<? extends BanEntry<?>> entries = stream.toList();
+        final Stream<? extends BanEntry> stream = kind == null ? bans.bans() : bans.bans(kind);
+        final List<? extends BanEntry> entries = stream.toList();
 
 
         if (entries.isEmpty()) {
@@ -50,7 +50,7 @@ public final class BanListCommand {
         sender.sendMessage(Component.translatable(
                 "commands.banlist.header", Component.text(entries.size())));
 
-        for (final BanEntry<?> entry : entries) {
+        for (final BanEntry entry : entries) {
             sender.sendMessage(Component.translatable(
                     "commands.banlist.entry",
                     Component.text(entry.label()),

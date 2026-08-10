@@ -15,7 +15,6 @@ import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.moderation.BanEntry;
 import fr.fidorial.moderation.BanService;
-import fr.fidorial.moderation.BanTarget;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
@@ -37,7 +36,7 @@ public final class BanCommand {
     public static LiteralCommandNode<CommandSource> create() {
         final ArgumentType<PlayerProfileListResolver> playerArgument =
                 ArgumentTypes.playerProfiles(player ->
-                        !server.banService().isBanned(new BanTarget.Profile(player.uuid())));
+                        !server.banService().isBanned(player.uuid()));
 
         return literal("ban")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
@@ -100,17 +99,17 @@ public final class BanCommand {
         return banned > 0 ? Command.SINGLE_SUCCESS : 0;
     }
 
-    static Component expiryOf(final BanEntry<?> entry) {
+    static Component expiryOf(final BanEntry entry) {
         return entry.permanent()
                 ? Component.translatable("commands.ban.expires.never")
                 : Component.text(entry.expiresLabel());
     }
 
-    static Component reasonOf(final BanEntry<?> entry) {
+    static Component reasonOf(final BanEntry entry) {
         return entry.describeReason().orElseGet(() -> Component.translatable("commands.ban.reason.none"));
     }
 
-    static Component sourceOf(final BanEntry<?> entry) {
+    static Component sourceOf(final BanEntry entry) {
         final UUID source = entry.source();
         if (source == null) {
             return Component.translatable("commands.ban.source.server");

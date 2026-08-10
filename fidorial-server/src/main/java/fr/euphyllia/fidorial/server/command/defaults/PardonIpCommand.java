@@ -9,7 +9,6 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.moderation.BanEntry;
-import fr.fidorial.moderation.BanTarget;
 import net.kyori.adventure.text.Component;
 
 import java.util.Locale;
@@ -55,7 +54,7 @@ public final class PardonIpCommand {
             return 0;
         }
 
-        if (!server.banService().pardon(BanTarget.Address.of(address))) {
+        if (!server.banService().pardon(InetAddresses.forString(address))) {
             source.sender()
                     .sendMessage(Component.translatable("commands.pardonip.failed", Component.text(address)));
             return 0;

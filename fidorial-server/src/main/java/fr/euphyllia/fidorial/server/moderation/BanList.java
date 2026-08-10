@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.moderation;
 
+import com.google.common.net.InetAddresses;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -7,7 +8,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.fidorial.moderation.BanEntry;
 import fr.fidorial.moderation.BanService;
-import fr.fidorial.moderation.BanTarget;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -16,17 +16,19 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -38,7 +40,8 @@ public final class BanList implements BanService {
 
     private final Path profileFile;
     private final Path addressFile;
-    private final Map<BanTarget, BanEntry<?>> bans = new ConcurrentHashMap<>();
+    private final Map<UUID, BanEntry.Profile> profiles = new ConcurrentHashMap<>();
+    private final Map<InetAddress, BanEntry.Address> addresses = new ConcurrentHashMap<>();
 
     public BanList(final Path profileFile, final Path addressFile) {
         this.profileFile = Objects.requireNonNull(profileFile, "profileFile");
@@ -46,27 +49,22 @@ public final class BanList implements BanService {
     }
 
     public void load() {
-        bans.clear();
+        profiles.clear();
+        addresses.clear();
 
-        read(profileFile, BanList::readProfile);
-        read(addressFile, BanList::readAddress);
+        read(profileFile, BanList::readProfile, entry -> profiles.put(entry.uuid(), entry));
+        read(addressFile, BanList::readAddress, entry -> addresses.put(entry.address(), entry));
 
-        LOGGER.debug("There are currently {} active ban(s)", bans.size());
+        LOGGER.debug("There are currently {} active ban(s)", profiles.size() + addresses.size());
     }
 
     public synchronized void save() {
-        write(profileFile, BanEntry.Profile.class, BanList::writeProfile);
-        write(addressFile, BanEntry.Address.class, BanList::writeAddress);
+        write(profileFile, profiles.values(), BanList::writeProfile);
+        write(addressFile, addresses.values(), BanList::writeAddress);
     }
 
     public int purgeExpired() {
-        int removed = 0;
-
-        for (final BanEntry<?> entry : bans.values()) {
-            if (entry.expired() && bans.remove(entry.target(), entry)) {
-                removed++;
-            }
-        }
+        final int removed = purgeExpired(profiles) + purgeExpired(addresses);
 
         if (removed > 0) {
             save();
@@ -76,66 +74,53 @@ public final class BanList implements BanService {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends BanTarget> Optional<BanEntry<T>> find(final T target) {
-        final BanEntry<?> entry = bans.get(target);
-
-        if (entry == null) {
-            return Optional.empty();
-        }
-
-        if (entry.expired()) {
-            if (bans.remove(target, entry)) {
-                save();
-            }
-            return Optional.empty();
-        }
-
-        return Optional.of((BanEntry<T>) entry);
+    public Optional<BanEntry.Profile> find(final UUID uuid) {
+        return lookup(profiles, uuid);
     }
 
     @Override
-    public Optional<BanEntry<?>> findByName(final String name) {
-        return bans.values().stream()
-                .filter(entry -> !entry.expired())
+    public Optional<BanEntry.Address> find(final InetAddress address) {
+        return lookup(addresses, address);
+    }
+
+    @Override
+    public Optional<BanEntry> findByName(final String name) {
+        return active()
                 .filter(entry -> entry.name() != null && entry.name().equalsIgnoreCase(name))
                 .findFirst();
     }
 
     @Override
-    public boolean ban(final BanEntry<?> entry) {
+    public boolean ban(final BanEntry entry) {
         Objects.requireNonNull(entry, "entry");
 
-        final boolean isNew = find(entry.target()).isEmpty();
+        final boolean isNew = switch (entry) {
+            case final BanEntry.Profile profile -> store(profiles, profile.uuid(), profile);
+            case final BanEntry.Address address -> store(addresses, address.address(), address);
+        };
 
-        bans.put(entry.target(), entry);
         save();
 
         return isNew;
     }
 
     @Override
-    public boolean pardon(final BanTarget target) {
-        Objects.requireNonNull(target, "target");
-
-        if (bans.remove(target) == null) {
-            return false;
-        }
-
-        save();
-
-        return true;
+    public boolean pardon(final UUID uuid) {
+        return lift(profiles, Objects.requireNonNull(uuid, "uuid"));
     }
 
     @Override
-    public Stream<BanEntry<?>> bans() {
-        return bans.values().stream()
-                .filter(entry -> !entry.expired())
-                .sorted(Comparator.<BanEntry<?>, Instant>comparing(BanEntry::created).reversed());
+    public boolean pardon(final InetAddress address) {
+        return lift(addresses, Objects.requireNonNull(address, "address"));
     }
 
     @Override
-    public Component disconnectMessage(final BanEntry<?> entry) {
+    public Stream<BanEntry> bans() {
+        return active().sorted(Comparator.comparing(BanEntry::created).reversed());
+    }
+
+    @Override
+    public Component disconnectMessage(final BanEntry entry) {
         Objects.requireNonNull(entry, "entry");
 
         final String key = switch (entry) {
@@ -157,18 +142,64 @@ public final class BanList implements BanService {
 
     @Override
     public int totalBans() {
-        int count = 0;
+        return (int) active().count();
+    }
 
-        for (final BanEntry<?> entry : bans.values()) {
-            if (!entry.expired()) {
-                count++;
+    private Stream<BanEntry> active() {
+        return Stream.<BanEntry>concat(profiles.values().stream(), addresses.values().stream())
+                .filter(entry -> !entry.expired());
+    }
+
+    private <K, E extends BanEntry> Optional<E> lookup(final Map<K, E> bans, final K key) {
+        final E entry = bans.get(key);
+
+        if (entry == null) {
+            return Optional.empty();
+        }
+
+        if (entry.expired()) {
+            if (bans.remove(key, entry)) {
+                save();
+            }
+            return Optional.empty();
+        }
+
+        return Optional.of(entry);
+    }
+
+    private <K, E extends BanEntry> boolean store(final Map<K, E> bans, final K key, final E entry) {
+        final E previous = bans.put(key, entry);
+
+        return previous == null || previous.expired();
+    }
+
+    private <K, E extends BanEntry> boolean lift(final Map<K, E> bans, final K key) {
+        if (bans.remove(key) == null) {
+            return false;
+        }
+
+        save();
+
+        return true;
+    }
+
+    private static <K, E extends BanEntry> int purgeExpired(final Map<K, E> bans) {
+        int removed = 0;
+
+        for (final Map.Entry<K, E> ban : bans.entrySet()) {
+            if (ban.getValue().expired() && bans.remove(ban.getKey(), ban.getValue())) {
+                removed++;
             }
         }
 
-        return count;
+        return removed;
     }
 
-    private void read(final Path file, final Function<JsonObject, BanEntry<?>> reader) {
+    private static <E extends BanEntry> void read(
+            final Path file,
+            final Function<JsonObject, E> reader,
+            final Consumer<E> sink
+    ) {
         if (!Files.exists(file)) {
             return;
         }
@@ -182,10 +213,10 @@ public final class BanList implements BanService {
 
             for (final JsonElement element : array) {
                 try {
-                    final BanEntry<?> entry = reader.apply(element.getAsJsonObject());
+                    final E entry = reader.apply(element.getAsJsonObject());
 
                     if (!entry.expired()) {
-                        bans.put(entry.target(), entry);
+                        sink.accept(entry);
                     }
                 } catch (final RuntimeException e) {
                     LOGGER.warn("Skipping malformed entry in {}", file, e);
@@ -196,16 +227,11 @@ public final class BanList implements BanService {
         }
     }
 
-    private <E extends BanEntry<?>> void write(
+    private static <E extends BanEntry> void write(
             final Path file,
-            final Class<E> kind,
+            final Collection<E> entries,
             final Function<E, JsonObject> writer
     ) {
-        final List<E> entries = bans.values().stream()
-                .filter(kind::isInstance)
-                .map(kind::cast)
-                .toList();
-
         final JsonArray array = new JsonArray();
         entries.forEach(entry -> array.add(writer.apply(entry)));
 
@@ -218,7 +244,7 @@ public final class BanList implements BanService {
 
     private static BanEntry.Profile readProfile(final JsonObject json) {
         return new BanEntry.Profile(
-                new BanTarget.Profile(UUID.fromString(json.get("uuid").getAsString())),
+                UUID.fromString(json.get("uuid").getAsString()),
                 string(json, "name"),
                 reason(json),
                 uuid(json, "source"),
@@ -228,7 +254,7 @@ public final class BanList implements BanService {
 
     private static BanEntry.Address readAddress(final JsonObject json) {
         return new BanEntry.Address(
-                BanTarget.Address.of(json.get("ip").getAsString()),
+                InetAddresses.forString(json.get("ip").getAsString()),
                 string(json, "name"),
                 reason(json),
                 uuid(json, "source"),
@@ -254,7 +280,7 @@ public final class BanList implements BanService {
         return common(json, entry);
     }
 
-    private static JsonObject common(final JsonObject json, final BanEntry<?> entry) {
+    private static JsonObject common(final JsonObject json, final BanEntry entry) {
         if (entry.reason() != null) {
             json.add("reason", GsonComponentSerializer.gson().serializeToTree(entry.reason()));
         }

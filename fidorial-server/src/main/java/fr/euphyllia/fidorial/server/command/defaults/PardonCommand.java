@@ -11,7 +11,6 @@ import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.moderation.BanService;
-import fr.fidorial.moderation.BanTarget;
 import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
@@ -30,7 +29,7 @@ public final class PardonCommand {
     public static LiteralCommandNode<CommandSource> create() {
         final ArgumentType<PlayerProfileListResolver> playerArgument =
                 ArgumentTypes.playerProfiles(player ->
-                        server.banService().isBanned(new BanTarget.Profile(player.uuid())));
+                        server.banService().isBanned(player.uuid()));
 
         return literal("pardon")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
@@ -51,7 +50,7 @@ public final class PardonCommand {
         for (final PlayerProfile target : targets) {
             final Component name = Component.text(target.name());
 
-            if (!bans.pardon(new BanTarget.Profile(target.uuid()))) {
+            if (!bans.pardon(target.uuid())) {
                 source.sender().sendMessage(Component.translatable("commands.pardon.failed", name));
                 continue;
             }
