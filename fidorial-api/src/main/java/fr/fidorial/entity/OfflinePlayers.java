@@ -112,6 +112,30 @@ public interface OfflinePlayers {
     void setOperator(UUID uuid, boolean operator);
 
     /**
+     * Checks whether an identity is banned.
+     *
+     * <p>Only the identity is considered: an identity connecting from a banned address is not
+     * banned as far as this is concerned.</p>
+     *
+     * @param uuid the player identity
+     * @return {@code true} if that identity is banned
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    boolean isBanned(UUID uuid);
+
+    /**
+     * Checks whether an identity is on the whitelist, regardless of whether the whitelist is being
+     * enforced.
+     *
+     * @param uuid the player identity
+     * @return {@code true} if that identity is listed
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    boolean isWhitelisted(UUID uuid);
+
+    /**
      * Reads the saved state of an identity, or its current state when it is connected.
      *
      * @param uuid the player identity
