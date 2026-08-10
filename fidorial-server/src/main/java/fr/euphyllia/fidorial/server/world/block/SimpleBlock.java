@@ -17,16 +17,16 @@ public final class SimpleBlock implements BlockBehaviour {
         this.emission = emission;
     }
 
-    public static SimpleBlock opaque(final String key, final int stateId) {
-        return new SimpleBlock(Key.key(key), stateId, 15, 0);
+    public static SimpleBlock opaque(final Key key, final int stateId) {
+        return new SimpleBlock(key, stateId, 15, 0);
     }
 
-    public static SimpleBlock transparent(final String key, final int stateId) {
-        return new SimpleBlock(Key.key(key), stateId, 0, 0);
+    public static SimpleBlock transparent(final Key key, final int stateId) {
+        return new SimpleBlock(key, stateId, 0, 0);
     }
 
-    public static SimpleBlock of(final String key, final int stateId, final int opacity, final int emission) {
-        return new SimpleBlock(Key.key(key), stateId, opacity, emission);
+    public static SimpleBlock of(final Key key, final int stateId, final int opacity, final int emission) {
+        return new SimpleBlock(key, stateId, opacity, emission);
     }
 
     @Override

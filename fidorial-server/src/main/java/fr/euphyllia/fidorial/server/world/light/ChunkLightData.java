@@ -3,6 +3,8 @@ package fr.euphyllia.fidorial.server.world.light;
 import fr.fidorial.world.light.LightType;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Arrays;
+
 public class ChunkLightData {
     public static final int SECTION_BYTES = 2048;
 
@@ -13,20 +15,16 @@ public class ChunkLightData {
     private final byte[] @Nullable [] blockLight;
     private final byte[] @Nullable [] skyLight;
 
+    private final int[] heightmap;
+
     public ChunkLightData(final int minY, final int height) {
         this.minY = minY;
         this.minSectionY = minY >> 4;
         this.sectionCount = height >> 4;
         this.blockLight = new byte[sectionCount][];
         this.skyLight = new byte[sectionCount][];
-    }
-
-    public int sectionCount() {
-        return sectionCount;
-    }
-
-    public int minSectionY() {
-        return minSectionY;
+        this.heightmap = new int[256];
+        Arrays.fill(this.heightmap, minY - 1);
     }
 
     public int minY() {
@@ -43,6 +41,14 @@ public class ChunkLightData {
 
     private int sectionIndexForY(final int worldY) {
         return (worldY >> 4) - minSectionY;
+    }
+
+    public int topOpaqueY(final int localX, final int localZ) {
+        return heightmap[(localZ & 15) << 4 | (localX & 15)];
+    }
+
+    public void setTopOpaqueY(final int localX, final int localZ, final int y) {
+        heightmap[(localZ & 15) << 4 | (localX & 15)] = y;
     }
 
     public int get(final LightType type, final int localX, final int worldY, final int localZ) {
@@ -98,5 +104,6 @@ public class ChunkLightData {
             blockLight[i] = null;
             skyLight[i] = null;
         }
+        Arrays.fill(heightmap, minY - 1);
     }
 }

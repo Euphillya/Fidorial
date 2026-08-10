@@ -355,6 +355,7 @@ public final class ServerWorld implements World {
     }
 
     public void saveDirty() throws IOException {
+        awaitLightFlush();
         for (final Long k : Set.copyOf(dirty)) {
             final ChunkColumn chunk = loaded.get(k);
             if (chunk != null) {
@@ -366,6 +367,7 @@ public final class ServerWorld implements World {
     }
 
     public void saveAll() throws IOException {
+        awaitLightFlush();
         for (final ChunkColumn chunk : loaded.values()) {
             storage.save(dimension, chunk);
         }
@@ -394,6 +396,7 @@ public final class ServerWorld implements World {
         if (loaded.isEmpty()) {
             return 0;
         }
+        awaitLightFlush();
         final Set<Long> wanted = new HashSet<>();
         for (final ChunkViewSource viewer : viewers) {
             viewer.collectViewedChunks(wanted::add);
@@ -420,6 +423,7 @@ public final class ServerWorld implements World {
     }
 
     public void unloadChunk(final int chunkX, final int chunkZ) throws IOException {
+        awaitLightFlush();
         final long k = ChunkPos.chunkKey(chunkX, chunkZ);
         if (dirty.remove(k)) {
             final ChunkColumn chunk = loaded.get(k);
@@ -487,6 +491,17 @@ public final class ServerWorld implements World {
 
     public void setLightDispatcher(final LightUpdateDispatcher dispatcher) {
         this.lightDispatcher = dispatcher;
+    }
+
+    private void awaitLightFlush() {
+        final LightUpdateDispatcher dispatcher = lightDispatcher;
+        if (dispatcher != null) {
+            dispatcher.flush(dimension.id()).join();
+        }
+    }
+
+    public Set<Long> checkBlockLight(final int x, final int y, final int z) {
+        return lightManager.checkBlock(x, y, z);
     }
 
     public Set<Long> relightChunks(final Set<Long> chunkKeys) {

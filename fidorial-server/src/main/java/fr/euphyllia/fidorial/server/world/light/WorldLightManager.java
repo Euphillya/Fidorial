@@ -13,8 +13,12 @@ public class WorldLightManager {
     private final LightEngine engine;
 
     public WorldLightManager(final int minY, final int height, final LightAccess access) {
+        this(access, new FloodFillLightEngine(minY, height));
+    }
+
+    public WorldLightManager(final LightAccess access, final LightEngine engine) {
         this.access = access;
-        this.engine = new LightEngine(minY, height);
+        this.engine = engine;
     }
 
     public synchronized boolean lightChunkIfNeeded(final ChunkColumn column, final int chunkX, final int chunkZ) {
@@ -27,6 +31,10 @@ public class WorldLightManager {
         engine.relight(Set.of(ChunkPos.chunkKey(chunkX, chunkZ)), access);
         column.setLightPopulated(true);
         return true;
+    }
+
+    public synchronized Set<Long> checkBlock(final int x, final int y, final int z) {
+        return engine.checkBlock(x, y, z, access);
     }
 
     public synchronized Set<Long> relightChunks(final Set<Long> chunkKeys) {
