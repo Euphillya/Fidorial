@@ -568,5 +568,15 @@ public final class ServerWorld implements World {
             final ChunkColumn column = loadedColumn(chunkX, chunkZ);
             return column == null ? (minY >> 4) - 1 : column.topNonEmptySectionY();
         }
+
+        @Override
+        public @Nullable BlockColumnAccess columnAt(final int chunkX, final int chunkZ) {
+            final ChunkColumn column = loadedColumn(chunkX, chunkZ);
+            if (column == null) return null;
+            return (localX, worldY, localZ) ->
+                    (worldY < minY || worldY >= minY + height)
+                            ? BlockState.AIR
+                            : column.getBlock(localX, worldY, localZ);
+        }
     }
 }

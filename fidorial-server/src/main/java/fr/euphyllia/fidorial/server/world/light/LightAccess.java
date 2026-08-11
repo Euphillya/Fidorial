@@ -18,4 +18,10 @@ public interface LightAccess {
     @Nullable ChunkLightData lightAt(int chunkX, int chunkZ);
 
     int topNonEmptySectionY(int chunkX, int chunkZ);
+
+    @Nullable BlockColumnAccess columnAt(int chunkX, int chunkZ);
+
+    interface BlockColumnAccess {
+        BlockState blockAt(int localX, int worldY, int localZ);
+    }
 }

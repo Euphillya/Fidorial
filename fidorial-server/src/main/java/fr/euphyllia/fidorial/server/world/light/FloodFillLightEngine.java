@@ -287,7 +287,8 @@ public class FloodFillLightEngine implements LightEngine {
             final int chunkX = (int) (key >> 32);
             final int chunkZ = (int) key;
             final ChunkLightData data = access.lightAt(chunkX, chunkZ);
-            if (data == null) continue;
+            final LightAccess.BlockColumnAccess col = access.columnAt(chunkX, chunkZ);
+            if (data == null || col == null) continue;
 
             final int baseX = chunkX << 4;
             final int baseZ = chunkZ << 4;
@@ -305,7 +306,7 @@ public class FloodFillLightEngine implements LightEngine {
                     int topOpaque = minY - 1;
 
                     for (int y = scanStart; y >= minY; y--) {
-                        final BlockState block = access.blockAt(worldX, y, worldZ);
+                        final BlockState block = col.blockAt(lx, y, lz);
                         if (BlockLightProperties.occludes(block)) {
                             topOpaque = y;
                             break;
@@ -335,7 +336,8 @@ public class FloodFillLightEngine implements LightEngine {
             final int chunkX = (int) (key >> 32);
             final int chunkZ = (int) key;
             final ChunkLightData data = access.lightAt(chunkX, chunkZ);
-            if (data == null) continue;
+            final LightAccess.BlockColumnAccess col = access.columnAt(chunkX, chunkZ);
+            if (data == null || col == null) continue;
 
             final int baseX = chunkX << 4;
             final int baseZ = chunkZ << 4;
@@ -345,7 +347,7 @@ public class FloodFillLightEngine implements LightEngine {
             for (int lx = 0; lx < 16; lx++) {
                 for (int lz = 0; lz < 16; lz++) {
                     for (int y = minY; y <= scanTop; y++) {
-                        final BlockState block = access.blockAt(baseX + lx, y, baseZ + lz);
+                        final BlockState block = col.blockAt(lx, y, lz);
                         final int emission = BlockLightProperties.emission(block);
                         if (emission > 0) {
                             final int worldX = baseX + lx;
