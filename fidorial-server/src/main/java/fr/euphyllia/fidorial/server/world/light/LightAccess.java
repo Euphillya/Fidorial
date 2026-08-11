@@ -21,6 +21,8 @@ public interface LightAccess {
 
     @Nullable BlockColumnAccess columnAt(int chunkX, int chunkZ);
 
+    boolean isLightPopulated(int chunkX, int chunkZ);
+
     interface BlockColumnAccess {
         BlockState blockAt(int localX, int worldY, int localZ);
     }

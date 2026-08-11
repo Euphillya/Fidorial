@@ -115,9 +115,7 @@ public class FloodFillLightEngine implements LightEngine {
         checkBlockForType(LightType.SKY, x, y, z, access, dirtyChunks);
     }
 
-    private void checkBlockForType(
-            final LightType type, final int x, final int y, final int z,
-            final LightAccess access, final LongSet dirtyChunks) {
+    private void checkBlockForType(final LightType type, final int x, final int y, final int z, final LightAccess access, final LongSet dirtyChunks) {
         final ChunkLightData data = access.lightAt(x >> 4, z >> 4);
         if (data == null) {
             return;
@@ -135,7 +133,8 @@ public class FloodFillLightEngine implements LightEngine {
 
         propagateDecrease(access, type, decrease, increase, dirtyChunks);
 
-        final int newSourceLevel = sourceLevel(type, x, y, z, access);
+        final BlockState centerState = access.blockAt(x, y, z);
+        final int newSourceLevel = sourceLevel(type, x, y, z, centerState, access);
         if (newSourceLevel > 0) {
             data.set(type, x, y, z, newSourceLevel);
             dirtyChunks.add(ChunkPos.chunkKey(x >> 4, z >> 4));
@@ -162,12 +161,60 @@ public class FloodFillLightEngine implements LightEngine {
         propagateIncrease(access, type, increase, dirtyChunks);
     }
 
-    private int sourceLevel(final LightType type, final int x, final int y, final int z, final LightAccess access) {
-        if (type == LightType.BLOCK) {
-            return BlockLightProperties.emission(access.blockAt(x, y, z));
+    @Override
+    public LongSet checkChunkEdge(final int chunkX, final int chunkZ, final int neighborChunkX, final int neighborChunkZ, final LightAccess access) {
+        final LongSet dirtyChunks = new LongOpenHashSet();
+
+        if (!access.isLightPopulated(chunkX, chunkZ) || !access.isLightPopulated(neighborChunkX, neighborChunkZ)) {
+            return dirtyChunks;
         }
 
-        if (BlockLightProperties.occludes(access.blockAt(x, y, z))) {
+        final int dx = neighborChunkX - chunkX;
+        final int dz = neighborChunkZ - chunkZ;
+        final boolean xDirection = dx != 0;
+
+        final int fixedThisLocal = xDirection ? (dx > 0 ? 15 : 0) : (dz > 0 ? 15 : 0);
+        final int fixedNeighborLocal = xDirection ? (dx > 0 ? 0 : 15) : (dz > 0 ? 0 : 15);
+
+        final int baseThisX = chunkX << 4, baseThisZ = chunkZ << 4;
+        final int baseNeighborX = neighborChunkX << 4, baseNeighborZ = neighborChunkZ << 4;
+
+        final ChunkLightData thisData = access.lightAt(chunkX, chunkZ);
+        final ChunkLightData neighborData = access.lightAt(neighborChunkX, neighborChunkZ);
+        if (thisData == null || neighborData == null) {
+            return dirtyChunks;
+        }
+
+        for (int i = 0; i < 16; i++) {
+            final int thisX = xDirection ? baseThisX + fixedThisLocal : baseThisX + i;
+            final int thisZ = xDirection ? baseThisZ + i : baseThisZ + fixedThisLocal;
+            final int neighborX = xDirection ? baseNeighborX + fixedNeighborLocal : baseNeighborX + i;
+            final int neighborZ = xDirection ? baseNeighborZ + i : baseNeighborZ + fixedNeighborLocal;
+
+            for (int y = minY; y < maxY; y++) {
+                checkEdgePosition(LightType.BLOCK, thisX, y, thisZ, thisData, access, dirtyChunks);
+                checkEdgePosition(LightType.BLOCK, neighborX, y, neighborZ, neighborData, access, dirtyChunks);
+                checkEdgePosition(LightType.SKY, thisX, y, thisZ, thisData, access, dirtyChunks);
+                checkEdgePosition(LightType.SKY, neighborX, y, neighborZ, neighborData, access, dirtyChunks);
+            }
+        }
+
+        return dirtyChunks;
+    }
+
+    private void checkEdgePosition(final LightType type, final int x, final int y, final int z, final ChunkLightData data, final LightAccess access, final LongSet dirtyChunks) {
+        final int current = data.get(type, x, y, z);
+        if (calculateLightValue(type, x, y, z, current, access) != current) {
+            checkBlockForType(type, x, y, z, access, dirtyChunks);
+        }
+    }
+
+    private int sourceLevel(final LightType type, final int x, final int y, final int z, final BlockState centerState, final LightAccess access) {
+        if (type == LightType.BLOCK) {
+            return BlockLightProperties.emission(centerState);
+        }
+
+        if (BlockLightProperties.occludes(centerState)) {
             return 0;
         }
 
@@ -470,6 +517,60 @@ public class FloodFillLightEngine implements LightEngine {
             return opacity;
         }
         return Math.max(1, opacity);
+    }
+
+    private int calculateLightValue(
+            final LightType type, final int x, final int y, final int z,
+            final int expect, final LightAccess access) {
+
+        final BlockState centerState = access.blockAt(x, y, z);
+
+        int level = sourceLevel(type, x, y, z, centerState, access);
+        if (level > expect) {
+            return level;
+        }
+
+        if (BlockLightProperties.occludes(centerState)) {
+            return level;
+        }
+
+        long cachedChunkKey = Long.MIN_VALUE;
+        ChunkLightData cachedData = null;
+
+        for (int dir = 0; dir < 6; dir++) {
+            final int nx = x + DX[dir];
+            final int ny = y + DY[dir];
+            final int nz = z + DZ[dir];
+            if (ny < minY || ny >= maxY) {
+                continue;
+            }
+
+            final long chunkKey = ChunkPos.chunkKey(nx >> 4, nz >> 4);
+            if (chunkKey != cachedChunkKey) {
+                cachedChunkKey = chunkKey;
+                cachedData = access.lightAt(nx >> 4, nz >> 4);
+            }
+            final ChunkLightData nd = cachedData;
+            if (nd == null) {
+                continue;
+            }
+
+            final int neighbourLevel = nd.get(type, nx, ny, nz);
+            if (neighbourLevel - 1 <= level) {
+                continue;
+            }
+
+            final int decrement = lightDecrement(type, dir ^ 1, centerState);
+            final int calculated = neighbourLevel - decrement;
+            if (calculated > level) {
+                level = calculated;
+                if (level > expect) {
+                    return level;
+                }
+            }
+        }
+
+        return level;
     }
 
     private static final class LongQueue {

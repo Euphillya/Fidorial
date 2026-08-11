@@ -520,9 +520,35 @@ public final class ServerWorld implements World {
     }
 
     public Set<Long> relightChunks(final Set<Long> chunkKeys) {
-        final Set<Long> loaded = lightManager.relightChunks(chunkKeys);
-        dirty.addAll(loaded);
-        return loaded;
+        final LongSet needsFullRelight = new LongOpenHashSet();
+        final LongSet needsEdgeCheck = new LongOpenHashSet();
+
+        for (final long key : chunkKeys) {
+            final ChunkColumn column = loadedColumn((int) (key >> 32), (int) key);
+            if (column == null) {
+                continue;
+            }
+            (column.lightPopulated() ? needsEdgeCheck : needsFullRelight).add(key);
+        }
+
+        final LongSet dirty = new LongOpenHashSet();
+
+        if (!needsFullRelight.isEmpty()) {
+            dirty.addAll(lightManager.relightChunks(needsFullRelight));
+            for (final long key : needsFullRelight) {
+                final ChunkColumn column = loadedColumn((int) (key >> 32), (int) key);
+                if (column != null) {
+                    column.setLightPopulated(true);
+                }
+            }
+        }
+
+        if (!needsEdgeCheck.isEmpty()) {
+            dirty.addAll(lightManager.checkChunkEdges(needsEdgeCheck));
+        }
+
+        this.dirty.addAll(dirty);
+        return dirty;
     }
 
     public int blockLightAt(final int x, final int y, final int z) {
@@ -577,6 +603,13 @@ public final class ServerWorld implements World {
                     (worldY < minY || worldY >= minY + height)
                             ? BlockState.AIR
                             : column.getBlock(localX, worldY, localZ);
+        }
+
+        @Override
+        public boolean isLightPopulated(int chunkX, int chunkZ) {
+            final ChunkColumn column = loadedColumn(chunkX, chunkZ);
+            if (column == null) return false;
+            return column.lightPopulated();
         }
     }
 }
