@@ -141,7 +141,12 @@ public class LightUpdateDispatcher {
         } finally {
             scheduledChunks.remove(world);
             if (batch != null && !batch.isEmpty()) {
-                decrement(world, batch.stream().mapToLong(Long::longValue).toArray());
+                final long[] keys = new long[batch.size()];
+                int i = 0;
+                for (final long key : batch) {
+                    keys[i++] = key;
+                }
+                decrement(world, keys);
             }
         }
         final Set<Long> stragglers = pendingChunks.get(world);
