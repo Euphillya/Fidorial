@@ -11,7 +11,7 @@ import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.command.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import fr.fidorial.entity.Player;
 import fr.fidorial.moderation.BanEntry;
-import fr.fidorial.moderation.BanService;
+import fr.fidorial.moderation.BanManager;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
@@ -64,7 +64,7 @@ public final class BanIpCommand {
     ) throws CommandSyntaxException {
 
         final CommandSource source = context.getSource();
-        final BanService bans = server.banService();
+        final BanManager bans = server.ban();
 
         final List<Player> targets =
                 context.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(source);
@@ -107,7 +107,7 @@ public final class BanIpCommand {
 
         for (final ServerPlayer player : server.players()) {
             if (player.address().equals(entry.address())) {
-                player.kick(server.banService().disconnectMessage(entry));
+                player.kick(server.ban().disconnectMessage(entry));
                 kicked++;
             }
         }

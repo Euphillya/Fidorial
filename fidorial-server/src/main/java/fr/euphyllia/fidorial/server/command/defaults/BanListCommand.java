@@ -6,11 +6,12 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.moderation.BanEntry;
-import fr.fidorial.moderation.BanService;
+import fr.fidorial.moderation.BanManager;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static fr.fidorial.command.Commands.literal;
@@ -25,21 +26,20 @@ public final class BanListCommand {
     public static LiteralCommandNode<CommandSource> create() {
         return literal("banlist")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
-                .executes(context -> list(context, null))
-                .then(literal("players").executes(context -> list(context, BanEntry.Profile.class)))
-                .then(literal("ips").executes(context -> list(context, BanEntry.Address.class)))
+                .executes(context -> list(context, BanManager::bans))
+                .then(literal("players").executes(context -> list(context, BanManager::profileBans)))
+                .then(literal("ips").executes(context -> list(context, BanManager::ipBans)))
                 .build();
     }
 
     private static int list(
             final CommandContext<CommandSource> context,
-            @Nullable final Class<? extends BanEntry> kind
+            final Function<BanManager, Stream<? extends BanEntry>> selector
     ) {
         final CommandSender sender = context.getSource().sender();
-        final BanService bans = context.getSource().server().banService();
+        final BanManager bans = context.getSource().server().ban();
 
-        final Stream<? extends BanEntry> stream = kind == null ? bans.bans() : bans.bans(kind);
-        final List<? extends BanEntry> entries = stream.toList();
+        final List<? extends BanEntry> entries = selector.apply(bans).toList();
 
 
         if (entries.isEmpty()) {

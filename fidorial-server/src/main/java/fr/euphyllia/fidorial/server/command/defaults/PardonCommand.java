@@ -10,7 +10,7 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.entity.PlayerProfile;
-import fr.fidorial.moderation.BanService;
+import fr.fidorial.moderation.BanManager;
 import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
@@ -29,7 +29,7 @@ public final class PardonCommand {
     public static LiteralCommandNode<CommandSource> create() {
         final ArgumentType<PlayerProfileListResolver> playerArgument =
                 ArgumentTypes.playerProfiles(player ->
-                        server.banService().isBanned(player.uuid()));
+                        server.ban().isBanned(player.uuid()));
 
         return literal("pardon")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
@@ -40,7 +40,7 @@ public final class PardonCommand {
 
     private static int pardon(final CommandContext<CommandSource> context) throws CommandSyntaxException {
         final CommandSource source = context.getSource();
-        final BanService bans = server.banService();
+        final BanManager bans = server.ban();
 
         final Collection<PlayerProfile> targets =
                 context.getArgument("player", PlayerProfileListResolver.class).resolve(source);

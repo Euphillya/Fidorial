@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  *
  * @since 0.1.0
  */
-public interface BanService {
+public interface BanManager {
 
     /**
      * Gets the active ban on a player identity.
@@ -133,16 +133,25 @@ public interface BanService {
     Stream<BanEntry> bans();
 
     /**
-     * Gets the active bans of the given kind.
+     * Gets the active bans issued against a player identity.
      *
-     * @param kind the entry type to keep, such as {@link BanEntry.Address}
-     * @param <E>  the entry type
      * @return the bans, most recently issued first; expired entries are excluded
      * @since 0.1.0
      */
     @Contract(pure = true)
-    default <E extends BanEntry> Stream<E> bans(final Class<E> kind) {
-        return bans().filter(kind::isInstance).map(kind::cast);
+    default Stream<BanEntry.Profile> profileBans() {
+        return bans().filter(BanEntry.Profile.class::isInstance).map(BanEntry.Profile.class::cast);
+    }
+
+    /**
+     * Gets the active bans issued against a client address.
+     *
+     * @return the bans, most recently issued first; expired entries are excluded
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    default Stream<BanEntry.Address> ipBans() {
+        return bans().filter(BanEntry.Address.class::isInstance).map(BanEntry.Address.class::cast);
     }
 
     /**

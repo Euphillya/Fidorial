@@ -23,8 +23,8 @@ import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStor
 import fr.euphyllia.fidorial.server.events.SimpleEventBus;
 import fr.euphyllia.fidorial.server.inventory.ChestViewerTracker;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
-import fr.euphyllia.fidorial.server.moderation.BanList;
-import fr.euphyllia.fidorial.server.moderation.Whitelist;
+import fr.euphyllia.fidorial.server.moderation.FidorialBanManager;
+import fr.euphyllia.fidorial.server.moderation.FidorialWhitelist;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.NettyServer;
 import fr.euphyllia.fidorial.server.network.protocol.ProtocolConstants;
@@ -67,6 +67,8 @@ import fr.fidorial.entity.Player;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.event.server.ServerStartedEvent;
 import fr.fidorial.event.server.ServerStoppingEvent;
+import fr.fidorial.moderation.BanManager;
+import fr.fidorial.moderation.WhitelistManager;
 import fr.fidorial.permission.PermissionRegistry;
 import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.scheduler.RegionizedScheduler;
@@ -174,8 +176,8 @@ public final class FidorialServer implements Server {
     private final JavaPluginManager pluginManager =
             new JavaPluginManager(this, events, services, permissionRegistry, config.pluginsPath());
     private final OperatorList operators = new OperatorList(Path.of("ops.json"));
-    private final BanList banList = new BanList(Path.of("banned-players.json"), Path.of("banned-ips.json"));
-    private final Whitelist whitelist = new Whitelist(Path.of("whitelist.json"));
+    private final FidorialBanManager fidorialBanManager = new FidorialBanManager(Path.of("banned-players.json"), Path.of("banned-ips.json"));
+    private final FidorialWhitelist fidorialWhitelist = new FidorialWhitelist(Path.of("whitelist.json"));
     private final FidorialOfflinePlayers offlinePlayers = new FidorialOfflinePlayers(
             this,
             config.worldPath().resolve("player").resolve("profiles.fop"),
@@ -291,8 +293,8 @@ public final class FidorialServer implements Server {
     private void loadData() {
         TranslationStore.setStore(builtInTranslationStore);
         operators.load();
-        banList.load();
-        whitelist.load();
+        fidorialBanManager.load();
+        fidorialWhitelist.load();
         try {
             offlinePlayers.load();
         } catch (final IOException e) {
@@ -344,8 +346,8 @@ public final class FidorialServer implements Server {
         services.register(PlayerEnderChestStorage.class, defaultEnderChestStorage, this, ServicePriority.LOWEST);
         services.register(BossBarRegistry.class, bossBarRegistry, this, ServicePriority.LOWEST);
         services.register(OfflinePlayers.class, offlinePlayers, this, ServicePriority.LOWEST);
-        services.register(BanList.class, banList, this, ServicePriority.LOWEST);
-        services.register(Whitelist.class, whitelist, this, ServicePriority.LOWEST);
+        services.register(BanManager.class, fidorialBanManager, this, ServicePriority.LOWEST);
+        services.register(WhitelistManager.class, fidorialWhitelist, this, ServicePriority.LOWEST);
     }
 
     private void loadPlugins() throws IOException {
@@ -359,7 +361,7 @@ public final class FidorialServer implements Server {
                     try {
                         worldManager.saveDirty();
                         offlinePlayers.maintain();
-                        banList.purgeExpired();
+                        fidorialBanManager.purgeExpired();
                         final int n = worldManager.unloadUnusedChunks();
                         if (n > 0) LOGGER.debug("{} unloaded chunks", n);
                     } catch (final Throwable t) {
@@ -459,13 +461,13 @@ public final class FidorialServer implements Server {
     }
 
     @Override
-    public BanList banService() {
-        return banList;
+    public BanManager ban() {
+        return fidorialBanManager;
     }
 
     @Override
-    public Whitelist whitelist() {
-        return whitelist;
+    public WhitelistManager whitelist() {
+        return fidorialWhitelist;
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import fr.fidorial.moderation.BanEntry;
-import fr.fidorial.moderation.BanService;
+import fr.fidorial.moderation.BanManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -32,9 +32,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public final class BanList implements BanService {
+public final class FidorialBanManager implements BanManager {
 
-    private static final ComponentLogger LOGGER = ComponentLogger.logger(BanList.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(FidorialBanManager.class);
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -43,7 +43,7 @@ public final class BanList implements BanService {
     private final Map<UUID, BanEntry.Profile> profiles = new ConcurrentHashMap<>();
     private final Map<InetAddress, BanEntry.Address> addresses = new ConcurrentHashMap<>();
 
-    public BanList(final Path profileFile, final Path addressFile) {
+    public FidorialBanManager(final Path profileFile, final Path addressFile) {
         this.profileFile = Objects.requireNonNull(profileFile, "profileFile");
         this.addressFile = Objects.requireNonNull(addressFile, "addressFile");
     }
@@ -52,15 +52,15 @@ public final class BanList implements BanService {
         profiles.clear();
         addresses.clear();
 
-        read(profileFile, BanList::readProfile, entry -> profiles.put(entry.uuid(), entry));
-        read(addressFile, BanList::readAddress, entry -> addresses.put(entry.address(), entry));
+        read(profileFile, FidorialBanManager::readProfile, entry -> profiles.put(entry.uuid(), entry));
+        read(addressFile, FidorialBanManager::readAddress, entry -> addresses.put(entry.address(), entry));
 
         LOGGER.debug("There are currently {} active ban(s)", profiles.size() + addresses.size());
     }
 
     public synchronized void save() {
-        write(profileFile, profiles.values(), BanList::writeProfile);
-        write(addressFile, addresses.values(), BanList::writeAddress);
+        write(profileFile, profiles.values(), FidorialBanManager::writeProfile);
+        write(addressFile, addresses.values(), FidorialBanManager::writeAddress);
     }
 
     public int purgeExpired() {

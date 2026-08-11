@@ -213,8 +213,8 @@ public final class LoginPacketHandler implements LoginPacketListener {
     }
 
     private Optional<Component> loginRefusal(final PlayerProfile profile, @Nullable final InetAddress address) {
-        return server.banService().findAny(profile.uuid(), address)
-                .map(server.banService()::disconnectMessage)
+        return server.ban().findAny(profile.uuid(), address)
+                .map(server.ban()::disconnectMessage)
                 .or(() -> server.whitelist().allows(profile.uuid())
                         ? Optional.empty()
                         : Optional.of(Component.translatable("multiplayer.disconnect.not_whitelisted")));

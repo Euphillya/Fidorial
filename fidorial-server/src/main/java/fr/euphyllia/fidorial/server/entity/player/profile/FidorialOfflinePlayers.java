@@ -268,7 +268,7 @@ public final class FidorialOfflinePlayers implements OfflinePlayers, Closeable {
 
     @Override
     public boolean isBanned(final UUID uuid) {
-        return server.banService().isBanned(uuid);
+        return server.ban().isBanned(uuid);
     }
 
     @Override

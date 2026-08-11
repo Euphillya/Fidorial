@@ -12,7 +12,7 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.entity.PlayerProfile;
-import fr.fidorial.moderation.WhitelistService;
+import fr.fidorial.moderation.WhitelistManager;
 import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
@@ -53,7 +53,7 @@ public final class WhitelistCommand {
 
     private static int enforce(final CommandContext<CommandSource> context, final boolean enabled) {
         final CommandSender sender = context.getSource().sender();
-        final WhitelistService whitelist = server.whitelist();
+        final WhitelistManager whitelist = server.whitelist();
 
         if (!whitelist.enabled(enabled)) {
             sender.sendMessage(Component.translatable(
@@ -72,7 +72,7 @@ public final class WhitelistCommand {
     private static int add(final CommandContext<CommandSource> context) throws CommandSyntaxException {
         final CommandSource source = context.getSource();
         final CommandSender sender = source.sender();
-        final WhitelistService whitelist = server.whitelist();
+        final WhitelistManager whitelist = server.whitelist();
 
         final Collection<PlayerProfile> targets =
                 context.getArgument("player", PlayerProfileListResolver.class).resolve(source);
@@ -97,7 +97,7 @@ public final class WhitelistCommand {
     private static int remove(final CommandContext<CommandSource> context) throws CommandSyntaxException {
         final CommandSource source = context.getSource();
         final CommandSender sender = source.sender();
-        final WhitelistService whitelist = server.whitelist();
+        final WhitelistManager whitelist = server.whitelist();
 
         final Collection<PlayerProfile> targets =
                 context.getArgument("player", PlayerProfileListResolver.class).resolve(source);
@@ -125,7 +125,7 @@ public final class WhitelistCommand {
 
     private static int list(final CommandContext<CommandSource> context) {
         final CommandSender sender = context.getSource().sender();
-        final WhitelistService whitelist = server.whitelist();
+        final WhitelistManager whitelist = server.whitelist();
 
         final List<PlayerProfile> entries = whitelist.entries().toList();
 

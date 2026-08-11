@@ -3,7 +3,7 @@ package fr.euphyllia.fidorial.server.moderation;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import fr.fidorial.entity.PlayerProfile;
-import fr.fidorial.moderation.WhitelistService;
+import fr.fidorial.moderation.WhitelistManager;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
@@ -23,16 +23,16 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-public final class Whitelist implements WhitelistService {
+public final class FidorialWhitelist implements WhitelistManager {
 
-    private static final ComponentLogger LOGGER = ComponentLogger.logger(Whitelist.class);
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(FidorialWhitelist.class);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private final Path file;
     private final Map<UUID, PlayerProfile> entries = new ConcurrentHashMap<>();
     private volatile boolean enabled;
 
-    public Whitelist(final Path file) {
+    public FidorialWhitelist(final Path file) {
         this.file = Objects.requireNonNull(file, "file");
     }
 

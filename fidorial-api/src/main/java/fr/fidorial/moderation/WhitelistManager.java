@@ -12,7 +12,12 @@ import java.util.stream.Stream;
  *
  * @since 0.1.0
  */
-public interface WhitelistService {
+public interface WhitelistManager {
+
+    /**
+     * Loads the whitelist.
+     */
+    void load();
 
     /**
      * Checks whether the whitelist is being enforced.

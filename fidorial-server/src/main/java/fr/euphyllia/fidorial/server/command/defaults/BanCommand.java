@@ -14,7 +14,7 @@ import fr.fidorial.entity.OfflinePlayer;
 import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.moderation.BanEntry;
-import fr.fidorial.moderation.BanService;
+import fr.fidorial.moderation.BanManager;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
@@ -36,7 +36,7 @@ public final class BanCommand {
     public static LiteralCommandNode<CommandSource> create() {
         final ArgumentType<PlayerProfileListResolver> playerArgument =
                 ArgumentTypes.playerProfiles(player ->
-                        !server.banService().isBanned(player.uuid()));
+                        !server.ban().isBanned(player.uuid()));
 
         return literal("ban")
                 .requires(source -> source.sender().hasPermission(PERMISSION))
@@ -68,7 +68,7 @@ public final class BanCommand {
     ) throws CommandSyntaxException {
 
         final CommandSource source = context.getSource();
-        final BanService bans = server.banService();
+        final BanManager bans = server.ban();
 
         final Collection<PlayerProfile> targets =
                 context.getArgument("player", PlayerProfileListResolver.class).resolve(source);
@@ -124,7 +124,7 @@ public final class BanCommand {
 
         for (final ServerPlayer player : server.players()) {
             if (player.uuid().equals(entry.uuid())) {
-                player.kick(server.banService().disconnectMessage(entry));
+                player.kick(server.ban().disconnectMessage(entry));
                 kicked++;
             }
         }
