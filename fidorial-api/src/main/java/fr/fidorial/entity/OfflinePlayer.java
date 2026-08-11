@@ -174,6 +174,30 @@ public final class OfflinePlayer {
     }
 
     /**
+     * Checks whether this identity is banned.
+     *
+     * <p>Only the identity is considered: a player connecting from a banned address is not banned
+     * as far as this is concerned. Ask the ban service directly when the address matters.</p>
+     *
+     * @return {@code true} if this identity is banned
+     * @since 0.1.0
+     */
+    public boolean isBanned() {
+        return registry.isBanned(uuid);
+    }
+
+    /**
+     * Checks whether this identity is on the whitelist, regardless of whether the whitelist is
+     * being enforced.
+     *
+     * @return {@code true} if this identity is listed
+     * @since 0.1.0
+     */
+    public boolean isWhitelisted() {
+        return registry.isWhitelisted(uuid);
+    }
+
+    /**
      * Reads the saved state of this identity.
      *
      * @return a future completing with the saved state, or with an empty result if none exists

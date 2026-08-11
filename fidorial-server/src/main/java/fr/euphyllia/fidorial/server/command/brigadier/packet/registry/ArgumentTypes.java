@@ -61,9 +61,8 @@ public final class ArgumentTypes {
         register(new ResourceArgument.Info<>(), ArgumentTypeIds.RESOURCE_ARGUMENT_ID);
         register(new ResourceKeyArgument.Info<>(), ArgumentTypeIds.RESOURCE_KEY_ARGUMENT_ID);
         register(new UuidArgument.Info(), ArgumentTypeIds.UUID_ARGUMENT_ID);
-        // start - custom arguments
-        ArgumentTypeRegistry.register(new ForcedSuggestionsArgumentType.Info());
-        // end - custom arguments
+
+        ArgumentTypeRegistry.register(new ForcedSuggestionsArgumentType.Info()); // custom arguments
     }
 
     private static <A extends ArgumentType<?>> void register(final ArgumentTypeRegistrar<A, ?> registrar, final int networkId) {

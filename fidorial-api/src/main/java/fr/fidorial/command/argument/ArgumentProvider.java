@@ -28,6 +28,7 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -221,6 +222,11 @@ public interface ArgumentProvider {
      * @since 0.1.0
      */
     ArgumentType<Integer> time(int minTicks);
+
+     /**
+     * @since 0.1.0
+     */
+    ArgumentType<Duration> duration();
 
     /**
      * @since 0.1.0

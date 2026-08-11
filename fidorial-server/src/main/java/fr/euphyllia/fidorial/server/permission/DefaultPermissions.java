@@ -34,6 +34,10 @@ public final class DefaultPermissions {
                 command("deop", "Remove operator status from a player."),
                 command("stop", "Stop the server."),
                 command("bossbar", "Create a bossbar."),
+                command("ban", "Ban a player, permanently or for a set time."),
+                command("pardon", "Lift the ban on a player."),
+                command("banlist", "List the banned players."),
+                command("whitelist", "Manage the whitelist."),
                 PermissionDefinition.operatorOnly(
                         "minecraft.command.selector", "Use entity selectors (@a, @p, @e, @s).")));
     }

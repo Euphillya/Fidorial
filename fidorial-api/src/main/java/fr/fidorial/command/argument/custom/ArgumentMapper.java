@@ -1,5 +1,6 @@
 package fr.fidorial.command.argument.custom;
 
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 /**
@@ -11,5 +12,5 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
  */
 @FunctionalInterface
 public interface ArgumentMapper<N, T> {
-    T map(N nativeValue) throws CommandSyntaxException;
+    T map(N nativeValue, StringReader reader) throws CommandSyntaxException;
 }

@@ -25,6 +25,7 @@ import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
 import javax.crypto.SecretKey;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -186,9 +187,13 @@ public final class LoginPacketHandler implements LoginPacketListener {
                 || server.config().proxyMode() == ServerConfig.ProxyMode.VELOCITY;
         final String address = connection.remoteAddress();
 
+        final PlayerLoginAttemptEvent attempt = new PlayerLoginAttemptEvent(playerProfile, address, authenticated);
+
+        loginRefusal(playerProfile, connection.remoteInetAddress()).ifPresent(attempt::refuse);
+
         final PlayerLoginAttemptEvent event;
         try {
-            event = server.events().post(new PlayerLoginAttemptEvent(playerProfile, address, authenticated));
+            event = server.events().post(attempt);
         } catch (final Throwable t) {
             LOGGER.error("Login attempt of {} failed, connection refused", playerProfile.name(), t);
             connection.execute(() -> disconnect(Component.translatable("multiplayer.disconnect.generic")));
@@ -205,6 +210,14 @@ public final class LoginPacketHandler implements LoginPacketListener {
             }
             completeLogin(profile, playerProfile);
         });
+    }
+
+    private Optional<Component> loginRefusal(final PlayerProfile profile, @Nullable final InetAddress address) {
+        return server.ban().findAny(profile.uuid(), address)
+                .map(server.ban()::disconnectMessage)
+                .or(() -> server.whitelist().allows(profile.uuid())
+                        ? Optional.empty()
+                        : Optional.of(Component.translatable("multiplayer.disconnect.not_whitelisted")));
     }
 
     private void completeLogin(final GameProfile profile, final PlayerProfile playerProfile) {

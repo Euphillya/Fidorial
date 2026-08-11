@@ -11,6 +11,7 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.object.ObjectContentsLike;
 
+import java.net.InetAddress;
 import java.util.UUID;
 
 public interface Player extends LivingEntity, PermissionHolder, CommandSource, CommandSender, Identified, BossBarViewer, ObjectContentsLike {
@@ -43,6 +44,16 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
     default String name() {
         return profile().name();
     }
+
+    /**
+     * Gets the address this player is connected from.
+     *
+     * @return the client address
+     * @throws IllegalStateException if the connection has no resolvable IP address
+     *
+     * @since 0.1.0
+     */
+    InetAddress address();
 
     void kick(Component reason);
 
