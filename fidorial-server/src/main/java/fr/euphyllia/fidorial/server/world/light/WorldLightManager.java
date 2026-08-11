@@ -23,9 +23,6 @@ public class WorldLightManager {
     }
 
     public synchronized boolean lightChunkIfNeeded(final ChunkColumn column, final int chunkX, final int chunkZ) {
-        if (column.lightPopulated()) {
-            return false;
-        }
         if (access.lightAt(chunkX, chunkZ) == null) {
             return false;
         }
