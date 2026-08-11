@@ -39,7 +39,7 @@ public final class FluidEngine implements FluidManager {
     private final Consumer<ClientboundPacket> broadcaster;
 
     private final Map<Key, Set<Long>> pending = new ConcurrentHashMap<>();
-    private volatile LightHook lightHook = (world, x, y, z) -> {};
+    private volatile LightHook lightHook = (_, _, _, _) -> {};
 
     public FluidEngine(
             final WorldManager worlds,

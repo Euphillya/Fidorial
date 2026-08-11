@@ -29,12 +29,6 @@ public final class ChunkNetworkSerializer {
         this.biomeNetworkId = biomeNetworkId;
     }
 
-    private static long[] bits(final int count) {
-        final long[] words = new long[(count + 63) / 64];
-        for (int i = 0; i < count; i++) words[i / 64] |= 1L << (i % 64);
-        return words;
-    }
-
     public void writeChunk(final PacketBuffer p, final ByteBufAllocator alloc, final ChunkColumn chunk) {
         p.writeInt(chunk.chunkX());
         p.writeInt(chunk.chunkZ());
@@ -104,7 +98,7 @@ public final class ChunkNetworkSerializer {
         final PalettedContainer<BlockState> blocks = section.blocks();
 
         sp.writeShort(section.nonAirCount());   // nonEmptyBlockCount
-        sp.writeShort(0);                        // fluidCount (0 pour plat)
+        sp.writeShort(section.fluidCount());    // fluidCount
 
         if (blocks.isSingleValue()) {
             final int stateId = blockRegistry.networkId(blocks.palette().getFirst());
@@ -138,25 +132,6 @@ public final class ChunkNetworkSerializer {
         sp.writeVarInt(biomeNetworkId);
     }
 
-    private void writeLight(final PacketBuffer p, final int sectionCount) {
-        final int lightSections = sectionCount + 2;
-        final long[] allSet = bits(lightSections);
-
-        p.writeBitSet(allSet);
-        p.writeBitSet(new long[0]);
-        p.writeBitSet(new long[0]);
-        p.writeBitSet(allSet);
-
-        final byte[] full = new byte[2048];
-        Arrays.fill(full, (byte) 0xFF);
-        p.writeVarInt(lightSections);
-        for (int i = 0; i < lightSections; i++) {
-            p.writeVarInt(2048);
-            p.writeRawBytes(full);
-        }
-        p.writeVarInt(0);
-    }
-
     public void writeLightData(final PacketBuffer p, final ChunkColumn chunk) {
         final int worldSections = chunk.sectionCount();
         final int lightSections = worldSections + 2;
@@ -174,26 +149,33 @@ public final class ChunkNetworkSerializer {
 
         for (int i = 0; i < lightSections; i++) {
             final byte[] sky;
+
             if (i == topIndex) {
                 sky = FULL_LIGHT;
             } else if (i == 0) {
                 sky = null;
             } else {
-                sky = light.sectionArray(LightType.SKY, i - 1);
+                sky = light.materializeSkySection(i - 1);
             }
-            if (sky != null) {
+
+            if (sky == null) {
+                // neither mask
+            } else if (isAllZero(sky)) {
+                setBit(emptySkyMask, i);
+            } else {
                 setBit(skyMask, i);
                 skyArrays.add(sky);
-            } else {
-                setBit(emptySkyMask, i);
             }
 
             final byte[] block = (i == 0 || i == topIndex) ? null : light.sectionArray(LightType.BLOCK, i - 1);
-            if (block != null) {
+
+            if (block == null) {
+                // neither mask
+            } else if (isAllZero(block)) {
+                setBit(emptyBlockMask, i);
+            } else {
                 setBit(blockMask, i);
                 blockArrays.add(block);
-            } else {
-                setBit(emptyBlockMask, i);
             }
         }
 
@@ -217,6 +199,11 @@ public final class ChunkNetworkSerializer {
 
     private static void setBit(final long[] words, final int bit) {
         words[bit >> 6] |= 1L << (bit & 63);
+    }
+
+    private static boolean isAllZero(final byte[] a) {
+        for (final byte b : a) if (b != 0) return false;
+        return true;
     }
 
     private static byte[] fullLight() {

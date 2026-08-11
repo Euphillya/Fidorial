@@ -55,6 +55,8 @@ public class AnvilChunkSerializer {
         }
         root.put("sections", sections);
 
+        root.putIntArray("LightHeightmap", light.heightmapSnapshot());
+
         final NbtCompound heightmaps = new NbtCompound();
         heightmaps.putLongArray("MOTION_BLOCKING", chunk.computeHeightmap(bs -> !bs.isAir()));
         heightmaps.putLongArray("WORLD_SURFACE", chunk.computeHeightmap(bs -> !bs.isAir()));
@@ -196,17 +198,34 @@ public class AnvilChunkSerializer {
         chunk.setInhabitedTime(root.getLong("InhabitedTime"));
         chunk.setLastUpdate(root.getLong("LastUpdate"));
 
+        final ChunkLightData light = chunk.lightData();
+        final int minSectionY = chunk.minSectionY();
+
         final NbtList sections = root.getList("sections");
         if (sections != null) {
             for (final Nbt tag : sections.items()) {
                 if (tag instanceof final NbtCompound sc) {
                     final ChunkSection section = sectionFromNbt(sc, defaultBlock, defaultBiome);
-                    if (section != null) chunk.putSection(section);
+                    if (section != null) {
+                        chunk.putSection(section);
+                        final int lightIndex = section.sectionY() - minSectionY;
+                        if (sc.contains("BlockLight")) {
+                            light.setSectionArray(LightType.BLOCK, lightIndex, sc.getByteArray("BlockLight"));
+                        }
+                        if (sc.contains("SkyLight")) {
+                            light.setSectionArray(LightType.SKY, lightIndex, sc.getByteArray("SkyLight"));
+                        }
+                    }
                 }
             }
         }
 
         blockEntitiesFromNbt(root, chunk);
+
+        if (root.contains("LightHeightmap")) {
+            light.restoreHeightmap(root.getIntArray("LightHeightmap"));
+            chunk.setLightPopulated(root.getBoolean("isLightOn"));
+        }
 
         return chunk;
     }

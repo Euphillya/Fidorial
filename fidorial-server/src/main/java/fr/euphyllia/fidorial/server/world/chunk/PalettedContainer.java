@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.StampedLock;
 
 public final class PalettedContainer<T> {
 
@@ -13,6 +14,10 @@ public final class PalettedContainer<T> {
     private final Map<T, Integer> lookup = new HashMap<>();
     private final int[] data;
     private final int minBits;
+
+    private final StampedLock lock = new StampedLock();
+
+    private volatile Object[] paletteArray;
 
     public PalettedContainer(final int size, final int minBits, final T fill) {
         this.data = new int[size];
@@ -39,31 +44,71 @@ public final class PalettedContainer<T> {
         final int next = palette.size();
         palette.add(value);
         lookup.put(value, next);
+        paletteArray = palette.toArray();
         return next;
     }
 
     public void set(final int index, final T value) {
-        data[index] = indexOf(value);
+        final long stamp = lock.writeLock();
+        try {
+            data[index] = indexOf(value);
+        } finally {
+            lock.unlockWrite(stamp);
+        }
     }
 
     public T get(final int index) {
-        return palette.get(data[index]);
+        final long stamp = lock.tryOptimisticRead();
+        final Object[] pal = paletteArray;
+        final int di = data[index];
+        if (stamp != 0L && lock.validate(stamp) && di >= 0 && di < pal.length) {
+            @SuppressWarnings("unchecked")
+            final T v = (T) pal[di];
+            return v;
+        }
+
+        final long rs = lock.readLock();
+        try {
+            return palette.get(data[index]);
+        } finally {
+            lock.unlockRead(rs);
+        }
     }
 
     public List<T> palette() {
-        return palette;
+        final long stamp = lock.readLock();
+        try {
+            return List.copyOf(palette);
+        } finally {
+            lock.unlockRead(stamp);
+        }
     }
 
     public boolean isSingleValue() {
-        return palette.size() == 1;
+        final long stamp = lock.readLock();
+        try {
+            return palette.size() == 1;
+        } finally {
+            lock.unlockRead(stamp);
+        }
     }
 
     public int bitsPerEntry() {
-        return BitPacking.bitsFor(palette.size(), minBits);
+        final long stamp = lock.readLock();
+        try {
+            return BitPacking.bitsFor(palette.size(), minBits);
+        } finally {
+            lock.unlockRead(stamp);
+        }
     }
 
     public long @Nullable [] packedData() {
-        if (isSingleValue()) return null;
-        return BitPacking.pack(data, bitsPerEntry());
+        final long stamp = lock.readLock();
+        try {
+            if (palette.size() == 1) return null;
+            return BitPacking.pack(data, BitPacking.bitsFor(palette.size(), minBits));
+        } finally {
+            lock.unlockRead(stamp);
+        }
     }
 }

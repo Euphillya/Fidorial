@@ -22,6 +22,8 @@ import fr.fidorial.world.Chunk;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.World;
 import fr.fidorial.world.entity.EntitySpawnBridge;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
@@ -183,17 +185,17 @@ public final class ServerWorld implements World {
 
     @Override
     public int blockLight(final BlockPos pos) {
-        return 0;
+        return blockLightAt(pos.x(), pos.y(), pos.z());
     }
 
     @Override
     public int skyLight(final BlockPos pos) {
-        return 0;
+        return skyLightAt(pos.x(), pos.y(), pos.z());
     }
 
     @Override
     public int lightLevel(final BlockPos pos) {
-        return 0;
+        return lightLevelAt(pos.x(), pos.y(), pos.z());
     }
 
     @Override
@@ -286,11 +288,11 @@ public final class ServerWorld implements World {
             final EntitySpawnBridge bridge = this.entityBridge;
             for (final AbstractEntity entity : restored) {
                 entities.add(entity);
+
                 if (bridge != null) {
                     bridge.onEntityAppear(entity);
                 }
             }
-            invalidateAudiences();
         } catch (final IOException e) {
             entitiesLoaded.remove(k);
             throw new UncheckedIOException("Unable to load entities for chunk " + chunkX + "," + chunkZ, e);
@@ -325,11 +327,15 @@ public final class ServerWorld implements World {
         final EntitySpawnBridge bridge = this.entityBridge;
         for (final AbstractEntity entity : persistableEntities(chunkX, chunkZ)) {
             entities.remove(entity);
+
+            if (entity instanceof ServerPlayer) {
+                invalidateAudiences();
+            }
+
             if (bridge != null) {
                 bridge.onEntityDisappear(entity);
             }
         }
-        invalidateAudiences();
     }
 
     public void markDirty(final int chunkX, final int chunkZ) {
@@ -355,7 +361,8 @@ public final class ServerWorld implements World {
     }
 
     public void saveDirty() throws IOException {
-        for (final Long k : Set.copyOf(dirty)) {
+        awaitLightFlush(dirty);
+        for (final long k : Set.copyOf(dirty)) {
             final ChunkColumn chunk = loaded.get(k);
             if (chunk != null) {
                 storage.save(dimension, chunk);
@@ -366,6 +373,7 @@ public final class ServerWorld implements World {
     }
 
     public void saveAll() throws IOException {
+        awaitLightFlush(loaded.keySet());
         for (final ChunkColumn chunk : loaded.values()) {
             storage.save(dimension, chunk);
         }
@@ -375,9 +383,9 @@ public final class ServerWorld implements World {
 
     // Todo : It will be very resource-intensive if there are many entities; this method will need to be modified.
     private void saveLoadedEntities() throws IOException {
-        for (final Long k : Set.copyOf(entitiesLoaded)) {
+        for (final long k : Set.copyOf(entitiesLoaded)) {
             final int cx = (int) (k >> 32);
-            final int cz = (int) (long) k;
+            final int cz = (int) k;
             saveChunkEntities(cx, cz);
         }
     }
@@ -394,20 +402,28 @@ public final class ServerWorld implements World {
         if (loaded.isEmpty()) {
             return 0;
         }
-        final Set<Long> wanted = new HashSet<>();
+        final LongSet wanted = new LongOpenHashSet();
         for (final ChunkViewSource viewer : viewers) {
             viewer.collectViewedChunks(wanted::add);
         }
 
-        int unloaded = 0;
-        for (final Long k : loaded.keySet()) {
-            if (wanted.contains(k) || dirty.contains(k)) {
-                continue;
+        final LongSet toUnload = new LongOpenHashSet();
+        for (final long k : loaded.keySet()) {
+            if (!wanted.contains(k) && !dirty.contains(k)) {
+                toUnload.add(k);
             }
+        }
+        if (toUnload.isEmpty()) {
+            return 0;
+        }
+        awaitLightFlush(toUnload);
+
+        int unloaded = 0;
+        for (final long k : toUnload) {
             if (loaded.remove(k) != null) {
                 unloaded++;
                 final int cx = (int) (k >> 32);
-                final int cz = (int) (long) k;
+                final int cz = (int) k;
                 try {
                     unloadChunkEntities(cx, cz);
                 } catch (final IOException exception) {
@@ -420,6 +436,7 @@ public final class ServerWorld implements World {
     }
 
     public void unloadChunk(final int chunkX, final int chunkZ) throws IOException {
+        awaitLightFlush(LongSet.of(ChunkPos.chunkKey(chunkX, chunkZ)));
         final long k = ChunkPos.chunkKey(chunkX, chunkZ);
         if (dirty.remove(k)) {
             final ChunkColumn chunk = loaded.get(k);
@@ -489,8 +506,49 @@ public final class ServerWorld implements World {
         this.lightDispatcher = dispatcher;
     }
 
+    private void awaitLightFlush(final Iterable<Long> chunkKeys) {
+        final LightUpdateDispatcher dispatcher = lightDispatcher;
+        if (dispatcher != null) {
+            dispatcher.flush(dimension.id(), chunkKeys).join();
+        }
+    }
+
+    public Set<Long> checkBlockLight(final int x, final int y, final int z) {
+        final Set<Long> dirtyChunks = lightManager.checkBlock(x, y, z);
+        dirty.addAll(dirtyChunks);
+        return dirtyChunks;
+    }
+
     public Set<Long> relightChunks(final Set<Long> chunkKeys) {
-        return lightManager.relightChunks(chunkKeys);
+        final LongSet needsFullRelight = new LongOpenHashSet();
+        final LongSet needsEdgeCheck = new LongOpenHashSet();
+
+        for (final long key : chunkKeys) {
+            final ChunkColumn column = loadedColumn((int) (key >> 32), (int) key);
+            if (column == null) {
+                continue;
+            }
+            (column.lightPopulated() ? needsEdgeCheck : needsFullRelight).add(key);
+        }
+
+        final LongSet dirty = new LongOpenHashSet();
+
+        if (!needsFullRelight.isEmpty()) {
+            dirty.addAll(lightManager.relightChunks(needsFullRelight));
+            for (final long key : needsFullRelight) {
+                final ChunkColumn column = loadedColumn((int) (key >> 32), (int) key);
+                if (column != null) {
+                    column.setLightPopulated(true);
+                }
+            }
+        }
+
+        if (!needsEdgeCheck.isEmpty()) {
+            dirty.addAll(lightManager.checkChunkEdges(needsEdgeCheck));
+        }
+
+        this.dirty.addAll(dirty);
+        return dirty;
     }
 
     public int blockLightAt(final int x, final int y, final int z) {
@@ -529,6 +587,29 @@ public final class ServerWorld implements World {
         public @Nullable ChunkLightData lightAt(final int chunkX, final int chunkZ) {
             final ChunkColumn column = loadedColumn(chunkX, chunkZ);
             return column == null ? null : column.lightData();
+        }
+
+        @Override
+        public int topNonEmptySectionY(int chunkX, int chunkZ) {
+            final ChunkColumn column = loadedColumn(chunkX, chunkZ);
+            return column == null ? (minY >> 4) - 1 : column.topNonEmptySectionY();
+        }
+
+        @Override
+        public @Nullable BlockColumnAccess columnAt(final int chunkX, final int chunkZ) {
+            final ChunkColumn column = loadedColumn(chunkX, chunkZ);
+            if (column == null) return null;
+            return (localX, worldY, localZ) ->
+                    (worldY < minY || worldY >= minY + height)
+                            ? BlockState.AIR
+                            : column.getBlock(localX, worldY, localZ);
+        }
+
+        @Override
+        public boolean isLightPopulated(int chunkX, int chunkZ) {
+            final ChunkColumn column = loadedColumn(chunkX, chunkZ);
+            if (column == null) return false;
+            return column.lightPopulated();
         }
     }
 }

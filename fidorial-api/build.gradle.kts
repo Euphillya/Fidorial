@@ -16,6 +16,7 @@ dependencies {
     api(libs.jspecify)
     api(libs.slf4j.api)
     api(platform(libs.adventure.bom))
+    api(libs.fastutil)
     compileOnly(libs.jetbrains.annotations)
 }
 
