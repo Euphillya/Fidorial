@@ -3,7 +3,6 @@ package fr.fidorial.moderation;
 import fr.fidorial.entity.PlayerProfile;
 import org.jetbrains.annotations.Contract;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 

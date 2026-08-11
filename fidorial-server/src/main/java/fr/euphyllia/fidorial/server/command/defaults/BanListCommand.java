@@ -8,7 +8,6 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.moderation.BanEntry;
 import fr.fidorial.moderation.BanManager;
 import net.kyori.adventure.text.Component;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Function;

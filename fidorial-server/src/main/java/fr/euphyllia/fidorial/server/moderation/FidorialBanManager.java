@@ -6,6 +6,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import fr.fidorial.moderation.BanEntry;
 import fr.fidorial.moderation.BanManager;
 import net.kyori.adventure.text.Component;
@@ -14,7 +17,6 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +25,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -116,7 +119,17 @@ public final class FidorialBanManager implements BanManager {
 
     @Override
     public Stream<BanEntry> bans() {
-        return active().sorted(Comparator.comparing(BanEntry::created).reversed());
+        return recent(Stream.concat(profiles.values().stream(), addresses.values().stream()));
+    }
+
+    @Override
+    public Stream<BanEntry.Profile> profileBans() {
+        return recent(profiles.values().stream());
+    }
+
+    @Override
+    public Stream<BanEntry.Address> ipBans() {
+        return recent(addresses.values().stream());
     }
 
     @Override
@@ -143,6 +156,11 @@ public final class FidorialBanManager implements BanManager {
     @Override
     public int totalBans() {
         return (int) active().count();
+    }
+
+    private static <E extends BanEntry> Stream<E> recent(final Stream<E> entries) {
+        return entries.filter(entry -> !entry.expired())
+                .sorted(Comparator.comparing(BanEntry::created).reversed());
     }
 
     private Stream<BanEntry> active() {
@@ -184,10 +202,12 @@ public final class FidorialBanManager implements BanManager {
     }
 
     private static <K, E extends BanEntry> int purgeExpired(final Map<K, E> bans) {
+        final Iterator<Map.Entry<K, E>> iterator = bans.entrySet().iterator();
         int removed = 0;
 
-        for (final Map.Entry<K, E> ban : bans.entrySet()) {
-            if (ban.getValue().expired() && bans.remove(ban.getKey(), ban.getValue())) {
+        while (iterator.hasNext()) {
+            if (iterator.next().getValue().expired()) {
+                iterator.remove();
                 removed++;
             }
         }
@@ -197,23 +217,25 @@ public final class FidorialBanManager implements BanManager {
 
     private static <E extends BanEntry> void read(
             final Path file,
-            final Function<JsonObject, E> reader,
+            final Function<RawEntry, E> reader,
             final Consumer<E> sink
     ) {
-        if (!Files.exists(file)) {
+        try {
+            if (!Files.exists(file) || Files.size(file) == 0) {
+                return;
+            }
+        } catch (final IOException e) {
+            LOGGER.error("Unable to read {}", file, e);
             return;
         }
 
-        try (final Reader in = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            final JsonArray array = GSON.fromJson(in, JsonArray.class);
+        try (final JsonReader in = new JsonReader(Files.newBufferedReader(file, StandardCharsets.UTF_8))) {
+            in.beginArray();
 
-            if (array == null) {
-                return;
-            }
-
-            for (final JsonElement element : array) {
+            while (in.hasNext()) {
+                final RawEntry raw = readEntry(in);
                 try {
-                    final E entry = reader.apply(element.getAsJsonObject());
+                    final E entry = reader.apply(raw);
 
                     if (!entry.expired()) {
                         sink.accept(entry);
@@ -222,9 +244,39 @@ public final class FidorialBanManager implements BanManager {
                     LOGGER.warn("Skipping malformed entry in {}", file, e);
                 }
             }
-        } catch (final Exception e) {
+            in.endArray();
+        } catch (final IOException | RuntimeException e) {
             LOGGER.error("Unable to read {}", file, e);
         }
+    }
+
+    private static RawEntry readEntry(final JsonReader in) throws IOException {
+        String uuid = null;
+        String ip = null;
+        String name = null;
+        String source = null;
+        String created = null;
+        String expires = null;
+        JsonElement reason = null;
+
+        in.beginObject();
+
+        while (in.hasNext()) {
+            switch (in.nextName()) {
+                case "uuid" -> uuid = string(in);
+                case "ip" -> ip = string(in);
+                case "name" -> name = string(in);
+                case "source" -> source = string(in);
+                case "created" -> created = string(in);
+                case "expires" -> expires = string(in);
+                case "reason" -> reason = JsonParser.parseReader(in);
+                default -> in.skipValue();
+            }
+        }
+
+        in.endObject();
+
+        return new RawEntry(uuid, ip, name, reason, source, created, expires);
     }
 
     private static <E extends BanEntry> void write(
@@ -242,24 +294,25 @@ public final class FidorialBanManager implements BanManager {
         }
     }
 
-    private static BanEntry.Profile readProfile(final JsonObject json) {
+    private static BanEntry.Profile readProfile(final RawEntry raw) {
         return new BanEntry.Profile(
-                UUID.fromString(json.get("uuid").getAsString()),
-                string(json, "name"),
-                reason(json),
-                uuid(json, "source"),
-                Instant.parse(json.get("created").getAsString()),
-                instant(json, "expires"));
+                UUID.fromString(Objects.requireNonNull(raw.uuid(), "uuid")),
+                raw.name(),
+                reason(raw.reason()),
+                uuid(raw.source()),
+                Instant.parse(Objects.requireNonNull(raw.created(), "created")),
+                instant(raw.expires())
+        );
     }
 
-    private static BanEntry.Address readAddress(final JsonObject json) {
+    private static BanEntry.Address readAddress(final RawEntry raw) {
         return new BanEntry.Address(
-                InetAddresses.forString(json.get("ip").getAsString()),
-                string(json, "name"),
-                reason(json),
-                uuid(json, "source"),
-                Instant.parse(json.get("created").getAsString()),
-                instant(json, "expires"));
+                InetAddresses.forString(Objects.requireNonNull(raw.ip(), "ip")),
+                raw.name(),
+                reason(raw.reason()),
+                uuid(raw.source()),
+                Instant.parse(Objects.requireNonNull(raw.created(), "created")),
+                instant(raw.expires()));
     }
 
     private static JsonObject writeProfile(final BanEntry.Profile entry) {
@@ -295,31 +348,39 @@ public final class FidorialBanManager implements BanManager {
         return json;
     }
 
-    private static @Nullable String string(final JsonObject json, final String member) {
-        final JsonElement element = json.get(member);
+    private static @Nullable String string(final JsonReader in) throws IOException {
+        if (in.peek() == JsonToken.NULL) {
+            in.nextNull();
+            return null;
+        }
 
-        return element == null || element.isJsonNull() ? null : element.getAsString();
+        return in.nextString();
     }
 
-    private static @Nullable UUID uuid(final JsonObject json, final String member) {
-        final String value = string(json, member);
-
+    private static @Nullable UUID uuid(@Nullable final String value) {
         return value == null ? null : UUID.fromString(value);
     }
 
-    private static @Nullable Instant instant(final JsonObject json, final String member) {
-        final String value = string(json, member);
-
+    private static @Nullable Instant instant(@Nullable final String value) {
         return value == null ? null : Instant.parse(value);
     }
 
-    private static @Nullable Component reason(final JsonObject json) {
-        final JsonElement element = json.get("reason");
-
+    private static @Nullable Component reason(@Nullable final JsonElement element) {
         if (element == null || element.isJsonNull()) {
             return null;
         }
 
         return GsonComponentSerializer.gson().deserializeFromTree(element);
+    }
+
+    private record RawEntry(
+            @Nullable String uuid,
+            @Nullable String ip,
+            @Nullable String name,
+            @Nullable JsonElement reason,
+            @Nullable String source,
+            @Nullable String created,
+            @Nullable String expires
+    ) {
     }
 }
