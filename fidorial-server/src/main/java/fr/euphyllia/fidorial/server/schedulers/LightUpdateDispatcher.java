@@ -55,27 +55,76 @@ public class LightUpdateDispatcher {
     }
 
     public void queueBlockChange(final Key world, final int x, final int y, final int z) {
-        final long[] impacted = impactArea(x >> 4, z >> 4);
-        increment(world, impacted);
-        pendingBlocks.computeIfAbsent(world, k -> new ConcurrentLinkedQueue<>()).add(new BlockPos(x, y, z));
+        incrementArea(world, x >> 4, z >> 4);
+
+        pendingBlocks
+                .computeIfAbsent(world, _ -> new ConcurrentLinkedQueue<>())
+                .add(new BlockPos(x, y, z));
+
         scheduleBlocks(world);
     }
 
     public void queueChunkLoad(final Key world, final int chunkX, final int chunkZ) {
-        final Set<Long> set = pendingChunks.computeIfAbsent(world, k -> ConcurrentHashMap.newKeySet());
-        final java.util.List<Long> added = new java.util.ArrayList<>(9);
+        final Set<Long> set = pendingChunks.computeIfAbsent(world, _ -> ConcurrentHashMap.newKeySet());
+        final long[] added = new long[9];
+        int count = 0;
+
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
                 final long key = ChunkPos.chunkKey(chunkX + dx, chunkZ + dz);
                 if (set.add(key)) {
-                    added.add(key);
+                    added[count++] = key;
                 }
             }
         }
-        if (!added.isEmpty()) {
-            increment(world, added.stream().mapToLong(Long::longValue).toArray());
+
+        if (count != 0) {
+            increment(world, added, count);
         }
+
         scheduleChunks(world);
+    }
+
+    private void incrementArea(final Key world, final int chunkX, final int chunkZ) {
+        final WorldLightState state = stateFor(world);
+
+        synchronized (state) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    state.refCounts.addTo(ChunkPos.chunkKey(chunkX + dx, chunkZ + dz), 1);
+                }
+            }
+        }
+    }
+
+    private void decrementArea(final Key world, final int chunkX, final int chunkZ) {
+        final WorldLightState state = states.get(world);
+        if (state == null) return;
+
+        synchronized (state) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    decrementLocked(state, ChunkPos.chunkKey(chunkX + dx, chunkZ + dz));
+                }
+            }
+        }
+    }
+
+    private static void decrementLocked(final WorldLightState state, final long key) {
+        final int count = state.refCounts.get(key);
+
+        if (count == 0) return;
+
+        if (count <= 1) {
+            state.refCounts.remove(key);
+
+            final CompletableFuture<Void> waiter = state.waiters.remove(key);
+            if (waiter != null) {
+                waiter.complete(null);
+            }
+        } else {
+            state.refCounts.put(key, count - 1);
+        }
     }
 
     private void drainBlocks(final Key world) {
@@ -90,17 +139,17 @@ public class LightUpdateDispatcher {
                 BlockPos drained;
                 while ((drained = queue.poll()) != null) {
                     processed++;
-                    decrement(world, impactArea(drained.x() >> 4, drained.z() >> 4));
+                    decrementArea(world, drained.x() >> 4, drained.z() >> 4);
                 }
                 return;
             }
 
             final Set<Long> dirtyChunks = new HashSet<>();
             BlockPos pos;
-            while ((pos = queue.poll()) != null && processed < 4096) {
+            while (processed < 4096 && (pos = queue.poll()) != null) {
                 processed++;
                 dirtyChunks.addAll(serverWorld.checkBlockLight(pos.x(), pos.y(), pos.z()));
-                decrement(world, impactArea(pos.x() >> 4, pos.z() >> 4));
+                decrementArea(world, pos.x() >> 4, pos.z() >> 4);
             }
 
             for (final long key : dirtyChunks) {
@@ -163,26 +212,15 @@ public class LightUpdateDispatcher {
         if (scheduledChunks.add(world)) worker.execute(() -> drainChunks(world));
     }
 
-    private static long[] impactArea(final int chunkX, final int chunkZ) {
-        final long[] keys = new long[9];
-        int i = 0;
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dz = -1; dz <= 1; dz++) {
-                keys[i++] = ChunkPos.chunkKey(chunkX + dx, chunkZ + dz);
-            }
-        }
-        return keys;
-    }
-
     private WorldLightState stateFor(final Key world) {
         return states.computeIfAbsent(world, _ -> new WorldLightState());
     }
 
-    private void increment(final Key world, final long[] chunkKeys) {
+    private void increment(final Key world, final long[] chunkKeys, final int length) {
         final WorldLightState state = stateFor(world);
         synchronized (state) {
-            for (final long key : chunkKeys) {
-                state.refCounts.addTo(key, 1);
+            for (int i = 0; i < length; i++) {
+                state.refCounts.addTo(chunkKeys[i], 1);
             }
         }
     }
