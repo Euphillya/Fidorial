@@ -408,6 +408,12 @@ public class FloodFillLightEngine implements LightEngine {
     }
 
     private void propagate(final LongSet chunks, final LightAccess access, final LightType type, final LongQueue queue) {
+        long sourceKey = Long.MIN_VALUE;
+        ChunkLightData sourceData = null;
+        long targetKey = Long.MIN_VALUE;
+        ChunkLightData targetData = null;
+        LightAccess.BlockColumnAccess targetCol = null;
+
         while (!queue.isEmpty()) {
             final long packed = queue.poll();
             final int skipDir = queue.lastSkipDir();
@@ -415,7 +421,12 @@ public class FloodFillLightEngine implements LightEngine {
             final int y = unpackY(packed);
             final int z = unpackZ(packed);
 
-            final ChunkLightData source = access.lightAt(x >> 4, z >> 4);
+            final long sk = ChunkPos.chunkKey(x >> 4, z >> 4);
+            if (sk != sourceKey) {
+                sourceKey = sk;
+                sourceData = access.lightAt(x >> 4, z >> 4);
+            }
+            final ChunkLightData source = sourceData;
             if (source == null) continue;
             final int level = source.get(type, x, y, z);
             if (level <= 1) continue;
@@ -426,10 +437,20 @@ public class FloodFillLightEngine implements LightEngine {
                 final int ny = y + DY[dir];
                 final int nz = z + DZ[dir];
                 if (ny < minY || ny >= maxY) continue;
-                if (!chunks.contains(ChunkPos.chunkKey(nx >> 4, nz >> 4))) continue;
-                final ChunkLightData target = access.lightAt(nx >> 4, nz >> 4);
+                final long nChunkKey = ChunkPos.chunkKey(nx >> 4, nz >> 4);
+                if (!chunks.contains(nChunkKey)) continue;
+
+                if (nChunkKey != targetKey) {
+                    targetKey = nChunkKey;
+                    targetData = access.lightAt(nx >> 4, nz >> 4);
+                    targetCol = access.columnAt(nx >> 4, nz >> 4);
+                }
+                final ChunkLightData target = targetData;
                 if (target == null) continue;
-                final BlockState block = access.blockAt(nx, ny, nz);
+
+                final BlockState block = targetCol != null
+                        ? targetCol.blockAt(nx & 15, ny, nz & 15)
+                        : access.blockAt(nx, ny, nz);
                 if (BlockLightProperties.occludes(block)) continue;
                 final int candidate = level - lightDecrement(type, dir, block);
                 if (candidate <= 0) continue;
