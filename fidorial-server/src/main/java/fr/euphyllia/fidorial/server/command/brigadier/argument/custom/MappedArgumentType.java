@@ -52,7 +52,7 @@ public final class MappedArgumentType<N, T> implements ArgumentType<T>, ForceSer
 
     @Override
     public T parse(final StringReader reader) throws CommandSyntaxException {
-        return mapper.map(nativeType.parse(reader));
+        return mapper.map(nativeType.parse(reader), reader);
     }
 
     @Override

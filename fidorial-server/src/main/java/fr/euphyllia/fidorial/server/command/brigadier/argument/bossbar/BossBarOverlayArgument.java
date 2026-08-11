@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.command.brigadier.argument.bossbar;
 
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -32,11 +33,11 @@ public final class BossBarOverlayArgument {
 
     private static final List<String> EXAMPLES = List.of("darken_screen", "play_boss_music");
 
-    private static BossBar.Overlay parse(final String value) throws CommandSyntaxException {
+    private static BossBar.Overlay parse(final String value, final StringReader reader) throws CommandSyntaxException {
         for (final BossBar.Overlay overlay : BossBar.Overlay.values()) {
             if (overlay.name().equalsIgnoreCase(value)) return overlay;
         }
-        throw ERROR_INVALID_VALUE.create(value);
+        throw ERROR_INVALID_VALUE.createWithContext(reader, value);
     }
 
     private static <S> CompletableFuture<Suggestions> suggest(final CommandContext<S> ctx, final SuggestionsBuilder builder) {

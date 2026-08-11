@@ -267,6 +267,16 @@ public final class FidorialOfflinePlayers implements OfflinePlayers, Closeable {
     }
 
     @Override
+    public boolean isBanned(final UUID uuid) {
+        return server.ban().isBanned(uuid);
+    }
+
+    @Override
+    public boolean isWhitelisted(final UUID uuid) {
+        return server.whitelist().contains(uuid);
+    }
+
+    @Override
     public CompletableFuture<Optional<OfflinePlayerSnapshot>> snapshot(final UUID uuid) {
         final Optional<? extends Player> live = server.player(uuid);
         if (live.isPresent()) {

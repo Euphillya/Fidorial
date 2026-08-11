@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.command.brigadier.argument.bossbar;
 
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -32,11 +33,11 @@ public final class BossBarFlagArgument {
 
     private static final List<String> EXAMPLES = List.of("progress", "notched_10");
 
-    private static BossBar.Flag parse(final String value) throws CommandSyntaxException {
+    private static BossBar.Flag parse(final String value, final StringReader reader) throws CommandSyntaxException {
         for (final BossBar.Flag flag : BossBar.Flag.values()) {
             if (flag.name().equalsIgnoreCase(value)) return flag;
         }
-        throw ERROR_INVALID_VALUE.create(value);
+        throw ERROR_INVALID_VALUE.createWithContext(reader, value);
     }
 
     private static <S> CompletableFuture<Suggestions> suggest(final CommandContext<S> ctx, final SuggestionsBuilder builder) {

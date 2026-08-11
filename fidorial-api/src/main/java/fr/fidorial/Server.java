@@ -4,6 +4,8 @@ import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.entity.OfflinePlayers;
 import fr.fidorial.entity.Player;
 import fr.fidorial.event.EventBus;
+import fr.fidorial.moderation.BanManager;
+import fr.fidorial.moderation.WhitelistManager;
 import fr.fidorial.permission.PermissionRegistry;
 import fr.fidorial.plugin.PluginManager;
 import fr.fidorial.scheduler.RegionizedScheduler;
@@ -105,6 +107,24 @@ public interface Server extends ForwardingAudience {
      */
     @Contract(pure = true)
     int playerCount();
+
+    /**
+     * Gets the service holding the players who are not allowed to connect.
+     *
+     * @return the ban service
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    BanManager ban();
+
+    /**
+     * Gets the service holding the players allowed to connect while the whitelist is enforced.
+     *
+     * @return the whitelist service
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    WhitelistManager whitelist();
 
     ServiceRegistry services();
 

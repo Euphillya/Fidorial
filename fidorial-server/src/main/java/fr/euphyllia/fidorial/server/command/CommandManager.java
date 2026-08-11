@@ -15,14 +15,20 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.command.brigadier.builtin.exceptions.TranslatableExceptions;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypes;
+import fr.euphyllia.fidorial.server.command.defaults.BanCommand;
+import fr.euphyllia.fidorial.server.command.defaults.BanIpCommand;
+import fr.euphyllia.fidorial.server.command.defaults.BanListCommand;
 import fr.euphyllia.fidorial.server.command.defaults.BossBarCommand;
 import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
+import fr.euphyllia.fidorial.server.command.defaults.PardonCommand;
+import fr.euphyllia.fidorial.server.command.defaults.PardonIpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.StopCommand;
 import fr.euphyllia.fidorial.server.command.defaults.SummonCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TimeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TpsCommand;
 import fr.euphyllia.fidorial.server.command.defaults.WeatherCommand;
+import fr.euphyllia.fidorial.server.command.defaults.WhitelistCommand;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundCommandsPacket;
 import fr.fidorial.command.CommandRegistry;
@@ -76,6 +82,12 @@ public final class CommandManager implements CommandRegistry {
         register(TpsCommand.create());
         register(TimeCommand.create());
         register(BossBarCommand.create());
+        register(BanCommand.create());
+        register(PardonCommand.create(), Set.of("unban"));
+        register(BanListCommand.create());
+        register(WhitelistCommand.create());
+        register(BanIpCommand.create(), Set.of("banip"));
+        register(PardonIpCommand.create(), Set.of("unban-ip", "pardonip"));
     }
 
     @Override
@@ -268,8 +280,8 @@ public final class CommandManager implements CommandRegistry {
                 isConsole
                         ? Component.translatable("console.command.context.here")
                         : Component.translatable("command.context.here")
-                        .color(NamedTextColor.RED)
-                        .decorate(TextDecoration.ITALIC));
+                          .color(NamedTextColor.RED)
+                          .decorate(TextDecoration.ITALIC));
 
         source.sender().sendMessage(context);
     }

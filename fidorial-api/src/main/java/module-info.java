@@ -72,6 +72,7 @@ module fr.fidorial {
     exports fr.fidorial.world.light;
     exports fr.fidorial.testing;
     exports fr.fidorial.testing.annotation;
+    exports fr.fidorial.moderation;
     exports fr.fidorial.command.argument.custom;
 
     requires com.google.common;

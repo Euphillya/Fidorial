@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.testplugin.command.argument;
 
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -45,13 +46,13 @@ public final class BaguetteArgument {
         return ArgumentTypes.map(StringArgumentType.word(), BaguetteArgument::parse, BaguetteArgument::suggest, EXAMPLES);
     }
 
-    private static Baguette parse(final String value) throws CommandSyntaxException {
+    private static Baguette parse(final String value, final StringReader reader) throws CommandSyntaxException {
         for (final Baguette baguette : Baguette.values()) {
             if (baguette.name().equalsIgnoreCase(value)) {
                 return baguette;
             }
         }
-        throw ERROR_INVALID_VALUE.create(value);
+        throw ERROR_INVALID_VALUE.createWithContext(reader, value);
     }
 
     private static <S> CompletableFuture<Suggestions> suggest(final CommandContext<S> ctx, final SuggestionsBuilder builder) {
