@@ -14,6 +14,8 @@ public record BlockState(Key name, Map<String, String> properties) {
     public static final BlockState OBSIDIAN = BlockState.of("minecraft:obsidian");
     public static final BlockState COBBLESTONE = BlockState.of("minecraft:cobblestone");
     public static final BlockState ENDER_CHEST = BlockState.of("minecraft:ender_chest");
+    public static final BlockState WATER = BlockState.of("minecraft:water");
+    public static final BlockState LAVA = BlockState.of("minecraft:lava");
 
     public BlockState {
         properties =
@@ -30,5 +32,9 @@ public record BlockState(Key name, Map<String, String> properties) {
 
     public boolean isAir() {
         return name.equals(AIR.name) || name.equals(CAVE_AIR.name) || name.equals(VOID_AIR.name);
+    }
+
+    public boolean isFluid() {
+        return name.equals(WATER.name) || name.equals(LAVA.name);
     }
 }

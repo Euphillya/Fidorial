@@ -13,6 +13,7 @@ import net.kyori.adventure.key.Key;
 public final class BlockStateTests {
 
     private static final Key STONE = Key.key("stone");
+    private static final Key COBBLESTONE = Key.key("cobblestone");
 
     @ScenarioTest(timeoutTicks = 20)
     public static void belowWorldIsAir(final ScenarioTestHelper helper) {
@@ -37,8 +38,44 @@ public final class BlockStateTests {
                 .build();
     }
 
+    //@ScenarioTest(timeoutTicks = 80) disabled for now as setBlockStateId doesnt send light updates
+    public static void reopeningVerticalShaftRestoresSkylight(final ScenarioTestHelper helper) {
+        final World world = helper.world();
+        final int airId = FidorialServer.getInstance().blockStateRegistry().networkId(BlockState.AIR);
+        final int cobblestoneId = cobblestoneId();
+        final int x = 8;
+        final int z = 8;
+        final int blockerY = 0;
+        final int targetY = -60;
+
+        helper.sequence()
+                .execute(() -> {
+                    for (int y = world.minY() + world.height() - 1; y >= targetY; y--) {
+                        world.setBlockStateId(new BlockPos(x, y, z), airId);
+                    }
+                })
+                .waitUntil(() -> assertSkyLight(helper, new BlockPos(x, targetY, z), 15))
+                .execute(() -> world.setBlockStateId(new BlockPos(x, blockerY, z), cobblestoneId))
+                .waitUntil(() -> assertSkyLight(helper, new BlockPos(x, targetY, z), 0))
+                .execute(() -> world.setBlockStateId(new BlockPos(x, blockerY, z), airId))
+                .waitUntil(() -> assertSkyLight(helper, new BlockPos(x, targetY, z), 15))
+                .build();
+    }
+
     private static int stoneId() {
         final BlockStateRegistry registry = FidorialServer.getInstance().blockStateRegistry();
         return registry.networkId(BlockState.of(STONE));
+    }
+
+    private static int cobblestoneId() {
+        final BlockStateRegistry registry = FidorialServer.getInstance().blockStateRegistry();
+        return registry.networkId(BlockState.of(COBBLESTONE));
+    }
+
+    private static void assertSkyLight(final ScenarioTestHelper helper, final BlockPos pos, final int expected) {
+        final int actual = helper.world().skyLight(pos);
+        helper.assertTrue(
+                actual == expected,
+                "Expected skylight " + expected + " at " + pos + " but found " + actual );
     }
 }

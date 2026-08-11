@@ -11,12 +11,14 @@ public final class ChunkSection {
     private final PalettedContainer<BlockState> blocks;
     private final PalettedContainer<Key> biomes;
     private int nonAirCount;
+    private int fluidCount;
 
     public ChunkSection(final int sectionY, final BlockState fillBlock, final Key fillBiome) {
         this.sectionY = sectionY;
         this.blocks = new PalettedContainer<>(BLOCK_COUNT, 4, fillBlock);
         this.biomes = new PalettedContainer<>(BIOME_COUNT, 1, fillBiome);
         this.nonAirCount = fillBlock.isAir() ? 0 : BLOCK_COUNT;
+        this.fluidCount = fillBlock.isFluid() ? BLOCK_COUNT : 0;
     }
 
     public ChunkSection(final int sectionY, final PalettedContainer<BlockState> blocks,
@@ -24,7 +26,7 @@ public final class ChunkSection {
         this.sectionY = sectionY;
         this.blocks = blocks;
         this.biomes = biomes;
-        recomputeNonAir();
+        recomputeCounts();
     }
 
     private static int blockIndex(final int x, final int y, final int z) {
@@ -47,16 +49,30 @@ public final class ChunkSection {
         return nonAirCount;
     }
 
+    public int fluidCount() {
+        return fluidCount;
+    }
+
     public boolean isEmpty() {
         return nonAirCount == 0;
     }
 
     public void setBlock(final int x, final int y, final int z, final BlockState state) {
         final int i = blockIndex(x, y, z);
-        final boolean wasAir = blocks.get(i).isAir();
+        final BlockState previous = blocks.get(i);
+
+        final boolean wasAir = previous.isAir();
         final boolean isAir = state.isAir();
+
         if (wasAir && !isAir) nonAirCount++;
         else if (!wasAir && isAir) nonAirCount--;
+
+        final boolean wasFluid = previous.isFluid();
+        final boolean isFluid = state.isFluid();
+
+        if (!wasFluid && isFluid) fluidCount++;
+        else if (wasFluid && !isFluid) fluidCount--;
+
         blocks.set(i, state);
     }
 
@@ -72,14 +88,23 @@ public final class ChunkSection {
         return biomes.get((by << 4) | (bz << 2) | bx);
     }
 
-    /**
-     * Recalcule le compteur de blocs pleins (après reconstruction depuis le NBT).
-     */
-    public void recomputeNonAir() {
-        int c = 0;
+    public void recomputeCounts() {
+        int nonAir = 0;
+        int fluids = 0;
+
         for (int i = 0; i < BLOCK_COUNT; i++) {
-            if (!blocks.get(i).isAir()) c++;
+            final BlockState state = blocks.get(i);
+
+            if (!state.isAir()) {
+                nonAir++;
+            }
+
+            if (state.isFluid()) {
+                fluids++;
+            }
         }
-        this.nonAirCount = c;
+
+        this.nonAirCount = nonAir;
+        this.fluidCount = fluids;
     }
 }

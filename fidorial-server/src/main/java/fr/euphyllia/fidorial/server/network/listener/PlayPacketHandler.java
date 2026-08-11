@@ -489,7 +489,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             final BlockBreakEvent event = server.events().post(new BlockBreakEvent(player, packet.position()));
             if (!event.isCancelled()) {
                 onBlockDestroyed(packet.position());
-                server.blockEdits().set(server.worldManager().overworld(), packet.position(), BlockState.AIR);
+                server.blockEdits().set(((ServerWorld) player.world()), packet.position(), BlockState.AIR);
             }
         }
         connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));

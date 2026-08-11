@@ -155,7 +155,11 @@ public class LightUpdateDispatcher {
             for (final long key : dirtyChunks) {
                 final ChunkColumn column = serverWorld.loadedColumn((int) (key >> 32), (int) key);
                 if (column != null) {
-                    broadcaster.accept(new ClientboundLightUpdatePacket(serializer, column));
+                    final ClientboundLightUpdatePacket packet;
+                    synchronized (serverWorld.lightManager()) {
+                        packet = new ClientboundLightUpdatePacket(serializer, column);
+                    }
+                    broadcaster.accept(packet);
                 }
             }
         } catch (final Throwable t) {
@@ -180,7 +184,11 @@ public class LightUpdateDispatcher {
                     for (final long key : dirty) {
                         final ChunkColumn column = serverWorld.loadedColumn((int) (key >> 32), (int) key);
                         if (column != null) {
-                            broadcaster.accept(new ClientboundLightUpdatePacket(serializer, column));
+                            final ClientboundLightUpdatePacket packet;
+                            synchronized (serverWorld.lightManager()) {
+                                packet = new ClientboundLightUpdatePacket(serializer, column);
+                            }
+                            broadcaster.accept(packet);
                         }
                     }
                 }

@@ -224,7 +224,7 @@ public class AnvilChunkSerializer {
 
         if (root.contains("LightHeightmap")) {
             light.restoreHeightmap(root.getIntArray("LightHeightmap"));
-            chunk.setLightPopulated(true);
+            chunk.setLightPopulated(root.getBoolean("isLightOn"));
         }
 
         return chunk;

@@ -87,6 +87,7 @@ public class ChunkLightData {
             data = new byte[SECTION_BYTES];
             layerType[section] = data;
         }
+
         final int index = nibbleIndex(localX & 15, worldY & 15, localZ & 15);
         final int byteIndex = index >> 1;
         final int current = data[byteIndex] & 0xFF;
@@ -134,6 +135,42 @@ public class ChunkLightData {
         if (values.length == heightmap.length) {
             System.arraycopy(values, 0, heightmap, 0, heightmap.length);
         }
+    }
+
+    public byte @Nullable [] materializeSkySection(final int sectionIndex) {
+        if (sectionIndex < 0 || sectionIndex >= sectionCount) return null;
+        final byte[] stored = skyLight[sectionIndex];
+        final int sectionBottomY = (minSectionY + sectionIndex) << 4;
+        byte[] out = null;
+        for (int lx = 0; lx < 16; lx++) {
+            for (int lz = 0; lz < 16; lz++) {
+                final int top = topOpaqueY(lx, lz);
+                for (int ly = 0; ly < 16; ly++) {
+                    final int worldY = sectionBottomY + ly;
+                    final int level;
+                    if (worldY > top) {
+                        level = 15;
+                    } else if (stored != null) {
+                        final int idx = nibbleIndex(lx, ly, lz);
+                        final int b = stored[idx >> 1] & 0xFF;
+                        level = (idx & 1) == 0 ? (b & 0x0F) : (b >> 4);
+                    } else {
+                        level = 0;
+                    }
+                    if (level != 0) {
+                        if (out == null) out = new byte[SECTION_BYTES];
+                        final int idx = nibbleIndex(lx, ly, lz);
+                        final int bi = idx >> 1;
+                        if ((idx & 1) == 0) {
+                            out[bi] = (byte) ((out[bi] & 0xF0) | level);
+                        } else {
+                            out[bi] = (byte) ((out[bi] & 0x0F) | (level << 4));
+                        }
+                    }
+                }
+            }
+        }
+        return out;
     }
 
     public void clear() {

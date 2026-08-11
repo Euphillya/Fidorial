@@ -157,7 +157,11 @@ public final class ChunkViewTracker implements ChunkViewSource {
             return;
         }
 
-        connection.send(new ClientboundLevelChunkWithLightPacket(serializer, column));
+        final ClientboundLevelChunkWithLightPacket packet;
+        synchronized (world.lightManager()) {
+            packet = new ClientboundLevelChunkWithLightPacket(serializer, column);
+        }
+        connection.send(packet);
     }
 
     private boolean inRange(final int cx, final int cz, final int centerX, final int centerZ) {

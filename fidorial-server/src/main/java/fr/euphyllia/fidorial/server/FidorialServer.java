@@ -380,7 +380,7 @@ public final class FidorialServer implements Server {
         Iterable<? extends Audience> audiences = this.adventure$audiences;
         if (audiences == null) {
             audiences = Iterables.concat(
-                    Collections.singleton(console), onlinePlayers());
+                    Collections.singleton(console), playerSnapshot);
             this.adventure$audiences = audiences;
         }
         return audiences;
@@ -640,7 +640,6 @@ public final class FidorialServer implements Server {
     public void addPlayerConnection(final ClientConnection connection) {
         connections.add(connection);
         refreshPlayerSnapshot();
-        invalidateAudiences();
     }
 
     public void removePlayerConnection(final ClientConnection connection) {
@@ -650,7 +649,6 @@ public final class FidorialServer implements Server {
         connections.remove(connection);
         entityTracker.removeViewer(connection);
         refreshPlayerSnapshot();
-        invalidateAudiences();
     }
 
     public EntityTracker entityTracker() {
@@ -670,6 +668,7 @@ public final class FidorialServer implements Server {
             }
         }
         this.playerSnapshot = List.copyOf(snapshot);
+        invalidateAudiences();
     }
 
     public void broadcastNear(

@@ -59,59 +59,54 @@ public class FloodFillLightEngine implements LightEngine {
         }
 
         final int oldTop = data.topOpaqueY(x & 15, z & 15);
-        // TODO: we should have this BUT it causes issues with lighting in the void
-        // With this, in a setup with a tunnel from the surface to the void,
-        // when you open the tunnel, the lighting is correct, but when u close and reopen, suddenly the chunk with the tunnel
-        // gets lit but then insta loses its status while neighbours retain the lit status until a relog or a force update.
-        // seems to be a deeper issue, since on relog even with this commented out, you need to trigger a light update, otherwise
-        // the blocks there remain unlit (in the void where the opening to the tunnel is).
-        // The culprit seems to be relighting, but wtf does skylight stop affecting after a relight?????????
-        // it might also be a possible race between packets or some services?
-        // final boolean occludesNow = BlockLightProperties.occludes(access.blockAt(x, y, z));
-        //
-        // if (occludesNow && y > oldTop) {
-        //     data.setTopOpaqueY(x & 15, z & 15, y);
-        //
-        //     final LongIntQueue decrease = new LongIntQueue();
-        //     final LongIntQueue increase = new LongIntQueue();
-        //
-        //     final int selfOld = data.get(LightType.SKY, x, y, z);
-        //     if (selfOld > 0) {
-        //         data.set(LightType.SKY, x, y, z, 0);
-        //         dirtyChunks.add(ChunkPos.chunkKey(x >> 4, z >> 4));
-        //         decrease.push(x, y, z, selfOld);
-        //     }
-        //
-        //     for (int cy = y - 1; cy > oldTop; cy--) {
-        //         data.set(LightType.SKY, x, cy, z, 0);
-        //         dirtyChunks.add(ChunkPos.chunkKey(x >> 4, z >> 4));
-        //         decrease.push(x, cy, z, MAX_LEVEL);
-        //     }
-        //
-        //     propagateDecrease(access, LightType.SKY, decrease, increase, dirtyChunks);
-        //     propagateIncrease(access, LightType.SKY, increase, dirtyChunks);
-        //     return;
-        // }
-        //
-        // if (!occludesNow && y == oldTop) {
-        //     int newTop = y - 1;
-        //     while (newTop >= minY && !BlockLightProperties.occludes(access.blockAt(x, newTop, z))) {
-        //         newTop--;
-        //     }
-        //
-        //     data.setTopOpaqueY(x & 15, z & 15, newTop);
-        //
-        //     final LongIntQueue increase = new LongIntQueue();
-        //
-        //     for (int cy = y; cy > newTop; cy--) {
-        //         data.set(LightType.SKY, x, cy, z, MAX_LEVEL);
-        //         dirtyChunks.add(ChunkPos.chunkKey(x >> 4, z >> 4));
-        //         increase.push(x, cy, z, MAX_LEVEL);
-        //     }
-        //
-        //     propagateIncrease(access, LightType.SKY, increase, dirtyChunks);
-        //     return;
-        // }
+        final boolean occludesNow = BlockLightProperties.occludes(access.blockAt(x, y, z));
+        if (occludesNow && y > oldTop) {
+            final LongIntQueue decrease = new LongIntQueue();
+            final LongIntQueue increase = new LongIntQueue();
+            final long chunkKey = ChunkPos.chunkKey(x >> 4, z >> 4);
+
+            final int oldLevel = data.get(LightType.SKY, x, y, z);
+            data.setTopOpaqueY(x & 15, z & 15, y);
+            if (oldLevel > 0) {
+                data.set(LightType.SKY, x, y, z, 0);
+                dirtyChunks.add(chunkKey);
+                decrease.push(x, y, z, oldLevel);
+            }
+
+            for (int cy = y - 1; cy > oldTop; cy--) {
+                final int currentLevel = data.get(LightType.SKY, x, cy, z);
+                if (currentLevel == 0) {
+                    continue;
+                }
+                data.set(LightType.SKY, x, cy, z, 0);
+                dirtyChunks.add(chunkKey);
+                decrease.push(x, cy, z, currentLevel);
+            }
+
+            propagateDecrease(access, LightType.SKY, decrease, increase, dirtyChunks);
+            propagateIncrease(access, LightType.SKY, increase, dirtyChunks);
+            return;
+        }
+
+        if (!occludesNow && y == oldTop) {
+            int newTop = y - 1;
+            while (newTop >= minY && !BlockLightProperties.occludes(access.blockAt(x, newTop, z))) {
+                newTop--;
+            }
+
+            data.setTopOpaqueY(x & 15, z & 15, newTop);
+
+            final LongIntQueue increase = new LongIntQueue();
+            final long chunkKey = ChunkPos.chunkKey(x >> 4, z >> 4);
+            for (int cy = y; cy > newTop; cy--) {
+                data.set(LightType.SKY, x, cy, z, MAX_LEVEL);
+                dirtyChunks.add(chunkKey);
+                increase.push(x, cy, z, MAX_LEVEL);
+            }
+
+            propagateIncrease(access, LightType.SKY, increase, dirtyChunks);
+            return;
+        }
 
         if (y > oldTop) {
             return;
