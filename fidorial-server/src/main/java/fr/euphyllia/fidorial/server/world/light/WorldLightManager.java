@@ -3,8 +3,9 @@ package fr.euphyllia.fidorial.server.world.light;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.light.LightType;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class WorldLightManager {
@@ -28,7 +29,7 @@ public class WorldLightManager {
         if (access.lightAt(chunkX, chunkZ) == null) {
             return false;
         }
-        engine.relight(Set.of(ChunkPos.chunkKey(chunkX, chunkZ)), access);
+        engine.relight(LongSet.of(ChunkPos.chunkKey(chunkX, chunkZ)), access);
         column.setLightPopulated(true);
         return true;
     }
@@ -38,7 +39,7 @@ public class WorldLightManager {
     }
 
     public synchronized Set<Long> relightChunks(final Set<Long> chunkKeys) {
-        final Set<Long> loaded = new HashSet<>();
+        final LongSet loaded = new LongOpenHashSet();
         for (final long key : chunkKeys) {
             if (access.lightAt((int) (key >> 32), (int) key) != null) {
                 loaded.add(key);

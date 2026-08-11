@@ -79,7 +79,7 @@ public class ChunkLightData {
             return;
         }
         final byte[] @Nullable [] layerType = layer(type);
-        byte @Nullable [] data = layerType[section];
+        byte[] data = layerType[section];
         if (data == null) {
             if (level == 0) {
                 return;
@@ -124,6 +124,16 @@ public class ChunkLightData {
 
     public void setSkyFullFromY(final int worldY) {
         this.skyFullFromY = worldY;
+    }
+
+    public int[] heightmapSnapshot() {
+        return heightmap.clone();
+    }
+
+    public void restoreHeightmap(final int[] values) {
+        if (values.length == heightmap.length) {
+            System.arraycopy(values, 0, heightmap, 0, heightmap.length);
+        }
     }
 
     public void clear() {

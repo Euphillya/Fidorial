@@ -508,11 +508,29 @@ public final class ServerWorld implements World {
     }
 
     public Set<Long> checkBlockLight(final int x, final int y, final int z) {
-        return lightManager.checkBlock(x, y, z);
+        final Set<Long> dirtyChunks = lightManager.checkBlock(x, y, z);
+        dirty.addAll(dirtyChunks);
+        return dirtyChunks;
     }
 
     public Set<Long> relightChunks(final Set<Long> chunkKeys) {
-        return lightManager.relightChunks(chunkKeys);
+        /* do we need this? this was added as a hope to fix that issue in the light engine
+        final Set<Long> toRelight = new HashSet<>();
+        for (final long key : chunkKeys) {
+            final ChunkColumn col = loadedColumn((int) (key >> 32), (int) key);
+            if (col != null && !col.lightPopulated()) {
+                toRelight.add(key);
+            }
+        }
+        final Set<Long> loaded = lightManager.relightChunks(toRelight);
+        for (final long key : loaded) {
+            final ChunkColumn col = loadedColumn((int) (key >> 32), (int) key);
+            if (col != null) col.setLightPopulated(true);
+        }
+        */
+        final Set<Long> loaded = lightManager.relightChunks(chunkKeys);
+        dirty.addAll(loaded);
+        return loaded;
     }
 
     public int blockLightAt(final int x, final int y, final int z) {

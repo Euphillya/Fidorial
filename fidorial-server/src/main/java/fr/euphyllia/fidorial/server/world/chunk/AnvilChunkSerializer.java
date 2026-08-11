@@ -55,6 +55,8 @@ public class AnvilChunkSerializer {
         }
         root.put("sections", sections);
 
+        root.putIntArray("LightHeightmap", light.heightmapSnapshot());
+
         final NbtCompound heightmaps = new NbtCompound();
         heightmaps.putLongArray("MOTION_BLOCKING", chunk.computeHeightmap(bs -> !bs.isAir()));
         heightmaps.putLongArray("WORLD_SURFACE", chunk.computeHeightmap(bs -> !bs.isAir()));
@@ -220,13 +222,9 @@ public class AnvilChunkSerializer {
 
         blockEntitiesFromNbt(root, chunk);
 
-        if (root.getBoolean("isLightOn")) {
+        if (root.contains("LightHeightmap")) {
+            light.restoreHeightmap(root.getIntArray("LightHeightmap"));
             chunk.setLightPopulated(true);
-            final int topSection = chunk.topNonEmptySectionY();
-            final int scanStart = Math.min(
-                    (minSectionY + chunk.sectionCount()) * 16 - 1,
-                    ((topSection + 1) << 4) + 15);
-            light.setSkyFullFromY(scanStart);
         }
 
         return chunk;

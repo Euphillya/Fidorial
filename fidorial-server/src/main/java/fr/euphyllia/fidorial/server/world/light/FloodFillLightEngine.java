@@ -3,9 +3,8 @@ package fr.euphyllia.fidorial.server.world.light;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.light.LightType;
-
-import java.util.HashSet;
-import java.util.Set;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 public class FloodFillLightEngine implements LightEngine {
 
@@ -44,16 +43,8 @@ public class FloodFillLightEngine implements LightEngine {
     }
 
     @Override
-    public Set<Long> checkBlock(final int x, final int y, final int z, final LightAccess access) {
-        final ChunkLightData data = access.lightAt(x >> 4, z >> 4);
-        if (data != null && y >= data.skyFullFromY()) {
-            final Set<Long> one = new HashSet<>();
-            one.add(ChunkPos.chunkKey(x >> 4, z >> 4));
-            relight(one, access);
-            return one;
-        }
-
-        final Set<Long> dirtyChunks = new HashSet<>();
+    public LongSet checkBlock(final int x, final int y, final int z, final LightAccess access) {
+        final LongSet dirtyChunks = new LongOpenHashSet();
 
         checkBlockForType(LightType.BLOCK, x, y, z, access, dirtyChunks);
         checkSkyColumn(access, x, y, z, dirtyChunks);
@@ -61,22 +52,66 @@ public class FloodFillLightEngine implements LightEngine {
         return dirtyChunks;
     }
 
-    private void checkSkyColumn(final LightAccess access, final int x, final int y, final int z, final Set<Long> dirtyChunks) {
+    private void checkSkyColumn(final LightAccess access, final int x, final int y, final int z, final LongSet dirtyChunks) {
         final ChunkLightData data = access.lightAt(x >> 4, z >> 4);
         if (data == null) {
             return;
         }
-        final int oldTop = data.topOpaqueY(x & 15, z & 15);
-        final boolean occludesNow = BlockLightProperties.occludes(access.blockAt(x, y, z));
-        final boolean verticalChange = (occludesNow && y > oldTop) || (!occludesNow && y == oldTop);
 
-        if (verticalChange) {
-            final Set<Long> one = new HashSet<>();
-            one.add(ChunkPos.chunkKey(x >> 4, z >> 4));
-            relight(one, access);
-            dirtyChunks.addAll(one);
-            return;
-        }
+        final int oldTop = data.topOpaqueY(x & 15, z & 15);
+        // TODO: we should have this BUT it causes issues with lighting in the void
+        // With this, in a setup with a tunnel from the surface to the void,
+        // when you open the tunnel, the lighting is correct, but when u close and reopen, suddenly the chunk with the tunnel
+        // gets lit but then insta loses its status while neighbours retain the lit status until a relog or a force update.
+        // seems to be a deeper issue, since on relog even with this commented out, you need to trigger a light update, otherwise
+        // the blocks there remain unlit (in the void where the opening to the tunnel is).
+        // The culprit seems to be relighting, but wtf does skylight stop affecting after a relight?????????
+        // it might also be a possible race between packets or some services?
+        // final boolean occludesNow = BlockLightProperties.occludes(access.blockAt(x, y, z));
+        //
+        // if (occludesNow && y > oldTop) {
+        //     data.setTopOpaqueY(x & 15, z & 15, y);
+        //
+        //     final LongIntQueue decrease = new LongIntQueue();
+        //     final LongIntQueue increase = new LongIntQueue();
+        //
+        //     final int selfOld = data.get(LightType.SKY, x, y, z);
+        //     if (selfOld > 0) {
+        //         data.set(LightType.SKY, x, y, z, 0);
+        //         dirtyChunks.add(ChunkPos.chunkKey(x >> 4, z >> 4));
+        //         decrease.push(x, y, z, selfOld);
+        //     }
+        //
+        //     for (int cy = y - 1; cy > oldTop; cy--) {
+        //         data.set(LightType.SKY, x, cy, z, 0);
+        //         dirtyChunks.add(ChunkPos.chunkKey(x >> 4, z >> 4));
+        //         decrease.push(x, cy, z, MAX_LEVEL);
+        //     }
+        //
+        //     propagateDecrease(access, LightType.SKY, decrease, increase, dirtyChunks);
+        //     propagateIncrease(access, LightType.SKY, increase, dirtyChunks);
+        //     return;
+        // }
+        //
+        // if (!occludesNow && y == oldTop) {
+        //     int newTop = y - 1;
+        //     while (newTop >= minY && !BlockLightProperties.occludes(access.blockAt(x, newTop, z))) {
+        //         newTop--;
+        //     }
+        //
+        //     data.setTopOpaqueY(x & 15, z & 15, newTop);
+        //
+        //     final LongIntQueue increase = new LongIntQueue();
+        //
+        //     for (int cy = y; cy > newTop; cy--) {
+        //         data.set(LightType.SKY, x, cy, z, MAX_LEVEL);
+        //         dirtyChunks.add(ChunkPos.chunkKey(x >> 4, z >> 4));
+        //         increase.push(x, cy, z, MAX_LEVEL);
+        //     }
+        //
+        //     propagateIncrease(access, LightType.SKY, increase, dirtyChunks);
+        //     return;
+        // }
 
         if (y > oldTop) {
             return;
@@ -87,7 +122,7 @@ public class FloodFillLightEngine implements LightEngine {
 
     private void checkBlockForType(
             final LightType type, final int x, final int y, final int z,
-            final LightAccess access, final Set<Long> dirtyChunks) {
+            final LightAccess access, final LongSet dirtyChunks) {
         final ChunkLightData data = access.lightAt(x >> 4, z >> 4);
         if (data == null) {
             return;
@@ -147,7 +182,7 @@ public class FloodFillLightEngine implements LightEngine {
     }
 
     private void propagateIncrease(
-            final LightAccess access, final LightType type, final LongIntQueue queue, final Set<Long> dirtyChunks) {
+            final LightAccess access, final LightType type, final LongIntQueue queue, final LongSet dirtyChunks) {
         while (!queue.isEmpty()) {
             final int x = queue.pollX();
             final int y = queue.pollY();
@@ -181,7 +216,7 @@ public class FloodFillLightEngine implements LightEngine {
                     continue;
                 }
 
-                final int targetLevel = level - Math.max(1, BlockLightProperties.opacity(state));
+                final int targetLevel = level - lightDecrement(type, dir, state);
                 if (targetLevel > current) {
                     target.set(type, nx, ny, nz, targetLevel);
                     dirtyChunks.add(ChunkPos.chunkKey(nx >> 4, nz >> 4));
@@ -195,7 +230,7 @@ public class FloodFillLightEngine implements LightEngine {
 
     private void propagateDecrease(
             final LightAccess access, final LightType type, final LongIntQueue decreaseQueue,
-            final LongIntQueue increaseQueue, final Set<Long> dirtyChunks) {
+            final LongIntQueue increaseQueue, final LongSet dirtyChunks) {
         while (!decreaseQueue.isEmpty()) {
             final int x = decreaseQueue.pollX();
             final int y = decreaseQueue.pollY();
@@ -220,7 +255,7 @@ public class FloodFillLightEngine implements LightEngine {
                 }
 
                 final BlockState state = access.blockAt(nx, ny, nz);
-                final int decrement = Math.max(1, BlockLightProperties.opacity(state));
+                final int decrement = lightDecrement(type, dir, state);
                 final int targetLevel = oldLevel - decrement;
 
                 if (neighbourLevel <= targetLevel) {
@@ -235,7 +270,7 @@ public class FloodFillLightEngine implements LightEngine {
     }
 
     @Override
-    public void relight(final Set<Long> chunks, final LightAccess access) {
+    public void relight(final LongSet chunks, final LightAccess access) {
         if (chunks.isEmpty()) {
             return;
         }
@@ -250,7 +285,7 @@ public class FloodFillLightEngine implements LightEngine {
         computeBlock(chunks, access);
     }
 
-    private void computeSky(final Set<Long> chunks, final LightAccess access) {
+    private void computeSky(final LongSet chunks, final LightAccess access) {
         final LongQueue queue = new LongQueue();
 
         for (final long key : chunks) {
@@ -262,7 +297,9 @@ public class FloodFillLightEngine implements LightEngine {
             final int baseX = chunkX << 4;
             final int baseZ = chunkZ << 4;
             final int topSection = access.topNonEmptySectionY(chunkX, chunkZ);
-            final int scanStart = Math.min(maxY - 1, ((topSection + 1) << 4) + 15);
+            final int scanStart = topSection < (minY >> 4)
+                    ? maxY - 1
+                    : Math.min(maxY - 1, ((topSection + 1) << 4) + 15);
             data.setSkyFullFromY(scanStart);
 
             for (int lx = 0; lx < 16; lx++) {
@@ -296,7 +333,7 @@ public class FloodFillLightEngine implements LightEngine {
         propagate(chunks, access, LightType.SKY, queue);
     }
 
-    private void computeBlock(final Set<Long> chunks, final LightAccess access) {
+    private void computeBlock(final LongSet chunks, final LightAccess access) {
         final LongQueue queue = new LongQueue();
 
         for (final long key : chunks) {
@@ -330,7 +367,7 @@ public class FloodFillLightEngine implements LightEngine {
         propagate(chunks, access, LightType.BLOCK, queue);
     }
 
-    private void seedBorders(final Set<Long> chunks, final LightAccess access, final LightType type, final LongQueue queue) {
+    private void seedBorders(final LongSet chunks, final LightAccess access, final LightType type, final LongQueue queue) {
         for (final long key : chunks) {
             final int chunkX = (int) (key >> 32);
             final int chunkZ = (int) key;
@@ -343,7 +380,7 @@ public class FloodFillLightEngine implements LightEngine {
     }
 
     private void addBorderColumn(
-            final Set<Long> chunks, final LightAccess access, final LightType type, final LongQueue queue,
+            final LongSet chunks, final LightAccess access, final LightType type, final LongQueue queue,
             final int neighborChunkX, final int neighborChunkZ, final int fixedLocalX, final int fixedLocalZ) {
         if (chunks.contains(ChunkPos.chunkKey(neighborChunkX, neighborChunkZ))) {
             return;
@@ -373,7 +410,7 @@ public class FloodFillLightEngine implements LightEngine {
         }
     }
 
-    private void propagate(final Set<Long> chunks, final LightAccess access, final LightType type, final LongQueue queue) {
+    private void propagate(final LongSet chunks, final LightAccess access, final LightType type, final LongQueue queue) {
         while (!queue.isEmpty()) {
             final long packed = queue.poll();
             final int skipDir = queue.lastSkipDir();
@@ -397,7 +434,7 @@ public class FloodFillLightEngine implements LightEngine {
                 if (target == null) continue;
                 final BlockState block = access.blockAt(nx, ny, nz);
                 if (BlockLightProperties.occludes(block)) continue;
-                final int candidate = level - (1 + BlockLightProperties.opacity(block));
+                final int candidate = level - lightDecrement(type, dir, block);
                 if (candidate <= 0) continue;
                 if (candidate > target.get(type, nx, ny, nz)) {
                     target.set(type, nx, ny, nz, candidate);
@@ -407,6 +444,14 @@ public class FloodFillLightEngine implements LightEngine {
                 }
             }
         }
+    }
+
+    private int lightDecrement(final LightType type, final int dir, final BlockState state) {
+        final int opacity = BlockLightProperties.opacity(state);
+        if (type == LightType.SKY && dir == 4) {
+            return opacity;
+        }
+        return Math.max(1, opacity);
     }
 
     private static final class LongQueue {
