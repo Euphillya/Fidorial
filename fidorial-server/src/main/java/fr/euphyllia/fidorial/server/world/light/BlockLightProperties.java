@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.world.light;
 
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.euphyllia.fidorial.server.world.chunk.BlockState.LightProperties;
 import fr.fidorial.world.block.BlockBehaviour;
 import fr.fidorial.world.block.BlockData;
 import fr.fidorial.world.block.BlockRegistry;
@@ -12,24 +13,41 @@ public class BlockLightProperties {
 
     public static final int OPAQUE = 15;
 
+    private static final LightProperties AIR_PROPS = new LightProperties(0, 0);
+    private static final LightProperties UNKNOWN_PROPS = new LightProperties(OPAQUE, 0);
+
     public static int opacity(final BlockState state) {
-        if (state.isAir()) {
-            return 0;
-        }
-        final Resolved resolved = resolve(state);
-        return resolved == null ? OPAQUE : resolved.behaviour().lightOpacity(resolved.data());
+        return propsOf(state).opacity();
     }
 
     public static boolean occludes(final BlockState state) {
-        return opacity(state) >= OPAQUE;
+        return propsOf(state).opacity() >= OPAQUE;
     }
 
     public static int emission(final BlockState state) {
+        return propsOf(state).emission();
+    }
+
+    private static LightProperties propsOf(final BlockState state) {
+        final LightProperties cached = state.lightProperties();
+        if (cached != null) {
+            return cached;
+        }
         if (state.isAir()) {
-            return 0;
+            state.setLightProperties(AIR_PROPS);
+            return AIR_PROPS;
         }
         final Resolved resolved = resolve(state);
-        return resolved == null ? 0 : resolved.behaviour().lightEmission(resolved.data());
+        if (resolved == null) {
+            // unknown so don't cache
+            return UNKNOWN_PROPS;
+        }
+        final LightProperties props = new LightProperties(
+                resolved.behaviour().lightOpacity(resolved.data()),
+                resolved.behaviour().lightEmission(resolved.data())
+        );
+        state.setLightProperties(props);
+        return props;
     }
 
     @SuppressWarnings("PatternValidation")
