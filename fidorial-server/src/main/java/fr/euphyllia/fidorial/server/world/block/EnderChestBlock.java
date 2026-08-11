@@ -41,20 +41,11 @@ public final class EnderChestBlock implements BlockBehaviour {
     }
 
     public static boolean is(final BlockState state) {
-        return KEY.asString().equals(state.name());
+        return KEY.equals(state.name());
     }
 
     public static boolean isBlockedAbove(final ServerWorld world, final BlockPos pos) {
-        try {
-            final BlockState above = world.getBlock(pos.x(), pos.y() + 1, pos.z());
-            return !above.isAir() && !isFluid(above);
-        } catch (final IOException exception) {
-            return false;
-        }
-    }
-
-    private static boolean isFluid(final BlockState state) {
-        return "minecraft:water".equals(state.name()) || "minecraft:lava".equals(state.name());
+        return ChestBlocks.isBlockedAbove(world, pos);
     }
 
     @Override
