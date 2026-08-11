@@ -23,6 +23,6 @@ public class ChestBlocks {
     }
 
     private static boolean isFluid(final BlockState state) {
-        return WATER == state.name() || LAVA == state.name();
+        return WATER.equals(state.name())|| LAVA.equals(state.name());
     }
 }
