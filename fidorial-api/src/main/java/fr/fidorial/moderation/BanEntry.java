@@ -97,7 +97,7 @@ public sealed interface BanEntry permits BanEntry.Profile, BanEntry.Address {
     /**
      * Checks whether the expiry has already passed.
      *
-     * <p>An expired entry is not an active ban. A {@link BanService} is expected to stop
+     * <p>An expired entry is not an active ban. A {@link BanManager} is expected to stop
      * reporting it, and may discard it.</p>
      *
      * @return {@code true} when the ban has run out
