@@ -82,7 +82,7 @@ public final class WhitelistCommand {
         for (final PlayerProfile target : targets) {
             final Component name = Component.text(target.name());
 
-            if (!whitelist.add(target.uuid(), target.name())) {
+            if (!whitelist.add(target)) {
                 sender.sendMessage(Component.translatable("commands.whitelist.add.failed", name));
                 continue;
             }

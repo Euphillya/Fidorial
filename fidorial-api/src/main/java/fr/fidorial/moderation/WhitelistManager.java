@@ -67,6 +67,15 @@ public interface WhitelistManager {
     }
 
     /**
+     * Adds a profile to the list.
+     *
+     * @param profile the profile to allow
+     * @return {@code true} when the identity was not already listed
+     * @since 0.1.0
+     */
+    boolean add(PlayerProfile profile);
+
+    /**
      * Adds an identity to the list.
      *
      * @param uuid the identity to allow
@@ -74,7 +83,9 @@ public interface WhitelistManager {
      * @return {@code true} when the identity was not already listed
      * @since 0.1.0
      */
-    boolean add(UUID uuid, String name);
+    default boolean add(final UUID uuid, final String name) {
+        return add(new PlayerProfile(uuid, name));
+    }
 
     /**
      * Removes an identity from the list.
@@ -84,16 +95,6 @@ public interface WhitelistManager {
      * @since 0.1.0
      */
     boolean remove(UUID uuid);
-
-    /**
-     * Gets the entry recorded under a name, matched case-insensitively.
-     *
-     * @param name the player name
-     * @return the entry, or empty
-     * @since 0.1.0
-     */
-    @Contract(pure = true)
-    Optional<PlayerProfile> find(String name);
 
     /**
      * Gets the listed identities.

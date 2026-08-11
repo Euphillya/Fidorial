@@ -88,10 +88,10 @@ public final class FidorialWhitelist implements WhitelistManager {
     }
 
     @Override
-    public boolean add(final UUID uuid, final String name) {
-        Objects.requireNonNull(uuid, "uuid");
-        Objects.requireNonNull(name, "name");
-        if (entries.putIfAbsent(uuid, new PlayerProfile(uuid, name)) != null) {
+    public boolean add(final PlayerProfile profile) {
+        Objects.requireNonNull(profile, "profile");
+
+        if (entries.putIfAbsent(profile.uuid(), profile) != null) {
             return false;
         }
         save();
@@ -106,16 +106,6 @@ public final class FidorialWhitelist implements WhitelistManager {
         }
         save();
         return true;
-    }
-
-    @Override
-    public Optional<PlayerProfile> find(final String name) {
-        for (final PlayerProfile entry : entries.values()) {
-            if (entry.name().equalsIgnoreCase(name)) {
-                return Optional.of(entry);
-            }
-        }
-        return Optional.empty();
     }
 
     @Override
