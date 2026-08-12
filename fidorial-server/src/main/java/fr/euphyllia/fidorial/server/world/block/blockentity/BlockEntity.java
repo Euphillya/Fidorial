@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.world.block.blockentity;
 
 import fr.euphyllia.fidorial.server.registry.data.BlockEntityTypeIds;
-import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -27,7 +27,7 @@ import java.util.Objects;
  *
  * @since 0.1.0
  */
-public record BlockEntity(int localX, int y, int localZ, Key type, @Nullable NbtCompound data) {
+public record BlockEntity(int localX, int y, int localZ, Key type, @Nullable CompoundBinaryTag data) {
 
     public BlockEntity {
 
@@ -102,7 +102,7 @@ public record BlockEntity(int localX, int y, int localZ, Key type, @Nullable Nbt
         return positionKey(localX, y, localZ);
     }
 
-    public BlockEntity withData(final @Nullable NbtCompound newData) {
+    public BlockEntity withData(final @Nullable CompoundBinaryTag newData) {
         return new BlockEntity(localX, y, localZ, type, newData);
     }
 
@@ -111,7 +111,7 @@ public record BlockEntity(int localX, int y, int localZ, Key type, @Nullable Nbt
      *
      * @return the payload, or an empty compound
      */
-    public NbtCompound dataOrEmpty() {
-        return Objects.requireNonNullElseGet(data, NbtCompound::new);
+    public CompoundBinaryTag dataOrEmpty() {
+        return Objects.requireNonNullElse(data, CompoundBinaryTag.empty());
     }
 }

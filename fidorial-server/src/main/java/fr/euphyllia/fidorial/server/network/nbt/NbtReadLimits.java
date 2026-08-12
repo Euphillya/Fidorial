@@ -1,6 +1,11 @@
-package fr.euphyllia.fidorial.server.world.nbt;
+package fr.euphyllia.fidorial.server.network.nbt;
 
 import io.netty.handler.codec.DecoderException;
+import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.BinaryTagType;
+import net.kyori.adventure.nbt.BinaryTagTypes;
+
+import java.util.Map;
 
 public final class NbtReadLimits {
 
@@ -37,18 +42,32 @@ public final class NbtReadLimits {
         }
     }
 
-    public void spendFor(final NbtType type) {
-        spend(switch (type) {
-            case END -> 0L;
-            case BYTE -> 9L;
-            case SHORT -> 10L;
-            case INT, FLOAT -> 12L;
-            case LONG, DOUBLE -> 16L;
-            case BYTE_ARRAY, INT_ARRAY, LONG_ARRAY -> 24L;
-            case STRING -> 36L;
-            case LIST -> 36L;
-            case COMPOUND -> 48L;
-        });
+    public void spendFor(final BinaryTagType<? extends BinaryTag> type) {
+        spend(cost(type));
+    }
+
+    private static final Map<BinaryTagType<?>, Long> COSTS = Map.ofEntries(
+            Map.entry(BinaryTagTypes.END, 0L),
+            Map.entry(BinaryTagTypes.BYTE, 9L),
+            Map.entry(BinaryTagTypes.SHORT, 10L),
+            Map.entry(BinaryTagTypes.INT, 12L),
+            Map.entry(BinaryTagTypes.FLOAT, 12L),
+            Map.entry(BinaryTagTypes.LONG, 16L),
+            Map.entry(BinaryTagTypes.DOUBLE, 16L),
+            Map.entry(BinaryTagTypes.BYTE_ARRAY, 24L),
+            Map.entry(BinaryTagTypes.INT_ARRAY, 24L),
+            Map.entry(BinaryTagTypes.LONG_ARRAY, 24L),
+            Map.entry(BinaryTagTypes.STRING, 36L),
+            Map.entry(BinaryTagTypes.LIST, 36L),
+            Map.entry(BinaryTagTypes.COMPOUND, 48L)
+    );
+
+    private static long cost(final BinaryTagType<? extends BinaryTag> type) {
+        final Long cost = COSTS.get(type);
+        if (cost == null) {
+            throw new DecoderException("Unknown NBT tag type: " + type);
+        }
+        return cost;
     }
 
     public void spendStringValue(final int length) {

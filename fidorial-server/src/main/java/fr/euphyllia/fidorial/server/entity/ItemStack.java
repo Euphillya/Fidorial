@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.entity;
 
-import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.jspecify.annotations.Nullable;
 
 public class ItemStack {
@@ -21,7 +21,7 @@ public class ItemStack {
     }
 
     @SuppressWarnings("PatternValidation")
-    public static ItemStack fromNbt(@Nullable final NbtCompound tag) {
+    public static ItemStack fromNbt(@Nullable final CompoundBinaryTag tag) {
         if (tag == null) {
             return EMPTY;
         }
@@ -37,11 +37,11 @@ public class ItemStack {
         return count <= 0 || id.equals(AIR);
     }
 
-    public NbtCompound toNbt() {
-        final NbtCompound tag = new NbtCompound();
-        tag.putString("id", id.asString());
-        tag.putInt("count", count);
-        return tag;
+    public CompoundBinaryTag toNbt() {
+        return CompoundBinaryTag.builder()
+                .putString("id", id.asString())
+                .putInt("count", count)
+                .build();
     }
 
     public Key id() {

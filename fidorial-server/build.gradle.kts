@@ -21,6 +21,7 @@ dependencies {
     implementation(projects.fidorialApi)
     implementation(projects.fidorialAuth)
     implementation(libs.dfu)
+    implementation(libs.adventure.nbt.dfu)
     runtimeOnly(libs.netty.epoll)
     runtimeOnly(libs.netty.iouring)
     runtimeOnly(libs.netty.kqueue)

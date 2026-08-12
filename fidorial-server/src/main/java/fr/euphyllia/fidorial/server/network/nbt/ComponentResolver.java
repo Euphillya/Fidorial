@@ -13,7 +13,7 @@ import java.util.List;
 
 public final class ComponentResolver {
 
-    public static Component resolve(Component component, CommandSource source) {
+    public static Component resolve(final Component component, final CommandSource source) {
         Component resolvedContent = switch (component) {
             case SelectorComponent sel -> resolveSelector(sel, source);
             //case ScoreComponent score -> resolveScore(score, source); TBD
@@ -23,7 +23,7 @@ public final class ComponentResolver {
 
         if (!resolvedContent.children().isEmpty()) {
             List<Component> resolvedChildren = new ArrayList<>();
-            for (Component child : resolvedContent.children()) {
+            for (final Component child : resolvedContent.children()) {
                 resolvedChildren.add(resolve(child, source));
             }
             resolvedContent = resolvedContent.children(resolvedChildren);
@@ -31,18 +31,18 @@ public final class ComponentResolver {
         return resolvedContent;
     }
 
-    private static Component resolveSelector(SelectorComponent sel, CommandSource source) {
+    private static Component resolveSelector(final SelectorComponent sel, final CommandSource source) {
         final EntitySelector selector;
         try {
             selector = EntitySelector.parse(sel.pattern());
-        } catch (CommandSyntaxException e) {
+        } catch (final CommandSyntaxException e) {
             return Component.empty();
         }
 
         final List<Entity> matches;
         try {
             matches = new ArrayList<>(selector.findEntities(source));
-        } catch (CommandSyntaxException e) {
+        } catch (final CommandSyntaxException e) {
             return Component.empty();
         }
 
@@ -50,15 +50,15 @@ public final class ComponentResolver {
             return Component.empty();
         }
 
-        Component separator = sel.separator() != null
+        final Component separator = sel.separator() != null
                 ? sel.separator()
                 : Component.text(", ").color(NamedTextColor.GRAY);
 
         Component result = Component.empty();
         for (int i = 0; i < matches.size(); i++) {
-            Entity entity = matches.get(i);
+            final Entity entity = matches.get(i);
 
-            Component name = entity.displayName().hoverEvent(entity.asHoverEvent());
+            final Component name = entity.displayName().hoverEvent(entity.asHoverEvent());
 
             if (i != 0) {
                 result = result.append(separator);

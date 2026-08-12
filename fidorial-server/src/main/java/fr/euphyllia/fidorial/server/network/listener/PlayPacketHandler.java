@@ -79,6 +79,7 @@ import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.block.BlockPlaceContext;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -474,9 +475,16 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (player == null) {
             return;
         }
+
+        if (!(packet.payload() instanceof final CompoundBinaryTag nbt)) {
+            LOGGER.debug("{} sent a non-compound click callback payload for {}: {}",
+                    player.name(), packet.id(), packet.payload());
+            return;
+        }
+
         final UUID uuid;
         try {
-            uuid = ClickCallbackManager.uuidFromPayload(packet.payload());
+            uuid = ClickCallbackManager.uuidFromPayload(nbt);
         } catch (final IllegalArgumentException e) {
             LOGGER.debug("{} sent an invalid click callback payload for {}", player.name(), packet.id(), e);
             return;
