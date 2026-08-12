@@ -11,6 +11,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.util.KeyReader;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
+import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.keys.ItemKeys;
 import net.kyori.adventure.key.Key;
@@ -92,8 +93,8 @@ public final class ItemArgument<T> implements ArgumentType<T> {
     }
 
     public record ItemInput(Key id) {
-        public fr.euphyllia.fidorial.server.entity.ItemStack createItemStack(final int count) {
-            return fr.euphyllia.fidorial.server.entity.ItemStack.of(id, count);
+        public ItemStack createItemStack(final int count) {
+            return ItemStack.of(id, count);
         }
     }
 
