@@ -5,6 +5,7 @@ import fr.euphyllia.fidorial.server.world.nbt.NbtByte;
 import fr.euphyllia.fidorial.server.world.nbt.NbtByteArray;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtDouble;
+import fr.euphyllia.fidorial.server.world.nbt.NbtEnd;
 import fr.euphyllia.fidorial.server.world.nbt.NbtFloat;
 import fr.euphyllia.fidorial.server.world.nbt.NbtInt;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIntArray;
@@ -57,7 +58,7 @@ public final class NbtBinaryTagBridge {
                 }
                 yield out;
             }
-            case EndBinaryTag _ -> new NbtCompound(); // empty payload case
+            case EndBinaryTag _ -> new NbtEnd(); // empty payload case
             case final ByteArrayBinaryTag b -> new NbtByteArray(b.value());
             case final LongArrayBinaryTag l -> new NbtLongArray(l.value());
         };
@@ -88,6 +89,8 @@ public final class NbtBinaryTagBridge {
             case final NbtByteArray b -> ByteArrayBinaryTag.byteArrayBinaryTag(b.value());
 
             case final NbtLongArray l -> LongArrayBinaryTag.longArrayBinaryTag(l.value());
+
+            case final NbtEnd _ -> EndBinaryTag.endBinaryTag();
         };
     }
 }
