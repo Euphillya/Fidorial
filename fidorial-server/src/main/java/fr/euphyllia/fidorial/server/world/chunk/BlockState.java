@@ -7,20 +7,25 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
+// To be generated
+@SuppressWarnings("unused")
 public final class BlockState {
 
-    private static final Key AIR_KEY = Key.key("minecraft:air");
-    private static final Key CAVE_AIR_KEY = Key.key("minecraft:cave_air");
-    private static final Key VOID_AIR_KEY = Key.key("minecraft:void_air");
-    private static final Key WATER_KEY = Key.key("minecraft:water");
-    private static final Key LAVA_KEY = Key.key("minecraft:lava");
+    private static final Key AIR_KEY = Key.key("air");
+    private static final Key CAVE_AIR_KEY = Key.key("cave_air");
+    private static final Key VOID_AIR_KEY = Key.key("void_air");
+    private static final Key WATER_KEY = Key.key("water");
+    private static final Key LAVA_KEY = Key.key("lava");
+    private static final Key OBSIDIAN_KEY = Key.key("obsidian");
+    private static final Key COBBLESTONE_KEY = Key.key("cobblestone");
+    private static final Key ENDERCHEST_KEY = Key.key("ender_chest");
 
     public static final BlockState AIR = of(AIR_KEY);
     public static final BlockState CAVE_AIR = of(CAVE_AIR_KEY);
     public static final BlockState VOID_AIR = of(VOID_AIR_KEY);
-    public static final BlockState OBSIDIAN = of("minecraft:obsidian");
-    public static final BlockState COBBLESTONE = of("minecraft:cobblestone");
-    public static final BlockState ENDER_CHEST = of("minecraft:ender_chest");
+    public static final BlockState OBSIDIAN = of(OBSIDIAN_KEY);
+    public static final BlockState COBBLESTONE = of(COBBLESTONE_KEY);
+    public static final BlockState ENDER_CHEST = of(ENDERCHEST_KEY);
     public static final BlockState WATER = of(WATER_KEY);
     public static final BlockState LAVA = of(LAVA_KEY);
 
@@ -44,10 +49,6 @@ public final class BlockState {
 
     public static BlockState of(final Key name) {
         return new BlockState(name, Collections.emptyMap());
-    }
-
-    private static BlockState of(final String name) {
-        return new BlockState(Key.key(name), Collections.emptyMap());
     }
 
     public Key name() {

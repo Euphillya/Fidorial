@@ -114,8 +114,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
             return;
         }
 
-        final ServerWorld world = server.worldManager().overworld();
-        final Location spawn = new Location(config.spawnX(), config.spawnY(), config.spawnZ(), 0f, 0f);
+        final ServerWorld world = server.worldManager().overworld(); // FIXME: dont hardcode
+        final Location spawn = new Location(config.spawnX(), config.spawnY(), config.spawnZ(), 0f, 0f); // we should preserve the player's loc in NBT
         this.player = createPlayer(world, spawn);
         connection.setPlayer(player);
         world.addEntity(player);
@@ -150,7 +150,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (player != null) {
             closeOpenMenu(false);
             server.events().post(new PlayerQuitEvent(player));
-            server.worldManager().overworld().removeEntity(player);
+            serverWorld().removeEntity(player);
             player.permissions().revokeAll();
             player.remove();
             server.entityTracker().untrack(player);
@@ -357,7 +357,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
                     .post(new BlockPlaceEvent(
                             player, target, server.blockStateRegistry().networkId(state)));
             if (!event.isCancelled()) {
-                server.blockEdits().set(server.worldManager().overworld(), target, state);
+                server.blockEdits().set(serverWorld(), target, state);
             }
         }
         connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
@@ -369,25 +369,16 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (state == null) {
             return null;
         }
-        final ServerWorld world = server.worldManager().overworld();
+        final ServerWorld world = serverWorld();
         final BlockPlaceContext context = new BlockPlaceContext(
                 target, clickedFace, player.location(), server.blockStateRegistry().view(world));
         return server.blockStateRegistry().placementState(state, context);
     }
 
-    private boolean isWater(final BlockPos pos) {
-        try {
-            return "minecraft:water"
-                    .equals(server.worldManager().overworld().getBlock(pos.x(), pos.y(), pos.z()).name());
-        } catch (final IOException e) {
-            return false;
-        }
-    }
-
     private boolean interactWithBlock(final BlockPos pos) {
         final BlockState state;
         try {
-            state = server.worldManager().overworld().getBlock(pos.x(), pos.y(), pos.z());
+            state = serverWorld().getBlock(pos.x(), pos.y(), pos.z());
         } catch (final IOException e) {
             LOGGER.debug("Lecture du bloc {} impossible", pos, e);
             return false;
@@ -400,7 +391,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private void openEnderChest(final BlockPos pos) {
-        if (EnderChestBlock.isBlockedAbove(server.worldManager().overworld(), pos)) {
+        if (EnderChestBlock.isBlockedAbove(serverWorld(), pos)) {
             return;
         }
 
@@ -489,7 +480,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             final BlockBreakEvent event = server.events().post(new BlockBreakEvent(player, packet.position()));
             if (!event.isCancelled()) {
                 onBlockDestroyed(packet.position());
-                server.blockEdits().set(((ServerWorld) player.world()), packet.position(), BlockState.AIR);
+                server.blockEdits().set(serverWorld(), packet.position(), BlockState.AIR);
             }
         }
         connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));
@@ -555,7 +546,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         final Location current = new Location(x, y, z, yaw, pitch);
         trackFall(previous, current);
         player.setLocation(current);
-        server.worldManager().overworld().entityManager().moved(player, previous.chunk(), current.chunk());
+        serverWorld().entityManager().moved(player, previous.chunk(), current.chunk());
 
         player.sendToTrackers(new ClientboundEntityPositionSyncPacket(
                 player.entityId(), x, y, z, 0, 0, 0, yaw, pitch, false));
@@ -643,8 +634,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (player == null || player.isAwaitingRespawn()) {
             return;
         }
-        final AbstractEntity target =
-                ((ServerWorld) player.world()).entityManager().byId(packet.entityId());
+        final AbstractEntity target = serverWorld().entityManager().byId(packet.entityId());
         if (target == null) {
             LOGGER.debug("{} attaque l'entite {} qui n'existe pas ou plus", player.name(), packet.entityId());
             return;
@@ -692,7 +682,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (player == null || !player.isAwaitingRespawn()) {
             return;
         }
-        final ServerWorld defaultWorld = server.worldManager().overworld();
+        final ServerWorld defaultWorld = server.worldManager().overworld(); // FIXME: dont hardcode
         final Location defaultSpawn =
                 new Location(config.spawnX(), config.spawnY(), config.spawnZ(), 0f, 0f);
 
@@ -777,6 +767,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private Key worldId() {
-        return server.worldManager().overworld().dimension().id();
+        return player != null ? player.world().key() : server.worldManager().overworld().dimension().id();
+    }
+
+    private ServerWorld serverWorld() {
+        return player != null ? server.worldManager().world(player.world().key()) : server.worldManager().overworld();
     }
 }

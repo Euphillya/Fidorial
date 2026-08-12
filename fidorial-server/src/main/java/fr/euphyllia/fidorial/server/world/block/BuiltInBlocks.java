@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.world.block;
 import fr.fidorial.world.block.BlockRegistry;
 import net.kyori.adventure.key.Key;
 
+// To be generated
 public final class BuiltInBlocks {
 
     private BuiltInBlocks() {

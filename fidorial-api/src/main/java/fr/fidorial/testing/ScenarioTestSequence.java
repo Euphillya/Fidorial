@@ -67,6 +67,9 @@ public final class ScenarioTestSequence {
             return this;
         }
 
+        /**
+         * Builds and returns the {@link ScenarioTestSequence}.
+         */
         public ScenarioTestSequence build() {
             checkNotBuilt();
             built = true;
