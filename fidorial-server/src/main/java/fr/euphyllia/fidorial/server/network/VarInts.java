@@ -6,6 +6,7 @@ import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import fr.euphyllia.fidorial.server.world.nbt.codec.NbtOps;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.EncoderException;
 import net.kyori.adventure.text.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -101,7 +102,7 @@ public final class VarInts {
 
     public static void writeComponent(final ByteBuf buf, final Component message) {
         final Nbt nbt = ComponentCodecs.COMPONENT_CODEC.encodeStart(NbtOps.INSTANCE, message)
-                 .getOrThrow(msg -> new IllegalStateException("Failed to encode Component: " + msg));
+                 .getOrThrow(msg -> new EncoderException("Failed to encode Component: " + msg));
         NetworkNbtHelper.writeNbt(buf, nbt);
     }
 
@@ -114,6 +115,6 @@ public final class VarInts {
         }
 
         return ComponentCodecs.COMPONENT_CODEC.parse(NbtOps.INSTANCE, nbt)
-                .getOrThrow(msg -> new IllegalArgumentException("Failed to decode Component: " + msg));
+                .getOrThrow(msg -> new DecoderException("Failed to decode Component: " + msg));
     }
 }
