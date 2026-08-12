@@ -113,7 +113,10 @@ public final class ComponentCodecs {
                     .xmap(ClickEvent::runCommand, e -> ((ClickEvent.Payload.Text) e.payload()).value());
             case "suggest_command" -> Codec.STRING.fieldOf("command")
                     .xmap(ClickEvent::suggestCommand, e -> ((ClickEvent.Payload.Text) e.payload()).value());
-            case "change_page" -> Codec.INT.fieldOf("page")
+            case "change_page" -> Codec.INT.validate(page -> page > 0
+                            ? DataResult.success(page)
+                            : DataResult.error(() -> "Page must be positive: " + page))
+                    .fieldOf("page")
                     .xmap(ClickEvent::changePage, e -> ((ClickEvent.Payload.Int) e.payload()).integer());
             case "copy_to_clipboard" -> Codec.STRING.fieldOf("value")
                     .xmap(ClickEvent::copyToClipboard, e -> ((ClickEvent.Payload.Text) e.payload()).value());
