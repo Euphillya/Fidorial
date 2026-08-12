@@ -631,7 +631,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleAttack(final ServerboundAttackPacket packet) {
-        if (player == null || player.isAwaitingRespawn()) {
+        if (player == null || player.isDead()) {
             return;
         }
         final AbstractEntity target = serverWorld().entityManager().byId(packet.entityId());
@@ -668,6 +668,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleClientCommand(final ServerboundClientCommandPacket packet) {
+        LOGGER.debug("{} send client_command action={}", player == null ? "?" : player.name(), packet.action());
         if (packet.action() == ServerboundClientCommandPacket.PERFORM_RESPAWN) {
             respawn();
         }
@@ -679,7 +680,12 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private void respawn() {
-        if (player == null || !player.isAwaitingRespawn()) {
+        if (player == null) {
+            LOGGER.debug("Either the player is null");
+            return;
+        }
+        if (!player.isDead()) {
+            LOGGER.debug("{} requested a respawn while alive (health={})", player.name(), player.health());
             return;
         }
         final ServerWorld defaultWorld = server.worldManager().overworld(); // FIXME: dont hardcode
@@ -704,10 +710,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 ClientboundRespawnPacket.KEEP_NOTHING));
         connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(player.gameMode()));
         connection.send(new ClientboundSetHealthPacket(player.health(), 20, 5.0f));
+        connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
 
         moveToRespawnPoint(world, spawn);
 
-        connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         connection.send(new ClientboundPlayerPositionPacket(
                 player.nextTeleportId(), spawn.x(), spawn.y(), spawn.z()));
         server.dayNightEngine().syncTo(world, connection::send);
@@ -724,7 +730,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
             final Location previous = player.location();
             player.setLocation(spawn);
             from.entityManager().moved(player, previous.chunk(), destination);
-            if (chunkView != null && chunkView.moveTo(destination.x(), destination.z()) && ticket != null) {
+            if (chunkView != null) {
+                chunkView.resend(destination);
+            }
+            if (ticket != null && !ticket.equals(destination)) {
                 server.regionizer().moveTicket(from.dimension().id(), ticket, destination);
                 ticket = destination;
             }

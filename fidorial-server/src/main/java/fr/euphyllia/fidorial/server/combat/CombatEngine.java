@@ -276,10 +276,9 @@ public final class CombatEngine implements CombatService {
     }
 
     private void killPlayer(final ServerPlayer player, final @Nullable Entity killer) {
-        if (player.isAwaitingRespawn()) {
+        if (player.health() <= 0) {
             return;
         }
-        player.setAwaitingRespawn(true);
 
         final Component message = deathMessage(player, killer);
         final PlayerDeathEvent event = server.events().post(new PlayerDeathEvent(player, killer, message));

@@ -9,7 +9,7 @@ public final class NbtList implements Nbt, Iterable<Nbt> {
     private final List<Nbt> items = new ArrayList<>();
     private final NbtType declaredType;
 
-    public NbtList(NbtType type) {
+    public NbtList(final NbtType type) {
         this.declaredType = type;
     }
 
@@ -22,9 +22,9 @@ public final class NbtList implements Nbt, Iterable<Nbt> {
             return declaredType;
         }
 
-        NbtType first = items.getFirst().type();
+        final NbtType first = items.getFirst().type();
 
-        for (Nbt item : items) {
+        for (final Nbt item : items) {
             if (item.type() != first) {
                 return NbtType.COMPOUND;
             }
@@ -46,24 +46,24 @@ public final class NbtList implements Nbt, Iterable<Nbt> {
         return items.size();
     }
 
-    public Nbt get(int index) {
+    public Nbt get(final int index) {
         return items.get(index);
     }
 
-    public NbtList add(Nbt tag) {
+    public NbtList add(final Nbt tag) {
         items.add(tag);
         return this;
     }
 
-    public NbtList addCompound(NbtCompound compound) {
+    public NbtList addCompound(final NbtCompound compound) {
         return add(compound);
     }
 
-    public NbtList addString(String value) {
+    public NbtList addString(final String value) {
         return add(new NbtString(value));
     }
 
-    public NbtList addInt(int value) {
+    public NbtList addInt(final int value) {
         return add(new NbtInt(value));
     }
 

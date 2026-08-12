@@ -158,7 +158,7 @@ public class LevelData {
             final NbtList playerList = bar.getList("Players");
             if (playerList != null) {
                 for (final Nbt entry : playerList) {
-                    if (entry instanceof NbtIntArray(int[] value)) {
+                    if (entry instanceof NbtIntArray(final int[] value)) {
                         players.add(AnvilEntitySerializer.uuidFromInts(value));
                     }
                 }

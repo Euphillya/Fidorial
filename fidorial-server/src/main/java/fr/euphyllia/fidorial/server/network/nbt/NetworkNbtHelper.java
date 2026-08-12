@@ -18,24 +18,24 @@ public final class NetworkNbtHelper {
     private NetworkNbtHelper() {
     }
 
-    public static void writeNbt(ByteBuf buf, Nbt nbt) {
+    public static void writeNbt(final ByteBuf buf, final Nbt nbt) {
         try {
             NbtIo.writeNetwork(
                     new DataOutputStream(new ByteBufOutputStream(buf)),
                     nbt
             );
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new EncoderException("Failed writing NBT", e);
         }
     }
 
-    public static Nbt readNbt(ByteBuf buf, long maxBytes) {
+    public static Nbt readNbt(final ByteBuf buf, final long maxBytes) {
         try {
             return NbtIo.readNetwork(
                     new DataInputStream(new ByteBufInputStream(buf)),
                     NbtReadLimits.withBudget(maxBytes)
             );
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new DecoderException("Failed reading NBT", e);
         }
     }

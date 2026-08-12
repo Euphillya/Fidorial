@@ -326,14 +326,6 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         this.airSupply = Math.clamp(airSupply, 0, MAX_AIR_SUPPLY);
     }
 
-    public boolean isAwaitingRespawn() {
-        return awaitingRespawn;
-    }
-
-    public void setAwaitingRespawn(final boolean awaitingRespawn) {
-        this.awaitingRespawn = awaitingRespawn;
-    }
-
     @Override
     public double armor() {
         return 0;
@@ -361,7 +353,6 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         setInvulnerableTicks(0);
         setAirSupply(MAX_AIR_SUPPLY);
         setFallDistance(0.0);
-        setAwaitingRespawn(false);
         this.ticksSinceLastAttack.set(MAX_TRACKED_ATTACK_TICKS);
     }
 

@@ -11,22 +11,22 @@ public class ItemStack {
     private final Key id;
     private final Integer count;
 
-    public ItemStack(Key id, int stack) {
+    public ItemStack(final Key id, final int stack) {
         this.id = id;
         this.count = stack;
     }
 
-    public static ItemStack of(Key key, int stack) {
+    public static ItemStack of(final Key key, final int stack) {
         return new ItemStack(key, stack);
     }
 
     @SuppressWarnings("PatternValidation")
-    public static ItemStack fromNbt(@Nullable NbtCompound tag) {
+    public static ItemStack fromNbt(@Nullable final NbtCompound tag) {
         if (tag == null) {
             return EMPTY;
         }
-        String id = tag.getString("id");
-        int count = tag.getInt("count");
+        final String id = tag.getString("id");
+        final int count = tag.getInt("count");
         if (id.isBlank() || count <= 0) {
             return EMPTY;
         }
@@ -38,7 +38,7 @@ public class ItemStack {
     }
 
     public NbtCompound toNbt() {
-        NbtCompound tag = new NbtCompound();
+        final NbtCompound tag = new NbtCompound();
         tag.putString("id", id.asString());
         tag.putInt("count", count);
         return tag;

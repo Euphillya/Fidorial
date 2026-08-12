@@ -590,7 +590,7 @@ public final class ServerWorld implements World {
         }
 
         @Override
-        public int topNonEmptySectionY(int chunkX, int chunkZ) {
+        public int topNonEmptySectionY(final int chunkX, final int chunkZ) {
             final ChunkColumn column = loadedColumn(chunkX, chunkZ);
             return column == null ? (minY >> 4) - 1 : column.topNonEmptySectionY();
         }
@@ -606,7 +606,7 @@ public final class ServerWorld implements World {
         }
 
         @Override
-        public boolean isLightPopulated(int chunkX, int chunkZ) {
+        public boolean isLightPopulated(final int chunkX, final int chunkZ) {
             final ChunkColumn column = loadedColumn(chunkX, chunkZ);
             if (column == null) return false;
             return column.lightPopulated();

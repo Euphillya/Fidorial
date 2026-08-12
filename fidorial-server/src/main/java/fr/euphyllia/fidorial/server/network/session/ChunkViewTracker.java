@@ -70,6 +70,19 @@ public final class ChunkViewTracker implements ChunkViewSource {
         stream(center.x(), center.z());
     }
 
+    public void resend(final ChunkPos center) {
+        synchronized (lock) {
+            if (closed) {
+                return;
+            }
+            sent.clear();
+            centerX = center.x();
+            centerZ = center.z();
+        }
+        connection.send(new ClientboundSetChunkCacheCenterPacket(center.x(), center.z()));
+        requestInRange(center.x(), center.z());
+    }
+
     public boolean moveTo(final int chunkX, final int chunkZ) {
         synchronized (lock) {
             if (closed) {

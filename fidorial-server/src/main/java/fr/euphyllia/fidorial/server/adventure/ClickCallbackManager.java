@@ -36,7 +36,7 @@ public final class ClickCallbackManager implements AutoCloseable {
     }
 
     private record ExpiringCallbackEntry(ClickCallback<Audience> callback, long expiresAt, AtomicInteger remainingUses) {
-        private ExpiringCallbackEntry(ClickCallback<Audience> callback, long expiresAt, int remainingUses) {
+        private ExpiringCallbackEntry(final ClickCallback<Audience> callback, final long expiresAt, final int remainingUses) {
             this(Objects.requireNonNull(callback, "callback"), expiresAt, new AtomicInteger(remainingUses));
         }
 
@@ -141,16 +141,16 @@ public final class ClickCallbackManager implements AutoCloseable {
     }
 
     public static UUID uuidFromPayload(Nbt nbt) {
-        if (!(nbt instanceof NbtString(String value))) {
+        if (!(nbt instanceof NbtString(final String value))) {
             throw new IllegalArgumentException("Expected string payload");
         }
         try {
             nbt = NbtBinaryTagBridge.toNbt(TagStringIO.tagStringIO().asTag(value));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new IllegalArgumentException("Invalid SNBT payload", e);
         }
 
-        if (!(nbt instanceof NbtIntArray(int[] v)) || v.length != 4) {
+        if (!(nbt instanceof NbtIntArray(final int[] v)) || v.length != 4) {
             throw new IllegalArgumentException("Expected a 4-element int array tag");
         }
 

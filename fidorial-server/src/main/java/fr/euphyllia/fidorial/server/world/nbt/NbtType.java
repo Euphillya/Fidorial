@@ -20,12 +20,12 @@ public enum NbtType {
 
     private final int id;
 
-    NbtType(int id) {
+    NbtType(final int id) {
         this.id = id;
     }
 
-    public static NbtType byId(int id) {
-        for (NbtType t : values()) {
+    public static NbtType byId(final int id) {
+        for (final NbtType t : values()) {
             if (t.id == id) return t;
         }
         throw new IllegalArgumentException("Type NBT inconnu : " + id);
