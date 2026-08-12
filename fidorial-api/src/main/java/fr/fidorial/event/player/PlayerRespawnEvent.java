@@ -1,8 +1,10 @@
 package fr.fidorial.event.player;
 
 import fr.fidorial.entity.Player;
+import fr.fidorial.entity.RespawnPoint;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import org.jetbrains.annotations.Contract;
 
 /**
  * Fired when a dead player clicks respawn, before they are placed back in the world.
@@ -12,15 +14,26 @@ import fr.fidorial.world.World;
 public final class PlayerRespawnEvent implements PlayerEvent {
 
     private final Player player;
+    private final Cause cause;
+    private final boolean usedRespawnPoint;
     private World world;
     private Location location;
 
-    public PlayerRespawnEvent(final Player player, final World world, final Location location) {
+
+    public PlayerRespawnEvent(
+            final Player player,
+            final World world,
+            final Location location,
+            final Cause cause,
+            final boolean usedRespawnPoint) {
         this.player = player;
         this.world = world;
         this.location = location;
+        this.cause = cause;
+        this.usedRespawnPoint = usedRespawnPoint;
     }
 
+    @Contract(pure = true)
     @Override
     public Player player() {
         return player;
@@ -29,6 +42,7 @@ public final class PlayerRespawnEvent implements PlayerEvent {
     /**
      * @return the world the player is about to respawn in
      */
+    @Contract(pure = true)
     public World world() {
         return world;
     }
@@ -36,8 +50,26 @@ public final class PlayerRespawnEvent implements PlayerEvent {
     /**
      * @return the position the player is about to respawn at
      */
+    @Contract(pure = true)
     public Location location() {
         return location;
+    }
+
+    /**
+     * @return what triggered this respawn
+     * @since 0.1.0
+     */
+    public Cause cause() {
+        return cause;
+    }
+
+    /**
+     * @return {@code true} when the position comes from the player's
+     * {@linkplain Player#respawnPoint() respawn point}, {@code false} when it is the world spawn
+     * @since 0.1.0
+     */
+    public boolean usedRespawnPoint() {
+        return usedRespawnPoint;
     }
 
     /**
@@ -54,5 +86,30 @@ public final class PlayerRespawnEvent implements PlayerEvent {
      */
     public void setRespawnLocation(final Location location) {
         this.location = location;
+    }
+
+    /**
+     * @param point the point to respawn at instead
+     * @since 0.1.0
+     */
+    public void setRespawnLocation(final RespawnPoint point) {
+        this.world = point.world();
+        this.location = point.location();
+    }
+
+    /**
+     * What made the player respawn.
+     *
+     * @since 0.1.0
+     */
+    public enum Cause {
+        /**
+         * The player clicked the button on the death screen.
+         */
+        DEATH_SCREEN,
+        /**
+         * A plugin called {@link Player#respawn()}, or an operator ran {@code /respawn}.
+         */
+        API
     }
 }

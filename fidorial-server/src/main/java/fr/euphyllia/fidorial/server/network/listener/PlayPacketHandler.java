@@ -61,6 +61,7 @@ import fr.euphyllia.fidorial.server.world.block.EnderChestBlock;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.PlayerProfile;
+import fr.fidorial.entity.RespawnPoint;
 import fr.fidorial.event.player.BlockBreakEvent;
 import fr.fidorial.event.player.BlockPlaceEvent;
 import fr.fidorial.event.player.PlayerChatEvent;
@@ -167,15 +168,33 @@ public final class PlayPacketHandler implements PlayPacketListener {
             throw new IllegalStateException(
                     "Attempt to create a player without an authenticated profile (incomplete login)");
         }
-        return new ServerPlayer(
+        final PlayerDataStorage.PlayerData data = loadPlayerData(profile);
+        final ServerPlayer created = new ServerPlayer(
                 server.entityIds().allocate(),
                 profile,
                 loadInventory(profile),
                 loadEnderChest(profile),
-                loadPlayerData(profile).gameMode(),
+                data.gameMode(),
                 connection,
                 world,
                 spawn);
+        created.setRespawnPoint(restoreRespawnPoint(profile, data));
+        return created;
+    }
+
+    private @Nullable RespawnPoint restoreRespawnPoint(
+            final PlayerProfile profile, final PlayerDataStorage.PlayerData data) {
+        final Key worldKey = data.respawnWorld();
+        final Location location = data.respawnLocation();
+        if (worldKey == null || location == null) {
+            return null;
+        }
+        final ServerWorld world = server.worldManager().world(worldKey);
+        if (world == null) {
+            LOGGER.warn("Respawn point of {} targets the unknown world {}, dropped", profile.name(), worldKey);
+            return null;
+        }
+        return new RespawnPoint(world, location);
     }
 
     private EnderChestInventory loadEnderChest(final PlayerProfile profile) {
@@ -201,7 +220,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private PlayerDataStorage.PlayerData loadPlayerData(final PlayerProfile profile) {
-        final PlayerDataStorage.PlayerData defaults = new PlayerDataStorage.PlayerData(config.defaultGameMode());
+        final PlayerDataStorage.PlayerData defaults = new PlayerDataStorage.PlayerData(config.defaultGameMode(), null, null);
         try {
             return server.playerDataStorage().load(profile.uuid(), defaults);
         } catch (final Exception e) {
@@ -668,9 +687,9 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleClientCommand(final ServerboundClientCommandPacket packet) {
-        LOGGER.debug("{} send client_command action={}", player == null ? "?" : player.name(), packet.action());
+        LOGGER.debug("{} sent client_command action={}", player == null ? "?" : player.name(), packet.action());
         if (packet.action() == ServerboundClientCommandPacket.PERFORM_RESPAWN) {
-            respawn();
+            respawn(PlayerRespawnEvent.Cause.DEATH_SCREEN);
         }
     }
 
@@ -679,21 +698,41 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.notifyResourcePackResponse(packet.id(), packet.status());
     }
 
-    private void respawn() {
+    public boolean respawn(final PlayerRespawnEvent.Cause cause) {
         if (player == null) {
-            LOGGER.debug("Either the player is null");
-            return;
+            LOGGER.debug("Respawn requested without a player");
+            return false;
         }
-        if (!player.isDead()) {
+        if (player.isRemoved() || (!player.isDead() && !player.isAwaitingRespawn())) {
             LOGGER.debug("{} requested a respawn while alive (health={})", player.name(), player.health());
-            return;
+            return false;
         }
         final ServerWorld defaultWorld = server.worldManager().overworld(); // FIXME: dont hardcode
         final Location defaultSpawn =
                 new Location(config.spawnX(), config.spawnY(), config.spawnZ(), 0f, 0f);
 
-        final PlayerRespawnEvent event =
-                server.events().post(new PlayerRespawnEvent(player, defaultWorld, defaultSpawn));
+        ServerWorld requestedWorld = defaultWorld;
+        Location requestedSpawn = defaultSpawn;
+        boolean usedRespawnPoint = false;
+
+        final RespawnPoint point = player.respawnPoint();
+        if (point != null) {
+            final ServerWorld target = server.worldManager().world(point.world().key());
+            if (target != null) {
+                requestedWorld = target;
+                requestedSpawn = point.location();
+                usedRespawnPoint = true;
+            } else {
+                LOGGER.warn(
+                        "Respawn point of {} targets the unloaded world {}, world spawn used instead",
+                        player.name(),
+                        point.world().key());
+                player.setRespawnPoint((RespawnPoint) null);
+            }
+        }
+
+        final PlayerRespawnEvent event = server.events()
+                .post(new PlayerRespawnEvent(player, requestedWorld, requestedSpawn, cause, usedRespawnPoint));
         final ServerWorld world =
                 event.world() instanceof final ServerWorld target ? target : defaultWorld;
         final Location spawn = event.location();
@@ -718,7 +757,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 player.nextTeleportId(), spawn.x(), spawn.y(), spawn.z()));
         server.dayNightEngine().syncTo(world, connection::send);
         server.entityTracker().update(player, server.players());
-        LOGGER.debug("{} est reapparu en {}", player.name(), spawn);
+        LOGGER.debug("{} respawned at {}", player.name(), spawn);
+        return true;
     }
 
 

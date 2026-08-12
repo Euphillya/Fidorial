@@ -29,6 +29,8 @@ import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfile;
+import fr.fidorial.entity.RespawnPoint;
+import fr.fidorial.event.player.PlayerRespawnEvent;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
@@ -99,6 +101,7 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     private volatile int lastTeleportId;
     private volatile boolean flying;
     private volatile @Nullable ContainerMenu openMenu;
+    private volatile @Nullable RespawnPoint respawnPoint;
     private int nextWindowId = 1;
     private Locale locale;
 
@@ -324,6 +327,36 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
 
     public void setAirSupply(final int airSupply) {
         this.airSupply = Math.clamp(airSupply, 0, MAX_AIR_SUPPLY);
+    }
+
+    @Override
+    public boolean isAwaitingRespawn() {
+        return awaitingRespawn;
+    }
+
+    public void setAwaitingRespawn(final boolean awaitingRespawn) {
+        this.awaitingRespawn = awaitingRespawn;
+    }
+
+    @Override
+    public @Nullable RespawnPoint respawnPoint() {
+        return respawnPoint;
+    }
+
+    @Override
+    public void setRespawnPoint(final @Nullable RespawnPoint point) {
+        this.respawnPoint = point;
+    }
+
+    @Override
+    public boolean respawn() {
+        if (isRemoved() || (!isDead() && !awaitingRespawn)) {
+            return false;
+        }
+        FidorialServer.getInstance()
+                .regionizer()
+                .execute(world().key(), chunk(), () -> connection.respawn(PlayerRespawnEvent.Cause.API));
+        return true;
     }
 
     @Override

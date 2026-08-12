@@ -23,6 +23,8 @@ import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.PardonCommand;
 import fr.euphyllia.fidorial.server.command.defaults.PardonIpCommand;
+import fr.euphyllia.fidorial.server.command.defaults.RespawnCommand;
+import fr.euphyllia.fidorial.server.command.defaults.SpawnPointCommand;
 import fr.euphyllia.fidorial.server.command.defaults.StopCommand;
 import fr.euphyllia.fidorial.server.command.defaults.SummonCommand;
 import fr.euphyllia.fidorial.server.command.defaults.TimeCommand;
@@ -88,6 +90,8 @@ public final class CommandManager implements CommandRegistry {
         register(WhitelistCommand.create());
         register(BanIpCommand.create(), Set.of("banip"));
         register(PardonIpCommand.create(), Set.of("unban-ip", "pardonip"));
+        register(SpawnPointCommand.create());
+        register(RespawnCommand.create());
     }
 
     @Override

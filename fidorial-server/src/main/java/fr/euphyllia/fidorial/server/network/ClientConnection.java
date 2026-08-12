@@ -25,6 +25,8 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundKeepAlivePacket;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.entity.PlayerProfile;
+import fr.fidorial.entity.RespawnPoint;
+import fr.fidorial.event.player.PlayerRespawnEvent;
 import fr.fidorial.protocol.PacketListener;
 import fr.fidorial.protocol.ServerboundPacket;
 import fr.fidorial.storage.player.PlayerDataStorage;
@@ -234,8 +236,14 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
             try {
                 server.playerInventoryStorage().save(disconnecting.uuid(), disconnecting.inventory());
                 server.playerEnderChestStorage().save(disconnecting.uuid(), disconnecting.enderChest());
+                final RespawnPoint point = disconnecting.respawnPoint();
                 server.playerDataStorage()
-                        .save(disconnecting.uuid(), new PlayerDataStorage.PlayerData(disconnecting.gameMode()));
+                        .save(
+                                disconnecting.uuid(),
+                                new PlayerDataStorage.PlayerData(
+                                        disconnecting.gameMode(),
+                                        point == null ? null : point.world().key(),
+                                        point == null ? null : point.location()));
                 LOGGER.debug("Inventory + Ender Chest and data for {} saved", disconnecting.name());
             } catch (final Exception e) {
                 LOGGER.error("Unable to save inventory for {}", disconnecting.name(), e);
@@ -348,6 +356,13 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     public boolean teleport(final ServerWorld target, final Location location) {
         if (listener instanceof final PlayPacketHandler play) {
             return play.teleport(target, location);
+        }
+        return false;
+    }
+
+    public boolean respawn(final PlayerRespawnEvent.Cause cause) {
+        if (listener instanceof final PlayPacketHandler play) {
+            return play.respawn(cause);
         }
         return false;
     }

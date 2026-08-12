@@ -5,6 +5,8 @@ import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.storage.player.PlayerDataStorage;
+import fr.fidorial.world.Location;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.ByteArrayInputStream;
@@ -21,6 +23,12 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(NbtPlayerDataStorage.class);
     private static final String ROOT_NAME = "PlayerData";
+    private static final String SPAWN_DIMENSION = "SpawnDimension";
+    private static final String SPAWN_X = "SpawnX";
+    private static final String SPAWN_Y = "SpawnY";
+    private static final String SPAWN_Z = "SpawnZ";
+    private static final String SPAWN_ANGLE = "SpawnAngle";
+    private static final String SPAWN_PITCH = "SpawnPitch";
 
     private final Path dataDir;
     private final boolean gzip;
@@ -77,7 +85,26 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
                 gameMode = stored;
             }
         }
-        return new PlayerData(gameMode);
+
+        Key respawnWorld = defaults.respawnWorld();
+        Location respawnLocation = defaults.respawnLocation();
+        if (root.contains(SPAWN_DIMENSION) && root.contains(SPAWN_X)) {
+            final Key parsed = Key.parseable(root.getString(SPAWN_DIMENSION))
+                    ? Key.key(root.getString(SPAWN_DIMENSION))
+                    : null;
+            if (parsed == null) {
+                LOGGER.warn("Invalid respawn dimension for {}, respawn point dropped", uuid);
+            } else {
+                respawnWorld = parsed;
+                respawnLocation = new Location(
+                        root.getDouble(SPAWN_X),
+                        root.getDouble(SPAWN_Y),
+                        root.getDouble(SPAWN_Z),
+                        root.contains(SPAWN_ANGLE) ? root.getFloat(SPAWN_ANGLE) : 0f,
+                        root.contains(SPAWN_PITCH) ? root.getFloat(SPAWN_PITCH) : 0f);
+            }
+        }
+        return new PlayerData(gameMode, respawnWorld, respawnLocation);
     }
 
     @Override
@@ -87,6 +114,17 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
         final NbtCompound root = new NbtCompound();
         root.putInt("DataVersion", AnvilChunkSerializer.DATA_VERSION_26_2);
         root.putInt("playerGameModeId", data.gameMode().id());
+
+        final Key respawnWorld = data.respawnWorld();
+        final Location respawnLocation = data.respawnLocation();
+        if (respawnWorld != null && respawnLocation != null) {
+            root.putString(SPAWN_DIMENSION, respawnWorld.asString());
+            root.putDouble(SPAWN_X, respawnLocation.x());
+            root.putDouble(SPAWN_Y, respawnLocation.y());
+            root.putDouble(SPAWN_Z, respawnLocation.z());
+            root.putFloat(SPAWN_ANGLE, respawnLocation.yaw());
+            root.putFloat(SPAWN_PITCH, respawnLocation.pitch());
+        }
 
         byte[] bytes = NbtIo.writeToBytes(ROOT_NAME, root);
         if (gzip) {

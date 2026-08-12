@@ -1,4 +1,3 @@
-
 {
   "command.error.nopermission" : "<red>You don't have the permission to run this command.",
   "command.error.playernotfound" : "Player not found: <arg:0>",
@@ -52,6 +51,18 @@
   "command.summon.notmob" : "<arg:0> is not a summonable mob (yet).",
   "command.summon.unknown" : "Unknown entity type: <arg:0>",
   "command.summon.usage" : "Usage: /<arg:0> <type> [x y z]",
+
+  "command.spawnpoint.console" : "From the console, a target is required: /<arg:0> <player> [x y z]",
+  "command.spawnpoint.set.self" : "Respawn point set to <arg:0>.",
+  "command.spawnpoint.set.other" : "Respawn point of <arg:0> set to <arg:1>.",
+  "command.spawnpoint.cleared.self" : "Respawn point cleared, back to the world spawn.",
+  "command.spawnpoint.cleared.other" : "Respawn point of <arg:0> cleared, back to the world spawn.",
+  "command.spawnpoint.usage" : "Usage: /<arg:0> [player] [x y z] | /<arg:0> clear [player]",
+
+  "command.respawn.console" : "From the console, a target is required: /<arg:0> <player>",
+  "command.respawn.done" : "<arg:0> has been respawned.",
+  "command.respawn.alive" : "<arg:0> is not waiting to respawn.",
+  "command.respawn.usage" : "Usage: /<arg:0> [player]",
 
   "commands.stop.stopping": "Stopping the server",
 

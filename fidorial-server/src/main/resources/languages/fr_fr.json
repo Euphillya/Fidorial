@@ -52,6 +52,18 @@
   "command.summon.unknown" : "Type d'entité inconnu : <arg:0>",
   "command.summon.usage" : "Utilisation : /<arg:0> <type> [x y z]",
 
+  "command.spawnpoint.console" : "Depuis la console, une cible est requise : /<arg:0> <joueur> [x y z]",
+  "command.spawnpoint.set.self" : "Point de réapparition défini en <arg:0>.",
+  "command.spawnpoint.set.other" : "Point de réapparition de <arg:0> défini en <arg:1>.",
+  "command.spawnpoint.cleared.self" : "Point de réapparition retiré, retour au spawn du monde.",
+  "command.spawnpoint.cleared.other" : "Point de réapparition de <arg:0> retiré, retour au spawn du monde.",
+  "command.spawnpoint.usage" : "Utilisation : /<arg:0> [joueur] [x y z] | /<arg:0> clear [joueur]",
+
+  "command.respawn.console" : "Depuis la console, une cible est requise : /<arg:0> <joueur>",
+  "command.respawn.done" : "<arg:0> a été réapparu.",
+  "command.respawn.alive" : "<arg:0> n'attend pas de réapparition.",
+  "command.respawn.usage" : "Utilisation : /<arg:0> [joueur]",
+
   "commands.stop.stopping": "Arrêt du serveur",
 
   "console.argument.double.low": "Le double ne doit pas être inférieur à <arg:0> (valeur trouvée : <arg:1>)",

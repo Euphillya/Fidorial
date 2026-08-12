@@ -1,6 +1,9 @@
 package fr.fidorial.storage.player;
 
 import fr.fidorial.entity.GameMode;
+import fr.fidorial.world.Location;
+import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -22,6 +25,20 @@ public interface PlayerDataStorage {
         return true;
     }
 
-    record PlayerData(GameMode gameMode) {
+    /**
+     * @param gameMode        the mode the player left in
+     * @param respawnWorld    the key of the world the player respawns in, or {@code null} for the
+     *                        world spawn
+     * @param respawnLocation the position the player respawns at, or {@code null} for the world
+     *                        spawn
+     */
+    record PlayerData(GameMode gameMode, @Nullable Key respawnWorld, @Nullable Location respawnLocation) {
+
+        /**
+         * @return {@code true} when a custom respawn point was saved
+         */
+        public boolean hasRespawnPoint() {
+            return respawnWorld != null && respawnLocation != null;
+        }
     }
 }
