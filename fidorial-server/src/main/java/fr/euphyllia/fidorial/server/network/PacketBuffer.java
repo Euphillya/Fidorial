@@ -1,13 +1,14 @@
 package fr.euphyllia.fidorial.server.network;
 
-import fr.euphyllia.fidorial.server.network.nbt.NetworkNbtHelper;
-import fr.euphyllia.fidorial.server.world.nbt.Nbt;
-import fr.euphyllia.fidorial.server.world.nbt.NbtType;
+import fr.euphyllia.fidorial.server.network.nbt.NbtIo;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.world.BlockPos;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.BinaryTagTypes;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
@@ -104,7 +105,7 @@ public final class PacketBuffer {
         return buf.readDouble();
     }
 
-    public Nbt readSizedNbt(final int maxBytes) {
+    public BinaryTag readSizedNbt(final int maxBytes) {
         final int size = readVarInt();
         if (size < 0 || size > maxBytes) {
             throw new DecoderException("NBT payload too large: " + size);
@@ -115,7 +116,7 @@ public final class PacketBuffer {
         }
 
         final ByteBuf slice = buf.readSlice(size);
-        final Nbt nbt = NetworkNbtHelper.readNbt(slice, maxBytes);
+        final BinaryTag nbt = NbtIo.readNbt(slice, maxBytes);
         if (slice.isReadable()) {
             throw new DecoderException("NBT payload has " + slice.readableBytes() + " unread bytes");
         }
@@ -218,13 +219,13 @@ public final class PacketBuffer {
         return VarInts.readComponent(buf, maxLength);
     }
 
-    public PacketBuffer writeNbt(final @Nullable Nbt nbt) {
+    public PacketBuffer writeNbt(final @Nullable CompoundBinaryTag nbt) {
         if (nbt == null) {
-            buf.writeByte(NbtType.END.id());
+            buf.writeByte(BinaryTagTypes.END.id());
             return this;
         }
 
-        NetworkNbtHelper.writeNbt(buf, nbt);
+        NbtIo.writeNbt(buf, nbt);
         return this;
     }
 

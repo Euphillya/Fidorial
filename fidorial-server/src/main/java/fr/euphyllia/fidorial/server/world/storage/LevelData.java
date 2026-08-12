@@ -2,14 +2,14 @@ package fr.euphyllia.fidorial.server.world.storage;
 
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
-import fr.euphyllia.fidorial.server.world.nbt.Nbt;
-import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
-import fr.euphyllia.fidorial.server.world.nbt.NbtIntArray;
-import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
-import fr.euphyllia.fidorial.server.world.nbt.NbtList;
-import fr.euphyllia.fidorial.server.world.nbt.NbtType;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.BinaryTagIO;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.IntArrayBinaryTag;
+import net.kyori.adventure.nbt.ListBinaryTag;
+import net.kyori.adventure.nbt.StringBinaryTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.jspecify.annotations.Nullable;
@@ -92,10 +92,10 @@ public class LevelData {
     }
 
     public static LevelData read(final Path levelDat) throws IOException {
-        final NbtIo.Named named = NbtIo.readGzip(levelDat);
-        final NbtCompound data = named.compound().getCompound("Data");
+        final Map.Entry<String, CompoundBinaryTag> named =
+                BinaryTagIO.reader().readNamed(levelDat, BinaryTagIO.Compression.GZIP);
+        final CompoundBinaryTag data = named.getValue().getCompound("Data");
         final LevelData l = new LevelData();
-        if (data == null) return l;
 
         l.dataVersion = data.getInt("DataVersion");
         l.levelName = data.getString("LevelName");
@@ -115,27 +115,22 @@ public class LevelData {
         l.thunderTime = data.getInt("thunderTime");
         l.clearWeatherTime = data.getInt("clearWeatherTime");
 
-        final NbtCompound gameRules = data.getCompound("GameRules");
-        if (gameRules != null && gameRules.contains("doDaylightCycle")) {
+        final CompoundBinaryTag gameRules = data.getCompound("GameRules");
+        if (gameRules.contains("doDaylightCycle")) {
             l.doDaylightCycle = !"false".equals(gameRules.getString("doDaylightCycle"));
         }
         l.readWorldClocks(data);
         l.readCustomBossEvents(data);
 
-        final NbtCompound wgs = data.getCompound("WorldGenSettings");
-        if (wgs != null) l.seed = wgs.getLong("seed");
+        l.seed = data.getCompound("WorldGenSettings").getLong("seed");
         return l;
     }
 
-    private void readWorldClocks(final NbtCompound data) {
-        final NbtCompound fidorial = data.getCompound(FIDORIAL);
-        if (fidorial == null) return;
+    private void readWorldClocks(final CompoundBinaryTag data) {
+        final CompoundBinaryTag fidorial = data.getCompound(FIDORIAL);
 
-        final NbtList clocks = fidorial.getList(WORLD_CLOCKS);
-        if (clocks == null) return;
-
-        for (final Nbt entry : clocks) {
-            if (!(entry instanceof final NbtCompound clock)) continue;
+        for (final BinaryTag entry : fidorial.getList(WORLD_CLOCKS)) {
+            if (!(entry instanceof final CompoundBinaryTag clock)) continue;
             final String dimension = clock.getString("Dimension");
             if (dimension.isEmpty()) continue;
             final Key key = Key.key(dimension);
@@ -146,21 +141,16 @@ public class LevelData {
         }
     }
 
-    private void readCustomBossEvents(final NbtCompound data) {
-        final NbtCompound events = data.getCompound(CUSTOM_BOSS_EVENTS);
-        if (events == null) return;
+    private void readCustomBossEvents(final CompoundBinaryTag data) {
+        final CompoundBinaryTag events = data.getCompound(CUSTOM_BOSS_EVENTS);
 
-        for (final String id : events.keys()) {
-            final NbtCompound bar = events.getCompound(id);
-            if (bar == null) continue;
+        for (final String id : events.keySet()) {
+            final CompoundBinaryTag bar = events.getCompound(id);
 
             final Set<UUID> players = new HashSet<>();
-            final NbtList playerList = bar.getList("Players");
-            if (playerList != null) {
-                for (final Nbt entry : playerList) {
-                    if (entry instanceof NbtIntArray(final int[] value)) {
-                        players.add(AnvilEntitySerializer.uuidFromInts(value));
-                    }
+            for (final BinaryTag entry : bar.getList("Players")) {
+                if (entry instanceof IntArrayBinaryTag iat) {
+                    players.add(AnvilEntitySerializer.uuidFromInts(iat.value()));
                 }
             }
 
@@ -187,15 +177,15 @@ public class LevelData {
     public void write(final Path levelDat) throws IOException {
         Files.createDirectories(levelDat.getParent());
 
-        final NbtCompound data = new NbtCompound();
+        final CompoundBinaryTag.Builder data = CompoundBinaryTag.builder();
         data.putInt("DataVersion", dataVersion);
 
-        final NbtCompound version = new NbtCompound();
+        final CompoundBinaryTag.Builder version = CompoundBinaryTag.builder();
         version.putInt("Id", dataVersion);
         version.putString("Name", versionName);
         version.putString("Series", "main");
         version.putBoolean("Snapshot", false);
-        data.put("Version", version);
+        data.put("Version", version.build());
 
         data.putInt("version", 19133); // version du format de niveau (Anvil)
         data.putBoolean("initialized", true);
@@ -211,7 +201,7 @@ public class LevelData {
 
         data.putInt("GameType", gameType);
         data.putBoolean("hardcore", hardcore);
-        data.putByte("Difficulty", difficulty);
+        data.putByte("Difficulty", (byte) difficulty);
         data.putBoolean("DifficultyLocked", false);
         data.putBoolean("allowCommands", allowCommands);
 
@@ -221,9 +211,9 @@ public class LevelData {
         data.putInt("thunderTime", thunderTime);
         data.putBoolean("thundering", thundering);
 
-        final NbtCompound gameRules = new NbtCompound();
+        final CompoundBinaryTag.Builder gameRules = CompoundBinaryTag.builder();
         gameRules.putString("doDaylightCycle", Boolean.toString(doDaylightCycle));
-        data.put("GameRules", gameRules);
+        data.put("GameRules", gameRules.build());
 
         data.put(FIDORIAL, buildFidorialData());
         data.put(CUSTOM_BOSS_EVENTS, buildCustomBossEvents());
@@ -239,54 +229,47 @@ public class LevelData {
         data.putLong("BorderSizeLerpTime", 0L);
         data.putDouble("BorderDamagePerBlock", 0.2d);
 
-        final NbtCompound dataPacks = new NbtCompound();
-        final NbtList enabled = new NbtList(NbtType.STRING);
-        enabled.addString("vanilla");
-        dataPacks.put("Enabled", enabled);
-        dataPacks.put("Disabled", new NbtList(NbtType.STRING));
-        data.put("DataPacks", dataPacks);
+        final CompoundBinaryTag.Builder dataPacks = CompoundBinaryTag.builder();
+        dataPacks.put("Enabled", ListBinaryTag.builder().add(StringBinaryTag.stringBinaryTag("vanilla")).build());
+        dataPacks.put("Disabled", ListBinaryTag.empty());
+        data.put("DataPacks", dataPacks.build());
 
-        final NbtList serverBrands = new NbtList(NbtType.STRING);
-        serverBrands.addString("Fidorial");
-        data.put("ServerBrands", serverBrands);
+        data.put("ServerBrands", ListBinaryTag.builder().add(StringBinaryTag.stringBinaryTag("Fidorial")).build());
 
         data.put("WorldGenSettings", buildWorldGenSettings());
 
-        final NbtCompound root = new NbtCompound();
-        root.put("Data", data);
+        final CompoundBinaryTag root = CompoundBinaryTag.builder().put("Data", data.build()).build();
 
-        NbtIo.writeGzip(levelDat, "", root);
+        BinaryTagIO.writer().writeNamed(Map.entry("", root), levelDat, BinaryTagIO.Compression.GZIP);
     }
 
-    private NbtCompound buildFidorialData() {
-        final NbtList clocks = new NbtList(NbtType.COMPOUND);
+    private CompoundBinaryTag buildFidorialData() {
+        final ListBinaryTag.Builder<BinaryTag> clocks = ListBinaryTag.builder();
         for (final Map.Entry<Key, WorldTime> entry : worldTimes.entrySet()) {
             final WorldTime value = entry.getValue();
-            final NbtCompound clock = new NbtCompound();
+            final CompoundBinaryTag.Builder clock = CompoundBinaryTag.builder();
             clock.putString("Dimension", entry.getKey().asString());
             clock.putLong("WorldAge", value.worldAge());
             clock.putLong("DayTime", value.dayTime());
             clock.putBoolean("DoDaylightCycle", value.doDaylightCycle());
-            clocks.addCompound(clock);
+            clocks.add(clock.build());
         }
-        final NbtCompound fidorial = new NbtCompound();
-        fidorial.put(WORLD_CLOCKS, clocks);
-        return fidorial;
+        return CompoundBinaryTag.builder().put(WORLD_CLOCKS, clocks.build()).build();
     }
 
     // this is the framework for built-in /bossbars command which DOES persist, unlike plugin ones
-    private NbtCompound buildCustomBossEvents() {
-        final NbtCompound root = new NbtCompound();
+    private CompoundBinaryTag buildCustomBossEvents() {
+        final CompoundBinaryTag.Builder root = CompoundBinaryTag.builder();
 
         for (final Map.Entry<Key, BossBarData> entry : bossBars.entrySet()) {
             final BossBarData value = entry.getValue();
-            final NbtCompound bar = new NbtCompound();
+            final CompoundBinaryTag.Builder bar = CompoundBinaryTag.builder();
 
-            final NbtList players = new NbtList(NbtType.INT_ARRAY);
+            final ListBinaryTag.Builder<BinaryTag> players = ListBinaryTag.builder();
             for (final UUID uuid : value.players()) {
-                players.add(new NbtIntArray(AnvilEntitySerializer.uuidToInts(uuid)));
+                players.add(IntArrayBinaryTag.intArrayBinaryTag(AnvilEntitySerializer.uuidToInts(uuid)));
             }
-            bar.put("Players", players);
+            bar.put("Players", players.build());
 
             bar.putString("Color", value.color().name().toLowerCase(Locale.ROOT));
             bar.putString("Overlay", value.overlay().name().toLowerCase(Locale.ROOT));
@@ -298,50 +281,50 @@ public class LevelData {
             bar.putString("Name", GsonComponentSerializer.gson().serialize(value.name()));
             bar.putBoolean("Visible", value.visible());
 
-            root.put(entry.getKey().asString(), bar);
+            root.put(entry.getKey().asString(), bar.build());
         }
 
-        return root;
+        return root.build();
     }
 
-    private NbtCompound buildWorldGenSettings() {
-        final NbtCompound wgs = new NbtCompound();
+    private CompoundBinaryTag buildWorldGenSettings() {
+        final CompoundBinaryTag.Builder wgs = CompoundBinaryTag.builder();
         wgs.putLong("seed", seed);
         wgs.putBoolean("generate_features", true);
         wgs.putBoolean("bonus_chest", false);
 
-        final NbtCompound dimensions = new NbtCompound();
+        final CompoundBinaryTag.Builder dimensions = CompoundBinaryTag.builder();
         dimensions.put("minecraft:overworld", flatDimension("minecraft:overworld", "minecraft:plains"));
         dimensions.put("minecraft:the_nether", flatDimension("minecraft:the_nether", "minecraft:nether_wastes"));
         dimensions.put("minecraft:the_end", flatDimension("minecraft:the_end", "minecraft:the_end"));
-        wgs.put("dimensions", dimensions);
-        return wgs;
+        wgs.put("dimensions", dimensions.build());
+        return wgs.build();
     }
 
-    private NbtCompound flatDimension(final String typeId, final String biome) {
-        final NbtCompound dim = new NbtCompound();
+    private CompoundBinaryTag flatDimension(final String typeId, final String biome) {
+        final CompoundBinaryTag.Builder dim = CompoundBinaryTag.builder();
         dim.putString("type", typeId);
 
-        final NbtCompound generator = new NbtCompound();
+        final CompoundBinaryTag.Builder generator = CompoundBinaryTag.builder();
         generator.putString("type", "minecraft:flat");
 
-        final NbtCompound settings = new NbtCompound();
+        final CompoundBinaryTag.Builder settings = CompoundBinaryTag.builder();
         settings.putBoolean("features", false);
         settings.putBoolean("lakes", false);
         settings.putString("biome", biome);
 
-        final NbtList layers = new NbtList(NbtType.COMPOUND);
-        final NbtCompound layer = new NbtCompound();
+        final ListBinaryTag.Builder<BinaryTag> layers = ListBinaryTag.builder();
+        final CompoundBinaryTag.Builder layer = CompoundBinaryTag.builder();
         layer.putInt("height", 16);
         layer.putString("block", "minecraft:cobblestone");
-        layers.add(layer);
-        settings.put("layers", layers);
+        layers.add(layer.build());
+        settings.put("layers", layers.build());
 
-        settings.put("structure_overrides", new NbtList(NbtType.STRING));
+        settings.put("structure_overrides", ListBinaryTag.empty());
 
-        generator.put("settings", settings);
-        dim.put("generator", generator);
-        return dim;
+        generator.put("settings", settings.build());
+        dim.put("generator", generator.build());
+        return dim.build();
     }
 
     public boolean exists(final Path levelDat) {

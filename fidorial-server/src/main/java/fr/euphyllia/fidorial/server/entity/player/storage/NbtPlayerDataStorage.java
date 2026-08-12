@@ -1,12 +1,12 @@
 package fr.euphyllia.fidorial.server.entity.player.storage;
 
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
-import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
-import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.world.Location;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.BinaryTagIO;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 import java.io.ByteArrayInputStream;
@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Map;
 import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -75,8 +76,7 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
             data = gunzip(data);
         }
 
-        final NbtIo.Named named = NbtIo.readFromBytes(data);
-        final NbtCompound root = named.compound();
+        final CompoundBinaryTag root = BinaryTagIO.reader().readNamed(new ByteArrayInputStream(data)).getValue();
 
         GameMode gameMode = defaults.gameMode();
         if (root.contains("playerGameModeId")) {
@@ -111,7 +111,7 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
     public void save(final UUID uuid, final PlayerData data) throws IOException {
         Files.createDirectories(dataDir);
 
-        final NbtCompound root = new NbtCompound();
+        final CompoundBinaryTag.Builder root = CompoundBinaryTag.builder();
         root.putInt("DataVersion", AnvilChunkSerializer.DATA_VERSION_26_2);
         root.putInt("playerGameModeId", data.gameMode().id());
 
@@ -126,7 +126,9 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
             root.putFloat(SPAWN_PITCH, respawnLocation.pitch());
         }
 
-        byte[] bytes = NbtIo.writeToBytes(ROOT_NAME, root);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        BinaryTagIO.writer().writeNamed(Map.entry(ROOT_NAME, root.build()), baos);
+        byte[] bytes = baos.toByteArray();
         if (gzip) {
             bytes = gzip(bytes);
         }

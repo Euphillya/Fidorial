@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.registry;
 
-import fr.euphyllia.fidorial.server.world.nbt.Nbt;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.BinaryTag;
 import org.jspecify.annotations.Nullable;
 
-public record RegistryEntry(Key key, @Nullable Nbt data) {
+public record RegistryEntry(Key key, @Nullable BinaryTag data) {
 }

@@ -20,6 +20,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configur
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundSelectKnownPacksPacket;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
@@ -132,9 +133,14 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
 
     @Override
     public void handleCustomClickAction(final ServerboundCustomClickActionPacket packet) {
+        if (!(packet.payload() instanceof final CompoundBinaryTag nbt)) {
+            LOGGER.debug("{} sent a non-compound click callback payload for {}: {}",
+                    connection.username(), packet.id(), packet.payload());
+            return;
+        }
         final UUID uuid;
         try {
-            uuid = ClickCallbackManager.uuidFromPayload(packet.payload());
+            uuid = ClickCallbackManager.uuidFromPayload(nbt);
         } catch (final IllegalArgumentException e) {
             LOGGER.debug("{} sent an invalid click callback payload for {}", connection.username(), packet.id(), e);
             return;

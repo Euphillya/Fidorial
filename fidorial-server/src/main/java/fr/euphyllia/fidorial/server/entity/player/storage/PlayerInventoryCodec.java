@@ -1,17 +1,19 @@
 package fr.euphyllia.fidorial.server.entity.player.storage;
 
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
-import fr.euphyllia.fidorial.server.world.nbt.Nbt;
-import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
-import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
-import fr.euphyllia.fidorial.server.world.nbt.NbtList;
-import fr.euphyllia.fidorial.server.world.nbt.NbtType;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.BinaryTagIO;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.ListBinaryTag;
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 public final class PlayerInventoryCodec {
 
@@ -20,15 +22,15 @@ public final class PlayerInventoryCodec {
     private PlayerInventoryCodec() {
     }
 
-    public static NbtCompound itemToNbt(final ItemStack stack) {
-        final NbtCompound tag = new NbtCompound();
-        tag.putString("id", stack.id().asString());
-        tag.putInt("count", stack.count());
-        return tag;
+    public static CompoundBinaryTag itemToNbt(final ItemStack stack) {
+        return CompoundBinaryTag.builder()
+                .putString("id", stack.id().asString())
+                .putInt("count", stack.count())
+                .build();
     }
 
     @SuppressWarnings("PatternValidation")
-    public static ItemStack itemFromNbt(@Nullable final NbtCompound tag) {
+    public static ItemStack itemFromNbt(@Nullable final CompoundBinaryTag tag) {
         if (tag == null) {
             return ItemStack.EMPTY;
         }
@@ -40,27 +42,26 @@ public final class PlayerInventoryCodec {
         return new ItemStack(Key.key(id), count);
     }
 
-    public static NbtList inventoryToNbt(final PlayerInventory inventory) {
-        final NbtList list = new NbtList(NbtType.COMPOUND);
+    public static ListBinaryTag inventoryToNbt(final PlayerInventory inventory) {
+        final ListBinaryTag.Builder<BinaryTag> list = ListBinaryTag.builder();
         for (int slot = 0; slot < inventory.size(); slot++) {
             final ItemStack stack = inventory.get(slot);
             if (stack.isEmpty()) {
                 continue;
             }
-            final NbtCompound entry = itemToNbt(stack);
-            entry.putByte("Slot", slot);
+            final CompoundBinaryTag entry = itemToNbt(stack).putByte("Slot", (byte) slot);
             list.add(entry);
         }
-        return list;
+        return list.build();
     }
 
-    public static void loadInventoryFromNbt(final PlayerInventory inventory, @Nullable final NbtList list) {
+    public static void loadInventoryFromNbt(final PlayerInventory inventory, @Nullable final ListBinaryTag list) {
         inventory.clear();
         if (list == null) {
             return;
         }
-        for (final Nbt element : list.items()) {
-            if (!(element instanceof final NbtCompound entry)) {
+        for (final BinaryTag element : list) {
+            if (!(element instanceof final CompoundBinaryTag entry)) {
                 continue;
             }
             final int slot = entry.getByte("Slot") & 0xFF;
@@ -72,16 +73,18 @@ public final class PlayerInventoryCodec {
     }
 
     public static byte[] encode(final PlayerInventory inventory) throws IOException {
-        final NbtCompound root = new NbtCompound();
-        root.putInt("DataVersion", AnvilChunkSerializer.DATA_VERSION_26_2);
-        root.put("Inventory", inventoryToNbt(inventory));
-        return NbtIo.writeToBytes(ROOT_NAME, root);
+        final CompoundBinaryTag root = CompoundBinaryTag.builder()
+                .putInt("DataVersion", AnvilChunkSerializer.DATA_VERSION_26_2)
+                .put("Inventory", inventoryToNbt(inventory))
+                .build();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        BinaryTagIO.writer().writeNamed(Map.entry(ROOT_NAME, root), baos);
+        return baos.toByteArray();
     }
 
     public static PlayerInventory decode(final byte[] payload) throws IOException {
         final PlayerInventory inventory = new PlayerInventory();
-        final NbtIo.Named named = NbtIo.readFromBytes(payload);
-        final NbtCompound root = named.compound();
+        final CompoundBinaryTag root = BinaryTagIO.reader().readNamed(new ByteArrayInputStream(payload)).getValue();
         loadInventoryFromNbt(inventory, root.getList("Inventory"));
         return inventory;
     }

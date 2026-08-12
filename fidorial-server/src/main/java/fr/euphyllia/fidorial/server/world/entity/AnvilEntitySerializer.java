@@ -6,17 +6,17 @@ import fr.euphyllia.fidorial.server.entity.mob.Mob;
 import fr.euphyllia.fidorial.server.entity.mob.Mobs;
 import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
-import fr.euphyllia.fidorial.server.world.nbt.Nbt;
-import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
-import fr.euphyllia.fidorial.server.world.nbt.NbtDouble;
-import fr.euphyllia.fidorial.server.world.nbt.NbtFloat;
-import fr.euphyllia.fidorial.server.world.nbt.NbtList;
-import fr.euphyllia.fidorial.server.world.nbt.NbtType;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.entity.LivingEntity;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.DoubleBinaryTag;
+import net.kyori.adventure.nbt.FloatBinaryTag;
+import net.kyori.adventure.nbt.ListBinaryTag;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,23 +40,23 @@ public class AnvilEntitySerializer {
         return entity instanceof Mob && !entity.isRemoved();
     }
 
-    public NbtCompound toChunkNbt(final int chunkX, final int chunkZ, final Collection<? extends AbstractEntity> entities) {
-        final NbtCompound root = new NbtCompound();
+    public CompoundBinaryTag toChunkNbt(final int chunkX, final int chunkZ, final Collection<? extends AbstractEntity> entities) {
+        final CompoundBinaryTag.Builder root = CompoundBinaryTag.builder();
         root.putInt("DataVersion", dataVersion);
         root.putIntArray("Position", new int[] {chunkX, chunkZ});
 
-        final NbtList list = new NbtList(NbtType.COMPOUND);
+        final ListBinaryTag.Builder<BinaryTag> entitiesTag = ListBinaryTag.builder();
         for (final AbstractEntity entity : entities) {
             if (isPersistable(entity)) {
-                list.add(toNbt(entity));
+                entitiesTag.add(toNbt(entity));
             }
         }
-        root.put("Entities", list);
-        return root;
+        root.put("Entities", entitiesTag.build());
+        return root.build();
     }
 
-    public NbtCompound toNbt(final AbstractEntity entity) {
-        final NbtCompound c = new NbtCompound();
+    public CompoundBinaryTag toNbt(final AbstractEntity entity) {
+        final CompoundBinaryTag.Builder c = CompoundBinaryTag.builder();
         c.putString("id", entity.type().key().asString());
         c.putIntArray("UUID", uuidToInts(entity.uuid()));
 
@@ -73,26 +73,22 @@ public class AnvilEntitySerializer {
         c.put("Rotation", floatList(loc.yaw(), loc.pitch()));
 
         c.putFloat("FallDistance", 0f);
-        c.putShort("Fire", -20);
-        c.putShort("Air", 300);
+        c.putShort("Fire", (short) -20);
+        c.putShort("Air", (short) 300);
 
         if (entity instanceof final LivingEntity living) {
             c.putFloat("Health", living.health());
         }
-        return c;
+        return c.build();
     }
 
-    public List<AbstractEntity> fromChunkNbt(final NbtCompound root, final World world, final IntSupplier idAllocator) {
+    public List<AbstractEntity> fromChunkNbt(final CompoundBinaryTag root, final World world, final IntSupplier idAllocator) {
         final List<AbstractEntity> result = new ArrayList<>();
-        if (root == null) {
-            return result;
-        }
-        final NbtList entities = root.getList("Entities");
-        if (entities == null) {
-            return result;
-        }
-        for (final Nbt tag : entities.items()) {
-            if (tag instanceof final NbtCompound entry) {
+
+        final ListBinaryTag entities = root.getList("Entities");
+
+        for (final BinaryTag tag : entities) {
+            if (tag instanceof final CompoundBinaryTag entry) {
                 final AbstractEntity entity = fromNbt(entry, world, idAllocator);
                 if (entity != null) {
                     result.add(entity);
@@ -103,18 +99,19 @@ public class AnvilEntitySerializer {
     }
 
     @SuppressWarnings("PatternValidation")
-    public AbstractEntity fromNbt(final NbtCompound c, final World world, final IntSupplier idAllocator) {
+    public @Nullable AbstractEntity fromNbt(final CompoundBinaryTag c, final World world, final IntSupplier idAllocator) {
         final String id = c.getString("id");
         if (id.isEmpty()) {
             return null;
         }
+
         final EntityType type = EntityTypes.get(Key.key(id));
         if (type == null || !Mobs.isMob(type)) {
             return null;
         }
 
-        final NbtList pos = c.getList("Pos");
-        final NbtList rot = c.getList("Rotation");
+        final ListBinaryTag pos = c.getList("Pos");
+        final ListBinaryTag rot = c.getList("Rotation");
         final double x = doubleAt(pos, 0);
         final double y = doubleAt(pos, 1);
         final double z = doubleAt(pos, 2);
@@ -137,8 +134,8 @@ public class AnvilEntitySerializer {
         }
 
         if (mob instanceof final PathfinderMob pathfinder) {
-            final NbtList motion = c.getList("Motion");
-            if (motion != null && motion.size() == 3) {
+            final ListBinaryTag motion = c.getList("Motion");
+            if (motion.size() == 3) {
                 pathfinder.setVelocity(doubleAt(motion, 0), doubleAt(motion, 1), doubleAt(motion, 2));
             }
             if (c.contains("OnGround")) {
@@ -148,33 +145,33 @@ public class AnvilEntitySerializer {
         return mob;
     }
 
-    private static NbtList doubleList(final double a, final double b, final double c) {
-        final NbtList list = new NbtList(NbtType.DOUBLE);
-        list.add(new NbtDouble(a));
-        list.add(new NbtDouble(b));
-        list.add(new NbtDouble(c));
-        return list;
+    private static ListBinaryTag doubleList(final double a, final double b, final double c) {
+        return ListBinaryTag.builder()
+                .add(DoubleBinaryTag.doubleBinaryTag(a))
+                .add(DoubleBinaryTag.doubleBinaryTag(b))
+                .add(DoubleBinaryTag.doubleBinaryTag(c))
+                .build();
     }
 
-    private static NbtList floatList(final float a, final float b) {
-        final NbtList list = new NbtList(NbtType.FLOAT);
-        list.add(new NbtFloat(a));
-        list.add(new NbtFloat(b));
-        return list;
+    private static ListBinaryTag floatList(final float a, final float b) {
+        return ListBinaryTag.builder()
+                .add(FloatBinaryTag.floatBinaryTag(a))
+                .add(FloatBinaryTag.floatBinaryTag(b))
+                .build();
     }
 
-    private static double doubleAt(final NbtList list, final int index) {
-        if (list == null || index >= list.size()) {
+    private static double doubleAt(final ListBinaryTag list, final int index) {
+        if (index >= list.size()) {
             return 0.0;
         }
-        return list.get(index) instanceof NbtDouble(final double value) ? value : 0.0;
+        return list.get(index) instanceof final DoubleBinaryTag tag ? tag.value() : 0.0;
     }
 
-    private static float floatAt(final NbtList list, final int index) {
-        if (list == null || index >= list.size()) {
+    private static float floatAt(final ListBinaryTag list, final int index) {
+        if (index >= list.size()) {
             return 0f;
         }
-        return list.get(index) instanceof NbtFloat(final float value) ? value : 0f;
+        return list.get(index) instanceof final FloatBinaryTag tag ? tag.value() : 0f;
     }
 
     public static int[] uuidToInts(final UUID uuid) {

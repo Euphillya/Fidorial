@@ -10,7 +10,6 @@ import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
 import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
 import fr.euphyllia.fidorial.server.world.light.LightAccess;
 import fr.euphyllia.fidorial.server.world.light.WorldLightManager;
-import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.storage.ChunkStorage;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
 import fr.euphyllia.fidorial.server.world.storage.EntityRegionStorage;
@@ -26,6 +25,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -280,7 +280,7 @@ public final class ServerWorld implements World {
             return;
         }
         try {
-            final NbtCompound root = entityStorage.load(dimension, chunkX, chunkZ);
+            final CompoundBinaryTag root = entityStorage.load(dimension, chunkX, chunkZ);
             if (root == null) {
                 return;
             }
@@ -304,7 +304,7 @@ public final class ServerWorld implements World {
         if (inChunk.isEmpty() && !entityStorage.hasChunk(dimension, chunkX, chunkZ)) {
             return;
         }
-        final NbtCompound root = entitySerializer.toChunkNbt(chunkX, chunkZ, inChunk);
+        final CompoundBinaryTag root = entitySerializer.toChunkNbt(chunkX, chunkZ, inChunk);
         entityStorage.save(dimension, chunkX, chunkZ, root);
     }
 

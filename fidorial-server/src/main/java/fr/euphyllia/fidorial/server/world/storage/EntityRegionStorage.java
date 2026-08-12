@@ -2,8 +2,8 @@ package fr.euphyllia.fidorial.server.world.storage;
 
 import fr.euphyllia.fidorial.server.world.anvil.RegionConstants;
 import fr.euphyllia.fidorial.server.world.anvil.RegionFile;
-import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public final class EntityRegionStorage implements AutoCloseable {
         }
     }
 
-    public @Nullable NbtCompound load(final Dimension dim, final int chunkX, final int chunkZ) throws IOException {
+    public @Nullable CompoundBinaryTag load(final Dimension dim, final int chunkX, final int chunkZ) throws IOException {
         final RegionFile rf = region(dim, chunkX, chunkZ);
         synchronized (rf) {
             if (!rf.hasChunk(chunkX, chunkZ)) {
@@ -54,7 +54,7 @@ public final class EntityRegionStorage implements AutoCloseable {
         }
     }
 
-    public void save(final Dimension dim, final int chunkX, final int chunkZ, final NbtCompound nbt) throws IOException {
+    public void save(final Dimension dim, final int chunkX, final int chunkZ, final CompoundBinaryTag nbt) throws IOException {
         final RegionFile rf = region(dim, chunkX, chunkZ);
         synchronized (rf) {
             rf.writeChunk(chunkX, chunkZ, nbt);

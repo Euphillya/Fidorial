@@ -1,20 +1,23 @@
 package fr.euphyllia.fidorial.server.world.anvil;
 
-import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
-import fr.euphyllia.fidorial.server.world.nbt.NbtIo;
+import net.kyori.adventure.nbt.BinaryTagIO;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
@@ -74,7 +77,7 @@ public final class RegionFile implements Closeable {
         return offsets[i] != 0 && sectorCounts[i] != 0;
     }
 
-    public @Nullable NbtCompound readChunk(final int chunkX, final int chunkZ) throws IOException {
+    public @Nullable CompoundBinaryTag readChunk(final int chunkX, final int chunkZ) throws IOException {
         final int i = RegionConstants.headerIndex(chunkX, chunkZ);
         if (offsets[i] == 0 || sectorCounts[i] == 0) return null;
 
@@ -89,17 +92,17 @@ public final class RegionFile implements Closeable {
         final DataInputStream in =
                 switch (compression) {
                     case RegionConstants.COMPRESSION_ZLIB ->
-                        new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(payload)));
+                            new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(payload)));
                     case RegionConstants.COMPRESSION_GZIP ->
-                        new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(payload)));
+                            new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(payload)));
                     case RegionConstants.COMPRESSION_NONE ->
-                        new DataInputStream(new BufferedInputStream(new ByteArrayInputStream(payload)));
+                            new DataInputStream(new BufferedInputStream(new ByteArrayInputStream(payload)));
                     default ->
-                        throw new IOException("Unsupported " + compression + " compression (external .mcc chunk?) for "
-                                + chunkX + "," + chunkZ);
+                            throw new IOException("Unsupported " + compression + " compression (external .mcc chunk?) for "
+                                    + chunkX + "," + chunkZ);
                 };
         try (in) {
-            return NbtIo.read(in).compound();
+            return BinaryTagIO.reader().readNamed((DataInput) in).getValue();
         }
     }
 
@@ -107,7 +110,7 @@ public final class RegionFile implements Closeable {
         return timestamps[RegionConstants.headerIndex(chunkX, chunkZ)];
     }
 
-    public void writeChunk(final int chunkX, final int chunkZ, final NbtCompound chunk) throws IOException {
+    public void writeChunk(final int chunkX, final int chunkZ, final CompoundBinaryTag chunk) throws IOException {
         final byte[] frame = buildFrame(chunk);
         final int neededSectors = (frame.length + RegionConstants.SECTOR_BYTES - 1) / RegionConstants.SECTOR_BYTES;
         if (neededSectors >= 256) {
@@ -133,10 +136,10 @@ public final class RegionFile implements Closeable {
         writeHeaderEntry(i);
     }
 
-    private byte[] buildFrame(final NbtCompound chunk) throws IOException {
+    private byte[] buildFrame(final CompoundBinaryTag chunk) throws IOException {
         final ByteArrayOutputStream compressed = new ByteArrayOutputStream(8192);
         try (final DataOutputStream nbtOut = new DataOutputStream(new DeflaterOutputStream(compressed))) {
-            NbtIo.write(nbtOut, "", chunk);
+            BinaryTagIO.writer().writeNamed(Map.entry("", chunk), (DataOutput) nbtOut);
         }
         final byte[] data = compressed.toByteArray();
 

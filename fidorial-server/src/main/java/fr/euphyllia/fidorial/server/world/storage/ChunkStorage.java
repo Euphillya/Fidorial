@@ -5,8 +5,8 @@ import fr.euphyllia.fidorial.server.world.anvil.RegionFile;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
-import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -62,7 +62,7 @@ public final class ChunkStorage implements AutoCloseable {
         final RegionFile rf = region(dim, chunkX, chunkZ);
         synchronized (rf) {
             if (!rf.hasChunk(chunkX, chunkZ)) return null;
-            final NbtCompound nbt = rf.readChunk(chunkX, chunkZ);
+            final CompoundBinaryTag nbt = rf.readChunk(chunkX, chunkZ);
             if (nbt == null) return null;
             return serializer.fromNbt(nbt, minY, height, defaultBlock, defaultBiome);
         }
@@ -70,7 +70,7 @@ public final class ChunkStorage implements AutoCloseable {
 
     public void save(final Dimension dim, final ChunkColumn chunk) throws IOException {
         chunk.setLastUpdate(System.currentTimeMillis() / 20L); // en ticks approx.
-        final NbtCompound nbt = serializer.toNbt(chunk);
+        final CompoundBinaryTag nbt = serializer.toNbt(chunk);
         final RegionFile rf = region(dim, chunk.chunkX(), chunk.chunkZ());
         synchronized (rf) {
             rf.writeChunk(chunk.chunkX(), chunk.chunkZ(), nbt);

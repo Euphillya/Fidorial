@@ -1,11 +1,8 @@
 package fr.euphyllia.fidorial.server.adventure;
 
-import fr.euphyllia.fidorial.server.network.nbt.NbtBinaryTagBridge;
-import fr.euphyllia.fidorial.server.world.nbt.Nbt;
-import fr.euphyllia.fidorial.server.world.nbt.NbtIntArray;
-import fr.euphyllia.fidorial.server.world.nbt.NbtString;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.IntArrayBinaryTag;
 import net.kyori.adventure.nbt.TagStringIO;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
@@ -133,24 +130,18 @@ public final class ClickCallbackManager implements AutoCloseable {
         final long lsb = uuid.getLeastSignificantBits();
         final IntArrayBinaryTag tag = IntArrayBinaryTag.intArrayBinaryTag(
                 (int) (msb >> 32), (int) msb, (int) (lsb >> 32), (int) lsb);
+        final CompoundBinaryTag compound = CompoundBinaryTag.builder().put("UUID", tag).build();
         try {
-            return BinaryTagHolder.binaryTagHolder(TagStringIO.tagStringIO().asString(tag));
+            return BinaryTagHolder.binaryTagHolder(TagStringIO.tagStringIO().asString(compound));
         } catch (final IOException e) {
             throw new IllegalStateException("Could not serialize UUID payload", e);
         }
     }
 
-    public static UUID uuidFromPayload(Nbt nbt) {
-        if (!(nbt instanceof NbtString(final String value))) {
-            throw new IllegalArgumentException("Expected string payload");
-        }
-        try {
-            nbt = NbtBinaryTagBridge.toNbt(TagStringIO.tagStringIO().asTag(value));
-        } catch (final IOException e) {
-            throw new IllegalArgumentException("Invalid SNBT payload", e);
-        }
+    public static UUID uuidFromPayload(final CompoundBinaryTag nbt) {
+        final int[] v = nbt.getIntArray("UUID");
 
-        if (!(nbt instanceof NbtIntArray(final int[] v)) || v.length != 4) {
+        if (v.length != 4) {
             throw new IllegalArgumentException("Expected a 4-element int array tag");
         }
 

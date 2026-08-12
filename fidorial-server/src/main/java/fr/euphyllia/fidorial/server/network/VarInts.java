@@ -1,12 +1,12 @@
 package fr.euphyllia.fidorial.server.network;
 
 import fr.euphyllia.fidorial.server.codecs.adventure.ComponentCodecs;
-import fr.euphyllia.fidorial.server.network.nbt.NetworkNbtHelper;
-import fr.euphyllia.fidorial.server.world.nbt.Nbt;
-import fr.euphyllia.fidorial.server.world.nbt.codec.NbtOps;
+import fr.euphyllia.fidorial.server.network.nbt.NbtIo;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
+import io.papermc.adventurex.nbt.dfu.BinaryTagOps;
+import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.text.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -101,20 +101,20 @@ public final class VarInts {
     }
 
     public static void writeComponent(final ByteBuf buf, final Component message) {
-        final Nbt nbt = ComponentCodecs.COMPONENT_CODEC.encodeStart(NbtOps.INSTANCE, message)
+        final BinaryTag nbt = ComponentCodecs.COMPONENT_CODEC.encodeStart(BinaryTagOps.binaryTagOps(), message)
                  .getOrThrow(msg -> new EncoderException("Failed to encode Component: " + msg));
-        NetworkNbtHelper.writeNbt(buf, nbt);
+        NbtIo.writeNbt(buf, nbt);
     }
 
     public static Component readComponent(final ByteBuf buf, final int maxLength) {
         final int start = buf.readerIndex();
-        final Nbt nbt = NetworkNbtHelper.readNbt(buf, maxLength);
+        final BinaryTag nbt = NbtIo.readNbt(buf, maxLength);
         final int consumed = buf.readerIndex() - start;
         if (consumed > maxLength) {
             throw new DecoderException("Component NBT exceeds maximum size: " + consumed + " > " + maxLength);
         }
 
-        return ComponentCodecs.COMPONENT_CODEC.parse(NbtOps.INSTANCE, nbt)
+        return ComponentCodecs.COMPONENT_CODEC.parse(BinaryTagOps.binaryTagOps(), nbt)
                 .getOrThrow(msg -> new DecoderException("Failed to decode Component: " + msg));
     }
 }
