@@ -1,9 +1,7 @@
 package fr.euphyllia.fidorial.server.world.nbt;
 
 public sealed interface Nbt
-        permits NbtByte, NbtShort, NbtInt, NbtLong, NbtFloat, NbtDouble,
-        NbtByteArray, NbtString, NbtIntArray, NbtLongArray,
-        NbtCompound, NbtList {
+        permits NbtByte, NbtByteArray, NbtCompound, NbtDouble, NbtEnd, NbtFloat, NbtInt, NbtIntArray, NbtList, NbtLong, NbtLongArray, NbtShort, NbtString {
 
     NbtType type();
 }

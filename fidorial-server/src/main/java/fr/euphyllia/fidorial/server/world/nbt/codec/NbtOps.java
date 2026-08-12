@@ -8,6 +8,7 @@ import fr.euphyllia.fidorial.server.world.nbt.NbtByte;
 import fr.euphyllia.fidorial.server.world.nbt.NbtByteArray;
 import fr.euphyllia.fidorial.server.world.nbt.NbtCompound;
 import fr.euphyllia.fidorial.server.world.nbt.NbtDouble;
+import fr.euphyllia.fidorial.server.world.nbt.NbtEnd;
 import fr.euphyllia.fidorial.server.world.nbt.NbtFloat;
 import fr.euphyllia.fidorial.server.world.nbt.NbtInt;
 import fr.euphyllia.fidorial.server.world.nbt.NbtIntArray;
@@ -25,14 +26,13 @@ import java.util.stream.Stream;
 public final class NbtOps implements DynamicOps<Nbt> {
 
     public static final NbtOps INSTANCE = new NbtOps();
-    private static final NbtCompound EMPTY = new NbtCompound();
 
     private NbtOps() {
     }
 
     @Override
     public Nbt empty() {
-        return EMPTY;
+        return new NbtEnd();
     }
 
     @Override
@@ -50,6 +50,7 @@ public final class NbtOps implements DynamicOps<Nbt> {
             case NbtLongArray(long[] v) -> outOps.createLongList(LongStream.of(v));
             case NbtList list -> convertList(outOps, list);
             case NbtCompound compound -> convertMap(outOps, compound);
+            case NbtEnd _ -> outOps.empty();
         };
     }
 
@@ -146,7 +147,7 @@ public final class NbtOps implements DynamicOps<Nbt> {
 
     @Override
     public DataResult<Nbt> mergeToList(final Nbt list, final Nbt value) {
-        if (list != EMPTY && !(list instanceof NbtList)) {
+        if (!(list instanceof NbtEnd) && !(list instanceof NbtList)) {
             return DataResult.error(() -> "mergeToList called with not a list: " + list);
         }
         NbtList result = new NbtList();
@@ -222,14 +223,16 @@ public final class NbtOps implements DynamicOps<Nbt> {
 
     @Override
     public DataResult<Nbt> mergeToMap(final Nbt map, final Nbt key, final Nbt value) {
-        if (!(map instanceof NbtCompound existing)) {
+        if (!(map instanceof NbtEnd) && !(map instanceof NbtCompound)) {
             return DataResult.error(() -> "mergeToMap called with not a map: " + map);
         }
         if (!(key instanceof NbtString(String k))) {
             return DataResult.error(() -> "key is not a string: " + key);
         }
         NbtCompound result = new NbtCompound();
-        result.tags().putAll(existing.tags());
+        if (map instanceof final NbtCompound existing) {
+            result.tags().putAll(existing.tags());
+        }
         result.put(k, value);
         return DataResult.success(result);
     }

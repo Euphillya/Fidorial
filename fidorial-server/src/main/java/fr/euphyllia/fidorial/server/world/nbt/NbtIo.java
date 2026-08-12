@@ -99,6 +99,7 @@ public final class NbtIo {
                 }
                 out.writeByte(NbtType.END.id());
             }
+            case final NbtEnd _ -> throw new IOException("Cannot write TAG_End as a payload");
         }
     }
 
