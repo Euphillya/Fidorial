@@ -10,16 +10,7 @@ import net.kyori.adventure.key.Key;
 import java.util.List;
 import java.util.Map;
 
-public final class ClientboundUpdateTagsPacket implements ClientboundPacket {
-
-    private final List<Registry> withTags;
-
-    public ClientboundUpdateTagsPacket(RegistryHolder dynamic) {
-        this.withTags = dynamic.all().stream()
-                .filter(Registry::hasTags)
-                .filter(r -> !r.name().value().contains("enchantment"))
-                .toList();
-    }
+public record ClientboundUpdateTagsPacket(RegistryHolder dynamic) implements ClientboundPacket {
 
     @Override
     public Key name() {
@@ -28,9 +19,9 @@ public final class ClientboundUpdateTagsPacket implements ClientboundPacket {
 
     @Override
     public void write(PacketBuffer buf) {
-        buf.writeVarInt(withTags.size() + 1);
+        buf.writeVarInt(dynamic.size() + 1);
 
-        for (Registry reg : withTags) {
+        for (Registry reg : dynamic.all()) {
             List<Key> entries = reg.entries();
             buf.writeKey(reg.name());
             buf.writeVarInt(reg.tags().size());

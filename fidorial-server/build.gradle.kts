@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.classgraph)
     implementation(projects.fidorialApi)
     implementation(projects.fidorialAuth)
+    implementation(libs.dfu)
     runtimeOnly(libs.netty.epoll)
     runtimeOnly(libs.netty.iouring)
     runtimeOnly(libs.netty.kqueue)
