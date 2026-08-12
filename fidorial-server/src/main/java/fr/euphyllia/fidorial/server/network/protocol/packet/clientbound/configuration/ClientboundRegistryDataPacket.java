@@ -19,9 +19,14 @@ public record ClientboundRegistryDataPacket(Key registryId, List<Key> entries)
     public void write(PacketBuffer buf) {
         buf.writeKey(registryId);
         buf.writeVarInt(entries.size());
-        for (Key entry : entries) {
-            buf.writeKey(entry);
+        for (final Key entry : entries) {
+            buf.writeKey(entry.key());
             buf.writeBoolean(false);
+            /*
+            final Nbt data = entry.data();
+            buf.writeBoolean(data != null);
+            if (data != null) buf.writeNbt(data);
+            */
         }
     }
 }

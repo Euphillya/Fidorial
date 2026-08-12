@@ -1,8 +1,9 @@
 package fr.euphyllia.fidorial.server.network;
 
-import fr.euphyllia.fidorial.server.network.nbt.ComponentNbt;
+import fr.euphyllia.fidorial.server.codecs.adventure.ComponentCodecs;
 import fr.euphyllia.fidorial.server.network.nbt.NetworkNbtHelper;
 import fr.euphyllia.fidorial.server.world.nbt.Nbt;
+import fr.euphyllia.fidorial.server.world.nbt.codec.NbtOps;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.text.Component;
@@ -99,7 +100,8 @@ public final class VarInts {
     }
 
     public static void writeComponent(final ByteBuf buf, final Component message) {
-        Nbt nbt = ComponentNbt.write(message);
+        final Nbt nbt = ComponentCodecs.COMPONENT_CODEC.encodeStart(NbtOps.INSTANCE, message)
+                 .getOrThrow(msg -> new IllegalStateException("Failed to encode Component: " + msg));
         NetworkNbtHelper.writeNbt(buf, nbt);
     }
 
@@ -111,6 +113,7 @@ public final class VarInts {
             throw new DecoderException("Component NBT exceeds maximum size: " + consumed + " > " + maxLength);
         }
 
-        return ComponentNbt.read(nbt);
+        return ComponentCodecs.COMPONENT_CODEC.parse(NbtOps.INSTANCE, nbt)
+                .getOrThrow(msg -> new IllegalArgumentException("Failed to decode Component: " + msg));
     }
 }
