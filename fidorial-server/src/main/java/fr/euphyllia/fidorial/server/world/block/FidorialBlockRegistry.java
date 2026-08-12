@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public final class FidorialBlockRegistry implements BlockRegistry {
 
     private final Map<Key, BlockType> types = new ConcurrentHashMap<>();
