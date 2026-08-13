@@ -145,10 +145,7 @@ public final class FidorialOfflinePlayers implements OfflinePlayers, Closeable {
     @Override
     public Optional<OfflinePlayer> cached(final String name) {
         final Optional<? extends Player> live = onlineByName(name);
-        if (live.isPresent()) {
-            return Optional.of(of(live.get()));
-        }
-        return cache.byName(name).map(this::toHandle);
+        return live.map(this::of).or(() -> cache.byName(name).map(this::toHandle));
     }
 
     @Override

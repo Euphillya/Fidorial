@@ -138,7 +138,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
     @Override
     public ArgumentType<ItemStackPredicate> itemStackPredicate() {
         return ItemPredicateArgument.itemPredicate(predicate -> apiStack -> predicate.test(
-                fr.euphyllia.fidorial.server.entity.ItemStack.of(apiStack.id(), apiStack.count())));
+                ItemStack.of(apiStack.id(), apiStack.count())));
     }
 
     @Override
