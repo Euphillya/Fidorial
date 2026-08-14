@@ -22,6 +22,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundStopSoundPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundTabListPacket;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.combat.DamageSource;
 import fr.fidorial.command.CommandSender;
@@ -428,6 +429,11 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     public void sendMessage(final Component message) {
         final Component resolved = ComponentResolver.resolve(message, this);
         connection.send(new ClientboundSystemChatPacket(TranslationStore.render(resolved, locale()), false));
+    }
+
+    @Override
+    public void sendPlayerListHeaderAndFooter(final Component header, final Component footer) {
+        connection.send(new ClientboundTabListPacket(header, footer));
     }
 
     @Override

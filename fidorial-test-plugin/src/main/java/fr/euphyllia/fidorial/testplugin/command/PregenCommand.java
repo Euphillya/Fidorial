@@ -12,7 +12,6 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.world.World;
-import net.kyori.adventure.text.Component;
 
 import static fr.fidorial.command.Commands.argument;
 import static fr.fidorial.command.Commands.literal;
@@ -21,7 +20,7 @@ public final class PregenCommand {
 
     private static TestPlugin plugin;
 
-    public PregenCommand(TestPlugin plugin) {
+    public PregenCommand(final TestPlugin plugin) {
         PregenCommand.plugin = plugin;
     }
 
@@ -65,24 +64,24 @@ public final class PregenCommand {
         }
 
         if (world == null) {
-            msg(sender, "<red>Aucun monde cible.</red>");
+            plugin.msg(sender, "<red>Aucun monde cible.</red>");
             return Command.SINGLE_SUCCESS;
         }
 
         PregenTask task = new PregenTask(
                 world,
-                PregenCommand.plugin.logger,
+                plugin.logger,
                 cx,
                 cz,
                 radius,
                 message -> {
-                    PregenCommand.plugin.logger.info("[Pregen] {}", message);
-                    msg(sender, "<gray>[Pregen]</gray> " + message);
+                    plugin.logger.info("[Pregen] {}", message);
+                    plugin.msg(sender, "<gray>[Pregen]</gray> " + message);
                 },
                 PregenCommand::resendCommands,
                 PregenCommand::resendCommands);
 
-        PregenCommand.plugin.setTask(task);
+        plugin.setTask(task);
         task.start();
 
         return Command.SINGLE_SUCCESS;
@@ -102,28 +101,28 @@ public final class PregenCommand {
         }
 
         if (world == null) {
-            msg(sender, "<red>Aucun monde cible.</red>");
+            plugin.msg(sender, "<red>Aucun monde cible.</red>");
             return Command.SINGLE_SUCCESS;
         }
 
         int total = (2 * radius + 1) * (2 * radius + 1);
 
-        msg(sender, "Pre-generation de " + total + " chunks (rayon " + radius + ")...");
+        plugin.msg(sender, "Pre-generation de " + total + " chunks (rayon " + radius + ")...");
 
         PregenTask task = new PregenTask(
                 world,
-                PregenCommand.plugin.logger,
+                plugin.logger,
                 centerX,
                 centerZ,
                 radius,
                 message -> {
-                    PregenCommand.plugin.logger.info("[Pregen] {}", message);
-                    msg(sender, "<gray>[Pregen]</gray> " + message);
+                    plugin.logger.info("[Pregen] {}", message);
+                    plugin.msg(sender, "<gray>[Pregen]</gray> " + message);
                 },
                 PregenCommand::resendCommands,
                 PregenCommand::resendCommands);
 
-        PregenCommand.plugin.setTask(task);
+        plugin.setTask(task);
         task.start();
 
         return Command.SINGLE_SUCCESS;
@@ -132,10 +131,10 @@ public final class PregenCommand {
     private static int stopCommand(CommandContext<CommandSource> ctx) {
         CommandSender sender = ctx.getSource().sender();
 
-        PregenTask task = PregenCommand.plugin.getTask();
+        PregenTask task = plugin.getTask();
 
         task.cancel();
-        msg(sender, "Arret de la pre-generation demande.");
+        plugin.msg(sender, "Arret de la pre-generation demande.");
 
         return Command.SINGLE_SUCCESS;
     }
@@ -143,20 +142,16 @@ public final class PregenCommand {
     private static int statusCommand(CommandContext<CommandSource> ctx) {
         CommandSender sender = ctx.getSource().sender();
 
-        PregenTask task = PregenCommand.plugin.getTask();
+        PregenTask task = plugin.getTask();
 
         if (!task.isRunning()) {
-            msg(sender, "Aucune pre-generation en cours.");
+            plugin.msg(sender, "Aucune pre-generation en cours.");
             return Command.SINGLE_SUCCESS;
         }
 
-        msg(sender, "Pre-generation : " + task.status());
+        plugin.msg(sender, "Pre-generation : " + task.status());
 
         return Command.SINGLE_SUCCESS;
-    }
-
-    private static void msg(CommandSender sender, String message) {
-        sender.sendMessage(Component.text(message));
     }
 
     public static void resendCommands() {
