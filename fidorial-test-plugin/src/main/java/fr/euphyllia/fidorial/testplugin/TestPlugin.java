@@ -102,7 +102,7 @@ public final class TestPlugin implements Plugin {
         TestPluginTranslations.unregister();
     }
 
-    private void msg(final CommandSender sender, final String miniMessageText) {
+    public void msg(final CommandSender sender, final String miniMessageText) {
         sender.sendMessage(MM.deserialize(miniMessageText));
     }
 
