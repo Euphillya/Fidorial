@@ -5,6 +5,8 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.Encoder;
+import com.mojang.serialization.ListBuilder;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.euphyllia.fidorial.server.codecs.DispatchCodecs;
@@ -77,7 +79,7 @@ public final class ComponentCodecs {
     private static final MapCodec<TranslatableComponent> TRANSLATABLE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.STRING.fieldOf("translate").forGetter(TranslatableComponent::key),
             Codec.STRING.optionalFieldOf("fallback").forGetter(t -> Optional.ofNullable(t.fallback())),
-            ARG_CODEC.listOf().optionalFieldOf("with", List.of()).forGetter(TranslatableComponent::arguments)
+            lenientListOf(ARG_CODEC).optionalFieldOf("with", List.of()).forGetter(TranslatableComponent::arguments)
     ).apply(instance, (key, fallback, with) ->
             Component.translatable(key).arguments(with).fallback(fallback.orElse(null))));
 
@@ -197,11 +199,11 @@ public final class ComponentCodecs {
     private static Codec<Component> createCodec(final Codec<Component> self) {
         final Codec<Component> direct = RecordCodecBuilder.create(instance -> instance.group(
                 CONTENT_CODEC.forGetter(Function.identity()),
-                self.listOf().optionalFieldOf("extra", List.of()).forGetter(Component::children),
+                lenientListOf(self).optionalFieldOf("extra", List.of()).forGetter(Component::children),
                 STYLE_MAP_CODEC.forGetter(Component::style)
         ).apply(instance, (content, children, style) -> content.children(children).style(style)));
 
-        return Codec.either(Codec.either(Codec.STRING, self.listOf()), direct).xmap(
+        return Codec.either(Codec.either(Codec.STRING, lenientListOf(self)), direct).xmap(
                 either -> either.map(
                         stringOrList -> stringOrList.map(Component::text, ComponentCodecs::fromList),
                         Function.identity()),
@@ -229,5 +231,21 @@ public final class ComponentCodecs {
             return text.content();
         }
         return null;
+    }
+
+    private static <A> Codec<List<A>> lenientListOf(final Codec<A> elementCodec) {
+        return Codec.of(
+                new Encoder<>() {
+                    @Override
+                    public <T> DataResult<T> encode(final List<A> input, final DynamicOps<T> ops, final T prefix) {
+                        final ListBuilder<T> builder = new ListBuilder.Builder<>(ops);
+                        for (final A a : input) {
+                            builder.add(elementCodec.encodeStart(ops, a));
+                        }
+                        return builder.build(prefix);
+                    }
+                },
+                elementCodec.listOf()
+        );
     }
 }

@@ -84,13 +84,7 @@ public final class NbtIo {
                 out.writeInt(value.length);
                 for (final long v : value) out.writeLong(v);
             }
-            case final ListBinaryTag list -> {
-                out.writeByte(list.elementType().id());
-                out.writeInt(list.size());
-                for (final BinaryTag item : list) {
-                    writePayload(out, item);
-                }
-            }
+            case final ListBinaryTag list -> writeList(out, list);
             case final CompoundBinaryTag compound -> {
                 for (final String key : compound.keySet()) {
                     final BinaryTag value = compound.get(key);
@@ -103,6 +97,46 @@ public final class NbtIo {
             case final EndBinaryTag ignored -> throw new IOException("Cannot write TAG_End as a payload");
             default -> throw new IOException("Unsupported BinaryTag implementation: " + tag.getClass());
         }
+    }
+
+    private static void writeList(final DataOutput out, final ListBinaryTag list) throws IOException {
+        final int elementType = identifyRaw(list);
+        out.writeByte(elementType);
+        out.writeInt(list.size());
+        for (final BinaryTag item : list) {
+            writePayload(out, wrapOnNeed(elementType, item));
+        }
+    }
+
+    private static int identifyRaw(final ListBinaryTag list) {
+        int homogenousType = 0;
+        for (final BinaryTag item : list) {
+            final int id = item.type().id();
+            if (homogenousType == 0) {
+                homogenousType = id;
+            } else if (homogenousType != id) {
+                return BinaryTagTypes.COMPOUND.id();
+            }
+        }
+        return homogenousType;
+    }
+
+    private static BinaryTag wrapOnNeed(final int elementType, final BinaryTag tag) {
+        if (elementType != BinaryTagTypes.COMPOUND.id()) {
+            return tag;
+        }
+        if (tag instanceof final CompoundBinaryTag compound && !isWrapper(compound)) {
+            return compound;
+        }
+        return wrapPart(tag);
+    }
+
+    private static boolean isWrapper(final CompoundBinaryTag tag) {
+        return tag.keySet().size() == 1 && tag.keySet().contains("");
+    }
+
+    private static CompoundBinaryTag wrapPart(final BinaryTag tag) {
+        return CompoundBinaryTag.from(Map.of("", tag));
     }
 
     private static BinaryTag readNetwork(final DataInput in, final NbtReadLimits limits) throws IOException {
@@ -165,11 +199,21 @@ public final class NbtIo {
         final int len = in.readInt();
         if (len < 0) throw new DecoderException("Negative TAG_List length: " + len);
         limits.spend((long) len * 4L);
+        final boolean maybeWrapped = elementId == BinaryTagTypes.COMPOUND.id();
         final ListBinaryTag.Builder<BinaryTag> builder = ListBinaryTag.builder();
         for (int i = 0; i < len; i++) {
-            builder.add(readPayload(in, elementId, limits, depth + 1));
+            final BinaryTag value = readPayload(in, elementId, limits, depth + 1);
+            builder.add(maybeWrapped ? unwrapIfNeeded(value) : value);
         }
         return builder.build();
+    }
+
+    private static BinaryTag unwrapIfNeeded(final BinaryTag tag) {
+        if (tag instanceof final CompoundBinaryTag compound && compound.keySet().size() == 1 && compound.keySet().contains("")) {
+            final BinaryTag unwrapped = compound.get("");
+            return unwrapped != null ? unwrapped : tag;
+        }
+        return tag;
     }
 
     private static BinaryTag readCompound(final DataInput in, final NbtReadLimits limits, final int depth) throws IOException {
