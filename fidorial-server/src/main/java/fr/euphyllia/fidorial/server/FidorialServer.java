@@ -37,6 +37,7 @@ import fr.euphyllia.fidorial.server.permission.OperatorList;
 import fr.euphyllia.fidorial.server.plugin.JavaPluginManager;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
 import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.schedulers.LightUpdateDispatcher;
@@ -83,6 +84,7 @@ import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import fr.fidorial.world.WorldBuilder;
+import fr.fidorial.world.biome.BiomeRegistry;
 import fr.fidorial.world.block.Blocks;
 import fr.fidorial.world.entity.EntitySpawnBridge;
 import fr.fidorial.world.fluid.FluidManager;
@@ -474,6 +476,15 @@ public final class FidorialServer implements Server {
     @Override
     public PermissionRegistry permissions() {
         return permissionRegistry;
+    }
+
+    @Override
+    public BiomeRegistry biomes() {
+        return registries.biomes();
+    }
+
+    public FidorialBiomeRegistry biomeRegistry() {
+        return registries.biomes();
     }
 
     public PluginManager plugins() {
