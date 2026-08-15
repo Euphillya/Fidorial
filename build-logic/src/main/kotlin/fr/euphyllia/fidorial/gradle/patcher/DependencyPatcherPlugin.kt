@@ -166,7 +166,9 @@ class DependencyPatcherPlugin : Plugin<Project> {
 
         val patchSourceSet = sourceSets.register("${patchSet.name}Patch") {
             java.srcDir(extractPatchedFiles.flatMap { it.outputDir })
-            compileClasspath += project.files(originalBinaryJar)
+            if (!patchSet.module.isPresent) {
+                compileClasspath += project.files(originalBinaryJar)
+            }
         }
 
         patchSourceSet.configure {
@@ -174,7 +176,7 @@ class DependencyPatcherPlugin : Plugin<Project> {
                 val provider = project.objects.newInstance<PatchModuleArgumentProvider>()
 
                 provider.module.set(patchSet.module)
-                provider.classesDirectory.set(output.classesDirs.asPath)
+                provider.patchModule.set(originalBinaryJar)
 
                 options.compilerArgumentProviders.add(provider)
             }
