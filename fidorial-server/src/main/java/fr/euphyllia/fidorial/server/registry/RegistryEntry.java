@@ -1,7 +1,6 @@
 package fr.euphyllia.fidorial.server.registry;
 
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.jspecify.annotations.Nullable;
 
