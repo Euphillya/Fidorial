@@ -37,6 +37,7 @@ import fr.euphyllia.fidorial.server.permission.OperatorList;
 import fr.euphyllia.fidorial.server.plugin.JavaPluginManager;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
 import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.schedulers.LightUpdateDispatcher;
@@ -83,6 +84,7 @@ import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import fr.fidorial.world.WorldBuilder;
+import fr.fidorial.world.biome.BiomeRegistry;
 import fr.fidorial.world.block.Blocks;
 import fr.fidorial.world.entity.EntitySpawnBridge;
 import fr.fidorial.world.fluid.FluidManager;
@@ -165,9 +167,9 @@ public final class FidorialServer implements Server {
     private final WeatherEngine weatherEngine = new WeatherEngine(worldManager.levelData(), this::broadcast);
     private final BossBarRegistry bossBarRegistry = new BossBarRegistry(worldManager.levelData(), this::players);
     private final DayNightThread dayNightEngine = new DayNightThread(worldManager, registries.dynamic());
-    private final ChunkNetworkSerializer lightSerializer = new ChunkNetworkSerializer(blockStateRegistry, 0);
+    private final ChunkNetworkSerializer chunkSerializer = new ChunkNetworkSerializer(blockStateRegistry, registries.biomes());
     private final LightUpdateDispatcher lightDispatcher = new LightUpdateDispatcher(
-            chunkWorker::execute, this::broadcast, lightSerializer, worldManager::world);
+            chunkWorker::execute, this::broadcast, chunkSerializer, worldManager::world);
     private final BlockEditService blockEdits = new BlockEditService(
             blockStateRegistry,
             (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),
@@ -476,6 +478,15 @@ public final class FidorialServer implements Server {
         return permissionRegistry;
     }
 
+    @Override
+    public BiomeRegistry biomes() {
+        return registries.biomes();
+    }
+
+    public FidorialBiomeRegistry biomeRegistry() {
+        return registries.biomes();
+    }
+
     public PluginManager plugins() {
         return pluginManager;
     }
@@ -555,6 +566,10 @@ public final class FidorialServer implements Server {
 
     public RegistryHolder dynamicRegistries() {
         return registries.dynamic();
+    }
+
+    public ChunkNetworkSerializer chunkSerializer() {
+        return chunkSerializer;
     }
 
     public ThreadedRegionRegionizer regionizer() {

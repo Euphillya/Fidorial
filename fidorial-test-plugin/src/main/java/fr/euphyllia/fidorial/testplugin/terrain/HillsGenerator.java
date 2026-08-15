@@ -13,9 +13,10 @@ public final class HillsGenerator implements WorldGenerator {
     private static final Key SAND = Key.key("sand");
     private static final Key WATER = Key.key("water");
 
-    private static final Key BIOME_PLAINS = Key.key("plains");
-    private static final Key BIOME_BEACH = Key.key("beach");
-    private static final Key BIOME_RIVER = Key.key("river");
+    private static final Key BIOME_PLAINS = TestBiomes.VOLCANIC_PLAINS.key();
+    private static final Key BIOME_BEACH = TestBiomes.CRYSTAL_SHORE.key();
+    private static final Key BIOME_RIVER = TestBiomes.TOXIC_RIVER.key();
+    private static final Key BIOME_PEAKS = TestBiomes.FROZEN_PEAKS.key();
 
     /**
      * Hauteur de base du terrain.
@@ -30,29 +31,35 @@ public final class HillsGenerator implements WorldGenerator {
      */
     private final int seaLevel;
 
+    /**
+     * Au-dessus de cette altitude la surface bascule sur les pics gelees.
+     */
+    private final int highlandLevel;
+
     private final PerlinNoise heightNoise;
     private final PerlinNoise detailNoise;
 
-    public HillsGenerator(long seed, int baseHeight, int amplitude, int seaLevel) {
+    public HillsGenerator(final long seed, final int baseHeight, final int amplitude, final int seaLevel) {
         this.baseHeight = baseHeight;
         this.amplitude = amplitude;
         this.seaLevel = seaLevel;
+        this.highlandLevel = baseHeight + amplitude / 2;
         this.heightNoise = new PerlinNoise(seed);
         this.detailNoise = new PerlinNoise(seed * 31 + 7);
     }
 
     @Override
-    public void generate(GeneratedChunk chunk) {
-        int minY = chunk.minY();
-        int baseX = chunk.chunkX() << 4;
-        int baseZ = chunk.chunkZ() << 4;
+    public void generate(final GeneratedChunk chunk) {
+        final int minY = chunk.minY();
+        final int baseX = chunk.chunkX() << 4;
+        final int baseZ = chunk.chunkZ() << 4;
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int worldX = baseX + x;
-                int worldZ = baseZ + z;
-                int surface = surfaceHeight(worldX, worldZ);
-                boolean underWater = surface < seaLevel;
+                final int worldX = baseX + x;
+                final int worldZ = baseZ + z;
+                final int surface = surfaceHeight(worldX, worldZ);
+                final boolean underWater = surface < seaLevel;
 
                 // socle
                 chunk.setBlock(x, minY, z, BEDROCK);
@@ -82,9 +89,10 @@ public final class HillsGenerator implements WorldGenerator {
                 // biome : resolution 4x4x4, donc un seul appel par cellule
                 // (coin de cellule uniquement, pour eviter 16 ecritures redondantes)
                 if ((x & 3) == 0 && (z & 3) == 0) {
-                    Key biome = underWater ? BIOME_RIVER
+                    final Key biome = underWater ? BIOME_RIVER
                             : surface <= seaLevel + 2 ? BIOME_BEACH
-                              : BIOME_PLAINS;
+                              : surface >= highlandLevel ? BIOME_PEAKS
+                                : BIOME_PLAINS;
                     for (int y = minY; y < minY + chunk.height(); y += 4) {
                         chunk.setBiome(x, y, z, biome);
                     }
@@ -96,9 +104,9 @@ public final class HillsGenerator implements WorldGenerator {
     /**
      * Hauteur de surface pour une colonne monde donnee.
      */
-    private int surfaceHeight(int worldX, int worldZ) {
-        double hills = heightNoise.fbm(worldX * 0.004, worldZ * 0.004, 4);
-        double detail = detailNoise.fbm(worldX * 0.02, worldZ * 0.02, 2);
+    private int surfaceHeight(final int worldX, final int worldZ) {
+        final double hills = heightNoise.fbm(worldX * 0.004, worldZ * 0.004, 4);
+        final double detail = detailNoise.fbm(worldX * 0.02, worldZ * 0.02, 2);
         return baseHeight + (int) Math.round(hills * amplitude + detail * 4);
     }
 }

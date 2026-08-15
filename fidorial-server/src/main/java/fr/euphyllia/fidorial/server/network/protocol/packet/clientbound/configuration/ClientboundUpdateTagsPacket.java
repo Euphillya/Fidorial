@@ -5,12 +5,15 @@ import fr.euphyllia.fidorial.server.network.protocol.catalog.ConfigurationClient
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
 import net.kyori.adventure.key.Key;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public record ClientboundUpdateTagsPacket(RegistryHolder dynamic) implements ClientboundPacket {
+public record ClientboundUpdateTagsPacket(RegistryHolder dynamic, FidorialBiomeRegistry biomes)
+        implements ClientboundPacket {
 
     @Override
     public Key name() {
@@ -18,18 +21,30 @@ public record ClientboundUpdateTagsPacket(RegistryHolder dynamic) implements Cli
     }
 
     @Override
-    public void write(PacketBuffer buf) {
+    public void write(final PacketBuffer buf) {
         buf.writeVarInt(dynamic.size() + 1);
 
-        for (Registry reg : dynamic.all()) {
-            List<Key> entries = reg.entries();
+        for (final Registry reg : dynamic.all()) {
+            final boolean isBiome = reg.name().equals(FidorialBiomeRegistry.REGISTRY_NAME);
+            final List<Key> entries = reg.entries();
+
             buf.writeKey(reg.name());
             buf.writeVarInt(reg.tags().size());
-            for (Map.Entry<Key, List<Key>> tag : reg.tags().entrySet()) {
+
+            for (final Map.Entry<Key, List<Key>> tag : reg.tags().entrySet()) {
+                final List<Integer> ids = new ArrayList<>(tag.getValue().size());
+
+                for (final Key entry : tag.getValue()) {
+                    final int id = isBiome ? biomes.networkId(entry) : entries.indexOf(entry);
+                    if (id >= 0) {
+                        ids.add(id);
+                    }
+                }
+
                 buf.writeKey(tag.getKey());
-                buf.writeVarInt(tag.getValue().size());
-                for (Key entry : tag.getValue()) {
-                    buf.writeVarInt(entries.indexOf(entry));
+                buf.writeVarInt(ids.size());
+                for (final int id : ids) {
+                    buf.writeVarInt(id);
                 }
             }
         }

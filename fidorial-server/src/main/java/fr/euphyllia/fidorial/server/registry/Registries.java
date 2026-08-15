@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.registry;
 
+import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
 import fr.euphyllia.fidorial.server.registry.entity.EntityTypeRegistry;
 import fr.fidorial.registry.Registry;
 import fr.fidorial.registry.RegistryKey;
@@ -7,7 +8,6 @@ import fr.fidorial.registry.SimpleRegistry;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.Attribute;
 import fr.fidorial.registry.data.BannerPattern;
-import fr.fidorial.registry.data.Biome;
 import fr.fidorial.registry.data.BlockType;
 import fr.fidorial.registry.data.CatSoundVariant;
 import fr.fidorial.registry.data.CatVariant;
@@ -45,7 +45,6 @@ import fr.fidorial.registry.data.WorldClock;
 import fr.fidorial.registry.data.ZombieNautilusVariant;
 import fr.fidorial.registry.keys.AttributeKeys;
 import fr.fidorial.registry.keys.BannerPatternKeys;
-import fr.fidorial.registry.keys.BiomeKeys;
 import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.registry.keys.CatSoundVariantKeys;
 import fr.fidorial.registry.keys.CatVariantKeys;
@@ -81,6 +80,7 @@ import fr.fidorial.registry.keys.WolfSoundVariantKeys;
 import fr.fidorial.registry.keys.WolfVariantKeys;
 import fr.fidorial.registry.keys.WorldClockKeys;
 import fr.fidorial.registry.keys.ZombieNautilusVariantKeys;
+import net.kyori.adventure.key.Key;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -88,28 +88,35 @@ import java.util.stream.Stream;
 
 public final class Registries {
 
+    private static final Key FALLBACK_BIOME = Key.key("plains");
+
     private final RegistryHolder dynamic;
     private final RegistryHolder frozen;
     private final Map<RegistryKey<?>, Registry<?>> typedRegistries;
+    private final FidorialBiomeRegistry biomes;
 
     private Registries(
             final RegistryHolder dynamic,
             final RegistryHolder frozen,
-            final Map<RegistryKey<?>, Registry<?>> typedRegistries
+            final Map<RegistryKey<?>, Registry<?>> typedRegistries,
+            final FidorialBiomeRegistry biomes
     ) {
         this.dynamic = dynamic;
         this.frozen = frozen;
         this.typedRegistries = Map.copyOf(typedRegistries);
+        this.biomes = biomes;
     }
 
     public static Registries load() {
         final RegistryDataLoader data = RegistryDataLoader.load();
         final Map<RegistryKey<?>, Registry<?>> registries = new LinkedHashMap<>();
+        final RegistryHolder dynamic = RegistryHolder.of(data.dynamic());
+        final FidorialBiomeRegistry biomes = FidorialBiomeRegistry.bootstrap(dynamic, FALLBACK_BIOME);
 
         // bootstrap our API registries
         registries.put(RegistryKey.ATTRIBUTE, simple(RegistryKey.ATTRIBUTE, Attribute.class, AttributeKeys.values()));
         registries.put(RegistryKey.BANNER_PATTERN, simple(RegistryKey.BANNER_PATTERN, BannerPattern.class, BannerPatternKeys.values()));
-        registries.put(RegistryKey.BIOME, simple(RegistryKey.BIOME, Biome.class, BiomeKeys.values()));
+        registries.put(RegistryKey.BIOME, biomes);
         registries.put(RegistryKey.BLOCK, simple(RegistryKey.BLOCK, BlockType.class, BlockTypeKeys.values()));
         registries.put(RegistryKey.CAT_SOUND_VARIANT, simple(RegistryKey.CAT_SOUND_VARIANT, CatSoundVariant.class, CatSoundVariantKeys.values()));
         registries.put(RegistryKey.CAT_VARIANT, simple(RegistryKey.CAT_VARIANT, CatVariant.class, CatVariantKeys.values()));
@@ -147,7 +154,7 @@ public final class Registries {
         registries.put(RegistryKey.ZOMBIE_NAUTILUS_VARIANT, simple(RegistryKey.ZOMBIE_NAUTILUS_VARIANT, ZombieNautilusVariant.class, ZombieNautilusVariantKeys.values()));
         registries.put(RegistryKey.ENTITY_TYPE, new EntityTypeRegistry());
 
-        return new Registries(RegistryHolder.of(data.dynamic()), RegistryHolder.of(data.frozen()), registries);
+        return new Registries(dynamic, RegistryHolder.of(data.frozen()), registries, biomes);
     }
 
     private static <T> SimpleRegistry<T> simple(
@@ -156,6 +163,10 @@ public final class Registries {
             final Stream<TypedKey<T>> keys
     ) {
         return SimpleRegistry.of(registryKey, keys.toList(), KeyStubs.resolver(type));
+    }
+
+    public FidorialBiomeRegistry biomes() {
+        return biomes;
     }
 
     public RegistryHolder dynamic() {

@@ -52,6 +52,11 @@
   "command.summon.unknown" : "Type d'entité inconnu : <arg:0>",
   "command.summon.usage" : "Utilisation : /<arg:0> <type> [x y z]",
 
+  "command.fillbiome.success" : "<arg:0> cellule(s) de biome définie(s) sur <arg:1>",
+  "command.fillbiome.unknown" : "<red>Biome inconnu : <arg:0>",
+  "command.fillbiome.console" : "<red>Lance cette commande en tant que joueur, ou via /execute dans un monde.",
+  "command.fillbiome.outofworld" : "<red>La region est entièrement hors du monde.",
+  "command.fillbiome.failed" : "<red>Impossible de charger un chunk de la region : <arg:0>",
   "command.spawnpoint.console" : "Depuis la console, une cible est requise : /<arg:0> <joueur> [x y z]",
   "command.spawnpoint.set.self" : "Point de réapparition défini en <arg:0>.",
   "command.spawnpoint.set.other" : "Point de réapparition de <arg:0> défini en <arg:1>.",
