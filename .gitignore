@@ -51,7 +51,6 @@ fidorial-server/faststats/
 fidorial-server/plugins/
 fidorial-server/fidorial.properties
 fidorial-server/ops.json
-**/patches-workspace
 
 # Ré-inclure uniquement le générateur
 !tool/registry-generator/

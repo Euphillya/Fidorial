@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.gradle.patcher
 
 import fr.euphyllia.fidorial.gradle.patcher.extension.DependencyPatcherExtension
+import fr.euphyllia.fidorial.gradle.patcher.jpms.PatchModuleArgumentProvider
 import fr.euphyllia.fidorial.gradle.patcher.task.ApplyPatchesTask
 import fr.euphyllia.fidorial.gradle.patcher.task.ExtractPatchedFilesTask
 import fr.euphyllia.fidorial.gradle.patcher.task.RebuildPatchesTask
@@ -18,9 +19,13 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
+import org.gradle.process.CommandLineArgumentProvider
 
 private const val PATCHER_TASK_GROUP = "dependency patcher"
 private const val INTERNAL_PATCHER_TASK_GROUP = "dependency patcher internal"
@@ -32,9 +37,11 @@ class DependencyPatcherPlugin : Plugin<Project> {
 
         val diffPatch =
             project.configurations.dependencyScope("diffPatch") {
-                dependencies.add(
-                    project.dependencies.create(DIFF_PATCH_VERSION),
-                )
+                defaultDependencies {
+                    dependencies.add(
+                        project.dependencies.create(DIFF_PATCH_VERSION),
+                    )
+                }
             }
 
         val diffPatchTool =
@@ -51,45 +58,32 @@ class DependencyPatcherPlugin : Plugin<Project> {
         project: Project,
         diffPatchTool: NamedDomainObjectProvider<out Configuration>,
     ) {
-        val patchSet = this
         val capitalized = name.replaceFirstChar(Char::uppercase)
 
-        configureConventions(project)
-        // add to these by default
-        patchSet.addPatchedLibraryTo.convention(
-            listOf(
-                project.configurations.named(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME),
-                project.configurations.named(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME),
-            ),
-        )
+        val originalSources = project.configurations.resolvable("${name}Sources") {
+            isTransitive = false
+            dependencies.addLater(
+                library.map {
+                    project.dependencies.create(
+                        it.copy().apply {
+                            artifact {
+                                classifier = this@configure.classifier.get()
+                                type = "jar"
+                            }
+                        },
+                    )
+                },
+            )
+        }
 
-        val originalSources =
-            project.configurations.resolvable("${name}Sources") {
-                isTransitive = false
-
-                dependencies.addLater(
-                    library.map {
-                        project.dependencies.create(
-                            it.copy().apply {
-                                artifact {
-                                    classifier = patchSet.classifier.get()
-                                    type = "jar"
-                                }
-                            },
-                        )
-                    },
-                )
-            }
-
-        val originalBinary =
-            project.configurations.resolvable("${name}Binary") {
-                isTransitive = false
-                dependencies.addLater(
-                    library.map {
-                        project.dependencies.create(it)
-                    },
-                )
-            }
+        val originalBinary = project.configurations.resolvable("${name}Binary") {
+            isTransitive = false
+            dependencies.addLater(
+                library.map {
+                    project.dependencies.create(it)
+                },
+            )
+        }
 
         val originalSourcesJar =
             project.layout.file(
@@ -103,30 +97,28 @@ class DependencyPatcherPlugin : Plugin<Project> {
 
         val patchedZip = project.layout.buildDirectory.file("dependency-patcher/$name/patched.zip")
         val rejects = project.layout.buildDirectory.dir("dependency-patcher/$name/rejects")
-        val patches = patchSet.patchesDir
-        patches.map { it.asFile.mkdirs() }
 
         val applyPatches =
             project.tasks.register<ApplyPatchesTask>("apply${capitalized}Patches") {
                 group = PATCHER_TASK_GROUP
-                description = "Applies patches for '${patchSet.name}'."
+                description = "Applies patches for '${this@configure.name}'."
 
                 originalJar.set(originalSourcesJar)
                 patchesDir.set(
-                    patches.filter { it.asFile.exists() }
+                    this@configure.patchesDir.filter { it.asFile.exists() }
                 )
                 outputZip.set(patchedZip)
                 rejectsDir.set(rejects)
                 mode.set(patchMode)
-                minFuzz.set(patchSet.minFuzz)
-                maxOffset.set(patchSet.maxOffset)
+                minFuzz.set(this@configure.minFuzz)
+                maxOffset.set(this@configure.maxOffset)
 
                 toolClasspath.from(diffPatchTool)
             }
 
         project.tasks.register<Sync>("setup${capitalized}PatchWorkspace") {
             group = PATCHER_TASK_GROUP
-            description = "Builds a workspace for '${patchSet.name}' from the current patched source."
+            description = "Builds a workspace for '${this@configure.name}' from the current patched source."
 
             from(project.zipTree(applyPatches.flatMap { it.outputZip }))
             into(workspaceDir)
@@ -134,39 +126,24 @@ class DependencyPatcherPlugin : Plugin<Project> {
 
         project.tasks.register<RebuildPatchesTask>("rebuild${capitalized}Patches") {
             group = PATCHER_TASK_GROUP
-            description = "Diffs the '${patchSet.name}' patch workspace against the original sources and generates patches."
+            description =
+                "Diffs the '${this@configure.name}' patch workspace against the original sources and generates patches."
             originalJar.set(originalSourcesJar)
-            workspaceDir.set(patchSet.workspaceDir)
-            patchesDir.set(patchSet.patchesDir)
-            context.set(patchSet.context)
+            workspaceDir.set(this@configure.workspaceDir)
+            patchesDir.set(this@configure.patchesDir)
+            context.set(this@configure.context)
             toolClasspath.from(diffPatchTool)
         }
 
         project.pluginManager.withPlugin("java") {
             configureJava(
                 project = project,
-                patchSet = patchSet,
+                patchSet = this@configure,
                 capitalized = capitalized,
                 applyPatches = applyPatches,
                 originalBinaryJar = originalBinaryJar,
             )
         }
-    }
-
-    private fun PatchSet.configureConventions(project: Project) {
-        patchesDir.convention(
-            project.layout.projectDirectory.dir("patches/$name"),
-        )
-
-        workspaceDir.convention(
-            project.layout.projectDirectory.dir("patches-workspace/$name"),
-        )
-
-        patchMode.convention(PatchMode.OFFSET)
-        minFuzz.convention(0.75f)
-        maxOffset.convention(100)
-        context.convention(3)
-        classifier.convention("sources")
     }
 
     private fun configureJava(
@@ -178,12 +155,6 @@ class DependencyPatcherPlugin : Plugin<Project> {
     ) {
         val sourceSets = project.extensions.getByType<SourceSetContainer>()
 
-        patchSet.sourceSetsToAddTo.convention(
-            listOf(
-                sourceSets.named(SourceSet.MAIN_SOURCE_SET_NAME).get(),
-            ),
-        )
-
         val extractPatchedFiles =
             project.tasks.register<ExtractPatchedFilesTask>("extract${capitalized}PatchedFiles") {
                 group = INTERNAL_PATCHER_TASK_GROUP
@@ -193,28 +164,34 @@ class DependencyPatcherPlugin : Plugin<Project> {
                 outputDir.set(project.layout.buildDirectory.dir("generated/sources/dependency-patcher/${patchSet.name}"))
             }
 
-        val patchSourceSet =
-            sourceSets.create("${patchSet.name}Patch") {
-                java.srcDir(extractPatchedFiles.flatMap { it.outputDir })
-            }
-
-        project.configurations.named(patchSourceSet.compileOnlyConfigurationName) {
-            dependencies.add(project.dependencies.create(project.files(originalBinaryJar)))
+        val patchSourceSet = sourceSets.register("${patchSet.name}Patch") {
+            java.srcDir(extractPatchedFiles.flatMap { it.outputDir })
+            compileClasspath += project.files(originalBinaryJar)
         }
 
-        val patchedJar =
-            project.tasks.register<Jar>("patched${capitalized}Jar") {
-                group = INTERNAL_PATCHER_TASK_GROUP
+        patchSourceSet.configure {
+            project.tasks.named<JavaCompile>(compileJavaTaskName) {
+                val provider = project.objects.newInstance<PatchModuleArgumentProvider>()
 
-                archiveBaseName.set(patchSet.name)
-                archiveClassifier.set("patched")
-                destinationDirectory.set(project.layout.buildDirectory.dir("dependency-patcher/${patchSet.name}"))
-                duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-                from(patchSourceSet.output)
-                from(project.zipTree(originalBinaryJar))
+                provider.module.set(patchSet.module)
+                provider.classesDirectory.set(output.classesDirs.asPath)
+
+                options.compilerArgumentProviders.add(provider)
             }
+        }
 
-        patchSet.addPatchedLibraryTo.get().forEach { config ->
+        val patchedJar = project.tasks.register<Jar>("patched${capitalized}Jar") {
+            group = INTERNAL_PATCHER_TASK_GROUP
+
+            archiveBaseName.set(patchSet.name)
+            archiveClassifier.set("patched")
+            destinationDirectory.set(project.layout.buildDirectory.dir("dependency-patcher/${patchSet.name}"))
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            from(patchSourceSet.map { it.output })
+            from(project.zipTree(originalBinaryJar))
+        }
+
+        patchSet.targetConfigurations.get().forEach { config ->
             config.configure {
                 dependencies.add(
                     project.dependencies.create(project.files(patchedJar)),
