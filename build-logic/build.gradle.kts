@@ -1,5 +1,6 @@
 plugins {
     `kotlin-dsl`
+    alias(libs.plugins.blossom)
 }
 
 repositories {
@@ -17,6 +18,12 @@ dependencies {
     implementation(libs.spotless.lib)
     implementation(libs.spotless.lib.extra)
     implementation(libs.diffpatch)
+}
+
+sourceSets.all {
+    blossom.kotlinSources {
+        properties.put("diffpatch_version", libs.versions.diffpatch)
+    }
 }
 
 gradlePlugin {

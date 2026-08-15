@@ -28,11 +28,11 @@ spotless {
     }
 
     kotlin {
-        ktlint()
+        ktlint("1.8.0")
     }
 
     kotlinGradle {
-        ktlint()
+        ktlint("1.8.0")
     }
 
     java {

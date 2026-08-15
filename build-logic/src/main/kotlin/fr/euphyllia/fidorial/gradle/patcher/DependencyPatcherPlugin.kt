@@ -5,16 +5,14 @@ import fr.euphyllia.fidorial.gradle.patcher.jpms.PatchModuleArgumentProvider
 import fr.euphyllia.fidorial.gradle.patcher.task.ApplyPatchesTask
 import fr.euphyllia.fidorial.gradle.patcher.task.ExtractPatchedFilesTask
 import fr.euphyllia.fidorial.gradle.patcher.task.RebuildPatchesTask
-import io.codechicken.diffpatch.util.PatchMode
+import fr.euphyllia.fidorial.gradle.patcher.util.LibraryVersions
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.RegularFile
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskProvider
@@ -25,29 +23,25 @@ import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.register
-import org.gradle.process.CommandLineArgumentProvider
 
 private const val PATCHER_TASK_GROUP = "dependency patcher"
 private const val INTERNAL_PATCHER_TASK_GROUP = "dependency patcher internal"
-private const val DIFF_PATCH_VERSION = "io.codechicken:DiffPatch:2.1.0.43"
 
 class DependencyPatcherPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create<DependencyPatcherExtension>("dependencyPatcher")
 
-        val diffPatch =
-            project.configurations.dependencyScope("diffPatch") {
-                defaultDependencies {
-                    dependencies.add(
-                        project.dependencies.create(DIFF_PATCH_VERSION),
-                    )
-                }
+        val diffPatch = project.configurations.dependencyScope("diffPatchConfig") {
+            defaultDependencies {
+                dependencies.add(
+                    project.dependencies.create("io.codechicken:DiffPatch:${LibraryVersions.DIFF_PATCH}")
+                )
             }
+        }
 
-        val diffPatchTool =
-            project.configurations.resolvable("diffPatchResolvable") {
-                extendsFrom(diffPatch)
-            }
+        val diffPatchTool = project.configurations.resolvable("diffPatchResolvableConfig") {
+            extendsFrom(diffPatch)
+        }
 
         extension.patchSets.configureEach {
             configure(project, diffPatchTool)
