@@ -35,6 +35,7 @@ import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundCommandsPacket;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.command.CommandSource;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -42,6 +43,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +62,9 @@ import static fr.euphyllia.fidorial.server.command.brigadier.builtin.exceptions.
 public final class CommandManager implements CommandRegistry {
     private final @GuardedBy("lock") CommandDispatcher<CommandSource> dispatcher;
     private final ReadWriteLock lock;
-    private final Map<String, RegisteredCommand> commands = new ConcurrentHashMap<>();
+    private final Map<String, RegisteredCommand> namespacedCommands = new ConcurrentHashMap<>();
+    private final Map<String, RegisteredCommand> plainCommands = new ConcurrentHashMap<>();
+    private final Map<String, LinkedHashSet<RegisteredCommand>> plainCandidates = new ConcurrentHashMap<>();
     private final ExecutorService commandExecutor =
             Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("fidorial-command-worker-", 0).factory());
 
@@ -75,50 +79,123 @@ public final class CommandManager implements CommandRegistry {
     }
 
     private void registerDefaults() {
-        register(WeatherCommand.create(), Set.of("w"));
-        register(StopCommand.create(), Set.of("s"));
-        register(OpCommand.createOp());
-        register(OpCommand.createDeop());
-        register(SummonCommand.create());
-        register(GameModeCommand.create(), Set.of("gm"));
-        register(TpsCommand.create());
-        register(TimeCommand.create());
-        register(BossBarCommand.create());
-        register(BanCommand.create());
-        register(PardonCommand.create(), Set.of("unban"));
-        register(BanListCommand.create());
-        register(WhitelistCommand.create());
-        register(BanIpCommand.create(), Set.of("banip"));
-        register(PardonIpCommand.create(), Set.of("unban-ip", "pardonip"));
-        register(SpawnPointCommand.create());
-        register(RespawnCommand.create());
+        registerInternal(WeatherCommand.create(), Set.of("w"));
+        registerInternal(StopCommand.create(), Set.of("s"));
+        registerInternal(OpCommand.createOp());
+        registerInternal(OpCommand.createDeop());
+        registerInternal(SummonCommand.create());
+        registerInternal(GameModeCommand.create(), Set.of("gm"));
+        registerInternal(TpsCommand.create());
+        registerInternal(TimeCommand.create());
+        registerInternal(BossBarCommand.create());
+        registerInternal(BanCommand.create());
+        registerInternal(PardonCommand.create(), Set.of("unban"));
+        registerInternal(BanListCommand.create());
+        registerInternal(WhitelistCommand.create());
+        registerInternal(BanIpCommand.create(), Set.of("banip"));
+        registerInternal(PardonIpCommand.create(), Set.of("unban-ip", "pardonip"));
+        registerInternal(SpawnPointCommand.create());
+        registerInternal(RespawnCommand.create());
+    }
+
+    public void registerInternal(final LiteralCommandNode<CommandSource> command) {
+        registerInternal(command, Set.of());
+    }
+
+    public void registerInternal(final LiteralCommandNode<CommandSource> command, final Set<String> aliases) {
+        Preconditions.checkNotNull(command, "command");
+        Preconditions.checkNotNull(aliases, "aliases");
+        registerCommand(Key.MINECRAFT_NAMESPACE, command, aliases, true);
     }
 
     @Override
-    public void register(final LiteralCommandNode<CommandSource> command, final Set<String> aliases) {
+    public void register(final String namespace, final LiteralCommandNode<CommandSource> command, final Set<String> aliases) {
+        Preconditions.checkNotNull(namespace, "namespace");
+        Preconditions.checkArgument(!namespace.isBlank(), "namespace must not be blank");
+        for (char c : namespace.toCharArray()) {
+            Preconditions.checkArgument(Key.allowedInNamespace(c), "namespace contains illegal characters");
+        }
+        Preconditions.checkArgument(
+                !namespace.equalsIgnoreCase(Key.MINECRAFT_NAMESPACE),
+                "namespace '%s' is reserved for internal server commands", Key.MINECRAFT_NAMESPACE);
+        Preconditions.checkNotNull(command, "command");
+        Preconditions.checkNotNull(aliases, "aliases");
+
+        registerCommand(namespace, command, aliases, false);
+    }
+
+    private void registerCommand(
+            final String namespace,
+            final LiteralCommandNode<CommandSource> command,
+            final Set<String> aliases,
+            final boolean builtin
+    ) {
+        final String ns = namespace.toLowerCase(Locale.ROOT);
+        final RegisteredCommand registered = new RegisteredCommand(ns, command, builtin);
+
+        final Set<String> names = new HashSet<>(aliases);
+        names.add(command.getName());
+
         lock.writeLock().lock();
         try {
-            final RegisteredCommand registered = new RegisteredCommand(command);
-
-            // Always register the primary name as well if no aliases were provided
-            final Set<String> names = new HashSet<>(aliases);
-            names.add(command.getName());
-
             for (final String alias : names) {
-                final String key = alias.toLowerCase(Locale.ROOT);
+                Preconditions.checkArgument(!alias.contains(":"), "alias '%s' must not contain ':'", alias);
+                final String aliasKey = alias.toLowerCase(Locale.ROOT);
 
-                commands.put(key, registered);
-
-                final CommandNode<CommandSource> node =
-                        alias.equalsIgnoreCase(command.getName())
-                                ? command
-                                : cloneLiteral(alias, command);
-
-                dispatcher.getRoot().addChild(node);
+                registerNamespacedNode(ns, aliasKey, command, registered);
+                claimPlainSlot(aliasKey, command, registered);
             }
         } finally {
             lock.writeLock().unlock();
         }
+    }
+
+    @GuardedBy("lock") private void registerNamespacedNode(
+            final String ns,
+            final String aliasKey,
+            final LiteralCommandNode<CommandSource> command,
+            final RegisteredCommand registered
+    ) {
+        final String namespacedName = ns + ":" + aliasKey;
+
+        final RegisteredCommand previous = namespacedCommands.put(namespacedName, registered);
+        if (previous != null) {
+            dispatcher.getRoot().removeChild(namespacedName);
+        }
+
+        dispatcher.getRoot().addChild(cloneLiteral(namespacedName, command));
+    }
+
+    @GuardedBy("lock") private void claimPlainSlot(
+            final String aliasKey,
+            final LiteralCommandNode<CommandSource> command,
+            final RegisteredCommand registered
+    ) {
+        final LinkedHashSet<RegisteredCommand> candidates =
+                plainCandidates.computeIfAbsent(aliasKey, key -> new LinkedHashSet<>());
+        candidates.add(registered);
+
+        final RegisteredCommand current = plainCommands.get(aliasKey);
+        final boolean shouldClaim = current == null || (current.builtin() && !registered.builtin());
+        if (!shouldClaim) {
+            if (current != registered) {
+                FidorialServer.LOGGER.warn(
+                        "Plain command '/{}' is already claimed by namespace '{}'; '{}:{}' will only be reachable as '/{}:{}'",
+                        aliasKey, current.namespace(), registered.namespace(), aliasKey, registered.namespace(), aliasKey
+                );
+            }
+            return;
+        }
+
+        if (current != null) {
+            dispatcher.getRoot().removeChild(aliasKey);
+        }
+
+        final LiteralCommandNode<CommandSource> node =
+                aliasKey.equals(command.getName()) ? command : cloneLiteral(aliasKey, command);
+
+        dispatcher.getRoot().addChild(node);
+        plainCommands.put(aliasKey, registered);
     }
 
     private static LiteralCommandNode<CommandSource> cloneLiteral(
@@ -150,16 +227,84 @@ public final class CommandManager implements CommandRegistry {
     }
 
     @Override
-    public void unregister(final String alias) {
+    public void unregister(final String namespace, final String alias) {
+        Preconditions.checkNotNull(namespace, "namespace");
         Preconditions.checkNotNull(alias, "alias");
+
+        final String ns = namespace.toLowerCase(Locale.ROOT);
+        final String aliasKey = alias.toLowerCase(Locale.ROOT);
+        final String namespacedName = ns + ":" + aliasKey;
+
         lock.writeLock().lock();
         try {
-            final String name = alias.toLowerCase(Locale.ROOT);
-            dispatcher.getRoot().removeChild(name);
-            commands.remove(name);
+            final RegisteredCommand registered = namespacedCommands.remove(namespacedName);
+            if (registered == null) {
+                return;
+            }
+            dispatcher.getRoot().removeChild(namespacedName);
+
+            final LinkedHashSet<RegisteredCommand> candidates = plainCandidates.get(aliasKey);
+            if (candidates != null) {
+                candidates.remove(registered);
+                if (candidates.isEmpty()) {
+                    plainCandidates.remove(aliasKey, candidates);
+                }
+            }
+
+            if (plainCommands.get(aliasKey) == registered) {
+                dispatcher.getRoot().removeChild(aliasKey);
+                plainCommands.remove(aliasKey);
+                promoteNextPlainCandidate(aliasKey);
+            }
         } finally {
             lock.writeLock().unlock();
         }
+    }
+
+    @Override
+    public void unregisterNamespace(final String namespace) {
+        Preconditions.checkNotNull(namespace, "namespace");
+        final String ns = namespace.toLowerCase(Locale.ROOT);
+        final String prefix = ns + ":";
+
+        lock.writeLock().lock();
+        try {
+            final Set<String> aliasKeys = new HashSet<>();
+            for (final String key : namespacedCommands.keySet()) {
+                if (key.startsWith(prefix)) {
+                    aliasKeys.add(key.substring(prefix.length()));
+                }
+            }
+            for (final String aliasKey : aliasKeys) {
+                unregister(ns, aliasKey);
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    @GuardedBy("lock") private void promoteNextPlainCandidate(final String aliasKey) {
+        final LinkedHashSet<RegisteredCommand> candidates = plainCandidates.get(aliasKey);
+        if (candidates == null || candidates.isEmpty()) {
+            return;
+        }
+
+        RegisteredCommand next = null;
+        for (final RegisteredCommand candidate : candidates) {
+            if (!candidate.builtin()) {
+                next = candidate;
+                break;
+            }
+        }
+        if (next == null) {
+            next = candidates.getFirst();
+        }
+
+        final LiteralCommandNode<CommandSource> node =
+                aliasKey.equals(next.node().getName()) ? next.node() : cloneLiteral(aliasKey, next.node());
+
+        dispatcher.getRoot().addChild(node);
+        plainCommands.put(aliasKey, next);
     }
 
     @Override
@@ -265,8 +410,8 @@ public final class CommandManager implements CommandRegistry {
                 isConsole
                         ? Component.translatable("console.command.context.here")
                         : Component.translatable("command.context.here")
-                          .color(NamedTextColor.RED)
-                          .decorate(TextDecoration.ITALIC));
+                        .color(NamedTextColor.RED)
+                        .decorate(TextDecoration.ITALIC));
 
         source.sender().sendMessage(context);
     }
@@ -286,7 +431,7 @@ public final class CommandManager implements CommandRegistry {
 
     @Override
     public boolean hasCommand(final String alias) {
-        return commands.containsKey(alias.toLowerCase(Locale.ROOT));
+        return command(alias) != null;
     }
 
     @Override
@@ -357,10 +502,11 @@ public final class CommandManager implements CommandRegistry {
         }
     }
 
-    public record RegisteredCommand(LiteralCommandNode<CommandSource> node) {
+    public record RegisteredCommand(String namespace, LiteralCommandNode<CommandSource> node, boolean builtin) {
     }
 
-    public RegisteredCommand command(final String alias) {
-        return commands.get(alias.toLowerCase(Locale.ROOT));
+    public @Nullable RegisteredCommand command(final String alias) {
+        final String key = alias.toLowerCase(Locale.ROOT);
+        return key.contains(":") ? namespacedCommands.get(key) : plainCommands.get(key);
     }
 }
