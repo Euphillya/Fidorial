@@ -154,7 +154,9 @@ public final class CommandManager implements CommandRegistry {
         Preconditions.checkNotNull(alias, "alias");
         lock.writeLock().lock();
         try {
-            commands.remove(alias.toLowerCase(Locale.ROOT));
+            final String name = alias.toLowerCase(Locale.ROOT);
+            dispatcher.getRoot().removeChild(name);
+            commands.remove(name);
         } finally {
             lock.writeLock().unlock();
         }
@@ -186,29 +188,8 @@ public final class CommandManager implements CommandRegistry {
             }
 
             try {
-                // dirty cuz vanilla brigadier doesnt allow child removal wtf
-                // also we do this here so real invalid entries fail in the console
-                String root = cmdLine.strip();
-
-                final int space = root.indexOf(' ');
-                if (space != -1) {
-                    root = root.substring(0, space);
-                }
-
-                root = root.toLowerCase(Locale.ROOT);
-
-                if (!commands.containsKey(root)) {
-                    final CommandSyntaxException e = unknownCommand(parse);
-                    source.sender()
-                            .sendMessage(
-                                    convert(e.getRawMessage(), isConsole)
-                                            .color(NamedTextColor.RED));
-                    sendContext(source, e, cmdLine, isConsole);
-                    return false;
-                }
-
                 final int result = dispatcher.execute(parse);
-                return result == Command.SINGLE_SUCCESS;
+                return result >= Command.SINGLE_SUCCESS;
             } catch (final CommandSyntaxException e) {
                 source.sender()
                         .sendMessage(convert(e.getRawMessage(), isConsole)
