@@ -8,6 +8,11 @@ import org.jetbrains.annotations.Contract;
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ * Server-wide registry of biomes, holding both the vanilla ones and those added by plugins.
+ *
+ * @since 0.1.0
+ */
 public interface BiomeRegistry {
 
     /**

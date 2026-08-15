@@ -1,22 +1,27 @@
 package fr.fidorial.world.biome;
 
-import fr.fidorial.world.environment.AmbientParticle;
-import fr.fidorial.world.environment.AmbientSounds;
-import fr.fidorial.world.environment.BackgroundMusic;
 import fr.fidorial.world.environment.EnvironmentAttributes;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.function.Consumer;
 
+/**
+ * The client-side tinting a biome applies.
+ *
+ * @param waterColor         tint applied to water and cauldrons
+ * @param foliageColor       leaf and vine tint, or {@code null} to let the client compute it
+ * @param grassColor         grass tint, or {@code null} to let the client compute it
+ * @param dryFoliageColor    leaf litter tint, or {@code null} for the default
+ * @param grassColorModifier post-processing applied on top of the grass color
+ * @since 0.1.0
+ */
 public record BiomeEffects(
         int waterColor,
         @Nullable Integer foliageColor,
         @Nullable Integer grassColor,
         @Nullable Integer dryFoliageColor,
-        GrassColorModifier grassColorModifier,
-        EnvironmentAttributes attributes
+        GrassColorModifier grassColorModifier
 ) {
 
     /**
@@ -26,7 +31,6 @@ public record BiomeEffects(
 
     public BiomeEffects {
         Objects.requireNonNull(grassColorModifier, "grassColorModifier");
-        Objects.requireNonNull(attributes, "attributes");
     }
 
     /**
@@ -63,10 +67,6 @@ public record BiomeEffects(
     /**
      * Mutable builder for {@link BiomeEffects}.
      *
-     * <p>Beyond the tints it owns, the builder forwards the most frequently used environment
-     * attributes to an inner {@link EnvironmentAttributes.Builder}, reachable in full through
-     * {@link #attributes(Consumer)}.</p>
-     *
      * @since 0.1.0
      */
     public static final class Builder {
@@ -76,7 +76,6 @@ public record BiomeEffects(
         private @Nullable Integer grassColor;
         private @Nullable Integer dryFoliageColor;
         private GrassColorModifier grassColorModifier = GrassColorModifier.NONE;
-        private EnvironmentAttributes.Builder attributes = EnvironmentAttributes.builder();
 
         private Builder() {
         }
@@ -87,7 +86,6 @@ public record BiomeEffects(
             this.grassColor = effects.grassColor;
             this.dryFoliageColor = effects.dryFoliageColor;
             this.grassColorModifier = effects.grassColorModifier;
-            this.attributes = EnvironmentAttributes.builder(effects.attributes);
         }
 
         /**
@@ -141,104 +139,6 @@ public record BiomeEffects(
         }
 
         /**
-         * Replaces the whole attribute map.
-         *
-         * @param attributes the attributes this biome sets
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder attributes(final EnvironmentAttributes attributes) {
-            this.attributes = EnvironmentAttributes.builder(attributes);
-            return this;
-        }
-
-        /**
-         * Configures the attribute map in place, starting from what is already set.
-         *
-         * <p>This is the way to reach attributes the shorthands below do not cover.</p>
-         *
-         * @param configurer callback receiving the attribute builder
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder attributes(final Consumer<EnvironmentAttributes.Builder> configurer) {
-            configurer.accept(this.attributes);
-            return this;
-        }
-
-        /**
-         * Shorthand for {@code minecraft:visual/sky_color}.
-         *
-         * @param color packed RGB color of the sky
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder skyColor(final @Nullable Integer color) {
-            this.attributes.skyColor(color);
-            return this;
-        }
-
-        /**
-         * Shorthand for {@code minecraft:visual/fog_color}.
-         *
-         * @param color packed RGB color of the distance fog
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder fogColor(final @Nullable Integer color) {
-            this.attributes.fogColor(color);
-            return this;
-        }
-
-        /**
-         * Shorthand for {@code minecraft:visual/water_fog_color}.
-         *
-         * @param color packed RGB color of the underwater fog
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder waterFogColor(final @Nullable Integer color) {
-            this.attributes.waterFogColor(color);
-            return this;
-        }
-
-        /**
-         * Shorthand for {@code minecraft:visual/ambient_particles}.
-         *
-         * @param particle the particle to add
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder addAmbientParticle(final AmbientParticle particle) {
-            this.attributes.addAmbientParticle(particle);
-            return this;
-        }
-
-        /**
-         * Shorthand for {@code minecraft:audio/ambient_sounds}.
-         *
-         * @param sounds the ambient sounds, or {@code null} to leave unset
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder ambientSounds(final @Nullable AmbientSounds sounds) {
-            this.attributes.ambientSounds(sounds);
-            return this;
-        }
-
-        /**
-         * Shorthand for {@code minecraft:audio/background_music}.
-         *
-         * @param music the background music, or {@code null} to leave unset
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder backgroundMusic(final @Nullable BackgroundMusic music) {
-            this.attributes.backgroundMusic(music);
-            return this;
-        }
-
-        /**
          * {@return the immutable effects described by this builder}
          */
         @Contract(value = "-> new", pure = true)
@@ -248,8 +148,7 @@ public record BiomeEffects(
                     foliageColor,
                     grassColor,
                     dryFoliageColor,
-                    grassColorModifier,
-                    attributes.build());
+                    grassColorModifier);
         }
     }
 }

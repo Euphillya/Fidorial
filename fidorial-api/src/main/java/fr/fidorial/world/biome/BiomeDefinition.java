@@ -3,24 +3,39 @@ package fr.fidorial.world.biome;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.Biome;
+import fr.fidorial.world.environment.EnvironmentAttributes;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Contract;
 
 import java.util.Objects;
 
+/**
+ * A complete biome definition, ready to be sent to clients.
+ *
+ * @param key                 the namespaced identifier of the biome
+ * @param hasPrecipitation    whether rain or snow may fall
+ * @param temperature         biome temperature, driving snow, freezing water and the default colors
+ * @param temperatureModifier how the client reinterprets {@code temperature}
+ * @param downfall            humidity, within {@code [0, 1]}, driving the default foliage colors
+ * @param effects             the client-side tinting
+ * @param attributes          the environment attributes this biome sets, possibly empty
+ * @since 0.1.0
+ */
 public record BiomeDefinition(
         Key key,
         boolean hasPrecipitation,
         float temperature,
         TemperatureModifier temperatureModifier,
         float downfall,
-        BiomeEffects effects
+        BiomeEffects effects,
+        EnvironmentAttributes attributes
 ) implements Biome {
 
     public BiomeDefinition {
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(temperatureModifier, "temperatureModifier");
         Objects.requireNonNull(effects, "effects");
+        Objects.requireNonNull(attributes, "attributes");
         if (downfall < 0F || downfall > 1F) {
             throw new IllegalArgumentException("downfall must be within [0, 1], got " + downfall);
         }

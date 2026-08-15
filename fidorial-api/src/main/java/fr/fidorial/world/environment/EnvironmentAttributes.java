@@ -3,48 +3,47 @@ package fr.fidorial.world.environment;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * The environment attributes a biome sets, written as the {@code attributes} field of its effects.
- *
- * @param fogColor                 distance fog color, packed RGB — {@code minecraft:visual/fog_color}
- * @param skyColor                 sky color, packed RGB — {@code minecraft:visual/sky_color}
- * @param waterFogColor            underwater fog color, packed RGB — {@code minecraft:visual/water_fog_color}
- * @param waterFogRadius           distance in blocks at which underwater fog peaks — {@code minecraft:visual/water_fog_radius}
- * @param extraFog                 whether to use dense, Nether-like fog — {@code minecraft:visual/extra_fog}
- * @param ambientParticles         particles randomly spawned around the camera — {@code minecraft:visual/ambient_particles}
- * @param ambientSounds            looping, mood and additions sounds — {@code minecraft:audio/ambient_sounds}
- * @param backgroundMusic          music tracks — {@code minecraft:audio/background_music}
- * @param musicVolume              volume music fades to, within {@code [0, 1]} — {@code minecraft:audio/music_volume}
- * @param canStartRaid             whether a raid can begin here — {@code minecraft:gameplay/can_start_raid}
- * @param waterEvaporates          whether placed water evaporates — {@code minecraft:gameplay/water_evaporates}
- * @param respawnAnchorWorks       whether respawn anchors set spawn instead of exploding — {@code minecraft:gameplay/respawn_anchor_works}
- * @param netherPortalSpawnsPiglin whether portals spawn piglins — {@code minecraft:gameplay/nether_portal_spawns_piglin}
- * @param increasedFireBurnout     whether fire burns out faster — {@code minecraft:gameplay/increased_fire_burnout}
- * @param piglinsZombify           whether piglins and hoglins zombify — {@code minecraft:gameplay/piglins_zombify}
- * @param snowGolemMelts           whether snow golems take damage — {@code minecraft:gameplay/snow_golem_melts}
+ * @param fogColor               distance fog color, packed RGB — {@code minecraft:visual/fog_color}
+ * @param skyColor               sky color, packed RGB — {@code minecraft:visual/sky_color}
+ * @param waterFogColor          underwater fog color, packed RGB — {@code minecraft:visual/water_fog_color}
+ * @param waterFogEndDistance    distance in blocks at which underwater fog reaches full density — {@code minecraft:visual/water_fog_end_distance}
+ * @param extraFog               whether to use dense, Nether-like fog — {@code minecraft:visual/extra_fog}
+ * @param musicVolume            volume music fades to, within {@code [0, 1]} — {@code minecraft:audio/music_volume}
+ * @param canStartRaid           whether a raid can begin here — {@code minecraft:gameplay/can_start_raid}
+ * @param canPillagerPatrolSpawn whether pillager patrols spawn here — {@code minecraft:gameplay/can_pillager_patrol_spawn}
+ * @param waterEvaporates        whether placed water evaporates — {@code minecraft:gameplay/water_evaporates}
+ * @param respawnAnchorWorks     whether respawn anchors set spawn instead of exploding — {@code minecraft:gameplay/respawn_anchor_works}
+ * @param increasedFireBurnout   whether fire burns out faster — {@code minecraft:gameplay/increased_fire_burnout}
+ * @param piglinsZombify         whether piglins and hoglins zombify — {@code minecraft:gameplay/piglins_zombify}
+ * @param snowGolemMelts         whether snow golems take damage — {@code minecraft:gameplay/snow_golem_melts}
+ * @param ambientParticles       particles randomly spawned around the camera, possibly empty — {@code minecraft:visual/ambient_particles}
+ * @param ambientSounds          looping, mood and additions sounds — {@code minecraft:audio/ambient_sounds}
+ * @param backgroundMusic        music tracks — {@code minecraft:audio/background_music}
  * @since 0.1.0
  */
 public record EnvironmentAttributes(
-        @Nullable Integer fogColor,
-        @Nullable Integer skyColor,
-        @Nullable Integer waterFogColor,
-        @Nullable Float waterFogRadius,
-        @Nullable Boolean extraFog,
+        @Nullable Attribute<Integer> fogColor,
+        @Nullable Attribute<Integer> skyColor,
+        @Nullable Attribute<Integer> waterFogColor,
+        @Nullable Attribute<Float> waterFogEndDistance,
+        @Nullable Attribute<Boolean> extraFog,
+        @Nullable Attribute<Float> musicVolume,
+        @Nullable Attribute<Boolean> canStartRaid,
+        @Nullable Attribute<Boolean> canPillagerPatrolSpawn,
+        @Nullable Attribute<Boolean> waterEvaporates,
+        @Nullable Attribute<Boolean> respawnAnchorWorks,
+        @Nullable Attribute<Boolean> increasedFireBurnout,
+        @Nullable Attribute<Boolean> piglinsZombify,
+        @Nullable Attribute<Boolean> snowGolemMelts,
         List<AmbientParticle> ambientParticles,
         @Nullable AmbientSounds ambientSounds,
-        @Nullable BackgroundMusic backgroundMusic,
-        @Nullable Float musicVolume,
-        @Nullable Boolean canStartRaid,
-        @Nullable Boolean waterEvaporates,
-        @Nullable Boolean respawnAnchorWorks,
-        @Nullable Boolean netherPortalSpawnsPiglin,
-        @Nullable Boolean increasedFireBurnout,
-        @Nullable Boolean piglinsZombify,
-        @Nullable Boolean snowGolemMelts
+        @Nullable BackgroundMusic backgroundMusic
 ) {
 
     /**
@@ -82,7 +81,7 @@ public record EnvironmentAttributes(
      */
     public static int skyColorFor(final float temperature) {
         final float scaled = Math.clamp(temperature / 3F, -1F, 1F);
-        return java.awt.Color.HSBtoRGB(0.62222224F - scaled * 0.05F, 0.5F + scaled * 0.1F, 1.0F) & 0xFFFFFF;
+        return Color.HSBtoRGB(0.62222224F - scaled * 0.05F, 0.5F + scaled * 0.1F, 1.0F) & 0xFFFFFF;
     }
 
     /**
@@ -98,23 +97,22 @@ public record EnvironmentAttributes(
      * @since 0.1.0
      */
     public static final class Builder {
-
         private final List<AmbientParticle> ambientParticles = new ArrayList<>();
-        private @Nullable Integer fogColor;
-        private @Nullable Integer skyColor;
-        private @Nullable Integer waterFogColor;
-        private @Nullable Float waterFogRadius;
-        private @Nullable Boolean extraFog;
+        private @Nullable Attribute<Integer> fogColor;
+        private @Nullable Attribute<Integer> skyColor;
+        private @Nullable Attribute<Integer> waterFogColor;
+        private @Nullable Attribute<Float> waterFogEndDistance;
+        private @Nullable Attribute<Boolean> extraFog;
+        private @Nullable Attribute<Float> musicVolume;
+        private @Nullable Attribute<Boolean> canStartRaid;
+        private @Nullable Attribute<Boolean> canPillagerPatrolSpawn;
+        private @Nullable Attribute<Boolean> waterEvaporates;
+        private @Nullable Attribute<Boolean> respawnAnchorWorks;
+        private @Nullable Attribute<Boolean> increasedFireBurnout;
+        private @Nullable Attribute<Boolean> piglinsZombify;
+        private @Nullable Attribute<Boolean> snowGolemMelts;
         private @Nullable AmbientSounds ambientSounds;
         private @Nullable BackgroundMusic backgroundMusic;
-        private @Nullable Float musicVolume;
-        private @Nullable Boolean canStartRaid;
-        private @Nullable Boolean waterEvaporates;
-        private @Nullable Boolean respawnAnchorWorks;
-        private @Nullable Boolean netherPortalSpawnsPiglin;
-        private @Nullable Boolean increasedFireBurnout;
-        private @Nullable Boolean piglinsZombify;
-        private @Nullable Boolean snowGolemMelts;
 
         private Builder() {
         }
@@ -123,73 +121,348 @@ public record EnvironmentAttributes(
             this.fogColor = attributes.fogColor;
             this.skyColor = attributes.skyColor;
             this.waterFogColor = attributes.waterFogColor;
-            this.waterFogRadius = attributes.waterFogRadius;
+            this.waterFogEndDistance = attributes.waterFogEndDistance;
             this.extraFog = attributes.extraFog;
-            this.ambientParticles.addAll(attributes.ambientParticles);
-            this.ambientSounds = attributes.ambientSounds;
-            this.backgroundMusic = attributes.backgroundMusic;
             this.musicVolume = attributes.musicVolume;
             this.canStartRaid = attributes.canStartRaid;
+            this.canPillagerPatrolSpawn = attributes.canPillagerPatrolSpawn;
             this.waterEvaporates = attributes.waterEvaporates;
             this.respawnAnchorWorks = attributes.respawnAnchorWorks;
-            this.netherPortalSpawnsPiglin = attributes.netherPortalSpawnsPiglin;
             this.increasedFireBurnout = attributes.increasedFireBurnout;
             this.piglinsZombify = attributes.piglinsZombify;
             this.snowGolemMelts = attributes.snowGolemMelts;
+            this.ambientParticles.addAll(attributes.ambientParticles);
+            this.ambientSounds = attributes.ambientSounds;
+            this.backgroundMusic = attributes.backgroundMusic;
         }
 
         /**
-         * @param color packed RGB color of the distance fog
+         * Sets {@code minecraft:visual/fog_color} as a plain override.
+         *
+         * @param value distance fog color, packed RGB, or {@code null} to leave unset
          * @return this builder
          */
         @Contract("_ -> this")
-        public Builder fogColor(final @Nullable Integer color) {
-            this.fogColor = color;
+        public Builder fogColor(final @Nullable Integer value) {
+            this.fogColor = value == null ? null : Attribute.of(value);
             return this;
         }
 
         /**
-         * @param color packed RGB color of the sky
+         * Sets {@code minecraft:visual/fog_color}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
          * @return this builder
          */
-        @Contract("_ -> this")
-        public Builder skyColor(final @Nullable Integer color) {
-            this.skyColor = color;
+        @Contract("_, _ -> this")
+        public Builder fogColor(final Integer value, final Modifier modifier) {
+            this.fogColor = Attribute.of(value, modifier);
             return this;
         }
 
         /**
-         * @param color packed RGB color of the underwater fog
+         * Sets {@code minecraft:visual/sky_color} as a plain override.
+         *
+         * @param value sky color, packed RGB, or {@code null} to leave unset
          * @return this builder
          */
         @Contract("_ -> this")
-        public Builder waterFogColor(final @Nullable Integer color) {
-            this.waterFogColor = color;
+        public Builder skyColor(final @Nullable Integer value) {
+            this.skyColor = value == null ? null : Attribute.of(value);
             return this;
         }
 
         /**
-         * @param radius distance in blocks at which underwater fog reaches full density
+         * Sets {@code minecraft:visual/sky_color}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
          * @return this builder
          */
-        @Contract("_ -> this")
-        public Builder waterFogRadius(final @Nullable Float radius) {
-            this.waterFogRadius = radius;
+        @Contract("_, _ -> this")
+        public Builder skyColor(final Integer value, final Modifier modifier) {
+            this.skyColor = Attribute.of(value, modifier);
             return this;
         }
 
         /**
-         * @param extraFog whether to use dense, Nether-like fog
+         * Sets {@code minecraft:visual/water_fog_color} as a plain override.
+         *
+         * @param value underwater fog color, packed RGB, or {@code null} to leave unset
          * @return this builder
          */
         @Contract("_ -> this")
-        public Builder extraFog(final @Nullable Boolean extraFog) {
-            this.extraFog = extraFog;
+        public Builder waterFogColor(final @Nullable Integer value) {
+            this.waterFogColor = value == null ? null : Attribute.of(value);
             return this;
         }
 
         /**
-         * Adds one ambient particle.
+         * Sets {@code minecraft:visual/water_fog_color}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
+         * @return this builder
+         */
+        @Contract("_, _ -> this")
+        public Builder waterFogColor(final Integer value, final Modifier modifier) {
+            this.waterFogColor = Attribute.of(value, modifier);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:visual/water_fog_end_distance} as a plain override.
+         *
+         * @param value distance in blocks at which underwater fog reaches full density, or {@code null} to leave unset
+         * @return this builder
+         */
+        @Contract("_ -> this")
+        public Builder waterFogEndDistance(final @Nullable Float value) {
+            this.waterFogEndDistance = value == null ? null : Attribute.of(value);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:visual/water_fog_end_distance}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
+         * @return this builder
+         */
+        @Contract("_, _ -> this")
+        public Builder waterFogEndDistance(final Float value, final Modifier modifier) {
+            this.waterFogEndDistance = Attribute.of(value, modifier);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:visual/extra_fog} as a plain override.
+         *
+         * @param value whether to use dense, Nether-like fog, or {@code null} to leave unset
+         * @return this builder
+         */
+        @Contract("_ -> this")
+        public Builder extraFog(final @Nullable Boolean value) {
+            this.extraFog = value == null ? null : Attribute.of(value);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:visual/extra_fog}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
+         * @return this builder
+         */
+        @Contract("_, _ -> this")
+        public Builder extraFog(final Boolean value, final Modifier modifier) {
+            this.extraFog = Attribute.of(value, modifier);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:audio/music_volume} as a plain override.
+         *
+         * @param value volume music fades to, within {@code [0, 1]}, or {@code null} to leave unset
+         * @return this builder
+         */
+        @Contract("_ -> this")
+        public Builder musicVolume(final @Nullable Float value) {
+            this.musicVolume = value == null ? null : Attribute.of(value);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:audio/music_volume}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
+         * @return this builder
+         */
+        @Contract("_, _ -> this")
+        public Builder musicVolume(final Float value, final Modifier modifier) {
+            this.musicVolume = Attribute.of(value, modifier);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/can_start_raid} as a plain override.
+         *
+         * @param value whether a raid can begin here, or {@code null} to leave unset
+         * @return this builder
+         */
+        @Contract("_ -> this")
+        public Builder canStartRaid(final @Nullable Boolean value) {
+            this.canStartRaid = value == null ? null : Attribute.of(value);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/can_start_raid}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
+         * @return this builder
+         */
+        @Contract("_, _ -> this")
+        public Builder canStartRaid(final Boolean value, final Modifier modifier) {
+            this.canStartRaid = Attribute.of(value, modifier);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/can_pillager_patrol_spawn} as a plain override.
+         *
+         * @param value whether pillager patrols spawn here, or {@code null} to leave unset
+         * @return this builder
+         */
+        @Contract("_ -> this")
+        public Builder canPillagerPatrolSpawn(final @Nullable Boolean value) {
+            this.canPillagerPatrolSpawn = value == null ? null : Attribute.of(value);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/can_pillager_patrol_spawn}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
+         * @return this builder
+         */
+        @Contract("_, _ -> this")
+        public Builder canPillagerPatrolSpawn(final Boolean value, final Modifier modifier) {
+            this.canPillagerPatrolSpawn = Attribute.of(value, modifier);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/water_evaporates} as a plain override.
+         *
+         * @param value whether placed water evaporates, or {@code null} to leave unset
+         * @return this builder
+         */
+        @Contract("_ -> this")
+        public Builder waterEvaporates(final @Nullable Boolean value) {
+            this.waterEvaporates = value == null ? null : Attribute.of(value);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/water_evaporates}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
+         * @return this builder
+         */
+        @Contract("_, _ -> this")
+        public Builder waterEvaporates(final Boolean value, final Modifier modifier) {
+            this.waterEvaporates = Attribute.of(value, modifier);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/respawn_anchor_works} as a plain override.
+         *
+         * @param value whether respawn anchors set spawn instead of exploding, or {@code null} to leave unset
+         * @return this builder
+         */
+        @Contract("_ -> this")
+        public Builder respawnAnchorWorks(final @Nullable Boolean value) {
+            this.respawnAnchorWorks = value == null ? null : Attribute.of(value);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/respawn_anchor_works}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
+         * @return this builder
+         */
+        @Contract("_, _ -> this")
+        public Builder respawnAnchorWorks(final Boolean value, final Modifier modifier) {
+            this.respawnAnchorWorks = Attribute.of(value, modifier);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/increased_fire_burnout} as a plain override.
+         *
+         * @param value whether fire burns out faster, or {@code null} to leave unset
+         * @return this builder
+         */
+        @Contract("_ -> this")
+        public Builder increasedFireBurnout(final @Nullable Boolean value) {
+            this.increasedFireBurnout = value == null ? null : Attribute.of(value);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/increased_fire_burnout}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
+         * @return this builder
+         */
+        @Contract("_, _ -> this")
+        public Builder increasedFireBurnout(final Boolean value, final Modifier modifier) {
+            this.increasedFireBurnout = Attribute.of(value, modifier);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/piglins_zombify} as a plain override.
+         *
+         * @param value whether piglins and hoglins zombify, or {@code null} to leave unset
+         * @return this builder
+         */
+        @Contract("_ -> this")
+        public Builder piglinsZombify(final @Nullable Boolean value) {
+            this.piglinsZombify = value == null ? null : Attribute.of(value);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/piglins_zombify}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
+         * @return this builder
+         */
+        @Contract("_, _ -> this")
+        public Builder piglinsZombify(final Boolean value, final Modifier modifier) {
+            this.piglinsZombify = Attribute.of(value, modifier);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/snow_golem_melts} as a plain override.
+         *
+         * @param value whether snow golems take damage, or {@code null} to leave unset
+         * @return this builder
+         */
+        @Contract("_ -> this")
+        public Builder snowGolemMelts(final @Nullable Boolean value) {
+            this.snowGolemMelts = value == null ? null : Attribute.of(value);
+            return this;
+        }
+
+        /**
+         * Sets {@code minecraft:gameplay/snow_golem_melts}, deriving from the dimension's value.
+         *
+         * @param value    the modifier argument
+         * @param modifier how to combine it
+         * @return this builder
+         */
+        @Contract("_, _ -> this")
+        public Builder snowGolemMelts(final Boolean value, final Modifier modifier) {
+            this.snowGolemMelts = Attribute.of(value, modifier);
+            return this;
+        }
+
+        /**
+         * Adds one ambient particle to {@code minecraft:visual/ambient_particles}.
          *
          * @param particle the particle
          * @return this builder
@@ -214,102 +487,26 @@ public record EnvironmentAttributes(
         }
 
         /**
-         * @param sounds looping, mood and additions sounds, or {@code null} to leave unset
+         * Sets {@code minecraft:audio/ambient_sounds}.
+         *
+         * @param value looping, mood and additions sounds, or {@code null} to leave unset
          * @return this builder
          */
         @Contract("_ -> this")
-        public Builder ambientSounds(final @Nullable AmbientSounds sounds) {
-            this.ambientSounds = sounds;
+        public Builder ambientSounds(final @Nullable AmbientSounds value) {
+            this.ambientSounds = value;
             return this;
         }
 
         /**
-         * @param music background music tracks, or {@code null} to leave unset
+         * Sets {@code minecraft:audio/background_music}.
+         *
+         * @param value music tracks, or {@code null} to leave unset
          * @return this builder
          */
         @Contract("_ -> this")
-        public Builder backgroundMusic(final @Nullable BackgroundMusic music) {
-            this.backgroundMusic = music;
-            return this;
-        }
-
-        /**
-         * @param volume music volume within {@code [0, 1]}
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder musicVolume(final @Nullable Float volume) {
-            this.musicVolume = volume;
-            return this;
-        }
-
-        /**
-         * @param canStartRaid whether a raid can begin in this biome
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder canStartRaid(final @Nullable Boolean canStartRaid) {
-            this.canStartRaid = canStartRaid;
-            return this;
-        }
-
-        /**
-         * @param waterEvaporates whether placed water evaporates, as in the Nether
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder waterEvaporates(final @Nullable Boolean waterEvaporates) {
-            this.waterEvaporates = waterEvaporates;
-            return this;
-        }
-
-        /**
-         * @param respawnAnchorWorks whether respawn anchors set spawn instead of exploding
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder respawnAnchorWorks(final @Nullable Boolean respawnAnchorWorks) {
-            this.respawnAnchorWorks = respawnAnchorWorks;
-            return this;
-        }
-
-        /**
-         * @param netherPortalSpawnsPiglin whether nether portals spawn piglins
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder netherPortalSpawnsPiglin(final @Nullable Boolean netherPortalSpawnsPiglin) {
-            this.netherPortalSpawnsPiglin = netherPortalSpawnsPiglin;
-            return this;
-        }
-
-        /**
-         * @param increasedFireBurnout whether fire burns out faster than normal
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder increasedFireBurnout(final @Nullable Boolean increasedFireBurnout) {
-            this.increasedFireBurnout = increasedFireBurnout;
-            return this;
-        }
-
-        /**
-         * @param piglinsZombify whether piglins and hoglins zombify here
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder piglinsZombify(final @Nullable Boolean piglinsZombify) {
-            this.piglinsZombify = piglinsZombify;
-            return this;
-        }
-
-        /**
-         * @param snowGolemMelts whether snow golems take damage here
-         * @return this builder
-         */
-        @Contract("_ -> this")
-        public Builder snowGolemMelts(final @Nullable Boolean snowGolemMelts) {
-            this.snowGolemMelts = snowGolemMelts;
+        public Builder backgroundMusic(final @Nullable BackgroundMusic value) {
+            this.backgroundMusic = value;
             return this;
         }
 
@@ -319,22 +516,23 @@ public record EnvironmentAttributes(
         @Contract(value = "-> new", pure = true)
         public EnvironmentAttributes build() {
             return new EnvironmentAttributes(
+
                     fogColor,
                     skyColor,
                     waterFogColor,
-                    waterFogRadius,
+                    waterFogEndDistance,
                     extraFog,
-                    List.copyOf(ambientParticles),
-                    ambientSounds,
-                    backgroundMusic,
                     musicVolume,
                     canStartRaid,
+                    canPillagerPatrolSpawn,
                     waterEvaporates,
                     respawnAnchorWorks,
-                    netherPortalSpawnsPiglin,
                     increasedFireBurnout,
                     piglinsZombify,
-                    snowGolemMelts);
+                    snowGolemMelts,
+                    List.copyOf(ambientParticles),
+                    ambientSounds,
+                    backgroundMusic);
         }
     }
 }

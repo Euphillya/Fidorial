@@ -1,13 +1,22 @@
 package fr.fidorial.world.biome;
 
+import fr.fidorial.world.environment.AmbientParticle;
+import fr.fidorial.world.environment.AmbientSounds;
+import fr.fidorial.world.environment.BackgroundMusic;
 import fr.fidorial.world.environment.EnvironmentAttributes;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class BiomeBuilder {
+/**
+ * Fluent builder for {@link BiomeDefinition}.
+ *
+ * @since 0.1.0
+ */
+public final class BiomeBuilder {
 
     private Key key;
     private boolean hasPrecipitation = true;
@@ -15,6 +24,7 @@ public class BiomeBuilder {
     private TemperatureModifier temperatureModifier = TemperatureModifier.NONE;
     private float downfall = 0.4F;
     private BiomeEffects effects = BiomeEffects.DEFAULT;
+    private EnvironmentAttributes.Builder attributes = EnvironmentAttributes.builder();
 
     BiomeBuilder(final Key key) {
         this.key = Objects.requireNonNull(key, "key");
@@ -27,6 +37,7 @@ public class BiomeBuilder {
         this.temperatureModifier = definition.temperatureModifier();
         this.downfall = definition.downfall();
         this.effects = definition.effects();
+        this.attributes = EnvironmentAttributes.builder(definition.attributes());
     }
 
     /**
@@ -109,6 +120,102 @@ public class BiomeBuilder {
     }
 
     /**
+     * Replaces the whole environment attribute map.
+     *
+     * @param attributes the attributes this biome sets
+     * @return this builder
+     */
+    @Contract("_ -> this")
+    public BiomeBuilder attributes(final EnvironmentAttributes attributes) {
+        this.attributes = EnvironmentAttributes.builder(attributes);
+        return this;
+    }
+
+    /**
+     * Configures the environment attributes in place, starting from what is already set.
+     *
+     * @param configurer callback receiving the attribute builder
+     * @return this builder
+     */
+    @Contract("_ -> this")
+    public BiomeBuilder attributes(final Consumer<EnvironmentAttributes.Builder> configurer) {
+        configurer.accept(this.attributes);
+        return this;
+    }
+
+    /**
+     * Shorthand for {@code minecraft:visual/sky_color}.
+     *
+     * @param color packed RGB color of the sky
+     * @return this builder
+     */
+    @Contract("_ -> this")
+    public BiomeBuilder skyColor(final @Nullable Integer color) {
+        this.attributes.skyColor(color);
+        return this;
+    }
+
+    /**
+     * Shorthand for {@code minecraft:visual/fog_color}.
+     *
+     * @param color packed RGB color of the distance fog
+     * @return this builder
+     */
+    @Contract("_ -> this")
+    public BiomeBuilder fogColor(final @Nullable Integer color) {
+        this.attributes.fogColor(color);
+        return this;
+    }
+
+    /**
+     * Shorthand for {@code minecraft:visual/water_fog_color}.
+     *
+     * @param color packed RGB color of the underwater fog
+     * @return this builder
+     */
+    @Contract("_ -> this")
+    public BiomeBuilder waterFogColor(final @Nullable Integer color) {
+        this.attributes.waterFogColor(color);
+        return this;
+    }
+
+    /**
+     * Shorthand for {@code minecraft:visual/ambient_particles}.
+     *
+     * @param particle the particle to add
+     * @return this builder
+     */
+    @Contract("_ -> this")
+    public BiomeBuilder addAmbientParticle(final AmbientParticle particle) {
+        this.attributes.addAmbientParticle(particle);
+        return this;
+    }
+
+    /**
+     * Shorthand for {@code minecraft:audio/ambient_sounds}.
+     *
+     * @param sounds the ambient sounds, or {@code null} to leave unset
+     * @return this builder
+     */
+    @Contract("_ -> this")
+    public BiomeBuilder ambientSounds(final @Nullable AmbientSounds sounds) {
+        this.attributes.ambientSounds(sounds);
+        return this;
+    }
+
+    /**
+     * Shorthand for {@code minecraft:audio/background_music}.
+     *
+     * @param music the background music, or {@code null} to leave unset
+     * @return this builder
+     */
+    @Contract("_ -> this")
+    public BiomeBuilder backgroundMusic(final @Nullable BackgroundMusic music) {
+        this.attributes.backgroundMusic(music);
+        return this;
+    }
+
+    /**
      * Sets the sky color to the value vanilla would derive from the current temperature.
      *
      * <p>Call this after {@link #temperature(float)}.</p>
@@ -117,7 +224,7 @@ public class BiomeBuilder {
      */
     @Contract("-> this")
     public BiomeBuilder vanillaSkyColor() {
-        return effects(effects -> effects.skyColor(EnvironmentAttributes.skyColorFor(this.temperature)));
+        return skyColor(EnvironmentAttributes.skyColorFor(this.temperature));
     }
 
     /**
@@ -125,6 +232,7 @@ public class BiomeBuilder {
      */
     @Contract(value = "-> new", pure = true)
     public BiomeDefinition build() {
-        return new BiomeDefinition(key, hasPrecipitation, temperature, temperatureModifier, downfall, effects);
+        return new BiomeDefinition(
+                key, hasPrecipitation, temperature, temperatureModifier, downfall, effects, attributes.build());
     }
 }
