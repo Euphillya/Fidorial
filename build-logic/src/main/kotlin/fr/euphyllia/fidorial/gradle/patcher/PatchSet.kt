@@ -53,4 +53,6 @@ abstract class PatchSet @Inject constructor(
     )
 
     val dependenciesFrom: ListProperty<String> = objects.listProperty<String>().convention(listOf(MAIN_SOURCE_SET_NAME))
+
+    val autoRebuild: Property<Boolean> = objects.property<Boolean>().convention(false)
 }

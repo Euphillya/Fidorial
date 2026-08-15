@@ -120,7 +120,7 @@ class DependencyPatcherPlugin : Plugin<Project> {
             }
         }
 
-        project.tasks.register<RebuildPatchesTask>(rebuildPatchesTaskName(capitalized)) {
+        val rebuildPatches = project.tasks.register<RebuildPatchesTask>(rebuildPatchesTaskName(capitalized)) {
             group = PATCHER_TASK_GROUP
             description =
                 "Diffs the '${this@configure.name}' patch workspace against the original sources and generates patches."
@@ -137,6 +137,7 @@ class DependencyPatcherPlugin : Plugin<Project> {
                 patchSet = this@configure,
                 capitalized = capitalized,
                 applyPatches = applyPatches,
+                rebuildPatches = rebuildPatches,
                 originalBinaryJar = originalBinaryJar,
             )
         }
@@ -147,9 +148,19 @@ class DependencyPatcherPlugin : Plugin<Project> {
         patchSet: PatchSet,
         capitalized: String,
         applyPatches: TaskProvider<ApplyPatchesTask>,
+        rebuildPatches: TaskProvider<RebuildPatchesTask>,
         originalBinaryJar: Provider<RegularFile>,
     ) {
         val sourceSets = project.extensions.getByType<SourceSetContainer>()
+
+        if (patchSet.autoRebuild.get()) {
+            applyPatches {
+                patchesDir.set(rebuildPatches.flatMap { it.patchesDir })
+            }
+            rebuildPatches {
+                workspaceDir.set(patchSet.workspaceDir.filter { it.asFile.exists() })
+            }
+        }
 
         val extractPatchedFiles =
             project.tasks.register<ExtractPatchedFilesTask>("extract${capitalized}PatchedFiles") {

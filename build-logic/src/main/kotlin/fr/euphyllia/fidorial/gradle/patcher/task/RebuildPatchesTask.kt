@@ -9,6 +9,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.UntrackedTask
@@ -24,6 +25,7 @@ abstract class RebuildPatchesTask : DefaultTask() {
     abstract val originalJar: RegularFileProperty
 
     @get:InputDirectory
+    @get:Optional
     abstract val workspaceDir: DirectoryProperty
 
     @get:OutputDirectory
@@ -37,6 +39,9 @@ abstract class RebuildPatchesTask : DefaultTask() {
 
     @TaskAction
     fun rebuild() {
+        if (!workspaceDir.isPresent) {
+            return
+        }
         val originalJarPath = originalJar.get().asFile.absolutePath
         val workspacePath = workspaceDir.get().asFile.absolutePath
         val patchesPath = patchesDir.get().asFile.absolutePath
