@@ -74,6 +74,7 @@ module fr.fidorial {
     exports fr.fidorial.testing.annotation;
     exports fr.fidorial.moderation;
     exports fr.fidorial.command.argument.custom;
+    exports fr.fidorial.world.biome;
 
     requires com.google.common;
     requires com.google.gson;
