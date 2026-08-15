@@ -4,6 +4,7 @@ plugins {
     application
     id("fr.fidorial.registry-generator")
     id("com.gradleup.shadow")
+    id("dependency-patcher")
 }
 
 repositories {
@@ -109,4 +110,10 @@ fidorialRegistryGenerator {
 
     generateRegistryKey = false
     generatePacketCatalogs = true
+}
+
+dependencyPatcher {
+    patchSet("brigadier") {
+        library.set(libs.brigadier)
+    }
 }

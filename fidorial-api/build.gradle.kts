@@ -3,7 +3,6 @@ extra.set("readUnnamedModules", setOf("fr.fidorial"))
 plugins {
     `maven-publish`
     id("fr.fidorial.registry-generator")
-    id("maven-publish")
 }
 
 dependencies {

@@ -21,9 +21,18 @@ spotless {
             ".idea/**",
             "**/build/**",
             "**/run/**",
+            "**/patches/**",
         )
         trimTrailingWhitespace()
         endWithNewline()
+    }
+
+    kotlin {
+        ktlint()
+    }
+
+    kotlinGradle {
+        ktlint()
     }
 
     java {
@@ -31,6 +40,7 @@ spotless {
         targetExclude(
             "**/build/**",
             "**/generated/**",
+            "**/patches-workspace/**",
         )
 
         //palantirJavaFormat("2.96.0")

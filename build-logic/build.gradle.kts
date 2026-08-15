@@ -16,4 +16,14 @@ dependencies {
     implementation(libs.spotless)
     implementation(libs.spotless.lib)
     implementation(libs.spotless.lib.extra)
+    implementation(libs.diffpatch)
+}
+
+gradlePlugin {
+    plugins {
+        register("dependencyPatcher") {
+            id = "dependency-patcher"
+            implementationClass = "fr.euphyllia.fidorial.gradle.patcher.DependencyPatcherPlugin"
+        }
+    }
 }
