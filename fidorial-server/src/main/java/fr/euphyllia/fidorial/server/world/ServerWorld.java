@@ -360,6 +360,26 @@ public final class ServerWorld implements World {
         return column.getBlock(x & 15, y, z & 15);
     }
 
+    public boolean setBiome(final int x, final int y, final int z, final Key biome) throws IOException {
+        final ChunkColumn column = getChunk(x >> 4, z >> 4);
+        if (y < column.minY() || y >= column.minY() + column.height()) {
+            return false;
+        }
+        if (!column.setBiome(x & 15, y, z & 15, biome)) {
+            return false;
+        }
+        markDirty(x >> 4, z >> 4);
+        return true;
+    }
+
+    public @Nullable Key getBiome(final int x, final int y, final int z) throws IOException {
+        final ChunkColumn column = getChunk(x >> 4, z >> 4);
+        if (y < column.minY() || y >= column.minY() + column.height()) {
+            return null;
+        }
+        return column.getBiome(x & 15, y, z & 15);
+    }
+
     public void saveDirty() throws IOException {
         awaitLightFlush(dirty);
         for (final long k : Set.copyOf(dirty)) {

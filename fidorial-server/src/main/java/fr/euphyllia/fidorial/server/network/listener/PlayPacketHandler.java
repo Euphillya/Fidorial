@@ -252,12 +252,11 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private void openChunkView(final ServerWorld world, final RegistryHolder dynamic, final ChunkPos spawnChunk) {
-        final int biome = Math.max(0, dynamic.networkId(Key.key("worldgen/biome"), Key.key("plains")));
         this.chunkView = new ChunkViewTracker(
                 connection,
                 server.chunkWorker(),
                 world,
-                new ChunkNetworkSerializer(server.blockStateRegistry(), biome),
+                new ChunkNetworkSerializer(server.blockStateRegistry(), server.biomeRegistry()),
                 config.sendDistance());
         this.ticket = spawnChunk;
         world.addViewer(chunkView);

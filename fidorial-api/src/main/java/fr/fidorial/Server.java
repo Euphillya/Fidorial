@@ -14,6 +14,7 @@ import fr.fidorial.status.Favicon;
 import fr.fidorial.translation.TranslationStore;
 import fr.fidorial.world.World;
 import fr.fidorial.world.WorldBuilder;
+import fr.fidorial.world.biome.BiomeRegistry;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.key.Key;
@@ -137,6 +138,20 @@ public interface Server extends ForwardingAudience {
      * @since 0.1.0
      */
     PermissionRegistry permissions();
+
+
+    /**
+     * Gets the server-wide biome registry.
+     *
+     * <p>Biomes registered there are sent to every client joining afterwards, and may be referenced
+     * by {@link fr.fidorial.world.generation.WorldGenerator generators} through
+     * {@link fr.fidorial.world.generation.GeneratedChunk#setBiome(int, int, int, Key)}.</p>
+     *
+     * @return the biome registry
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    BiomeRegistry biomes();
 
     Collection<? extends World> worlds();
 

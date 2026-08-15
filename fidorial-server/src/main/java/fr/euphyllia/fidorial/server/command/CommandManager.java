@@ -19,6 +19,7 @@ import fr.euphyllia.fidorial.server.command.defaults.BanCommand;
 import fr.euphyllia.fidorial.server.command.defaults.BanIpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.BanListCommand;
 import fr.euphyllia.fidorial.server.command.defaults.BossBarCommand;
+import fr.euphyllia.fidorial.server.command.defaults.FillBiomeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.GameModeCommand;
 import fr.euphyllia.fidorial.server.command.defaults.OpCommand;
 import fr.euphyllia.fidorial.server.command.defaults.PardonCommand;
@@ -96,6 +97,7 @@ public final class CommandManager implements CommandRegistry {
         registerInternal(PardonIpCommand.create(), Set.of("unban-ip", "pardonip"));
         registerInternal(SpawnPointCommand.create());
         registerInternal(RespawnCommand.create());
+        registerInternal(FillBiomeCommand.create());
     }
 
     public void registerInternal(final LiteralCommandNode<CommandSource> command) {

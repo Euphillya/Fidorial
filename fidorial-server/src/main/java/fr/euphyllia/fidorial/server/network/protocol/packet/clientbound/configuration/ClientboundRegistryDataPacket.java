@@ -3,12 +3,18 @@ package fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.configu
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.ConfigurationClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
+import fr.euphyllia.fidorial.server.registry.RegistryEntry;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 
 import java.util.List;
 
-public record ClientboundRegistryDataPacket(Key registryId, List<Key> entries)
+public record ClientboundRegistryDataPacket(Key registryId, List<RegistryEntry> entries)
         implements ClientboundPacket {
+
+    public static ClientboundRegistryDataPacket knownOnly(final Key registryId, final List<Key> keys) {
+        return new ClientboundRegistryDataPacket(registryId, keys.stream().map(RegistryEntry::known).toList());
+    }
 
     @Override
     public Key name() {
@@ -16,17 +22,16 @@ public record ClientboundRegistryDataPacket(Key registryId, List<Key> entries)
     }
 
     @Override
-    public void write(PacketBuffer buf) {
+    public void write(final PacketBuffer buf) {
         buf.writeKey(registryId);
         buf.writeVarInt(entries.size());
-        for (final Key entry : entries) {
+        for (final RegistryEntry entry : entries) {
             buf.writeKey(entry.key());
-            buf.writeBoolean(false);
-            /*
-            final Nbt data = entry.data();
+            final CompoundBinaryTag data = entry.data();
             buf.writeBoolean(data != null);
-            if (data != null) buf.writeNbt(data);
-            */
+            if (data != null) {
+                buf.writeNbt(data);
+            }
         }
     }
 }

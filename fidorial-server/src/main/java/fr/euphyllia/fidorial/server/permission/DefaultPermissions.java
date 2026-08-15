@@ -29,6 +29,7 @@ public final class DefaultPermissions {
                 command("banip", "Ban an IP, permanently or for a set time."),
                 command("banlist", "List the banned players."),
                 command("bossbar", "Create a bossbar."),
+                command("fillbiome", "Repaint the biomes of a region."),
                 command("gamemode", "Change the game mode."),
                 command("op", "Promote a player to operator."),
                 command("deop", "Remove operator status from a player."),

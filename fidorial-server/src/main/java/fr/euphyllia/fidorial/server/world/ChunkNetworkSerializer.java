@@ -1,7 +1,9 @@
 package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
+import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
 import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntity;
+import fr.euphyllia.fidorial.server.world.chunk.BitPacking;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkSection;
@@ -10,7 +12,9 @@ import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
 import fr.fidorial.world.light.LightType;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,12 +25,13 @@ public final class ChunkNetworkSerializer {
     private static final ComponentLogger LOGGER = ComponentLogger.logger(ChunkNetworkSerializer.class);
 
     private final BlockStateRegistry blockRegistry;
-    private final int biomeNetworkId;
     private static final byte[] FULL_LIGHT = fullLight();
+    private final FidorialBiomeRegistry biomes;
+    private static final int MAX_INDIRECT_BIOME_BITS = 3;
 
-    public ChunkNetworkSerializer(final BlockStateRegistry blockRegistry, final int biomeNetworkId) {
+    public ChunkNetworkSerializer(final BlockStateRegistry blockRegistry, final FidorialBiomeRegistry biomes) {
         this.blockRegistry = blockRegistry;
-        this.biomeNetworkId = biomeNetworkId;
+        this.biomes = biomes;
     }
 
     public void writeChunk(final PacketBuffer p, final ByteBufAllocator alloc, final ChunkColumn chunk) {
@@ -104,12 +109,11 @@ public final class ChunkNetworkSerializer {
             final int stateId = blockRegistry.networkId(blocks.palette().getFirst());
             sp.writeByte(0);           // bitsPerEntry = 0 (single value)
             sp.writeVarInt(stateId);   // valeur unique, pas de tableau de longs
-
-            sp.writeByte(0);           // biomes single value
-            sp.writeVarInt(biomeNetworkId);
         } else {
             writeIndirectSection(sp, blocks);
         }
+
+        writeBiomes(sp, section.biomes());
     }
 
     private void writeIndirectSection(final PacketBuffer sp, final PalettedContainer<BlockState> blocks) {
@@ -120,16 +124,41 @@ public final class ChunkNetworkSerializer {
             sp.writeVarInt(blockRegistry.networkId(state));
         }
 
+        writeLongs(sp, blocks.packedData(), bits, ChunkSection.BLOCK_COUNT);
+    }
+
+    private void writeBiomes(final PacketBuffer sp, final PalettedContainer<Key> container) {
+        final List<Key> palette = container.palette();
+
+        if (palette.size() == 1) {
+            sp.writeByte(0);
+            sp.writeVarInt(biomes.networkIdOrFallback(palette.getFirst()));
+            return;
+        }
+
+        final int bits = BitPacking.bitsFor(palette.size(), 1);
+
+        if (bits <= MAX_INDIRECT_BIOME_BITS) {
+            sp.writeByte(bits);
+            sp.writeVarInt(palette.size());
+            for (final Key biome : palette) {
+                sp.writeVarInt(biomes.networkIdOrFallback(biome));
+            }
+            writeLongs(sp, container.packedData(), bits, ChunkSection.BIOME_COUNT);
+            return;
+        }
+
+        final int directBits = BitPacking.bitsFor(biomes.totalRegistered(), 1);
+        sp.writeByte(directBits);
+        writeLongs(sp, container.packedGlobal(directBits, biomes::networkIdOrFallback), directBits, ChunkSection.BIOME_COUNT);
+    }
+
+    private static void writeLongs(final PacketBuffer sp, final long @Nullable [] data, final int bits, final int entries) {
         final int entriesPerLong = 64 / bits;
-        final int expectedLongs = (4096 + entriesPerLong - 1) / entriesPerLong;
-        final long[] data = blocks.packedData();
+        final int expectedLongs = (entries + entriesPerLong - 1) / entriesPerLong;
         for (int i = 0; i < expectedLongs; i++) {
             sp.writeLong(data != null && i < data.length ? data[i] : 0L);
         }
-
-        // biomes single value
-        sp.writeByte(0);
-        sp.writeVarInt(biomeNetworkId);
     }
 
     public void writeLightData(final PacketBuffer p, final ChunkColumn chunk) {
