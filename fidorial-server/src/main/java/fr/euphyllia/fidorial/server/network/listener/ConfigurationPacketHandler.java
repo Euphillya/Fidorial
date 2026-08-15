@@ -20,6 +20,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configur
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundSelectKnownPacksPacket;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -101,12 +102,14 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
             if (reg.name().asString().contains("minecraft:enchantment")) { // Todo
                 continue;
             }
-            connection.send(new ClientboundRegistryDataPacket(reg.name(), reg.entries()));
+            connection.send(new ClientboundRegistryDataPacket(
+                    FidorialBiomeRegistry.REGISTRY_NAME,
+                    server.biomeRegistry().networkEntries()));
         }
     }
 
     private void sendTags() {
-        connection.send(new ClientboundUpdateTagsPacket(server.dynamicRegistries()));
+        connection.send(new ClientboundUpdateTagsPacket(server.dynamicRegistries(), server.biomeRegistry()));
     }
 
     private boolean sendResourcePackIfConfigured() {

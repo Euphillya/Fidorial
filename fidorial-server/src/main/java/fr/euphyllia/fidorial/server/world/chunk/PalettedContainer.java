@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.StampedLock;
+import java.util.function.ToIntFunction;
 
 public final class PalettedContainer<T> {
 
@@ -97,6 +98,19 @@ public final class PalettedContainer<T> {
         final long stamp = lock.readLock();
         try {
             return BitPacking.bitsFor(palette.size(), minBits);
+        } finally {
+            lock.unlockRead(stamp);
+        }
+    }
+
+    public long[] packedGlobal(final int bits, final ToIntFunction<T> mapper) {
+        final long stamp = lock.readLock();
+        try {
+            final int[] global = new int[data.length];
+            for (int i = 0; i < data.length; i++) {
+                global[i] = mapper.applyAsInt(palette.get(data[i]));
+            }
+            return BitPacking.pack(global, bits);
         } finally {
             lock.unlockRead(stamp);
         }
