@@ -1,9 +1,11 @@
 package fr.euphyllia.fidorial.testplugin;
 
 import fr.euphyllia.fidorial.testplugin.command.ApiTestCommand;
+import fr.euphyllia.fidorial.testplugin.command.BiomeCommand;
 import fr.euphyllia.fidorial.testplugin.command.PregenCommand;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
 import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
+import fr.euphyllia.fidorial.testplugin.terrain.TestBiomes;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.command.CommandSender;
@@ -72,6 +74,8 @@ public final class TestPlugin implements Plugin {
         this.logger = context.logger();
         this.server = context.server();
 
+        TestBiomes.registerAll(context.server().biomes(), context.logger());
+
         context.services()
                 .register(WorldGenerator.class, new HillsGenerator(SEED, BASE_HEIGHT, AMPLITUDE, SEA_LEVEL), this);
         context.logger().info("Generateur de collines enregistre (seed={})", SEED);
@@ -99,6 +103,8 @@ public final class TestPlugin implements Plugin {
     public void onDisable() {
         logger.info("[TestPlugin] onDisable - {} event(s) observe(s) pendant la session", eventCount.get());
         server.commands().unregister("apitest");
+        server.commands().unregister("testbiome");
+        TestBiomes.unregisterAll(server.biomes());
         TestPluginTranslations.unregister();
     }
 
@@ -176,12 +182,12 @@ public final class TestPlugin implements Plugin {
 
         events.subscribe(BlockBreakEvent.class, e -> {
             eventCount.incrementAndGet();
-           // logger.info("[TestPlugin][event] {} casse un bloc en {}", e.player().name(), e.position());
+            // logger.info("[TestPlugin][event] {} casse un bloc en {}", e.player().name(), e.position());
         });
 
         events.subscribe(BlockPlaceEvent.class, e -> {
             eventCount.incrementAndGet();
-         //   logger.info("[TestPlugin][event] {} pose un bloc", e.player().name());
+            //   logger.info("[TestPlugin][event] {} pose un bloc", e.player().name());
         });
         final boolean cancelLogin = false;
         events.subscribe(PlayerLoginAttemptEvent.class, e -> {
@@ -197,5 +203,6 @@ public final class TestPlugin implements Plugin {
         final CommandRegistry registry = server.commands();
         registry.register(new PregenCommand(this).create());
         registry.register(new ApiTestCommand(this).create());
+        registry.register(new BiomeCommand(this).create());
     }
 }

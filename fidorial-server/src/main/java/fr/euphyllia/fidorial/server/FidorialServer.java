@@ -167,9 +167,9 @@ public final class FidorialServer implements Server {
     private final WeatherEngine weatherEngine = new WeatherEngine(worldManager.levelData(), this::broadcast);
     private final BossBarRegistry bossBarRegistry = new BossBarRegistry(worldManager.levelData(), this::players);
     private final DayNightThread dayNightEngine = new DayNightThread(worldManager, registries.dynamic());
-    private final ChunkNetworkSerializer lightSerializer = new ChunkNetworkSerializer(blockStateRegistry, registries.biomes());
+    private final ChunkNetworkSerializer chunkSerializer = new ChunkNetworkSerializer(blockStateRegistry, registries.biomes());
     private final LightUpdateDispatcher lightDispatcher = new LightUpdateDispatcher(
-            chunkWorker::execute, this::broadcast, lightSerializer, worldManager::world);
+            chunkWorker::execute, this::broadcast, chunkSerializer, worldManager::world);
     private final BlockEditService blockEdits = new BlockEditService(
             blockStateRegistry,
             (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),
@@ -566,6 +566,10 @@ public final class FidorialServer implements Server {
 
     public RegistryHolder dynamicRegistries() {
         return registries.dynamic();
+    }
+
+    public ChunkNetworkSerializer chunkSerializer() {
+        return chunkSerializer;
     }
 
     public ThreadedRegionRegionizer regionizer() {

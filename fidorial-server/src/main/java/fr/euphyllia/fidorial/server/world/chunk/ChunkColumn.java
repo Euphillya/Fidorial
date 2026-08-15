@@ -78,6 +78,24 @@ public final class ChunkColumn {
         }
     }
 
+    public boolean setBiome(final int localX, final int worldY, final int localZ, final Key biome) {
+        final ChunkSection section = sectionForY(worldY);
+        if (section == null) {
+            return false;
+        }
+
+        final int bx = localX >> 2;
+        final int by = (worldY & 15) >> 2;
+        final int bz = localZ >> 2;
+
+        if (biome.equals(section.getBiome(bx, by, bz))) {
+            return false;
+        }
+
+        section.setBiome(bx, by, bz, biome);
+        return true;
+    }
+
     public @Nullable Key getBiome(final int localX, final int worldY, final int localZ) {
         final ChunkSection chunkSection = sectionForY(worldY);
         return chunkSection == null ? null : chunkSection.getBiome(localX >> 2, (worldY & 15) >> 2, localZ >> 2);

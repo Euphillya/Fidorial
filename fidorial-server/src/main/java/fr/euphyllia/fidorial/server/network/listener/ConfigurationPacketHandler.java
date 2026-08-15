@@ -98,14 +98,20 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
             LOGGER.warn("No dynamic registry to send (GeneratedRegistryData is empty).");
             return;
         }
+
         for (final Registry reg : dynamic.all()) {
             if (reg.name().asString().contains("minecraft:enchantment")) { // Todo
                 continue;
             }
-            connection.send(new ClientboundRegistryDataPacket(
-                    FidorialBiomeRegistry.REGISTRY_NAME,
-                    server.biomeRegistry().networkEntries()));
+            if (reg.name().equals(FidorialBiomeRegistry.REGISTRY_NAME)) {
+                continue;
+            }
+            connection.send(ClientboundRegistryDataPacket.knownOnly(reg.name(), reg.entries()));
         }
+
+        connection.send(new ClientboundRegistryDataPacket(
+                FidorialBiomeRegistry.REGISTRY_NAME,
+                server.biomeRegistry().networkEntries()));
     }
 
     private void sendTags() {
