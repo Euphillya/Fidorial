@@ -2,9 +2,9 @@ extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
 
 plugins {
     application
+    id("fr.fidorial.dependency-patcher")
     id("fr.fidorial.registry-generator")
     id("com.gradleup.shadow")
-    id("dependency-patcher")
 }
 
 repositories {

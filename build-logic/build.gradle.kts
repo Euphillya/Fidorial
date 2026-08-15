@@ -22,7 +22,7 @@ dependencies {
 gradlePlugin {
     plugins {
         register("dependencyPatcher") {
-            id = "dependency-patcher"
+            id = "fr.fidorial.dependency-patcher"
             implementationClass = "fr.euphyllia.fidorial.gradle.patcher.DependencyPatcherPlugin"
         }
     }
