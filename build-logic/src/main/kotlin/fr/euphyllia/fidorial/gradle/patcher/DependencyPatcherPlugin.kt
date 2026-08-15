@@ -13,6 +13,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.TaskProvider
@@ -92,30 +93,40 @@ class DependencyPatcherPlugin : Plugin<Project> {
         val patchedZip = project.layout.buildDirectory.file("dependency-patcher/$name/patched.zip")
         val rejects = project.layout.buildDirectory.dir("dependency-patcher/$name/rejects")
 
-        val applyPatches =
-            project.tasks.register<ApplyPatchesTask>("apply${capitalized}Patches") {
-                group = PATCHER_TASK_GROUP
-                description = "Applies patches for '${this@configure.name}'."
-
-                originalJar.set(originalSourcesJar)
-                patchesDir.set(
-                    this@configure.patchesDir.filter { it.asFile.exists() }
-                )
-                outputZip.set(patchedZip)
-                rejectsDir.set(rejects)
-                mode.set(patchMode)
-                minFuzz.set(this@configure.minFuzz)
-                maxOffset.set(this@configure.maxOffset)
-
-                toolClasspath.from(diffPatchTool)
-            }
-
-        project.tasks.register<Sync>("setup${capitalized}PatchWorkspace") {
+        val applyPatches = project.tasks.register<ApplyPatchesTask>("apply${capitalized}Patches") {
             group = PATCHER_TASK_GROUP
-            description = "Builds a workspace for '${this@configure.name}' from the current patched source."
+            description = "Applies patches for '${this@configure.name}'."
+
+            originalJar.set(originalSourcesJar)
+            patchesDir.set(
+                this@configure.patchesDir.filter { it.asFile.exists() }
+            )
+            outputZip.set(patchedZip)
+            rejectsDir.set(rejects)
+            mode.set(patchMode)
+            minFuzz.set(this@configure.minFuzz)
+            maxOffset.set(this@configure.maxOffset)
+
+            toolClasspath.from(diffPatchTool)
+        }
+
+        val setupWorkspace = project.tasks.register<Sync>("setup${capitalized}PatchWorkspace") {
+            group = PATCHER_TASK_GROUP
+            description =
+                "Builds a workspace for '${this@configure.name}' from the current patched source."
 
             from(project.zipTree(applyPatches.flatMap { it.outputZip }))
-            into(workspaceDir)
+            into(this@configure.workspaceDir)
+        }
+
+        val sourceSets = project.extensions.getByType<SourceSetContainer>()
+
+        sourceSets.register("${this@configure.name}Workspace") {
+            java.srcDir(setupWorkspace.map { it.destinationDir })
+            this@configure.dependenciesFrom.get().forEach {
+                val sourceSetToJoin = sourceSets.named(it)
+                compileClasspath += sourceSetToJoin.get().compileClasspath
+            }
         }
 
         project.tasks.register<RebuildPatchesTask>("rebuild${capitalized}Patches") {
@@ -171,7 +182,7 @@ class DependencyPatcherPlugin : Plugin<Project> {
 
                 provider.module.set(patchSet.module)
                 provider.patchModule.set(originalBinaryJar)
-
+                provider.joinedModule.set(patchSet.joinedModule)
                 options.compilerArgumentProviders.add(provider)
             }
         }

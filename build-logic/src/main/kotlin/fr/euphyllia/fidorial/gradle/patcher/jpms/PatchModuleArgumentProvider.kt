@@ -15,17 +15,27 @@ abstract class PatchModuleArgumentProvider : CommandLineArgumentProvider {
     @get:Optional
     abstract val module: Property<String>
 
+    @get:Input
+    @get:Optional
+    abstract val joinedModule: Property<String>
+
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val patchModule: RegularFileProperty
 
     override fun asArguments(): Iterable<String> {
         if (!module.isPresent) {
-            return listOf()
+            return emptyList()
         }
-        return listOf(
-            "--patch-module",
-            "${module.get()}=${patchModule.get().asFile.absolutePath}",
-        )
+
+        val moduleName = module.get()
+
+        return buildList {
+            add("--patch-module")
+            add("$moduleName=${patchModule.get().asFile.absolutePath}")
+
+            add("--add-reads")
+            add("$moduleName=${joinedModule.orNull ?: "ALL-UNNAMED"}")
+        }
     }
 }

@@ -29,6 +29,8 @@ abstract class PatchSet @Inject constructor(
 
     abstract val module: Property<String>
 
+    abstract val joinedModule: Property<String>
+
     val classifier: Property<String> = objects.property<String>().convention("sources")
 
     val patchesDir: DirectoryProperty = objects.directoryProperty().convention(projectLayout.projectDirectory.dir("patches/$patchSetName"))
@@ -49,4 +51,6 @@ abstract class PatchSet @Inject constructor(
             project.configurations.named(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME)
         )
     )
+
+    val dependenciesFrom: ListProperty<String> = objects.listProperty<String>().convention(listOf(MAIN_SOURCE_SET_NAME))
 }
