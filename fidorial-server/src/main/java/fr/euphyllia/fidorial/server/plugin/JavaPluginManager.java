@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
         try {
             classLoader.close();
         } catch (final IOException ignored) {
-            // rien a faire : on abandonnait deja ce plugin
+            // nothing to do: this plugin was being discarded anyway
         }
     }
 
@@ -90,13 +91,19 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
     }
 
     public void enableAll() {
-        for (final Loaded loaded : plugins.values()) {
+        final Iterator<Loaded> it = plugins.values().iterator();
+        while (it.hasNext()) {
+            final Loaded loaded = it.next();
             try {
                 events.withOwner(loaded.plugin, loaded.plugin::onEnable);
                 loaded.enabled = true;
-                LOGGER.info("Plugin active : {} v{}", loaded.meta.name(), loaded.meta.version());
+                LOGGER.info("Plugin enabled: {} v{}", loaded.meta.name(), loaded.meta.version());
             } catch (final Throwable t) {
-                LOGGER.error("Activation de {} impossible, plugin ignore", loaded.meta.id(), t);
+                LOGGER.error("Could not enable {}, rolling it back", loaded.meta.id(), t);
+
+                teardown(loaded.plugin, loaded.meta.id(), loaded.context);
+                it.remove();
+                closeQuietly(loaded.classLoader);
             }
         }
     }
@@ -123,7 +130,12 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
 
     @Override
     public Collection<PluginMeta> loaded() {
-        return plugins.values().stream().map(l -> l.meta).toList();
+        final List<PluginMeta> list = new ArrayList<>();
+        for (final Loaded l : plugins.values()) {
+            final PluginMeta meta = l.meta;
+            list.add(meta);
+        }
+        return list;
     }
 
     @Override
@@ -173,7 +185,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                         declaration.operator()));
                 nodes.add(node);
             } catch (final IllegalArgumentException e) {
-                LOGGER.error("Invalid plugin {} permission '{}'", entry.getKey(), meta.id(), e);
+                LOGGER.error("Invalid permission '{}' declared by plugin {}", entry.getKey(), meta.id(), e);
             }
         }
         if (!definitions.isEmpty()) {
@@ -204,12 +216,15 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                     return Optional.empty();
                 }
                 final PluginMeta meta = GSON.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginMeta.class);
+                if (meta == null) {
+                    throw new JsonSyntaxException(DESCRIPTOR + " is empty");
+                }
                 return Optional.of(new Candidate(meta, jar, classLoader));
             }
         } catch (final JsonSyntaxException | NullPointerException | IllegalArgumentException e) {
-            LOGGER.error("{} ignored : {} invalid", jar.getFileName(), DESCRIPTOR, e);
+            LOGGER.error("{} ignored: invalid {}", jar.getFileName(), DESCRIPTOR, e);
         } catch (final IOException e) {
-            LOGGER.error("{} illegible", jar.getFileName(), e);
+            LOGGER.error("{} is unreadable", jar.getFileName(), e);
         }
         closeQuietly(classLoader);
         return Optional.empty();
@@ -218,6 +233,7 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
     private void instantiate(final Candidate candidate) {
         final PluginMeta meta = candidate.meta;
         SimplePluginContext context = null;
+        Plugin plugin = null;
         try {
             final Class<?> mainClass = Class.forName(meta.main(), true, candidate.classLoader);
             if (!Plugin.class.isAssignableFrom(mainClass)) {
@@ -225,26 +241,51 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                 candidate.classLoader.close();
                 return;
             }
-            final Plugin plugin = (Plugin) mainClass.getDeclaredConstructor().newInstance();
+            plugin = (Plugin) mainClass.getDeclaredConstructor().newInstance();
             context = new SimplePluginContext(
                     meta, server, events, services,
                     pluginsFolder.resolve(meta.id()), candidate.jarPath());
             registerDescriptorPermissions(meta);
+
             final SimplePluginContext finalContext = context;
-            events.withOwner(plugin, () -> plugin.onLoad(finalContext));
+            final Plugin finalPlugin = plugin;
+            events.withOwner(plugin, () -> finalPlugin.onLoad(finalContext));
+
             plugins.put(meta.id(), new Loaded(meta, plugin, context, candidate.classLoader));
+            return;
         } catch (final Throwable t) {
             LOGGER.error("Unable to load {}", meta.id(), t);
+        }
+
+        if (plugin != null) {
+            teardown(plugin, meta.id(), context);
+        } else {
+            removePluginPermissions(meta.id());
             if (context != null) {
                 context.close();
             }
-            closeQuietly(candidate.classLoader);
+        }
+        closeQuietly(candidate.classLoader);
+    }
+
+    private void teardown(final Plugin plugin, final String pluginId, final @Nullable SimplePluginContext context) {
+        try {
+            plugin.onDisable();
+        } catch (final Throwable t) {
+            LOGGER.error("Error during rollback onDisable of {}; resources may have leaked", pluginId, t);
+        }
+        events.unsubscribeAll(plugin);
+        services.unregisterAll(plugin);
+        removePluginPermissions(pluginId);
+        if (context != null) {
+            try {
+                context.close();
+            } catch (final Exception e) {
+                LOGGER.warn("Unable to close the plugin context for {}", pluginId, e);
+            }
         }
     }
 
-    /**
-     * Tri topologique simple ; les dependances manquantes ou cycliques ecartent le plugin.
-     */
     private List<Candidate> sortByDependencies(final List<Candidate> candidates) {
         final Map<String, Candidate> byId = new HashMap<>();
         for (final Candidate candidate : candidates) {
@@ -253,12 +294,24 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
                 closeQuietly(candidate.classLoader);
             }
         }
+
         final List<Candidate> ordered = new ArrayList<>();
         final Set<String> done = new HashSet<>();
         final Set<String> visiting = new HashSet<>();
         for (final Candidate candidate : byId.values()) {
             visit(candidate, byId, done, visiting, ordered);
         }
+
+        final Set<String> kept = new HashSet<>();
+        for (final Candidate candidate : ordered) {
+            kept.add(candidate.meta().id());
+        }
+        for (final Candidate candidate : byId.values()) {
+            if (!kept.contains(candidate.meta().id())) {
+                closeQuietly(candidate.classLoader());
+            }
+        }
+
         return ordered;
     }
 
@@ -274,13 +327,13 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
             return;
         }
         if (!visiting.add(id)) {
-            LOGGER.error("Cyclic dependency detected around '{}', plugin ignore", id);
+            LOGGER.error("Cyclic dependency detected around '{}', plugin ignored", id);
             return;
         }
         for (final String dependency : candidate.meta.depends()) {
             final Candidate resolved = byId.get(dependency);
             if (resolved == null) {
-                LOGGER.error("{} ignore : dependance '{}' introuvable", id, dependency);
+                LOGGER.error("{} ignored: dependency '{}' not found", id, dependency);
                 visiting.remove(id);
                 return;
             }
