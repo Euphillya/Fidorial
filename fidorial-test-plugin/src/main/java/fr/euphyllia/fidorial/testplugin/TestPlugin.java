@@ -102,8 +102,7 @@ public final class TestPlugin implements Plugin {
     @Override
     public void onDisable() {
         logger.info("[TestPlugin] onDisable - {} event(s) observe(s) pendant la session", eventCount.get());
-        server.commands().unregister("apitest");
-        server.commands().unregister("testbiome");
+        server.commands().unregisterNamespace(context.meta());
         TestBiomes.unregisterAll(server.biomes());
         TestPluginTranslations.unregister();
     }
@@ -201,8 +200,8 @@ public final class TestPlugin implements Plugin {
 
     private void registerCommands() {
         final CommandRegistry registry = server.commands();
-        registry.register(new PregenCommand(this).create());
-        registry.register(new ApiTestCommand(this).create());
-        registry.register(new BiomeCommand(this).create());
+        registry.register(context.meta(), new PregenCommand(this).create());
+        registry.register(context.meta(), new ApiTestCommand(this).create());
+        registry.register(context.meta(), new BiomeCommand(this).create());
     }
 }

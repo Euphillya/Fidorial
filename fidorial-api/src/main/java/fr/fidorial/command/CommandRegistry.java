@@ -3,6 +3,7 @@ package fr.fidorial.command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import fr.fidorial.plugin.PluginMeta;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -16,32 +17,69 @@ public interface CommandRegistry {
     /**
      * Registers a command from the given builder.
      *
+     * @param namespace the plugin namespace
      * @param command the command builder to register
      * @since 0.1.0
      */
-    default void register(LiteralArgumentBuilder<CommandSource> command) {
-        register(command.build());
+    default void register(String namespace, LiteralArgumentBuilder<CommandSource> command) {
+        register(namespace, command.build());
+    }
+
+    /**
+     * Registers a command from the given builder.
+     *
+     * @param meta the plugin meta
+     * @param command the command builder to register
+     * @since 0.1.0
+     */
+    default void register(PluginMeta meta, LiteralArgumentBuilder<CommandSource> command) {
+        register(meta.id(), command.build());
     }
 
     /**
      * Registers a command node without aliases.
      *
+     * @param namespace the plugin namespace
      * @param command the command node to register
      * @since 0.1.0
      */
-    default void register(LiteralCommandNode<CommandSource> command) {
-        register(command, Set.of());
+    default void register(String namespace, LiteralCommandNode<CommandSource> command) {
+        register(namespace, command, Set.of());
+    }
+
+    /**
+     * Registers a command node without aliases.
+     *
+     * @param meta the plugin meta
+     * @param command the command node to register
+     * @since 0.1.0
+     */
+    default void register(PluginMeta meta, LiteralCommandNode<CommandSource> command) {
+        register(meta.id(), command, Set.of());
     }
 
     /**
      * Registers a command from the given builder with the specified aliases.
      *
+     * @param namespace the plugin namespace
      * @param command the command builder to register
      * @param aliases additional aliases that should point to this command
      * @since 0.1.0
      */
-    default void register(LiteralArgumentBuilder<CommandSource> command, Set<String> aliases) {
-        register(command.build(), aliases);
+    default void register(String namespace, LiteralArgumentBuilder<CommandSource> command, Set<String> aliases) {
+        register(namespace, command.build(), aliases);
+    }
+
+    /**
+     * Registers a command from the given builder with the specified aliases.
+     *
+     * @param meta the plugin meta
+     * @param command the command builder to register
+     * @param aliases additional aliases that should point to this command
+     * @since 0.1.0
+     */
+    default void register(PluginMeta meta, LiteralArgumentBuilder<CommandSource> command, Set<String> aliases) {
+        register(meta.id(), command.build(), aliases);
     }
 
     /**
@@ -50,20 +88,58 @@ public interface CommandRegistry {
      * <p>Aliases are additional names that can be used to execute the command
      * besides its primary literal name.</p>
      *
+     * @param namespace the plugin namespace
      * @param command the command node to register
      * @param aliases additional aliases that should point to this command
      * @since 0.1.0
      */
-    void register(LiteralCommandNode<CommandSource> command, Set<String> aliases);
+    void register(String namespace, LiteralCommandNode<CommandSource> command, Set<String> aliases);
+
+    /**
+     * Registers a command node with the specified aliases.
+     *
+     * <p>Aliases are additional names that can be used to execute the command
+     * besides its primary literal name.</p>
+     *
+     * @param meta the plugin meta
+     * @param command the command node to register
+     * @param aliases additional aliases that should point to this command
+     * @since 0.1.0
+     */
+    default void register(PluginMeta meta, LiteralCommandNode<CommandSource> command, Set<String> aliases) {
+        register(meta.id(), command, aliases);
+    }
 
     /**
      * Unregisters the specified command alias from the manager, if registered.
      * Root literal names are also treated as aliases in this context.
      *
+     * @param namespace the namespace of the command to unregister
      * @param alias the command alias to unregister; if not currently registered, this method does nothing
+     * @apiNote This removes both the namespaced {@code namespace:alias} and plain {@code alias} command nodes.
      * @since 0.1.0
      */
-    void unregister(String alias);
+    void unregister(String namespace, String alias);
+
+    /**
+     * Unregisters all command aliases from the manager under this namespace.
+     *
+     * @param namespace the namespace to unregister
+     * @apiNote This removes both the namespaced {@code namespace:alias} and plain {@code alias} command nodes.
+     * @since 0.1.0
+     */
+    void unregisterNamespace(String namespace);
+
+    /**
+     * Unregisters all command aliases from the manager under the namespace provided by {@link PluginMeta#id()}.
+     *
+     * @param meta the plugin meta to unregister
+     * @apiNote This removes both the namespaced {@code namespace:alias} and plain {@code alias} command nodes.
+     * @since 0.1.0
+     */
+    default void unregisterNamespace(PluginMeta meta) {
+        unregisterNamespace(meta.id());
+    }
 
     /**
      * Attempts to asynchronously execute a command from the given {@code cmdLine}.
@@ -94,6 +170,9 @@ public interface CommandRegistry {
      *
      * @param alias the command alias to check
      * @return true if the alias is registered; false otherwise
+     * @apiNote If {@code alias} contains {@link net.kyori.adventure.key.Key#DEFAULT_SEPARATOR},
+     * it is treated as a namespaced {@code namespace:alias} lookup;
+     * otherwise it is treated as a plain-alias lookup
      * @since 0.1.0
      */
     boolean hasCommand(String alias);

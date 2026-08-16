@@ -1,0 +1,22 @@
+--- a/com/mojang/brigadier/tree/CommandNode.java
++++ b/com/mojang/brigadier/tree/CommandNode.java
+@@ -183,4 +_,19 @@
+     }
+ 
+     public abstract Collection<String> getExamples();
++    // Fidorial start - add method to remove child nodes
++
++    public void removeChild(final String nodeName) {
++        final CommandNode<S> child = children.remove(nodeName);
++        if (child == null) {
++            return;
++        }
++
++        if (child instanceof LiteralCommandNode) {
++            literals.remove(nodeName);
++        } else if (child instanceof ArgumentCommandNode) {
++            arguments.remove(nodeName);
++        }
++    }
++    // Fidorial end - add method to remove child nodes
+ }

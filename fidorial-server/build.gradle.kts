@@ -1,7 +1,10 @@
+import fr.euphyllia.fidorial.gradle.patcher.task.RebuildPatchesTask
+
 extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
 
 plugins {
     application
+    id("fr.fidorial.dependency-patcher")
     id("fr.fidorial.registry-generator")
     id("com.gradleup.shadow")
 }
@@ -109,4 +112,11 @@ fidorialRegistryGenerator {
 
     generateRegistryKey = false
     generatePacketCatalogs = true
+}
+
+dependencyPatcher {
+    patchSet("brigadier") {
+        library.set(libs.brigadier)
+        autoRebuild = true
+    }
 }
