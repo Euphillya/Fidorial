@@ -263,11 +263,13 @@ public final class FidorialServer implements Server {
         if (!running.compareAndSet(true, false)) {
             return;
         }
+
         LOGGER.info("Stopping the Fidorial server...");
         events.post(new ServerStoppingEvent(this));
         onlinePlayers().forEach(player -> player.kick(Component.translatable("commands.stop.stopping")));
-        closeQuietly("commands", commandManager::shutdown);
+
         closeQuietly("plugins", pluginManager::close);
+        closeQuietly("commands", commandManager::shutdown);
         closeQuietly("click callbacks", clickCallbackManager::close);
         closeQuietly("bossbars", bossBarRegistry::close);
         closeQuietly("day/night cycle", dayNightEngine::close);
@@ -280,6 +282,7 @@ public final class FidorialServer implements Server {
         closeQuietly("profils", offlinePlayers::close);
         closeQuietly("worlds", worldManager::close);
         closeQuietly("metrics", metrics::shutdown);
+
         LOGGER.info("Fidorial shut down correctly.");
     }
 
