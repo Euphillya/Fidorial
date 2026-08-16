@@ -161,7 +161,7 @@ public abstract class AbstractEntity implements Entity {
 
             if (from == target) {
                 setLocation(location);
-                target.entityManager().moved(this, previous.chunk(), location.chunk());
+                target.entityMoved(this, previous.chunk(), location.chunk());
             } else {
                 if (from instanceof final ServerWorld old) {
                     old.removeEntity(this);

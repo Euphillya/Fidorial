@@ -232,6 +232,14 @@ public final class ServerWorld implements World {
         }
     }
 
+    public void entityMoved(final AbstractEntity entity, final ChunkPos from, final ChunkPos to) {
+        entities.moved(entity, from, to);
+        if (!from.equals(to)) {
+            markEntitiesDirty(from.x(), from.z());
+            markEntitiesDirty(to.x(), to.z());
+        }
+    }
+
     public ChunkColumn getChunk(final int chunkX, final int chunkZ) throws IOException {
         final long k = ChunkPos.chunkKey(chunkX, chunkZ);
         final ChunkColumn cached = loaded.get(k);
