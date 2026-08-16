@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 public final class ChunkColumn {
 
@@ -20,7 +21,7 @@ public final class ChunkColumn {
     private final int height;
     private final int minSectionY;
     private final int sectionCount;
-    private final ChunkSection[] sections;
+    private final @Nullable ChunkSection[] sections;
     private final Map<Integer, BlockEntity> blockEntities = new ConcurrentHashMap<>();
 
     private long inhabitedTime;
@@ -206,7 +207,7 @@ public final class ChunkColumn {
         return s == null ? BlockState.AIR : s.getBlock(localX, worldY & 15, localZ);
     }
 
-    public long[] computeHeightmap(final java.util.function.Predicate<BlockState> solid) {
+    public long[] computeHeightmap(final Predicate<BlockState> solid) {
         final int bits = BitPacking.bitsFor(height + 1, 1);
         final int[] values = new int[256];
         for (int z = 0; z < 16; z++) {
@@ -219,6 +220,34 @@ public final class ChunkColumn {
                     }
                 }
                 values[z * 16 + x] = top - minY;
+            }
+        }
+        return BitPacking.pack(values, bits);
+    }
+
+    public long[] computeMotionBlockingHeightmap() {
+        final int bits = BitPacking.bitsFor(height + 1, 1);
+        final int[] values = new int[256];
+        int remaining = 256;
+
+        for (int i = sections.length - 1; i >= 0 && remaining > 0; i--) {
+            final ChunkSection section = sections[i];
+            if (section == null || section.isEmpty()) continue;
+
+            final int sectionBaseY = (minSectionY + i) << 4;
+            for (int z = 0; z < 16; z++) {
+                for (int x = 0; x < 16; x++) {
+                    final int col = z * 16 + x;
+                    if (values[col] != 0) continue; // already found from a higher section
+
+                    for (int ly = 15; ly >= 0; ly--) {
+                        if (!section.getBlock(x, ly, z).isAir()) {
+                            values[col] = sectionBaseY + ly + 1 - minY;
+                            remaining--;
+                            break;
+                        }
+                    }
+                }
             }
         }
         return BitPacking.pack(values, bits);

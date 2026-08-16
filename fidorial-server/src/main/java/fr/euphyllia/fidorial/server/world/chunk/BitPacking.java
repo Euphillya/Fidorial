@@ -12,10 +12,14 @@ public final class BitPacking {
         final long[] out = new long[longCount];
         final long mask = (1L << bits) - 1L;
 
-        for (int i = 0; i < values.length; i++) {
-            final int longIndex = i / valuesPerLong;
-            final int offset = (i % valuesPerLong) * bits;
-            out[longIndex] |= (values[i] & mask) << offset;
+        int idx = 0;
+        for (int longIndex = 0; longIndex < longCount; longIndex++) {
+            long word = 0L;
+            final int limit = Math.min(valuesPerLong, values.length - idx);
+            for (int offset = 0; offset < limit; offset++) {
+                word |= (values[idx++] & mask) << (offset * bits);
+            }
+            out[longIndex] = word;
         }
         return out;
     }
@@ -26,10 +30,13 @@ public final class BitPacking {
         final long mask = (1L << bits) - 1L;
         final int[] out = new int[count];
 
-        for (int i = 0; i < count; i++) {
-            final int longIndex = i / valuesPerLong;
-            final int offset = (i % valuesPerLong) * bits;
-            out[i] = (int) ((data[longIndex] >>> offset) & mask);
+        int idx = 0;
+        for (int longIndex = 0; idx < count; longIndex++) {
+            final long word = data[longIndex];
+            final int limit = Math.min(valuesPerLong, count - idx);
+            for (int offset = 0; offset < limit; offset++) {
+                out[idx++] = (int) ((word >>> (offset * bits)) & mask);
+            }
         }
         return out;
     }

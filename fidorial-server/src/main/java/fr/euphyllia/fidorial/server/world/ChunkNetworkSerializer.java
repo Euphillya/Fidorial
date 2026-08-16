@@ -117,14 +117,14 @@ public final class ChunkNetworkSerializer {
     }
 
     private void writeIndirectSection(final PacketBuffer sp, final PalettedContainer<BlockState> blocks) {
-        final int bits = Math.max(4, blocks.bitsPerEntry());
+        final PalettedContainer.PalettedContainerSnapshot<BlockState> snap = blocks.snapshot();
+        final int bits = Math.max(4, BitPacking.bitsFor(snap.palette().size(), snap.minBits()));
         sp.writeByte(bits);
-        sp.writeVarInt(blocks.palette().size());
-        for (final BlockState state : blocks.palette()) {
+        sp.writeVarInt(snap.palette().size());
+        for (final BlockState state : snap.palette()) {
             sp.writeVarInt(blockRegistry.networkId(state));
         }
-
-        writeLongs(sp, blocks.packedData(), bits, ChunkSection.BLOCK_COUNT);
+        writeLongs(sp, BitPacking.pack(snap.data(), bits), bits, ChunkSection.BLOCK_COUNT);
     }
 
     private void writeBiomes(final PacketBuffer sp, final PalettedContainer<Key> container) {

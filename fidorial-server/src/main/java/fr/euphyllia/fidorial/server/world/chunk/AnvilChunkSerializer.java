@@ -56,8 +56,9 @@ public class AnvilChunkSerializer {
         root.putIntArray("LightHeightmap", light.heightmapSnapshot());
 
         final CompoundBinaryTag.Builder heightmaps = CompoundBinaryTag.builder();
-        heightmaps.putLongArray("MOTION_BLOCKING", chunk.computeHeightmap(bs -> !bs.isAir()));
-        heightmaps.putLongArray("WORLD_SURFACE", chunk.computeHeightmap(bs -> !bs.isAir()));
+        final long[] motionBlocking = chunk.computeMotionBlockingHeightmap();
+        heightmaps.putLongArray("MOTION_BLOCKING", motionBlocking);
+        heightmaps.putLongArray("WORLD_SURFACE", motionBlocking.clone());
         root.put("Heightmaps", heightmaps.build());
 
         root.put("block_entities", blockEntitiesToNbt(chunk));
