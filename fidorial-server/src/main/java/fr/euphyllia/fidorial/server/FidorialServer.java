@@ -246,13 +246,13 @@ public final class FidorialServer implements Server {
                 console.setLocale(Locale.getDefault());
                 new ConsoleCommandReader(commandManager, running::get).start();
                 pluginManager.enableAll();
-                LOGGER.info("En ecoute sur le port {}", config.port());
+                LOGGER.info("Listening on port {}", config.port());
             } else {
                 pluginManager.enableAll();
             }
             events.post(new ServerStartedEvent(this));
         } catch (final Exception e) {
-            LOGGER.error("Demarrage interrompu, arret en cours", e);
+            LOGGER.error("Startup interrupted, shutting down", e);
             shutdown();
             throw e;
         }
@@ -271,16 +271,16 @@ public final class FidorialServer implements Server {
         closeQuietly("click callbacks", clickCallbackManager::close);
         closeQuietly("bossbars", bossBarRegistry::close);
         closeQuietly("day/night cycle", dayNightEngine::close);
-        closeQuietly("reseau", network::shutdown);
+        closeQuietly("network", network::shutdown);
         closeQuietly("auto-save", autoSave::shutdownNow);
         closeQuietly("ia", aiWorker::shutdown);
         closeQuietly("regions", regionizer::shutdown);
         closeQuietly("chunks", chunkWorker::shutdown);
-        closeQuietly("meteo", weatherEngine::close);
+        closeQuietly("weather", weatherEngine::close);
         closeQuietly("profils", offlinePlayers::close);
-        closeQuietly("monde", worldManager::close);
-        closeQuietly("metriques", metrics::shutdown);
-        LOGGER.info("Stop complete");
+        closeQuietly("worlds", worldManager::close);
+        closeQuietly("metrics", metrics::shutdown);
+        LOGGER.info("Fidorial shut down correctly.");
     }
 
     private @Nullable Favicon loadFavicon() {
