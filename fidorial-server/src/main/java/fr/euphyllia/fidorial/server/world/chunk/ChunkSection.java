@@ -89,21 +89,13 @@ public final class ChunkSection {
     }
 
     public void recomputeCounts() {
-        int nonAir = 0;
-        int fluids = 0;
-
+        final PalettedContainer.PalettedContainerSnapshot<BlockState> snap = blocks.snapshot();
+        int nonAir = 0, fluids = 0;
         for (int i = 0; i < BLOCK_COUNT; i++) {
-            final BlockState state = blocks.get(i);
-
-            if (!state.isAir()) {
-                nonAir++;
-            }
-
-            if (state.isFluid()) {
-                fluids++;
-            }
+            final BlockState s = snap.get(i);
+            if (!s.isAir()) nonAir++;
+            if (s.isFluid()) fluids++;
         }
-
         this.nonAirCount = nonAir;
         this.fluidCount = fluids;
     }

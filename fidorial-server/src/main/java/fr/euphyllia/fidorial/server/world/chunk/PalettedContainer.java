@@ -1,28 +1,29 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.ToIntFunction;
 
 public final class PalettedContainer<T> {
 
     private final List<T> palette = new ArrayList<>();
-    private final Map<T, Integer> lookup = new HashMap<>();
+    private final Object2IntOpenHashMap<T> lookup = new Object2IntOpenHashMap<>();
     private final int[] data;
     private final int minBits;
 
     private final StampedLock lock = new StampedLock();
 
-    private volatile Object[] paletteArray;
+    private volatile Object[] paletteArray = new Object[0];
 
     public PalettedContainer(final int size, final int minBits, final T fill) {
         this.data = new int[size];
         this.minBits = minBits;
+        this.lookup.defaultReturnValue(-1);
         indexOf(fill);
     }
 
@@ -40,8 +41,8 @@ public final class PalettedContainer<T> {
     }
 
     private int indexOf(final T value) {
-        final Integer i = lookup.get(value);
-        if (i != null) return i;
+        final int i = lookup.getInt(value);
+        if (i != -1) return i;
         final int next = palette.size();
         palette.add(value);
         lookup.put(value, next);
@@ -123,6 +124,23 @@ public final class PalettedContainer<T> {
             return BitPacking.pack(data, BitPacking.bitsFor(palette.size(), minBits));
         } finally {
             lock.unlockRead(stamp);
+        }
+    }
+
+    public PalettedContainerSnapshot<T> snapshot() {
+        final long stamp = lock.readLock();
+        try {
+            @SuppressWarnings("unchecked")
+            final T[] pal = (T[]) paletteArray;
+            return new PalettedContainerSnapshot<>(Arrays.asList(pal), data.clone(), minBits);
+        } finally {
+            lock.unlockRead(stamp);
+        }
+    }
+
+    public record PalettedContainerSnapshot<T>(List<T> palette, int[] data, int minBits) {
+        public T get(final int index) {
+            return palette.get(data[index]);
         }
     }
 }
