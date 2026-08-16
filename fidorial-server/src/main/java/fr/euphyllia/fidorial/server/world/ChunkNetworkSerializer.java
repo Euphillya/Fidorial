@@ -153,6 +153,21 @@ public final class ChunkNetworkSerializer {
         writeLongs(sp, container.packedGlobal(directBits, biomes::networkIdOrFallback), directBits, ChunkSection.BIOME_COUNT);
     }
 
+    public byte[] buildBiomes(final ByteBufAllocator alloc, final ChunkColumn chunk) {
+        final ByteBuf buffer = alloc.buffer();
+        try {
+            final PacketBuffer out = new PacketBuffer(buffer);
+            for (final ChunkSection section : chunk.sections()) {
+                writeBiomes(out, section.biomes());
+            }
+            final byte[] encoded = new byte[buffer.readableBytes()];
+            buffer.readBytes(encoded);
+            return encoded;
+        } finally {
+            buffer.release();
+        }
+    }
+
     private static void writeLongs(final PacketBuffer sp, final long @Nullable [] data, final int bits, final int entries) {
         final int entriesPerLong = 64 / bits;
         final int expectedLongs = (entries + entriesPerLong - 1) / entriesPerLong;

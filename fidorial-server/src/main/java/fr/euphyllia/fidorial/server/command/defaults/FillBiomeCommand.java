@@ -6,7 +6,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
-import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundLevelChunkWithLightPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundChunksBiomesPacket;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.fidorial.command.CommandSource;
@@ -24,7 +24,9 @@ import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import static fr.fidorial.command.Commands.argument;
@@ -134,23 +136,25 @@ public class FillBiomeCommand {
     }
 
     private static void resend(final FidorialServer server, final ServerWorld world, final Set<ChunkPos> chunks) {
+        final List<ChunkColumn> columns = new ArrayList<>(chunks.size());
         for (final ChunkPos pos : chunks) {
-            final int chunkX = pos.x();
-            final int chunkZ = pos.z();
-
-            final ChunkColumn column;
             try {
-                column = world.getChunk(chunkX, chunkZ);
+                columns.add(world.getChunk(pos.x(), pos.z()));
             } catch (final IOException ignored) {
-                continue;
             }
 
-            final ClientboundLevelChunkWithLightPacket packet;
-            synchronized (world.lightManager()) {
-                packet = new ClientboundLevelChunkWithLightPacket(server.chunkSerializer(), column);
+            if (columns.isEmpty()) {
+                return;
             }
 
-            server.broadcastNear(world, (chunkX << 4) + 8, 128.0, (chunkZ << 4) + 8, packet);
+            final ClientboundChunksBiomesPacket packet =
+                    new ClientboundChunksBiomesPacket(server.chunkSerializer(), columns);
+
+            for (final ServerPlayer player : server.players()) {
+                if (!player.isRemoved() && player.world() == world) {
+                    player.connection().send(packet);
+                }
+            }
         }
     }
 
