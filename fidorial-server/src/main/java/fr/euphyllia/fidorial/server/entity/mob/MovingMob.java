@@ -189,7 +189,7 @@ public abstract class MovingMob extends Mob {
         final ChunkPos fromChunk = before.chunk();
         final ChunkPos toChunk = after.chunk();
         if (!fromChunk.equals(toChunk)) {
-            serverWorld().entityManager().moved(this, fromChunk, toChunk);
+            serverWorld().entityMoved(this, fromChunk, toChunk);
             server().regionizer().moveTicket(serverWorld().dimension().id(), fromChunk, toChunk);
         }
     }

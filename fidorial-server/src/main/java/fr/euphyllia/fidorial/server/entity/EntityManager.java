@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.entity;
 
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.fidorial.world.ChunkPos;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -27,49 +28,52 @@ public final class EntityManager {
         return ((long) sectionZ << 32) | (sectionX & 0xFFFFFFFFL);
     }
 
+    @ApiStatus.Internal
     public void add(final AbstractEntity entity) {
         byId.put(entity.entityId(), entity);
         byUuid.put(entity.uuid(), entity);
         final ChunkPos chunk = entity.chunk();
-        byChunk.computeIfAbsent(ChunkPos.chunkKey(chunk), k -> ConcurrentHashMap.newKeySet()).add(entity);
+        byChunk.computeIfAbsent(ChunkPos.chunkKey(chunk), _ -> ConcurrentHashMap.newKeySet()).add(entity);
         bySection
-                .computeIfAbsent(sectionKey(chunk), k -> ConcurrentHashMap.newKeySet())
+                .computeIfAbsent(sectionKey(chunk), _ -> ConcurrentHashMap.newKeySet())
                 .add(entity);
     }
 
+    @ApiStatus.Internal
     public void remove(final AbstractEntity entity) {
         byId.remove(entity.entityId());
         byUuid.remove(entity.uuid());
         final ChunkPos chunk = entity.chunk();
-        byChunk.computeIfPresent(ChunkPos.chunkKey(chunk), (k, set) -> {
+        byChunk.computeIfPresent(ChunkPos.chunkKey(chunk), (_, set) -> {
             set.remove(entity);
             return set.isEmpty() ? null : set;
         });
-        bySection.computeIfPresent(sectionKey(chunk), (k, set) -> {
+        bySection.computeIfPresent(sectionKey(chunk), (_, set) -> {
             set.remove(entity);
             return set.isEmpty() ? null : set;
         });
     }
 
+    @ApiStatus.Internal
     public void moved(final AbstractEntity entity, final ChunkPos from, final ChunkPos to) {
         if (from.equals(to)) {
             return;
         }
-        byChunk.computeIfPresent(ChunkPos.chunkKey(from), (k, set) -> {
+        byChunk.computeIfPresent(ChunkPos.chunkKey(from), (_, set) -> {
             set.remove(entity);
             return set.isEmpty() ? null : set;
         });
-        byChunk.computeIfAbsent(ChunkPos.chunkKey(to), k -> ConcurrentHashMap.newKeySet()).add(entity);
+        byChunk.computeIfAbsent(ChunkPos.chunkKey(to), _ -> ConcurrentHashMap.newKeySet()).add(entity);
 
         final long fromSection = sectionKey(from);
         final long toSection = sectionKey(to);
         if (fromSection != toSection) {
-            bySection.computeIfPresent(fromSection, (k, set) -> {
+            bySection.computeIfPresent(fromSection, (_, set) -> {
                 set.remove(entity);
                 return set.isEmpty() ? null : set;
             });
             bySection
-                    .computeIfAbsent(toSection, k -> ConcurrentHashMap.newKeySet())
+                    .computeIfAbsent(toSection, _ -> ConcurrentHashMap.newKeySet())
                     .add(entity);
         }
     }
