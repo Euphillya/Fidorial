@@ -12,67 +12,142 @@ import net.kyori.adventure.translation.GlobalTranslator;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 public final class BuiltInTranslationStore implements TranslationStore {
 
     private static final Gson GSON = new Gson();
-    private static final Type LANGUAGE_TYPE = new TypeToken<Map<String, String>>() {}.getType();
+    private static final Type LANGUAGE_TYPE = new TypeToken<Map<String, String>>() {
+    }.getType();
     private static final Locale DEFAULT_LOCALE = Locale.US;
-    private static final Set<Locale> SUPPORTED_LOCALES = Set.of(Locale.FRANCE, Locale.US);
+    private static final String LANGUAGE_FOLDER = "languages";
+    private static final String EXTENSION = ".json";
+
     private final MiniMessageTranslationStore miniMessageStore =
             MiniMessageTranslationStore.create(Key.key("translations"));
 
-    private static Locale resolveLocale(@Nullable final Locale locale) {
-        if (locale == null) {
+    private final Set<Locale> supportedLocales = ConcurrentHashMap.newKeySet();
+
+    private static FileSystem openJarFileSystem(final URI uri) throws IOException {
+        try {
+            return FileSystems.newFileSystem(uri, Map.of());
+        } catch (final FileSystemAlreadyExistsException ex) {
+            return FileSystems.getFileSystem(uri);
+        }
+    }
+
+    private static @Nullable Locale parseLocale(final String fileName) {
+        final String name = fileName.substring(0, fileName.length() - EXTENSION.length());
+        if (name.isBlank()) {
+            return null;
+        }
+        final String[] parts = name.split("_");
+        return switch (parts.length) {
+            case 1 -> Locale.of(parts[0].toLowerCase(Locale.ROOT));
+            case 2 -> Locale.of(parts[0].toLowerCase(Locale.ROOT), parts[1].toUpperCase(Locale.ROOT));
+            case 3 -> Locale.of(parts[0].toLowerCase(Locale.ROOT), parts[1].toUpperCase(Locale.ROOT), parts[2]);
+            default -> null;
+        };
+    }
+
+    private Locale resolveLocale(@Nullable final Locale locale) {
+        if (locale == null || supportedLocales.isEmpty()) {
             return DEFAULT_LOCALE;
         }
 
-        if (SUPPORTED_LOCALES.contains(locale)) {
+        if (supportedLocales.contains(locale)) {
             return locale;
         }
 
-        return SUPPORTED_LOCALES.stream()
-                .filter(supported -> supported.getLanguage().equals(locale.getLanguage()))
-                .findFirst()
-                .orElse(DEFAULT_LOCALE);
+        for (final Locale supported : supportedLocales) {
+            if (supported.getLanguage().equals(locale.getLanguage())) {
+                return supported;
+            }
+        }
+        return DEFAULT_LOCALE;
     }
 
     private void loadBuiltin() {
-        final Map<Locale, String> languages = Map.of(
-                Locale.FRANCE, "languages/fr_fr.json",
-                Locale.US, "languages/en_us.json");
-        for (final Map.Entry<Locale, String> entry : languages.entrySet()) {
-            try {
-                final InputStream stream = Main.class.getClassLoader().getResourceAsStream(entry.getValue());
+        final URL url = Main.class.getClassLoader().getResource(LANGUAGE_FOLDER);
+        if (url == null) {
+            FidorialServer.LOGGER.warn("Missing builtin language folder: {}", LANGUAGE_FOLDER);
+            return;
+        }
 
-                if (stream == null) {
-                    FidorialServer.LOGGER.warn("Missing builtin language: {}", entry.getValue());
-                    continue;
-                }
+        try {
+            final URI uri = url.toURI();
 
-                try (final Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-                    load(entry.getKey(), reader);
+            if ("jar".equals(uri.getScheme())) {
+                try (final FileSystem fileSystem = openJarFileSystem(uri)) {
+                    loadDirectory(fileSystem.getPath(LANGUAGE_FOLDER));
                 }
-            } catch (final IOException ex) {
-                FidorialServer.LOGGER.error("Couldn't load language {}", entry.getKey(), ex);
+            } else {
+                loadDirectory(Paths.get(uri));
             }
+        } catch (final URISyntaxException | IOException ex) {
+            FidorialServer.LOGGER.error("Couldn't scan language folder {}", LANGUAGE_FOLDER, ex);
+        }
+    }
+
+    private void loadDirectory(final Path directory) throws IOException {
+        if (!Files.isDirectory(directory)) {
+            FidorialServer.LOGGER.warn("Language path is not a directory: {}", directory);
+            return;
+        }
+
+        try (final Stream<Path> files = Files.list(directory)) {
+            files.filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(EXTENSION))
+                    .sorted()
+                    .forEach(this::loadFile);
+        }
+
+        if (!supportedLocales.contains(DEFAULT_LOCALE)) {
+            FidorialServer.LOGGER.warn("Default language {} is missing, translations may fall back to raw keys",
+                    DEFAULT_LOCALE);
+        }
+    }
+
+    private void loadFile(final Path path) {
+        final String fileName = path.getFileName().toString();
+        final Locale locale = parseLocale(fileName);
+        if (locale == null) {
+            FidorialServer.LOGGER.warn("Ignoring language file with invalid name: {}", fileName);
+            return;
+        }
+
+        try (final Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            load(locale, reader);
+        } catch (final IOException | RuntimeException ex) {
+            FidorialServer.LOGGER.error("Couldn't load language {}", fileName, ex);
         }
     }
 
     private void load(final Locale locale, final Reader reader) throws IOException {
         final Map<String, String> entries = GSON.fromJson(reader, LANGUAGE_TYPE);
-        if (entries == null) {
+        if (entries == null || entries.isEmpty()) {
             return;
         }
         miniMessageStore.registerAll(locale, entries);
+        supportedLocales.add(locale);
+
+        FidorialServer.LOGGER.debug("Loaded {} translations for {}", entries.size(), locale);
     }
 
     @Override
@@ -96,5 +171,9 @@ public final class BuiltInTranslationStore implements TranslationStore {
     @Override
     public Locale getDefaultLocale() {
         return DEFAULT_LOCALE;
+    }
+
+    public Set<Locale> getSupportedLocales() {
+        return Set.copyOf(supportedLocales);
     }
 }
