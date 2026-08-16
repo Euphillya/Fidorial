@@ -23,6 +23,11 @@ final class LongIntQueue {
         levels = new int[cap];
     }
 
+    void reset() {
+        head = 0;
+        tail = 0;
+    }
+
     void push(final int x, final int y, final int z, final int level) {
         if (tail == xs.length) {
             grow();

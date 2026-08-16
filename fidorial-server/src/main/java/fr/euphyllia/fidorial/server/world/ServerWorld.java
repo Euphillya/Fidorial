@@ -275,10 +275,11 @@ public final class ServerWorld implements World {
             return;
         }
 
-        lightManager.lightChunkIfNeeded(column, chunkX, chunkZ);
         final LightUpdateDispatcher dispatcher = lightDispatcher;
         if (dispatcher != null) {
             dispatcher.queueChunkLoad(dimension.id(), chunkX, chunkZ);
+        } else {
+            lightManager.lightChunkIfNeeded(column, chunkX, chunkZ);
         }
     }
 

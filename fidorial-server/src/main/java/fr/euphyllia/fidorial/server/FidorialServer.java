@@ -168,8 +168,11 @@ public final class FidorialServer implements Server {
     private final BossBarRegistry bossBarRegistry = new BossBarRegistry(worldManager.levelData(), this::players);
     private final DayNightThread dayNightEngine = new DayNightThread(worldManager, registries.dynamic());
     private final ChunkNetworkSerializer chunkSerializer = new ChunkNetworkSerializer(blockStateRegistry, registries.biomes());
+    private final ScheduledExecutorService lightWorker = Executors.newSingleThreadScheduledExecutor(
+            r -> Thread.ofPlatform().name("fidorial-light").unstarted(r));
+
     private final LightUpdateDispatcher lightDispatcher = new LightUpdateDispatcher(
-            chunkWorker::execute, this::broadcast, chunkSerializer, worldManager::world);
+            lightWorker, this::broadcast, chunkSerializer, worldManager::world);
     private final BlockEditService blockEdits = new BlockEditService(
             blockStateRegistry,
             (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),
@@ -274,6 +277,7 @@ public final class FidorialServer implements Server {
         closeQuietly("bossbars", bossBarRegistry::close);
         closeQuietly("day/night cycle", dayNightEngine::close);
         closeQuietly("network", network::shutdown);
+        closeQuietly("light engine", lightWorker::shutdownNow);
         closeQuietly("auto-save", autoSave::shutdownNow);
         closeQuietly("ia", aiWorker::shutdown);
         closeQuietly("regions", regionizer::shutdown);

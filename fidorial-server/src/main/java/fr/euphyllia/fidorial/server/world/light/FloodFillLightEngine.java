@@ -6,6 +6,8 @@ import fr.fidorial.world.light.LightType;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
+import java.util.Arrays;
+
 public class FloodFillLightEngine implements LightEngine {
 
     private static final int MAX_LEVEL = 15;
@@ -17,6 +19,10 @@ public class FloodFillLightEngine implements LightEngine {
 
     private final int minY;
     private final int maxY;
+
+    private final LongIntQueue scratchDecrease = new LongIntQueue();
+    private final LongIntQueue scratchIncrease = new LongIntQueue();
+    private final LongQueue scratchLongQueue = new LongQueue();
 
     public FloodFillLightEngine(final int minY, final int height) {
         this.minY = minY;
@@ -61,8 +67,10 @@ public class FloodFillLightEngine implements LightEngine {
         final int oldTop = data.topOpaqueY(x & 15, z & 15);
         final boolean occludesNow = BlockLightProperties.occludes(access.blockAt(x, y, z));
         if (occludesNow && y > oldTop) {
-            final LongIntQueue decrease = new LongIntQueue();
-            final LongIntQueue increase = new LongIntQueue();
+            final LongIntQueue decrease = scratchDecrease;
+            final LongIntQueue increase = scratchIncrease;
+            decrease.reset();
+            increase.reset();
             final long chunkKey = ChunkPos.chunkKey(x >> 4, z >> 4);
 
             final int oldLevel = data.get(LightType.SKY, x, y, z);
@@ -96,7 +104,8 @@ public class FloodFillLightEngine implements LightEngine {
 
             data.setTopOpaqueY(x & 15, z & 15, newTop);
 
-            final LongIntQueue increase = new LongIntQueue();
+            final LongIntQueue increase = scratchIncrease;
+            increase.reset();
             final long chunkKey = ChunkPos.chunkKey(x >> 4, z >> 4);
             for (int cy = y; cy > newTop; cy--) {
                 data.set(LightType.SKY, x, cy, z, MAX_LEVEL);
@@ -121,8 +130,10 @@ public class FloodFillLightEngine implements LightEngine {
             return;
         }
 
-        final LongIntQueue decrease = new LongIntQueue();
-        final LongIntQueue increase = new LongIntQueue();
+        final LongIntQueue decrease = scratchDecrease;
+        final LongIntQueue increase = scratchIncrease;
+        decrease.reset();
+        increase.reset();
 
         final int oldLevel = data.get(type, x, y, z);
         if (oldLevel > 0) {
@@ -328,7 +339,8 @@ public class FloodFillLightEngine implements LightEngine {
     }
 
     private void computeSky(final LongSet chunks, final LightAccess access) {
-        final LongQueue queue = new LongQueue();
+        final LongQueue queue = scratchLongQueue;
+        queue.reset();
 
         for (final long key : chunks) {
             final int chunkX = (int) (key >> 32);
@@ -377,7 +389,8 @@ public class FloodFillLightEngine implements LightEngine {
     }
 
     private void computeBlock(final LongSet chunks, final LightAccess access) {
-        final LongQueue queue = new LongQueue();
+        final LongQueue queue = scratchLongQueue;
+        queue.reset();
 
         for (final long key : chunks) {
             final int chunkX = (int) (key >> 32);
@@ -580,6 +593,11 @@ public class FloodFillLightEngine implements LightEngine {
         private int tail;
         private int lastDir;
 
+        void reset() {
+            head = 0;
+            tail = 0;
+        }
+
         void add(final long value, final int skipDir) {
             if (tail == data.length) grow();
             data[tail] = value;
@@ -609,8 +627,8 @@ public class FloodFillLightEngine implements LightEngine {
                 tail = size;
                 if (tail < data.length) return;
             }
-            data = java.util.Arrays.copyOf(data, data.length * 2);
-            dirs = java.util.Arrays.copyOf(dirs, dirs.length * 2);
+            data = Arrays.copyOf(data, data.length * 2);
+            dirs = Arrays.copyOf(dirs, dirs.length * 2);
         }
     }
 }

@@ -101,7 +101,7 @@ public class PregenTask {
                     if (cancelled) {
                         break outer;
                     }
-                    submit(this.world, centerX + dx, centerZ + dz).get();
+                    submit(this.world, centerX + dx, centerZ + dz);
 
                     if (System.currentTimeMillis() >= nextReport) {
                         nextReport = System.currentTimeMillis() + REPORT_PERIOD_MS;
