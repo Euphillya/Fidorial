@@ -21,8 +21,10 @@ import fr.fidorial.world.Chunk;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.World;
 import fr.fidorial.world.entity.EntitySpawnBridge;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -59,6 +61,7 @@ public final class ServerWorld implements World {
 
     private final Map<Long, ChunkColumn> loaded = new ConcurrentHashMap<>();
     private final Set<Long> dirty = ConcurrentHashMap.newKeySet();
+    private final Set<Long> entitiesDirty = ConcurrentHashMap.newKeySet();
     private final Set<Long> entitiesLoaded = ConcurrentHashMap.newKeySet();
     private final Set<ChunkViewSource> viewers = ConcurrentHashMap.newKeySet();
     private volatile @Nullable AsyncChunkLoader chunkLoader;
@@ -215,6 +218,7 @@ public final class ServerWorld implements World {
 
     public void addEntity(final AbstractEntity entity) {
         entities.add(entity);
+        markEntitiesDirty(entity.chunk().x(), entity.chunk().z());
         if (entity instanceof ServerPlayer) {
             invalidateAudiences();
         }
@@ -222,6 +226,7 @@ public final class ServerWorld implements World {
 
     public void removeEntity(final AbstractEntity entity) {
         entities.remove(entity);
+        markEntitiesDirty(entity.chunk().x(), entity.chunk().z());
         if (entity instanceof ServerPlayer) {
             invalidateAudiences();
         }
@@ -299,8 +304,7 @@ public final class ServerWorld implements World {
         }
     }
 
-    private void saveChunkEntities(final int chunkX, final int chunkZ) throws IOException {
-        final List<AbstractEntity> inChunk = persistableEntities(chunkX, chunkZ);
+    private void saveChunkEntities(final int chunkX, final int chunkZ, final List<AbstractEntity> inChunk) throws IOException {
         if (inChunk.isEmpty() && !entityStorage.hasChunk(dimension, chunkX, chunkZ)) {
             return;
         }
@@ -318,14 +322,30 @@ public final class ServerWorld implements World {
         return result;
     }
 
+    private Long2ObjectOpenHashMap<List<AbstractEntity>> bucketPersistableEntities() {
+        final Long2ObjectOpenHashMap<List<AbstractEntity>> byChunk = new Long2ObjectOpenHashMap<>();
+        for (final AbstractEntity entity : entities.all()) {
+            if (!AnvilEntitySerializer.isPersistable(entity)) {
+                continue;
+            }
+            final ChunkPos pos = entity.chunk();
+            final long key = ChunkPos.chunkKey(pos.x(), pos.z());
+            byChunk.computeIfAbsent(key, _ -> new ObjectArrayList<>()).add(entity);
+        }
+        return byChunk;
+    }
+
     private void unloadChunkEntities(final int chunkX, final int chunkZ) throws IOException {
         final long k = ChunkPos.chunkKey(chunkX, chunkZ);
         if (!entitiesLoaded.remove(k)) {
             return;
         }
-        saveChunkEntities(chunkX, chunkZ);
+        final List<AbstractEntity> inChunk = persistableEntities(chunkX, chunkZ);
+        saveChunkEntities(chunkX, chunkZ, inChunk);
+        entitiesDirty.remove(k);
+
         final EntitySpawnBridge bridge = this.entityBridge;
-        for (final AbstractEntity entity : persistableEntities(chunkX, chunkZ)) {
+        for (final AbstractEntity entity : inChunk) {
             entities.remove(entity);
 
             if (entity instanceof ServerPlayer) {
@@ -401,12 +421,26 @@ public final class ServerWorld implements World {
         saveLoadedEntities();
     }
 
-    // Todo : It will be very resource-intensive if there are many entities; this method will need to be modified.
+    public void markEntitiesDirty(final int chunkX, final int chunkZ) {
+        entitiesDirty.add(ChunkPos.chunkKey(chunkX, chunkZ));
+    }
+
     private void saveLoadedEntities() throws IOException {
-        for (final long k : Set.copyOf(entitiesLoaded)) {
+        if (entitiesDirty.isEmpty()) {
+            return;
+        }
+        final Long2ObjectOpenHashMap<List<AbstractEntity>> byChunk = bucketPersistableEntities();
+
+        for (final long k : Set.copyOf(entitiesDirty)) {
+            if (!entitiesLoaded.contains(k)) {
+                entitiesDirty.remove(k);
+                continue;
+            }
             final int cx = (int) (k >> 32);
             final int cz = (int) k;
-            saveChunkEntities(cx, cz);
+            final List<AbstractEntity> inChunk = byChunk.getOrDefault(k, List.of());
+            saveChunkEntities(cx, cz, inChunk);
+            entitiesDirty.remove(k);
         }
     }
 
