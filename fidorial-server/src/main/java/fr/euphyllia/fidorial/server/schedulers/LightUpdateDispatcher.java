@@ -35,7 +35,7 @@ public class LightUpdateDispatcher {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(LightUpdateDispatcher.class);
 
-    private static final int CLUSTER_SHIFT = 3;
+    private static final int CLUSTER_SHIFT = 3; // seems to give the most optimal CPS
 
     private final ExecutorService lightPool;
     private final Consumer<ClientboundPacket> broadcaster;
