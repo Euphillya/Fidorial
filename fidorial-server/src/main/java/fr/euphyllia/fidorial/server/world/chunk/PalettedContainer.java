@@ -15,6 +15,8 @@ public final class PalettedContainer<T> {
     private final Object2IntOpenHashMap<T> lookup = new Object2IntOpenHashMap<>();
     private final int[] data;
     private final int minBits;
+    private @Nullable T lastValue = null;
+    private int lastIndex = -1;
 
     private final StampedLock lock = new StampedLock();
 
@@ -41,12 +43,21 @@ public final class PalettedContainer<T> {
     }
 
     private int indexOf(final T value) {
+        if (value == lastValue) {
+            return lastIndex;
+        }
         final int i = lookup.getInt(value);
-        if (i != -1) return i;
+        if (i != -1) {
+            lastValue = value;
+            lastIndex = i;
+            return i;
+        }
         final int next = palette.size();
         palette.add(value);
         lookup.put(value, next);
         paletteArray = palette.toArray();
+        lastValue = value;
+        lastIndex = next;
         return next;
     }
 
