@@ -206,15 +206,17 @@ public class LightUpdateDispatcher {
         }
     }
 
-    private static LongSet withNeighborRing(final LongSet chunkKeys) {
-        final LongOpenHashSet ring = new LongOpenHashSet(chunkKeys.size() * 9);
+    private static LongSet withNeighborRing(final LongOpenHashSet chunkKeys) {
+        final LongOpenHashSet ring = new LongOpenHashSet(chunkKeys);
         final LongIterator it = chunkKeys.iterator();
         while (it.hasNext()) {
             final long key = it.nextLong();
             final int cx = (int) (key >> 32), cz = (int) key;
             for (int dx = -1; dx <= 1; dx++)
-                for (int dz = -1; dz <= 1; dz++)
-                    ring.add(ChunkPos.chunkKey(cx + dx, cz + dz));
+                for (int dz = -1; dz <= 1; dz++) {
+                    final long nk = ChunkPos.chunkKey(cx + dx, cz + dz);
+                    if (!chunkKeys.contains(nk)) ring.add(nk);
+                }
         }
         return ring;
     }
