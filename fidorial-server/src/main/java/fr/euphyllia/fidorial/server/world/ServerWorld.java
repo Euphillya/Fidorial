@@ -62,7 +62,7 @@ public final class ServerWorld implements World {
     private volatile @Nullable LightUpdateDispatcher lightDispatcher;
     private final FloodFillLightEngine fallbackEngine;
 
-    private final Map<Long, ChunkColumn> loaded = new ConcurrentHashMap<>();
+    private final Map<ChunkMapKey, ChunkColumn> loaded = new ConcurrentHashMap<>();
     private final Set<Long> dirty = ConcurrentHashMap.newKeySet();
     private final Set<Long> entitiesDirty = ConcurrentHashMap.newKeySet();
     private final Set<Long> entitiesLoaded = ConcurrentHashMap.newKeySet();
@@ -134,7 +134,7 @@ public final class ServerWorld implements World {
 
     @Override
     public CompletableFuture<Chunk> getChunkAsync(final int chunkX, final int chunkZ) {
-        final ChunkColumn cached = loaded.get(ChunkPos.chunkKey(chunkX, chunkZ));
+        final ChunkColumn cached = loaded.get(ChunkMapKey.of(ChunkPos.chunkKey(chunkX, chunkZ)));
         if (cached != null) {
             return CompletableFuture.completedFuture(wrap(cached));
         }
@@ -151,7 +151,7 @@ public final class ServerWorld implements World {
 
     @Override
     public Optional<Chunk> getChunkIfLoaded(final int chunkX, final int chunkZ) {
-        final ChunkColumn cached = loaded.get(ChunkPos.chunkKey(chunkX, chunkZ));
+        final ChunkColumn cached = loaded.get(ChunkMapKey.of(ChunkPos.chunkKey(chunkX, chunkZ)));
         return Optional.ofNullable(cached).map(this::wrap);
     }
 
@@ -246,13 +246,14 @@ public final class ServerWorld implements World {
 
     public ChunkColumn getChunk(final int chunkX, final int chunkZ) throws IOException {
         final long k = ChunkPos.chunkKey(chunkX, chunkZ);
-        final ChunkColumn cached = loaded.get(k);
+        final ChunkMapKey mapKey = ChunkMapKey.of(k);
+        final ChunkColumn cached = loaded.get(mapKey);
         if (cached != null) {
             return cached;
         }
         final ChunkColumn column;
         try {
-            column = loaded.computeIfAbsent(k, ignored -> {
+            column = loaded.computeIfAbsent(mapKey, ignored -> {
                 try {
                     final ChunkColumn fromDisk = storage.load(dimension, chunkX, chunkZ);
                     if (fromDisk != null) {
@@ -416,7 +417,7 @@ public final class ServerWorld implements World {
     public void saveDirty() throws IOException {
         lightFlushFuture(dirty).join();
         for (final long k : Set.copyOf(dirty)) {
-            final ChunkColumn chunk = loaded.get(k);
+            final ChunkColumn chunk = loaded.get(ChunkMapKey.of(k));
             if (chunk != null) {
                 storage.save(dimension, chunk);
             }
@@ -426,7 +427,11 @@ public final class ServerWorld implements World {
     }
 
     public void saveAll() throws IOException {
-        lightFlushFuture(loaded.keySet()).join();
+        final LongSet keys = new LongOpenHashSet(loaded.size());
+        for (final ChunkMapKey key : loaded.keySet()) {
+            keys.add(key.raw);
+        }
+        lightFlushFuture(keys).join();
         for (final ChunkColumn chunk : loaded.values()) {
             storage.save(dimension, chunk);
         }
@@ -475,7 +480,8 @@ public final class ServerWorld implements World {
         }
 
         final LongSet toUnload = new LongOpenHashSet();
-        for (final long k : loaded.keySet()) {
+        for (final ChunkMapKey mapKey : loaded.keySet()) {
+            final long k = mapKey.raw;
             if (!wanted.contains(k) && !dirty.contains(k)) {
                 toUnload.add(k);
             }
@@ -487,7 +493,7 @@ public final class ServerWorld implements World {
 
         int unloaded = 0;
         for (final long k : toUnload) {
-            if (loaded.remove(k) != null) {
+            if (loaded.remove(ChunkMapKey.of(k)) != null) {
                 unloaded++;
                 final int cx = (int) (k >> 32);
                 final int cz = (int) k;
@@ -507,18 +513,15 @@ public final class ServerWorld implements World {
             lightFlushFuture(LongSet.of(ChunkPos.chunkKey(chunkX, chunkZ))).join();
         }
         final long k = ChunkPos.chunkKey(chunkX, chunkZ);
+        final ChunkMapKey mapKey = ChunkMapKey.of(k);
         if (dirty.remove(k)) {
-            final ChunkColumn chunk = loaded.get(k);
+            final ChunkColumn chunk = loaded.get(mapKey);
             if (chunk != null) {
                 storage.save(dimension, chunk);
             }
         }
         unloadChunkEntities(chunkX, chunkZ);
-        loaded.remove(k);
-    }
-
-    public int loadedCount() {
-        return loaded.size();
+        loaded.remove(mapKey);
     }
 
     private void invalidateAudiences() {
@@ -541,7 +544,8 @@ public final class ServerWorld implements World {
     @Override
     public CompletableFuture<Boolean> unloadChunkAsync(final int chunkX, final int chunkZ) {
         final long k = ChunkPos.chunkKey(chunkX, chunkZ);
-        if (!loaded.containsKey(k)) {
+        final ChunkMapKey mapKey = ChunkMapKey.of(k);
+        if (!loaded.containsKey(mapKey)) {
             return CompletableFuture.completedFuture(false);
         }
 
@@ -572,7 +576,7 @@ public final class ServerWorld implements World {
     }
 
     public @Nullable ChunkColumn loadedColumn(final int chunkX, final int chunkZ) {
-        return loaded.get(ChunkPos.chunkKey(chunkX, chunkZ));
+        return loaded.get(ChunkMapKey.of(ChunkPos.chunkKey(chunkX, chunkZ)));
     }
 
     public WorldLightManager lightManager() {
