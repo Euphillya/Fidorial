@@ -5,10 +5,36 @@ import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPack
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import net.kyori.adventure.key.Key;
 
-public record ClientboundLightUpdatePacket(ChunkNetworkSerializer serializer, ChunkColumn column)
-        implements ClientboundPacket {
+
+public final class ClientboundLightUpdatePacket implements ClientboundPacket {
+
+    private final byte[] payload;
+
+    public ClientboundLightUpdatePacket(final ChunkNetworkSerializer serializer, final ChunkColumn column) {
+        this(serializer, column, ByteBufAllocator.DEFAULT);
+    }
+
+    public ClientboundLightUpdatePacket(
+            final ChunkNetworkSerializer serializer,
+            final ChunkColumn column,
+            final ByteBufAllocator allocator) {
+
+        final ByteBuf scratch = allocator.buffer();
+        try {
+            final PacketBuffer out = new PacketBuffer(scratch);
+            out.writeVarInt(column.chunkX());
+            out.writeVarInt(column.chunkZ());
+            serializer.writeLightData(out, column);
+            this.payload = new byte[scratch.readableBytes()];
+            scratch.readBytes(this.payload);
+        } finally {
+            scratch.release();
+        }
+    }
 
     @Override
     public Key name() {
@@ -17,8 +43,6 @@ public record ClientboundLightUpdatePacket(ChunkNetworkSerializer serializer, Ch
 
     @Override
     public void write(final PacketBuffer buf) {
-        buf.writeVarInt(column.chunkX());
-        buf.writeVarInt(column.chunkZ());
-        serializer.writeLightData(buf, column);
+        buf.writeRawBytes(payload);
     }
 }

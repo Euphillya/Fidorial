@@ -3,9 +3,11 @@ package fr.euphyllia.fidorial.testplugin;
 import fr.euphyllia.fidorial.testplugin.command.ApiTestCommand;
 import fr.euphyllia.fidorial.testplugin.command.BiomeCommand;
 import fr.euphyllia.fidorial.testplugin.command.PregenCommand;
+import fr.euphyllia.fidorial.testplugin.command.WorldgenCommand;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
-import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
 import fr.euphyllia.fidorial.testplugin.terrain.TestBiomes;
+import fr.euphyllia.fidorial.testplugin.worldgen.GeneratorSettings;
+import fr.euphyllia.fidorial.testplugin.worldgen.OverworldGenerator;
 import fr.fidorial.Server;
 import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.command.CommandSender;
@@ -38,10 +40,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class TestPlugin implements Plugin {
 
-    private static final long SEED = 20260716L;
-    private static final int BASE_HEIGHT = 64;
-    private static final int AMPLITUDE = 24;
-    private static final int SEA_LEVEL = 60;
+    private static final String SEED_PROPERTY = "fidorial.worldgen.seed";
+
+    private static final long DEFAULT_SEED = 20260716L;
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
@@ -51,6 +52,11 @@ public final class TestPlugin implements Plugin {
     public @Nullable ComponentLogger logger;
     public @Nullable Server server;
     private volatile @Nullable PregenTask task;
+    private @Nullable OverworldGenerator generator;
+
+    public @Nullable OverworldGenerator generator() {
+        return generator;
+    }
 
     public PregenTask getTask() {
         return task;
@@ -76,9 +82,25 @@ public final class TestPlugin implements Plugin {
 
         TestBiomes.registerAll(context.server().biomes(), context.logger());
 
-        context.services()
-                .register(WorldGenerator.class, new HillsGenerator(SEED, BASE_HEIGHT, AMPLITUDE, SEA_LEVEL), this);
-        context.logger().info("Generateur de collines enregistre (seed={})", SEED);
+        final long seed = resolveSeed(context.logger());
+        this.generator = new OverworldGenerator(GeneratorSettings.defaults(seed));
+
+        context.services().register(WorldGenerator.class, generator, this);
+        context.logger().info(
+                "[TestPlugin] Generateur d'Overworld enregistre (seed={}, niveau de la mer={})",
+                seed,
+                generator.settings().seaLevel());
+
+        final int[] spawn = generator.findSpawn(0, 0, 4000, -64, 319);
+        if (spawn == null) {
+            context.logger().warn("[TestPlugin] Aucun point d'apparition emerge trouve pres de l'origine.");
+        } else {
+            context.logger().info(
+                    "[TestPlugin] Point d'apparition conseille : spawn-x={} spawn-y={} spawn-z={}",
+                    spawn[0] + 0.5,
+                    spawn[1],
+                    spawn[2] + 0.5);
+        }
 
         logger.info(
                 "[TestPlugin] onLoad OK - id={} version={} dataFolder={}",
@@ -105,6 +127,23 @@ public final class TestPlugin implements Plugin {
         server.commands().unregisterNamespace(context.meta());
         TestBiomes.unregisterAll(server.biomes());
         TestPluginTranslations.unregister();
+    }
+
+    private static long resolveSeed(final ComponentLogger logger) {
+        final String property = System.getProperty(SEED_PROPERTY);
+        if (property == null || property.isBlank()) {
+            return DEFAULT_SEED;
+        }
+        if (property.equalsIgnoreCase("random")) {
+            final long random = new java.util.Random().nextLong();
+            logger.info("[TestPlugin] Graine tiree au hasard : {}", random);
+            return random;
+        }
+        try {
+            return Long.parseLong(property.trim());
+        } catch (final NumberFormatException invalid) {
+            return property.hashCode();
+        }
     }
 
     public void msg(final CommandSender sender, final String miniMessageText) {
@@ -203,5 +242,6 @@ public final class TestPlugin implements Plugin {
         registry.register(context.meta(), new PregenCommand(this).create());
         registry.register(context.meta(), new ApiTestCommand(this).create());
         registry.register(context.meta(), new BiomeCommand(this).create());
+        registry.register(context.meta(), new WorldgenCommand(this).create());
     }
 }

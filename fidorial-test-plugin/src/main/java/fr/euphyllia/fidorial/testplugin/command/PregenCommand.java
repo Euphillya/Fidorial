@@ -12,6 +12,7 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
 import fr.fidorial.world.World;
+import net.kyori.adventure.key.Key;
 
 import static fr.fidorial.command.Commands.argument;
 import static fr.fidorial.command.Commands.literal;
@@ -43,32 +44,33 @@ public final class PregenCommand {
     private static boolean isTaskRunning() {
         try {
             return plugin.getTask().isRunning();
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException e) {
             return false;
         }
     }
 
-    private static int startDefault(CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
-        int radius = IntegerArgumentType.getInteger(ctx, "radius");
+    private static int startDefault(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
+        final int radius = IntegerArgumentType.getInteger(ctx, "radius");
 
         int cx = 0;
         int cz = 0;
         World world = null;
 
-        if (sender instanceof Player player) {
-            var chunk = player.chunk();
+        if (sender instanceof final Player player) {
+            final var chunk = player.chunk();
             cx = chunk.x();
             cz = chunk.z();
             world = player.world();
         }
 
         if (world == null) {
-            plugin.msg(sender, "<red>Aucun monde cible.</red>");
-            return Command.SINGLE_SUCCESS;
+            world = plugin.server().world(Key.key("overworld")).get();
+//            plugin.msg(sender, "<red>Aucun monde cible.</red>");
+//            return Command.SINGLE_SUCCESS;
         }
 
-        PregenTask task = new PregenTask(
+        final PregenTask task = new PregenTask(
                 world,
                 plugin.logger,
                 cx,
@@ -87,16 +89,16 @@ public final class PregenCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int startCentered(CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int startCentered(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        int radius = IntegerArgumentType.getInteger(ctx, "radius");
-        int centerX = IntegerArgumentType.getInteger(ctx, "centerX");
-        int centerZ = IntegerArgumentType.getInteger(ctx, "centerZ");
+        final int radius = IntegerArgumentType.getInteger(ctx, "radius");
+        final int centerX = IntegerArgumentType.getInteger(ctx, "centerX");
+        final int centerZ = IntegerArgumentType.getInteger(ctx, "centerZ");
 
         World world = null;
 
-        if (sender instanceof Player player) {
+        if (sender instanceof final Player player) {
             world = player.world();
         }
 
@@ -105,11 +107,11 @@ public final class PregenCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        int total = (2 * radius + 1) * (2 * radius + 1);
+        final int total = (2 * radius + 1) * (2 * radius + 1);
 
         plugin.msg(sender, "Pre-generation de " + total + " chunks (rayon " + radius + ")...");
 
-        PregenTask task = new PregenTask(
+        final PregenTask task = new PregenTask(
                 world,
                 plugin.logger,
                 centerX,
@@ -128,10 +130,10 @@ public final class PregenCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int stopCommand(CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int stopCommand(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        PregenTask task = plugin.getTask();
+        final PregenTask task = plugin.getTask();
 
         task.cancel();
         plugin.msg(sender, "Arret de la pre-generation demande.");
@@ -139,10 +141,10 @@ public final class PregenCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int statusCommand(CommandContext<CommandSource> ctx) {
-        CommandSender sender = ctx.getSource().sender();
+    private static int statusCommand(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
 
-        PregenTask task = plugin.getTask();
+        final PregenTask task = plugin.getTask();
 
         if (!task.isRunning()) {
             plugin.msg(sender, "Aucune pre-generation en cours.");
@@ -155,8 +157,8 @@ public final class PregenCommand {
     }
 
     public static void resendCommands() {
-        Server server = plugin.server();
-        for (Player player : server.onlinePlayers()) {
+        final Server server = plugin.server();
+        for (final Player player : server.onlinePlayers()) {
             player.refreshCommands();
         }
     }

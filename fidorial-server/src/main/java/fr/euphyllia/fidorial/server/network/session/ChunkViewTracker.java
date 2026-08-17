@@ -27,6 +27,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
     private final ServerWorld world;
     private final ChunkNetworkSerializer serializer;
     private final int radius;
+    private final int forgetRadius;
     private volatile boolean closed;
 
     private final Object lock = new Object();
@@ -41,13 +42,15 @@ public final class ChunkViewTracker implements ChunkViewSource {
             final ThreadedChunkWorker chunkWorker,
             final ServerWorld world,
             final ChunkNetworkSerializer serializer,
-            final int radius
+            final int radius,
+            final int forgetRadius
     ) {
         this.connection = connection;
         this.chunkWorker = chunkWorker;
         this.world = world;
         this.serializer = serializer;
         this.radius = radius;
+        this.forgetRadius = Math.max(radius, forgetRadius);
     }
 
     private static void emit(final Set<Long> source, final LongConsumer keys) {
@@ -116,7 +119,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
                 final long key = it.next();
                 final int cx = (int) (key >> 32);
                 final int cz = (int) key;
-                if (!inRange(cx, cz, centerX, centerZ)) {
+                if (!inRange(cx, cz, centerX, centerZ, forgetRadius)) {
                     connection.send(new ClientboundForgetLevelChunkPacket(cx, cz));
                     it.remove();
                 }
@@ -161,7 +164,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
                 return;
             }
 
-            if (!inRange(cx, cz, centerX, centerZ) || !sent.add(key)) {
+            if (!inRange(cx, cz, centerX, centerZ, forgetRadius) || !sent.add(key)) {
                 return;
             }
         }
@@ -177,8 +180,8 @@ public final class ChunkViewTracker implements ChunkViewSource {
         connection.send(packet);
     }
 
-    private boolean inRange(final int cx, final int cz, final int centerX, final int centerZ) {
-        return Math.abs(cx - centerX) <= radius && Math.abs(cz - centerZ) <= radius;
+    private boolean inRange(final int cx, final int cz, final int centerX, final int centerZ, final int range) {
+        return Math.abs(cx - centerX) <= range && Math.abs(cz - centerZ) <= range;
     }
 
     public ChunkPos center() {

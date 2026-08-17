@@ -80,7 +80,7 @@ public final class ChunkNetworkSerializer {
             p.writeShort(blockEntity.y());
             p.writeVarInt(blockEntity.protocolId());
             p.writeNbt(blockEntity.data());
-            LOGGER.info("BlockEntity : " + blockEntity.type() + " protocolId : " + blockEntity.protocolId());
+            LOGGER.debug("BlockEntity : {} protocolId : {}", blockEntity.type(), blockEntity.protocolId());
         }
     }
 
@@ -100,27 +100,46 @@ public final class ChunkNetworkSerializer {
     }
 
     private void writeSection(final PacketBuffer sp, final ChunkSection section) {
-        final PalettedContainer<BlockState> blocks = section.blocks();
+        final PalettedContainer.PalettedContainerSnapshot<BlockState> snap = section.blocks().snapshot();
 
-        sp.writeShort(section.nonAirCount());   // nonEmptyBlockCount
-        sp.writeShort(section.fluidCount());    // fluidCount
+        final int[] occurrences = new int[snap.palette().size()];
+        for (final int index : snap.data()) {
+            occurrences[index]++;
+        }
 
-        if (blocks.isSingleValue()) {
-            final int stateId = blockRegistry.networkId(blocks.palette().getFirst());
+        int nonAir = 0;
+        int fluid = 0;
+        for (int index = 0; index < occurrences.length; index++) {
+            final BlockState state = snap.palette().get(index);
+            if (!state.isAir()) {
+                nonAir += occurrences[index];
+            }
+            if (state.isFluid()) {
+                fluid += occurrences[index];
+            }
+        }
+
+        sp.writeShort(nonAir);   // nonEmptyBlockCount
+        sp.writeShort(fluid);    // fluidCount
+
+
+        if (snap.palette().size() == 1) {
+            final int stateId = blockRegistry.networkId(snap.palette().getFirst());
             sp.writeByte(0);           // bitsPerEntry = 0 (single value)
             sp.writeVarInt(stateId);   // valeur unique, pas de tableau de longs
         } else {
-            writeIndirectSection(sp, blocks);
+            writeIndirectSection(sp, snap);
         }
 
         writeBiomes(sp, section.biomes());
     }
 
-    private void writeIndirectSection(final PacketBuffer sp, final PalettedContainer<BlockState> blocks) {
-        final PalettedContainer.PalettedContainerSnapshot<BlockState> snap = blocks.snapshot();
-        final int bits = Math.max(4, BitPacking.bitsFor(snap.palette().size(), snap.minBits()));
+    private void writeIndirectSection(final PacketBuffer sp, final PalettedContainer.PalettedContainerSnapshot<BlockState> snap) {
+        final int size = snap.palette().size();
+        final int bits = Math.max(4, BitPacking.bitsFor(size, snap.minBits()));
+
         sp.writeByte(bits);
-        sp.writeVarInt(snap.palette().size());
+        sp.writeVarInt(size);
         for (final BlockState state : snap.palette()) {
             sp.writeVarInt(blockRegistry.networkId(state));
         }
@@ -128,7 +147,8 @@ public final class ChunkNetworkSerializer {
     }
 
     private void writeBiomes(final PacketBuffer sp, final PalettedContainer<Key> container) {
-        final List<Key> palette = container.palette();
+        final PalettedContainer.PalettedContainerSnapshot<Key> snap = container.snapshot();
+        final List<Key> palette = snap.palette();
 
         if (palette.size() == 1) {
             sp.writeByte(0);

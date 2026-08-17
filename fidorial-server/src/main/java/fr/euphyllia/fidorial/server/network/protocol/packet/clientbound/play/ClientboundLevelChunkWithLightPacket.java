@@ -5,11 +5,34 @@ import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPack
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import net.kyori.adventure.key.Key;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Packets#Chunk_Data_and_Update_Light
-public record ClientboundLevelChunkWithLightPacket(ChunkNetworkSerializer serializer, ChunkColumn column)
-        implements ClientboundPacket {
+public final class ClientboundLevelChunkWithLightPacket implements ClientboundPacket {
+
+    private final byte[] payload;
+
+    public ClientboundLevelChunkWithLightPacket(
+            final ChunkNetworkSerializer serializer, final ChunkColumn column) {
+        this(serializer, column, ByteBufAllocator.DEFAULT);
+    }
+
+    public ClientboundLevelChunkWithLightPacket(
+            final ChunkNetworkSerializer serializer,
+            final ChunkColumn column,
+            final ByteBufAllocator allocator) {
+
+        final ByteBuf scratch = allocator.buffer();
+        try {
+            serializer.writeChunk(new PacketBuffer(scratch), allocator, column);
+            this.payload = new byte[scratch.readableBytes()];
+            scratch.readBytes(this.payload);
+        } finally {
+            scratch.release();
+        }
+    }
 
     @Override
     public Key name() {
@@ -17,7 +40,7 @@ public record ClientboundLevelChunkWithLightPacket(ChunkNetworkSerializer serial
     }
 
     @Override
-    public void write(PacketBuffer buf) {
-        serializer.writeChunk(buf, buf.nettyBuf().alloc(), column);
+    public void write(final PacketBuffer buf) {
+        buf.writeRawBytes(payload);
     }
 }

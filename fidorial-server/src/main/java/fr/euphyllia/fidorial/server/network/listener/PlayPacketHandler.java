@@ -257,7 +257,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 server.chunkWorker(),
                 world,
                 new ChunkNetworkSerializer(server.blockStateRegistry(), server.biomeRegistry()),
-                config.sendDistance());
+                config.sendDistance(),
+                config.viewDistance());
         this.ticket = spawnChunk;
         world.addViewer(chunkView);
         server.regionizer().addTicket(worldId(), ticket);
