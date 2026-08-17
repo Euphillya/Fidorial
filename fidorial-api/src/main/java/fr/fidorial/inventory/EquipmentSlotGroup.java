@@ -1,4 +1,4 @@
-package fr.fidorial.attribute;
+package fr.fidorial.inventory;
 
 import org.jspecify.annotations.Nullable;
 
@@ -10,7 +10,7 @@ public enum EquipmentSlotGroup {
     OFF_HAND(2, "offhand"),
     HAND(3, "hand"),
     FEET(4, "feet"),
-    LEGS(5, "legs"),
+    v(5, "legs"),
     CHEST(6, "chest"),
     HEAD(7, "head"),
     ARMOR(8, "armor"),
@@ -19,7 +19,7 @@ public enum EquipmentSlotGroup {
     private final int networkId;
     private final String serializedName;
 
-    EquipmentSlotGroup(int networkId, String serializedName) {
+    EquipmentSlotGroup(final int networkId, final String serializedName) {
         this.networkId = networkId;
         this.serializedName = serializedName;
     }
@@ -32,12 +32,12 @@ public enum EquipmentSlotGroup {
         return serializedName;
     }
 
-    public static EquipmentSlotGroup byName(@Nullable String name) {
+    public static EquipmentSlotGroup byName(@Nullable final String name) {
         if (name == null) {
             return ANY;
         }
-        String lower = name.toLowerCase(Locale.ROOT);
-        for (EquipmentSlotGroup group : values()) {
+        final String lower = name.toLowerCase(Locale.ROOT);
+        for (final EquipmentSlotGroup group : values()) {
             if (group.serializedName.equals(lower)) {
                 return group;
             }
