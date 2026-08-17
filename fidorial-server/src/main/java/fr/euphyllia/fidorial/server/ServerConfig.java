@@ -27,6 +27,7 @@ public record ServerConfig(
         int autoSaveSeconds,
         int regionWorkers,
         int chunkWorkers,
+        int lightWorkers,
         int aiWorkers,
         int regionShift,
         GameMode defaultGameMode,
@@ -99,6 +100,7 @@ public record ServerConfig(
                 Math.max(2, cpus / 2),
                 Math.max(2, cpus / 8),
                 Math.max(2, cpus / 8),
+                Math.max(2, cpus / 8),
                 5,
                 GameMode.SURVIVAL,
                 WorldConstants.DEFAULT_SPAWN_X,
@@ -145,6 +147,7 @@ public record ServerConfig(
                 readInt(props, "auto-save-seconds", defaults.autoSaveSeconds()),
                 readInt(props, "region-workers", defaults.regionWorkers()),
                 readInt(props, "chunk-workers", defaults.chunkWorkers()),
+                readInt(props, "light-workers", defaults.lightWorkers()),
                 readInt(props, "ai-workers", defaults.aiWorkers()),
                 readInt(props, "region-section-shift", defaults.regionShift()),
                 readGameMode(props, "default-game-mode", defaults.defaultGameMode()),
@@ -286,6 +289,7 @@ public record ServerConfig(
         props.setProperty("auto-save-seconds", Integer.toString(autoSaveSeconds));
         props.setProperty("region-workers", Integer.toString(regionWorkers));
         props.setProperty("chunk-workers", Integer.toString(chunkWorkers));
+        props.setProperty("light-workers", Integer.toString(lightWorkers));
         props.setProperty("ai-workers", Integer.toString(aiWorkers));
         props.setProperty("region-section-shift", Integer.toString(regionShift));
         props.setProperty("default-game-mode", defaultGameMode.name().toLowerCase(Locale.ROOT));

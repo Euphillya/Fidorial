@@ -172,7 +172,7 @@ public final class FidorialServer implements Server {
     private final ChunkNetworkSerializer chunkSerializer = new ChunkNetworkSerializer(blockStateRegistry, registries.biomes());
     private final AtomicInteger lightThreadId = new AtomicInteger();
     private final ExecutorService lightPool = Executors.newFixedThreadPool(
-            Math.max(1, Runtime.getRuntime().availableProcessors() / 3),
+            config.lightWorkers(),
             r -> Thread.ofPlatform().name("fidorial-light-%d".formatted(lightThreadId.incrementAndGet())).unstarted(r));
 
     private final LightUpdateDispatcher lightDispatcher = new LightUpdateDispatcher(
