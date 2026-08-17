@@ -11,18 +11,12 @@ import java.util.Set;
 public class WorldLightManager {
 
     private final LightAccess access;
-    private final LightEngine engine;
 
-    public WorldLightManager(final int minY, final int height, final LightAccess access) {
-        this(access, new FloodFillLightEngine(minY, height));
-    }
-
-    public WorldLightManager(final LightAccess access, final LightEngine engine) {
+    public WorldLightManager(final LightAccess access) {
         this.access = access;
-        this.engine = engine;
     }
 
-    public synchronized boolean lightChunkIfNeeded(final ChunkColumn column, final int chunkX, final int chunkZ) {
+    public boolean lightChunkIfNeeded(final ChunkColumn column, final int chunkX, final int chunkZ, final LightEngine engine) {
         if (access.lightAt(chunkX, chunkZ) == null) {
             return false;
         }
@@ -31,11 +25,11 @@ public class WorldLightManager {
         return true;
     }
 
-    public synchronized Set<Long> checkBlock(final int x, final int y, final int z) {
+    public Set<Long> checkBlock(final int x, final int y, final int z, final LightEngine engine) {
         return engine.checkBlock(x, y, z, access);
     }
 
-    public synchronized Set<Long> checkChunkEdges(final Set<Long> chunkKeys) {
+    public Set<Long> checkChunkEdges(final Set<Long> chunkKeys, final LightEngine engine) {
         final LongSet dirty = new LongOpenHashSet();
         final LongSet processedPairs = new LongOpenHashSet();
 
@@ -71,7 +65,7 @@ public class WorldLightManager {
         return lo * 0x9E3779B97F4A7C15L ^ hi;
     }
 
-    public synchronized Set<Long> relightChunks(final Set<Long> chunkKeys) {
+    public Set<Long> relightChunks(final Set<Long> chunkKeys, final LightEngine engine) {
         final LongSet loaded = new LongOpenHashSet();
         for (final long key : chunkKeys) {
             if (access.lightAt((int) (key >> 32), (int) key) != null) {

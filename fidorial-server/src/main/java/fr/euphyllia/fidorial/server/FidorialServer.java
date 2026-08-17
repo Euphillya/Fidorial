@@ -111,10 +111,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class FidorialServer implements Server {
 
@@ -168,11 +170,13 @@ public final class FidorialServer implements Server {
     private final BossBarRegistry bossBarRegistry = new BossBarRegistry(worldManager.levelData(), this::players);
     private final DayNightThread dayNightEngine = new DayNightThread(worldManager, registries.dynamic());
     private final ChunkNetworkSerializer chunkSerializer = new ChunkNetworkSerializer(blockStateRegistry, registries.biomes());
-    private final ScheduledExecutorService lightWorker = Executors.newSingleThreadScheduledExecutor(
-            r -> Thread.ofPlatform().name("fidorial-light").unstarted(r));
+    private final AtomicInteger lightThreadId = new AtomicInteger();
+    private final ExecutorService lightPool = Executors.newFixedThreadPool(
+            Math.max(1, Runtime.getRuntime().availableProcessors() / 3),
+            r -> Thread.ofPlatform().name("fidorial-light-%d".formatted(lightThreadId.incrementAndGet())).unstarted(r));
 
     private final LightUpdateDispatcher lightDispatcher = new LightUpdateDispatcher(
-            lightWorker, this::broadcast, chunkSerializer, worldManager::world);
+            lightPool, WorldConstants.MIN_Y, WorldConstants.HEIGHT, this::broadcast, chunkSerializer, worldManager::world);
     private final BlockEditService blockEdits = new BlockEditService(
             blockStateRegistry,
             (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),
@@ -277,7 +281,7 @@ public final class FidorialServer implements Server {
         closeQuietly("bossbars", bossBarRegistry::close);
         closeQuietly("day/night cycle", dayNightEngine::close);
         closeQuietly("network", network::shutdown);
-        closeQuietly("light engine", lightWorker::shutdownNow);
+        closeQuietly("light engine", lightPool::shutdownNow);
         closeQuietly("auto-save", autoSave::shutdownNow);
         closeQuietly("ia", aiWorker::shutdown);
         closeQuietly("regions", regionizer::shutdown);

@@ -144,8 +144,8 @@ public class PregenTask {
         }
 
         return world.getChunkAsync(chunkX, chunkZ)
-                .thenCompose(c -> world.unloadChunkAsync(chunkX, chunkZ).thenApply(x -> c))
-                .whenComplete((ignored, error) -> {
+                .thenCompose(c -> world.unloadChunkAsync(chunkX, chunkZ).thenApply(_ -> c))
+                .whenComplete((_, error) -> {
                     inFlight.release();
                     if (error != null) {
                         failed.incrementAndGet();
