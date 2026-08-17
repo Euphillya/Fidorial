@@ -5,16 +5,20 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import fr.euphyllia.fidorial.server.world.light.FloodFillLightEngine;
+import fr.euphyllia.fidorial.server.world.light.LightEnginePool;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.ChunkPos;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongIterator;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -22,7 +26,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -30,10 +35,14 @@ public class LightUpdateDispatcher {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(LightUpdateDispatcher.class);
 
-    private final Executor worker;
+    private static final int CLUSTER_SHIFT = 3; // seems to give the most optimal CPS
+
+    private final ExecutorService lightPool;
     private final Consumer<ClientboundPacket> broadcaster;
     private final ChunkNetworkSerializer serializer;
     private final Function<Key, @Nullable ServerWorld> worldLookup;
+    private final LightEnginePool enginePool;
+    private final ChunkRegionScheduler regionScheduler;
 
     private final Map<Key, WorldLightState> states = new ConcurrentHashMap<>();
 
@@ -43,12 +52,16 @@ public class LightUpdateDispatcher {
     private final Set<Key> scheduledChunks = ConcurrentHashMap.newKeySet();
 
     public LightUpdateDispatcher(
-            final Executor worker,
+            final ExecutorService lightPool,
+            final int minY,
+            final int height,
             final Consumer<ClientboundPacket> broadcaster,
             final ChunkNetworkSerializer serializer,
             final Function<Key, @Nullable ServerWorld> worldLookup
     ) {
-        this.worker = worker;
+        this.lightPool = lightPool;
+        this.enginePool = new LightEnginePool(((ThreadPoolExecutor) lightPool).getMaximumPoolSize(), minY, height);
+        this.regionScheduler = new ChunkRegionScheduler(lightPool);
         this.broadcaster = broadcaster;
         this.serializer = serializer;
         this.worldLookup = worldLookup;
@@ -66,20 +79,18 @@ public class LightUpdateDispatcher {
 
     public void queueChunkLoad(final Key world, final int chunkX, final int chunkZ) {
         final Set<Long> set = pendingChunks.computeIfAbsent(world, _ -> ConcurrentHashMap.newKeySet());
-        final long[] added = new long[9];
-        int count = 0;
+        final WorldLightState state = stateFor(world);
 
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dz = -1; dz <= 1; dz++) {
-                final long key = ChunkPos.chunkKey(chunkX + dx, chunkZ + dz);
-                if (set.add(key)) {
-                    added[count++] = key;
+        synchronized (state) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    final long key = ChunkPos.chunkKey(chunkX + dx, chunkZ + dz);
+                    state.refCounts.addTo(key, 1);
+                    if (!set.add(key)) {
+                        state.refCounts.addTo(key, -1);
+                    }
                 }
             }
-        }
-
-        if (count != 0) {
-            increment(world, added, count);
         }
 
         scheduleChunks(world);
@@ -128,96 +139,159 @@ public class LightUpdateDispatcher {
     }
 
     private void drainBlocks(final Key world) {
-        int processed = 0;
-        try {
-            final Queue<BlockPos> queue = pendingBlocks.get(world);
-            if (queue == null || queue.isEmpty()) {
-                return;
-            }
-            final ServerWorld serverWorld = worldLookup.apply(world);
-            if (serverWorld == null) {
-                BlockPos drained;
-                while ((drained = queue.poll()) != null) {
-                    processed++;
-                    decrementArea(world, drained.x() >> 4, drained.z() >> 4);
-                }
-                return;
-            }
+        final Queue<BlockPos> queue = pendingBlocks.get(world);
+        if (queue == null) {
+            scheduledBlocks.remove(world);
+            return;
+        }
 
-            final Set<Long> dirtyChunks = new HashSet<>();
+        final ServerWorld serverWorld = worldLookup.apply(world);
+        if (!queue.isEmpty() && serverWorld != null) {
+            final Long2ObjectOpenHashMap<List<BlockPos>> byCluster = new Long2ObjectOpenHashMap<>();
+            int processed = 0;
             BlockPos pos;
             while (processed < 4096 && (pos = queue.poll()) != null) {
                 processed++;
-                dirtyChunks.addAll(serverWorld.checkBlockLight(pos.x(), pos.y(), pos.z()));
-                decrementArea(world, pos.x() >> 4, pos.z() >> 4);
+                final int cx = pos.x() >> 4;
+                final int cz = pos.z() >> 4;
+                final long clusterKey = ChunkPos.chunkKey(cx >> CLUSTER_SHIFT, cz >> CLUSTER_SHIFT);
+                byCluster.computeIfAbsent(clusterKey, _ -> new ArrayList<>()).add(pos);
             }
 
-            for (final long key : dirtyChunks) {
-                final ChunkColumn column = serverWorld.loadedColumn((int) (key >> 32), (int) key);
-                if (column != null) {
-                    final ClientboundLightUpdatePacket packet;
-                    synchronized (serverWorld.lightManager()) {
-                        packet = new ClientboundLightUpdatePacket(serializer, column);
-                    }
-                    broadcaster.accept(packet);
+            for (final Long2ObjectOpenHashMap.Entry<List<BlockPos>> entry : byCluster.long2ObjectEntrySet()) {
+                final List<BlockPos> positions = entry.getValue();
+                final LongOpenHashSet chunkKeys = new LongOpenHashSet();
+                for (final BlockPos p : positions) {
+                    chunkKeys.add(ChunkPos.chunkKey(p.x() >> 4, p.z() >> 4));
                 }
+                final LongSet lockKeys = withNeighborRing(chunkKeys);
+
+                regionScheduler.submit(lockKeys, () -> {
+                    FloodFillLightEngine engine = null;
+                    try {
+                        engine = enginePool.acquire();
+                        final LongOpenHashSet dirtyChunks = new LongOpenHashSet();
+                        for (final BlockPos p : positions) {
+                            dirtyChunks.addAll(serverWorld.checkBlockLight(p.x(), p.y(), p.z(), engine));
+                        }
+                        if (!dirtyChunks.isEmpty()) {
+                            final LongSet viewedChunks = serverWorld.collectAllViewedChunks();
+                            final LongIterator dirtyIt = dirtyChunks.iterator();
+                            while (dirtyIt.hasNext()) {
+                                final long key = dirtyIt.nextLong();
+                                if (!viewedChunks.contains(key)) continue;
+                                final ChunkColumn column = serverWorld.loadedColumn((int) (key >> 32), (int) key);
+                                if (column == null) {
+                                    continue;
+                                }
+                                broadcaster.accept(new ClientboundLightUpdatePacket(serializer, column));
+                            }
+                        }
+                    } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    } finally {
+                        for (final BlockPos p : positions) {
+                            decrementArea(world, p.x() >> 4, p.z() >> 4);
+                        }
+                        if (engine != null) {
+                            enginePool.release(engine);
+                        }
+                    }
+                });
             }
-        } catch (final Throwable t) {
-            LOGGER.error("Lighting recalculation impossible for world {}", world, t);
-        } finally {
-            scheduledBlocks.remove(world);
         }
-        final Queue<BlockPos> stragglers = pendingBlocks.get(world);
-        if (stragglers != null && !stragglers.isEmpty()) {
+        scheduledBlocks.remove(world);
+        if (!queue.isEmpty()) {
             scheduleBlocks(world);
         }
     }
 
+    private static LongSet withNeighborRing(final LongOpenHashSet chunkKeys) {
+        final LongOpenHashSet ring = new LongOpenHashSet(chunkKeys);
+        final LongIterator it = chunkKeys.iterator();
+        while (it.hasNext()) {
+            final long key = it.nextLong();
+            final int cx = (int) (key >> 32), cz = (int) key;
+            for (int dx = -1; dx <= 1; dx++)
+                for (int dz = -1; dz <= 1; dz++) {
+                    final long nk = ChunkPos.chunkKey(cx + dx, cz + dz);
+                    if (!chunkKeys.contains(nk)) ring.add(nk);
+                }
+        }
+        return ring;
+    }
+
     private void drainChunks(final Key world) {
-        Set<Long> batch = null;
-        try {
-            batch = pendingChunks.remove(world);
-            if (batch != null && !batch.isEmpty()) {
-                final ServerWorld serverWorld = worldLookup.apply(world);
-                if (serverWorld != null) {
-                    final Set<Long> dirty = serverWorld.relightChunks(batch);
-                    for (final long key : dirty) {
-                        final ChunkColumn column = serverWorld.loadedColumn((int) (key >> 32), (int) key);
-                        if (column != null) {
-                            final ClientboundLightUpdatePacket packet;
-                            synchronized (serverWorld.lightManager()) {
-                                packet = new ClientboundLightUpdatePacket(serializer, column);
-                            }
-                            broadcaster.accept(packet);
-                        }
-                    }
-                }
-            }
-        } catch (final Throwable t) {
-            LOGGER.error("Lighting recalculation impossible for world {}", world, t);
-        } finally {
+        final Set<Long> pending = pendingChunks.get(world);
+        if (pending == null) {
             scheduledChunks.remove(world);
-            if (batch != null && !batch.isEmpty()) {
-                final long[] keys = new long[batch.size()];
-                int i = 0;
-                for (final long key : batch) {
-                    keys[i++] = key;
+            return;
+        }
+
+        if (!pending.isEmpty()) {
+            final LongOpenHashSet snapshot = new LongOpenHashSet(pending);
+            pending.removeAll(snapshot);
+
+            final ServerWorld serverWorld = worldLookup.apply(world);
+            if (serverWorld == null) {
+                decrement(world, snapshot.toLongArray());
+            } else if (!snapshot.isEmpty()) {
+                final Long2ObjectOpenHashMap<LongOpenHashSet> clusters = new Long2ObjectOpenHashMap<>();
+                final LongIterator snapIt = snapshot.iterator();
+                while (snapIt.hasNext()) {
+                    final long key = snapIt.nextLong();
+                    final int cx = (int) (key >> 32);
+                    final int cz = (int) key;
+                    final long clusterKey = ChunkPos.chunkKey(cx >> CLUSTER_SHIFT, cz >> CLUSTER_SHIFT);
+                    clusters.computeIfAbsent(clusterKey, _ -> new LongOpenHashSet()).add(key);
                 }
-                decrement(world, keys);
+                for (final LongOpenHashSet subBatch : clusters.values()) {
+                    submitRelightTask(world, serverWorld, subBatch);
+                }
             }
         }
-        final Set<Long> stragglers = pendingChunks.get(world);
-        if (stragglers != null && !stragglers.isEmpty()) {
+
+        scheduledChunks.remove(world);
+        if (!pending.isEmpty()) {
             scheduleChunks(world);
         }
     }
 
+    private void submitRelightTask(final Key world, final ServerWorld serverWorld, final LongOpenHashSet subBatch) {
+        final LongSet lockKeys = withNeighborRing(subBatch);
+        regionScheduler.submit(lockKeys, () -> {
+            FloodFillLightEngine engine = null;
+            try {
+                engine = enginePool.acquire();
+                final Set<Long> dirtyChunks = serverWorld.relightChunks(subBatch, engine);
+                if (!dirtyChunks.isEmpty()) {
+                    final LongSet viewedChunks = serverWorld.collectAllViewedChunks();
+                    for (final long key : dirtyChunks) {
+                        if (!viewedChunks.contains(key)) continue;
+                        final ChunkColumn column = serverWorld.loadedColumn((int) (key >> 32), (int) key);
+                        if (column == null) {
+                            continue;
+                        }
+                        broadcaster.accept(new ClientboundLightUpdatePacket(serializer, column));
+                    }
+                }
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (final Throwable t) {
+                LOGGER.error("Lighting recalculation impossible for world {}", world, t);
+            } finally {
+                if (engine != null) enginePool.release(engine);
+                decrement(world, subBatch.toLongArray());
+            }
+        });
+    }
+
     private void scheduleBlocks(final Key world) {
-        if (scheduledBlocks.add(world)) worker.execute(() -> drainBlocks(world));
+        if (scheduledBlocks.add(world)) lightPool.execute(() -> drainBlocks(world));
     }
 
     private void scheduleChunks(final Key world) {
-        if (scheduledChunks.add(world)) worker.execute(() -> drainChunks(world));
+        if (scheduledChunks.add(world)) lightPool.execute(() -> drainChunks(world));
     }
 
     private WorldLightState stateFor(final Key world) {

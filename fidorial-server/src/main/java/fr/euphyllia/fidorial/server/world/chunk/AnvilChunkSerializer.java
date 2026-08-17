@@ -259,6 +259,6 @@ public class AnvilChunkSerializer {
                 map.put(key, st.value());
             }
         }
-        return new BlockState(Key.key(name), map);
+        return BlockState.of(Key.key(name), map);
     }
 }

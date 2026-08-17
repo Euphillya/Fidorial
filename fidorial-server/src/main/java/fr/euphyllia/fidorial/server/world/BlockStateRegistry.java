@@ -28,7 +28,7 @@ public record BlockStateRegistry(BlockRegistry registry) {
         if (data == null) {
             return BlockState.AIR;
         }
-        return new BlockState(data.key(), data.propertyMap());
+        return BlockState.of(data.key(), data.propertyMap());
     }
 
     public boolean contains(final BlockState state) {
@@ -36,7 +36,7 @@ public record BlockStateRegistry(BlockRegistry registry) {
     }
 
     public BlockState toBlockState(final BlockData data) {
-        return new BlockState(data.key(), data.propertyMap());
+        return BlockState.of(data.key(), data.propertyMap());
     }
 
     @SuppressWarnings("PatternValidation")
@@ -75,11 +75,11 @@ public record BlockStateRegistry(BlockRegistry registry) {
         }
 
         if (itemId.equals(Key.key("water_bucket"))) {
-            return new BlockState(Key.key("water"), Map.of("level", "0"));
+            return BlockState.of(Key.key("water"), Map.of("level", "0"));
         }
 
         if (itemId.equals(Key.key("lava_bucket"))) {
-            return new BlockState(Key.key("lava"), Map.of("level", "0"));
+            return BlockState.of(Key.key("lava"), Map.of("level", "0"));
         }
 
         final BlockState candidate = BlockState.of(itemId);

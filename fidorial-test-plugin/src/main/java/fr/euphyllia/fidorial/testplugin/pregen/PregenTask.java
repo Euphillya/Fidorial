@@ -101,7 +101,7 @@ public class PregenTask {
                     if (cancelled) {
                         break outer;
                     }
-                    submit(this.world, centerX + dx, centerZ + dz).get();
+                    submit(this.world, centerX + dx, centerZ + dz);
 
                     if (System.currentTimeMillis() >= nextReport) {
                         nextReport = System.currentTimeMillis() + REPORT_PERIOD_MS;
@@ -144,8 +144,8 @@ public class PregenTask {
         }
 
         return world.getChunkAsync(chunkX, chunkZ)
-                .thenCompose(c -> world.unloadChunkAsync(chunkX, chunkZ).thenApply(x -> c))
-                .whenComplete((ignored, error) -> {
+                .thenCompose(c -> world.unloadChunkAsync(chunkX, chunkZ).thenApply(_ -> c))
+                .whenComplete((_, error) -> {
                     inFlight.release();
                     if (error != null) {
                         failed.incrementAndGet();

@@ -37,27 +37,28 @@ public class BlockLightProperties {
             state.setLightProperties(AIR_PROPS);
             return AIR_PROPS;
         }
-        final Resolved resolved = resolve(state);
-        if (resolved == null) {
-            // unknown so don't cache
+
+        final BlockRegistry registry;
+        try {
+            registry = Blocks.registry();
+        } catch (final IllegalStateException _) {
+            // registry not bootstrapped yet
             return UNKNOWN_PROPS;
         }
-        final LightProperties props = new LightProperties(
+
+        final Resolved resolved = resolve(registry, state);
+        final LightProperties props = resolved == null
+                ? UNKNOWN_PROPS
+                : new LightProperties(
                 resolved.behaviour().lightOpacity(resolved.data()),
-                resolved.behaviour().lightEmission(resolved.data())
-        );
+                resolved.behaviour().lightEmission(resolved.data()));
+
         state.setLightProperties(props);
         return props;
     }
 
     @SuppressWarnings("PatternValidation")
-    private static @Nullable Resolved resolve(final BlockState state) {
-        final BlockRegistry registry;
-        try {
-            registry = Blocks.registry();
-        } catch (final IllegalStateException notBootstrapped) {
-            return null;
-        }
+    private static @Nullable Resolved resolve(final BlockRegistry registry, final BlockState state) {
         final BlockBehaviour behaviour = registry.behaviour(state.name()).orElse(null);
         if (behaviour == null) {
             return null;

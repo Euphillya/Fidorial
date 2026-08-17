@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Resolves which {@code minecraft:block_entity_type} a block carries.
@@ -39,6 +40,17 @@ public final class BlockEntityTypes {
      */
     private static final Set<Key> SUFFIX_EXCLUSIONS = Set.of(Key.key("piston_head"));
 
+    /**
+     * Sentinel stored in {@link #CACHE} for blocks resolved to carry no block
+     * entity.
+     */
+    private static final Key NONE = Key.key("fidorial", "none");
+
+    /**
+     * Memorizes {@link #computeResolution(Key)} per block identifier.
+     */
+    private static final Map<Key, Key> CACHE = new ConcurrentHashMap<>();
+
     private BlockEntityTypes() {
         throw new UnsupportedOperationException();
     }
@@ -52,22 +64,8 @@ public final class BlockEntityTypes {
      *         the block has no block entity
      */
     public static Optional<Key> typeIdentifier(final Key blockIdentifier) {
-        final Key exact = EXACT_BLOCKS.get(blockIdentifier);
-        if (exact != null) {
-            return Optional.of(exact);
-        }
-
-        if (SUFFIX_EXCLUSIONS.contains(blockIdentifier)) {
-            return Optional.empty();
-        }
-
-        for (final Map.Entry<String, Key> rule : SUFFIX_RULES.entrySet()) {
-            if (blockIdentifier.value().endsWith(rule.getKey())) {
-                return Optional.of(rule.getValue());
-            }
-        }
-
-        return Optional.empty();
+        final Key resolved = resolve(blockIdentifier);
+        return resolved == NONE ? Optional.empty() : Optional.of(resolved);
     }
 
     /**
@@ -80,10 +78,8 @@ public final class BlockEntityTypes {
      *         from the current registry
      */
     public static int protocolId(final Key blockIdentifier) {
-
-        return typeIdentifier(blockIdentifier)
-                .map(BlockEntityTypeIds::id)
-                .orElse(BlockEntityTypeIds.UNKNOWN);
+        final Key resolved = resolve(blockIdentifier);
+        return resolved == NONE ? BlockEntityTypeIds.UNKNOWN : BlockEntityTypeIds.id(resolved);
     }
 
     /**
@@ -95,6 +91,43 @@ public final class BlockEntityTypes {
      */
     public static boolean hasBlockEntity(final Key blockIdentifier) {
         return protocolId(blockIdentifier) != BlockEntityTypeIds.UNKNOWN;
+    }
+
+    /**
+     * Resolves and caches the block entity type identifier for a block, or
+     * {@link #NONE} when it carries none.
+     */
+    private static Key resolve(final Key blockIdentifier) {
+        final Key cached = CACHE.get(blockIdentifier);
+        if (cached != null) {
+            return cached;
+        }
+        final Key computed = computeResolution(blockIdentifier);
+        CACHE.put(blockIdentifier, computed);
+        return computed;
+    }
+
+    /**
+     * Performs the actual resolution uncached.
+     */
+    private static Key computeResolution(final Key blockIdentifier) {
+        final Key exact = EXACT_BLOCKS.get(blockIdentifier);
+        if (exact != null) {
+            return exact;
+        }
+
+        if (SUFFIX_EXCLUSIONS.contains(blockIdentifier)) {
+            return NONE;
+        }
+
+        final String value = blockIdentifier.value();
+        for (final Map.Entry<String, Key> rule : SUFFIX_RULES.entrySet()) {
+            if (value.endsWith(rule.getKey())) {
+                return rule.getValue();
+            }
+        }
+
+        return NONE;
     }
 
     private static Map<String, Key> suffixRules() {

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 // To be generated
 @SuppressWarnings("unused")
@@ -36,8 +37,9 @@ public final class BlockState {
     private final boolean fluid;
 
     private volatile LightProperties lightProperties;
+    private static final ConcurrentHashMap<BlockState, BlockState> INTERN = new ConcurrentHashMap<>();
 
-    public BlockState(final Key name, final Map<String, String> properties) {
+    private BlockState(final Key name, final Map<String, String> properties) {
         this.name = name;
         this.properties = properties.isEmpty()
                 ? Collections.emptyMap()
@@ -49,6 +51,12 @@ public final class BlockState {
 
     public static BlockState of(final Key name) {
         return new BlockState(name, Collections.emptyMap());
+    }
+
+    public static BlockState of(final Key name, final Map<String, String> properties) {
+        final BlockState candidate = new BlockState(name, properties);
+        final BlockState existing = INTERN.putIfAbsent(candidate, candidate);
+        return existing != null ? existing : candidate;
     }
 
     public Key name() {
