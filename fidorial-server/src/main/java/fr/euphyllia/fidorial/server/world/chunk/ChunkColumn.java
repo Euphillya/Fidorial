@@ -170,6 +170,9 @@ public final class ChunkColumn {
     }
 
     public @Nullable BlockEntity removeBlockEntity(final int localX, final int worldY, final int localZ) {
+        if (blockEntities.isEmpty()) {
+            return null;
+        }
         return blockEntities.remove(BlockEntity.positionKey(localX, worldY, localZ));
     }
 
