@@ -169,7 +169,7 @@ public final class LoginPacketHandler implements LoginPacketListener {
     }
 
     private void enableCompression() {
-        final int threshold = ProtocolConstants.COMPRESSION_THRESHOLD;
+        final int threshold = server.config().compressionThreshold();
         if (threshold < 0) {
             return;
         }
