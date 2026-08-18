@@ -14,7 +14,6 @@ import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.command.argument.resolvers.BlockPosResolver;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.registry.RegistryKey;
-import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.Biome;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.ChunkPos;
@@ -45,13 +44,13 @@ public class FillBiomeCommand {
                 .requires(source -> source.sender().hasPermission(PERMISSION))
                 .then(argument("from", ArgumentTypes.blockPosition())
                         .then(argument("to", ArgumentTypes.blockPosition())
-                                .then(argument("biome", ArgumentTypes.resourceKey(RegistryKey.BIOME))
+                                .then(argument("biome", ArgumentTypes.resource(RegistryKey.BIOME))
                                         .executes(context -> fill(context, null))
                                         .then(literal("replace")
-                                                .then(argument("filter", ArgumentTypes.resourceKey(RegistryKey.BIOME))
+                                                .then(argument("filter", ArgumentTypes.resource(RegistryKey.BIOME))
                                                         .executes(context -> fill(
                                                                 context,
-                                                                context.getArgument("filter", TypedKey.class).key())))))))
+                                                                context.getArgument("filter", Biome.class).key())))))))
                 .build();
     }
 
@@ -64,14 +63,8 @@ public class FillBiomeCommand {
         final BiomeRegistry biomes = server.biomes();
 
         @SuppressWarnings("unchecked")
-        final TypedKey<Biome> target = context.getArgument("biome", TypedKey.class);
+        final Biome target = context.getArgument("biome", Biome.class);
         final Key biome = target.key();
-
-        if (!biomes.contains(biome)) {
-            context.getSource().sender().sendMessage(
-                    Component.translatable("command.fillbiome.unknown", Component.text(biome.asString())));
-            return 0;
-        }
 
         if (filter != null && !biomes.contains(filter)) {
             context.getSource().sender().sendMessage(

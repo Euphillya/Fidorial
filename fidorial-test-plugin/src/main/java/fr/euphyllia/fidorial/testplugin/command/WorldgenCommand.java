@@ -11,6 +11,8 @@ import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.entity.Player;
+import fr.fidorial.registry.RegistryKey;
+import fr.fidorial.registry.data.Biome;
 import fr.fidorial.world.Location;
 import net.kyori.adventure.key.Key;
 
@@ -33,12 +35,12 @@ public final class WorldgenCommand {
                 .then(literal("info").executes(this::info))
                 .then(literal("spawn").executes(this::spawn))
                 .then(literal("locate")
-                        .then(argument("biome", ArgumentTypes.key())
-                                .executes(ctx -> locate(ctx, ctx.getArgument("biome", Key.class), DEFAULT_RADIUS))
+                        .then(argument("biome", ArgumentTypes.resource(RegistryKey.BIOME))
+                                .executes(ctx -> locate(ctx, ctx.getArgument("biome", Biome.class).key(), DEFAULT_RADIUS))
                                 .then(argument("radius", IntegerArgumentType.integer(16, 30000))
                                         .executes(ctx -> locate(
                                                 ctx,
-                                                ctx.getArgument("biome", Key.class),
+                                                ctx.getArgument("biome", Biome.class).key(),
                                                 IntegerArgumentType.getInteger(ctx, "radius"))))))
                 .build();
     }
