@@ -1,6 +1,7 @@
 package fr.fidorial;
 
 import fr.fidorial.command.CommandRegistry;
+import fr.fidorial.dialog.DialogRegistry;
 import fr.fidorial.entity.OfflinePlayers;
 import fr.fidorial.entity.Player;
 import fr.fidorial.event.EventBus;
@@ -139,6 +140,14 @@ public interface Server extends ForwardingAudience {
      */
     PermissionRegistry permissions();
 
+    /**
+     * Gets the server-wide dialog registry.
+     *
+     * @return the dialog registry
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    DialogRegistry dialogs();
 
     /**
      * Gets the server-wide biome registry.

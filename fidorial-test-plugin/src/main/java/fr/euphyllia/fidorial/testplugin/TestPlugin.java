@@ -2,8 +2,10 @@ package fr.euphyllia.fidorial.testplugin;
 
 import fr.euphyllia.fidorial.testplugin.command.ApiTestCommand;
 import fr.euphyllia.fidorial.testplugin.command.BiomeCommand;
+import fr.euphyllia.fidorial.testplugin.command.DialogCommand;
 import fr.euphyllia.fidorial.testplugin.command.PregenCommand;
 import fr.euphyllia.fidorial.testplugin.command.WorldgenCommand;
+import fr.euphyllia.fidorial.testplugin.dialog.TestDialogs;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
 import fr.euphyllia.fidorial.testplugin.terrain.TestBiomes;
 import fr.euphyllia.fidorial.testplugin.worldgen.GeneratorSettings;
@@ -16,6 +18,7 @@ import fr.fidorial.event.EventPriority;
 import fr.fidorial.event.player.BlockBreakEvent;
 import fr.fidorial.event.player.BlockPlaceEvent;
 import fr.fidorial.event.player.PlayerChatEvent;
+import fr.fidorial.event.player.PlayerDialogActionEvent;
 import fr.fidorial.event.player.PlayerJoinEvent;
 import fr.fidorial.event.player.PlayerLoginAttemptEvent;
 import fr.fidorial.event.player.PlayerQuitEvent;
@@ -35,6 +38,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -48,11 +52,28 @@ public final class TestPlugin implements Plugin {
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
 
     private final AtomicLong eventCount = new AtomicLong();
-    private @Nullable PluginContext context;
     public @Nullable ComponentLogger logger;
     public @Nullable Server server;
+    private @Nullable PluginContext context;
     private volatile @Nullable PregenTask task;
     private @Nullable OverworldGenerator generator;
+
+    private static long resolveSeed(final ComponentLogger logger) {
+        final String property = System.getProperty(SEED_PROPERTY);
+        if (property == null || property.isBlank()) {
+            return DEFAULT_SEED;
+        }
+        if (property.equalsIgnoreCase("random")) {
+            final long random = new Random().nextLong();
+            logger.info("[TestPlugin] Randomly selected seed: {}", random);
+            return random;
+        }
+        try {
+            return Long.parseLong(property.trim());
+        } catch (final NumberFormatException invalid) {
+            return property.hashCode();
+        }
+    }
 
     public @Nullable OverworldGenerator generator() {
         return generator;
@@ -82,21 +103,23 @@ public final class TestPlugin implements Plugin {
 
         TestBiomes.registerAll(context.server().biomes(), context.logger());
 
+        TestDialogs.registerAll(context.server().dialogs(), context.logger());
+
         final long seed = resolveSeed(context.logger());
         this.generator = new OverworldGenerator(GeneratorSettings.defaults(seed));
 
         context.services().register(WorldGenerator.class, generator, this);
         context.logger().info(
-                "[TestPlugin] Generateur d'Overworld enregistre (seed={}, niveau de la mer={})",
+                "[TestPlugin] Overworld generator saving (seed={}, sea level={})",
                 seed,
                 generator.settings().seaLevel());
 
         final int[] spawn = generator.findSpawn(0, 0, 4000, -64, 319);
         if (spawn == null) {
-            context.logger().warn("[TestPlugin] Aucun point d'apparition emerge trouve pres de l'origine.");
+            context.logger().warn("[TestPlugin] No spawn point found near the origin.");
         } else {
             context.logger().info(
-                    "[TestPlugin] Point d'apparition conseille : spawn-x={} spawn-y={} spawn-z={}",
+                    "[TestPlugin] Spawn point coordinates: spawn-x={} spawn-y={} spawn-z={}",
                     spawn[0] + 0.5,
                     spawn[1],
                     spawn[2] + 0.5);
@@ -111,39 +134,23 @@ public final class TestPlugin implements Plugin {
 
     @Override
     public void onEnable() {
-        logger.info("[TestPlugin] onEnable - demarrage des tests API");
+        logger.info("[TestPlugin] onEnable - Starting API tests");
 
         registerServices();
         registerEvents();
         registerCommands();
         TestPluginTranslations.register(context);
 
-        logger.info("[TestPlugin] pret. Tape /apitest pour lancer les tests interactifs.");
+        logger.info("[TestPlugin] Ready. Type /apitest to launch the interactive tests.");
     }
 
     @Override
     public void onDisable() {
-        logger.info("[TestPlugin] onDisable - {} event(s) observe(s) pendant la session", eventCount.get());
+        logger.info("[TestPlugin] onDisable - {} event(s) observed during the session", eventCount.get());
         server.commands().unregisterNamespace(context.meta());
         TestBiomes.unregisterAll(server.biomes());
+        TestDialogs.unregisterAll(server.dialogs());
         TestPluginTranslations.unregister();
-    }
-
-    private static long resolveSeed(final ComponentLogger logger) {
-        final String property = System.getProperty(SEED_PROPERTY);
-        if (property == null || property.isBlank()) {
-            return DEFAULT_SEED;
-        }
-        if (property.equalsIgnoreCase("random")) {
-            final long random = new java.util.Random().nextLong();
-            logger.info("[TestPlugin] Graine tiree au hasard : {}", random);
-            return random;
-        }
-        try {
-            return Long.parseLong(property.trim());
-        } catch (final NumberFormatException invalid) {
-            return property.hashCode();
-        }
     }
 
     public void msg(final CommandSender sender, final String miniMessageText) {
@@ -169,7 +176,7 @@ public final class TestPlugin implements Plugin {
         };
         server.services().register(CounterService.class, impl, this, ServicePriority.NORMAL);
         logger.info(
-                "[TestPlugin] ServiceRegistry: CounterService enregistre = {}",
+                "[TestPlugin] ServiceRegistry: CounterService register = {}",
                 server.services().find(CounterService.class).isPresent());
     }
 
@@ -191,20 +198,20 @@ public final class TestPlugin implements Plugin {
         });
 
         events.subscribe(ServerStartedEvent.class, e ->
-                logger.info("[TestPlugin][event] ServerStartedEvent recu, version MC {}",
+                logger.info("[TestPlugin][event] ServerStartedEvent received, MC version {}",
                         e.server().minecraftVersion()));
 
-        events.subscribe(ServerStoppingEvent.class, e -> logger.info("[TestPlugin][event] ServerStoppingEvent recu"));
+        events.subscribe(ServerStoppingEvent.class, e -> logger.info("[TestPlugin][event] ServerStoppingEvent received"));
 
         events.subscribe(PlayerJoinEvent.class, e -> {
             eventCount.incrementAndGet();
-            logger.info("[TestPlugin][event] join de {}", e.player().name());
-            msg(e.player(), "[TestPlugin] Bienvenue " + e.player().name() + " ! Tape /apitest pour tester l'API.");
+            logger.info("[TestPlugin][event] PlayerJoin: {}", e.player().name());
+            msg(e.player(), "[TestPlugin] Welcome " + e.player().name() + "! Type /apitest to test the API.");
         });
 
         events.subscribe(PlayerQuitEvent.class, e -> {
             eventCount.incrementAndGet();
-            logger.info("[TestPlugin][event] quit de {}", e.player().name());
+            logger.info("[TestPlugin][event] PlayerQuit de {}", e.player().name());
         });
 
         events.subscribe(PlayerChatEvent.class, EventPriority.HIGH, e -> {
@@ -212,7 +219,7 @@ public final class TestPlugin implements Plugin {
             final String raw = PLAIN.serialize(e.message());
             if (raw.equalsIgnoreCase("!cancel")) {
                 e.setCancelled(true);
-                msg(e.player(), "[TestPlugin] Message annule (test Cancellable OK).");
+                msg(e.player(), "[TestPlugin] Message cancelled (Cancellable test OK).");
             } else if (raw.startsWith("!upper ")) {
                 e.setMessage(Component.text(raw.substring(7).toUpperCase(Locale.ROOT)));
             }
@@ -220,20 +227,42 @@ public final class TestPlugin implements Plugin {
 
         events.subscribe(BlockBreakEvent.class, e -> {
             eventCount.incrementAndGet();
-            // logger.info("[TestPlugin][event] {} casse un bloc en {}", e.player().name(), e.position());
         });
 
         events.subscribe(BlockPlaceEvent.class, e -> {
             eventCount.incrementAndGet();
-            //   logger.info("[TestPlugin][event] {} pose un bloc", e.player().name());
         });
+        events.subscribe(PlayerDialogActionEvent.class, e -> {
+            eventCount.incrementAndGet();
+
+            // The client sends these on its own initiative, so filter on the id before trusting anything.
+            if (!e.id().equals(TestDialogs.SUBMIT_ID)) {
+                return;
+            }
+
+            final var response = e.response();
+            logger.info("[TestPlugin][event] dialogue submitted by {} : {}", e.player().name(), response.keys());
+
+            if (response.isEmpty()) {
+                msg(e.player(), "[TestPlugin] Custom action received, no value (no input in this dialog).");
+                return;
+            }
+
+            msg(e.player(), "[TestPlugin] username=%s notify=%s color=%s volume=%s button=%s".formatted(
+                    response.text("username").orElse("?"),
+                    response.bool("notify").orElse(false),
+                    response.text("color").orElse("?"),
+                    response.number("volume").orElse(-1),
+                    response.text("button").orElse("?")));
+        });
+
         final boolean cancelLogin = false;
         events.subscribe(PlayerLoginAttemptEvent.class, e -> {
             eventCount.incrementAndGet();
             logger.info("[TestPlugin][event] login attempt de {} (auth={})", e.profile().name(), e.authenticated());
             if (!cancelLogin) return;
             e.setCancelled(cancelLogin);
-            e.refuse(Component.text("Serveur en maintenance", NamedTextColor.RED));
+            e.refuse(Component.text("Server under maintenance", NamedTextColor.RED));
         });
     }
 
@@ -243,5 +272,6 @@ public final class TestPlugin implements Plugin {
         registry.register(context.meta(), new ApiTestCommand(this).create());
         registry.register(context.meta(), new BiomeCommand(this).create());
         registry.register(context.meta(), new WorldgenCommand(this).create());
+        registry.register(context.meta(), new DialogCommand(this).create());
     }
 }

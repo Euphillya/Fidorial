@@ -105,6 +105,37 @@ public final class PacketBuffer {
         return buf.readDouble();
     }
 
+    public @Nullable BinaryTag readSizedOptionalNbt(final int maxBytes) {
+        final int size = readVarInt();
+        if (size < 0 || size > maxBytes) {
+            throw new DecoderException("NBT payload too large: " + size);
+        }
+
+        if (buf.readableBytes() < size) {
+            throw new DecoderException("NBT payload truncated: expected " + size + " bytes, got " + buf.readableBytes());
+        }
+
+        final ByteBuf slice = buf.readSlice(size);
+        if (!slice.isReadable()) {
+            return null;
+        }
+
+        if (slice.getByte(slice.readerIndex()) == BinaryTagTypes.END.id()) {
+            slice.skipBytes(1);
+            if (slice.isReadable()) {
+                throw new DecoderException("Empty NBT payload has " + slice.readableBytes() + " unread bytes");
+            }
+            return null;
+        }
+
+        final BinaryTag nbt = NbtIo.readNbt(slice, maxBytes);
+        if (slice.isReadable()) {
+            throw new DecoderException("NBT payload has " + slice.readableBytes() + " unread bytes");
+        }
+
+        return nbt;
+    }
+
     public BinaryTag readSizedNbt(final int maxBytes) {
         final int size = readVarInt();
         if (size < 0 || size > maxBytes) {

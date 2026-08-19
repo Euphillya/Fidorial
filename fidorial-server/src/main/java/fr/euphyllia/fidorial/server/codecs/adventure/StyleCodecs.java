@@ -42,7 +42,7 @@ public final class StyleCodecs {
             StyleCodecs::clickMapCodecFor
     );
 
-    private static String clickActionName(final ClickEvent<?> event) {
+    public static String clickActionName(final ClickEvent<?> event) {
         return switch (event.action()) {
             case ClickEvent.Action.OpenUrl _ -> "open_url";
             case ClickEvent.Action.OpenFile _ -> "open_file";
@@ -55,7 +55,7 @@ public final class StyleCodecs {
         };
     }
 
-    private static MapCodec<? extends ClickEvent<?>> clickMapCodecFor(final String action) {
+    public static MapCodec<? extends ClickEvent<?>> clickMapCodecFor(final String action) {
         return switch (action) {
             case "open_url" -> Codec.STRING.fieldOf("url")
                     .xmap(ClickEvent::openUrl, e -> ((ClickEvent.Payload.Text) e.payload()).value());

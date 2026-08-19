@@ -6,14 +6,19 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
+import fr.euphyllia.fidorial.server.registry.dialog.FidorialDialogRegistry;
 import net.kyori.adventure.key.Key;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.ToIntFunction;
 
-public record ClientboundUpdateTagsPacket(RegistryHolder dynamic, FidorialBiomeRegistry biomes)
-        implements ClientboundPacket {
+public record ClientboundUpdateTagsPacket(
+        RegistryHolder dynamic,
+        FidorialBiomeRegistry biomes,
+        FidorialDialogRegistry dialogs
+) implements ClientboundPacket {
 
     @Override
     public Key name() {
@@ -25,17 +30,29 @@ public record ClientboundUpdateTagsPacket(RegistryHolder dynamic, FidorialBiomeR
         buf.writeVarInt(dynamic.size() + 1);
 
         for (final Registry reg : dynamic.all()) {
-            final boolean isBiome = reg.name().equals(FidorialBiomeRegistry.REGISTRY_NAME);
-            final List<Key> entries = reg.entries();
+            final Map<Key, List<Key>> tags;
+            final ToIntFunction<Key> networkId;
+
+            if (reg.name().equals(FidorialBiomeRegistry.REGISTRY_NAME)) {
+                tags = reg.tags();
+                networkId = biomes::networkId;
+            } else if (reg.name().equals(FidorialDialogRegistry.REGISTRY_NAME)) {
+                tags = dialogs.networkTags();
+                networkId = dialogs::networkId;
+            } else {
+                tags = reg.tags();
+                final List<Key> entries = reg.entries();
+                networkId = entries::indexOf;
+            }
 
             buf.writeKey(reg.name());
-            buf.writeVarInt(reg.tags().size());
+            buf.writeVarInt(tags.size());
 
-            for (final Map.Entry<Key, List<Key>> tag : reg.tags().entrySet()) {
+            for (final Map.Entry<Key, List<Key>> tag : tags.entrySet()) {
                 final List<Integer> ids = new ArrayList<>(tag.getValue().size());
 
                 for (final Key entry : tag.getValue()) {
-                    final int id = isBiome ? biomes.networkId(entry) : entries.indexOf(entry);
+                    final int id = networkId.applyAsInt(entry);
                     if (id >= 0) {
                         ids.add(id);
                     }

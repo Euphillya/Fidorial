@@ -39,7 +39,7 @@ tasks.javadoc {
     opt.addBooleanOption("html5", true)
     opt.noTimestamp(true)
     opt.addStringOption("Xdoclint:all,-missing", "-quiet")
-    opt.tags("apiNote:a:API Note:")
+    opt.tags("apiNote:a:API Note:", "sinceMinecraft:a:Since Minecraft:")
 
     opt.links(
         "https://docs.oracle.com/en/java/javase/25/docs/api/",
