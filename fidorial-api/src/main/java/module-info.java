@@ -14,6 +14,7 @@ import org.jspecify.annotations.NullMarked;
  *   <li>{@link fr.fidorial.event} — observe and cancel server events</li>
  *   <li>{@link fr.fidorial.service} — replace default server behaviour</li>
  *   <li>{@link fr.fidorial.scheduler} — hand long work off the region threads</li>
+ *   <li>{@link fr.fidorial.dialog} — show modal windows and read what players fill in</li>
  *   <li>{@link fr.fidorial.registry.keys} — generated keys for blocks, items and more</li>
  * </ul>
  *
@@ -35,6 +36,7 @@ module fr.fidorial {
     exports fr.fidorial.attribute;
     exports fr.fidorial.combat;
     exports fr.fidorial.command;
+    exports fr.fidorial.dialog;
     exports fr.fidorial.entity.ai;
     exports fr.fidorial.entity;
     exports fr.fidorial.event.entity;
@@ -82,6 +84,7 @@ module fr.fidorial {
     requires java.desktop;
     requires net.kyori.adventure.api;
     requires net.kyori.adventure.key;
+    requires net.kyori.adventure.nbt;
     requires net.kyori.adventure.text.logger.slf4j;
     requires net.kyori.adventure.text.minimessage;
 

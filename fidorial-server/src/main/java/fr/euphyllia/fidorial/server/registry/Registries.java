@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.registry;
 
 import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
+import fr.euphyllia.fidorial.server.registry.dialog.FidorialDialogRegistry;
 import fr.euphyllia.fidorial.server.registry.entity.EntityTypeRegistry;
 import fr.fidorial.registry.Registry;
 import fr.fidorial.registry.RegistryKey;
@@ -94,17 +95,20 @@ public final class Registries {
     private final RegistryHolder frozen;
     private final Map<RegistryKey<?>, Registry<?>> typedRegistries;
     private final FidorialBiomeRegistry biomes;
+    private final FidorialDialogRegistry dialogs;
 
     private Registries(
             final RegistryHolder dynamic,
             final RegistryHolder frozen,
             final Map<RegistryKey<?>, Registry<?>> typedRegistries,
-            final FidorialBiomeRegistry biomes
+            final FidorialBiomeRegistry biomes,
+            final FidorialDialogRegistry dialogs
     ) {
         this.dynamic = dynamic;
         this.frozen = frozen;
         this.typedRegistries = Map.copyOf(typedRegistries);
         this.biomes = biomes;
+        this.dialogs = dialogs;
     }
 
     public static Registries load() {
@@ -112,6 +116,7 @@ public final class Registries {
         final Map<RegistryKey<?>, Registry<?>> registries = new LinkedHashMap<>();
         final RegistryHolder dynamic = RegistryHolder.of(data.dynamic());
         final FidorialBiomeRegistry biomes = FidorialBiomeRegistry.bootstrap(dynamic, FALLBACK_BIOME);
+        final FidorialDialogRegistry dialogs = FidorialDialogRegistry.bootstrap(dynamic);
 
         // bootstrap our API registries
         registries.put(RegistryKey.ATTRIBUTE, simple(RegistryKey.ATTRIBUTE, Attribute.class, AttributeKeys.values()));
@@ -154,7 +159,7 @@ public final class Registries {
         registries.put(RegistryKey.ZOMBIE_NAUTILUS_VARIANT, simple(RegistryKey.ZOMBIE_NAUTILUS_VARIANT, ZombieNautilusVariant.class, ZombieNautilusVariantKeys.values()));
         registries.put(RegistryKey.ENTITY_TYPE, new EntityTypeRegistry());
 
-        return new Registries(dynamic, RegistryHolder.of(data.frozen()), registries, biomes);
+        return new Registries(dynamic, RegistryHolder.of(data.frozen()), registries, biomes, dialogs);
     }
 
     private static <T> SimpleRegistry<T> simple(
@@ -167,6 +172,10 @@ public final class Registries {
 
     public FidorialBiomeRegistry biomes() {
         return biomes;
+    }
+
+    public FidorialDialogRegistry dialogs() {
+        return dialogs;
     }
 
     public RegistryHolder dynamic() {

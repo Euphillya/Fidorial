@@ -59,12 +59,14 @@ import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.block.EnderChestBlock;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.fidorial.dialog.DialogResponse;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.entity.RespawnPoint;
 import fr.fidorial.event.player.BlockBreakEvent;
 import fr.fidorial.event.player.BlockPlaceEvent;
 import fr.fidorial.event.player.PlayerChatEvent;
+import fr.fidorial.event.player.PlayerDialogActionEvent;
 import fr.fidorial.event.player.PlayerJoinEvent;
 import fr.fidorial.event.player.PlayerOpenEnderChestEvent;
 import fr.fidorial.event.player.PlayerQuitEvent;
@@ -473,6 +475,14 @@ public final class PlayPacketHandler implements PlayPacketListener {
     @Override
     public void handleCustomClickAction(final ServerboundCustomClickActionPacket packet) {
         if (player == null) {
+            return;
+        }
+
+        if (!ClickCallbackManager.KEY.equals(packet.id())) {
+            final DialogResponse response = packet.payload() instanceof final CompoundBinaryTag values
+                    ? new DialogResponse(values)
+                    : DialogResponse.EMPTY;
+            server.events().post(new PlayerDialogActionEvent(player, packet.id(), response));
             return;
         }
 

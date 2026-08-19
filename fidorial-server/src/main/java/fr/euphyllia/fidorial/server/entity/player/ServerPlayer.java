@@ -6,6 +6,8 @@ import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.nbt.ComponentResolver;
+import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.common.ClientboundShowDialogPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundAddEntityPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBossEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundContainerClosePacket;
@@ -26,6 +28,8 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.combat.DamageSource;
 import fr.fidorial.command.CommandSender;
+import fr.fidorial.dialog.DialogDefinition;
+import fr.fidorial.dialog.DialogReference;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
@@ -44,6 +48,7 @@ import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.dialog.DialogLike;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
@@ -537,6 +542,28 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     @Override
     public void clearResourcePacks() {
         connection.clearResourcePacks();
+    }
+
+    @Override
+    public void showDialog(final DialogLike dialog) {
+        switch (dialog) {
+            case final DialogDefinition definition ->
+                    connection.send(ClientboundShowDialogPacket.inline(PlayClientboundPackets.SHOW_DIALOG, definition));
+            case final DialogReference reference -> {
+                final int id = connection.server().dialogs().networkId(reference.key());
+                if (id < 0) {
+                    LOGGER.warn(
+                            "{} cannot be shown dialog {}: nothing is registered under that key.",
+                            name(), reference.key().asString());
+                    return;
+                }
+                connection.send(ClientboundShowDialogPacket.reference(
+                        PlayClientboundPackets.SHOW_DIALOG, reference, id));
+            }
+            default -> LOGGER.warn(
+                    "{} cannot be shown a dialog of foreign type {}; build it with fr.fidorial.dialog.Dialog.",
+                    name(), dialog.getClass().getName());
+        }
     }
 
     @Override
