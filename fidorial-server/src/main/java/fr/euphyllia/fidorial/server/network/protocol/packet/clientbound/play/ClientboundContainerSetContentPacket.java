@@ -9,6 +9,7 @@ import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import net.kyori.adventure.key.Key;
 
 import java.util.Arrays;
@@ -86,6 +87,6 @@ public record ClientboundContainerSetContentPacket(
 
     private int itemNetworkId(final ItemStack stack) {
         final int id = frozen.networkId(Key.key("minecraft", "item"), stack.id());
-        return Math.max(id, FidorialServer.getInstance().blockStateRegistry().networkId(BlockState.AIR)); // air fallback
+        return Math.max(id, FidorialServer.getInstance().blockStateRegistry().networkId(BlockState.of(BlockTypeKeys.AIR.key()))); // air fallback
     }
 }

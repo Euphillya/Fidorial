@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.world;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkSection;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.world.generation.GeneratedChunk;
 import net.kyori.adventure.key.Key;
 
@@ -18,7 +19,7 @@ public class PluginGeneratedChunk implements GeneratedChunk {
     private final int height;
 
     public PluginGeneratedChunk(final int chunkX, final int chunkZ, final int minY, final int height, final Key defaultBiome) {
-        this.column = new ChunkColumn(chunkX, chunkZ, minY, height, BlockState.AIR, defaultBiome);
+        this.column = new ChunkColumn(chunkX, chunkZ, minY, height, BlockState.of(BlockTypeKeys.AIR.key()), defaultBiome);
         this.minY = minY;
         this.height = height;
     }

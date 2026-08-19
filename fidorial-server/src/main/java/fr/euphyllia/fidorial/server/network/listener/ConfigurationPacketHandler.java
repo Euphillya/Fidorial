@@ -52,7 +52,7 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
             connection.close();
             return;
         }
-        connection.send(new ClientboundBrandPacket("Fidorial"));
+        connection.send(new ClientboundBrandPacket(FidorialServer.getInstance().brandName()));
         if (sendResourcePackIfConfigured()) {
             awaitingResourcePackResponse = true;
         } else {

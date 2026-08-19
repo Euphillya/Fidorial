@@ -1,5 +1,6 @@
 package fr.fidorial.registrygen.generate;
 
+import fr.fidorial.registrygen.model.BlockReportDefinition;
 import fr.fidorial.registrygen.model.PacketCatalogs;
 import fr.fidorial.registrygen.model.ProtocolIdRegistries;
 import fr.fidorial.registrygen.model.ProtocolIdTarget;
@@ -27,6 +28,8 @@ public final class RegistryGenerator {
     private final RegistryKeysGenerator keysGenerator;
     private final RegistryKeyGenerator registryKeyGenerator;
     private final RegistryProtocolIdGenerator protocolIdGenerator;
+    private final BlockReportParser blockReportParser;
+    private final BlockStateGenerator blockStateGenerator;
 
     /**
      * Creates a registry generator using the standard parser and
@@ -38,7 +41,9 @@ public final class RegistryGenerator {
                 new RegistryDataGenerator(),
                 new RegistryKeysGenerator(),
                 new RegistryKeyGenerator(),
-                new RegistryProtocolIdGenerator());
+                new RegistryProtocolIdGenerator(),
+                new BlockReportParser(),
+                new BlockStateGenerator());
     }
 
     /**
@@ -52,18 +57,24 @@ public final class RegistryGenerator {
      * @param keysGenerator       typed registry-entry key generator
      * @param registryKeyGenerator central registry-key generator
      * @param protocolIdGenerator raw protocol ID constant generator
+     * @param blockReportParser   blocks report parser
+     * @param blockStateGenerator block type registration generator
      */
     public RegistryGenerator(final RegistryReportParser parser,
                              final RegistryDataGenerator dataGenerator,
                              final RegistryKeysGenerator keysGenerator,
                              final RegistryKeyGenerator registryKeyGenerator,
-                             final RegistryProtocolIdGenerator protocolIdGenerator) {
+                             final RegistryProtocolIdGenerator protocolIdGenerator,
+                             final BlockReportParser blockReportParser,
+                             final BlockStateGenerator blockStateGenerator) {
 
         this.parser = Objects.requireNonNull(parser, "parser");
         this.dataGenerator = Objects.requireNonNull(dataGenerator, "dataGenerator");
         this.keysGenerator = Objects.requireNonNull(keysGenerator, "keysGenerator");
         this.registryKeyGenerator = Objects.requireNonNull(registryKeyGenerator, "registryKeyGenerator");
         this.protocolIdGenerator = Objects.requireNonNull(protocolIdGenerator, "protocolIdGenerator");
+        this.blockReportParser = Objects.requireNonNull(blockReportParser, "blockReportParser");
+        this.blockStateGenerator = Objects.requireNonNull(blockStateGenerator, "blockStateGenerator");
     }
 
     /**
@@ -130,6 +141,15 @@ public final class RegistryGenerator {
         registryKeyGenerator.generate(keyedRegistryTypes, outputDirectory);
     }
 
+    /**
+     * Parses a Mojang packets report and generates packet identifier
+     * catalog classes.
+     *
+     * @param packetsJson     path to {@code packets.json}
+     * @param outputDirectory generated Java source root
+     *
+     * @throws IOException if parsing or source generation fails
+     */
     public void generatePackets(final Path packetsJson, final Path outputDirectory) throws IOException {
 
         final List<RegistryDefinition> packetCatalogs = new PacketReportParser().parse(packetsJson);
@@ -144,6 +164,21 @@ public final class RegistryGenerator {
                 protocolIdGenerator.generate(catalog, target, outputDirectory);
             }
         }
+    }
+
+    /**
+     * Parses a Mojang blocks report and generates {@code BlockStates},
+     * registering every block type and its full state table.
+     *
+     * @param blocksJson      path to {@code blocks.json}
+     * @param outputDirectory generated Java source root
+     *
+     * @throws IOException if parsing or source generation fails
+     */
+    public void generateBlockStates(final Path blocksJson, final Path outputDirectory) throws IOException {
+
+        final List<BlockReportDefinition> blocks = blockReportParser.parse(blocksJson);
+        blockStateGenerator.generate(blocks, outputDirectory);
     }
 
     /**

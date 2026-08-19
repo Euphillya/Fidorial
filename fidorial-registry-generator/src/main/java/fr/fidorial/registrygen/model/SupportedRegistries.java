@@ -18,11 +18,13 @@ public final class SupportedRegistries {
 
   public static final RegistryTypeDefinition ARGUMENT_TYPE = registry("minecraft:command_argument_type", "ArgumentType");
 
+  public static final RegistryTypeDefinition BLOCK = registry("minecraft:block", "BlockType");
+
   public static final List<RegistryTypeDefinition> ALL = List.of(
           registry("minecraft:attribute", "Attribute"),
           registry("minecraft:banner_pattern", "BannerPattern"),
           registry("minecraft:worldgen/biome", "Biome"),
-          registry("minecraft:block", "BlockType"),
+          BLOCK,
           registry("minecraft:cat_sound_variant", "CatSoundVariant"),
           registry("minecraft:cat_variant", "CatVariant"),
           registry("minecraft:chat_type", "ChatType"),

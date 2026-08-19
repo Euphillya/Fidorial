@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import net.kyori.adventure.key.Key;
 
 import java.util.Collections;
@@ -8,28 +9,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-// To be generated
-@SuppressWarnings("unused")
 public final class BlockState {
-
-    private static final Key AIR_KEY = Key.key("air");
-    private static final Key CAVE_AIR_KEY = Key.key("cave_air");
-    private static final Key VOID_AIR_KEY = Key.key("void_air");
-    private static final Key WATER_KEY = Key.key("water");
-    private static final Key LAVA_KEY = Key.key("lava");
-    private static final Key OBSIDIAN_KEY = Key.key("obsidian");
-    private static final Key COBBLESTONE_KEY = Key.key("cobblestone");
-    private static final Key ENDERCHEST_KEY = Key.key("ender_chest");
-
-    public static final BlockState AIR = of(AIR_KEY);
-    public static final BlockState CAVE_AIR = of(CAVE_AIR_KEY);
-    public static final BlockState VOID_AIR = of(VOID_AIR_KEY);
-    public static final BlockState OBSIDIAN = of(OBSIDIAN_KEY);
-    public static final BlockState COBBLESTONE = of(COBBLESTONE_KEY);
-    public static final BlockState ENDER_CHEST = of(ENDERCHEST_KEY);
-    public static final BlockState WATER = of(WATER_KEY);
-    public static final BlockState LAVA = of(LAVA_KEY);
-
     private final Key name;
     private final Map<String, String> properties;
     private final int hashCode;
@@ -45,12 +25,12 @@ public final class BlockState {
                 ? Collections.emptyMap()
                 : Collections.unmodifiableMap(new TreeMap<>(properties));
         this.hashCode = Objects.hash(this.name, this.properties);
-        this.air = name.equals(AIR_KEY) || name.equals(CAVE_AIR_KEY) || name.equals(VOID_AIR_KEY);
-        this.fluid = name.equals(WATER_KEY) || name.equals(LAVA_KEY);
+        this.air = name.equals(BlockTypeKeys.AIR.key()) || name.equals(BlockTypeKeys.CAVE_AIR.key()) || name.equals(BlockTypeKeys.VOID_AIR.key());
+        this.fluid = name.equals(BlockTypeKeys.WATER.key()) || name.equals(BlockTypeKeys.LAVA.key());
     }
 
     public static BlockState of(final Key name) {
-        return new BlockState(name, Collections.emptyMap());
+        return of(name, Collections.emptyMap());
     }
 
     public static BlockState of(final Key name, final Map<String, String> properties) {

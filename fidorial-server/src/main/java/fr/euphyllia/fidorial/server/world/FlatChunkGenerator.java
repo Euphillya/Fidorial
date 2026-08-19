@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import net.kyori.adventure.key.Key;
 
 public final class FlatChunkGenerator implements ChunkGenerator {
@@ -27,7 +28,7 @@ public final class FlatChunkGenerator implements ChunkGenerator {
 
     @Override
     public ChunkColumn generate(int chunkX, int chunkZ) {
-        ChunkColumn chunk = new ChunkColumn(chunkX, chunkZ, minY, height, BlockState.AIR, biome);
+        ChunkColumn chunk = new ChunkColumn(chunkX, chunkZ, minY, height, BlockState.of(BlockTypeKeys.AIR.key()), biome);
         for (int y = minY; y < minY + floorThickness; y++) {
             for (int z = 0; z < 16; z++) {
                 for (int x = 0; x < 16; x++) {

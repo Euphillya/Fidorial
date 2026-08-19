@@ -38,6 +38,7 @@ import fr.euphyllia.fidorial.server.plugin.JavaPluginManager;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
+import fr.euphyllia.fidorial.server.registry.data.BlockStateIds;
 import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.schedulers.LightUpdateDispatcher;
@@ -55,9 +56,8 @@ import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.ServiceBackedChunkGenerator;
 import fr.euphyllia.fidorial.server.world.WorldConstants;
 import fr.euphyllia.fidorial.server.world.WorldManager;
-import fr.euphyllia.fidorial.server.world.block.BuiltInBlocks;
 import fr.euphyllia.fidorial.server.world.block.FidorialBlockRegistry;
-import fr.euphyllia.fidorial.server.world.block.VanillaBlockRegistry;
+import fr.euphyllia.fidorial.server.world.chunk.BlockStateProperties;
 import fr.euphyllia.fidorial.server.world.fluid.FluidEngine;
 import fr.euphyllia.fidorial.server.world.weather.WeatherEngine;
 import fr.fidorial.Server;
@@ -227,11 +227,11 @@ public final class FidorialServer implements Server {
     }
 
     private static FidorialBlockRegistry bootstrapBlocks() {
-        final FidorialBlockRegistry registry = new FidorialBlockRegistry(new VanillaBlockRegistry());
-        BuiltInBlocks.registerAll(registry);
+        final FidorialBlockRegistry registry = new FidorialBlockRegistry();
+        BlockStateIds.registerAll(registry);
+        BlockStateProperties.bootstrap();
         Blocks.bootstrap(registry);
-        LOGGER.info("{} blocks defined in code, {} types available with fallback",
-                registry.definedCount(), registry.types().size());
+        LOGGER.info("{} blocks defined in code", registry.definedCount());
         return registry;
     }
 
@@ -411,7 +411,7 @@ public final class FidorialServer implements Server {
     }
 
     @Override
-    public String getName() {
+    public String brandName() {
         return "Fidorial";
     }
 

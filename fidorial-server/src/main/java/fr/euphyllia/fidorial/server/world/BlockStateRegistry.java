@@ -1,6 +1,8 @@
 package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.euphyllia.fidorial.server.world.chunk.BlockStateProperties;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.world.block.BlockBehaviour;
 import fr.fidorial.world.block.BlockData;
 import fr.fidorial.world.block.BlockGetter;
@@ -11,35 +13,76 @@ import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
+public final class BlockStateRegistry {
+    private static final int AIR_NETWORK_ID = 0;
 
-public record BlockStateRegistry(BlockRegistry registry) {
+    private static final Key WATER_BUCKET = Key.key("water_bucket");
+    private static final Key LAVA_BUCKET = Key.key("lava_bucket");
 
-    private static final int AIR_BLOCK = 0;
+    private final BlockRegistry registry;
+    private final Map<BlockState, BlockData> dataByState;
+    private final Map<Integer, BlockState> stateByNetworkId;
+
+    public BlockStateRegistry(final BlockRegistry registry) {
+        this.registry = registry;
+        this.dataByState = new HashMap<>();
+        this.stateByNetworkId = new HashMap<>();
+        indexGeneratedStates();
+    }
+
+    public BlockRegistry registry() {
+        return registry;
+    }
+
+    private void indexGeneratedStates() {
+        for (final BlockType type : registry.types()) {
+            final Key key = type.key();
+            final BlockState[] chunkStates = BlockStateProperties.statesOf(key);
+            if (chunkStates == null) {
+                continue;
+            }
+            final int count = Math.min(chunkStates.length, type.stateCount());
+            for (int ordinal = 0; ordinal < count; ordinal++) {
+                final BlockData data = type.stateAt(ordinal);
+                final BlockState state = chunkStates[ordinal];
+                dataByState.put(state, data);
+                stateByNetworkId.put(data.networkId(), state);
+            }
+        }
+    }
 
     public int networkId(final BlockState state) {
-        final BlockData data = resolve(state);
-        return data == null ? AIR_BLOCK : data.networkId();
+        final BlockData cached = dataByState.get(state);
+        if (cached != null) {
+            return cached.networkId();
+        }
+        final BlockData resolved = resolveDynamic(state);
+        return resolved == null ? AIR_NETWORK_ID : resolved.networkId();
     }
 
     public BlockState byId(final int networkId) {
+        final BlockState cached = stateByNetworkId.get(networkId);
+        if (cached != null) {
+            return cached;
+        }
         final BlockData data = registry.fromNetworkId(networkId);
         if (data == null) {
-            return BlockState.AIR;
+            return BlockState.of(BlockTypeKeys.AIR.key());
         }
         return BlockState.of(data.key(), data.propertyMap());
     }
 
     public boolean contains(final BlockState state) {
-        return resolve(state) != null;
+        return dataByState.containsKey(state) || resolveDynamic(state) != null;
     }
 
     public BlockState toBlockState(final BlockData data) {
         return BlockState.of(data.key(), data.propertyMap());
     }
 
-    @SuppressWarnings("PatternValidation")
     public @Nullable BlockState placementState(final BlockState state, final BlockPlaceContext context) {
         final BlockBehaviour behaviour = registry.behaviour(state.name()).orElse(null);
         if (behaviour == null) {
@@ -59,8 +102,12 @@ public record BlockStateRegistry(BlockRegistry registry) {
         };
     }
 
-    @SuppressWarnings("PatternValidation")
     public @Nullable BlockData resolve(final BlockState state) {
+        final BlockData cached = dataByState.get(state);
+        return cached != null ? cached : resolveDynamic(state);
+    }
+
+    private @Nullable BlockData resolveDynamic(final BlockState state) {
         final BlockType type = registry.type(state.name()).orElse(null);
         if (type == null) {
             return null;
@@ -74,21 +121,14 @@ public record BlockStateRegistry(BlockRegistry registry) {
             return null;
         }
 
-        if (itemId.equals(Key.key("water_bucket"))) {
-            return BlockState.of(Key.key("water"), Map.of("level", "0"));
+        if (itemId.equals(WATER_BUCKET)) {
+            return BlockState.of(BlockTypeKeys.WATER.key(), Map.of("level", "0"));
+        }
+        if (itemId.equals(LAVA_BUCKET)) {
+            return BlockState.of(BlockTypeKeys.LAVA.key(), Map.of("level", "0"));
         }
 
-        if (itemId.equals(Key.key("lava_bucket"))) {
-            return BlockState.of(Key.key("lava"), Map.of("level", "0"));
-        }
-
-        final BlockState candidate = BlockState.of(itemId);
-        if (candidate.isAir()) {
-            return null;
-        }
-        if (contains(candidate)) {
-            return candidate;
-        }
-        return BlockState.of(Key.key("cobblestone"));
+        final BlockState defaultState = BlockStateProperties.defaultStateOf(itemId);
+        return defaultState != null ? defaultState : BlockStateProperties.defaultStateOf(BlockTypeKeys.COBBLESTONE.key());
     }
 }

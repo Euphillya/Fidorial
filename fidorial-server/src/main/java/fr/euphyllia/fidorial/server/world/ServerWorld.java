@@ -18,6 +18,7 @@ import fr.euphyllia.fidorial.server.world.storage.EntityRegionStorage;
 import fr.euphyllia.fidorial.server.world.time.WorldClocks;
 import fr.euphyllia.fidorial.server.world.time.WorldTimeEngine;
 import fr.fidorial.entity.Entity;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Chunk;
 import fr.fidorial.world.ChunkPos;
@@ -389,7 +390,7 @@ public final class ServerWorld implements World {
     public BlockState getBlock(final int x, final int y, final int z) throws IOException {
         final ChunkColumn column = getChunk(x >> 4, z >> 4);
         if (y < column.minY() || y >= column.minY() + column.height()) {
-            return BlockState.AIR;
+            return BlockState.of(BlockTypeKeys.AIR.key());
         }
         return column.getBlock(x & 15, y, z & 15);
     }
@@ -658,10 +659,10 @@ public final class ServerWorld implements World {
         @Override
         public BlockState blockAt(final int x, final int y, final int z) {
             if (y < minY || y >= minY + height) {
-                return BlockState.AIR;
+                return BlockState.of(BlockTypeKeys.AIR.key());
             }
             final ChunkColumn column = loadedColumn(x >> 4, z >> 4);
-            return column == null ? BlockState.AIR : column.getBlock(x & 15, y, z & 15);
+            return column == null ? BlockState.of(BlockTypeKeys.AIR.key()) : column.getBlock(x & 15, y, z & 15);
         }
 
         @Override
@@ -682,7 +683,7 @@ public final class ServerWorld implements World {
             if (column == null) return null;
             return (localX, worldY, localZ) ->
                     (worldY < minY || worldY >= minY + height)
-                            ? BlockState.AIR
+                            ? BlockState.of(BlockTypeKeys.AIR.key())
                             : column.getBlock(localX, worldY, localZ);
         }
 
