@@ -1,6 +1,7 @@
 package fr.fidorial.registrygen;
 
 import fr.fidorial.registrygen.task.DownloadServerJarTask;
+import fr.fidorial.registrygen.task.GenerateBlockStatesTask;
 import fr.fidorial.registrygen.task.GeneratePacketsTask;
 import fr.fidorial.registrygen.task.GenerateRegistriesTask;
 import fr.fidorial.registrygen.task.GenerateReportsTask;
@@ -28,11 +29,12 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
   public static final String REPORTS_TASK_NAME = "generateMinecraftReports";
   public static final String REGISTRIES_TASK_NAME = "generateRegistries";
   public static final String PACKET_CATALOGS_TASK_NAME = "generatePacketCatalogs";
+  public static final String BLOCK_STATES_TASK_NAME = "generateBlockStates";
 
   @Override
   public void apply(final Project project) {
     final FidorialRegistryGeneratorExtension extension = project.getExtensions().create(EXTENSION_NAME,
-                                                                                        FidorialRegistryGeneratorExtension.class);
+            FidorialRegistryGeneratorExtension.class);
 
     configureDefaults(project, extension);
 
@@ -40,6 +42,7 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
     final TaskProvider<GenerateReportsTask> reportsTask = registerReportsTask(project, extension, downloadTask);
     final TaskProvider<GenerateRegistriesTask> registriesTask = registerRegistriesTask(project, extension, reportsTask);
     registerPacketsTask(project, extension, reportsTask);
+    registerBlockStatesTask(project, extension, reportsTask);
 
     registerLifecycleTask(project, registriesTask);
   }
@@ -49,8 +52,8 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
     extension.getWorkingDirectory().convention(project.getLayout().getBuildDirectory().dir("working"));
 
     extension.getGeneratedSourcesDirectory().convention(project.getLayout()
-                                                                .getBuildDirectory()
-                                                                .dir("generated/sources/fidorialRegistries/"));
+            .getBuildDirectory()
+            .dir("generated/sources/fidorialRegistries/"));
 
     extension.getGeneratedPackage().convention("fr.fidorial.registry");
     extension.getRegistries().convention(Map.of());
@@ -66,7 +69,7 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
 
       task.getMinecraftVersion().set(extension.getMinecraftVersion());
       task.getServerJar().set(extension.getWorkingDirectory()
-                                       .file(extension.getMinecraftVersion().map(version -> "minecraft/" + version + "/jar/server.jar")));
+              .file(extension.getMinecraftVersion().map(version -> "minecraft/" + version + "/jar/server.jar")));
     });
   }
 
@@ -87,7 +90,7 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
       task.getServerJar().set(downloadTask.flatMap(DownloadServerJarTask::getServerJar));
 
       task.getDataDirectory().set(extension.getWorkingDirectory().dir(extension.getMinecraftVersion()
-                                                                              .map(version -> "minecraft/" + version + "/data")));
+              .map(version -> "minecraft/" + version + "/data")));
     });
   }
 
@@ -115,6 +118,7 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
   private static TaskProvider<GeneratePacketsTask> registerPacketsTask(final Project project,
                                                                        final FidorialRegistryGeneratorExtension extension,
                                                                        final TaskProvider<GenerateReportsTask> reportsTask) {
+
     return project.getTasks().register(PACKET_CATALOGS_TASK_NAME, GeneratePacketsTask.class, task -> {
        task.setGroup("fidorial registry generation");
        task.setDescription("Generates packet identifier catalog classes.");
@@ -124,6 +128,24 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
 
        task.getPacketsReport().set(reportsTask.flatMap(GenerateReportsTask::getDataDirectory)
                .map(dir -> dir.file("generated/reports/packets.json")));
+
+       task.getGeneratedSourcesDirectory().set(extension.getGeneratedSourcesDirectory());
+    });
+  }
+
+  private static TaskProvider<GenerateBlockStatesTask> registerBlockStatesTask(final Project project,
+                                                                               final FidorialRegistryGeneratorExtension extension,
+                                                                               final TaskProvider<GenerateReportsTask> reportsTask) {
+
+    return project.getTasks().register(BLOCK_STATES_TASK_NAME, GenerateBlockStatesTask.class, task -> {
+       task.setGroup("fidorial registry generation");
+       task.setDescription("Generates BlockType registrations from Mojang's blocks report.");
+       task.dependsOn(reportsTask);
+
+       task.onlyIf(_ -> extension.getGenerateBlockStates().getOrElse(false));
+
+       task.getBlocksReport().set(reportsTask.flatMap(GenerateReportsTask::getDataDirectory)
+              .map(dir -> dir.file("generated/reports/blocks.json")));
 
        task.getGeneratedSourcesDirectory().set(extension.getGeneratedSourcesDirectory());
     });

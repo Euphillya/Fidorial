@@ -30,7 +30,7 @@ public final class StatusPacketHandler implements StatusPacketListener {
                 .maxPlayers(server.maxPlayers())
                 .players(server.playerCount())
                 .version(new ServerStatus.Version(
-                        server.getName() + " " + server.minecraftVersion(),
+                        server.brandName() + " " + server.minecraftVersion(),
                         server.protocolVersion()
                 ))
                 .build();

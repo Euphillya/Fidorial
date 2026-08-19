@@ -12,6 +12,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.entity.GameMode;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
@@ -91,7 +92,7 @@ public final class Explosion {
         final List<BlockPos> destroyed = new ArrayList<>(toDestroy.size());
 
         for (final BlockPos pos : toDestroy) {
-            if (server.blockEdits().set(world, pos, BlockState.AIR)) {
+            if (server.blockEdits().set(world, pos, BlockState.of(BlockTypeKeys.AIR.key()))) {
                 destroyed.add(pos);
             }
             if (ThreadLocalRandom.current().nextFloat() < 1.0f / power) {

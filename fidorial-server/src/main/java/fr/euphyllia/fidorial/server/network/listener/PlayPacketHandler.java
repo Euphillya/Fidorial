@@ -74,6 +74,7 @@ import fr.fidorial.event.player.PlayerRespawnEvent;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.world.BlockFace;
 import fr.fidorial.world.BlockPos;
@@ -372,7 +373,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         final BlockFace clickedFace = BlockFace.byId(packet.face());
         final BlockPos target = packet.target().relative(clickedFace);
         final ItemStack held = player.inventory().get(player.selectedSlot());
-        final BlockState state = held.isEmpty() ? null : blockToPlace(held, target, clickedFace);
+        final BlockState state = held.isEmpty() ? null : blockToPlace(held, target, clickedFace, packet.cursorY());
 
         if (state != null) {
             final BlockPlaceEvent event = server.events()
@@ -386,14 +387,14 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private @Nullable BlockState blockToPlace(
-            final ItemStack held, final BlockPos target, final BlockFace clickedFace) {
+            final ItemStack held, final BlockPos target, final BlockFace clickedFace, final float cursorY) {
         final BlockState state = server.blockStateRegistry().blockForItem(held.id());
         if (state == null) {
             return null;
         }
         final ServerWorld world = serverWorld();
         final BlockPlaceContext context = new BlockPlaceContext(
-                target, clickedFace, player.location(), server.blockStateRegistry().view(world));
+                target, clickedFace, player.location(), server.blockStateRegistry().view(world), cursorY);
         return server.blockStateRegistry().placementState(state, context);
     }
 
@@ -517,7 +518,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             final BlockBreakEvent event = server.events().post(new BlockBreakEvent(player, packet.position()));
             if (!event.isCancelled()) {
                 onBlockDestroyed(packet.position());
-                server.blockEdits().set(serverWorld(), packet.position(), BlockState.AIR);
+                server.blockEdits().set(serverWorld(), packet.position(), BlockState.of(BlockTypeKeys.AIR.key()));
             }
         }
         connection.send(new ClientboundBlockChangedAckPacket(packet.sequence()));

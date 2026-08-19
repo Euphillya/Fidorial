@@ -44,6 +44,11 @@ public abstract class FidorialRegistryGeneratorExtension {
     public abstract Property<Boolean> getGeneratePacketCatalogs();
 
     /**
+     * Whether the {@code generateBlockStates} task should be registered.
+     */
+    public abstract Property<Boolean> getGenerateBlockStates();
+
+    /**
      * Additional arguments passed to Mojang's data generator.
      */
     public abstract ListProperty<String> getDataGeneratorArguments();

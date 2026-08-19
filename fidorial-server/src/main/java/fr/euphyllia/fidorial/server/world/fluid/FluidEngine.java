@@ -8,6 +8,7 @@ import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.storage.Dimension;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.world.BlockFace;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.ChunkPos;
@@ -93,7 +94,7 @@ public final class FluidEngine implements FluidManager {
         if (fluidAt(world, x, y, z).isEmpty()) {
             return false;
         }
-        final boolean applied = setAndBroadcast(w, x, y, z, BlockState.AIR);
+        final boolean applied = setAndBroadcast(w, x, y, z, BlockState.of(BlockTypeKeys.AIR.key()));
         if (applied) {
             notifyBlockChanged(world, x, y, z);
         }
@@ -150,7 +151,7 @@ public final class FluidEngine implements FluidManager {
 
         // 1) Interactions lave <-> eau : la lave touchée par de l'eau se fige.
         if (type == FluidType.LAVA && touches(world, x, y, z, FluidType.WATER)) {
-            final BlockState solidified = self.isSource() ? BlockState.OBSIDIAN : BlockState.COBBLESTONE;
+            final BlockState solidified = self.isSource() ? BlockState.of(BlockTypeKeys.OBSIDIAN.key()) : BlockState.of(BlockTypeKeys.COBBLESTONE.key());
             if (setAndBroadcast(world, x, y, z, solidified)) {
                 notifyBlockChanged(worldName, x, y, z);
             }
@@ -216,7 +217,7 @@ public final class FluidEngine implements FluidManager {
             wanted = FluidState.flowing(type, best);
         } else {
             // Plus alimenté : assèchement.
-            if (setAndBroadcast(world, x, y, z, BlockState.AIR)) {
+            if (setAndBroadcast(world, x, y, z, BlockState.of(BlockTypeKeys.AIR.key()))) {
                 notifyBlockChanged(worldName, x, y, z);
             }
             return null;
@@ -242,7 +243,7 @@ public final class FluidEngine implements FluidManager {
 
         // La lave qui tombe dans l'eau se fige en pierre taillée.
         if (type == FluidType.LAVA && below.type() == FluidType.WATER) {
-            if (setAndBroadcast(world, x, y - 1, z, BlockState.COBBLESTONE)) {
+            if (setAndBroadcast(world, x, y - 1, z, BlockState.of(BlockTypeKeys.COBBLESTONE.key()))) {
                 notifyBlockChanged(worldName, x, y - 1, z);
             }
             return false;

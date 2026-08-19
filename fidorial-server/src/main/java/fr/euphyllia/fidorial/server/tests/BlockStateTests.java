@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
 import fr.euphyllia.fidorial.server.world.WorldConstants;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.testing.ScenarioTestHelper;
 import fr.fidorial.testing.annotation.ScenarioTest;
 import fr.fidorial.world.BlockPos;
@@ -41,7 +42,7 @@ public final class BlockStateTests {
     //@ScenarioTest(timeoutTicks = 80) disabled for now as setBlockStateId doesnt send light updates
     public static void reopeningVerticalShaftRestoresSkylight(final ScenarioTestHelper helper) {
         final World world = helper.world();
-        final int airId = FidorialServer.getInstance().blockStateRegistry().networkId(BlockState.AIR);
+        final int airId = FidorialServer.getInstance().blockStateRegistry().networkId(BlockState.of(BlockTypeKeys.AIR.key()));
         final int cobblestoneId = cobblestoneId();
         final int x = 8;
         final int z = 8;

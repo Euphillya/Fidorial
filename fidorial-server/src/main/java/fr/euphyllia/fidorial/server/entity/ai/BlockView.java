@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.entity.ai;
 import fr.euphyllia.fidorial.server.world.ServerChunk;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.world.Chunk;
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
@@ -19,7 +20,7 @@ public class BlockView {
 
     public static @Nullable BlockState blockAt(final ServerWorld world, final int x, final int y, final int z) {
         if (y < world.minY() || y >= world.minY() + world.height()) {
-            return BlockState.AIR;
+            return BlockState.of(BlockTypeKeys.AIR.key());
         }
         final Optional<Chunk> optionalChunk = world.getChunkIfLoaded(x >> 4, z >> 4);
         if (optionalChunk.isEmpty()) return null;

@@ -5,6 +5,7 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.inventory.ItemStack;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import net.kyori.adventure.key.Key;
 
 public final class ItemStackWriter {
@@ -27,6 +28,6 @@ public final class ItemStackWriter {
 
     public static int networkId(final ItemStack stack, final RegistryHolder frozen) {
         final int id = frozen.networkId(ITEM_REGISTRY, stack.id());
-        return Math.max(id, FidorialServer.getInstance().blockStateRegistry().networkId(BlockState.AIR));
+        return Math.max(id, FidorialServer.getInstance().blockStateRegistry().networkId(BlockState.of(BlockTypeKeys.AIR.key())));
     }
 }

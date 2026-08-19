@@ -29,13 +29,13 @@ import java.util.UUID;
 public interface Server extends ForwardingAudience {
 
     /**
-     * Gets the server name.
+     * Gets the server brand name.
      *
-     * @return server name
+     * @return server brand name
      * @since 0.1.0
      */
     @Contract(pure = true)
-    String getName();
+    String brandName();
 
     String minecraftVersion();
 

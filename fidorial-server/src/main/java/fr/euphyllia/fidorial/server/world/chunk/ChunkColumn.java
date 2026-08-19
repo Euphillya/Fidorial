@@ -3,6 +3,7 @@ package fr.euphyllia.fidorial.server.world.chunk;
 import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntity;
 import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntityTypes;
 import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jspecify.annotations.Nullable;
@@ -207,7 +208,7 @@ public final class ChunkColumn {
 
     public BlockState getBlock(final int localX, final int worldY, final int localZ) {
         final ChunkSection s = sectionForY(worldY);
-        return s == null ? BlockState.AIR : s.getBlock(localX, worldY & 15, localZ);
+        return s == null ? BlockState.of(BlockTypeKeys.AIR.key()) : s.getBlock(localX, worldY & 15, localZ);
     }
 
     public long[] computeHeightmap(final Predicate<BlockState> solid) {

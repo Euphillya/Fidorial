@@ -112,6 +112,7 @@ fidorialRegistryGenerator {
 
     generateRegistryKey = false
     generatePacketCatalogs = true
+    generateBlockStates = true
 }
 
 dependencyPatcher {

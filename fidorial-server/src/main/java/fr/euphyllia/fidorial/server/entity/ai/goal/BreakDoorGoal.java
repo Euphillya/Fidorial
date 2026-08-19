@@ -9,6 +9,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.entity.ai.Goal;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
@@ -137,8 +138,8 @@ public final class BreakDoorGoal implements Goal {
         clearDestroyStage();
 
         final BlockPos other = isUpperHalf(state) ? pos.offset(0, -1, 0) : pos.offset(0, 1, 0);
-        server.blockEdits().set(world, pos, BlockState.AIR);
-        server.blockEdits().set(world, other, BlockState.AIR);
+        server.blockEdits().set(world, pos, BlockState.of(BlockTypeKeys.AIR.key()));
+        server.blockEdits().set(world, other, BlockState.of(BlockTypeKeys.AIR.key()));
 
         server.broadcastNear(world, pos.x() + 0.5, pos.y() + 0.5, pos.z() + 0.5,
                 new ClientboundLevelEventPacket(ClientboundLevelEventPacket.BLOCK_BREAK, pos, 0, false));

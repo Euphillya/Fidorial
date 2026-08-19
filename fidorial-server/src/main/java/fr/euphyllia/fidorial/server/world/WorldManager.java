@@ -13,6 +13,7 @@ import fr.euphyllia.fidorial.server.world.storage.EntityRegionStorage;
 import fr.euphyllia.fidorial.server.world.storage.LevelData;
 import fr.euphyllia.fidorial.server.world.storage.WorldPaths;
 import fr.euphyllia.fidorial.server.world.time.WorldTimeEngine;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.world.entity.EntitySpawnBridge;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
@@ -82,7 +83,7 @@ public final class WorldManager implements AutoCloseable {
         }
 
         final AnvilChunkSerializer serializer = new AnvilChunkSerializer();
-        final ChunkStorage storage = new ChunkStorage(paths, serializer, minY, height, BlockState.AIR, Key.key("plains"));
+        final ChunkStorage storage = new ChunkStorage(paths, serializer, minY, height, BlockState.of(BlockTypeKeys.AIR.key()), Key.key("plains"));
 
         final EntityRegionStorage entityStorage = new EntityRegionStorage(paths);
         final AnvilEntitySerializer entitySerializer = new AnvilEntitySerializer();

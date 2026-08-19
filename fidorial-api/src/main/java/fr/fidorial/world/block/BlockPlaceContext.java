@@ -1,14 +1,15 @@
 package fr.fidorial.world.block;
 
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.world.BlockFace;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
-public record BlockPlaceContext(BlockPos pos, BlockFace clickedFace, Location placer, BlockGetter world) {
+public record BlockPlaceContext(BlockPos pos, BlockFace clickedFace, Location placer, BlockGetter world, float cursorY) {
 
-    private static final Key WATER = Key.key("minecraft", "water");
+    private static final Key WATER = BlockTypeKeys.WATER.key();
 
     public BlockFace horizontalFacing() {
         return switch (Math.floorMod(Math.round(placer.yaw() / 90f), 4)) {
@@ -41,6 +42,13 @@ public record BlockPlaceContext(BlockPos pos, BlockFace clickedFace, Location pl
         return z > 0 ? BlockFace.SOUTH : BlockFace.NORTH;
     }
 
+    public boolean upperHalf() {
+        return switch (clickedFace) {
+            case UP -> false;
+            case DOWN -> true;
+            default -> cursorY > 0.5f;
+        };
+    }
 
     public @Nullable BlockData replaced() {
         return world.blockAt(pos);

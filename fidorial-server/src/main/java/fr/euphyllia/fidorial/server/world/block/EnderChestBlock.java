@@ -2,40 +2,29 @@ package fr.euphyllia.fidorial.server.world.block;
 
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.world.BlockFace;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.block.BlockBehaviour;
 import fr.fidorial.world.block.BlockData;
 import fr.fidorial.world.block.BlockPlaceContext;
-import fr.fidorial.world.block.BlockProperties;
 import fr.fidorial.world.block.BlockType;
+import fr.fidorial.world.block.Blocks;
 import fr.fidorial.world.block.data.Directional;
 import fr.fidorial.world.block.data.Waterlogged;
 import net.kyori.adventure.key.Key;
 
-import java.io.IOException;
 import java.util.Objects;
-
 
 public final class EnderChestBlock implements BlockBehaviour {
 
     public static final EnderChestBlock INSTANCE = new EnderChestBlock();
 
-    public static final Key KEY = Key.key("ender_chest");
-
-    public static final int FIRST_STATE_ID = 9575;
+    public static final Key KEY = BlockTypeKeys.ENDER_CHEST.key();
 
     public static final int LIGHT_EMISSION = 7;
 
     public static final int OBSIDIAN_DROPS = 8;
-
-    public static final BlockType TYPE = BlockType.builder(KEY)
-            .property(BlockProperties.HORIZONTAL_FACING)
-            .property(BlockProperties.WATERLOGGED)
-            .firstStateId(FIRST_STATE_ID)
-            .defaultValue("facing", "north")
-            .defaultValue("waterlogged", "false")
-            .build();
 
     private EnderChestBlock() {
     }
@@ -50,13 +39,13 @@ public final class EnderChestBlock implements BlockBehaviour {
 
     @Override
     public BlockType type() {
-        return TYPE;
+        return Objects.requireNonNull(Blocks.type(KEY));
     }
 
     @Override
     public BlockData placementState(final BlockPlaceContext context) {
         final BlockFace facing = context.horizontalFacing().opposite();
-        BlockData state = Objects.requireNonNull(TYPE.defaultData());
+        BlockData state = Objects.requireNonNull(type().defaultData());
         state = ((Directional) state).setFacing(facing);
         state = ((Waterlogged) state).setWaterlogged(context.intoWater());
         return state;

@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.world.fluid;
 
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
+import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.world.fluid.FluidState;
 import fr.fidorial.world.fluid.FluidType;
 import org.jspecify.annotations.Nullable;
@@ -39,7 +40,7 @@ public class FluidBlockCodec {
 
     public static BlockState toBlock(final FluidState state) {
         if (state.type() == null) {
-            return BlockState.AIR;
+            return BlockState.of(BlockTypeKeys.AIR.key());
         }
         final int level = state.falling() ? FALLING_OFFSET : clamp(state.level());
         return BlockState.of(state.type().blockKey(), Map.of(LEVEL, String.valueOf(level)));
