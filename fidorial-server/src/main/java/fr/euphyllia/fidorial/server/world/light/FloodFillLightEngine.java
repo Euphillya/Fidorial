@@ -121,7 +121,7 @@ public class FloodFillLightEngine implements LightEngine {
             return;
         }
 
-        checkBlockForType(LightType.SKY, x, y, z, access, dirtyChunks);
+        checkBlockForType(LightType.SKY, x, y, z, data, access, dirtyChunks);
     }
 
     private void checkBlockForType(final LightType type, final int x, final int y, final int z, final LightAccess access, final LongSet dirtyChunks) {
@@ -129,7 +129,10 @@ public class FloodFillLightEngine implements LightEngine {
         if (data == null) {
             return;
         }
+        checkBlockForType(type, x, y, z, data, access, dirtyChunks);
+    }
 
+    private void checkBlockForType(final LightType type, final int x, final int y, final int z, final ChunkLightData data, final LightAccess access, final LongSet dirtyChunks) {
         final LongIntQueue decrease = scratchDecrease;
         final LongIntQueue increase = scratchIncrease;
         decrease.reset();
@@ -216,7 +219,7 @@ public class FloodFillLightEngine implements LightEngine {
     private void checkEdgePosition(final LightType type, final int x, final int y, final int z, final ChunkLightData data, final LightAccess access, final LongSet dirtyChunks) {
         final int current = data.get(type, x, y, z);
         if (calculateLightValue(type, x, y, z, current, access) != current) {
-            checkBlockForType(type, x, y, z, access, dirtyChunks);
+            checkBlockForType(type, x, y, z, data, access, dirtyChunks);
         }
     }
 
@@ -234,15 +237,25 @@ public class FloodFillLightEngine implements LightEngine {
         return y > top ? MAX_LEVEL : 0;
     }
 
-    private void propagateIncrease(
-            final LightAccess access, final LightType type, final LongIntQueue queue, final LongSet dirtyChunks) {
+    private void propagateIncrease(final LightAccess access, final LightType type, final LongIntQueue queue, final LongSet dirtyChunks) {
+        long sourceChunkKey = Long.MIN_VALUE;
+        ChunkLightData sourceData = null;
+        long targetChunkKey = Long.MIN_VALUE;
+        ChunkLightData targetData = null;
+        LightAccess.BlockColumnAccess targetCol = null;
+
         while (!queue.isEmpty()) {
             final int x = queue.pollX();
             final int y = queue.pollY();
             final int z = queue.pollZ();
             final int level = queue.pollLevel();
 
-            final ChunkLightData self = access.lightAt(x >> 4, z >> 4);
+            final long sk = ChunkPos.chunkKey(x >> 4, z >> 4);
+            if (sk != sourceChunkKey) {
+                sourceChunkKey = sk;
+                sourceData = access.lightAt(x >> 4, z >> 4);
+            }
+            final ChunkLightData self = sourceData;
             if (self == null || self.get(type, x, y, z) != level) {
                 continue;
             }
@@ -254,7 +267,14 @@ public class FloodFillLightEngine implements LightEngine {
                 if (ny < minY || ny >= maxY) {
                     continue;
                 }
-                final ChunkLightData target = access.lightAt(nx >> 4, nz >> 4);
+
+                final long tk = ChunkPos.chunkKey(nx >> 4, nz >> 4);
+                if (tk != targetChunkKey) {
+                    targetChunkKey = tk;
+                    targetData = access.lightAt(nx >> 4, nz >> 4);
+                    targetCol = access.columnAt(nx >> 4, nz >> 4);
+                }
+                final ChunkLightData target = targetData;
                 if (target == null) {
                     continue;
                 }
@@ -264,7 +284,9 @@ public class FloodFillLightEngine implements LightEngine {
                     continue;
                 }
 
-                final BlockState state = access.blockAt(nx, ny, nz);
+                final BlockState state = targetCol != null
+                        ? targetCol.blockAt(nx & 15, ny, nz & 15)
+                        : access.blockAt(nx, ny, nz);
                 if (BlockLightProperties.occludes(state)) {
                     continue;
                 }
@@ -272,7 +294,7 @@ public class FloodFillLightEngine implements LightEngine {
                 final int targetLevel = level - lightDecrement(type, dir, state);
                 if (targetLevel > current) {
                     target.set(type, nx, ny, nz, targetLevel);
-                    dirtyChunks.add(ChunkPos.chunkKey(nx >> 4, nz >> 4));
+                    dirtyChunks.add(tk);
                     if (targetLevel > 1) {
                         queue.push(nx, ny, nz, targetLevel);
                     }
@@ -281,9 +303,11 @@ public class FloodFillLightEngine implements LightEngine {
         }
     }
 
-    private void propagateDecrease(
-            final LightAccess access, final LightType type, final LongIntQueue decreaseQueue,
-            final LongIntQueue increaseQueue, final LongSet dirtyChunks) {
+    private void propagateDecrease(final LightAccess access, final LightType type, final LongIntQueue decreaseQueue, final LongIntQueue increaseQueue, final LongSet dirtyChunks) {
+        long targetChunkKey = Long.MIN_VALUE;
+        ChunkLightData targetData = null;
+        LightAccess.BlockColumnAccess targetCol = null;
+
         while (!decreaseQueue.isEmpty()) {
             final int x = decreaseQueue.pollX();
             final int y = decreaseQueue.pollY();
@@ -297,7 +321,14 @@ public class FloodFillLightEngine implements LightEngine {
                 if (ny < minY || ny >= maxY) {
                     continue;
                 }
-                final ChunkLightData target = access.lightAt(nx >> 4, nz >> 4);
+
+                final long tk = ChunkPos.chunkKey(nx >> 4, nz >> 4);
+                if (tk != targetChunkKey) {
+                    targetChunkKey = tk;
+                    targetData = access.lightAt(nx >> 4, nz >> 4);
+                    targetCol = access.columnAt(nx >> 4, nz >> 4);
+                }
+                final ChunkLightData target = targetData;
                 if (target == null) {
                     continue;
                 }
@@ -307,13 +338,15 @@ public class FloodFillLightEngine implements LightEngine {
                     continue;
                 }
 
-                final BlockState state = access.blockAt(nx, ny, nz);
+                final BlockState state = targetCol != null
+                        ? targetCol.blockAt(nx & 15, ny, nz & 15)
+                        : access.blockAt(nx, ny, nz);
                 final int decrement = lightDecrement(type, dir, state);
                 final int targetLevel = oldLevel - decrement;
 
                 if (neighbourLevel <= targetLevel) {
                     target.set(type, nx, ny, nz, 0);
-                    dirtyChunks.add(ChunkPos.chunkKey(nx >> 4, nz >> 4));
+                    dirtyChunks.add(tk);
                     decreaseQueue.push(nx, ny, nz, neighbourLevel);
                 } else {
                     increaseQueue.push(nx, ny, nz, neighbourLevel);
