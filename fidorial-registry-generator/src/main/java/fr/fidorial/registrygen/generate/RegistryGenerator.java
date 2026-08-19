@@ -2,6 +2,7 @@ package fr.fidorial.registrygen.generate;
 
 import fr.fidorial.registrygen.model.BlockReportDefinition;
 import fr.fidorial.registrygen.model.PacketCatalogs;
+import fr.fidorial.registrygen.model.PrismarineBlockLightPropertiesDefinition;
 import fr.fidorial.registrygen.model.ProtocolIdRegistries;
 import fr.fidorial.registrygen.model.ProtocolIdTarget;
 import fr.fidorial.registrygen.model.RegistriesHolder;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -29,6 +31,7 @@ public final class RegistryGenerator {
     private final RegistryKeyGenerator registryKeyGenerator;
     private final RegistryProtocolIdGenerator protocolIdGenerator;
     private final BlockReportParser blockReportParser;
+    private final PrismarineBlockReportParser prismarineBlockReportParser;
     private final BlockStateGenerator blockStateGenerator;
 
     /**
@@ -43,6 +46,7 @@ public final class RegistryGenerator {
                 new RegistryKeyGenerator(),
                 new RegistryProtocolIdGenerator(),
                 new BlockReportParser(),
+                new PrismarineBlockReportParser(),
                 new BlockStateGenerator());
     }
 
@@ -58,6 +62,7 @@ public final class RegistryGenerator {
      * @param registryKeyGenerator central registry-key generator
      * @param protocolIdGenerator raw protocol ID constant generator
      * @param blockReportParser   blocks report parser
+     * @param prismarineBlockReportParser prismarine block report parser
      * @param blockStateGenerator block type registration generator
      */
     public RegistryGenerator(final RegistryReportParser parser,
@@ -66,6 +71,7 @@ public final class RegistryGenerator {
                              final RegistryKeyGenerator registryKeyGenerator,
                              final RegistryProtocolIdGenerator protocolIdGenerator,
                              final BlockReportParser blockReportParser,
+                             final PrismarineBlockReportParser prismarineBlockReportParser,
                              final BlockStateGenerator blockStateGenerator) {
 
         this.parser = Objects.requireNonNull(parser, "parser");
@@ -74,6 +80,7 @@ public final class RegistryGenerator {
         this.registryKeyGenerator = Objects.requireNonNull(registryKeyGenerator, "registryKeyGenerator");
         this.protocolIdGenerator = Objects.requireNonNull(protocolIdGenerator, "protocolIdGenerator");
         this.blockReportParser = Objects.requireNonNull(blockReportParser, "blockReportParser");
+        this.prismarineBlockReportParser = Objects.requireNonNull(prismarineBlockReportParser, "prismarineBlockReportParser");
         this.blockStateGenerator = Objects.requireNonNull(blockStateGenerator, "blockStateGenerator");
     }
 
@@ -167,18 +174,26 @@ public final class RegistryGenerator {
     }
 
     /**
-     * Parses a Mojang blocks report and generates {@code BlockStates},
-     * registering every block type and its full state table.
+     * Parses a Mojang blocks report (and, optionally, a Prismarine {@code minecraft-data} blocks
+     * report for light emission/opacity) and generates {@code BlockStateIds}/{@code BlockStateProperties}
+     * (and, when Prismarine data is supplied, {@code BlockLighting}).
      *
-     * @param blocksJson      path to {@code blocks.json}
-     * @param outputDirectory generated Java source root
+     * @param blocksJson           path to Mojang's {@code blocks.json}
+     * @param prismarineBlocksJson path to Prismarine's {@code blocks.json}, or {@code null} to skip lighting
+     * @param outputDirectory      generated Java source root
      *
      * @throws IOException if parsing or source generation fails
      */
-    public void generateBlockStates(final Path blocksJson, final Path outputDirectory) throws IOException {
+    public void generateBlockStates(final Path blocksJson, final Path prismarineBlocksJson,
+                                    final Path outputDirectory) throws IOException {
 
         final List<BlockReportDefinition> blocks = blockReportParser.parse(blocksJson);
-        blockStateGenerator.generate(blocks, outputDirectory);
+
+        final Map<String, PrismarineBlockLightPropertiesDefinition> lighting = (prismarineBlocksJson != null)
+                ? prismarineBlockReportParser.parse(prismarineBlocksJson)
+                : Map.of();
+
+        blockStateGenerator.generate(blocks, lighting, outputDirectory);
     }
 
     /**

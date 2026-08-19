@@ -6,6 +6,7 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
@@ -14,6 +15,7 @@ import org.gradle.api.tasks.TaskAction;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 
 @CacheableTask
 public abstract class GenerateBlockStatesTask extends DefaultTask {
@@ -21,6 +23,11 @@ public abstract class GenerateBlockStatesTask extends DefaultTask {
     @InputFile
     @PathSensitive(PathSensitivity.NONE)
     public abstract RegularFileProperty getBlocksReport();
+
+    @Optional
+    @InputFile
+    @PathSensitive(PathSensitivity.NONE)
+    public abstract RegularFileProperty getPrismarineBlocksReport();
 
     @OutputDirectory
     public abstract DirectoryProperty getGeneratedSourcesDirectory();
@@ -32,8 +39,13 @@ public abstract class GenerateBlockStatesTask extends DefaultTask {
     @TaskAction
     public void generate() {
         try {
+            final Path prismarineBlocksReport = getPrismarineBlocksReport().isPresent()
+                    ? getPrismarineBlocksReport().get().getAsFile().toPath()
+                    : null;
+
             new RegistryGenerator().generateBlockStates(
                     getBlocksReport().get().getAsFile().toPath(),
+                    prismarineBlocksReport,
                     getGeneratedSourcesDirectory().get().getAsFile().toPath()
             );
         } catch (final IOException e) {

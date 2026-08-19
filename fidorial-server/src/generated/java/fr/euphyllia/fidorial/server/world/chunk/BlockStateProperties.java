@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
 import fr.fidorial.registry.keys.BlockTypeKeys;
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
 import net.kyori.adventure.key.Key;
 
@@ -11,9 +11,9 @@ import net.kyori.adventure.key.Key;
  * <p>Generated from Mojang's blocks report; do not edit.</p>
  */
 public final class BlockStateProperties {
-    private static final Map<Key, BlockState[]> BY_KEY = new HashMap<>();
+    private static final Object2ObjectOpenHashMap<Key, BlockState[]> BY_KEY = new Object2ObjectOpenHashMap<>();
 
-    private static final Map<Key, BlockState> DEFAULT = new HashMap<>();
+    private static final Object2ObjectOpenHashMap<Key, BlockState> DEFAULT = new Object2ObjectOpenHashMap<>();
 
     private BlockStateProperties() {
         throw new UnsupportedOperationException("BlockStateProperties cannot be instantiated.");

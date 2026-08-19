@@ -61,4 +61,18 @@ public abstract class FidorialRegistryGeneratorExtension {
      * registries that don't need typed keys.</p>
      */
     public abstract Property<Boolean> getGenerateRegistryKey();
+
+    /**
+     * Optional PrismarineJS {@code minecraft-data} version directory (e.g. {@code "26.1"}),
+     * used to source data that Mojang's own reports don't expose.
+     *
+     * <p>Leave unset to skip Prismarine enrichment entirely
+     */
+    public abstract Property<String> getPrismarineMinecraftData();
+
+    /**
+     * Git ref (branch or tag) of {@code PrismarineJS/minecraft-data} to pull
+     * {@link #getPrismarineMinecraftData()} from. Defaults to {@code "master"}.
+     */
+    public abstract Property<String> getPrismarineDataRef();
 }
