@@ -345,7 +345,7 @@ public class LightUpdateDispatcher {
 
     private static final class WorldLightState {
         private final Long2IntOpenHashMap refCounts = new Long2IntOpenHashMap();
-        private final Long2ObjectOpenHashMap<CompletableFuture<Void>> waiters = new Long2ObjectOpenHashMap<>();
+        private final Long2ObjectOpenHashMap<@Nullable CompletableFuture<Void>> waiters = new Long2ObjectOpenHashMap<>();
 
         WorldLightState() {
             refCounts.defaultReturnValue(0);

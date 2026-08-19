@@ -8,17 +8,19 @@ import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.ParameterSpec;
 import com.palantir.javapoet.ParameterizedTypeName;
+import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
 import fr.fidorial.registrygen.GenerationUtils;
 import fr.fidorial.registrygen.model.BlockPropertyDefinition;
 import fr.fidorial.registrygen.model.BlockReportDefinition;
+import fr.fidorial.registrygen.model.PrismarineBlockLightPropertiesDefinition;
 import fr.fidorial.registrygen.model.SupportedRegistries;
 import net.kyori.adventure.key.Key;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,14 +38,21 @@ public final class BlockStateGenerator {
     private static final String CHUNK_PACKAGE = "fr.euphyllia.fidorial.server.world.chunk";
     private static final String PROTOCOL_IDS_CLASS_NAME = "BlockStateIds";
     private static final String PROPERTIES_CLASS_NAME = "BlockStateProperties";
+    private static final String LIGHT_PROPERTIES_CLASS_NAME = "BlockStateLightProperties";
 
     private static final int NETWORK_BLOCKS_PER_METHOD = 150; // 64kb limit
     private static final int STATES_PER_FILL_METHOD = 50;
 
+    private static final int DEFAULT_EMISSION = 0;
+    private static final int DEFAULT_OPACITY = 15; // fully opaque fallback for unmatched blocks
+
     private static final ClassName KEY = ClassName.get(Key.class);
     private static final ClassName MAP = ClassName.get(Map.class);
-    private static final ClassName HASH_MAP = ClassName.get(HashMap.class);
     private static final ClassName LIST = ClassName.get(List.class);
+    private static final ClassName OBJECT_2_OBJECT_OPEN_HASH_MAP =
+            ClassName.get("it.unimi.dsi.fastutil.objects", "Object2ObjectOpenHashMap");
+    private static final ClassName OBJECT_2_INT_OPEN_HASH_MAP =
+            ClassName.get("it.unimi.dsi.fastutil.objects", "Object2IntOpenHashMap");
 
     private static final ClassName BLOCK_TYPE = ClassName.get("fr.fidorial.world.block", "BlockType");
     private static final ClassName BLOCK_PROPERTY = ClassName.get("fr.fidorial.world.block", "BlockProperty");
@@ -54,25 +63,37 @@ public final class BlockStateGenerator {
             ClassName.get(RegistryKeysGenerator.KEYS_PACKAGE, SupportedRegistries.BLOCK.keysClassName());
 
     private static final ParameterizedTypeName STATES_BY_KEY_TYPE =
-            ParameterizedTypeName.get(MAP, KEY, ArrayTypeName.of(BLOCK_STATE));
+            ParameterizedTypeName.get(OBJECT_2_OBJECT_OPEN_HASH_MAP, KEY, ArrayTypeName.of(BLOCK_STATE));
     private static final ParameterizedTypeName DEFAULT_STATE_BY_KEY_TYPE =
-            ParameterizedTypeName.get(MAP, KEY, BLOCK_STATE);
+            ParameterizedTypeName.get(OBJECT_2_OBJECT_OPEN_HASH_MAP, KEY, BLOCK_STATE);
+    private static final ParameterizedTypeName LIGHT_MAP_TYPE =
+            ParameterizedTypeName.get(OBJECT_2_INT_OPEN_HASH_MAP, KEY);
 
     /**
-     * Generates both block state classes.
+     * Generates the block state classes, and — when Prismarine lighting data is supplied —
+     * {@code BlockLightProperties}.
      *
      * @param blocks          parsed Mojang block definitions
+     * @param lighting        Prismarine light emission/opacity, keyed by plain block name;
+     *                        pass {@link Map#of()} to skip {@code BlockLightProperties} generation
      * @param outputDirectory generated Java source root
      *
-     * @throws IOException if either generated file cannot be written
+     * @throws IOException if a generated file cannot be written
      */
-    public void generate(final List<BlockReportDefinition> blocks, final Path outputDirectory) throws IOException {
+    public void generate(final List<BlockReportDefinition> blocks,
+                         final Map<String, PrismarineBlockLightPropertiesDefinition> lighting,
+                         final Path outputDirectory) throws IOException {
 
         Objects.requireNonNull(blocks, "blocks");
+        Objects.requireNonNull(lighting, "lighting");
         Objects.requireNonNull(outputDirectory, "outputDirectory");
 
         generateProtocolIds(blocks, outputDirectory);
         generateProperties(blocks, outputDirectory);
+
+        if (!lighting.isEmpty()) {
+            generateLightProperties(blocks, lighting, outputDirectory);
+        }
     }
 
     /**
@@ -182,7 +203,7 @@ public final class BlockStateGenerator {
     private static FieldSpec createStateMapField(final String name, final ParameterizedTypeName fieldType) {
 
         return FieldSpec.builder(fieldType, name, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new $T<>()", HASH_MAP)
+                .initializer("new $T<>()", OBJECT_2_OBJECT_OPEN_HASH_MAP)
                 .build();
     }
 
@@ -297,7 +318,7 @@ public final class BlockStateGenerator {
                     BLOCK_STATE,
                     BLOCK_TYPE_KEYS,
                     fieldName,
-                    createPropertiesMapInitializer(statePropertiesInOrder.get(0), orderedProperties));
+                    createPropertiesMapInitializer(statePropertiesInOrder.getFirst(), orderedProperties));
         }
 
         final CodeBlock.Builder initializer = CodeBlock.builder().add("new $T[] {\n", BLOCK_STATE).indent();
@@ -384,6 +405,126 @@ public final class BlockStateGenerator {
                 .addJavadoc("@return the default state, or {@code null} if unknown\n")
                 .addStatement("return DEFAULT.get($N)", "key")
                 .build();
+    }
+
+    /**
+     * Generates {@code BlockLightProperties}, registering per-block light emission/opacity
+     * sourced from PrismarineJS's {@code minecraft-data} (Mojang's own report doesn't expose this).
+     *
+     * @param blocks          parsed Mojang block definitions
+     * @param lighting        Prismarine light emission/opacity, keyed by plain block name
+     * @param outputDirectory generated Java source root
+     *
+     * @throws IOException if the source file cannot be written
+     */
+    private void generateLightProperties(final List<BlockReportDefinition> blocks,
+                                         final Map<String, PrismarineBlockLightPropertiesDefinition> lighting,
+                                         final Path outputDirectory) throws IOException {
+
+        final TypeSpec.Builder lightProperties = TypeSpec.classBuilder(LIGHT_PROPERTIES_CLASS_NAME)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addJavadoc("Per-block light emission/opacity, sourced from PrismarineJS's {@code minecraft-data}.\n\n")
+                .addJavadoc("<p>Generated from Prismarine's blocks report; do not edit.</p>\n")
+                .addField(createLightMapField("EMISSION"))
+                .addField(createLightMapField("OPACITY"))
+                .addStaticBlock(createLightDefaultsInitializer())
+                .addMethod(createPrivateConstructor(LIGHT_PROPERTIES_CLASS_NAME))
+                .addMethod(createLightAccessor("emission", "EMISSION", DEFAULT_EMISSION))
+                .addMethod(createLightAccessor("opacity", "OPACITY", DEFAULT_OPACITY))
+                .addMethod(createLightRegisterHelper());
+
+        addLightRegistrationMethods(lightProperties, blocks, lighting);
+
+        JavaFile.builder(NETWORK_PACKAGE, lightProperties.build()).indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
+    }
+
+    private static FieldSpec createLightMapField(final String name) {
+        return FieldSpec.builder(LIGHT_MAP_TYPE, name, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                .initializer("new $T<>()", OBJECT_2_INT_OPEN_HASH_MAP)
+                .build();
+    }
+
+    private static CodeBlock createLightDefaultsInitializer() {
+        return CodeBlock.builder()
+                .addStatement("OPACITY.defaultReturnValue($L)", DEFAULT_OPACITY)
+                .build();
+    }
+
+    private static MethodSpec createLightAccessor(final String methodName, final String mapFieldName, final int defaultValue) {
+
+        final ParameterSpec keyParameter = ParameterSpec.builder(KEY, "key", Modifier.FINAL).build();
+
+        return MethodSpec.methodBuilder(methodName)
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(TypeName.INT)
+                .addParameter(keyParameter)
+                .addJavadoc("@param key namespaced block identifier\n")
+                .addJavadoc("@return {@code " + defaultValue + "} if the block has no recorded data\n")
+                .addStatement("return $N.getInt($N)", mapFieldName, "key")
+                .build();
+    }
+
+    private static MethodSpec createLightRegisterHelper() {
+
+        final ParameterSpec keyParameter = ParameterSpec.builder(KEY, "key", Modifier.FINAL).build();
+        final ParameterSpec emissionParameter = ParameterSpec.builder(int.class, "emission", Modifier.FINAL).build();
+        final ParameterSpec opacityParameter = ParameterSpec.builder(int.class, "opacity", Modifier.FINAL).build();
+
+        return MethodSpec.methodBuilder("register")
+                .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
+                .addParameter(keyParameter)
+                .addParameter(emissionParameter)
+                .addParameter(opacityParameter)
+                .addStatement("EMISSION.put($N, $N)", "key", "emission")
+                .addStatement("OPACITY.put($N, $N)", "key", "opacity")
+                .build();
+    }
+
+    private static void addLightRegistrationMethods(final TypeSpec.Builder lightProperties,
+                                                    final List<BlockReportDefinition> blocks,
+                                                    final Map<String, PrismarineBlockLightPropertiesDefinition> lighting) {
+
+        final List<BlockReportDefinition> known = new ArrayList<>();
+        for (final BlockReportDefinition block : blocks) {
+            if (lighting.containsKey(GenerationUtils.path(block.identifier()))) {
+                known.add(block);
+            } else {
+                System.out.println("No Prismarine lighting data for: " + block.identifier());
+            }
+        }
+
+        final MethodSpec.Builder bootstrap = MethodSpec.methodBuilder("bootstrap")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC);
+
+        int chunkIndex = 0;
+        for (int start = 0; start < known.size(); start += NETWORK_BLOCKS_PER_METHOD) {
+
+            final int end = Math.min(start + NETWORK_BLOCKS_PER_METHOD, known.size());
+            final String chunkMethodName = "registerLight" + chunkIndex;
+
+            lightProperties.addMethod(createLightChunkMethod(chunkMethodName, known.subList(start, end), lighting));
+            bootstrap.addStatement("$N()", chunkMethodName);
+
+            chunkIndex++;
+        }
+
+        lightProperties.addMethod(bootstrap.build());
+    }
+
+    private static MethodSpec createLightChunkMethod(final String methodName,
+                                                     final List<BlockReportDefinition> blocks,
+                                                     final Map<String, PrismarineBlockLightPropertiesDefinition> lighting) {
+
+        final MethodSpec.Builder chunkMethod = MethodSpec.methodBuilder(methodName)
+                .addModifiers(Modifier.PRIVATE, Modifier.STATIC);
+
+        for (final BlockReportDefinition block : blocks) {
+            final PrismarineBlockLightPropertiesDefinition entry = lighting.get(GenerationUtils.path(block.identifier()));
+            chunkMethod.addStatement("register($T.$N.key(), $L, $L)",
+                    BLOCK_TYPE_KEYS, keysFieldName(block.identifier()), entry.emitLight(), entry.filterLight());
+        }
+
+        return chunkMethod.build();
     }
 
     private static String keysFieldName(final String identifier) {

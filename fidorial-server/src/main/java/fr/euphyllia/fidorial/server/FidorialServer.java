@@ -39,6 +39,7 @@ import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
 import fr.euphyllia.fidorial.server.registry.data.BlockStateIds;
+import fr.euphyllia.fidorial.server.registry.data.BlockStateLightProperties;
 import fr.euphyllia.fidorial.server.registry.dialog.FidorialDialogRegistry;
 import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
@@ -231,6 +232,7 @@ public final class FidorialServer implements Server {
         final FidorialBlockRegistry registry = new FidorialBlockRegistry();
         BlockStateIds.registerAll(registry);
         BlockStateProperties.bootstrap();
+        BlockStateLightProperties.bootstrap();
         Blocks.bootstrap(registry);
         LOGGER.info("{} blocks defined in code", registry.definedCount());
         return registry;

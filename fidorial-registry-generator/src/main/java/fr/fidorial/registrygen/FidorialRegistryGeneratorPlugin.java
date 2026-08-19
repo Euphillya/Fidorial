@@ -1,5 +1,6 @@
 package fr.fidorial.registrygen;
 
+import fr.fidorial.registrygen.task.DownloadPrismarineDataTask;
 import fr.fidorial.registrygen.task.DownloadServerJarTask;
 import fr.fidorial.registrygen.task.GenerateBlockStatesTask;
 import fr.fidorial.registrygen.task.GeneratePacketsTask;
@@ -39,10 +40,11 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
     configureDefaults(project, extension);
 
     final TaskProvider<DownloadServerJarTask> downloadTask = registerDownloadTask(project, extension);
+    final TaskProvider<DownloadPrismarineDataTask> prismarineTask = registerPrismarineDataTask(project, extension);
     final TaskProvider<GenerateReportsTask> reportsTask = registerReportsTask(project, extension, downloadTask);
     final TaskProvider<GenerateRegistriesTask> registriesTask = registerRegistriesTask(project, extension, reportsTask);
     registerPacketsTask(project, extension, reportsTask);
-    registerBlockStatesTask(project, extension, reportsTask);
+    registerBlockStatesTask(project, extension, reportsTask, prismarineTask);
 
     registerLifecycleTask(project, registriesTask);
   }
@@ -58,6 +60,7 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
     extension.getGeneratedPackage().convention("fr.fidorial.registry");
     extension.getRegistries().convention(Map.of());
     extension.getDataGeneratorArguments().convention(List.of("--reports"));
+    extension.getPrismarineDataRef().convention("master");
   }
 
   private static TaskProvider<DownloadServerJarTask> registerDownloadTask(final Project project,
@@ -70,6 +73,22 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
       task.getMinecraftVersion().set(extension.getMinecraftVersion());
       task.getServerJar().set(extension.getWorkingDirectory()
               .file(extension.getMinecraftVersion().map(version -> "minecraft/" + version + "/jar/server.jar")));
+    });
+  }
+
+  private static TaskProvider<DownloadPrismarineDataTask> registerPrismarineDataTask(final Project project,
+                                                                                     final FidorialRegistryGeneratorExtension extension) {
+
+    return project.getTasks().register("downloadPrismarineData", DownloadPrismarineDataTask.class, task -> {
+      task.setGroup("fidorial registry generation");
+      task.setDescription("Downloads PrismarineJS minecraft-data's full pc/<version> data directory.");
+
+      task.onlyIf(_ -> extension.getPrismarineMinecraftData().isPresent());
+
+      task.getPrismarineMinecraftData().set(extension.getPrismarineMinecraftData());
+      task.getRef().set(extension.getPrismarineDataRef());
+      task.getDataDirectory().set(extension.getWorkingDirectory()
+              .dir(extension.getPrismarineMinecraftData().map(version -> "prismarine/" + version)));
     });
   }
 
@@ -135,7 +154,8 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
 
   private static TaskProvider<GenerateBlockStatesTask> registerBlockStatesTask(final Project project,
                                                                                final FidorialRegistryGeneratorExtension extension,
-                                                                               final TaskProvider<GenerateReportsTask> reportsTask) {
+                                                                               final TaskProvider<GenerateReportsTask> reportsTask,
+                                                                               final TaskProvider<DownloadPrismarineDataTask> prismarineTask) {
 
     return project.getTasks().register(BLOCK_STATES_TASK_NAME, GenerateBlockStatesTask.class, task -> {
        task.setGroup("fidorial registry generation");
@@ -146,6 +166,10 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
 
        task.getBlocksReport().set(reportsTask.flatMap(GenerateReportsTask::getDataDirectory)
               .map(dir -> dir.file("generated/reports/blocks.json")));
+
+       task.getPrismarineBlocksReport().set(extension.getPrismarineMinecraftData()
+              .flatMap(_ -> prismarineTask.flatMap(DownloadPrismarineDataTask::getDataDirectory))
+              .map(dir -> dir.file("blocks.json")));
 
        task.getGeneratedSourcesDirectory().set(extension.getGeneratedSourcesDirectory());
     });

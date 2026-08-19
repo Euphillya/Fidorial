@@ -88,6 +88,7 @@ tasks.shadowJar {
 
 fidorialRegistryGenerator {
     minecraftVersion.set("26.2")
+    prismarineMinecraftData.set("26.1")
 
     generatedPackage.set(
         "fr.euphyllia.fidorial.server.registry"

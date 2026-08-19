@@ -57,7 +57,6 @@ public class BlockLightProperties {
         return props;
     }
 
-    @SuppressWarnings("PatternValidation")
     private static @Nullable Resolved resolve(final BlockRegistry registry, final BlockState state) {
         final BlockBehaviour behaviour = registry.behaviour(state.name()).orElse(null);
         if (behaviour == null) {
