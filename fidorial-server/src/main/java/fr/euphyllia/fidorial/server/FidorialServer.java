@@ -38,6 +38,7 @@ import fr.euphyllia.fidorial.server.plugin.JavaPluginManager;
 import fr.euphyllia.fidorial.server.registry.Registries;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
+import fr.euphyllia.fidorial.server.registry.dialog.FidorialDialogRegistry;
 import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.schedulers.LightUpdateDispatcher;
@@ -492,6 +493,11 @@ public final class FidorialServer implements Server {
     @Override
     public BiomeRegistry biomes() {
         return registries.biomes();
+    }
+
+    @Override
+    public FidorialDialogRegistry dialogs() {
+        return registries.dialogs();
     }
 
     public FidorialBiomeRegistry biomeRegistry() {

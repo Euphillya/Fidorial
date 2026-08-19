@@ -6,15 +6,16 @@ import fr.fidorial.protocol.PacketListener;
 import fr.fidorial.protocol.ServerboundPacket;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.BinaryTag;
+import org.jspecify.annotations.Nullable;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Packets#Custom_Click_Action
-public record ServerboundCustomClickActionPacket(Key id, BinaryTag payload) implements ServerboundPacket {
+public record ServerboundCustomClickActionPacket(Key id, @Nullable BinaryTag payload) implements ServerboundPacket {
 
     private static final int MAX_PAYLOAD_BYTES = 65536;
 
     public static ServerboundCustomClickActionPacket read(final PacketBuffer buf) {
         final Key id = buf.readKey();
-        final BinaryTag payload = buf.readSizedNbt(MAX_PAYLOAD_BYTES);
+        final BinaryTag payload = buf.readSizedOptionalNbt(MAX_PAYLOAD_BYTES);
         return new ServerboundCustomClickActionPacket(id, payload);
     }
 
