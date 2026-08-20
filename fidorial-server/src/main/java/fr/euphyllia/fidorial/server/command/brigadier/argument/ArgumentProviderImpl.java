@@ -31,8 +31,8 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Dimensio
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.range.MinMaxBounds;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.range.RangeArgument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.range.RangeBounds;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.KeyArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.resource.ResourceKeyArgument;
@@ -65,7 +65,6 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 
 import java.time.Duration;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
@@ -232,7 +231,7 @@ public class ArgumentProviderImpl implements ArgumentProvider {
     }
 
     private static <N extends Number & Comparable<N>, R extends RangeProvider<N>> R toRange(
-            final MinMaxBounds<N> bounds,
+            final RangeBounds<N> bounds,
             final Function<Range<N>, R> factory
     ) {
         final var min = bounds.min();
@@ -320,16 +319,6 @@ public class ArgumentProviderImpl implements ArgumentProvider {
     @Override
     public <N, T> ArgumentType<T> map(final ArgumentType<N> nativeType, final ArgumentMapper<N, T> mapper, final SuggestionProvider<CommandSource> suggestions) {
         return new MappedArgumentType<>(nativeType, mapper, suggestions);
-    }
-
-    @Override
-    public <N, T> ArgumentType<T> map(
-            final ArgumentType<N> nativeType,
-            final ArgumentMapper<N, T> mapper,
-            final SuggestionProvider<CommandSource> suggestions,
-            final Collection<String> examples
-    ) {
-        return new MappedArgumentType<>(nativeType, mapper, suggestions, examples);
     }
 
     @Override

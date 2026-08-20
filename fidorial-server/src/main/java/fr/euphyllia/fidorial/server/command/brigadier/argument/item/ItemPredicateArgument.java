@@ -18,8 +18,6 @@ import fr.fidorial.registry.keys.ItemKeys;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -28,8 +26,6 @@ import java.util.function.Predicate;
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class ItemPredicateArgument<T> implements ArgumentType<T> {
-
-    private static final Collection<String> EXAMPLES = Arrays.asList("stick", "minecraft:stick");
 
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_ITEM =
             new DynamicCommandExceptionType(id -> MSG_SERIALIZER.serialize(
@@ -97,11 +93,6 @@ public final class ItemPredicateArgument<T> implements ArgumentType<T> {
                 .filter(id -> id.contains(remaining))
                 .forEach(builder::suggest);
         return builder.buildFuture();
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<ItemPredicateArgument<?>, Info.Spec> {

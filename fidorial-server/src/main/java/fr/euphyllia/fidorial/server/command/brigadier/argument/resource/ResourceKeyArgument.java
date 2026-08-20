@@ -16,14 +16,10 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import net.kyori.adventure.key.Key;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
-
-    private static final Collection<String> EXAMPLES = List.of("minecraft:zombie", "zombie", "foo:bar");
 
     private final RegistryKey<T> registryKey;
 
@@ -100,11 +96,6 @@ public final class ResourceKeyArgument<T> implements ArgumentType<TypedKey<T>> {
 
     private Registry<T> registry() {
         return FidorialServer.getInstance().registries().registry(registryKey);
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public RegistryKey<T> registryKey() {

@@ -12,7 +12,6 @@ import fr.fidorial.command.argument.ArgumentTypes;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
@@ -28,10 +27,8 @@ public final class BossBarOverlayArgument {
     }
 
     public static ArgumentType<BossBar.Overlay> bossBarOverlay() {
-        return ArgumentTypes.map(StringArgumentType.word(), BossBarOverlayArgument::parse, BossBarOverlayArgument::suggest, EXAMPLES);
+        return ArgumentTypes.map(StringArgumentType.word(), BossBarOverlayArgument::parse, BossBarOverlayArgument::suggest);
     }
-
-    private static final List<String> EXAMPLES = List.of("darken_screen", "play_boss_music");
 
     private static BossBar.Overlay parse(final String value, final StringReader reader) throws CommandSyntaxException {
         for (final BossBar.Overlay overlay : BossBar.Overlay.values()) {

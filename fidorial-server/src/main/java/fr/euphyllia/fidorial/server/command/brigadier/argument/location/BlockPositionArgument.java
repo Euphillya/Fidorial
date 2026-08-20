@@ -15,13 +15,9 @@ import fr.fidorial.command.argument.resolvers.BlockPosResolver;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 public final class BlockPositionArgument implements ArgumentType<BlockPosResolver> {
-
-    private static final Collection<String> EXAMPLES = Arrays.asList("0 0 0", "~ ~ ~", "~1 ~ ~-5");
 
     public static BlockPositionArgument blockPosition() {
         return new BlockPositionArgument();
@@ -85,11 +81,6 @@ public final class BlockPositionArgument implements ArgumentType<BlockPosResolve
                     (int) Math.floor(pz)
             );
         };
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     private record Coordinate(double value, boolean relative) {

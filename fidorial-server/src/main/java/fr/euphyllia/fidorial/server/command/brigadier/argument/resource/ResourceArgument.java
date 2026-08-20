@@ -19,16 +19,12 @@ import fr.fidorial.registry.TypedKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class ResourceArgument<T> implements ArgumentType<T> {
-
-    private static final Collection<String> EXAMPLES = List.of("minecraft:zombie", "zombie", "foo:bar");
 
     public static final Dynamic2CommandExceptionType ERROR_UNKNOWN_RESOURCE =
             new Dynamic2CommandExceptionType((id, registry) -> MSG_SERIALIZER.serialize(Component.translatable(
@@ -84,11 +80,6 @@ public final class ResourceArgument<T> implements ArgumentType<T> {
         }
 
         return builder.buildFuture();
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public RegistryKey<T> registryKey() {

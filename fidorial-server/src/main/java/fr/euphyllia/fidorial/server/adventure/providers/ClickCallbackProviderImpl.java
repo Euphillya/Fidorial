@@ -5,7 +5,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
 
-@SuppressWarnings("UnstableApiUsage")
+@SuppressWarnings("UnstableApiUsage") // we are permitted
 public class ClickCallbackProviderImpl implements ClickCallback.Provider {
     @Override
     public ClickEvent<?> create(ClickCallback<Audience> callback, ClickCallback.Options options) {

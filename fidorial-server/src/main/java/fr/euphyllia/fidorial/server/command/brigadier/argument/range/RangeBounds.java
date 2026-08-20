@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
-public interface MinMaxBounds<T extends Number & Comparable<T>> {
+public interface RangeBounds<T extends Number & Comparable<T>> {
 
     SimpleCommandExceptionType ERROR_EMPTY = new SimpleCommandExceptionType(
             MSG_SERIALIZER.serialize(Component.translatable("argument.range.empty")));
@@ -138,7 +138,7 @@ public interface MinMaxBounds<T extends Number & Comparable<T>> {
         }
     }
 
-    record Doubles(Bounds<Double> bounds, Bounds<Double> boundsSqr) implements MinMaxBounds<Double> {
+    record Doubles(Bounds<Double> bounds, Bounds<Double> boundsSqr) implements RangeBounds<Double> {
 
         public static final Doubles ANY = new Doubles(Bounds.any());
 
@@ -186,7 +186,7 @@ public interface MinMaxBounds<T extends Number & Comparable<T>> {
         }
     }
 
-    record Ints(Bounds<Integer> bounds, Bounds<Long> boundsSqr) implements MinMaxBounds<Integer> {
+    record Ints(Bounds<Integer> bounds, Bounds<Long> boundsSqr) implements RangeBounds<Integer> {
 
         public static final Ints ANY = new Ints(Bounds.any());
 

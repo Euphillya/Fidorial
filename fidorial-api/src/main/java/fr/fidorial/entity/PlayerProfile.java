@@ -25,6 +25,7 @@ public record PlayerProfile(UUID uuid, String name, List<Property> properties) i
     }
 
     @Override
+    @SuppressWarnings("UnstableApiUsage") // we are permitted to override
     public void applySkinToPlayerHeadContents(final PlayerHeadObjectContents.Builder builder) {
         if (!this.properties.isEmpty()) {
             builder.profileProperties(

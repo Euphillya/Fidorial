@@ -58,10 +58,8 @@ public final class DurationArgument {
     }
 
     public static ArgumentType<Duration> duration() {
-        return ArgumentTypes.map(StringArgumentType.word(), DurationArgument::parse, SUGGESTIONS, EXAMPLES);
+        return ArgumentTypes.map(StringArgumentType.word(), DurationArgument::parse, SUGGESTIONS);
     }
-
-    private static final List<String> EXAMPLES = List.of("30m", "12h", "7d", "1w12h");
 
     public static Duration getDuration(final CommandContext<CommandSource> context, final String name) {
         return context.getArgument(name, Duration.class);

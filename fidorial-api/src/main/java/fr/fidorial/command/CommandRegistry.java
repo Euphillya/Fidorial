@@ -11,6 +11,8 @@ import java.util.function.Predicate;
 
 /**
  * Handles the registration and execution of commands.
+ *
+ * @since 0.1.0
  */
 public interface CommandRegistry {
 

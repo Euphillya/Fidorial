@@ -14,13 +14,9 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.resolvers.PositionResolver;
 import fr.fidorial.world.Location;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public final class Vec3Argument implements ArgumentType<PositionResolver> {
-
-    private static final Collection<String> EXAMPLES = List.of("0 0 0", "~ ~ ~", "~1 ~ ~-5");
 
     private final boolean centerCorrect;
 
@@ -83,11 +79,6 @@ public final class Vec3Argument implements ArgumentType<PositionResolver> {
                 String.format("%.2f", loc.y()),
                 String.format("%.2f", loc.z())
         );
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     private record Coordinate(double value, boolean relative) {

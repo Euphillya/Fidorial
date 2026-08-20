@@ -29,7 +29,6 @@ import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.time.Duration;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.UUID;
@@ -264,11 +263,6 @@ public interface ArgumentProvider {
      * @since 0.1.0
      */
     <N, T> ArgumentType<T> map(ArgumentType<N> nativeType, ArgumentMapper<N, T> mapper, SuggestionProvider<CommandSource> suggestions);
-
-    /**
-     * @since 0.1.0
-     */
-    <N, T> ArgumentType<T> map(ArgumentType<N> nativeType, ArgumentMapper<N, T> mapper, SuggestionProvider<CommandSource> suggestions, Collection<String> examples);
 
     /**
      * @since 0.1.0

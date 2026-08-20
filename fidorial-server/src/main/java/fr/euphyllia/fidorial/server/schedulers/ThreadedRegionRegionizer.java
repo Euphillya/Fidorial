@@ -141,7 +141,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
         workers.shutdown();
         try {
             if (!workers.awaitTermination(5, TimeUnit.SECONDS)) workers.shutdownNow();
-        } catch (final InterruptedException e) {
+        } catch (final InterruptedException _) {
             Thread.currentThread().interrupt();
             workers.shutdownNow();
         }
