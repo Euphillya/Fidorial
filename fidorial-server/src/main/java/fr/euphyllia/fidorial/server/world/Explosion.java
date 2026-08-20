@@ -3,7 +3,7 @@ package fr.euphyllia.fidorial.server.world;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.ai.BlockView;
-import fr.euphyllia.fidorial.server.entity.mob.Mob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundHurtAnimationPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundLevelEventPacket;
@@ -227,7 +227,7 @@ public final class Explosion {
                     server.broadcastNear(world, pos.x(), pos.y(), pos.z(),
                             new ClientboundHurtAnimationPacket(player.entityId(), pos.yaw()));
                 }
-                case final Mob mob -> {
+                case final AbstractMob mob -> {
                     mob.setHealth(mob.health() - damage);
                     if (!mob.isRemoved()) {
                         mob.sendToTrackers(new ClientboundHurtAnimationPacket(mob.entityId(), 0f));
@@ -320,7 +320,7 @@ public final class Explosion {
         if (entity instanceof ServerPlayer) {
             width = 0.6;
             height = 1.8;
-        } else if (entity instanceof Mob) {
+        } else if (entity instanceof AbstractMob) {
             width = 0.6;
             height = 1.7;
         }

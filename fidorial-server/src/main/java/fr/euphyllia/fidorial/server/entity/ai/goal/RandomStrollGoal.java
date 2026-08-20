@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.ai.goal;
 
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
 import fr.fidorial.entity.ai.Goal;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
@@ -13,12 +13,12 @@ public final class RandomStrollGoal implements Goal {
     private static final int START_CHANCE = 120;
     private static final int MAX_DURATION_TICKS = 200;
 
-    private final PathfinderMob mob;
+    private final AbstractPathfinderMob mob;
     private final int priority;
     private final double speed;
     private int ticksRunning;
 
-    public RandomStrollGoal(PathfinderMob mob, int priority, double speed) {
+    public RandomStrollGoal(AbstractPathfinderMob mob, int priority, double speed) {
         this.mob = mob;
         this.priority = priority;
         this.speed = speed;

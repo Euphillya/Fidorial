@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.ai.goal;
 
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
 import fr.fidorial.entity.ai.Goal;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
@@ -14,13 +14,13 @@ public final class PanicGoal implements Goal {
     private static final int FLEE_DISTANCE = 12;
     private static final int RETRY_ATTEMPTS = 8;
 
-    private final PathfinderMob mob;
+    private final AbstractPathfinderMob mob;
     private final int priority;
     private final double speed;
 
     private int remainingTicks;
 
-    public PanicGoal(final PathfinderMob mob, final int priority, final double speed) {
+    public PanicGoal(final AbstractPathfinderMob mob, final int priority, final double speed) {
         this.mob = mob;
         this.priority = priority;
         this.speed = speed;

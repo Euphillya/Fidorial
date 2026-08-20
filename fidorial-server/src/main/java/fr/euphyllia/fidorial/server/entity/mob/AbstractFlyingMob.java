@@ -7,15 +7,15 @@ import fr.fidorial.world.World;
 import java.util.UUID;
 
 
-public abstract class FlyingMob extends MovingMob {
+public abstract class AbstractFlyingMob extends AbstractMovingMob {
 
     private static final double HORIZONTAL_DRAG = 0.91;
     private static final double VERTICAL_DRAG = 0.91;
     private static final double MIN_VELOCITY = 1.0E-3;
     private static final double VOID_MARGIN = 64.0;
 
-    protected FlyingMob(final int entityId, final UUID uuid, final EntityType type, final World world,
-                        final Location location, final float maxHealth) {
+    protected AbstractFlyingMob(final int entityId, final UUID uuid, final EntityType type, final World world,
+                                final Location location, final float maxHealth) {
         super(entityId, uuid, type, world, location, maxHealth);
     }
 

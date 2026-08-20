@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class PathfinderMob extends MovingMob {
+public abstract class AbstractPathfinderMob extends AbstractMovingMob {
 
     private static final double GRAVITY = 0.08;
     private static final double VERTICAL_DRAG = 0.98;
@@ -29,8 +29,8 @@ public abstract class PathfinderMob extends MovingMob {
     private double stepDistance;
     private double moveSpeed;
 
-    protected PathfinderMob(final int entityId, final UUID uuid, final EntityType type, final World world,
-                            final Location location, final float maxHealth) {
+    protected AbstractPathfinderMob(final int entityId, final UUID uuid, final EntityType type, final World world,
+                                    final Location location, final float maxHealth) {
         super(entityId, uuid, type, world, location, maxHealth);
         this.navigation = new Navigation(serverWorld());
     }

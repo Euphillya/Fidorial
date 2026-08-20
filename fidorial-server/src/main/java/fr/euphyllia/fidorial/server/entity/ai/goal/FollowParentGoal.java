@@ -1,7 +1,7 @@
 package fr.euphyllia.fidorial.server.entity.ai.goal;
 
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
-import fr.euphyllia.fidorial.server.entity.mob.AgeableMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractAgeableMob;
 import fr.fidorial.entity.ai.Goal;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
@@ -14,14 +14,14 @@ public final class FollowParentGoal implements Goal {
     private static final double REACH_DISTANCE = 3.0;
     private static final int SCAN_INTERVAL_TICKS = 20;
 
-    private final AgeableMob mob;
+    private final AbstractAgeableMob mob;
     private final int priority;
     private final double speed;
 
-    private @Nullable AgeableMob parent;
+    private @Nullable AbstractAgeableMob parent;
     private int scanCooldown;
 
-    public FollowParentGoal(final AgeableMob mob, final int priority, final double speed) {
+    public FollowParentGoal(final AbstractAgeableMob mob, final int priority, final double speed) {
         this.mob = mob;
         this.priority = priority;
         this.speed = speed;
@@ -42,7 +42,7 @@ public final class FollowParentGoal implements Goal {
         }
         scanCooldown = SCAN_INTERVAL_TICKS;
 
-        final AgeableMob candidate = findNearestAdult();
+        final AbstractAgeableMob candidate = findNearestAdult();
         if (candidate == null || distanceTo(candidate) < REACH_DISTANCE) {
             return false;
         }
@@ -53,7 +53,7 @@ public final class FollowParentGoal implements Goal {
 
     @Override
     public boolean shouldContinue() {
-        final AgeableMob current = parent;
+        final AbstractAgeableMob current = parent;
         if (!mob.isBaby() || current == null || current.isRemoved() || current.isDead()) {
             return false;
         }
@@ -70,7 +70,7 @@ public final class FollowParentGoal implements Goal {
 
     @Override
     public void tick() {
-        final AgeableMob current = parent;
+        final AbstractAgeableMob current = parent;
         if (current == null) {
             return;
         }
@@ -81,7 +81,7 @@ public final class FollowParentGoal implements Goal {
                 (int) Math.floor(target.x()), (int) Math.floor(target.y()), (int) Math.floor(target.z())));
     }
 
-    private double distanceTo(final AgeableMob other) {
+    private double distanceTo(final AbstractAgeableMob other) {
         final Location self = mob.location();
         final Location pos = other.location();
         final double dx = self.x() - pos.x();
@@ -90,13 +90,13 @@ public final class FollowParentGoal implements Goal {
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
-    private AgeableMob findNearestAdult() {
+    private AbstractAgeableMob findNearestAdult() {
         final Location self = mob.location();
-        final AgeableMob[] best = new AgeableMob[1];
+        final AbstractAgeableMob[] best = new AbstractAgeableMob[1];
         final double[] bestDistSq = {Double.MAX_VALUE};
 
         mob.serverWorld().entityManager().forEachNear(self.chunk(), SEARCH_RADIUS, (final AbstractEntity entity) -> {
-            if (!(entity instanceof final AgeableMob other)
+            if (!(entity instanceof final AbstractAgeableMob other)
                     || other == mob
                     || other.isBaby()
                     || other.isRemoved()

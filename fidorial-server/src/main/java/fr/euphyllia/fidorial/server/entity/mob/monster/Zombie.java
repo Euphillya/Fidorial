@@ -8,9 +8,9 @@ import fr.euphyllia.fidorial.server.entity.ai.goal.BreakDoorGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.LookAtTargetGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.MeleeAttackGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.RandomStrollGoal;
-import fr.euphyllia.fidorial.server.entity.mob.Mob;
-import fr.euphyllia.fidorial.server.entity.mob.Mobs;
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractMob;
+import fr.euphyllia.fidorial.server.entity.mob.MobFactories;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSetEntityMetadataPacket;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Zombie extends PathfinderMob implements Category.Monster {
+public class Zombie extends AbstractPathfinderMob implements Category.Monster {
 
     public static final float MAX_HEALTH = 20f;
 
@@ -273,7 +273,7 @@ public class Zombie extends PathfinderMob implements Category.Monster {
 
     protected void convertToDrowned() {
         final Location loc = location();
-        final Mob drowned = Mobs.create(EntityTypes.DROWNED, server().entityIds().allocate(),
+        final AbstractMob drowned = MobFactories.create(EntityTypes.DROWNED, server().entityIds().allocate(),
                 world(), loc);
         server().despawnEntity(this);
         server().spawnEntity(drowned);

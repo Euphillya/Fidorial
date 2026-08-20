@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.ai.goal;
 
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.fidorial.entity.ai.Goal;
 import fr.fidorial.world.BlockPos;
@@ -12,7 +12,7 @@ public class MeleeAttackGoal implements Goal {
 
     private static final int PATH_INTERVAL_TICKS = 10;
 
-    private final PathfinderMob mob;
+    private final AbstractPathfinderMob mob;
     private final int priority;
     private final double speed;
     private final Attacker attacker;
@@ -21,7 +21,7 @@ public class MeleeAttackGoal implements Goal {
     private int attackCooldown;
     private int pathDelay;
 
-    public MeleeAttackGoal(final PathfinderMob mob, final int priority, final double speed,
+    public MeleeAttackGoal(final AbstractPathfinderMob mob, final int priority, final double speed,
                            final double mobWidth, final Attacker attacker) {
         this.mob = mob;
         this.priority = priority;

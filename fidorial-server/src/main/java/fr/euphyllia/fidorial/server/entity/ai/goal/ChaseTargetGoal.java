@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.ai.goal;
 
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.fidorial.entity.ai.Goal;
 import fr.fidorial.world.BlockPos;
@@ -8,11 +8,11 @@ import fr.fidorial.world.Location;
 
 public final class ChaseTargetGoal implements Goal {
 
-    private final PathfinderMob mob;
+    private final AbstractPathfinderMob mob;
     private final int priority;
     private final double speed;
 
-    public ChaseTargetGoal(PathfinderMob mob, int priority, double speed) {
+    public ChaseTargetGoal(AbstractPathfinderMob mob, int priority, double speed) {
         this.mob = mob;
         this.priority = priority;
         this.speed = speed;

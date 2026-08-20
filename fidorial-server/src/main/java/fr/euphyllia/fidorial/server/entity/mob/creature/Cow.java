@@ -8,7 +8,7 @@ import fr.euphyllia.fidorial.server.entity.ai.goal.FollowParentGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.PanicGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.RandomStrollGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.TemptGoal;
-import fr.euphyllia.fidorial.server.entity.mob.AgeableMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractAgeableMob;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.fidorial.combat.DamageSource;
@@ -32,7 +32,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 
-public final class Cow extends AgeableMob implements Category.Neutral {
+public final class Cow extends AbstractAgeableMob implements Category.Neutral {
 
     public static final float MAX_HEALTH = 10f;
     public static final double BABY_SPAWN_CHANCE = 0.05;

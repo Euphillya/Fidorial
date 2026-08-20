@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class MovingMob extends Mob {
+public abstract class AbstractMovingMob extends AbstractMob {
 
     private static final int POSITION_SYNC_INTERVAL = 100;
     private static final double MAX_RELATIVE_DELTA = 7.9;
@@ -45,8 +45,8 @@ public abstract class MovingMob extends Mob {
     private float sentHeadYaw;
     private int ticksSinceSync;
 
-    protected MovingMob(final int entityId, final UUID uuid, final EntityType type, final World world,
-                        final Location location, final float maxHealth) {
+    protected AbstractMovingMob(final int entityId, final UUID uuid, final EntityType type, final World world,
+                                final Location location, final float maxHealth) {
         super(entityId, uuid, type, world, location, maxHealth);
         this.yaw = location.yaw();
         this.pitch = location.pitch();

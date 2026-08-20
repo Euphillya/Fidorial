@@ -9,7 +9,7 @@ import fr.fidorial.world.World;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-public abstract class AgeableMob extends PathfinderMob {
+public abstract class AbstractAgeableMob extends AbstractPathfinderMob {
 
     public static final int GROW_UP_TICKS = 24_000;
 
@@ -22,8 +22,8 @@ public abstract class AgeableMob extends PathfinderMob {
     private boolean growthFrozen;
     private boolean babyMetadataSent;
 
-    protected AgeableMob(final int entityId, final UUID uuid, final EntityType type, final World world,
-                         final Location location, final float maxHealth, final boolean baby) {
+    protected AbstractAgeableMob(final int entityId, final UUID uuid, final EntityType type, final World world,
+                                 final Location location, final float maxHealth, final boolean baby) {
         super(entityId, uuid, type, world, location, maxHealth);
         this.baby = baby;
         this.growthTicks = baby ? GROW_UP_TICKS : 0;

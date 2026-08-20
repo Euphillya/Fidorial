@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.ai.goal;
 
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.fidorial.entity.ai.Goal;
 
@@ -8,12 +8,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class LookAtTargetGoal implements Goal {
 
-    private final PathfinderMob mob;
+    private final AbstractPathfinderMob mob;
     private final int priority;
     private final double rangeSq;
     private int remainingTicks;
 
-    public LookAtTargetGoal(PathfinderMob mob, int priority, double range) {
+    public LookAtTargetGoal(AbstractPathfinderMob mob, int priority, double range) {
         this.mob = mob;
         this.priority = priority;
         this.rangeSq = range * range;

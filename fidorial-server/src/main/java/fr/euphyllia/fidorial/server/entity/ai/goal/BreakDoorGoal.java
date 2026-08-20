@@ -2,7 +2,7 @@ package fr.euphyllia.fidorial.server.entity.ai.goal;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.ai.BlockView;
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBlockDestructionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundLevelEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundPacket;
@@ -31,14 +31,14 @@ public final class BreakDoorGoal implements Goal {
 
     private static final int DESTROY_STAGES = 10;
 
-    private final PathfinderMob mob;
+    private final AbstractPathfinderMob mob;
     private final int priority;
 
     private @Nullable BlockPos door;
     private int progress;
     private int sentStage = NO_DESTROY_STAGE;
 
-    public BreakDoorGoal(final PathfinderMob mob, final int priority) {
+    public BreakDoorGoal(final AbstractPathfinderMob mob, final int priority) {
         this.mob = mob;
         this.priority = priority;
     }

@@ -3,9 +3,9 @@ package fr.euphyllia.fidorial.server.combat;
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.AbstractLivingEntity;
-import fr.euphyllia.fidorial.server.entity.mob.Mob;
-import fr.euphyllia.fidorial.server.entity.mob.MovingMob;
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractMovingMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundAnimatePacket;
@@ -187,7 +187,7 @@ public final class CombatEngine implements CombatService {
 
         if (victim.isDead()) {
             die(victim, source.causingEntity());
-        } else if (victim instanceof final Mob mob) {
+        } else if (victim instanceof final AbstractMob mob) {
             mob.playHurtSound();
             mob.onHurt(source, dealt);
             aggro(mob, source.causingEntity());
@@ -236,7 +236,7 @@ public final class CombatEngine implements CombatService {
             dz /= length;
         }
 
-        if (victim instanceof final MovingMob mob) {
+        if (victim instanceof final AbstractMovingMob mob) {
             final double newX = mob.velocityX() / 2.0 + dx * scaled;
             final double newZ = mob.velocityZ() / 2.0 + dz * scaled;
             final double newY = mob.onGround()
@@ -269,7 +269,7 @@ public final class CombatEngine implements CombatService {
             killPlayer(player, killer);
             return;
         }
-        if (!(victim instanceof Mob)) {
+        if (!(victim instanceof AbstractMob)) {
             sendToViewersAndSelf(victim, new ClientboundEntityEventPacket(victim.entityId(), ENTITY_EVENT_DEATH));
         }
         server.events().post(new EntityDeathEvent(victim, killer));
@@ -300,8 +300,8 @@ public final class CombatEngine implements CombatService {
         return Component.text(player.name() + " was slain by ").append(killer.displayName());
     }
 
-    private void aggro(final Mob mob, final @Nullable Entity attacker) {
-        if (mob instanceof final PathfinderMob pathfinder && attacker instanceof final ServerPlayer player) {
+    private void aggro(final AbstractMob mob, final @Nullable Entity attacker) {
+        if (mob instanceof final AbstractPathfinderMob pathfinder && attacker instanceof final ServerPlayer player) {
             pathfinder.setTarget(player);
         }
     }
@@ -372,7 +372,7 @@ public final class CombatEngine implements CombatService {
         }
         ((ServerWorld) attacker.world()).entityManager().forEachInChunkRange(
                 center.chunk().x(), center.chunk().z(), 1, entity -> {
-                    if (entity instanceof final Mob mob && withinSweepBox(center, mob.location())) {
+                    if (entity instanceof final AbstractMob mob && withinSweepBox(center, mob.location())) {
                         found.add(mob);
                     }
                 });

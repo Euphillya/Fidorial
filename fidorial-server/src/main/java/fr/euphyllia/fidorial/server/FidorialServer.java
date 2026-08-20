@@ -14,7 +14,7 @@ import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
 import fr.euphyllia.fidorial.server.entity.EntityTickHandler;
 import fr.euphyllia.fidorial.server.entity.EntityTracker;
-import fr.euphyllia.fidorial.server.entity.mob.Mob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.entity.player.profile.FidorialOfflinePlayers;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
@@ -319,7 +319,7 @@ public final class FidorialServer implements Server {
         worldManager.setEntityBridge(entityIds::allocate, new EntitySpawnBridge() {
             @Override
             public void onEntityAppear(final Entity entity) {
-                if (entity instanceof Mob && entity.world() instanceof final ServerWorld world) {
+                if (entity instanceof AbstractMob && entity.world() instanceof final ServerWorld world) {
                     regionizer.addTicket(world.dimension().id(), entity.chunk());
                 }
                 entityTracker.update(entity, players());
@@ -327,7 +327,7 @@ public final class FidorialServer implements Server {
 
             @Override
             public void onEntityDisappear(final Entity entity) {
-                if (entity instanceof Mob && entity.world() instanceof final ServerWorld world) {
+                if (entity instanceof AbstractMob && entity.world() instanceof final ServerWorld world) {
                     regionizer.removeTicket(world.dimension().id(), entity.chunk());
                 }
                 entityTracker.untrack(entity);
@@ -664,7 +664,7 @@ public final class FidorialServer implements Server {
 
         world.addEntity(entity);
 
-        if (entity instanceof Mob) {
+        if (entity instanceof AbstractMob) {
             regionizer.addTicket(world.dimension().id(), entity.chunk());
         }
 
@@ -675,7 +675,7 @@ public final class FidorialServer implements Server {
         if (entity.world() instanceof final ServerWorld world) {
             world.removeEntity(entity);
 
-            if (entity instanceof Mob) {
+            if (entity instanceof AbstractMob) {
                 regionizer.removeTicket(world.dimension().id(), entity.chunk());
             }
         }

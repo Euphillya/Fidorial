@@ -99,7 +99,7 @@ import net.kyori.adventure.key.Key;
 import java.util.Map;
 import java.util.Set;
 
-public final class Mobs {
+public final class MobFactories {
 
     private static final Map<Key, MobFactory> FACTORIES = Map.<Key, MobFactory>ofEntries(
             Map.entry(EntityTypes.ALLAY.key(), Allay::new),
@@ -193,7 +193,7 @@ public final class Mobs {
             Map.entry(EntityTypes.ZOMBIE_VILLAGER.key(), ZombieVillager::new),
             Map.entry(EntityTypes.ZOMBIFIED_PIGLIN.key(), ZombifiedPiglin::new));
 
-    private Mobs() {
+    private MobFactories() {
     }
 
     public static boolean isMob(final EntityType type) {
@@ -204,7 +204,7 @@ public final class Mobs {
         return FACTORIES.keySet();
     }
 
-    public static Mob create(final EntityType type, final int entityId, final World world, final Location location) {
+    public static AbstractMob create(final EntityType type, final int entityId, final World world, final Location location) {
         final MobFactory factory = FACTORIES.get(type.key());
         if (factory == null) {
             throw new IllegalArgumentException("No mob implemented for " + type.key());
@@ -214,6 +214,6 @@ public final class Mobs {
 
     @FunctionalInterface
     public interface MobFactory {
-        Mob create(int entityId, World world, Location location);
+        AbstractMob create(int entityId, World world, Location location);
     }
 }

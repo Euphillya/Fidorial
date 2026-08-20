@@ -98,16 +98,9 @@ public abstract class AbstractEntity implements Entity {
         }
     }
 
-    /**
-     * Appele une seule fois, au retrait effectif.
-     */
     protected void onRemoved() {
     }
 
-    /**
-     * Appele une fois par tick par la region proprietaire de {@link #chunk()}.
-     * Implementation par defaut vide : un item au sol n'a rien a faire.
-     */
     public void tick(final long currentTick) {
     }
 

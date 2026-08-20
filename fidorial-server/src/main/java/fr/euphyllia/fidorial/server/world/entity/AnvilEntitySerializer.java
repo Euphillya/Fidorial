@@ -2,9 +2,9 @@ package fr.euphyllia.fidorial.server.world.entity;
 
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
-import fr.euphyllia.fidorial.server.entity.mob.Mob;
-import fr.euphyllia.fidorial.server.entity.mob.Mobs;
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractMob;
+import fr.euphyllia.fidorial.server.entity.mob.MobFactories;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.entity.LivingEntity;
@@ -37,7 +37,7 @@ public class AnvilEntitySerializer {
     }
 
     public static boolean isPersistable(final AbstractEntity entity) {
-        return entity instanceof Mob && !entity.isRemoved();
+        return entity instanceof AbstractMob && !entity.isRemoved();
     }
 
     public CompoundBinaryTag toChunkNbt(final int chunkX, final int chunkZ, final Collection<? extends AbstractEntity> entities) {
@@ -63,7 +63,7 @@ public class AnvilEntitySerializer {
         final Location loc = entity.location();
         c.put("Pos", doubleList(loc.x(), loc.y(), loc.z()));
 
-        if (entity instanceof final PathfinderMob mob) {
+        if (entity instanceof final AbstractPathfinderMob mob) {
             c.put("Motion", doubleList(mob.velocityX(), mob.velocityY(), mob.velocityZ()));
             c.putBoolean("OnGround", mob.onGround());
         } else {
@@ -106,7 +106,7 @@ public class AnvilEntitySerializer {
         }
 
         final EntityType type = EntityTypes.get(Key.key(id));
-        if (type == null || !Mobs.isMob(type)) {
+        if (type == null || !MobFactories.isMob(type)) {
             return null;
         }
 
@@ -119,7 +119,7 @@ public class AnvilEntitySerializer {
         final float pitch = floatAt(rot, 1);
         final Location location = new Location(x, y, z, yaw, pitch);
 
-        final Mob mob = Mobs.create(type, idAllocator.getAsInt(), world, location);
+        final AbstractMob mob = MobFactories.create(type, idAllocator.getAsInt(), world, location);
 
         final int[] uuid = c.getIntArray("UUID");
         if (uuid.length == 4) {
@@ -133,7 +133,7 @@ public class AnvilEntitySerializer {
             }
         }
 
-        if (mob instanceof final PathfinderMob pathfinder) {
+        if (mob instanceof final AbstractPathfinderMob pathfinder) {
             final ListBinaryTag motion = c.getList("Motion");
             if (motion.size() == 3) {
                 pathfinder.setVelocity(doubleAt(motion, 0), doubleAt(motion, 1), doubleAt(motion, 2));

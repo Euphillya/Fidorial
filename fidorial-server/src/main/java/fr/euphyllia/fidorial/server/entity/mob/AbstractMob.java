@@ -14,11 +14,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-public abstract class Mob extends AbstractLivingEntity {
+public abstract class AbstractMob extends AbstractLivingEntity {
 
     private static final byte ENTITY_EVENT_DEATH = 3;
 
-    protected Mob(final int entityId, final UUID uuid, final EntityType type, final World world, final Location location, final float maxHealth) {
+    protected AbstractMob(final int entityId, final UUID uuid, final EntityType type, final World world, final Location location, final float maxHealth) {
         super(entityId, uuid, type, world, location, maxHealth);
     }
 

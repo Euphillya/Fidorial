@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.ai.goal;
 
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.ai.Goal;
@@ -20,7 +20,7 @@ public final class TemptGoal implements Goal {
     private static final int SCAN_INTERVAL_TICKS = 10;
     private static final double REACH_DISTANCE = 2.5;
 
-    private final PathfinderMob mob;
+    private final AbstractPathfinderMob mob;
     private final int priority;
     private final double speed;
     private final Set<Key> temptingItems;
@@ -31,7 +31,7 @@ public final class TemptGoal implements Goal {
     private int scanCooldown;
 
 
-    public TemptGoal(final PathfinderMob mob, final int priority, final double speed,
+    public TemptGoal(final AbstractPathfinderMob mob, final int priority, final double speed,
                      final Set<Key> temptingItems, final double range, final double stopRange) {
         this.mob = mob;
         this.priority = priority;

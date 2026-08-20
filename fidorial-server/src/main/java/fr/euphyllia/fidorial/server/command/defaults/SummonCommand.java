@@ -4,8 +4,8 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
-import fr.euphyllia.fidorial.server.entity.mob.Mob;
-import fr.euphyllia.fidorial.server.entity.mob.Mobs;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractMob;
+import fr.euphyllia.fidorial.server.entity.mob.MobFactories;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.command.CommandSource;
@@ -58,7 +58,7 @@ public final class SummonCommand {
     private static int summon(final CommandContext<CommandSource> context, final ServerWorld world, final Location location) {
         final EntityType entity = context.getArgument("entity", EntityType.class);
 
-        if (!Mobs.isMob(entity)) {
+        if (!MobFactories.isMob(entity)) {
             context.getSource()
                     .sender()
                     .sendMessage(Component.translatable(
@@ -68,7 +68,7 @@ public final class SummonCommand {
 
         final FidorialServer server = FidorialServer.getInstance();
 
-        final Mob mob = Mobs.create(entity, server.entityIds().allocate(), world, location);
+        final AbstractMob mob = MobFactories.create(entity, server.entityIds().allocate(), world, location);
 
         server.spawnEntity(mob);
 

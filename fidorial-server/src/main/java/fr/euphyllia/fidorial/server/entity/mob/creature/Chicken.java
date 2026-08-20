@@ -4,7 +4,7 @@ import fr.euphyllia.fidorial.server.entity.Category;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.ai.goal.LookAtTargetGoal;
 import fr.euphyllia.fidorial.server.entity.ai.goal.RandomStrollGoal;
-import fr.euphyllia.fidorial.server.entity.mob.PathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.ChickenVariant;
 import fr.fidorial.registry.keys.ChickenVariantKeys;
@@ -16,7 +16,7 @@ import net.kyori.adventure.sound.Sound;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-public final class Chicken extends PathfinderMob implements Category.Neutral {
+public final class Chicken extends AbstractPathfinderMob implements Category.Neutral {
 
     public static final float MAX_HEALTH = 4f;
 

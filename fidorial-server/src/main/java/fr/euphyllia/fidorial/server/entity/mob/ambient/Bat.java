@@ -3,7 +3,7 @@ package fr.euphyllia.fidorial.server.entity.mob.ambient;
 import fr.euphyllia.fidorial.server.entity.Category;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.ai.BlockView;
-import fr.euphyllia.fidorial.server.entity.mob.FlyingMob;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractFlyingMob;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundLevelEventPacket;
@@ -21,7 +21,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 
-public final class Bat extends FlyingMob implements Category.Ambient {
+public final class Bat extends AbstractFlyingMob implements Category.Ambient {
 
     public static final float MAX_HEALTH = 6f;
 
