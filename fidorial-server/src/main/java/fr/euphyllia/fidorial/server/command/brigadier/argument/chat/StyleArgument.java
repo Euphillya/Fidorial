@@ -16,15 +16,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class StyleArgument implements ArgumentType<Style> {
 
-    private static final Collection<String> EXAMPLES = List.of("{\"bold\":true}", "{\"color\":\"red\"}", "{}");
     private static final Set<String> CONTENT_KEYS = Set.of("text", "translate", "selector", "score", "keybind", "nbt");
 
     public static final DynamicCommandExceptionType ERROR_INVALID_STYLE = new DynamicCommandExceptionType(
@@ -69,11 +66,6 @@ public final class StyleArgument implements ArgumentType<Style> {
 
     public static Style getStyle(final CommandContext<CommandSource> context, final String name) {
         return context.getArgument(name, Style.class);
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<StyleArgument, Info.Spec> {

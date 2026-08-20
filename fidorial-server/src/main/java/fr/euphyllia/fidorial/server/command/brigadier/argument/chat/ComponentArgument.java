@@ -19,16 +19,12 @@ import net.kyori.adventure.text.SelectorComponent;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class ComponentArgument implements ArgumentType<Component> {
-
-    private static final Collection<String> EXAMPLES =
-            Arrays.asList("\"hello world\"", "'hello world'", "\"\"", "{\"text\":\"hello world\"}");
 
     public static final DynamicCommandExceptionType ERROR_INVALID_COMPONENT = new DynamicCommandExceptionType(
             message -> MSG_SERIALIZER.serialize(
@@ -103,11 +99,6 @@ public final class ComponentArgument implements ArgumentType<Component> {
             return Component.text(player.name());
         }
         return Component.text(entity.type().key().value());
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<ComponentArgument, Info.Spec> {

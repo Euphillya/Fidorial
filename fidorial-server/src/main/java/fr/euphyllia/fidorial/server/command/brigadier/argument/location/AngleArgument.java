@@ -10,14 +10,9 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.argument.resolvers.AngleResolver;
 import net.kyori.adventure.text.Component;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class AngleArgument implements ArgumentType<AngleResolver> {
-
-    private static final Collection<String> EXAMPLES = Arrays.asList("0", "~", "~-5");
 
     public static final SimpleCommandExceptionType ERROR_NOT_COMPLETE = new SimpleCommandExceptionType(
             MSG_SERIALIZER.serialize(Component.translatable("argument.angle.incomplete")));
@@ -56,11 +51,6 @@ public final class AngleArgument implements ArgumentType<AngleResolver> {
             }
             return result;
         };
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<AngleArgument, Info.Spec> {

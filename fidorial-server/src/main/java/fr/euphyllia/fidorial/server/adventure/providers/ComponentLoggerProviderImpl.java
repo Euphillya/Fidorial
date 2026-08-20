@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 
+@SuppressWarnings("UnstableApiUsage") // we are permitted
 public class ComponentLoggerProviderImpl implements ComponentLoggerProvider {
     @Override
     public ComponentLogger logger(final ComponentLoggerProvider.LoggerHelper helper, final String name) {

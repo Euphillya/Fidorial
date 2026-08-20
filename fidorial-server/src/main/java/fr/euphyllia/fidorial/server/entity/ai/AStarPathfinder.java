@@ -3,12 +3,11 @@ package fr.euphyllia.fidorial.server.entity.ai;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.entity.ai.Path;
 import fr.fidorial.world.BlockPos;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.PriorityQueue;
 
 public class AStarPathfinder {
@@ -37,7 +36,7 @@ public class AStarPathfinder {
             return null;
         }
 
-        final Map<Long, Node> nodes = new HashMap<>();
+        final Long2ObjectOpenHashMap<Node> nodes = new Long2ObjectOpenHashMap<>();
         final PriorityQueue<Node> open = new PriorityQueue<>();
 
         final Node startNode = new Node(from.x(), from.y(), from.z(), null, 0.0, heuristic(from, to));

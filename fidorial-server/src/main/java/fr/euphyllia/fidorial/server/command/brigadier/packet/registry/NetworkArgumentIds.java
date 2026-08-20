@@ -1,36 +1,37 @@
 package fr.euphyllia.fidorial.server.command.brigadier.packet.registry;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public final class NetworkArgumentIds {
 
-    private static final Map<Integer, ArgumentTypeRegistrar<?, ?>> BY_ID = new HashMap<>();
-    private static final Map<ArgumentTypeRegistrar<?, ?>, Integer> IDS = new HashMap<>();
+    private static final Int2ObjectOpenHashMap<ArgumentTypeRegistrar<?, ?>> BY_ID = new Int2ObjectOpenHashMap<>();
+    private static final Object2IntOpenHashMap<ArgumentTypeRegistrar<?, ?>> IDS = new Object2IntOpenHashMap<>();
+
+    static {
+        IDS.defaultReturnValue(-1);
+    }
 
     private NetworkArgumentIds() {
     }
 
     public static void register(final int id, final ArgumentTypeRegistrar<?, ?> registrar) {
-        if (BY_ID.put(id, registrar) != null) {
+        if (BY_ID.containsKey(id)) {
             throw new IllegalStateException("Duplicate network id: " + id);
         }
-
-        if (IDS.put(registrar, id) != null) {
+        BY_ID.put(id, registrar);
+        if (IDS.put(registrar, id) != IDS.defaultReturnValue()) {
             throw new IllegalStateException("Registrar already registered: " + registrar);
         }
     }
 
     public static int getId(final ArgumentTypeRegistrar<?, ?> registrar) {
-        final Integer id = IDS.get(registrar);
-
-        if (id == null) {
-            throw new IllegalArgumentException(
-                    "Unknown registrar: " + registrar.getClass().getName());
+        final int id = IDS.getInt(registrar);
+        if (id == -1) {
+            throw new IllegalArgumentException("Unknown registrar: " + registrar.getClass().getName());
         }
-
         return id;
     }
 

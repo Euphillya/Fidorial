@@ -9,49 +9,40 @@ import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTy
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.function.Function;
 
 public interface RangeArgument {
 
-    static RangeArgument.Ints<MinMaxBounds.Ints> intRange() {
+    static RangeArgument.Ints<RangeBounds.Ints> intRange() {
         return intRange(Function.identity());
     }
 
-    static <R> RangeArgument.Ints<R> intRange(final Function<MinMaxBounds.Ints, R> converter) {
+    static <R> RangeArgument.Ints<R> intRange(final Function<RangeBounds.Ints, R> converter) {
         return new RangeArgument.Ints<>(converter);
     }
 
-    static RangeArgument.Floats<MinMaxBounds.Doubles> floatRange() {
+    static RangeArgument.Floats<RangeBounds.Doubles> floatRange() {
         return floatRange(Function.identity());
     }
 
-    static <R> RangeArgument.Floats<R> floatRange(final Function<MinMaxBounds.Doubles, R> converter) {
+    static <R> RangeArgument.Floats<R> floatRange(final Function<RangeBounds.Doubles, R> converter) {
         return new RangeArgument.Floats<>(converter);
     }
 
     final class Floats<R> implements ArgumentType<R> {
-        private static final Collection<String> EXAMPLES = Arrays.asList("0..5.2", "0", "-5.4", "-100.76..", "..100");
+        private final Function<RangeBounds.Doubles, R> converter;
 
-        private final Function<MinMaxBounds.Doubles, R> converter;
-
-        public Floats(final Function<MinMaxBounds.Doubles, R> converter) {
+        public Floats(final Function<RangeBounds.Doubles, R> converter) {
             this.converter = converter;
         }
 
-        public static MinMaxBounds.Doubles getRange(final CommandContext<CommandSource> context, final String name) {
-            return context.getArgument(name, MinMaxBounds.Doubles.class);
+        public static RangeBounds.Doubles getRange(final CommandContext<CommandSource> context, final String name) {
+            return context.getArgument(name, RangeBounds.Doubles.class);
         }
 
         @Override
         public R parse(final StringReader reader) throws CommandSyntaxException {
-            return converter.apply(MinMaxBounds.Doubles.fromReader(reader));
-        }
-
-        @Override
-        public Collection<String> getExamples() {
-            return EXAMPLES;
+            return converter.apply(RangeBounds.Doubles.fromReader(reader));
         }
 
         public static final class Info implements ArgumentTypeRegistrar<Floats<?>, Info.Spec> {
@@ -90,26 +81,19 @@ public interface RangeArgument {
     }
 
     final class Ints<R> implements ArgumentType<R> {
-        private static final Collection<String> EXAMPLES = Arrays.asList("0..5", "0", "-5", "-100..", "..100");
+        private final Function<RangeBounds.Ints, R> converter;
 
-        private final Function<MinMaxBounds.Ints, R> converter;
-
-        public Ints(final Function<MinMaxBounds.Ints, R> converter) {
+        public Ints(final Function<RangeBounds.Ints, R> converter) {
             this.converter = converter;
         }
 
-        public static MinMaxBounds.Ints getRange(final CommandContext<CommandSource> context, final String name) {
-            return context.getArgument(name, MinMaxBounds.Ints.class);
+        public static RangeBounds.Ints getRange(final CommandContext<CommandSource> context, final String name) {
+            return context.getArgument(name, RangeBounds.Ints.class);
         }
 
         @Override
         public R parse(final StringReader reader) throws CommandSyntaxException {
-            return converter.apply(MinMaxBounds.Ints.fromReader(reader));
-        }
-
-        @Override
-        public Collection<String> getExamples() {
-            return EXAMPLES;
+            return converter.apply(RangeBounds.Ints.fromReader(reader));
         }
 
         public static final class Info implements ArgumentTypeRegistrar<Ints<?>, Info.Spec> {

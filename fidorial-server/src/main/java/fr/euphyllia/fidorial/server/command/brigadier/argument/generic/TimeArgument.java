@@ -13,8 +13,6 @@ import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTy
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import net.kyori.adventure.text.Component;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -22,8 +20,6 @@ import java.util.concurrent.CompletableFuture;
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public record TimeArgument(int minimum) implements ArgumentType<Integer> {
-
-    private static final Collection<String> EXAMPLES = Arrays.asList("0d", "0s", "0t", "0");
 
     private static final SimpleCommandExceptionType ERROR_INVALID_UNIT = new SimpleCommandExceptionType(
             MSG_SERIALIZER.serialize(Component.translatable("argument.time.invalid_unit")));
@@ -90,11 +86,6 @@ public record TimeArgument(int minimum) implements ArgumentType<Integer> {
         }
 
         return offset.buildFuture();
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<TimeArgument, Info.Spec> {

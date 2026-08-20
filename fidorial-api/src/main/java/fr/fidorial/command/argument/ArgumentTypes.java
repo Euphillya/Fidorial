@@ -29,7 +29,6 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 
 import java.time.Duration;
-import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -600,32 +599,6 @@ public final class ArgumentTypes {
             final SuggestionProvider<CommandSource> suggestions
     ) {
         return provider().map(nativeType, mapper, suggestions);
-    }
-
-    /**
-     * Reuses {@code nativeType}'s client-side grammar and highlighting, converting
-     * the parsed value into a custom result type, replacing the native type's
-     * suggestions with {@code suggestions}, and replacing its examples with
-     * {@code examples} — useful when the native type's own examples (e.g. arbitrary
-     * words) don't reflect the mapped domain's actual valid values.
-     *
-     * @param nativeType the native type providing grammar and highlighting
-     * @param mapper converts a parsed native value into the result type
-     * @param suggestions replaces the native type's client-side suggestions
-     * @param examples replaces the native type's client-side examples
-     * @return argument
-     * @param <N> the native value type
-     * @param <T> the mapped result type
-     * @see #map(ArgumentType, ArgumentMapper, SuggestionProvider)
-     * @since 0.1.0
-     */
-    public static <N, T> ArgumentType<T> map(
-            final ArgumentType<N> nativeType,
-            final ArgumentMapper<N, T> mapper,
-            final SuggestionProvider<CommandSource> suggestions,
-            final Collection<String> examples
-    ) {
-        return provider().map(nativeType, mapper, suggestions, examples);
     }
 
     /**

@@ -75,7 +75,7 @@ public class ThreadedChunkWorker implements AsyncChunkLoader {
             if (!workers.awaitTermination(5, TimeUnit.SECONDS)) {
                 workers.shutdownNow();
             }
-        } catch (final InterruptedException e) {
+        } catch (final InterruptedException _) {
             workers.shutdownNow();
             Thread.currentThread().interrupt();
         }

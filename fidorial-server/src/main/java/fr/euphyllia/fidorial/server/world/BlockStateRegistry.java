@@ -9,11 +9,12 @@ import fr.fidorial.world.block.BlockGetter;
 import fr.fidorial.world.block.BlockPlaceContext;
 import fr.fidorial.world.block.BlockRegistry;
 import fr.fidorial.world.block.BlockType;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 public final class BlockStateRegistry {
@@ -23,13 +24,13 @@ public final class BlockStateRegistry {
     private static final Key LAVA_BUCKET = Key.key("lava_bucket");
 
     private final BlockRegistry registry;
-    private final Map<BlockState, BlockData> dataByState;
-    private final Map<Integer, BlockState> stateByNetworkId;
+    private final Object2ObjectOpenHashMap<BlockState, BlockData> dataByState;
+    private final Int2ObjectOpenHashMap<BlockState> stateByNetworkId;
 
     public BlockStateRegistry(final BlockRegistry registry) {
         this.registry = registry;
-        this.dataByState = new HashMap<>();
-        this.stateByNetworkId = new HashMap<>();
+        this.dataByState = new Object2ObjectOpenHashMap<>();
+        this.stateByNetworkId = new Int2ObjectOpenHashMap<>();
         indexGeneratedStates();
     }
 

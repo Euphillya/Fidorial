@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -254,7 +253,7 @@ public final class ServerWorld implements World {
         }
         final ChunkColumn column;
         try {
-            column = loaded.computeIfAbsent(mapKey, ignored -> {
+            column = loaded.computeIfAbsent(mapKey, _ -> {
                 try {
                     final ChunkColumn fromDisk = storage.load(dimension, chunkX, chunkZ);
                     if (fromDisk != null) {
@@ -550,7 +549,7 @@ public final class ServerWorld implements World {
             return CompletableFuture.completedFuture(false);
         }
 
-        final Set<Long> wanted = new HashSet<>();
+        final LongSet wanted = new LongOpenHashSet();
         for (final ChunkViewSource viewer : viewers) {
             viewer.collectViewedChunks(wanted::add);
         }

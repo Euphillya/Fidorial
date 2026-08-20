@@ -18,8 +18,8 @@ public interface CommandSource {
     Location location();
 
     /**
-     * Gets the command sender that executed this command.
-     * The sender of a command source stack is the one that initiated/triggered the execution of a command.
+     * Gets the {@link CommandSender} that executed this command.
+     * The sender of a command is the one that triggered the execution of a command.
      * It differs to {@link #executor()} as the executor can be changed by a command, e.g. {@literal /execute}.
      *
      * @return the command sender instance

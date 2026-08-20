@@ -13,18 +13,11 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.entity.GameMode;
 import net.kyori.adventure.text.Component;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class GameModeArgument implements ArgumentType<GameMode> {
-
-    private static final Collection<String> EXAMPLES = Arrays.stream(GameMode.values())
-            .map(GameMode::name)
-            .map(String::toLowerCase)
-            .toList();
 
     private static final DynamicCommandExceptionType ERROR_INVALID =
             new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
@@ -61,11 +54,6 @@ public final class GameModeArgument implements ArgumentType<GameMode> {
         }
 
         return builder.buildFuture();
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<GameModeArgument, Info.Spec> {

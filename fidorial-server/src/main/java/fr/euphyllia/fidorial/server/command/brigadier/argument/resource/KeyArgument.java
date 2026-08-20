@@ -11,14 +11,9 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class KeyArgument implements ArgumentType<Key> {
-
-    private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "012");
 
     public static final SimpleCommandExceptionType ERROR_INVALID_KEY =
             new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.id.invalid")));
@@ -39,11 +34,6 @@ public final class KeyArgument implements ArgumentType<Key> {
         }
 
         return Key.key(input);
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<KeyArgument, Info.Spec> {

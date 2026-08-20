@@ -12,16 +12,12 @@ import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTy
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import net.kyori.adventure.text.Component;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class HexColorArgument<T> implements ArgumentType<T> {
-
-    private static final Collection<String> EXAMPLES = Arrays.asList("F00", "FF0000");
 
     public static final DynamicCommandExceptionType ERROR_INVALID_HEX =
             new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
@@ -79,15 +75,9 @@ public final class HexColorArgument<T> implements ArgumentType<T> {
             final CommandContext<S> context,
             final SuggestionsBuilder builder
     ) {
-        for (final String example : EXAMPLES) {
-            builder.suggest(example);
-        }
+        builder.suggest("FFFFFF");
+        builder.suggest("D6BCFB");
         return builder.buildFuture();
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<HexColorArgument<?>, Info.Spec> {

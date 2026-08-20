@@ -12,7 +12,6 @@ import fr.fidorial.command.argument.custom.ArgumentMapper;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 public final class MappedArgumentType<N, T> implements ArgumentType<T>, ForceServerSuggestions {
@@ -22,10 +21,9 @@ public final class MappedArgumentType<N, T> implements ArgumentType<T>, ForceSer
     private final ArgumentType<N> nativeType;
     private final ArgumentMapper<N, T> mapper;
     private final @Nullable SuggestionProvider<CommandSource> customSuggestions;
-    private final @Nullable Collection<String> customExamples;
 
     public MappedArgumentType(final ArgumentType<N> nativeType, final ArgumentMapper<N, T> mapper) {
-        this(nativeType, mapper, null, null);
+        this(nativeType, mapper, null);
     }
 
     public MappedArgumentType(
@@ -33,19 +31,9 @@ public final class MappedArgumentType<N, T> implements ArgumentType<T>, ForceSer
             final ArgumentMapper<N, T> mapper,
             final @Nullable SuggestionProvider<CommandSource> customSuggestions
     ) {
-        this(nativeType, mapper, customSuggestions, null);
-    }
-
-    public MappedArgumentType(
-            final ArgumentType<N> nativeType,
-            final ArgumentMapper<N, T> mapper,
-            final @Nullable SuggestionProvider<CommandSource> customSuggestions,
-            final @Nullable Collection<String> customExamples
-    ) {
         this.nativeType = nativeType;
         this.mapper = mapper;
         this.customSuggestions = customSuggestions;
-        this.customExamples = customExamples;
     }
 
     public ArgumentType<N> nativeType() { return nativeType; }
@@ -67,11 +55,6 @@ public final class MappedArgumentType<N, T> implements ArgumentType<T>, ForceSer
             }
         }
         return nativeType.listSuggestions(context, builder);
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return customExamples != null ? customExamples : nativeType.getExamples();
     }
 
     @Override

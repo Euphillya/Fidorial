@@ -113,12 +113,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public final class FidorialServer implements Server {
 
@@ -172,13 +170,8 @@ public final class FidorialServer implements Server {
     private final BossBarRegistry bossBarRegistry = new BossBarRegistry(worldManager.levelData(), this::players);
     private final DayNightThread dayNightEngine = new DayNightThread(worldManager, registries.dynamic());
     private final ChunkNetworkSerializer chunkSerializer = new ChunkNetworkSerializer(blockStateRegistry, registries.biomes());
-    private final AtomicInteger lightThreadId = new AtomicInteger();
-    private final ExecutorService lightPool = Executors.newFixedThreadPool(
-            config.lightWorkers(),
-            r -> Thread.ofPlatform().name("fidorial-light-%d".formatted(lightThreadId.incrementAndGet())).unstarted(r));
-
     private final LightUpdateDispatcher lightDispatcher = new LightUpdateDispatcher(
-            lightPool, WorldConstants.MIN_Y, WorldConstants.HEIGHT, this::broadcast, chunkSerializer, worldManager::world);
+            config.lightWorkers(), WorldConstants.MIN_Y, WorldConstants.HEIGHT, this::broadcast, chunkSerializer, worldManager::world);
     private final BlockEditService blockEdits = new BlockEditService(
             blockStateRegistry,
             (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),
@@ -284,13 +277,13 @@ public final class FidorialServer implements Server {
         closeQuietly("bossbars", bossBarRegistry::close);
         closeQuietly("day/night cycle", dayNightEngine::close);
         closeQuietly("network", network::shutdown);
-        closeQuietly("light engine", lightPool::shutdownNow);
+        closeQuietly("light engine", lightDispatcher::shutdown);
         closeQuietly("auto-save", autoSave::shutdownNow);
-        closeQuietly("ia", aiWorker::shutdown);
+        closeQuietly("ai", aiWorker::shutdown);
         closeQuietly("regions", regionizer::shutdown);
         closeQuietly("chunks", chunkWorker::shutdown);
         closeQuietly("weather", weatherEngine::close);
-        closeQuietly("profils", offlinePlayers::close);
+        closeQuietly("profiles", offlinePlayers::close);
         closeQuietly("worlds", worldManager::close);
         closeQuietly("metrics", metrics::shutdown);
 

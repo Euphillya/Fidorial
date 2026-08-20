@@ -34,9 +34,6 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
     public static final SimpleCommandExceptionType ERROR_UNKNOWN_PLAYER =
             new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.player.unknown")));
 
-    private static final Collection<String> EXAMPLES =
-            List.of("Player", "0123", "dd12be42-52a9-4a91-a8a1-11c01849e498", "@a");
-
     private static final Predicate<Player> ALL = _ -> true;
 
     private final Predicate<Player> filter;
@@ -126,11 +123,6 @@ public class PlayerProfileArgument<T> implements ArgumentType<T> {
                 .forEach(builder::suggest);
 
         return builder.buildFuture();
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     @FunctionalInterface

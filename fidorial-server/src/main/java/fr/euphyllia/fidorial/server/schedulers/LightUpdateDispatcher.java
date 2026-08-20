@@ -27,7 +27,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -38,6 +40,7 @@ public class LightUpdateDispatcher {
     private static final int CLUSTER_SHIFT = 3; // seems to give the most optimal CPS
 
     private final ExecutorService lightPool;
+    private final AtomicInteger lightThreadId = new AtomicInteger(0);
     private final Consumer<ClientboundPacket> broadcaster;
     private final ChunkNetworkSerializer serializer;
     private final Function<Key, @Nullable ServerWorld> worldLookup;
@@ -52,19 +55,25 @@ public class LightUpdateDispatcher {
     private final Set<Key> scheduledChunks = ConcurrentHashMap.newKeySet();
 
     public LightUpdateDispatcher(
-            final ExecutorService lightPool,
+            final int lightWorkers,
             final int minY,
             final int height,
             final Consumer<ClientboundPacket> broadcaster,
             final ChunkNetworkSerializer serializer,
             final Function<Key, @Nullable ServerWorld> worldLookup
     ) {
-        this.lightPool = lightPool;
-        this.enginePool = new LightEnginePool(((ThreadPoolExecutor) lightPool).getMaximumPoolSize(), minY, height);
+        this.lightPool = Executors.newFixedThreadPool(
+                lightWorkers,
+                r -> Thread.ofPlatform()
+                        .name("fidorial-light-worker-" + lightThreadId.incrementAndGet())
+                        .unstarted(r)
+        );
+        this.enginePool = new LightEnginePool(lightWorkers, minY, height);
         this.regionScheduler = new ChunkRegionScheduler(lightPool);
         this.broadcaster = broadcaster;
         this.serializer = serializer;
         this.worldLookup = worldLookup;
+        LOGGER.info("Light pool started with {} workers", lightWorkers);
     }
 
     public void queueBlockChange(final Key world, final int x, final int y, final int z) {
@@ -341,6 +350,19 @@ public class LightUpdateDispatcher {
         return futures.isEmpty()
                 ? CompletableFuture.completedFuture(null)
                 : CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+    }
+
+    public void shutdown() {
+        lightPool.shutdown();
+        try {
+            if (!lightPool.awaitTermination(5, TimeUnit.SECONDS)) {
+                lightPool.shutdownNow();
+            }
+        } catch (final InterruptedException _) {
+            Thread.currentThread().interrupt();
+            lightPool.shutdownNow();
+        }
+        LOGGER.info("Light workers stopped");
     }
 
     private static final class WorldLightState {

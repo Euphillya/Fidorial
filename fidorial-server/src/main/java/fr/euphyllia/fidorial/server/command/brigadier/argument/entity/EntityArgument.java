@@ -17,7 +17,6 @@ import fr.fidorial.entity.Player;
 import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -26,9 +25,6 @@ import java.util.function.Predicate;
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class EntityArgument<T> implements ArgumentType<T> {
-
-    private static final Collection<String> EXAMPLES =
-            List.of("Player", "0123", "@e", "@e[type=zombie]", "dd12be42-52a9-4a91-a8a1-11c01849e498");
 
     public static final SimpleCommandExceptionType ERROR_NOT_SINGLE_ENTITY =
             new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.entity.toomany")));
@@ -200,11 +196,6 @@ public final class EntityArgument<T> implements ArgumentType<T> {
                 }
             }
         });
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<EntityArgument<?>, Info.Spec> {

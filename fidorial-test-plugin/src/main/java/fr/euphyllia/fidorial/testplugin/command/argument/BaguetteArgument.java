@@ -12,7 +12,6 @@ import fr.fidorial.command.MessageComponentSerializer;
 import fr.fidorial.command.argument.ArgumentTypes;
 import net.kyori.adventure.text.Component;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
@@ -26,8 +25,6 @@ public final class BaguetteArgument {
         RETRODOR,
         MOULEE
     }
-
-    private static final List<String> EXAMPLES = List.of("tradition", "epi");
 
     private static final DynamicCommandExceptionType ERROR_INVALID_VALUE =
             new DynamicCommandExceptionType(
@@ -43,7 +40,7 @@ public final class BaguetteArgument {
     }
 
     public static ArgumentType<Baguette> baguette() {
-        return ArgumentTypes.map(StringArgumentType.word(), BaguetteArgument::parse, BaguetteArgument::suggest, EXAMPLES);
+        return ArgumentTypes.map(StringArgumentType.word(), BaguetteArgument::parse, BaguetteArgument::suggest);
     }
 
     private static Baguette parse(final String value, final StringReader reader) throws CommandSyntaxException {

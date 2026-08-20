@@ -13,7 +13,6 @@ import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTy
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
 
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 public final class ForcedSuggestionsArgumentType<T> implements ArgumentType<T>, ForceServerSuggestions {
@@ -34,11 +33,6 @@ public final class ForcedSuggestionsArgumentType<T> implements ArgumentType<T>, 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
         return delegate.listSuggestions(context, builder);
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return delegate.getExamples();
     }
 
     @Override

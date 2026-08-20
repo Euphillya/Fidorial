@@ -21,7 +21,6 @@ import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventur
 public final class EntitySelectorOptions {
 
     private static final Map<String, Option> OPTIONS = new HashMap<>();
-    private static final Predicate<EntitySelectorParser> ALWAYS_AVAILABLE = p -> true;
 
     public static final SimpleCommandExceptionType ERROR_RANGE_NEGATIVE = new SimpleCommandExceptionType(
             MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.distance.negative")));

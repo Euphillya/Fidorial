@@ -11,8 +11,6 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
 import net.kyori.adventure.text.Component;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,8 +18,6 @@ import java.util.regex.Pattern;
 import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class UuidArgument implements ArgumentType<UUID> {
-
-    private static final Collection<String> EXAMPLES = List.of("dd12be42-52a9-4a91-a8a1-11c01849e498");
 
     private static final Pattern ALLOWED_CHARACTERS = Pattern.compile("^([-A-Fa-f0-9]+)");
 
@@ -57,11 +53,6 @@ public final class UuidArgument implements ArgumentType<UUID> {
         }
 
         throw ERROR_INVALID_UUID.createWithContext(reader);
-    }
-
-    @Override
-    public Collection<String> getExamples() {
-        return EXAMPLES;
     }
 
     public static final class Info implements ArgumentTypeRegistrar<UuidArgument, Info.Spec> {
