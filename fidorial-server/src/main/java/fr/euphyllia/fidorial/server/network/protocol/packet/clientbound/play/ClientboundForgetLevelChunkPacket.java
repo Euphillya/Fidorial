@@ -16,6 +16,6 @@ public record ClientboundForgetLevelChunkPacket(int chunkX, int chunkZ) implemen
 
     @Override
     public void write(final PacketBuffer buf) {
-        buf.writeLong(ChunkPos.chunkKey(chunkX, chunkZ));
+        buf.writeInt(chunkZ).writeInt(chunkX);
     }
 }
