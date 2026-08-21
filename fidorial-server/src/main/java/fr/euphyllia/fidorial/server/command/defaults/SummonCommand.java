@@ -4,7 +4,6 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
-import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.MobTypeArgument;
 import fr.euphyllia.fidorial.server.entity.mob.AbstractMob;
 import fr.euphyllia.fidorial.server.entity.mob.MobFactories;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
@@ -13,6 +12,7 @@ import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
 import fr.fidorial.command.argument.resolvers.PositionResolver;
 import fr.fidorial.entity.EntityType;
+import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.world.Location;
 import net.kyori.adventure.text.Component;
 
@@ -23,7 +23,7 @@ public final class SummonCommand {
     public static LiteralCommandNode<CommandSource> create() {
         return literal("summon")
                 .requires(source -> source.sender().hasPermission("fidorial.command.summon"))
-                .then(argument("entity", MobTypeArgument.mobType())
+                .then(argument("entity", ArgumentTypes.serverResource(RegistryKey.ENTITY_TYPE))
                         .executes(SummonCommand::executeSelf)
                         .then(argument("position", ArgumentTypes.position())
                                 .executes(SummonCommand::executeCoordinates))).build();

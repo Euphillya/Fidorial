@@ -53,10 +53,6 @@ public final class ArgumentTypeRegistry {
                         + "Generic registrars (e.g. Info<T>) must register with an explicit class.");
     }
 
-    public static boolean hasRegistrar(final ArgumentType<?> argument) {
-        return REGISTRARS.containsKey(argument.getClass());
-    }
-
     @SuppressWarnings("unchecked")
     public static <A extends ArgumentType<?>> ArgumentTypeRegistrar<A, ?> registrar(final A argument) {
         final ArgumentTypeRegistrar<?, ?> registrar = REGISTRARS.get(argument.getClass());

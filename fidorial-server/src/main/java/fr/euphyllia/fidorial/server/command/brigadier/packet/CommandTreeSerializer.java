@@ -1,7 +1,6 @@
 package fr.euphyllia.fidorial.server.command.brigadier.packet;
 
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -196,13 +195,6 @@ public final class CommandTreeSerializer {
 
     private static void writeArgumentType(final PacketBuffer buf, final ArgumentType<?> argument) {
         final ArgumentType<?> resolved = unwrap(argument);
-
-        if (!ArgumentTypeRegistry.hasRegistrar(resolved)) {
-            buf.writeVarInt(ArgumentTypeIds.STRING_ARGUMENT_ID);
-            buf.writeVarInt(StringArgumentType.StringType.SINGLE_WORD.ordinal());
-            return;
-        }
-
         writeArgumentTypeCaptured(buf, resolved, ArgumentTypeRegistry.registrar(resolved));
     }
 

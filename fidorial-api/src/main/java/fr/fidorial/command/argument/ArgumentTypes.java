@@ -550,6 +550,23 @@ public final class ArgumentTypes {
     }
 
     /**
+     * An argument for a value from a {@link Registry}, resolved against
+     * the server registry at parse time. Parsing fails immediately if no
+     * entry with the given key exists in the registry, and suggestions
+     * are requested from the server rather than computed by the client.
+     *
+     * @param registryKey the registry's key
+     * @return argument
+     * @param <T> the registry value type
+     * @since 0.1.0
+     * @apiNote This argument is sent to the client as a {@link #resourceKey(RegistryKey)} argument, so the client doesn't
+     * participate in registry resolution and instead asks the server both to validate it and to supply suggestions.
+     */
+    public static <T> ArgumentType<T> serverResource(final RegistryKey<T> registryKey) {
+        return provider().serverResource(registryKey);
+    }
+
+    /**
      * A 3D position argument, accepting absolute, relative ({@code ~}),
      * and mixed coordinates for x, y, and z.
      *

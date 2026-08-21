@@ -240,6 +240,11 @@ public interface ArgumentProvider {
     /**
      * @since 0.1.0
      */
+    <T> ArgumentType<T> serverResource(RegistryKey<T> registryKey);
+
+    /**
+     * @since 0.1.0
+     */
     ArgumentType<PlayerProfileListResolver> playerProfiles();
 
     /**

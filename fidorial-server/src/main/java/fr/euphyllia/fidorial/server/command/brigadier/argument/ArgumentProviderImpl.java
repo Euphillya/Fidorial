@@ -54,6 +54,7 @@ import fr.fidorial.entity.GameMode;
 import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.inventory.ItemStack;
+import fr.fidorial.registry.Registry;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.world.World;
@@ -324,5 +325,16 @@ public class ArgumentProviderImpl implements ArgumentProvider {
     @Override
     public <T> ArgumentType<T> withServerSuggestions(final ArgumentType<T> type) {
         return new ForcedSuggestionsArgumentType<>(type);
+    }
+
+    @Override
+    public <T> ArgumentType<T> serverResource(final RegistryKey<T> registryKey) {
+        final Registry<T> registryLookup = FidorialServer.getInstance().registries().registry(registryKey);
+        final ResourceKeyArgument<T> nativeType = ResourceKeyArgument.resourceKey(registryKey);
+
+        return withServerSuggestions(new MappedArgumentType<>(nativeType, (typedKey, reader) ->
+                registryLookup.find(typedKey)
+                        .orElseThrow(() -> ResourceArgument.ERROR_UNKNOWN_RESOURCE
+                                .createWithContext(reader, typedKey.key().asString(), registryKey.key().asString()))));
     }
 }
