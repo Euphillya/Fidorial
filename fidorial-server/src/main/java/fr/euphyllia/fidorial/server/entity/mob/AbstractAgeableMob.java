@@ -114,10 +114,11 @@ public abstract class AbstractAgeableMob extends AbstractPathfinderMob {
     }
 
     @Override
-    protected final double height() {
+    public final double height() {
         return baby ? babyHeight() : adultHeight();
     }
 
+    @Override
     public final double width() {
         return baby ? babyWidth() : adultWidth();
     }
@@ -144,6 +145,4 @@ public abstract class AbstractAgeableMob extends AbstractPathfinderMob {
         connection.send(ClientboundSetEntityMetadataPacket.of(entityId(),
                 ClientboundSetEntityMetadataPacket.Entry.ofBoolean(MD_BABY, baby)));
     }
-
-
 }

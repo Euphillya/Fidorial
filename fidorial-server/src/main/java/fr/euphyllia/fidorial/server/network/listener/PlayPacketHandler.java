@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.ServerConfig;
 import fr.euphyllia.fidorial.server.adventure.ClickCallbackManager;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
+import fr.euphyllia.fidorial.server.entity.mob.AbstractMob;
 import fr.euphyllia.fidorial.server.entity.player.InventorySlots;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
@@ -72,6 +73,7 @@ import fr.fidorial.event.player.PlayerOpenEnderChestEvent;
 import fr.fidorial.event.player.PlayerQuitEvent;
 import fr.fidorial.event.player.PlayerRespawnEvent;
 import fr.fidorial.inventory.EnderChestInventory;
+import fr.fidorial.inventory.EquipmentSlotGroup;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
 import fr.fidorial.registry.keys.BlockTypeKeys;
@@ -674,7 +676,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
         final AbstractEntity target = serverWorld().entityManager().byId(packet.entityId());
         if (target == null) {
-            LOGGER.debug("{} attaque l'entite {} qui n'existe pas ou plus", player.name(), packet.entityId());
+            LOGGER.debug("{} is attacking the entity {} which does not exist or no longer exists.", player.name(), packet.entityId());
             return;
         }
         server.combat().attack(player, target);
@@ -682,7 +684,15 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleInteract(final ServerboundInteractPacket packet) {
-        LOGGER.debug("{} interagit avec l'entite {}", player.name(), packet.entityId());
+        if (player == null || player.isDead()) {
+            return;
+        }
+        final AbstractEntity target = serverWorld().entityManager().byId(packet.entityId());
+        if (!(target instanceof final AbstractMob mob) || mob.isRemoved()) {
+            LOGGER.debug("{} interacts with the entity {} which does not exist or no longer exists.", player.name(), packet.entityId());
+            return;
+        }
+        mob.onInteract(player, packet.isOffHand() ? EquipmentSlotGroup.OFF_HAND : EquipmentSlotGroup.MAIN_HAND);
     }
 
     @Override

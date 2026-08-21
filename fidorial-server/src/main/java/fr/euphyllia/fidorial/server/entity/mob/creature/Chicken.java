@@ -91,7 +91,7 @@ public final class Chicken extends AbstractPathfinderMob implements Category.Neu
     }
 
     @Override
-    protected double height() {
+    public double height() {
         return HITBOX_HEIGHT;
     }
 

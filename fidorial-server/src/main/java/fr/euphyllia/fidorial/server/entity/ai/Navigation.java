@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.entity.ai;
 
 import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
+import fr.fidorial.entity.ai.Navigator;
 import fr.fidorial.entity.ai.Path;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
@@ -9,7 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class Navigation {
+public class Navigation implements Navigator {
 
     private static final double WAYPOINT_REACHED_SQ = 0.35 * 0.35;
 
@@ -48,6 +49,7 @@ public class Navigation {
         this.pathPenalty = pathPenalty;
     }
 
+    @Override
     public void moveTo(final Location from, final BlockPos goal) {
         if (requestInFlight) {
             return;
@@ -111,6 +113,7 @@ public class Navigation {
         }
     }
 
+    @Override
     public @Nullable BlockPos currentWaypoint() {
         if (path == null || waypointIndex >= path.waypoints().size()) {
             return null;
@@ -118,10 +121,12 @@ public class Navigation {
         return path.waypoints().get(waypointIndex);
     }
 
+    @Override
     public boolean isNavigating() {
         return currentWaypoint() != null || requestInFlight;
     }
 
+    @Override
     public void stop() {
         path = null;
         waypointIndex = 0;

@@ -3,8 +3,9 @@ package fr.euphyllia.fidorial.server.world.entity;
 import fr.euphyllia.fidorial.server.entity.AbstractEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.mob.AbstractMob;
-import fr.euphyllia.fidorial.server.entity.mob.MobFactories;
 import fr.euphyllia.fidorial.server.entity.mob.AbstractPathfinderMob;
+import fr.euphyllia.fidorial.server.entity.mob.MobFactories;
+import fr.euphyllia.fidorial.server.entity.mob.PluginMob;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.fidorial.entity.EntityType;
 import fr.fidorial.entity.LivingEntity;
@@ -37,7 +38,10 @@ public class AnvilEntitySerializer {
     }
 
     public static boolean isPersistable(final AbstractEntity entity) {
-        return entity instanceof AbstractMob && !entity.isRemoved();
+        if (!(entity instanceof AbstractMob) || entity.isRemoved()) {
+            return false;
+        }
+        return !(entity instanceof final PluginMob plugin) || plugin.isPersistent();
     }
 
     public CompoundBinaryTag toChunkNbt(final int chunkX, final int chunkZ, final Collection<? extends AbstractEntity> entities) {

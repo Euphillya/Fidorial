@@ -14,6 +14,7 @@ import fr.fidorial.sound.SoundEvents;
 import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
+import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
@@ -27,17 +28,18 @@ public final class Bat extends AbstractFlyingMob implements Category.Ambient {
 
     public static final int MAX_SPAWN_LIGHT = 3;
 
-    private static final Set<String> SPAWNABLE_ON = Set.of(
-            "minecraft:stone",
-            "minecraft:granite",
-            "minecraft:diorite",
-            "minecraft:andesite",
-            "minecraft:tuff",
-            "minecraft:deepslate");
+    private static final Set<Key> SPAWNABLE_ON = Set.of(
+            Key.key("stone"),
+            Key.key("granite"),
+            Key.key("diorite"),
+            Key.key("andesite"),
+            Key.key("tuff"),
+            Key.key("deepslate")
+    );
 
-    private static final String LAVA = "minecraft:lava";
-    private static final String MAGMA_BLOCK = "minecraft:magma_block";
-    private static final String COBWEB = "minecraft:cobweb";
+    private static final Key LAVA = Key.key("lava");
+    private static final Key MAGMA_BLOCK = Key.key("magma_block");
+    private static final Key COBWEB = Key.key("cobweb");
 
     private static final double HITBOX_HEIGHT = 0.9;
     private static final double HITBOX_HALF_WIDTH = 0.25;
@@ -129,7 +131,7 @@ public final class Bat extends AbstractFlyingMob implements Category.Ambient {
     }
 
     @Override
-    protected double height() {
+    public double height() {
         return HITBOX_HEIGHT;
     }
 

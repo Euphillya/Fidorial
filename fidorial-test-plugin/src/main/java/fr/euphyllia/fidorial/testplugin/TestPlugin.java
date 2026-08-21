@@ -2,10 +2,13 @@ package fr.euphyllia.fidorial.testplugin;
 
 import fr.euphyllia.fidorial.testplugin.command.ApiTestCommand;
 import fr.euphyllia.fidorial.testplugin.command.BiomeCommand;
+import fr.euphyllia.fidorial.testplugin.command.CustomMobCommand;
 import fr.euphyllia.fidorial.testplugin.command.DialogCommand;
 import fr.euphyllia.fidorial.testplugin.command.PregenCommand;
 import fr.euphyllia.fidorial.testplugin.command.WorldgenCommand;
 import fr.euphyllia.fidorial.testplugin.dialog.TestDialogs;
+import fr.euphyllia.fidorial.testplugin.mob.BullMobs;
+import fr.euphyllia.fidorial.testplugin.mob.CompanionMobs;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
 import fr.euphyllia.fidorial.testplugin.terrain.TestBiomes;
 import fr.euphyllia.fidorial.testplugin.worldgen.GeneratorSettings;
@@ -105,6 +108,10 @@ public final class TestPlugin implements Plugin {
 
         TestDialogs.registerAll(context.server().dialogs(), context.logger());
 
+//        BullMobs.attachToCows(context.server().mobs(), this, context.logger());
+       BullMobs.registerBull(context.server().mobs(), this, context.logger());
+        CompanionMobs.register(context.server().mobs(), this, context.logger());
+
         final long seed = resolveSeed(context.logger());
         this.generator = new OverworldGenerator(GeneratorSettings.defaults(seed));
 
@@ -150,6 +157,8 @@ public final class TestPlugin implements Plugin {
         server.commands().unregisterNamespace(context.meta());
         TestBiomes.unregisterAll(server.biomes());
         TestDialogs.unregisterAll(server.dialogs());
+        BullMobs.unregisterAll(server.mobs(), this);
+        server.mobs().unregisterAll(this);
         TestPluginTranslations.unregister();
     }
 
@@ -273,5 +282,6 @@ public final class TestPlugin implements Plugin {
         registry.register(context.meta(), new BiomeCommand(this).create());
         registry.register(context.meta(), new WorldgenCommand(this).create());
         registry.register(context.meta(), new DialogCommand(this).create());
+        registry.register(context.meta(), new CustomMobCommand(this).create());
     }
 }

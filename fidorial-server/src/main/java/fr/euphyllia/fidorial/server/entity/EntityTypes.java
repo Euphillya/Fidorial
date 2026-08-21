@@ -191,6 +191,17 @@ public final class EntityTypes {
         return type;
     }
 
+    public static EntityType registerCustom(final EntityType type, final int networkId) {
+        BY_KEY.put(type.key(), type);
+        NETWORK_IDS.put(type.key(), networkId);
+        return type;
+    }
+
+    public static boolean unregister(final Key key) {
+        NETWORK_IDS.remove(key);
+        return BY_KEY.remove(key) != null;
+    }
+
     public static @Nullable EntityType get(final Key key) {
         return BY_KEY.get(key);
     }

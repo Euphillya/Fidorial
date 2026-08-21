@@ -6,7 +6,6 @@ import fr.fidorial.entity.EntityType;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,9 +24,7 @@ public abstract class AbstractPathfinderMob extends AbstractMovingMob {
 
     protected final Navigation navigation;
 
-    private @Nullable ServerPlayer target;
     private double stepDistance;
-    private double moveSpeed;
 
     protected AbstractPathfinderMob(final int entityId, final UUID uuid, final EntityType type, final World world,
                                     final Location location, final float maxHealth) {
@@ -46,7 +43,7 @@ public abstract class AbstractPathfinderMob extends AbstractMovingMob {
         }
 
         if (isDead()) {
-            moveSpeed = 0.0;
+            setMoveSpeed(0.0);
             final Location fallingFrom = location();
             applyPhysics();
             updateChunkMembership(fallingFrom, location());
@@ -54,14 +51,16 @@ public abstract class AbstractPathfinderMob extends AbstractMovingMob {
             return;
         }
 
+        final ServerPlayer currentTarget = target();
         if (currentTick % TARGET_SCAN_INTERVAL == 0) {
             updateTarget();
-        } else if (target != null && !isValidTarget(target, dropRangeSq())) {
-            target = null;
+        } else if (currentTarget != null && !isValidTarget(currentTarget, dropRangeSq())) {
+            setTarget(null);
         }
 
-        moveSpeed = 0.0;
+        setMoveSpeed(0.0);
         goals.tick();
+        tickBehaviours(currentTick);
 
         final Location before = location();
         applyPhysics();
@@ -89,10 +88,6 @@ public abstract class AbstractPathfinderMob extends AbstractMovingMob {
         server().despawnEntity(this);
     }
 
-    protected double followRange() {
-        return 16.0;
-    }
-
     private double dropRangeSq() {
         final double range = followRange() * 1.25;
         return range * range;
@@ -101,14 +96,14 @@ public abstract class AbstractPathfinderMob extends AbstractMovingMob {
     private void updateTarget() {
         final List<ServerPlayer> players = server().players();
         if (players.isEmpty()) {
-            target = null;
+            setTarget(null);
             return;
         }
 
         final double acquireSq = followRange() * followRange();
         ServerPlayer best = null;
         double bestDistSq = Double.MAX_VALUE;
-        final ServerPlayer current = this.target;
+        final ServerPlayer current = target();
         if (current != null && isTargetable(current)) {
             final double distSq = distanceSqTo(current);
             if (distSq <= dropRangeSq()) {
@@ -127,7 +122,7 @@ public abstract class AbstractPathfinderMob extends AbstractMovingMob {
                 best = player;
             }
         }
-        this.target = best;
+        setTarget(best);
     }
 
     private boolean isTargetable(final ServerPlayer player) {
@@ -145,18 +140,7 @@ public abstract class AbstractPathfinderMob extends AbstractMovingMob {
         return isTargetable(player) && distanceSqTo(player) <= maxDistSq;
     }
 
-    public final @Nullable ServerPlayer target() {
-        return target;
-    }
-
-    public final void setTarget(final @Nullable ServerPlayer target) {
-        this.target = target;
-    }
-
-    public final void setMoveSpeed(final double speed) {
-        this.moveSpeed = speed;
-    }
-
+    @Override
     public final Navigation navigation() {
         return navigation;
     }
@@ -179,14 +163,15 @@ public abstract class AbstractPathfinderMob extends AbstractMovingMob {
 
         double inputX = 0.0;
         double inputZ = 0.0;
+        final double speed = moveSpeed();
         final var waypoint = navigation.currentWaypoint();
-        if (waypoint != null && moveSpeed > 0.0) {
+        if (waypoint != null && speed > 0.0) {
             final double dx = waypoint.x() + 0.5 - x;
             final double dz = waypoint.z() + 0.5 - z;
             final double length = Math.sqrt(dx * dx + dz * dz);
             if (length > 1.0E-4) {
-                inputX = dx / length * moveSpeed;
-                inputZ = dz / length * moveSpeed;
+                inputX = dx / length * speed;
+                inputZ = dz / length * speed;
                 yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
                 pitch = 0f;
             }
