@@ -166,7 +166,7 @@ public final class Cow extends AbstractAgeableMob implements Category.Neutral {
     }
 
     @Override
-    protected double followRange() {
+    protected double defaultFollowRange() {
         return 0.0;
     }
 

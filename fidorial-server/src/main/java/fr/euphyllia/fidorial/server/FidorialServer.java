@@ -15,6 +15,7 @@ import fr.euphyllia.fidorial.server.entity.EntityIdAllocator;
 import fr.euphyllia.fidorial.server.entity.EntityTickHandler;
 import fr.euphyllia.fidorial.server.entity.EntityTracker;
 import fr.euphyllia.fidorial.server.entity.mob.AbstractMob;
+import fr.euphyllia.fidorial.server.entity.mob.FidorialMobRegistry;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.entity.player.profile.FidorialOfflinePlayers;
 import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerDataStorage;
@@ -68,6 +69,7 @@ import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.OfflinePlayers;
 import fr.fidorial.entity.Player;
+import fr.fidorial.entity.mob.MobRegistry;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.event.server.ServerStartedEvent;
 import fr.fidorial.event.server.ServerStoppingEvent;
@@ -178,6 +180,7 @@ public final class FidorialServer implements Server {
             fluidEngine::notifyBlockChanged,
             lightDispatcher::queueBlockChange);
     private final FidorialPermissionRegistry permissionRegistry = new FidorialPermissionRegistry();
+    private final FidorialMobRegistry mobRegistry = new FidorialMobRegistry();
     private final JavaPluginManager pluginManager =
             new JavaPluginManager(this, events, services, permissionRegistry, config.pluginsPath());
     private final OperatorList operators = new OperatorList(Path.of("ops.json"));
@@ -218,7 +221,10 @@ public final class FidorialServer implements Server {
     }
 
     public static FidorialServer getInstance() {
-        return Objects.requireNonNull(instance, "FidorialServer is not initialized");
+        if (instance == null) {
+            throw new RuntimeException("FidorialServer is not initialized");
+        }
+        return instance;
     }
 
     private static FidorialBlockRegistry bootstrapBlocks() {
@@ -358,6 +364,7 @@ public final class FidorialServer implements Server {
         services.register(OfflinePlayers.class, offlinePlayers, this, ServicePriority.LOWEST);
         services.register(BanManager.class, fidorialBanManager, this, ServicePriority.LOWEST);
         services.register(WhitelistManager.class, fidorialWhitelist, this, ServicePriority.LOWEST);
+        services.register(MobRegistry.class, mobRegistry, this, ServicePriority.LOWEST);
     }
 
     private void loadPlugins() throws IOException {
@@ -493,6 +500,11 @@ public final class FidorialServer implements Server {
     @Override
     public FidorialDialogRegistry dialogs() {
         return registries.dialogs();
+    }
+
+    @Override
+    public FidorialMobRegistry mobs() {
+        return mobRegistry;
     }
 
     public FidorialBiomeRegistry biomeRegistry() {

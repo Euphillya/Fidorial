@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.mob;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.entity.mob.ambient.Bat;
 import fr.euphyllia.fidorial.server.entity.mob.creature.Allay;
@@ -95,6 +96,7 @@ import fr.fidorial.entity.EntityType;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import net.kyori.adventure.key.Key;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
@@ -197,19 +199,42 @@ public final class MobFactories {
     }
 
     public static boolean isMob(final EntityType type) {
-        return FACTORIES.containsKey(type.key());
+        final FidorialMobRegistry registry = registry();
+        return registry.isMob(type.key());
     }
 
-    public static Set<Key> keys() {
+    public static boolean isBuiltIn(final Key key) {
+        return FACTORIES.containsKey(key);
+    }
+
+    public static Set<Key> builtInKeys() {
         return FACTORIES.keySet();
     }
 
+    public static Set<Key> keys() {
+        final FidorialMobRegistry registry = registry();
+        return registry.types();
+    }
+
+
     public static AbstractMob create(final EntityType type, final int entityId, final World world, final Location location) {
-        final MobFactory factory = FACTORIES.get(type.key());
-        if (factory == null) {
-            throw new IllegalArgumentException("No mob implemented for " + type.key());
+        final FidorialMobRegistry registry = registry();
+
+        AbstractMob mob = registry.createDefined(type, entityId, world, location);
+        if (mob == null) {
+            final MobFactory factory = FACTORIES.get(type.key());
+            if (factory == null) {
+                throw new IllegalArgumentException("No mob implemented for " + type.key());
+            }
+            mob = factory.create(entityId, world, location);
         }
-        return factory.create(entityId, world, location);
+
+        registry.applyBehaviours(mob);
+        return mob;
+    }
+
+    private static FidorialMobRegistry registry() {
+        return FidorialServer.getInstance().mobs();
     }
 
     @FunctionalInterface

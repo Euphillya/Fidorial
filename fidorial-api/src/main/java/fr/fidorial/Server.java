@@ -4,6 +4,7 @@ import fr.fidorial.command.CommandRegistry;
 import fr.fidorial.dialog.DialogRegistry;
 import fr.fidorial.entity.OfflinePlayers;
 import fr.fidorial.entity.Player;
+import fr.fidorial.entity.mob.MobRegistry;
 import fr.fidorial.event.EventBus;
 import fr.fidorial.moderation.BanManager;
 import fr.fidorial.moderation.WhitelistManager;
@@ -161,6 +162,19 @@ public interface Server extends ForwardingAudience {
      */
     @Contract(pure = true)
     BiomeRegistry biomes();
+
+    /**
+     * Gets the server-wide mob registry.
+     *
+     * <p>Where plugins {@linkplain MobRegistry#attach attach behaviours} to
+     * the built-in mobs, and {@linkplain MobRegistry#register register}
+     * mobs of their own.</p>
+     *
+     * @return the mob registry
+     * @since 0.1.0
+     */
+    @Contract(pure = true)
+    MobRegistry mobs();
 
     Collection<? extends World> worlds();
 

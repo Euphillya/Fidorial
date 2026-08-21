@@ -38,6 +38,7 @@ public abstract class AbstractFlyingMob extends AbstractMovingMob {
         }
 
         goals.tick();
+        tickBehaviours(currentTick);
         tickFlight(currentTick);
 
         final Location before = location();

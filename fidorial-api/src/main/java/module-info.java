@@ -13,6 +13,7 @@ import org.jspecify.annotations.NullMarked;
  *   <li>{@link fr.fidorial.plugin} — plugin entry point and context</li>
  *   <li>{@link fr.fidorial.event} — observe and cancel server events</li>
  *   <li>{@link fr.fidorial.service} — replace default server behaviour</li>
+ *   <li>{@link fr.fidorial.entity.mob} — bend the built-in mobs, or write new ones</li>
  *   <li>{@link fr.fidorial.scheduler} — hand long work off the region threads</li>
  *   <li>{@link fr.fidorial.dialog} — show modal windows and read what players fill in</li>
  *   <li>{@link fr.fidorial.registry.keys} — generated keys for blocks, items and more</li>
@@ -38,6 +39,7 @@ module fr.fidorial {
     exports fr.fidorial.command;
     exports fr.fidorial.dialog;
     exports fr.fidorial.entity.ai;
+    exports fr.fidorial.entity.mob;
     exports fr.fidorial.entity;
     exports fr.fidorial.event.entity;
     exports fr.fidorial.event.player;

@@ -161,21 +161,23 @@ public class Zombie extends AbstractPathfinderMob implements Category.Monster {
         return SoundEvents.ZOMBIE_DEATH;
     }
 
-    protected double movementSpeed() {
+    @Override
+    public double movementSpeed() {
         return baby ? BABY_SPEED : ADULT_SPEED;
     }
 
-    protected double width() {
+    @Override
+    public double width() {
         return baby ? BABY_WIDTH : ADULT_WIDTH;
     }
 
     @Override
-    protected double height() {
+    public double height() {
         return baby ? BABY_HEIGHT : ADULT_HEIGHT;
     }
 
     @Override
-    protected double followRange() {
+    protected double defaultFollowRange() {
         return followRange;
     }
 
