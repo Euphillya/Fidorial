@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.MobTypeArgument;
 import fr.euphyllia.fidorial.server.entity.mob.AbstractMob;
 import fr.euphyllia.fidorial.server.entity.mob.MobFactories;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
@@ -17,13 +18,12 @@ import net.kyori.adventure.text.Component;
 
 import static fr.fidorial.command.Commands.argument;
 import static fr.fidorial.command.Commands.literal;
-import static fr.fidorial.registry.RegistryKey.ENTITY_TYPE;
 
 public final class SummonCommand {
     public static LiteralCommandNode<CommandSource> create() {
         return literal("summon")
                 .requires(source -> source.sender().hasPermission("fidorial.command.summon"))
-                .then(argument("entity", ArgumentTypes.resource(ENTITY_TYPE))
+                .then(argument("entity", MobTypeArgument.mobType())
                         .executes(SummonCommand::executeSelf)
                         .then(argument("position", ArgumentTypes.position())
                                 .executes(SummonCommand::executeCoordinates))).build();
@@ -48,7 +48,7 @@ public final class SummonCommand {
         final Location location = context.getArgument("position", PositionResolver.class).resolve(context.getSource());
 
         final ServerWorld world = context.getSource().sender() instanceof final ServerPlayer player
-                        && player.world() instanceof final ServerWorld serverWorld
+                && player.world() instanceof final ServerWorld serverWorld
                 ? serverWorld
                 : FidorialServer.getInstance().worldManager().overworld();
 
