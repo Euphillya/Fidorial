@@ -96,7 +96,6 @@ import fr.fidorial.entity.EntityType;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
 import net.kyori.adventure.key.Key;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;

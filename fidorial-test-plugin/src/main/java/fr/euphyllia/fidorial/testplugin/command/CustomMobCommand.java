@@ -7,7 +7,6 @@ import fr.euphyllia.fidorial.testplugin.TestPlugin;
 import fr.euphyllia.fidorial.testplugin.mob.BullMobs;
 import fr.euphyllia.fidorial.testplugin.mob.CompanionMobs;
 import fr.fidorial.command.CommandSource;
-import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.Player;
 import fr.fidorial.entity.mob.Mob;
 import net.kyori.adventure.key.Key;
