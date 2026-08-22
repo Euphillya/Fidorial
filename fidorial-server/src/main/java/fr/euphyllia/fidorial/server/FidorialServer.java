@@ -24,6 +24,7 @@ import fr.euphyllia.fidorial.server.entity.player.storage.NbtPlayerInventoryStor
 import fr.euphyllia.fidorial.server.events.SimpleEventBus;
 import fr.euphyllia.fidorial.server.inventory.ChestViewerTracker;
 import fr.euphyllia.fidorial.server.metrics.FidorialContext;
+import fr.euphyllia.fidorial.server.moderation.CodeOfConductManager;
 import fr.euphyllia.fidorial.server.moderation.FidorialBanManager;
 import fr.euphyllia.fidorial.server.moderation.FidorialWhitelist;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
@@ -149,6 +150,8 @@ public final class FidorialServer implements Server {
     private final Registries registries = Registries.load();
     private final CommandManager commandManager;
     private final ClickCallbackManager clickCallbackManager = new ClickCallbackManager();
+    private final CodeOfConductManager codeOfConduct =
+            new CodeOfConductManager(config.enableCodeOfConduct(), config.codeOfConductPath());
 
     private final ThreadedRegionRegionizer regionizer = new ThreadedRegionRegionizer(config.regionWorkers(), config.regionShift());
     private final ThreadedChunkWorker chunkWorker = new ThreadedChunkWorker(config.chunkWorkers());
@@ -613,6 +616,10 @@ public final class FidorialServer implements Server {
 
     public ClickCallbackManager clickCallbacksManager() {
         return clickCallbackManager;
+    }
+
+    public CodeOfConductManager codeOfConduct() {
+        return codeOfConduct;
     }
 
     @Override

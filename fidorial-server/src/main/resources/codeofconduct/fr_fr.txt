@@ -1,0 +1,33 @@
+Bienvenue sur Fidorial.
+
+Ce texte est un exemple généré au premier démarrage : remplace-le par
+les règles de ton serveur. Le fichier est du texte brut en UTF-8, les
+codes couleur et le MiniMessage ne sont pas interpretes.
+
+En jouant sur ce serveur, tu acceptes les règles suivantes :
+
+1. Respect
+   Pas d'insultes, de harcèlement, ni de propos haineux (racisme,
+   sexisme, homophobie, etc.). Utiliser un vocal externe ne dispense
+   pas de ces regles.
+
+2. Jeu equitable
+   Les clients modifiés donnant un avantage (fly, x-ray, kill aura,
+   auto-clicker) sont interdits, tout comme les macros et les bots.
+
+3. Constructions et biens d'autrui
+   Pas de griefing, de vol, ni de pièges dans les zones d'autrui.
+   Ce qu'un joueur construit lui appartient.
+
+4. Chat
+   Pas de spam, pas de publicité pour d'autres serveurs, pas de
+   contenu NSFW. Le chat public est en français ou en anglais.
+
+5. Signalements
+   En cas de problème, contacte le staff plutôt que de te faire
+   justice toi même.
+
+Les sanctions vont de l'avertissement au bannissement définitif selon
+la gravité et la recidive.
+
+Dernière mise a jour : 2026-08-22

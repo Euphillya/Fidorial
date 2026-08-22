@@ -1,0 +1,33 @@
+Welcome to Fidorial.
+
+This text is an example generated on first startup: replace it with
+your own server rules. The file is plain UTF-8 text; colour codes and
+MiniMessage are not interpreted.
+
+By playing on this server you agree to the following rules:
+
+1. Respect
+   No insults, harassment or hate speech (racism, sexism, homophobia,
+   etc.). Using an external voice chat does not exempt you from these
+   rules.
+
+2. Fair play
+   Modified clients granting an advantage (fly, x-ray, kill aura,
+   auto-clicker) are forbidden, as are macros and bots.
+
+3. Other players' builds and property
+   No griefing, stealing or trapping in someone else's area. What a
+   player builds belongs to them.
+
+4. Chat
+   No spam, no advertising for other servers, no NSFW content. Public
+   chat is in English.
+
+5. Reporting
+   If something goes wrong, contact the staff instead of taking
+   matters into your own hands.
+
+Sanctions range from a warning to a permanent ban depending on
+severity and repeat offences.
+
+Last updated: 2026-08-22

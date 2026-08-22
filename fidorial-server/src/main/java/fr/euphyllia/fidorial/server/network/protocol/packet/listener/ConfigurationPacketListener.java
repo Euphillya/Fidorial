@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.network.protocol.packet.listener;
 
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundAcceptCodeOfConductPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundFinishConfigurationPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundResourcePackPacket;
@@ -17,4 +18,6 @@ public interface ConfigurationPacketListener extends PacketListener {
     void handleResourcePackResponse(ServerboundResourcePackPacket packet);
 
     void handleClientInformation(ServerboundClientInformationPacket packet);
+
+    void handleAcceptCodeOfConduct(ServerboundAcceptCodeOfConductPacket packet);
 }

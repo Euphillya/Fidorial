@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server;
 
+import fr.euphyllia.fidorial.server.moderation.CodeOfConductManager;
 import fr.euphyllia.fidorial.server.world.WorldConstants;
 import fr.fidorial.entity.GameMode;
 import net.kyori.adventure.text.Component;
@@ -44,7 +45,9 @@ public record ServerConfig(
         @Nullable String resourcePackHash,
         @Nullable UUID resourcePackId,
         boolean resourcePackForced,
-        @Nullable Component resourcePackPrompt
+        @Nullable Component resourcePackPrompt,
+        boolean enableCodeOfConduct,
+        Path codeOfConductPath
 ) {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(ServerConfig.class);
@@ -116,7 +119,9 @@ public record ServerConfig(
                 "",
                 null,
                 false,
-                Component.empty());
+                Component.empty(),
+                false,
+                Path.of(CodeOfConductManager.DEFAULT_FOLDER));
     }
 
     public static ServerConfig load() throws IOException {
@@ -164,7 +169,10 @@ public record ServerConfig(
                 readString(props, "resource-pack-hash", ""),
                 resolveResourcePackId(props, resourcePackUrl),
                 readBool(props, "resource-pack-forced", false),
-                readComponent(props, "resource-pack-prompt", Component.empty()));
+                readComponent(props, "resource-pack-prompt", Component.empty()),
+                readBool(props, "enable-code-of-conduct", defaults.enableCodeOfConduct()),
+                Path.of(props.getProperty(
+                        "code-of-conduct-path", defaults.codeOfConductPath().toString())));
         LOGGER.info("Configuration loaded from {}", file);
         return config;
     }
@@ -307,6 +315,8 @@ public record ServerConfig(
         props.setProperty("resource-pack-id", resourcePackId == null ? "" : resourcePackId.toString());
         props.setProperty("resource-pack-forced", Boolean.toString(resourcePackForced));
         props.setProperty("resource-pack-prompt", resourcePackPrompt == null ? "" : MiniMessage.miniMessage().serialize(resourcePackPrompt));
+        props.setProperty("enable-code-of-conduct", Boolean.toString(enableCodeOfConduct));
+        props.setProperty("code-of-conduct-path", codeOfConductPath.toString());
         try (final OutputStream out = Files.newOutputStream(file)) {
             props.store(out, "Configuration Fidorial");
         }

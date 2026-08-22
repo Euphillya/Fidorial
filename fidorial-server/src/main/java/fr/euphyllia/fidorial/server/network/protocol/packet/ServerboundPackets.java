@@ -8,6 +8,7 @@ import fr.euphyllia.fidorial.server.network.protocol.catalog.LoginServerboundPac
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayServerboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.StatusServerboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundAcceptCodeOfConductPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundFinishConfigurationPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundResourcePackPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundSelectKnownPacksPacket;
@@ -87,6 +88,10 @@ public class ServerboundPackets {
                 ConnectionState.CONFIGURATION,
                 ConfigurationServerboundPackets.FINISH_CONFIGURATION,
                 ServerboundFinishConfigurationPacket::read);
+        register(
+                ConnectionState.CONFIGURATION,
+                ConfigurationServerboundPackets.ACCEPT_CODE_OF_CONDUCT,
+                ServerboundAcceptCodeOfConductPacket::read);
 
         register(ConnectionState.PLAY, PlayServerboundPackets.PLAYER_LOADED, ServerboundPlayerLoadedPacket::read);
         register(

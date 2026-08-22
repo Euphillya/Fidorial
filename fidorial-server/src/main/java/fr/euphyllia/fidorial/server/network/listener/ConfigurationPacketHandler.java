@@ -8,12 +8,14 @@ import fr.euphyllia.fidorial.server.network.protocol.ProtocolConstants;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.ConfigurationClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.common.ClientboundResourcePackPushPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.configuration.ClientboundBrandPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.configuration.ClientboundCodeOfConductPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.configuration.ClientboundFinishConfigurationPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.configuration.ClientboundRegistryDataPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.configuration.ClientboundSelectKnownPacksPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.configuration.ClientboundUpdateTagsPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.listener.ConfigurationPacketListener;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundAcceptCodeOfConductPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundCustomClickActionPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundFinishConfigurationPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.configuration.ServerboundResourcePackPacket;
@@ -37,6 +39,10 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
     private final ClientConnection connection;
     private final FidorialServer server;
     private volatile boolean awaitingResourcePackResponse = false;
+    private final Object codeOfConductLock = new Object();
+    private boolean clientInformationReceived = false;
+    private boolean codeOfConductPending = false;
+    private volatile boolean awaitingCodeOfConduct = false;
 
     public ConfigurationPacketHandler(final ClientConnection connection) {
         this.connection = connection;
@@ -45,7 +51,7 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
 
     @Override
     public void onEnter() {
-        LOGGER.info("{} entre en phase Configuration", connection.username());
+        LOGGER.debug("{} enters the Configuration phase", connection.username());
         if (!server.protocolMap().isAvailable()) {
             LOGGER.error(
                     "Protocol table missing: unable to configure {}.",
@@ -57,12 +63,58 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
         if (sendResourcePackIfConfigured()) {
             awaitingResourcePackResponse = true;
         } else {
-            proceedToKnownPacks();
+            proceedToCodeOfConduct();
         }
     }
 
     private void proceedToKnownPacks() {
         connection.send(new ClientboundSelectKnownPacksPacket("minecraft", "core", ProtocolConstants.MINECRAFT_VERSION));
+    }
+
+    private void proceedToCodeOfConduct() {
+        if (!server.codeOfConduct().enabled()) {
+            proceedToKnownPacks();
+            return;
+        }
+        synchronized (codeOfConductLock) {
+            codeOfConductPending = true;
+        }
+        sendCodeOfConductIfReady();
+    }
+
+    private void sendCodeOfConductIfReady() {
+        final String contents;
+        synchronized (codeOfConductLock) {
+            if (!codeOfConductPending || !clientInformationReceived) {
+                return;
+            }
+            contents = server.codeOfConduct().contentFor(connection.locale());
+            codeOfConductPending = false;
+            if (contents != null) {
+                awaitingCodeOfConduct = true;
+            }
+        }
+        if (contents == null) {
+            LOGGER.warn(
+                    "No Code of Conduct available for {} ({}); skipping the screen.",
+                    connection.username(),
+                    connection.locale());
+            proceedToKnownPacks();
+            return;
+        }
+        LOGGER.debug("Sending the Code of Conduct to {} ({})", connection.username(), connection.locale());
+        connection.send(new ClientboundCodeOfConductPacket(contents));
+    }
+
+    @Override
+    public void handleAcceptCodeOfConduct(final ServerboundAcceptCodeOfConductPacket packet) {
+        if (!awaitingCodeOfConduct) {
+            LOGGER.debug("{} accepted a Code of Conduct that was never sent; ignored.", connection.username());
+            return;
+        }
+        awaitingCodeOfConduct = false;
+        LOGGER.info("{} acknowledged the Code of Conduct", connection.username());
+        proceedToKnownPacks();
     }
 
     @Override
@@ -81,12 +133,16 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
 
         if (awaitingResourcePackResponse) {
             awaitingResourcePackResponse = false;
-            proceedToKnownPacks();
+            proceedToCodeOfConduct();
         }
     }
 
     @Override
     public void handleSelectKnownPacks(final ServerboundSelectKnownPacksPacket packet) {
+        if (awaitingCodeOfConduct) {
+            LOGGER.debug("{} sent Known Packs before accepting the Code of Conduct; ignored.", connection.username());
+            return;
+        }
         LOGGER.debug("Known Packs client received -> sending registers");
         sendRegistries();
         sendTags();
@@ -168,5 +224,9 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
     public void handleClientInformation(final ServerboundClientInformationPacket packet) {
         connection.setLocale(Locale.forLanguageTag(packet.language().replace('_', '-')));
         connection.setDisplayedSkinParts(packet.displayedSkinParts());
+        synchronized (codeOfConductLock) {
+            clientInformationReceived = true;
+        }
+        sendCodeOfConductIfReady();
     }
 }
