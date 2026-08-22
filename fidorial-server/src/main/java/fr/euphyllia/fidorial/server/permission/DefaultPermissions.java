@@ -43,6 +43,8 @@ public final class DefaultPermissions {
                 command("tps", "View per-region TPS."),
                 command("weather", "Change the weather."),
                 command("whitelist", "Manage the whitelist."),
+                PermissionDefinition.operatorOnly("spark", "Use the built-in spark profiler."),
+                PermissionDefinition.operatorOnly("spark.*", "Every spark subcommand."),
                 PermissionDefinition.operatorOnly(
                         "minecraft.command.selector", "Use entity selectors (@a, @p, @e, @s).")));
     }

@@ -49,6 +49,7 @@ import fr.euphyllia.fidorial.server.schedulers.LightUpdateDispatcher;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedChunkWorker;
 import fr.euphyllia.fidorial.server.schedulers.ThreadedRegionRegionizer;
 import fr.euphyllia.fidorial.server.service.SimpleServiceRegistry;
+import fr.euphyllia.fidorial.server.spark.SparkService;
 import fr.euphyllia.fidorial.server.translation.BuiltInTranslationStore;
 import fr.euphyllia.fidorial.server.world.BlockEditService;
 import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
@@ -200,6 +201,8 @@ public final class FidorialServer implements Server {
             .metrics(Metrics.Factory::create)
             .create();
     private final ConsoleSender console = new ConsoleSender(this);
+    private final @Nullable SparkService spark =
+            config.sparkEnabled() ? new SparkService(this, config.sparkPath()) : null;
     private volatile @Nullable Iterable<? extends Audience> adventure$audiences;
 
     private @Nullable Favicon favicon = loadFavicon();
@@ -248,6 +251,7 @@ public final class FidorialServer implements Server {
             metrics.ready();
             loadData();
             registerDefaultServices();
+            enableSpark();
             loadPlugins();
             openWorlds();
             regionizer.registerTickHandler(new EntityTickHandler(worldManager, this));
@@ -280,6 +284,7 @@ public final class FidorialServer implements Server {
         onlinePlayers().forEach(player -> player.kick(Component.translatable("commands.stop.stopping")));
 
         closeQuietly("plugins", pluginManager::close);
+        closeQuietly("spark", this::disableSpark);
         closeQuietly("commands", commandManager::shutdown);
         closeQuietly("click callbacks", clickCallbackManager::close);
         closeQuietly("bossbars", bossBarRegistry::close);
@@ -367,6 +372,24 @@ public final class FidorialServer implements Server {
         services.register(BanManager.class, fidorialBanManager, this, ServicePriority.LOWEST);
         services.register(WhitelistManager.class, fidorialWhitelist, this, ServicePriority.LOWEST);
         services.register(MobRegistry.class, mobRegistry, this, ServicePriority.LOWEST);
+    }
+
+    private void enableSpark() {
+        if (spark == null) {
+            LOGGER.debug("spark is disabled by configuration");
+            return;
+        }
+        spark.enable();
+    }
+
+    private void disableSpark() {
+        if (spark != null) {
+            spark.disable();
+        }
+    }
+
+    public @Nullable SparkService spark() {
+        return spark;
     }
 
     private void loadPlugins() throws IOException {

@@ -11,6 +11,7 @@ plugins {
 
 repositories {
     maven("https://repo.faststats.dev/releases")
+    maven("https://repo.lucko.me/")
 }
 
 dependencies {
@@ -25,6 +26,17 @@ dependencies {
     implementation(projects.fidorialAuth)
     implementation(libs.dfu)
     implementation(libs.adventure.nbt.dfu)
+    implementation(libs.spark.common) {
+        exclude(group = "net.kyori", module = "adventure-api")
+        exclude(group = "net.kyori", module = "adventure-key")
+        exclude(group = "net.kyori", module = "adventure-text-serializer-gson")
+        exclude(group = "net.kyori", module = "adventure-text-serializer-legacy")
+        exclude(group = "com.google.code.gson", module = "gson")
+        exclude(group = "com.google.guava", module = "guava")
+        exclude(group = "org.jspecify", module = "jspecify")
+    }
+    implementation(libs.spark.api)
+
     runtimeOnly(libs.netty.epoll)
     runtimeOnly(libs.netty.iouring)
     runtimeOnly(libs.netty.kqueue)
@@ -84,6 +96,21 @@ tasks.shadowJar {
     filesMatching("META-INF/services/**") {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
+
+    relocate("net.kyori.adventure.text.feature.pagination", "me.lucko.spark.lib.adventure.pagination")
+    relocate("net.bytebuddy", "me.lucko.spark.lib.bytebuddy")
+    relocate("com.google.protobuf", "me.lucko.spark.lib.protobuf")
+    relocate("org.objectweb.asm", "me.lucko.spark.lib.asm")
+    relocate("one.profiler", "me.lucko.spark.lib.asyncprofiler")
+    relocate("me.lucko.bytesocks.client", "me.lucko.spark.lib.bytesocks")
+    relocate("org.java_websocket", "me.lucko.spark.lib.bytesocks.ws")
+
+    exclude("linux-arm64/**")
+    exclude("linux-x64/**")
+    exclude("macos/**")
+    exclude("**/*.proto")
+    exclude("**/*.proto.bin")
+    exclude("META-INF/proguard/**")
 }
 
 fidorialRegistryGenerator {

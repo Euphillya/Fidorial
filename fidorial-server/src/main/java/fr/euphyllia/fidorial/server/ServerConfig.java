@@ -47,7 +47,9 @@ public record ServerConfig(
         boolean resourcePackForced,
         @Nullable Component resourcePackPrompt,
         boolean enableCodeOfConduct,
-        Path codeOfConductPath
+        Path codeOfConductPath,
+        boolean sparkEnabled,
+        Path sparkPath
 ) {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(ServerConfig.class);
@@ -121,7 +123,9 @@ public record ServerConfig(
                 false,
                 Component.empty(),
                 false,
-                Path.of(CodeOfConductManager.DEFAULT_FOLDER));
+                Path.of(CodeOfConductManager.DEFAULT_FOLDER),
+                true,
+                Path.of("spark"));
     }
 
     public static ServerConfig load() throws IOException {
@@ -172,7 +176,9 @@ public record ServerConfig(
                 readComponent(props, "resource-pack-prompt", Component.empty()),
                 readBool(props, "enable-code-of-conduct", defaults.enableCodeOfConduct()),
                 Path.of(props.getProperty(
-                        "code-of-conduct-path", defaults.codeOfConductPath().toString())));
+                        "code-of-conduct-path", defaults.codeOfConductPath().toString())),
+                readBool(props, "spark-enabled", defaults.sparkEnabled()),
+                Path.of(props.getProperty("spark-path", defaults.sparkPath().toString())));
         LOGGER.info("Configuration loaded from {}", file);
         return config;
     }
@@ -317,6 +323,8 @@ public record ServerConfig(
         props.setProperty("resource-pack-prompt", resourcePackPrompt == null ? "" : MiniMessage.miniMessage().serialize(resourcePackPrompt));
         props.setProperty("enable-code-of-conduct", Boolean.toString(enableCodeOfConduct));
         props.setProperty("code-of-conduct-path", codeOfConductPath.toString());
+        props.setProperty("spark-enabled", Boolean.toString(sparkEnabled));
+        props.setProperty("spark-path", sparkPath.toString());
         try (final OutputStream out = Files.newOutputStream(file)) {
             props.store(out, "Configuration Fidorial");
         }
