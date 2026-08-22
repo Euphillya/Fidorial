@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -40,28 +39,23 @@ public final class GameModeCommand {
     private static int executeSelf(final CommandContext<CommandSource> context) {
         if (!(context.getSource().sender() instanceof final Player sender)) {
             context.getSource().sender().sendMessage(Component.translatable("command.gamemode.console"));
-            return Command.SINGLE_SUCCESS;
+            return 0;
         }
 
         return change(context, List.of(sender));
     }
 
     private static int executeTarget(final CommandContext<CommandSource> context) throws CommandSyntaxException {
-
         final var resolver = context.getArgument("target", PlayerSelectorArgumentResolver.class);
-
         final List<Player> targets = resolver.resolve(context.getSource());
-
         return change(context, targets);
     }
 
     private static int change(final CommandContext<CommandSource> context, final List<Player> targets) {
-
         final GameMode mode = context.getArgument("gamemode", GameMode.class);
 
         for (final Player target : targets) {
             target.setGameMode(mode);
-
             target.sendMessage(Component.translatable("command.gamemode.changed.self", describe(mode)));
 
             if (context.getSource().sender() != target) {
@@ -72,6 +66,6 @@ public final class GameModeCommand {
             }
         }
 
-        return Command.SINGLE_SUCCESS;
+        return targets.size();
     }
 }

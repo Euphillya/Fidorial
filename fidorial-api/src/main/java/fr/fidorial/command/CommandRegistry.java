@@ -1,5 +1,8 @@
 package fr.fidorial.command;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -144,16 +147,52 @@ public interface CommandRegistry {
     }
 
     /**
+     * The outcome of a command dispatch.
+     *
+     * @param returnValue the raw brigadier return value from {@link CommandDispatcher#execute(ParseResults)}.
+     * {@code 0} is used both when the command failed to parse or execute, and when a command had no effect.
+     * @apiNote Use {@link #executed()} to distinguish outcome from raw value.
+     *
+     * @since 0.1.0
+     */
+    record CommandResult(int returnValue) {
+        /**
+         * Returns whether the dispatch had any effect.
+         *
+         * @return {@code true} if {@link #returnValue()} is at least {@link Command#SINGLE_SUCCESS}
+         * @since 0.1.0
+         */
+        public boolean executed() {
+            return returnValue >= Command.SINGLE_SUCCESS;
+        }
+    }
+
+    /**
+     * Attempts to asynchronously execute a command from the given {@code cmdLine},
+     * returning the raw brigadier result alongside an {@code executed} flag.
+     * <p>
+     * Useful for getting the amount of targets affected by the execution of the command.
+     *
+     * @param source  the source to execute the command for
+     * @param cmdLine the command to run
+     * @return a future completed with the {@link CommandResult}; never completes exceptionally
+     *
+     * @since 0.1.0
+     */
+    CompletableFuture<CommandResult> dispatchAsyncResult(CommandSource source, String cmdLine);
+
+    /**
      * Attempts to asynchronously execute a command from the given {@code cmdLine}.
      *
      * @param source  the source to execute the command for
      * @param cmdLine the command to run
-     * @return a future that may be completed with the result of the command execution.
-     * Can be completed exceptionally if an exception is thrown during execution.
+     * @return a future completed with the result of the command execution; never completes exceptionally
      *
      * @since 0.1.0
      */
-    CompletableFuture<Boolean> dispatchAsync(CommandSource source, String cmdLine);
+    default CompletableFuture<Boolean> dispatchAsync(CommandSource source, String cmdLine) {
+        return dispatchAsyncResult(source, cmdLine).thenApply(CommandResult::executed);
+    }
 
     /**
      * Asynchronously collects suggestions to fill in the given command {@code cmdLine}.

@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -125,7 +124,7 @@ public class FillBiomeCommand {
                 Component.text(changed),
                 Component.text(biome.asString())));
 
-        return changed == 0 ? 0 : Command.SINGLE_SUCCESS;
+        return changed;
     }
 
     private static void resend(final FidorialServer server, final ServerWorld world, final Set<ChunkPos> chunks) {

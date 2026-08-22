@@ -91,7 +91,7 @@ public final class WhitelistCommand {
             added++;
         }
 
-        return added > 0 ? Command.SINGLE_SUCCESS : 0;
+        return added;
     }
 
     private static int remove(final CommandContext<CommandSource> context) throws CommandSyntaxException {
@@ -120,7 +120,7 @@ public final class WhitelistCommand {
             kickDisallowed(sender);
         }
 
-        return removed > 0 ? Command.SINGLE_SUCCESS : 0;
+        return removed;
     }
 
     private static int list(final CommandContext<CommandSource> context) {
