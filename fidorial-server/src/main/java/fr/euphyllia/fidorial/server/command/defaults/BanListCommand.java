@@ -58,6 +58,6 @@ public final class BanListCommand {
                     BanCommand.reasonOf(entry)));
         }
 
-        return Command.SINGLE_SUCCESS;
+        return entries.size();
     }
 }

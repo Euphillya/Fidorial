@@ -33,7 +33,7 @@ public final class SummonCommand {
 
         if (!(context.getSource().sender() instanceof final ServerPlayer player)) {
             context.getSource().sender().sendMessage(Component.translatable("command.summon.console"));
-            return Command.SINGLE_SUCCESS;
+            return 0;
         }
 
         return summon(
@@ -63,7 +63,7 @@ public final class SummonCommand {
                     .sender()
                     .sendMessage(Component.translatable(
                             "command.summon.notmob", Component.text(entity.key().asString())));
-            return Command.SINGLE_SUCCESS;
+            return 0;
         }
 
         final FidorialServer server = FidorialServer.getInstance();

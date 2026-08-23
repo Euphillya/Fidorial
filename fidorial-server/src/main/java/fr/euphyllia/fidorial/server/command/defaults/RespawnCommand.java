@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -30,7 +29,7 @@ public final class RespawnCommand {
     private static int executeSelf(final CommandContext<CommandSource> context) {
         if (!(context.getSource().sender() instanceof final Player sender)) {
             context.getSource().sender().sendMessage(Component.translatable("command.respawn.console"));
-            return Command.SINGLE_SUCCESS;
+            return 0;
         }
         return respawn(context, List.of(sender));
     }
@@ -59,6 +58,6 @@ public final class RespawnCommand {
             }
         }
 
-        return Command.SINGLE_SUCCESS;
+        return targets.size();
     }
 }

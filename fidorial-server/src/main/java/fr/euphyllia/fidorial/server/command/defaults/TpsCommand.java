@@ -33,7 +33,7 @@ public final class TpsCommand {
 
         if (snapshots.isEmpty()) {
             context.getSource().sender().sendMessage(Component.translatable("command.tps.noregion"));
-            return Command.SINGLE_SUCCESS;
+            return 0;
         }
 
         double worstTps = Double.MAX_VALUE;

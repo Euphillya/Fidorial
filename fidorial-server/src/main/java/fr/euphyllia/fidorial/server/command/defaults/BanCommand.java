@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -96,7 +95,7 @@ public final class BanCommand {
             banned++;
         }
 
-        return banned > 0 ? Command.SINGLE_SUCCESS : 0;
+        return banned;
     }
 
     static Component expiryOf(final BanEntry entry) {

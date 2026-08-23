@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -55,9 +54,7 @@ public final class OpCommand {
             }
 
             for (final Player target : players) {
-
                 target.setOperator(grant);
-
                 target.sendMessage(
                         Component.translatable(grant ? "command.op.granted.self" : "command.op.revoked.self"));
 
@@ -67,7 +64,8 @@ public final class OpCommand {
                                 grant ? "command.op.granted.other" : "command.op.revoked.other",
                                 Component.text(target.name())));
             }
+            return players.size();
         }
-        return Command.SINGLE_SUCCESS;
+        return 0;
     }
 }

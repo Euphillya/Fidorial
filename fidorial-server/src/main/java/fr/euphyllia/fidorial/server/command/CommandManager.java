@@ -2,7 +2,6 @@ package fr.euphyllia.fidorial.server.command;
 
 import com.google.common.base.Preconditions;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
@@ -310,7 +309,7 @@ public final class CommandManager implements CommandRegistry {
     }
 
     @Override
-    public CompletableFuture<Boolean> dispatchAsync(final CommandSource source, final String cmdLine) {
+    public CompletableFuture<CommandResult> dispatchAsyncResult(final CommandSource source, final String cmdLine) {
         return CompletableFuture.supplyAsync(() -> {
             final ParseResults<CommandSource> parse;
 
@@ -325,27 +324,20 @@ public final class CommandManager implements CommandRegistry {
             final boolean isConsole = source.sender() instanceof ConsoleSender;
 
             if (exception != null) {
-                source.sender()
-                        .sendMessage(convert(
-                                exception.getRawMessage(),
-                                isConsole)
-                                .color(NamedTextColor.RED));
+                source.sender().sendMessage(convert(exception.getRawMessage(), isConsole).color(NamedTextColor.RED));
                 sendContext(source, exception, cmdLine, isConsole);
-                return false;
+                return new CommandResult(0);
             }
 
             try {
-                final int result = dispatcher.execute(parse);
-                return result >= Command.SINGLE_SUCCESS;
+                return new CommandResult(dispatcher.execute(parse));
             } catch (final CommandSyntaxException e) {
-                source.sender()
-                        .sendMessage(convert(e.getRawMessage(), isConsole)
-                                .color(NamedTextColor.RED));
-                return false;
+                source.sender().sendMessage(convert(e.getRawMessage(), isConsole).color(NamedTextColor.RED));
+                return new CommandResult(0);
             }
         }, commandExecutor).exceptionally(ex -> {
             FidorialServer.LOGGER.error("Encountered an exception while executing command: \"/{}\"", cmdLine, ex);
-            return false;
+            return new CommandResult(0);
         });
     }
 

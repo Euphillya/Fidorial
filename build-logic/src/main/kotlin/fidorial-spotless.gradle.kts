@@ -56,5 +56,7 @@ spotless {
         )
 
         importOrder("", "javax|java", "\\#")
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }

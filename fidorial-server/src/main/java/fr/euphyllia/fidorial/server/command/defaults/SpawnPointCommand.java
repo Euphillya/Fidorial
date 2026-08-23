@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.command.defaults;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -79,7 +78,7 @@ public final class SpawnPointCommand {
             }
         }
 
-        return Command.SINGLE_SUCCESS;
+        return targets.size();
     }
 
     private static int clear(final CommandContext<CommandSource> context, final List<Player> targets) {
@@ -96,7 +95,7 @@ public final class SpawnPointCommand {
             }
         }
 
-        return Command.SINGLE_SUCCESS;
+        return targets.size();
     }
 
     private static Component describe(final Location location) {
