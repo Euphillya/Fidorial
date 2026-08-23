@@ -223,14 +223,6 @@ public final class ComponentResolver {
             }
         }
 
-        final CompoundBinaryTag customName = CompoundBinaryTag.builder()
-                .putString("text", "Fidorial Test Block Entity")
-                .putString("color", "gold")
-                .putBoolean("bold", true)
-                .build();
-
-        root.put("CustomName", customName);
-
         return root.build();
     }
 
