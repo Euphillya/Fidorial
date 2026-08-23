@@ -1,5 +1,9 @@
 package fr.euphyllia.fidorial.server.schedulers;
 
+import ca.spottedleaf.concurrentutil.executor.PrioritisedExecutor;
+import ca.spottedleaf.concurrentutil.executor.queue.AreaDependentQueue;
+import ca.spottedleaf.concurrentutil.executor.thread.BalancedPrioritisedThreadPool;
+import ca.spottedleaf.concurrentutil.util.Priority;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundLightUpdatePacket;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
@@ -26,8 +30,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -39,13 +41,16 @@ public class LightUpdateDispatcher {
 
     private static final int CLUSTER_SHIFT = 3; // seems to give the most optimal CPS
 
-    private final ExecutorService lightPool;
+    private final BalancedPrioritisedThreadPool lightPool;
+    private final PrioritisedExecutor lightExecutor;
+
+    private final AreaDependentQueue lightQueue;
+
     private final AtomicInteger lightThreadId = new AtomicInteger(0);
     private final Consumer<ClientboundPacket> broadcaster;
     private final ChunkNetworkSerializer serializer;
     private final Function<Key, @Nullable ServerWorld> worldLookup;
     private final LightEnginePool enginePool;
-    private final ChunkRegionScheduler regionScheduler;
 
     private final Map<Key, WorldLightState> states = new ConcurrentHashMap<>();
 
@@ -62,14 +67,16 @@ public class LightUpdateDispatcher {
             final ChunkNetworkSerializer serializer,
             final Function<Key, @Nullable ServerWorld> worldLookup
     ) {
-        this.lightPool = Executors.newFixedThreadPool(
-                lightWorkers,
+        this.lightPool = new BalancedPrioritisedThreadPool(
+                BalancedPrioritisedThreadPool.DEFAULT_GROUP_TIME_SLICE,
                 r -> Thread.ofPlatform()
                         .name("fidorial-light-worker-" + lightThreadId.incrementAndGet())
                         .unstarted(r)
         );
+        this.lightExecutor = lightPool.createOrderedStreamGroup().createExecutor();
+        this.lightQueue = new AreaDependentQueue(lightExecutor, CLUSTER_SHIFT);
+        this.lightPool.adjustThreadCount(Math.max(1, lightWorkers));
         this.enginePool = new LightEnginePool(lightWorkers, minY, height);
-        this.regionScheduler = new ChunkRegionScheduler(lightPool);
         this.broadcaster = broadcaster;
         this.serializer = serializer;
         this.worldLookup = worldLookup;
@@ -138,7 +145,7 @@ public class LightUpdateDispatcher {
         if (count <= 1) {
             state.refCounts.remove(key);
 
-            final CompletableFuture<Void> waiter = state.waiters.remove(key);
+            final CompletableFuture<@Nullable Void> waiter = state.waiters.remove(key);
             if (waiter != null) {
                 waiter.complete(null);
             }
@@ -173,9 +180,7 @@ public class LightUpdateDispatcher {
                 for (final BlockPos p : positions) {
                     chunkKeys.add(ChunkPos.chunkKey(p.x() >> 4, p.z() >> 4));
                 }
-                final LongSet lockKeys = withNeighborRing(chunkKeys);
-
-                regionScheduler.submit(lockKeys, () -> {
+                queueAreaTask(chunkKeys, () -> {
                     FloodFillLightEngine engine = null;
                     try {
                         engine = enginePool.acquire();
@@ -214,6 +219,32 @@ public class LightUpdateDispatcher {
             scheduleBlocks(world);
         }
     }
+
+    private void queueAreaTask(final LongOpenHashSet chunkKeys, final Runnable task) {
+        if (chunkKeys.isEmpty()) {
+            task.run();
+            return;
+        }
+
+        int minX = Integer.MAX_VALUE;
+        int minZ = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int maxZ = Integer.MIN_VALUE;
+
+        final LongIterator it = chunkKeys.iterator();
+        while (it.hasNext()) {
+            final long key = it.nextLong();
+            final int cx = (int) (key >> 32);
+            final int cz = (int) key;
+            if (cx < minX) minX = cx;
+            if (cx > maxX) maxX = cx;
+            if (cz < minZ) minZ = cz;
+            if (cz > maxZ) maxZ = cz;
+        }
+
+        lightQueue.queueTask(minX - 1, minZ - 1, maxX + 1, maxZ + 1, task, Priority.NORMAL);
+    }
+
 
     private static LongSet withNeighborRing(final LongOpenHashSet chunkKeys) {
         final LongOpenHashSet ring = new LongOpenHashSet(chunkKeys);
@@ -267,8 +298,7 @@ public class LightUpdateDispatcher {
     }
 
     private void submitRelightTask(final Key world, final ServerWorld serverWorld, final LongOpenHashSet subBatch) {
-        final LongSet lockKeys = withNeighborRing(subBatch);
-        regionScheduler.submit(lockKeys, () -> {
+        queueAreaTask(subBatch, () -> {
             FloodFillLightEngine engine = null;
             try {
                 engine = enginePool.acquire();
@@ -296,11 +326,11 @@ public class LightUpdateDispatcher {
     }
 
     private void scheduleBlocks(final Key world) {
-        if (scheduledBlocks.add(world)) lightPool.execute(() -> drainBlocks(world));
+        if (scheduledBlocks.add(world)) lightExecutor.queueTask(() -> drainBlocks(world), Priority.HIGH);
     }
 
     private void scheduleChunks(final Key world) {
-        if (scheduledChunks.add(world)) lightPool.execute(() -> drainChunks(world));
+        if (scheduledChunks.add(world)) lightExecutor.queueTask(() -> drainChunks(world), Priority.HIGH);
     }
 
     private WorldLightState stateFor(final Key world) {
@@ -325,7 +355,7 @@ public class LightUpdateDispatcher {
                 if (count == 0) continue;
                 if (count <= 1) {
                     state.refCounts.remove(key);
-                    final CompletableFuture<Void> waiter = state.waiters.remove(key);
+                    final CompletableFuture<@Nullable Void> waiter = state.waiters.remove(key);
                     if (waiter != null) waiter.complete(null);
                 } else {
                     state.refCounts.put(key, count - 1);
@@ -353,14 +383,9 @@ public class LightUpdateDispatcher {
     }
 
     public void shutdown() {
-        lightPool.shutdown();
-        try {
-            if (!lightPool.awaitTermination(5, TimeUnit.SECONDS)) {
-                lightPool.shutdownNow();
-            }
-        } catch (final InterruptedException _) {
-            Thread.currentThread().interrupt();
-            lightPool.shutdownNow();
+        lightPool.shutdown(false);
+        if (!lightPool.join(TimeUnit.SECONDS.toMillis(5L))) {
+            lightPool.halt(true);
         }
         LOGGER.info("Light workers stopped");
     }

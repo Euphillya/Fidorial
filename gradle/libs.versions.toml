@@ -20,6 +20,7 @@ adventure-nbt-dfu = "0.1.2"
 diffpatch = "2.1.0.43"
 spark = "1.10.172-SNAPSHOT"
 spark-api = "0.1-SNAPSHOT"
+leafpile = "1.1.0"
 
 [libraries]
 netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
@@ -56,6 +57,7 @@ dfu = { module = "com.mojang:datafixerupper", version.ref = "dfu" }
 diffpatch = { module = "io.codechicken:DiffPatch", version.ref = "diffpatch" }
 spark-common = { module = "me.lucko:spark-common", version.ref = "spark" }
 spark-api = { module = "me.lucko:spark-api", version.ref = "spark-api" }
+leafpile = { module = "ca.spottedleaf:leafpile", version.ref = "leafpile" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
