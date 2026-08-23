@@ -1,5 +1,8 @@
 package fr.euphyllia.fidorial.server.entity;
 
+import ca.spottedleaf.concurrentutil.collection.iterator.BaseObjectIterator;
+import ca.spottedleaf.concurrentutil.list.COWArrayList;
+import ca.spottedleaf.concurrentutil.map.concurrent.ints.ConcurrentChainedInt2ReferenceHashTable;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
@@ -8,9 +11,6 @@ import fr.fidorial.entity.Entity;
 import fr.fidorial.world.Location;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class EntityTracker {
 
@@ -20,7 +20,8 @@ public final class EntityTracker {
 
     public static final int UPDATE_INTERVAL_TICKS = 2;
 
-    private final Map<Integer, Set<ClientConnection>> viewers = new ConcurrentHashMap<>();
+    private final ConcurrentChainedInt2ReferenceHashTable<COWArrayList<ClientConnection>> viewers =
+            ConcurrentChainedInt2ReferenceHashTable.createWithExpected(512);
 
     private final double trackDistanceSq;
     private final double untrackDistanceSq;
@@ -47,8 +48,8 @@ public final class EntityTracker {
 
         final AbstractEntity abstractEntity = (AbstractEntity) entity;
 
-        final Set<ClientConnection> current =
-                viewers.computeIfAbsent(abstractEntity.entityId(), key -> ConcurrentHashMap.newKeySet());
+        final COWArrayList<ClientConnection> current = viewers.computeIfAbsent(
+                abstractEntity.entityId(), _ -> new COWArrayList<>(ClientConnection.class));
         final Location self = abstractEntity.location();
 
         for (final ServerPlayer player : players) {
@@ -62,7 +63,7 @@ public final class EntityTracker {
                     player.world() == abstractEntity.world() && distanceSq(self, player.location()) <= limit;
 
             if (visible && !tracked) {
-                if (current.add(connection)) {
+                if (addIfAbsent(current, connection)) {
                     abstractEntity.sendSpawnPackets(connection);
                 }
             } else if (!visible && tracked) {
@@ -74,40 +75,53 @@ public final class EntityTracker {
     }
 
     public void sendToViewers(final AbstractEntity entity, final ClientboundPacket packet) {
-        final Set<ClientConnection> current = viewers.get(entity.entityId());
-        if (current == null || current.isEmpty()) {
+        final COWArrayList<ClientConnection> current = viewers.get(entity.entityId());
+        if (current == null) {
             return;
         }
-        for (final ClientConnection connection : current) {
+        for (final ClientConnection connection : current.getArray()) {
             connection.send(packet);
         }
     }
 
     public void untrack(final Entity entity) {
-        final Set<ClientConnection> current = viewers.remove(entity.entityId());
-        if (current == null || current.isEmpty()) {
+        final COWArrayList<ClientConnection> current = viewers.remove(entity.entityId());
+        if (current == null) {
+            return;
+        }
+        final ClientConnection[] snapshot = current.getArray();
+        if (snapshot.length == 0) {
             return;
         }
         final ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(entity.entityId());
-        for (final ClientConnection connection : current) {
+        for (final ClientConnection connection : snapshot) {
             connection.send(packet);
         }
         current.clear();
     }
 
     public void removeViewer(final ClientConnection connection) {
-        for (final Set<ClientConnection> current : viewers.values()) {
-            current.remove(connection);
+        final BaseObjectIterator<COWArrayList<ClientConnection>> it = viewers.valueIterator();
+        while (it.hasNext()) {
+            it.next().remove(connection);
         }
     }
 
     public int viewerCount(final AbstractEntity entity) {
-        final Set<ClientConnection> current = viewers.get(entity.entityId());
-        return current == null ? 0 : current.size();
+        final COWArrayList<ClientConnection> current = viewers.get(entity.entityId());
+        return current == null ? 0 : current.getArray().length;
     }
 
     public int trackedCount() {
         return viewers.size();
+    }
+
+    private static boolean addIfAbsent(final COWArrayList<ClientConnection> list, final ClientConnection connection) {
+        if (list.contains(connection)) {
+            return false;
+        }
+        list.add(connection);
+        return true;
     }
 
     private static double distanceSq(final Location a, final Location b) {
