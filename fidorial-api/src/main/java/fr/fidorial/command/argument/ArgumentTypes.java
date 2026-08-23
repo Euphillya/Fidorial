@@ -9,6 +9,7 @@ import fr.fidorial.command.argument.range.DoubleRangeProvider;
 import fr.fidorial.command.argument.range.IntegerRangeProvider;
 import fr.fidorial.command.argument.resolvers.AngleResolver;
 import fr.fidorial.command.argument.resolvers.BlockPosResolver;
+import fr.fidorial.command.argument.resolvers.NbtPathResolver;
 import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.command.argument.resolvers.PositionResolver;
 import fr.fidorial.command.argument.resolvers.selector.EntitySelectorArgumentResolver;
@@ -23,6 +24,7 @@ import fr.fidorial.registry.TypedKey;
 import fr.fidorial.world.World;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
@@ -630,5 +632,15 @@ public final class ArgumentTypes {
      */
     public static <T> ArgumentType<T> withServerSuggestions(final ArgumentType<T> type) {
         return provider().withServerSuggestions(type);
+    }
+
+    /**
+     * An NBT path argument, resolvable against any root {@link BinaryTag}.
+     *
+     * @return argument
+     * @since 0.1.0
+     */
+    public static ArgumentType<NbtPathResolver> nbtPath() {
+        return provider().nbtPath();
     }
 }

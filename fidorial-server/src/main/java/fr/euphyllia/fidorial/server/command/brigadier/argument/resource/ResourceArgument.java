@@ -9,6 +9,7 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.util.KeyReader;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.util.KeyReader.ParsedKey;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
@@ -17,20 +18,13 @@ import fr.fidorial.registry.Registry;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
 
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class ResourceArgument<T> implements ArgumentType<T> {
 
-    public static final Dynamic2CommandExceptionType ERROR_UNKNOWN_RESOURCE =
-            new Dynamic2CommandExceptionType((id, registry) -> MSG_SERIALIZER.serialize(Component.translatable(
-                    "argument.resource.not_found",
-                    Component.text(id.toString()),
-                    Component.text(registry.toString()))));
+    public static final Dynamic2CommandExceptionType ERROR_UNKNOWN_RESOURCE = ExceptionFactory.dynamic2("argument.resource.not_found");
 
     private final RegistryKey<T> registryKey;
     private final Registry<T> registryLookup;

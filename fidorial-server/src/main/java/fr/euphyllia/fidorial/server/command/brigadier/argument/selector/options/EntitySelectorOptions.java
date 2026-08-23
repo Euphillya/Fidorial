@@ -8,27 +8,21 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntitySelector;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.DoubleRange;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySelectorParser;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.fidorial.entity.Player;
-import net.kyori.adventure.text.Component;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class EntitySelectorOptions {
 
     private static final Map<String, Option> OPTIONS = new HashMap<>();
 
-    public static final SimpleCommandExceptionType ERROR_RANGE_NEGATIVE = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.distance.negative")));
-    public static final SimpleCommandExceptionType ERROR_LIMIT_TOO_SMALL = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.limit.toosmall")));
-    public static final DynamicCommandExceptionType ERROR_SORT_UNKNOWN = new DynamicCommandExceptionType(
-            name -> MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.sort.irreversible")
-                    .append(Component.text(name.toString()))));
+    public static final SimpleCommandExceptionType ERROR_RANGE_NEGATIVE = ExceptionFactory.simple("argument.entity.options.distance.negative");
+    public static final SimpleCommandExceptionType ERROR_LIMIT_TOO_SMALL = ExceptionFactory.simple("argument.entity.options.limit.toosmall");
+    public static final DynamicCommandExceptionType ERROR_SORT_UNKNOWN = ExceptionFactory.dynamic("argument.entity.options.sort.irreversible");
 
     private EntitySelectorOptions() {
     }

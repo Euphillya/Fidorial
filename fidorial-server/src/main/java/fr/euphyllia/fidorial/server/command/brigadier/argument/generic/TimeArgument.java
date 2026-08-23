@@ -9,26 +9,18 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
-import net.kyori.adventure.text.Component;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public record TimeArgument(int minimum) implements ArgumentType<Integer> {
 
-    private static final SimpleCommandExceptionType ERROR_INVALID_UNIT = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.time.invalid_unit")));
-
-    private static final Dynamic2CommandExceptionType ERROR_TICK_COUNT_TOO_LOW =
-            new Dynamic2CommandExceptionType((value, limit) -> MSG_SERIALIZER.serialize(Component.translatable(
-                    "argument.time.tick_count_too_low",
-                    Component.text(limit.toString()),
-                    Component.text(value.toString()))));
+    private static final SimpleCommandExceptionType ERROR_INVALID_UNIT = ExceptionFactory.simple("argument.time.invalid_unit");
+    private static final Dynamic2CommandExceptionType ERROR_TICK_COUNT_TOO_LOW = ExceptionFactory.dynamic2Reversed("argument.time.tick_count_too_low");
 
     private static final Map<String, Integer> UNITS = new LinkedHashMap<>();
 

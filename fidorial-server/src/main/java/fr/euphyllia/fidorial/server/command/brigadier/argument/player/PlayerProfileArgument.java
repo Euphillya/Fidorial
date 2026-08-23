@@ -12,12 +12,12 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntityArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntitySelector;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySelectorParser;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Player;
 import fr.fidorial.entity.PlayerProfileMeta;
-import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,12 +27,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public class PlayerProfileArgument<T> implements ArgumentType<T> {
 
-    public static final SimpleCommandExceptionType ERROR_UNKNOWN_PLAYER =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.player.unknown")));
+    public static final SimpleCommandExceptionType ERROR_UNKNOWN_PLAYER = ExceptionFactory.simple("argument.player.unknown");
 
     private static final Predicate<Player> ALL = _ -> true;
 

@@ -10,8 +10,8 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntitySele
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.EntitySelectorOptions;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.SelectorSetState;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.options.SingleUseOption;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.fidorial.entity.Entity;
-import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -21,24 +21,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class EntitySelectorParser {
 
-    public static final SimpleCommandExceptionType ERROR_EXPECTED_END_OF_OPTIONS = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.unterminated")));
-    public static final DynamicCommandExceptionType ERROR_EXPECTED_OPTION_VALUE = new DynamicCommandExceptionType(
-            name -> MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.valueless")
-                    .append(Component.text(name.toString()))));
-    public static final DynamicCommandExceptionType ERROR_UNKNOWN_OPTION = new DynamicCommandExceptionType(
-            name -> MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.unknown")
-                    .append(Component.text(name.toString()))));
-    public static final DynamicCommandExceptionType ERROR_INAPPLICABLE_OPTION = new DynamicCommandExceptionType(
-            name -> MSG_SERIALIZER.serialize(Component.translatable("argument.entity.options.inapplicable")
-                    .append(Component.text(name.toString()))));
-
-    private static final SimpleCommandExceptionType INVALID =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.entity.invalid")));
+    public static final SimpleCommandExceptionType ERROR_EXPECTED_END_OF_OPTIONS = ExceptionFactory.simple("argument.entity.options.unterminated");
+    public static final DynamicCommandExceptionType ERROR_EXPECTED_OPTION_VALUE = ExceptionFactory.dynamic("argument.entity.options.valueless");
+    public static final DynamicCommandExceptionType ERROR_UNKNOWN_OPTION = ExceptionFactory.dynamic("argument.entity.options.unknown");
+    public static final DynamicCommandExceptionType ERROR_INAPPLICABLE_OPTION = ExceptionFactory.dynamic("argument.entity.options.inapplicable");
+    private static final SimpleCommandExceptionType INVALID = ExceptionFactory.simple("argument.entity.invalid");
 
     @FunctionalInterface
     private interface SuggestionProvider {

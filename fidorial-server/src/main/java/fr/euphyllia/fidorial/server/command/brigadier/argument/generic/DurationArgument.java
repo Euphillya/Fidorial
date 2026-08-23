@@ -9,9 +9,9 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
-import net.kyori.adventure.text.Component;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -20,8 +20,6 @@ import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 /**
  * Reads a positive amount of time written as a chain of amount/unit pairs, such as
@@ -44,13 +42,8 @@ public final class DurationArgument {
 
     private static final Pattern UNITS = Pattern.compile("(\\d{1,9})([wdhms])", Pattern.CASE_INSENSITIVE);
 
-    private static final DynamicCommandExceptionType ERROR_INVALID =
-            new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
-                    Component.translatable("argument.duration.invalid", Component.text(String.valueOf(value)))));
-
-    private static final DynamicCommandExceptionType ERROR_TOO_LONG =
-            new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
-                    Component.translatable("argument.duration.too_long", Component.text(String.valueOf(value)))));
+    private static final DynamicCommandExceptionType ERROR_INVALID = ExceptionFactory.dynamic("argument.duration.invalid");
+    private static final DynamicCommandExceptionType ERROR_TOO_LONG = ExceptionFactory.dynamic("argument.duration.too_long");
 
     public static final SuggestionProvider<CommandSource> SUGGESTIONS = DurationArgument::suggest;
 

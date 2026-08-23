@@ -3,17 +3,13 @@ package fr.euphyllia.fidorial.server.command.brigadier.argument.selector;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.kyori.adventure.text.Component;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import org.jspecify.annotations.Nullable;
-
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public record DoubleRange(@Nullable Double min, @Nullable Double max) {
 
-    public static final SimpleCommandExceptionType ERROR_EMPTY = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.range.empty")));
-    public static final SimpleCommandExceptionType ERROR_SWAPPED = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.range.swapped")));
+    public static final SimpleCommandExceptionType ERROR_EMPTY = ExceptionFactory.simple("argument.range.empty");
+    public static final SimpleCommandExceptionType ERROR_SWAPPED = ExceptionFactory.simple("argument.range.swapped");
 
     public static DoubleRange exact(final double value) {
         return new DoubleRange(value, value);

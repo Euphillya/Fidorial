@@ -29,6 +29,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.location.AngleArg
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.BlockPositionArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.DimensionArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.nbt.NbtDataArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.range.RangeArgument;
@@ -45,6 +46,7 @@ import fr.fidorial.command.argument.range.IntegerRangeProvider;
 import fr.fidorial.command.argument.range.RangeProvider;
 import fr.fidorial.command.argument.resolvers.AngleResolver;
 import fr.fidorial.command.argument.resolvers.BlockPosResolver;
+import fr.fidorial.command.argument.resolvers.NbtPathResolver;
 import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.command.argument.resolvers.PositionResolver;
 import fr.fidorial.command.argument.resolvers.selector.EntitySelectorArgumentResolver;
@@ -336,5 +338,10 @@ public class ArgumentProviderImpl implements ArgumentProvider {
                 registryLookup.find(typedKey)
                         .orElseThrow(() -> ResourceArgument.ERROR_UNKNOWN_RESOURCE
                                 .createWithContext(reader, typedKey.key().asString(), registryKey.key().asString()))));
+    }
+
+    @Override
+    public ArgumentType<NbtPathResolver> nbtPath() {
+        return NbtDataArgument.nbtPath();
     }
 }

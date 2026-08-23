@@ -8,20 +8,16 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.entity.GameMode;
-import net.kyori.adventure.text.Component;
 
 import java.util.concurrent.CompletableFuture;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class GameModeArgument implements ArgumentType<GameMode> {
 
-    private static final DynamicCommandExceptionType ERROR_INVALID =
-            new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
-                    Component.translatable("argument.gamemode.invalid", Component.text(value.toString()))));
+    private static final DynamicCommandExceptionType ERROR_INVALID = ExceptionFactory.dynamic("argument.gamemode.invalid");
 
     public static GameModeArgument gameMode() {
         return new GameModeArgument();
