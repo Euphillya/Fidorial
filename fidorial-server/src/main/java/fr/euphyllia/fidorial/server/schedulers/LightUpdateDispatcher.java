@@ -15,6 +15,7 @@ import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.ChunkPos;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongIterable;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -83,6 +84,23 @@ public class LightUpdateDispatcher {
         LOGGER.info("Light pool started with {} workers", lightWorkers);
     }
 
+    private static void decrementLocked(final WorldLightState state, final long key) {
+        final int count = state.refCounts.get(key);
+
+        if (count == 0) return;
+
+        if (count <= 1) {
+            state.refCounts.remove(key);
+
+            final CompletableFuture<@Nullable Void> waiter = state.waiters.remove(key);
+            if (waiter != null) {
+                waiter.complete(null);
+            }
+        } else {
+            state.refCounts.put(key, count - 1);
+        }
+    }
+
     public void queueBlockChange(final Key world, final int x, final int y, final int z) {
         incrementArea(world, x >> 4, z >> 4);
 
@@ -134,23 +152,6 @@ public class LightUpdateDispatcher {
                     decrementLocked(state, ChunkPos.chunkKey(chunkX + dx, chunkZ + dz));
                 }
             }
-        }
-    }
-
-    private static void decrementLocked(final WorldLightState state, final long key) {
-        final int count = state.refCounts.get(key);
-
-        if (count == 0) return;
-
-        if (count <= 1) {
-            state.refCounts.remove(key);
-
-            final CompletableFuture<@Nullable Void> waiter = state.waiters.remove(key);
-            if (waiter != null) {
-                waiter.complete(null);
-            }
-        } else {
-            state.refCounts.put(key, count - 1);
         }
     }
 
@@ -243,22 +244,6 @@ public class LightUpdateDispatcher {
         }
 
         lightQueue.queueTask(minX - 1, minZ - 1, maxX + 1, maxZ + 1, task, Priority.NORMAL);
-    }
-
-
-    private static LongSet withNeighborRing(final LongOpenHashSet chunkKeys) {
-        final LongOpenHashSet ring = new LongOpenHashSet(chunkKeys);
-        final LongIterator it = chunkKeys.iterator();
-        while (it.hasNext()) {
-            final long key = it.nextLong();
-            final int cx = (int) (key >> 32), cz = (int) key;
-            for (int dx = -1; dx <= 1; dx++)
-                for (int dz = -1; dz <= 1; dz++) {
-                    final long nk = ChunkPos.chunkKey(cx + dx, cz + dz);
-                    if (!chunkKeys.contains(nk)) ring.add(nk);
-                }
-        }
-        return ring;
     }
 
     private void drainChunks(final Key world) {
@@ -364,7 +349,7 @@ public class LightUpdateDispatcher {
         }
     }
 
-    public CompletableFuture<Void> flush(final Key world, final Iterable<Long> chunkKeys) {
+    public CompletableFuture<Void> flush(final Key world, final LongIterable chunkKeys) {
         final WorldLightState state = states.get(world);
         if (state == null) {
             return CompletableFuture.completedFuture(null);
