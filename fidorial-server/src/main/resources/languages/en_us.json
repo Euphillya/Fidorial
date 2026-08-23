@@ -139,6 +139,9 @@
   "console.argument.gamemode.invalid": "Unknown game mode: '<arg:0>'",
   "console.argument.id.invalid": "Invalid ID",
 
+  "console.arguments.nbtpath.node.invalid": "Invalid NBT path element",
+  "console.arguments.nbtpath.nothing_found": "Found no elements matching '<arg:0>'",
+
   "command.time.description": "Changes or queries the day/night cycle of a world",
   "command.time.set": "Time set to <arg:0> in <arg:1>",
   "command.time.query": "<arg:0>: <arg:1> (<arg:2>)",
