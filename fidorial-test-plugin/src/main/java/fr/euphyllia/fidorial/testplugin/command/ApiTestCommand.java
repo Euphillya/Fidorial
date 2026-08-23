@@ -13,11 +13,14 @@ import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.MessageComponentSerializer;
 import fr.fidorial.command.argument.ArgumentTypes;
+import fr.fidorial.command.argument.resolvers.BlockPosResolver;
+import fr.fidorial.command.argument.resolvers.NbtPathResolver;
 import fr.fidorial.entity.Player;
 import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.data.SoundEvent;
 import fr.fidorial.scheduler.RegionTps;
+import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
@@ -31,6 +34,7 @@ import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
+import net.kyori.adventure.text.BlockNBTComponent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -98,15 +102,15 @@ public final class ApiTestCommand {
                                         .then(argument("z", ArgumentTypes.doubleArg())
                                                 .executes(ApiTestCommand::tp)))))
                 .then(literal("tpworld")
-                        .executes(ctx -> tpWorld(plugin, ctx, Key.key("minecraft", "overworld")))
+                        .executes(ctx -> tpWorld(plugin, ctx, Key.key("overworld")))
                         .then(argument("name", ArgumentTypes.key())
                                 .executes(ctx -> tpWorld(plugin, ctx, ctx.getArgument("name", Key.class)))))
                 .then(literal("createworld")
-                        .executes(ctx -> createWorld(ctx, Key.key("minecraft", UUID.randomUUID().toString())))
+                        .executes(ctx -> createWorld(ctx, Key.key(UUID.randomUUID().toString())))
                         .then(argument("name", ArgumentTypes.key())
                                 .executes(ctx -> createWorld(ctx, ctx.getArgument("name", Key.class)))))
                 .then(literal("unloadworld")
-                        .executes(ctx -> unloadWorld(ctx, Key.key("minecraft", UUID.randomUUID().toString())))
+                        .executes(ctx -> unloadWorld(ctx, Key.key(UUID.randomUUID().toString())))
                         .then(argument("name", ArgumentTypes.key())
                                 .executes(ctx -> unloadWorld(ctx, ctx.getArgument("name", Key.class)))))
                 .then(literal("sound")
@@ -121,7 +125,7 @@ public final class ApiTestCommand {
                         .executes(ApiTestCommand::stopAllSound)
                         .then(argument("key", ArgumentTypes.key()).executes(ApiTestCommand::stopSound)))
                 .then(literal("callback")
-                        .executes(ctx -> clickCallback(ctx)))
+                        .executes(ApiTestCommand::clickCallback))
                 .then(literal("baguette")
                         .then(argument("type", BaguetteArgument.baguette())
                                 .executes(ApiTestCommand::baguette)))
@@ -131,7 +135,20 @@ public final class ApiTestCommand {
                         .executes(ApiTestCommand::resourcePackBroadcast))
                 .then(literal("tablist")
                         .then(literal("broadcast").executes(ApiTestCommand::tabListBroadcast)))
-                // TODO: should become a standalone command in fidorial tbh like vanilla /bossbar, and be expanded to match vanilla args too (with our additional flags)
+                // TODO: should be replaced by server-side /data command
+                .then(literal("nbt")
+                        .then(literal("entity")
+                                .executes(ApiTestCommand::nbtEntitySelf)
+                                .then(argument("path", ArgumentTypes.nbtPath())
+                                        .executes(ApiTestCommand::nbtEntityPath)))
+                        .then(literal("block")
+                                .then(argument("pos", ArgumentTypes.blockPosition())
+                                        .executes(ApiTestCommand::nbtBlockAtPos)
+                                        .then(argument("path", ArgumentTypes.nbtPath())
+                                                .executes(ApiTestCommand::nbtBlockAtPosWithPath))))
+                        .then(literal("storage")
+                                .executes(ApiTestCommand::nbtStorage))
+                )
                 .then(literal("bossbar")
                         .then(literal("show")
                                 .then(argument("name", ArgumentTypes.key())
@@ -146,8 +163,6 @@ public final class ApiTestCommand {
                                 .requires(source -> {
                                     final CommandSender sender = source.sender();
                                     if (!(sender instanceof Player player)) {
-                                        // placeholder, the server command should support non players executors as it will need the players selected
-                                        // look at mc brigadier commands https://mcsrc.dev/1/26.2/net/minecraft/server/commands/BossBarCommands
                                         return false;
                                     }
 
@@ -185,6 +200,73 @@ public final class ApiTestCommand {
         plugin.msg(sender, "[TestPlugin] Broadcasted tab list header/footer to "
                 + plugin.server().playerCount() + " player(s).");
 
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int nbtEntitySelf(final CommandContext<CommandSource> ctx) {
+        return nbtEntity(ctx, "");
+    }
+
+    private static int nbtEntityPath(final CommandContext<CommandSource> ctx) {
+        final NbtPathResolver path = ctx.getArgument("path", NbtPathResolver.class);
+        return nbtEntity(ctx, path.asString());
+    }
+
+    private static int nbtEntity(final CommandContext<CommandSource> ctx, final String path) {
+        final CommandSender sender = ctx.getSource().sender();
+        if (!(sender instanceof final Player player)) {
+            plugin.msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return 0;
+        }
+
+        final Component nbtComponent = Component.entityNBT()
+                .selector("@s")
+                .nbtPath(path)
+                .interpret(true)
+                .build();
+
+        player.sendMessage(nbtComponent);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int nbtBlockAtPos(final CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        return nbtBlock(ctx, "");
+    }
+
+    private static int nbtBlockAtPosWithPath(final CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        final NbtPathResolver path = ctx.getArgument("path", NbtPathResolver.class);
+        return nbtBlock(ctx, path.asString());
+    }
+
+    private static int nbtBlock(final CommandContext<CommandSource> ctx, final String path) throws CommandSyntaxException {
+        final CommandSender sender = ctx.getSource().sender();
+        if (!(sender instanceof final Player player)) {
+            plugin.msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return 0;
+        }
+
+        final BlockPos pos = ctx.getArgument("pos", BlockPosResolver.class).resolve(ctx.getSource());
+
+        final BlockNBTComponent nbtComponent = Component.blockNBT()
+                .absoluteWorldPos(pos.x(), pos.y(), pos.z())
+                .nbtPath(path)
+                .interpret(true)
+                .build();
+
+        player.sendMessage(nbtComponent);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int nbtStorage(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
+
+        final Component nbtComponent = Component.storageNBT()
+                .storage(Key.key("fidorial", "test"))
+                .nbtPath("")
+                .interpret(true)
+                .build();
+
+        sender.sendMessage(nbtComponent);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -231,14 +313,14 @@ public final class ApiTestCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        player.playSound(Sound.sound(Key.key("minecraft", "entity.player.levelup"), Sound.Source.PLAYER, 1.0f, 1.0f));
+        player.playSound(Sound.sound(Key.key("entity.player.levelup"), Sound.Source.PLAYER, 1.0f, 1.0f));
 
         player.playSound(
-                Sound.sound(Key.key("minecraft", "entity.experience_orb.pickup"), Sound.Source.MASTER, 0.8f, 1.4f),
+                Sound.sound(Key.key("entity.experience_orb.pickup"), Sound.Source.MASTER, 0.8f, 1.4f),
                 Sound.Emitter.self());
 
         player.playSound(
-                Sound.sound(Key.key("minecraft", "block.bell.use"), Sound.Source.BLOCK, 1.0f, 0.8f), 0.0, 64.0, 0.0);
+                Sound.sound(Key.key("block.bell.use"), Sound.Source.BLOCK, 1.0f, 0.8f), 0.0, 64.0, 0.0);
 
         plugin.msg(player, "[TestPlugin] Sound demo executed.");
 

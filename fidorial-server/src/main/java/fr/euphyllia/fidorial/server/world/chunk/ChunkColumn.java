@@ -5,6 +5,7 @@ import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntityTypes;
 import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
 import fr.fidorial.registry.keys.BlockTypeKeys;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import org.jetbrains.annotations.UnknownNullability;
 import org.jspecify.annotations.Nullable;
 
@@ -188,6 +189,10 @@ public final class ChunkColumn {
     }
 
     public void setBlock(final int localX, final int worldY, final int localZ, final BlockState state) {
+        setBlock(localX, worldY, localZ, state, null);
+    }
+
+    public void setBlock(final int localX, final int worldY, final int localZ, final BlockState state, final @Nullable CompoundBinaryTag data) {
         final ChunkSection s = sectionForY(worldY);
         if (s == null) {
             return;
@@ -203,7 +208,7 @@ public final class ChunkColumn {
         removeBlockEntity(localX, worldY, localZ);
 
         BlockEntityTypes.typeIdentifier(state.name())
-                .ifPresent(type -> putBlockEntity(BlockEntity.of(localX, worldY, localZ, type)));
+                .ifPresent(type -> putBlockEntity(new BlockEntity(localX, worldY, localZ, type, data)));
     }
 
     public BlockState getBlock(final int localX, final int worldY, final int localZ) {

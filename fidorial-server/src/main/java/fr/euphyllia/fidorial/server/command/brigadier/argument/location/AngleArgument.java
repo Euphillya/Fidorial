@@ -5,19 +5,15 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.argument.resolvers.AngleResolver;
-import net.kyori.adventure.text.Component;
-
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class AngleArgument implements ArgumentType<AngleResolver> {
 
-    public static final SimpleCommandExceptionType ERROR_NOT_COMPLETE = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.angle.incomplete")));
-    public static final SimpleCommandExceptionType ERROR_INVALID_ANGLE =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.angle.invalid")));
+    public static final SimpleCommandExceptionType ERROR_NOT_COMPLETE = ExceptionFactory.simple("argument.angle.incomplete");
+    public static final SimpleCommandExceptionType ERROR_INVALID_ANGLE = ExceptionFactory.simple("argument.angle.invalid");
 
     public static AngleArgument angle() {
         return new AngleArgument();

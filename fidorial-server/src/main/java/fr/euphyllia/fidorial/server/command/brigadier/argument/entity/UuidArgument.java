@@ -6,23 +6,20 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
-import net.kyori.adventure.text.Component;
 
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class UuidArgument implements ArgumentType<UUID> {
 
     private static final Pattern ALLOWED_CHARACTERS = Pattern.compile("^([-A-Fa-f0-9]+)");
 
-    private static final SimpleCommandExceptionType ERROR_INVALID_UUID =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.uuid.invalid")));
+    private static final SimpleCommandExceptionType ERROR_INVALID_UUID = ExceptionFactory.simple("argument.uuid.invalid");
 
     public static UuidArgument uuid() {
         return new UuidArgument();

@@ -1,14 +1,11 @@
 package fr.euphyllia.fidorial.server.adventure.brigadier;
 
 import com.mojang.brigadier.Message;
-import fr.fidorial.command.MessageComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TranslatableComponent;
 
 public final class BrigadierAdventureHelper {
-
-    public static final MessageComponentSerializer MSG_SERIALIZER = MessageComponentSerializer.message();
 
     private BrigadierAdventureHelper() {
     }

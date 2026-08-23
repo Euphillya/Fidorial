@@ -15,6 +15,7 @@ import fr.euphyllia.fidorial.server.command.brigadier.argument.location.AngleArg
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.BlockPositionArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.DimensionArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.location.Vec3Argument;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.nbt.NbtDataArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.GameModeArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.player.PlayerProfileArgument;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.primitive.BoolArgumentRegistrar;
@@ -51,6 +52,7 @@ public final class ArgumentTypes {
         register(new HexColorArgument.Info(), ArgumentTypeIds.HEX_COLOR_ARGUMENT_ID);
         register(new ComponentArgument.Info(), ArgumentTypeIds.COMPONENT_ARGUMENT_ID);
         register(new StyleArgument.Info(), ArgumentTypeIds.STYLE_ARGUMENT_ID);
+        register(new NbtDataArgument.Info(), ArgumentTypeIds.NBT_PATH_ARGUMENT_ID);
         register(new AngleArgument.Info(), ArgumentTypeIds.ANGLE_ARGUMENT_ID);
         register(new KeyArgument.Info(), ArgumentTypeIds.RESOURCE_LOCATION_ARGUMENT_ID);
         register(new RangeArgument.Ints.Info(), ArgumentTypeIds.INT_RANGE_ARGUMENT_ID);

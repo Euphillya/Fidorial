@@ -9,6 +9,7 @@ import fr.fidorial.command.argument.range.DoubleRangeProvider;
 import fr.fidorial.command.argument.range.IntegerRangeProvider;
 import fr.fidorial.command.argument.resolvers.AngleResolver;
 import fr.fidorial.command.argument.resolvers.BlockPosResolver;
+import fr.fidorial.command.argument.resolvers.NbtPathResolver;
 import fr.fidorial.command.argument.resolvers.PlayerProfileListResolver;
 import fr.fidorial.command.argument.resolvers.PositionResolver;
 import fr.fidorial.command.argument.resolvers.selector.EntitySelectorArgumentResolver;
@@ -273,4 +274,9 @@ public interface ArgumentProvider {
      * @since 0.1.0
      */
     <T> ArgumentType<T> withServerSuggestions(ArgumentType<T> type);
+
+    /**
+     * @since 0.1.0
+     */
+    ArgumentType<NbtPathResolver> nbtPath();
 }

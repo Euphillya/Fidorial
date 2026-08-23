@@ -9,6 +9,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.world.BossBarRegistry;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.argument.ArgumentTypes;
@@ -17,74 +18,53 @@ import fr.fidorial.entity.Player;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 import static fr.fidorial.command.Commands.argument;
 import static fr.fidorial.command.Commands.literal;
 
 public final class BossBarCommand {
 
-    private static final Map<BossBar.Color, NamedTextColor> COLOR_FORMATTING = new EnumMap<>(BossBar.Color.class);
-
-    static {
-        COLOR_FORMATTING.put(BossBar.Color.PINK, NamedTextColor.LIGHT_PURPLE);
-        COLOR_FORMATTING.put(BossBar.Color.BLUE, NamedTextColor.BLUE);
-        COLOR_FORMATTING.put(BossBar.Color.RED, NamedTextColor.RED);
-        COLOR_FORMATTING.put(BossBar.Color.GREEN, NamedTextColor.GREEN);
-        COLOR_FORMATTING.put(BossBar.Color.YELLOW, NamedTextColor.YELLOW);
-        COLOR_FORMATTING.put(BossBar.Color.PURPLE, NamedTextColor.DARK_PURPLE);
-        COLOR_FORMATTING.put(BossBar.Color.WHITE, NamedTextColor.WHITE);
-    }
+    private static final Map<BossBar.Color, NamedTextColor> COLOR_FORMATTING = new EnumMap<>(Map.of(
+            BossBar.Color.PINK, NamedTextColor.LIGHT_PURPLE,
+            BossBar.Color.BLUE, NamedTextColor.BLUE,
+            BossBar.Color.RED, NamedTextColor.RED,
+            BossBar.Color.GREEN, NamedTextColor.GREEN,
+            BossBar.Color.YELLOW, NamedTextColor.YELLOW,
+            BossBar.Color.PURPLE, NamedTextColor.DARK_PURPLE,
+            BossBar.Color.WHITE, NamedTextColor.WHITE));
 
     private static final DynamicCommandExceptionType ERROR_BOSSBAR_EXISTS =
-            new DynamicCommandExceptionType(id -> MSG_SERIALIZER.serialize(
-                    Component.translatable("commands.bossbar.create.failed", Component.text(String.valueOf(id)))));
-
+            ExceptionFactory.dynamic("commands.bossbar.create.failed");
     private static final DynamicCommandExceptionType ERROR_BOSSBAR_UNKNOWN =
-            new DynamicCommandExceptionType(id -> MSG_SERIALIZER.serialize(
-                    Component.translatable("commands.bossbar.unknown", Component.text(String.valueOf(id)))));
-
+            ExceptionFactory.dynamic("commands.bossbar.unknown");
     private static final SimpleCommandExceptionType ERROR_PLAYERS_UNCHANGED =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(
-                    Component.translatable("commands.bossbar.set.players.unchanged")));
-
+            ExceptionFactory.simple("commands.bossbar.set.players.unchanged");
     private static final SimpleCommandExceptionType ERROR_NAME_UNCHANGED =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(
-                    Component.translatable("commands.bossbar.set.name.unchanged")));
-
+            ExceptionFactory.simple("commands.bossbar.set.name.unchanged");
     private static final SimpleCommandExceptionType ERROR_COLOR_UNCHANGED =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(
-                    Component.translatable("commands.bossbar.set.color.unchanged")));
-
+            ExceptionFactory.simple("commands.bossbar.set.color.unchanged");
     private static final SimpleCommandExceptionType ERROR_OVERLAY_UNCHANGED =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(
-                    Component.translatable("commands.bossbar.set.style.unchanged")));
-
+            ExceptionFactory.simple("commands.bossbar.set.style.unchanged");
     private static final SimpleCommandExceptionType ERROR_VALUE_UNCHANGED =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(
-                    Component.translatable("commands.bossbar.set.value.unchanged")));
-
+            ExceptionFactory.simple("commands.bossbar.set.value.unchanged");
     private static final SimpleCommandExceptionType ERROR_MAX_UNCHANGED =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(
-                    Component.translatable("commands.bossbar.set.max.unchanged")));
-
+            ExceptionFactory.simple("commands.bossbar.set.max.unchanged");
     private static final SimpleCommandExceptionType ERROR_VISIBILITY_UNCHANGED_HIDDEN =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(
-                    Component.translatable("commands.bossbar.set.visibility.unchanged.hidden")));
-
+            ExceptionFactory.simple("commands.bossbar.set.visibility.unchanged.hidden");
     private static final SimpleCommandExceptionType ERROR_VISIBILITY_UNCHANGED_VISIBLE =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(
-                    Component.translatable("commands.bossbar.set.visibility.unchanged.visible")));
+            ExceptionFactory.simple("commands.bossbar.set.visibility.unchanged.visible");
 
     public static final SuggestionProvider<CommandSource> BOSSBAR_ID_SUGGESTIONS = (ctx, builder) -> {
         bossBars().entries().forEach(entry -> builder.suggest(entry.id().asString()));
@@ -155,6 +135,23 @@ public final class BossBarCommand {
         return bossBars().getEntry(id).orElseThrow(() -> ERROR_BOSSBAR_UNKNOWN.create(id.asString()));
     }
 
+    private static int applyUpdate(
+            final CommandContext<CommandSource> ctx,
+            final BossBarRegistry.BossBarEntry entry,
+            final Predicate<BossBarRegistry.BossBarEntry> unless,
+            final SimpleCommandExceptionType unchangedError,
+            final Runnable mutate,
+            final String successKey
+    ) throws CommandSyntaxException {
+        if (unless.test(entry)) {
+            throw unchangedError.create();
+        }
+        mutate.run();
+        final BossBarRegistry.BossBarEntry updated = bossBars().getEntry(entry.id()).orElse(entry);
+        ctx.getSource().sender().sendMessage(Component.translatable(successKey, displayNameOf(updated)));
+        return Command.SINGLE_SUCCESS;
+    }
+
     private static Component displayNameOf(final BossBarRegistry.BossBarEntry entry) {
         final String idString = entry.id().asString();
         final NamedTextColor color = COLOR_FORMATTING.getOrDefault(entry.bar().color(), NamedTextColor.WHITE);
@@ -173,65 +170,50 @@ public final class BossBarCommand {
         }
 
         final BossBarRegistry.BossBarEntry created = bossBars().getEntry(id).orElseThrow();
-        ctx.getSource().sender().sendMessage(
-                Component.translatable("commands.bossbar.create.success", displayNameOf(created)));
+        ctx.getSource().sender().sendMessage(Component.translatable("commands.bossbar.create.success", displayNameOf(created)));
         return Command.SINGLE_SUCCESS;
     }
 
     private static int deleteBossBar(final CommandContext<CommandSource> ctx, final BossBarRegistry.BossBarEntry entry) {
         final Component displayName = displayNameOf(entry);
         bossBars().unregister(entry.id());
-
-        ctx.getSource().sender().sendMessage(
-                Component.translatable("commands.bossbar.remove.success", displayName));
+        ctx.getSource().sender().sendMessage(Component.translatable("commands.bossbar.remove.success", displayName));
         return bossBars().entries().size();
     }
 
     private static int listBossBars(final CommandContext<CommandSource> ctx) {
-        final Collection<BossBarRegistry.BossBarEntry> entries = bossBars().entries();
-
+        final var entries = bossBars().entries();
         if (entries.isEmpty()) {
             ctx.getSource().sender().sendMessage(Component.translatable("commands.bossbar.list.bars.none"));
         } else {
+            final Component joined = Component.join(JoinConfiguration.commas(true),
+                    entries.stream().map(BossBarCommand::displayNameOf).toList());
             ctx.getSource().sender().sendMessage(Component.translatable(
-                    "commands.bossbar.list.bars.some",
-                    Component.text(entries.size()),
-                    joinComponents(entries.stream().map(BossBarCommand::displayNameOf).toList())));
+                    "commands.bossbar.list.bars.some", Component.text(entries.size()), joined));
         }
 
         return entries.size();
     }
 
     private static int updateName(final CommandContext<CommandSource> ctx, final BossBarRegistry.BossBarEntry entry, final Component name) throws CommandSyntaxException {
-        if (entry.bar().name().equals(name)) {
-            throw ERROR_NAME_UNCHANGED.create();
-        }
-
-        entry.bar().name(name);
-        final BossBarRegistry.BossBarEntry updated = bossBars().getEntry(entry.id()).orElseThrow();
-        ctx.getSource().sender().sendMessage(Component.translatable("commands.bossbar.set.name.success", displayNameOf(updated)));
-        return Command.SINGLE_SUCCESS;
+        return applyUpdate(ctx, entry,
+                e -> e.bar().name().equals(name), ERROR_NAME_UNCHANGED,
+                () -> entry.bar().name(name),
+                "commands.bossbar.set.name.success");
     }
 
     private static int updateColor(final CommandContext<CommandSource> ctx, final BossBarRegistry.BossBarEntry entry, final BossBar.Color color) throws CommandSyntaxException {
-        if (entry.bar().color() == color) {
-            throw ERROR_COLOR_UNCHANGED.create();
-        }
-
-        entry.bar().color(color);
-        final BossBarRegistry.BossBarEntry updated = bossBars().getEntry(entry.id()).orElseThrow();
-        ctx.getSource().sender().sendMessage(Component.translatable("commands.bossbar.set.color.success", displayNameOf(updated)));
-        return Command.SINGLE_SUCCESS;
+        return applyUpdate(ctx, entry,
+                e -> e.bar().color() == color, ERROR_COLOR_UNCHANGED,
+                () -> entry.bar().color(color),
+                "commands.bossbar.set.color.success");
     }
 
     private static int updateOverlay(final CommandContext<CommandSource> ctx, final BossBarRegistry.BossBarEntry entry, final BossBar.Overlay overlay) throws CommandSyntaxException {
-        if (entry.bar().overlay() == overlay) {
-            throw ERROR_OVERLAY_UNCHANGED.create();
-        }
-
-        entry.bar().overlay(overlay);
-        ctx.getSource().sender().sendMessage(Component.translatable("commands.bossbar.set.style.success", displayNameOf(entry)));
-        return Command.SINGLE_SUCCESS;
+        return applyUpdate(ctx, entry,
+                e -> e.bar().overlay() == overlay, ERROR_OVERLAY_UNCHANGED,
+                () -> entry.bar().overlay(overlay),
+                "commands.bossbar.set.style.success");
     }
 
     private static int updateValue(final CommandContext<CommandSource> ctx, final BossBarRegistry.BossBarEntry entry, final int value) throws CommandSyntaxException {
@@ -280,9 +262,7 @@ public final class BossBarCommand {
         } else {
             ctx.getSource().sender().sendMessage(Component.translatable(
                     "commands.bossbar.set.players.success.some",
-                    displayNameOf(entry),
-                    Component.text(targetIds.size()),
-                    joinPlayerNames(targetIds)));
+                    displayNameOf(entry), Component.text(targetIds.size()), joinPlayerNames(targetIds)));
         }
 
         return targetIds.size();
@@ -324,38 +304,21 @@ public final class BossBarCommand {
         } else {
             ctx.getSource().sender().sendMessage(Component.translatable(
                     "commands.bossbar.get.players.some",
-                    displayNameOf(entry),
-                    Component.text(entry.players().size()),
-                    joinPlayerNames(entry.players())));
+                    displayNameOf(entry), Component.text(entry.players().size()), joinPlayerNames(entry.players())));
         }
 
         return entry.players().size();
     }
 
-    private static Component joinComponents(final Collection<Component> parts) {
-        Component joined = Component.empty();
-        boolean first = true;
-        for (final Component part : parts) {
-            if (!first) joined = joined.append(Component.text(", "));
-            joined = joined.append(part);
-            first = false;
-        }
-        return joined;
-    }
-
     private static Component joinPlayerNames(final Set<UUID> ids) {
-        Component joined = Component.empty();
-        boolean first = true;
-        for (final UUID id : ids) {
-            if (!first) joined = joined.append(Component.text(", "));
-            final String display = FidorialServer.getInstance().onlinePlayers().stream()
-                    .filter(p -> p.uuid().equals(id))
-                    .map(Player::name)
-                    .findFirst()
-                    .orElse(id.toString());
-            joined = joined.append(Component.text(display));
-            first = false;
-        }
-        return joined;
+        final List<TextComponent> names = ids.stream()
+                .map(id -> FidorialServer.getInstance().onlinePlayers().stream()
+                        .filter(p -> p.uuid().equals(id))
+                        .map(Player::name)
+                        .findFirst()
+                        .orElse(id.toString()))
+                .map(Component::text)
+                .toList();
+        return Component.join(JoinConfiguration.commas(true), names);
     }
 }

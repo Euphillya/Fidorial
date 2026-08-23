@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.util.KeyReader;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
@@ -15,19 +16,14 @@ import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.keys.ItemKeys;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
 
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class ItemArgument<T> implements ArgumentType<T> {
 
-    public static final DynamicCommandExceptionType ERROR_UNKNOWN_ITEM =
-            new DynamicCommandExceptionType(id -> MSG_SERIALIZER.serialize(
-                    Component.translatable("argument.item.id.invalid", Component.text(String.valueOf(id)))));
+    public static final DynamicCommandExceptionType ERROR_UNKNOWN_ITEM = ExceptionFactory.dynamic("argument.item.id.invalid");
 
     private final Function<ItemInput, T> converter;
 

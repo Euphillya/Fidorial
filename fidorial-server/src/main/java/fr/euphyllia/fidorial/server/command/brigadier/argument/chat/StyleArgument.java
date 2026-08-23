@@ -9,6 +9,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
@@ -18,16 +19,11 @@ import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 import java.util.Set;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class StyleArgument implements ArgumentType<Style> {
 
     private static final Set<String> CONTENT_KEYS = Set.of("text", "translate", "selector", "score", "keybind", "nbt");
 
-    public static final DynamicCommandExceptionType ERROR_INVALID_STYLE = new DynamicCommandExceptionType(
-            message -> MSG_SERIALIZER.serialize(
-                    Component.translatable("argument.style.invalid")
-                            .append(Component.text(message.toString()))));
+    public static final DynamicCommandExceptionType ERROR_INVALID_STYLE = ExceptionFactory.dynamic("argument.style.invalid");
 
     private StyleArgument() {
     }

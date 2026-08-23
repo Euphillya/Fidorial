@@ -7,6 +7,7 @@ import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import fr.euphyllia.fidorial.server.command.CommandManager;
 import fr.fidorial.command.CommandSource;
+import fr.fidorial.command.MessageComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jline.reader.Candidate;
@@ -16,8 +17,6 @@ import org.jline.reader.ParsedLine;
 
 import java.util.List;
 import java.util.function.Supplier;
-
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
 
 public final class FidorialCommandCompleter implements Completer {
 
@@ -63,7 +62,7 @@ public final class FidorialCommandCompleter implements Completer {
         if (tooltip == null) {
             return new Candidate(value, value, null, null, null, null, false);
         }
-        final Component component = MSG_SERIALIZER.deserialize(tooltip);
+        final Component component = MessageComponentSerializer.message().deserialize(tooltip);
         final String description = PlainTextComponentSerializer.plainText().serialize(component);
         return new Candidate(value, value, null, description, null, null, false);
     }

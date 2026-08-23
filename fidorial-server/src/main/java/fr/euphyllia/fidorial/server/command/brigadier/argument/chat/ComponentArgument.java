@@ -9,6 +9,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.entity.EntitySelector;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySelectorParser;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
@@ -22,15 +23,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class ComponentArgument implements ArgumentType<Component> {
 
-    public static final DynamicCommandExceptionType ERROR_INVALID_COMPONENT = new DynamicCommandExceptionType(
-            message -> MSG_SERIALIZER.serialize(
-                    net.kyori.adventure.text.Component.translatable(
-                            "argument.component.invalid",
-                            net.kyori.adventure.text.Component.text(message.toString()))));
+    public static final DynamicCommandExceptionType ERROR_INVALID_COMPONENT = ExceptionFactory.dynamic("argument.component.invalid");
 
     private ComponentArgument() {
     }

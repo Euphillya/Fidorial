@@ -9,24 +9,20 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.FidorialServer;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.util.KeyReader;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.util.KeyReader.ParsedKey;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.world.World;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class DimensionArgument<T> implements ArgumentType<T> {
 
-    public static final DynamicCommandExceptionType ERROR_INVALID_VALUE =
-            new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
-                    Component.translatable("argument.dimension.invalid", Component.text(value.toString()))));
+    public static final DynamicCommandExceptionType ERROR_INVALID_VALUE = ExceptionFactory.dynamic("argument.dimension.invalid");
 
     private final Function<Key, T> converter;
 

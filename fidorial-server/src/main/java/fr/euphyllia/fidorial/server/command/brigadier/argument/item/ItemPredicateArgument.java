@@ -9,6 +9,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.util.KeyReader;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
@@ -16,23 +17,17 @@ import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.keys.ItemKeys;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
 
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class ItemPredicateArgument<T> implements ArgumentType<T> {
 
-    public static final DynamicCommandExceptionType ERROR_UNKNOWN_ITEM =
-            new DynamicCommandExceptionType(id -> MSG_SERIALIZER.serialize(
-                    Component.translatable("argument.item.id.invalid", Component.text(String.valueOf(id)))));
+    public static final DynamicCommandExceptionType ERROR_UNKNOWN_ITEM = ExceptionFactory.dynamic("argument.item.id.invalid");
 
-    public static final SimpleCommandExceptionType ERROR_TAGS_UNSUPPORTED =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.text("Item tags are not yet supported")));
+    public static final SimpleCommandExceptionType ERROR_TAGS_UNSUPPORTED = ExceptionFactory.simple("Item tags are not yet supported");
 
     private final Function<Predicate<ItemStack>, T> converter;
 

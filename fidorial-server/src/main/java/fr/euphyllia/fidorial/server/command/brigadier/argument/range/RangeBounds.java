@@ -4,20 +4,16 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.kyori.adventure.text.Component;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public interface RangeBounds<T extends Number & Comparable<T>> {
 
-    SimpleCommandExceptionType ERROR_EMPTY = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.range.empty")));
-    SimpleCommandExceptionType ERROR_SWAPPED = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.range.swapped")));
+    SimpleCommandExceptionType ERROR_EMPTY = ExceptionFactory.simple("argument.range.empty");
+    SimpleCommandExceptionType ERROR_SWAPPED = ExceptionFactory.simple("argument.range.swapped");
 
     Bounds<T> bounds();
 

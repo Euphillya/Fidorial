@@ -8,20 +8,16 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
-import net.kyori.adventure.text.Component;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class HexColorArgument<T> implements ArgumentType<T> {
 
-    public static final DynamicCommandExceptionType ERROR_INVALID_HEX =
-            new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
-                    Component.translatable("argument.hexcolor.invalid", Component.text(String.valueOf(value)))));
+    public static final DynamicCommandExceptionType ERROR_INVALID_HEX = ExceptionFactory.dynamic("argument.hexcolor.invalid");
 
     private final Function<Integer, T> converter;
 

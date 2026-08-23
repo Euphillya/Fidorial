@@ -4,106 +4,40 @@ import com.mojang.brigadier.exceptions.BuiltInExceptionProvider;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.kyori.adventure.text.Component;
-
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 
 public final class TranslatableExceptions implements BuiltInExceptionProvider {
 
-    private static final Dynamic2CommandExceptionType DOUBLE_TOO_SMALL =
-            new Dynamic2CommandExceptionType((found, min) -> MSG_SERIALIZER.serialize(Component.translatable(
-                    "argument.double.low", Component.text(min.toString()), Component.text(found.toString()))));
+    private static final Dynamic2CommandExceptionType DOUBLE_TOO_SMALL = ExceptionFactory.dynamic2Reversed("argument.double.low");
+    private static final Dynamic2CommandExceptionType DOUBLE_TOO_BIG = ExceptionFactory.dynamic2Reversed("argument.double.big");
+    private static final Dynamic2CommandExceptionType FLOAT_TOO_SMALL = ExceptionFactory.dynamic2Reversed("argument.float.low");
+    private static final Dynamic2CommandExceptionType FLOAT_TOO_BIG = ExceptionFactory.dynamic2Reversed("argument.float.big");
+    private static final Dynamic2CommandExceptionType INTEGER_TOO_SMALL = ExceptionFactory.dynamic2Reversed("argument.integer.low");
+    private static final Dynamic2CommandExceptionType INTEGER_TOO_BIG = ExceptionFactory.dynamic2Reversed("argument.integer.big");
+    private static final Dynamic2CommandExceptionType LONG_TOO_SMALL = ExceptionFactory.dynamic2Reversed("argument.long.low");
+    private static final Dynamic2CommandExceptionType LONG_TOO_BIG = ExceptionFactory.dynamic2Reversed("argument.long.big");
 
-    private static final Dynamic2CommandExceptionType DOUBLE_TOO_BIG =
-            new Dynamic2CommandExceptionType((found, max) -> MSG_SERIALIZER.serialize(Component.translatable(
-                    "argument.double.big", Component.text(max.toString()), Component.text(found.toString()))));
+    private static final DynamicCommandExceptionType LITERAL_INCORRECT = ExceptionFactory.dynamic("argument.literal.incorrect");
 
-    private static final Dynamic2CommandExceptionType FLOAT_TOO_SMALL =
-            new Dynamic2CommandExceptionType((found, min) -> MSG_SERIALIZER.serialize(Component.translatable(
-                    "argument.float.low", Component.text(min.toString()), Component.text(found.toString()))));
+    private static final SimpleCommandExceptionType READER_EXPECTED_START_OF_QUOTE = ExceptionFactory.simple("parsing.quote.expected.start");
+    private static final SimpleCommandExceptionType READER_EXPECTED_END_OF_QUOTE = ExceptionFactory.simple("parsing.quote.expected.end");
+    private static final DynamicCommandExceptionType READER_INVALID_ESCAPE = ExceptionFactory.dynamic("parsing.quote.escape");
+    private static final DynamicCommandExceptionType READER_INVALID_BOOL = ExceptionFactory.dynamic("parsing.bool.invalid");
+    private static final DynamicCommandExceptionType READER_INVALID_INT = ExceptionFactory.dynamic("parsing.int.invalid");
+    private static final SimpleCommandExceptionType READER_EXPECTED_INT = ExceptionFactory.simple("parsing.int.expected");
+    private static final DynamicCommandExceptionType READER_INVALID_LONG = ExceptionFactory.dynamic("parsing.long.invalid");
+    private static final SimpleCommandExceptionType READER_EXPECTED_LONG = ExceptionFactory.simple("parsing.long.expected");
+    private static final DynamicCommandExceptionType READER_INVALID_DOUBLE = ExceptionFactory.dynamic("parsing.double.invalid");
+    private static final SimpleCommandExceptionType READER_EXPECTED_DOUBLE = ExceptionFactory.simple("parsing.double.expected");
+    private static final DynamicCommandExceptionType READER_INVALID_FLOAT = ExceptionFactory.dynamic("parsing.float.invalid");
+    private static final SimpleCommandExceptionType READER_EXPECTED_FLOAT = ExceptionFactory.simple("parsing.float.expected");
+    private static final SimpleCommandExceptionType READER_EXPECTED_BOOL = ExceptionFactory.simple("parsing.bool.expected");
+    private static final DynamicCommandExceptionType READER_EXPECTED_SYMBOL = ExceptionFactory.dynamic("parsing.expected");
 
-    private static final Dynamic2CommandExceptionType FLOAT_TOO_BIG =
-            new Dynamic2CommandExceptionType((found, max) -> MSG_SERIALIZER.serialize(Component.translatable(
-                    "argument.float.big", Component.text(max.toString()), Component.text(found.toString()))));
-
-    private static final Dynamic2CommandExceptionType INTEGER_TOO_SMALL =
-            new Dynamic2CommandExceptionType((found, min) -> MSG_SERIALIZER.serialize(Component.translatable(
-                    "argument.integer.low", Component.text(min.toString()), Component.text(found.toString()))));
-
-    private static final Dynamic2CommandExceptionType INTEGER_TOO_BIG =
-            new Dynamic2CommandExceptionType((found, max) -> MSG_SERIALIZER.serialize(Component.translatable(
-                    "argument.integer.big", Component.text(max.toString()), Component.text(found.toString()))));
-
-    private static final Dynamic2CommandExceptionType LONG_TOO_SMALL =
-            new Dynamic2CommandExceptionType((found, min) -> MSG_SERIALIZER.serialize(Component.translatable(
-                    "argument.long.low", Component.text(min.toString()), Component.text(found.toString()))));
-
-    private static final Dynamic2CommandExceptionType LONG_TOO_BIG =
-            new Dynamic2CommandExceptionType((found, max) -> MSG_SERIALIZER.serialize(Component.translatable(
-                    "argument.long.big", Component.text(max.toString()), Component.text(found.toString()))));
-
-    private static final DynamicCommandExceptionType LITERAL_INCORRECT =
-            new DynamicCommandExceptionType(expected -> MSG_SERIALIZER.serialize(
-                    Component.translatable("argument.literal.incorrect", Component.text(expected.toString()))));
-
-    private static final SimpleCommandExceptionType READER_EXPECTED_START_OF_QUOTE = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("parsing.quote.expected.start")));
-
-    private static final SimpleCommandExceptionType READER_EXPECTED_END_OF_QUOTE = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("parsing.quote.expected.end")));
-
-    private static final DynamicCommandExceptionType READER_INVALID_ESCAPE =
-            new DynamicCommandExceptionType(character -> MSG_SERIALIZER.serialize(
-                    Component.translatable("parsing.quote.escape", Component.text(character.toString()))));
-
-    private static final DynamicCommandExceptionType READER_INVALID_BOOL = new DynamicCommandExceptionType(value ->
-            MSG_SERIALIZER.serialize(Component.translatable("parsing.bool.invalid", Component.text(value.toString()))));
-
-    private static final DynamicCommandExceptionType READER_INVALID_INT = new DynamicCommandExceptionType(value ->
-            MSG_SERIALIZER.serialize(Component.translatable("parsing.int.invalid", Component.text(value.toString()))));
-
-    private static final SimpleCommandExceptionType READER_EXPECTED_INT =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("parsing.int.expected")));
-
-    private static final DynamicCommandExceptionType READER_INVALID_LONG = new DynamicCommandExceptionType(value ->
-            MSG_SERIALIZER.serialize(Component.translatable("parsing.long.invalid", Component.text(value.toString()))));
-
-    private static final SimpleCommandExceptionType READER_EXPECTED_LONG =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("parsing.long.expected")));
-
-    private static final DynamicCommandExceptionType READER_INVALID_DOUBLE =
-            new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
-                    Component.translatable("parsing.double.invalid", Component.text(value.toString()))));
-
-    private static final SimpleCommandExceptionType READER_EXPECTED_DOUBLE =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("parsing.double.expected")));
-
-    private static final DynamicCommandExceptionType READER_INVALID_FLOAT =
-            new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
-                    Component.translatable("parsing.float.invalid", Component.text(value.toString()))));
-
-    private static final SimpleCommandExceptionType READER_EXPECTED_FLOAT =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("parsing.float.expected")));
-
-    private static final SimpleCommandExceptionType READER_EXPECTED_BOOL =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("parsing.bool.expected")));
-
-    private static final DynamicCommandExceptionType READER_EXPECTED_SYMBOL = new DynamicCommandExceptionType(symbol ->
-            MSG_SERIALIZER.serialize(Component.translatable("parsing.expected", Component.text(symbol.toString()))));
-
-    public static final SimpleCommandExceptionType DISPATCHER_UNKNOWN_COMMAND =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("command.unknown.command")));
-
-    public static final SimpleCommandExceptionType DISPATCHER_UNKNOWN_ARGUMENT = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("command.unknown.argument")));
-
-    private static final SimpleCommandExceptionType DISPATCHER_EXPECTED_ARGUMENT_SEPARATOR =
-            new SimpleCommandExceptionType(
-                    MSG_SERIALIZER.serialize(Component.translatable("command.expected.separator")));
-
-    private static final DynamicCommandExceptionType DISPATCHER_PARSE_EXCEPTION =
-            new DynamicCommandExceptionType(message -> MSG_SERIALIZER.serialize(
-                    Component.translatable("command.exception", Component.text(message.toString()))));
+    public static final SimpleCommandExceptionType DISPATCHER_UNKNOWN_COMMAND = ExceptionFactory.simple("command.unknown.command");
+    public static final SimpleCommandExceptionType DISPATCHER_UNKNOWN_ARGUMENT = ExceptionFactory.simple("command.unknown.argument");
+    private static final SimpleCommandExceptionType DISPATCHER_EXPECTED_ARGUMENT_SEPARATOR = ExceptionFactory.simple("command.expected.separator");
+    private static final DynamicCommandExceptionType DISPATCHER_PARSE_EXCEPTION = ExceptionFactory.dynamic("command.exception");
 
     @Override
     public Dynamic2CommandExceptionType doubleTooLow() {

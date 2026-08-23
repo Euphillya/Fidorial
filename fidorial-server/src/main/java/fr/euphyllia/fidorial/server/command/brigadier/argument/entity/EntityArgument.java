@@ -9,12 +9,12 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fr.euphyllia.fidorial.server.command.brigadier.argument.selector.EntitySelectorParser;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Entity;
 import fr.fidorial.entity.Player;
-import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
 import java.util.Locale;
@@ -22,27 +22,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class EntityArgument<T> implements ArgumentType<T> {
 
-    public static final SimpleCommandExceptionType ERROR_NOT_SINGLE_ENTITY =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.entity.toomany")));
-
-    public static final SimpleCommandExceptionType ERROR_NOT_SINGLE_PLAYER =
-            new SimpleCommandExceptionType(MSG_SERIALIZER.serialize(Component.translatable("argument.player.toomany")));
-
-    public static final SimpleCommandExceptionType ERROR_ONLY_PLAYERS_ALLOWED = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.player.entities")));
-
-    public static final SimpleCommandExceptionType NO_ENTITIES_FOUND = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.entity.notfound.entity")));
-
-    public static final SimpleCommandExceptionType NO_PLAYERS_FOUND = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.entity.notfound.player")));
-
-    public static final SimpleCommandExceptionType SELECTORS_NOT_PERMITTED = new SimpleCommandExceptionType(
-            MSG_SERIALIZER.serialize(Component.translatable("argument.entity.selector.not_allowed")));
+    public static final SimpleCommandExceptionType ERROR_NOT_SINGLE_ENTITY = ExceptionFactory.simple("argument.entity.toomany");
+    public static final SimpleCommandExceptionType ERROR_NOT_SINGLE_PLAYER = ExceptionFactory.simple("argument.player.toomany");
+    public static final SimpleCommandExceptionType ERROR_ONLY_PLAYERS_ALLOWED = ExceptionFactory.simple("argument.player.entities");
+    public static final SimpleCommandExceptionType NO_ENTITIES_FOUND = ExceptionFactory.simple("argument.entity.notfound.entity");
+    public static final SimpleCommandExceptionType NO_PLAYERS_FOUND = ExceptionFactory.simple("argument.entity.notfound.player");
+    public static final SimpleCommandExceptionType SELECTORS_NOT_PERMITTED = ExceptionFactory.simple("argument.entity.selector.not_allowed");
 
     private final boolean single;
     private final boolean playersOnly;

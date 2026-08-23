@@ -8,20 +8,16 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import fr.euphyllia.fidorial.server.command.brigadier.argument.util.ExceptionFactory;
 import fr.euphyllia.fidorial.server.command.brigadier.packet.registry.ArgumentTypeRegistrar;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.concurrent.CompletableFuture;
 
-import static fr.euphyllia.fidorial.server.adventure.brigadier.BrigadierAdventureHelper.MSG_SERIALIZER;
-
 public final class NamedColorArgument implements ArgumentType<NamedTextColor> {
 
-    public static final DynamicCommandExceptionType ERROR_INVALID_VALUE =
-            new DynamicCommandExceptionType(value -> MSG_SERIALIZER.serialize(
-                    Component.translatable("argument.color.invalid", Component.text(String.valueOf(value)))));
+    public static final DynamicCommandExceptionType ERROR_INVALID_VALUE = ExceptionFactory.dynamic("argument.color.invalid");
 
     public static NamedColorArgument namedColor() {
         return new NamedColorArgument();
