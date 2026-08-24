@@ -249,7 +249,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 config.viewDistance(),
                 player.gameMode().id(),
                 describeGenerator(worldId()) instanceof ChunkGeneratorConfig.Debug,
-                describeGenerator(worldId()) instanceof ChunkGeneratorConfig.Flat));
+                describeGenerator(worldId()) instanceof ChunkGeneratorConfig.Flat,
+                server.config().onlineMode()));
         connection.send(new ClientboundPlayerInfoUpdatePacket(
                 player.profile(), player.gameMode().id(), 0));
         connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(player.gameMode()));

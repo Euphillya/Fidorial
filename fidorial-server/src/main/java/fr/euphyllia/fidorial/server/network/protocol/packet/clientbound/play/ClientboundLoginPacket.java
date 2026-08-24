@@ -1,6 +1,5 @@
 package fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play;
 
-import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
@@ -8,8 +7,17 @@ import net.kyori.adventure.key.Key;
 
 // https://minecraft.wiki/w/Java_Edition_protocol/Packets#Login_(play)
 public record ClientboundLoginPacket(
-        int entityId, boolean isHardcore, Key[] dimensions, Key dimensionKey, int dimensionTypeId, int viewDistance, int gameMode, boolean isDebug, boolean isFlat)
-        implements ClientboundPacket {
+        int entityId,
+        boolean isHardcore,
+        Key[] dimensions,
+        Key dimensionKey,
+        int dimensionTypeId,
+        int viewDistance,
+        int gameMode,
+        boolean isDebug,
+        boolean isFlat,
+        boolean onlineMode
+) implements ClientboundPacket {
 
     @Override
     public Key name() {
@@ -37,7 +45,7 @@ public record ClientboundLoginPacket(
         buf.writeBoolean(false); // hasDeathLocation
         buf.writeVarInt(0); // portalCooldown
         buf.writeVarInt(63); // seaLevel
-        buf.writeBoolean(FidorialServer.getInstance().config().onlineMode());
+        buf.writeBoolean(onlineMode);
         buf.writeBoolean(false);
     }
 }
