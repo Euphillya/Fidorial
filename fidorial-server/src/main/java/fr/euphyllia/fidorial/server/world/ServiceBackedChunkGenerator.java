@@ -7,7 +7,6 @@ import fr.fidorial.world.generation.GenerationDescriptor;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
-import org.jspecify.annotations.Nullable;
 
 public class ServiceBackedChunkGenerator implements ChunkGenerator {
 
@@ -16,7 +15,6 @@ public class ServiceBackedChunkGenerator implements ChunkGenerator {
 
     private final ServiceRegistry services;
     private final ChunkGenerator fallback;
-    private final @Nullable WorldGenerator custom;
     private final int minY;
     private final int height;
 
@@ -25,11 +23,11 @@ public class ServiceBackedChunkGenerator implements ChunkGenerator {
         this.fallback = fallback;
         this.minY = minY;
         this.height = height;
-        this.custom = services.find(WorldGenerator.class).orElse(null);
     }
 
     @Override
     public ChunkColumn generate(final int chunkX, final int chunkZ) {
+        final WorldGenerator custom = services.find(WorldGenerator.class).orElse(null);
         if (custom == null) {
             return fallback.generate(chunkX, chunkZ);
         }
@@ -49,9 +47,11 @@ public class ServiceBackedChunkGenerator implements ChunkGenerator {
 
     @Override
     public ChunkGeneratorConfig describeForSave() {
+        final WorldGenerator custom = services.find(WorldGenerator.class).orElse(null);
         if (custom == null) {
             return fallback.describeForSave();
         }
+
         return switch (custom.describeForSave()) {
             case GenerationDescriptor.Flat(final Key floorBlock, final int floorThickness, final Key biome) ->
                     new ChunkGeneratorConfig.Flat(
