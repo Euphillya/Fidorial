@@ -1,18 +1,40 @@
 name: Build
 
 on:
-  push:
-    branches: [ master ]
-    tags: [ 'v*' ]
-  pull_request:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      upload-jar:
+        description: "Publish the fat jar as an artifact"
+        type: boolean
+        default: false
+      artifact-name:
+        description: "Name of the uploaded artifact"
+        type: string
+        default: fidorial-server
+      retention-days:
+        description: "How long the artifact is kept"
+        type: number
+        default: 7
+    outputs:
+      version:
+        description: "Version declared in gradle.properties"
+        value: ${{ jobs.build.outputs.version }}
+      artifact-url:
+        description: "Artifact download URL (requires being signed in to GitHub)"
+        value: ${{ jobs.build.outputs.artifact-url }}
+      jar-name:
+        description: "File name of the built fat jar"
+        value: ${{ jobs.build.outputs.jar-name }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.commits[0].message, '[ci-skip]')"
     permissions:
       contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      artifact-url: ${{ steps.upload.outputs.artifact-url }}
+      jar-name: ${{ steps.jar.outputs.name }}
 
     steps:
       - name: Checkout
@@ -20,60 +42,46 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: JDK 25
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 25
 
-      # Cache Gradle + validation du wrapper incluses
-      - name: Setup Gradle
+      # Includes Gradle caching and wrapper validation
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+
+      - name: Read version
+        id: version
+        run: |
+          version=$(grep -m1 '^version=' gradle.properties | cut -d= -f2)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Format check
         run: ./gradlew spotlessCheck --no-daemon --no-configuration-cache
 
-      - name: Build + tests
-        run: ./gradlew build test --no-daemon
+      - name: Build and test
+        run: ./gradlew build --no-daemon
 
-      - name: Fat jar (shadowJar)
+      - name: Build fat jar
+        if: inputs.upload-jar
         run: ./gradlew :fidorial-server:shadowJar --no-daemon
 
-      - name: Upload du jar
+      - name: Collect jar metadata
+        id: jar
+        if: inputs.upload-jar
+        run: |
+          jar=$(ls fidorial-server/build/libs/*.jar | head -1)
+          echo "name=$(basename "$jar")" >> "$GITHUB_OUTPUT"
+          echo "size=$(du -h "$jar" | cut -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload jar
+        id: upload
+        if: inputs.upload-jar
         uses: actions/upload-artifact@v4
         with:
-          name: fidorial-server
+          name: ${{ inputs.artifact-name }}
           path: fidorial-server/build/libs/*.jar
           if-no-files-found: error
-          retention-days: 14
-
-  release:
-    if: github.event_name == 'push'
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: Recuperer le jar
-        uses: actions/download-artifact@v4
-        with:
-          name: fidorial-server
-          path: dist
-
-      - name: Release stable (tag v*)
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/*.jar
-          generate_release_notes: true
-
-      - name: Release de dev (commit sur master)
-        if: github.ref == 'refs/heads/master'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: build-${{ github.run_number }}
-          name: "Build ${{ github.run_number }} (${{ github.sha }})"
-          prerelease: true
-          files: dist/*.jar
-          generate_release_notes: true
+          retention-days: ${{ inputs.retention-days }}

@@ -1,0 +1,56 @@
+name: Snapshot
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENCE'
+      - '.gitattributes'
+  workflow_dispatch:
+
+concurrency:
+  group: snapshot
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      upload-jar: true
+      retention-days: 14
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download jar
+        uses: actions/download-artifact@v4
+        with:
+          name: fidorial-server
+          path: dist
+
+      - name: Compute release name
+        id: meta
+        env:
+          BASE: ${{ needs.build.outputs.version }}
+        run: |
+          # 0.1.0-SNAPSHOT -> 0.1.0-dev.42
+          base="${BASE%-SNAPSHOT}"
+          echo "version=${base}-dev.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish development pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dev-${{ github.run_number }}
+          name: Fidorial ${{ steps.meta.outputs.version }}
+          prerelease: true
+          files: dist/*.jar
+          generate_release_notes: true
+          body: |
+            Automated development build from `master`.
+            Commit: ${{ steps.meta.outputs.short_sha }}

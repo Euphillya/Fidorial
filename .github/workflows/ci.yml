@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      upload-jar: true
+      artifact-name: fidorial-server-pr-${{ github.event.pull_request.number }}
+      retention-days: 5
+
+  comment:
+    needs: build
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Post or update build comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: build
+          message: |
+            ### Pull request build
+
+            | | |
+            |---|---|
+            | Jar | `${{ needs.build.outputs.jar-name }}` |
+            | Version | `${{ needs.build.outputs.version }}` |
+            | Commit | `${{ github.event.pull_request.head.sha }}` |
+
+            [Download the jar](${{ needs.build.outputs.artifact-url }}) — available for 5 days, GitHub sign-in required.
