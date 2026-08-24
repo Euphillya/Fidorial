@@ -10,13 +10,14 @@ import fr.euphyllia.fidorial.server.world.ChunkViewSource;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.fidorial.world.ChunkPos;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.function.LongConsumer;
 
 public final class ChunkViewTracker implements ChunkViewSource {
 
@@ -31,8 +32,8 @@ public final class ChunkViewTracker implements ChunkViewSource {
     private volatile boolean closed;
 
     private final Object lock = new Object();
-    private final Set<Long> sent = new HashSet<>();
-    private final Set<Long> pending = new HashSet<>();
+    private final LongSet sent = new LongOpenHashSet();
+    private final LongSet pending = new LongOpenHashSet();
 
     private int centerX;
     private int centerZ;
@@ -51,14 +52,6 @@ public final class ChunkViewTracker implements ChunkViewSource {
         this.serializer = serializer;
         this.radius = radius;
         this.forgetRadius = Math.max(radius, forgetRadius);
-    }
-
-    private static void emit(final Set<Long> source, final LongConsumer keys) {
-        for (final long key : source) {
-            final int cx = (int) (key >> 32);
-            final int cz = (int) key;
-            keys.accept(ChunkPos.chunkKey(cx, cz));
-        }
     }
 
     public void init(final ChunkPos center) {
@@ -113,6 +106,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
     }
 
     private void forgetOutOfRange(final int centerX, final int centerZ) {
+        LongList toForget = null;
         synchronized (lock) {
             final Iterator<Long> it = sent.iterator();
             while (it.hasNext()) {
@@ -120,9 +114,15 @@ public final class ChunkViewTracker implements ChunkViewSource {
                 final int cx = (int) (key >> 32);
                 final int cz = (int) key;
                 if (!inRange(cx, cz, centerX, centerZ, forgetRadius)) {
-                    connection.send(new ClientboundForgetLevelChunkPacket(cx, cz));
+                    if (toForget == null) toForget = new LongArrayList();
+                    toForget.add(key);
                     it.remove();
                 }
+            }
+        }
+        if (toForget != null) {
+            for (final long key : toForget) {
+                connection.send(new ClientboundForgetLevelChunkPacket((int) (key >> 32), (int) key));
             }
         }
     }
@@ -195,13 +195,13 @@ public final class ChunkViewTracker implements ChunkViewSource {
     }
 
     @Override
-    public void collectViewedChunks(final LongConsumer keys) {
+    public void collectViewedChunks(final LongSet target) {
         synchronized (lock) {
             if (closed) {
                 return;
             }
-            emit(sent, keys);
-            emit(pending, keys);
+            target.addAll(sent);
+            target.addAll(pending);
         }
     }
 

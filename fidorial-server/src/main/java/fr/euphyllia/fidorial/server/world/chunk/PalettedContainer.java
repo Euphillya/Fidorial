@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.StampedLock;
+import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
 public final class PalettedContainer<T> {
@@ -133,6 +134,18 @@ public final class PalettedContainer<T> {
         try {
             if (palette.size() == 1) return null;
             return BitPacking.pack(data, BitPacking.bitsFor(palette.size(), minBits));
+        } finally {
+            lock.unlockRead(stamp);
+        }
+    }
+
+    public boolean contains(final Predicate<T> test) {
+        final long stamp = lock.readLock();
+        try {
+            for (final T value : palette) {
+                if (test.test(value)) return true;
+            }
+            return false;
         } finally {
             lock.unlockRead(stamp);
         }

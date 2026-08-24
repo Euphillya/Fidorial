@@ -205,11 +205,18 @@ public class FloodFillLightEngine implements LightEngine {
             final int neighborX = xDirection ? baseNeighborX + fixedNeighborLocal : baseNeighborX + i;
             final int neighborZ = xDirection ? baseNeighborZ + i : baseNeighborZ + fixedNeighborLocal;
 
+            final int thisTop = thisData.topOpaqueY(thisX & 15, thisZ & 15);
+            final int neighborTop = neighborData.topOpaqueY(neighborX & 15, neighborZ & 15);
+
             for (int y = minY; y < maxY; y++) {
                 checkEdgePosition(LightType.BLOCK, thisX, y, thisZ, thisData, access, dirtyChunks);
                 checkEdgePosition(LightType.BLOCK, neighborX, y, neighborZ, neighborData, access, dirtyChunks);
-                checkEdgePosition(LightType.SKY, thisX, y, thisZ, thisData, access, dirtyChunks);
-                checkEdgePosition(LightType.SKY, neighborX, y, neighborZ, neighborData, access, dirtyChunks);
+                if (y <= thisTop) {
+                    checkEdgePosition(LightType.SKY, thisX, y, thisZ, thisData, access, dirtyChunks);
+                }
+                if (y <= neighborTop) {
+                    checkEdgePosition(LightType.SKY, neighborX, y, neighborZ, neighborData, access, dirtyChunks);
+                }
             }
         }
 
@@ -425,6 +432,7 @@ public class FloodFillLightEngine implements LightEngine {
         final LongQueue queue = scratchLongQueue;
         queue.reset();
 
+        final int minSection = minY >> 4;
         for (final long key : chunks) {
             final int chunkX = (int) (key >> 32);
             final int chunkZ = (int) key;
@@ -435,18 +443,27 @@ public class FloodFillLightEngine implements LightEngine {
             final int baseX = chunkX << 4;
             final int baseZ = chunkZ << 4;
             final int topSection = access.topNonEmptySectionY(chunkX, chunkZ);
-            final int scanTop = Math.min(maxY - 1, (topSection << 4) + 15);
 
-            for (int lx = 0; lx < 16; lx++) {
-                for (int lz = 0; lz < 16; lz++) {
-                    for (int y = minY; y <= scanTop; y++) {
-                        final BlockState block = col.blockAt(lx, y, lz);
-                        final int emission = BlockLightProperties.emission(block);
-                        if (emission > 0) {
-                            final int worldX = baseX + lx;
-                            final int worldZ = baseZ + lz;
-                            data.set(LightType.BLOCK, worldX, y, worldZ, emission);
-                            queue.add(packPos(worldX, y, worldZ), -1);
+            for (int sectionY = minSection; sectionY <= topSection; sectionY++) {
+                if (!access.sectionHasEmissiveBlocks(chunkX, sectionY, chunkZ)) {
+                    continue;
+                }
+
+                final int sectionBaseY = sectionY << 4;
+                final int yStart = Math.max(minY, sectionBaseY);
+                final int yEnd = Math.min(maxY - 1, sectionBaseY + 15);
+
+                for (int lx = 0; lx < 16; lx++) {
+                    for (int lz = 0; lz < 16; lz++) {
+                        for (int y = yStart; y <= yEnd; y++) {
+                            final BlockState block = col.blockAt(lx, y, lz);
+                            final int emission = BlockLightProperties.emission(block);
+                            if (emission > 0) {
+                                final int worldX = baseX + lx;
+                                final int worldZ = baseZ + lz;
+                                data.set(LightType.BLOCK, worldX, y, worldZ, emission);
+                                queue.add(packPos(worldX, y, worldZ), -1);
+                            }
                         }
                     }
                 }
@@ -469,12 +486,11 @@ public class FloodFillLightEngine implements LightEngine {
         }
     }
 
-    private void addBorderColumn(
-            final LongSet chunks, final LightAccess access, final LightType type, final LongQueue queue,
-            final int neighborChunkX, final int neighborChunkZ, final int fixedLocalX, final int fixedLocalZ) {
+    private void addBorderColumn(final LongSet chunks, final LightAccess access, final LightType type, final LongQueue queue, final int neighborChunkX, final int neighborChunkZ, final int fixedLocalX, final int fixedLocalZ) {
         if (chunks.contains(ChunkPos.chunkKey(neighborChunkX, neighborChunkZ))) {
             return;
         }
+
         final ChunkLightData data = access.lightAt(neighborChunkX, neighborChunkZ);
         if (data == null) {
             return;
@@ -565,12 +581,8 @@ public class FloodFillLightEngine implements LightEngine {
         return Math.max(1, opacity);
     }
 
-    private int calculateLightValue(
-            final LightType type, final int x, final int y, final int z,
-            final int expect, final LightAccess access) {
-
+    private int calculateLightValue(final LightType type, final int x, final int y, final int z, final int expect, final LightAccess access) {
         final BlockState centerState = access.blockAt(x, y, z);
-
         int level = sourceLevel(type, x, y, z, centerState, access);
         if (level > expect) {
             return level;
@@ -621,10 +633,10 @@ public class FloodFillLightEngine implements LightEngine {
 
     private static final class LongQueue {
         private long[] data = new long[1024];
-        private int[] dirs = new int[1024];
+        private byte[] dirs = new byte[1024];
         private int head;
         private int tail;
-        private int lastDir;
+        private byte lastDir;
 
         void reset() {
             head = 0;
@@ -634,7 +646,7 @@ public class FloodFillLightEngine implements LightEngine {
         void add(final long value, final int skipDir) {
             if (tail == data.length) grow();
             data[tail] = value;
-            dirs[tail] = skipDir;
+            dirs[tail] = (byte) skipDir;
             tail++;
         }
 

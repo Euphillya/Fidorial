@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.util;
 
 import ca.spottedleaf.concurrentutil.collection.iterator.BaseLongIterator;
 import ca.spottedleaf.concurrentutil.map.concurrent.longs.ConcurrentChainedLong2ReferenceHashTable;
+import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
@@ -58,6 +59,13 @@ public final class ConcurrentLongSet {
     public void addAll(final LongSet values) {
         for (final long value : values) {
             add(value);
+        }
+    }
+
+    public void removeAll(final LongSet values) {
+        final LongIterator it = values.iterator();
+        while (it.hasNext()) {
+            remove(it.nextLong());
         }
     }
 

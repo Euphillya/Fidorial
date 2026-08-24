@@ -1,5 +1,7 @@
 package fr.euphyllia.fidorial.server.schedulers;
 
+import ca.spottedleaf.concurrentutil.executor.PrioritisedExecutor;
+import ca.spottedleaf.concurrentutil.util.Priority;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -7,20 +9,23 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 public final class ChunkRegionScheduler {
 
     private final LongOpenHashSet locked = new LongOpenHashSet();
     private final Long2ObjectOpenHashMap<List<PendingTask>> waitingOn = new Long2ObjectOpenHashMap<>();
-    private final Executor executor;
+    private final PrioritisedExecutor executor;
 
-    public ChunkRegionScheduler(final Executor executor) {
+    public ChunkRegionScheduler(final PrioritisedExecutor executor) {
         this.executor = executor;
     }
 
-    public synchronized void submit(final LongSet keys, final Runnable task) {
-        final PendingTask pending = new PendingTask(new LongOpenHashSet(keys), task);
+    public void submit(final LongSet keys, final Runnable task) {
+        this.submit(keys, task, Priority.NORMAL);
+    }
+
+    public synchronized void submit(final LongSet keys, final Runnable task, final Priority priority) {
+        final PendingTask pending = new PendingTask(new LongOpenHashSet(keys), task, priority);
         final LongOpenHashSet blockers = registerAndCollectBlockers(pending);
         if (blockers.isEmpty()) {
             lockAndRun(pending);
@@ -44,13 +49,13 @@ public final class ChunkRegionScheduler {
 
     private void lockAndRun(final PendingTask pending) {
         locked.addAll(pending.keys);
-        executor.execute(() -> {
+        executor.queueTask(() -> {
             try {
                 pending.task.run();
             } finally {
                 release(pending);
             }
-        });
+        }, pending.priority);
     }
 
     private synchronized void release(final PendingTask finished) {
@@ -96,11 +101,13 @@ public final class ChunkRegionScheduler {
     private static final class PendingTask {
         final LongOpenHashSet keys;
         final Runnable task;
+        final Priority priority;
         int remainingBlockers;
 
-        PendingTask(final LongOpenHashSet keys, final Runnable task) {
+        PendingTask(final LongOpenHashSet keys, final Runnable task, final Priority priority) {
             this.keys = keys;
             this.task = task;
+            this.priority = priority;
         }
     }
 }

@@ -7,7 +7,7 @@ final class LongIntQueue {
     private int[] xs;
     private int[] ys;
     private int[] zs;
-    private int[] levels;
+    private byte[] levels;
     private int head;
     private int tail;
 
@@ -20,7 +20,7 @@ final class LongIntQueue {
         xs = new int[cap];
         ys = new int[cap];
         zs = new int[cap];
-        levels = new int[cap];
+        levels = new byte[cap];
     }
 
     void reset() {
@@ -35,7 +35,7 @@ final class LongIntQueue {
         xs[tail] = x;
         ys[tail] = y;
         zs[tail] = z;
-        levels[tail] = level;
+        levels[tail] = (byte) level;
         tail++;
     }
 

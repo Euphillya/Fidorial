@@ -11,6 +11,7 @@ import fr.euphyllia.fidorial.server.schedulers.LightUpdateDispatcher;
 import fr.euphyllia.fidorial.server.util.ConcurrentLongSet;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import fr.euphyllia.fidorial.server.world.chunk.ChunkSection;
 import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
 import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
 import fr.euphyllia.fidorial.server.world.light.FloodFillLightEngine;
@@ -45,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.IntSupplier;
@@ -488,7 +488,7 @@ public final class ServerWorld implements World {
         }
         final LongSet wanted = new LongOpenHashSet();
         for (final ChunkViewSource viewer : viewers.getArray()) {
-            viewer.collectViewedChunks(wanted::add);
+            viewer.collectViewedChunks(wanted);
         }
 
         final LongSet toUnload = new LongOpenHashSet();
@@ -510,6 +510,7 @@ public final class ServerWorld implements World {
                 unloaded++;
                 final int cx = (int) (k >> 32);
                 final int cz = (int) k;
+                lightManager.forgetChunk(cx, cz);
                 try {
                     unloadChunkEntities(cx, cz);
                 } catch (final IOException exception) {
@@ -534,6 +535,7 @@ public final class ServerWorld implements World {
         }
         unloadChunkEntities(chunkX, chunkZ);
         loaded.remove(k);
+        lightManager.forgetChunk(chunkX, chunkZ);
     }
 
     private void invalidateAudiences() {
@@ -562,7 +564,7 @@ public final class ServerWorld implements World {
 
         final LongSet wanted = new LongOpenHashSet();
         for (final ChunkViewSource viewer : viewers.getArray()) {
-            viewer.collectViewedChunks(wanted::add);
+            viewer.collectViewedChunks(wanted);
         }
         if (wanted.contains(k)) {
             return CompletableFuture.completedFuture(false);
@@ -581,12 +583,12 @@ public final class ServerWorld implements World {
     public LongSet collectAllViewedChunks() {
         final LongSet wanted = new LongOpenHashSet();
         for (final ChunkViewSource viewer : viewers.getArray()) {
-            viewer.collectViewedChunks(wanted::add);
+            viewer.collectViewedChunks(wanted);
         }
         return wanted;
     }
 
-    public ChunkColumn loadedColumn(final int chunkX, final int chunkZ) {
+    public @Nullable ChunkColumn loadedColumn(final int chunkX, final int chunkZ) {
         return loaded.get(ChunkPos.chunkKey(chunkX, chunkZ));
     }
 
@@ -605,13 +607,13 @@ public final class ServerWorld implements World {
                 : dispatcher.flush(dimension.id(), chunkKeys);
     }
 
-    public Set<Long> checkBlockLight(final int x, final int y, final int z, final LightEngine engine) {
-        final Set<Long> dirtyChunks = lightManager.checkBlock(x, y, z, engine);
+    public LongSet checkBlockLight(final int x, final int y, final int z, final LightEngine engine) {
+        final LongSet dirtyChunks = lightManager.checkBlock(x, y, z, engine);
         dirty.addAll(dirtyChunks);
         return dirtyChunks;
     }
 
-    public Set<Long> relightChunks(final Set<Long> chunkKeys, final LightEngine engine) {
+    public LongSet relightChunks(final LongSet chunkKeys, final LightEngine engine) {
         final LongSet needsFullRelight = new LongOpenHashSet();
         final LongSet needsEdgeCheck = new LongOpenHashSet();
 
@@ -702,6 +704,20 @@ public final class ServerWorld implements World {
             final ChunkColumn column = loadedColumn(chunkX, chunkZ);
             if (column == null) return false;
             return column.lightPopulated();
+        }
+
+        @Override
+        public boolean sectionHasEmissiveBlocks(final int chunkX, final int sectionY, final int chunkZ) {
+            final ChunkColumn column = loadedColumn(chunkX, chunkZ);
+            if (column == null) {
+                return true;
+            }
+            final int idx = sectionY - column.minSectionY();
+            if (idx < 0 || idx >= column.sectionCount()) {
+                return false;
+            }
+            final ChunkSection section = column.sections()[idx];
+            return section != null && !section.isEmpty() && section.containsEmissiveBlocks();
         }
     }
 }
