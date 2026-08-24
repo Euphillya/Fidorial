@@ -56,7 +56,6 @@ import fr.euphyllia.fidorial.server.world.BlockStateRegistry;
 import fr.euphyllia.fidorial.server.world.BossBarRegistry;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.FlatChunkGenerator;
-import fr.euphyllia.fidorial.server.world.FlatWorld;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.ServiceBackedChunkGenerator;
 import fr.euphyllia.fidorial.server.world.WorldConstants;
@@ -168,7 +167,7 @@ public final class FidorialServer implements Server {
             new NbtPlayerEnderChestStorage(config.worldPath().resolve("player"), false);
     private final ChestViewerTracker chestViewers = new ChestViewerTracker();
     private final WorldManager worldManager =
-            WorldManager.openOrCreate(config.worldPath(), blockStateRegistry, FlatWorld.MIN_Y, FlatWorld.HEIGHT);
+            WorldManager.openOrCreate(config.worldPath(), blockStateRegistry, WorldConstants.MIN_Y, WorldConstants.HEIGHT);
     private final FluidEngine fluidEngine =
             new FluidEngine(worldManager, regionizer, blockStateRegistry, this::broadcast);
     private final WeatherEngine weatherEngine = new WeatherEngine(worldManager.levelData(), this::broadcast);

@@ -38,4 +38,9 @@ public final class FlatChunkGenerator implements ChunkGenerator {
         }
         return chunk;
     }
+
+    @Override
+    public ChunkGeneratorConfig describeForSave() {
+        return new ChunkGeneratorConfig.Flat(floor, floorThickness, biome);
+    }
 }

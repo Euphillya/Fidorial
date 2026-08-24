@@ -1,6 +1,8 @@
 package fr.euphyllia.fidorial.server.world;
 
+import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import fr.fidorial.world.generation.GenerationDescriptor;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -38,5 +40,17 @@ public final class PluginBackedChunkGenerator implements ChunkGenerator {
                     e);
             return fallback.generate(chunkX, chunkZ);
         }
+    }
+
+    @Override
+    public ChunkGeneratorConfig describeForSave() {
+        return switch (generator.describeForSave()) {
+            case GenerationDescriptor.Flat(final Key floorBlock, final int floorThickness, final Key biome) ->
+                    new ChunkGeneratorConfig.Flat(
+                            BlockState.of(floorBlock), floorThickness, biome);
+            case GenerationDescriptor.Noise(final Key settings, final Key biomeSourcePreset) ->
+                    new ChunkGeneratorConfig.Noise(settings, biomeSourcePreset);
+            case GenerationDescriptor.Unknown _ -> fallback.describeForSave();
+        };
     }
 }

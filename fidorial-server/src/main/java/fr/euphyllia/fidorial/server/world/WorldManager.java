@@ -92,7 +92,7 @@ public final class WorldManager implements AutoCloseable {
     }
 
     public ServerWorld registerDimension(final Dimension dim, final ChunkGenerator generator) {
-        return worlds.computeIfAbsent(dim.id(), k -> {
+        return worlds.computeIfAbsent(dim.id(), _ -> {
             final ServerWorld world = new ServerWorld(
                     dim, storage, entityStorage, entitySerializer, generator, blockStates, minY, height);
             if (chunkLoader != null) {
@@ -221,11 +221,11 @@ public final class WorldManager implements AutoCloseable {
         return world;
     }
 
-    public ServerWorld dimension(final Dimension dim) {
+    public @Nullable ServerWorld dimension(final Dimension dim) {
         return worlds.get(dim.id());
     }
 
-    public ServerWorld world(final Key worldKey) {
+    public @Nullable ServerWorld world(final Key worldKey) {
         return worlds.get(worldKey);
     }
 

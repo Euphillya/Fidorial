@@ -1,6 +1,8 @@
 package fr.euphyllia.fidorial.server.world.storage;
 
+import fr.euphyllia.fidorial.server.world.ChunkGeneratorConfig;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
+import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.key.Key;
@@ -29,6 +31,7 @@ public class LevelData {
     private static final String FIDORIAL = "Fidorial";
     private static final String WORLD_CLOCKS = "WorldClocks";
     private static final String CUSTOM_BOSS_EVENTS = "CustomBossEvents";
+    public final Map<Key, ChunkGeneratorConfig> generators = new LinkedHashMap<>();
 
     public String levelName = "Fidorial";
     public long seed = 0L;
@@ -294,37 +297,60 @@ public class LevelData {
         wgs.putBoolean("bonus_chest", false);
 
         final CompoundBinaryTag.Builder dimensions = CompoundBinaryTag.builder();
-        dimensions.put("minecraft:overworld", flatDimension("minecraft:overworld", "minecraft:plains"));
-        dimensions.put("minecraft:the_nether", flatDimension("minecraft:the_nether", "minecraft:nether_wastes"));
-        dimensions.put("minecraft:the_end", flatDimension("minecraft:the_end", "minecraft:the_end"));
+        for (final Map.Entry<Key, ChunkGeneratorConfig> entry : generators.entrySet()) {
+            dimensions.put(entry.getKey().asString(), buildDimension(entry.getKey(), entry.getValue()));
+        }
         wgs.put("dimensions", dimensions.build());
         return wgs.build();
     }
 
-    private CompoundBinaryTag flatDimension(final String typeId, final String biome) {
+    private CompoundBinaryTag buildDimension(final Key dimensionId, final ChunkGeneratorConfig config) {
         final CompoundBinaryTag.Builder dim = CompoundBinaryTag.builder();
-        dim.putString("type", typeId);
-
-        final CompoundBinaryTag.Builder generator = CompoundBinaryTag.builder();
-        generator.putString("type", "minecraft:flat");
-
-        final CompoundBinaryTag.Builder settings = CompoundBinaryTag.builder();
-        settings.putBoolean("features", false);
-        settings.putBoolean("lakes", false);
-        settings.putString("biome", biome);
-
-        final ListBinaryTag.Builder<BinaryTag> layers = ListBinaryTag.builder();
-        final CompoundBinaryTag.Builder layer = CompoundBinaryTag.builder();
-        layer.putInt("height", 16);
-        layer.putString("block", "minecraft:cobblestone");
-        layers.add(layer.build());
-        settings.put("layers", layers.build());
-
-        settings.put("structure_overrides", ListBinaryTag.empty());
-
-        generator.put("settings", settings.build());
-        dim.put("generator", generator.build());
+        dim.putString("type", dimensionId.asString());
+        dim.put("generator", buildGeneratorSettings(config));
         return dim.build();
+    }
+
+    private CompoundBinaryTag buildGeneratorSettings(final ChunkGeneratorConfig config) {
+        return switch (config) {
+            case ChunkGeneratorConfig.Flat(final BlockState floor, final int floorThickness, final Key biome) -> {
+                final CompoundBinaryTag.Builder generator = CompoundBinaryTag.builder();
+                generator.putString("type", "minecraft:flat");
+
+                final CompoundBinaryTag.Builder settings = CompoundBinaryTag.builder();
+                settings.putBoolean("features", false);
+                settings.putBoolean("lakes", false);
+                settings.putString("biome", biome.asString());
+
+                final ListBinaryTag.Builder<BinaryTag> layers = ListBinaryTag.builder();
+                final CompoundBinaryTag.Builder layer = CompoundBinaryTag.builder();
+                layer.putInt("height", floorThickness);
+                layer.putString("block", floor.name().asString());
+                layers.add(layer.build());
+                settings.put("layers", layers.build());
+                settings.put("structure_overrides", ListBinaryTag.empty());
+
+                generator.put("settings", settings.build());
+                yield generator.build();
+            }
+
+            case ChunkGeneratorConfig.Debug _ -> CompoundBinaryTag.builder()
+                    .putString("type", "minecraft:debug")
+                    .build();
+
+            case ChunkGeneratorConfig.Noise(final Key settings, final Key biomeSourcePreset) -> {
+                final CompoundBinaryTag.Builder generator = CompoundBinaryTag.builder();
+                generator.putString("type", "minecraft:noise");
+                generator.putString("settings", settings.asString());
+
+                final CompoundBinaryTag.Builder biomeSource = CompoundBinaryTag.builder();
+                biomeSource.putString("type", "minecraft:multi_noise");
+                biomeSource.putString("preset", biomeSourcePreset.asString());
+                generator.put("biome_source", biomeSource.build());
+
+                yield generator.build();
+            }
+        };
     }
 
     public boolean exists(final Path levelDat) {
