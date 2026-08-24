@@ -127,12 +127,12 @@ public final class ComponentResolver {
                 : Component.text(", ").color(NamedTextColor.GRAY);
 
         final boolean shouldInterpret = nbt.interpret() && !nbt.nbtPath().isEmpty();
-        final Component interpreted = shouldInterpret ? resolveInterpretting(matches, separator) : Component.empty();
+        final Component interpreted = shouldInterpret ? resolveInterpreting(matches, separator) : Component.empty();
 
         return interpreted.equals(Component.empty()) ? resolveFormatting(matches, separator, nbt.plain()) : interpreted;
     }
 
-    private static Component resolveInterpretting(final List<BinaryTag> matches, final Component separator) {
+    private static Component resolveInterpreting(final List<BinaryTag> matches, final Component separator) {
         Component result = null;
         for (final BinaryTag tag : matches) {
             final Component parsed;
