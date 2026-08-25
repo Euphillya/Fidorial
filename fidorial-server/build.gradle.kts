@@ -1,3 +1,5 @@
+import fr.fidorial.registrygen.task.GenerateBlockStatesTask
+
 extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
 
 plugins {
@@ -112,6 +114,11 @@ tasks.shadowJar {
     exclude("META-INF/proguard/**")
 }
 
+tasks.withType<GenerateBlockStatesTask>().configureEach {
+    blockPackage.set("fr.fidorial.world.block")
+    blockTypeKeysPackage.set("fr.fidorial.registry.keys")
+}
+
 fidorialRegistryGenerator {
     minecraftVersion.set("26.2")
     prismarineMinecraftData.set("26.1")
@@ -126,10 +133,6 @@ fidorialRegistryGenerator {
 
     registryKeysPackage.set(
         "fr.euphyllia.fidorial.server.registry.keys"
-    )
-
-    blockTypeKeysPackage.set(
-        "fr.fidorial.registry.keys"
     )
 
     generatedSourcesDirectory.set(

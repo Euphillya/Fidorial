@@ -1,6 +1,5 @@
 package fr.fidorial.registrygen;
 
-import fr.fidorial.registrygen.task.GenerateBlockStatesTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.MapProperty;
@@ -42,14 +41,6 @@ public abstract class FidorialRegistryGeneratorExtension {
      * Subpackage used for generated registry data.
      */
     public abstract Property<String> getRegistryDataPackage();
-
-    /**
-     * Package containing the typed {@code BlockType} keys class (e.g. {@code BlockTypeKeys}),
-     * used by the {@link GenerateBlockStatesTask} task.
-     * <p>
-     * Defaults to {@link #getRegistryKeysPackage()}
-     */
-    public abstract Property<String> getBlockTypeKeysPackage();
 
     /**
      * Registry identifier to generated class name.

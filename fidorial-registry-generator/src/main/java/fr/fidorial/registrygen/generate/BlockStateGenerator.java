@@ -58,31 +58,33 @@ public final class BlockStateGenerator {
      * @param blocks               parsed Mojang block definitions
      * @param lighting             Prismarine light emission/opacity, keyed by plain block name;
      *                             pass {@link Map#of()} to skip {@code BlockStateLightProperties} generation
-     * @param generatedPackage     root package; {@code BlockType}/{@code BlockProperty}/{@code BlockRegistry}
-     *                             resolve to {@code <generatedPackage>.world.block}, {@code BlockState} to
-     *                             {@code <generatedPackage>.world.chunk}
+     * @param blockPackage         package holding the {@code BlockType}, {@code BlockProperty}, and
+     *                             {@code BlockRegistry} classes
+     * @param generatedPackage     root package; {@code BlockState} resolves to {@code <generatedPackage>.world.chunk}
      * @param registryDataPackage  package for {@code BlockStateIds}/{@code BlockStateProperties}/
      *                             {@code BlockStateLightProperties}
-     * @param registryKeysPackage  package holding the typed {@code BlockType} keys class (e.g. {@code BlockTypeKeys})
+     * @param blockTypeKeysPackage package holding the typed {@code BlockType} keys class (e.g. {@code BlockTypeKeys})
      * @param outputDirectory      generated Java source root
      *
      * @throws IOException if a generated file cannot be written
      */
     public void generate(final List<BlockReportDefinition> blocks,
                          final Map<String, PrismarineBlockLightPropertiesDefinition> lighting,
+                         final String blockPackage,
                          final String generatedPackage,
                          final String registryDataPackage,
-                         final String registryKeysPackage,
+                         final String blockTypeKeysPackage,
                          final Path outputDirectory) throws IOException {
 
         Objects.requireNonNull(blocks, "blocks");
         Objects.requireNonNull(lighting, "lighting");
+        Objects.requireNonNull(blockPackage, "blockPackage");
         Objects.requireNonNull(generatedPackage, "generatedPackage");
         Objects.requireNonNull(registryDataPackage, "registryDataPackage");
-        Objects.requireNonNull(registryKeysPackage, "registryKeysPackage");
+        Objects.requireNonNull(blockTypeKeysPackage, "blockTypeKeysPackage");
         Objects.requireNonNull(outputDirectory, "outputDirectory");
 
-        final Packages pkgs = new Packages(generatedPackage, registryDataPackage, registryKeysPackage);
+        final Packages pkgs = new Packages(blockPackage, generatedPackage, registryDataPackage, blockTypeKeysPackage);
 
         generateProtocolIds(blocks, pkgs, outputDirectory);
         generateProperties(blocks, pkgs, outputDirectory);
@@ -95,21 +97,22 @@ public final class BlockStateGenerator {
     /**
      * Bundles every {@link ClassName}/{@link ParameterizedTypeName} the private generation
      * helpers need, resolved once per {@link #generate} call from the configured packages,
-     * so those helpers don't each need three or four separate package parameters.
+     * so those helpers don't each need four separate package parameters.
      */
     private record Packages(ClassName key, ClassName blockType, ClassName blockProperty, ClassName blockRegistry,
                             ClassName blockState, ClassName blockTypeKeys, String dataPackage,
                             ParameterizedTypeName statesByKeyType, ParameterizedTypeName defaultStateByKeyType,
                             ParameterizedTypeName lightMapType) {
 
-        Packages(final String generatedPackage, final String registryDataPackage, final String registryKeysPackage) {
+        Packages(final String blockPackage, final String generatedPackage,
+                 final String registryDataPackage, final String blockTypeKeysPackage) {
             this(
                     ClassName.get(Key.class),
-                    ClassName.get(generatedPackage + ".world.block", "BlockType"),
-                    ClassName.get(generatedPackage + ".world.block", "BlockProperty"),
-                    ClassName.get(generatedPackage + ".world.block", "BlockRegistry"),
+                    ClassName.get(blockPackage, "BlockType"),
+                    ClassName.get(blockPackage, "BlockProperty"),
+                    ClassName.get(blockPackage, "BlockRegistry"),
                     ClassName.get(generatedPackage + ".world.chunk", "BlockState"),
-                    ClassName.get(SupportedRegistries.BLOCK.keysPackage(registryKeysPackage), SupportedRegistries.BLOCK.keysClassName()),
+                    ClassName.get(SupportedRegistries.BLOCK.keysPackage(blockTypeKeysPackage), SupportedRegistries.BLOCK.keysClassName()),
                     registryDataPackage,
                     ParameterizedTypeName.get(OBJECT_2_OBJECT_OPEN_HASH_MAP,
                             ClassName.get(Key.class),

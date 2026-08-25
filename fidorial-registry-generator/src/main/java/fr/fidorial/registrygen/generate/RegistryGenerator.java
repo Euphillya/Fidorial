@@ -190,22 +190,25 @@ public final class RegistryGenerator {
      * report for light emission/opacity) and generates {@code BlockStateIds}/{@code BlockStateProperties}
      * (and, when Prismarine data is supplied, {@code BlockStateLightProperties}).
      *
-     * @param blocksJson           path to Mojang's {@code blocks.json}
-     * @param prismarineBlocksJson path to Prismarine's {@code blocks.json}, or {@code null} to skip lighting
-     * @param outputDirectory      generated Java source root
-     * @param generatedPackage     root package
-     * @param registryDataPackage  package for {@code BlockStateIds}/{@code BlockStateProperties}/
-     *                             {@code BlockStateLightProperties}
-     * @param registryKeysPackage  package holding the typed {@code BlockType} keys class (e.g. {@code BlockTypeKeys})
+     * @param blocksJson            path to Mojang's {@code blocks.json}
+     * @param prismarineBlocksJson  path to Prismarine's {@code blocks.json}, or {@code null} to skip lighting
+     * @param outputDirectory       generated Java source root
+     * @param blockPackage          package holding the {@code BlockType}, {@code BlockProperty}, and
+     *                              {@code BlockRegistry} classes
+     * @param generatedPackage      root package; {@code BlockState} resolves to {@code <generatedPackage>.world.chunk}
+     * @param registryDataPackage   package for {@code BlockStateIds}/{@code BlockStateProperties}/
+     *                              {@code BlockStateLightProperties}
+     * @param blockTypeKeysPackage  package holding the typed {@code BlockType} keys class (e.g. {@code BlockTypeKeys})
      *
      * @throws IOException if parsing or source generation fails
      */
     public void generateBlockStates(final Path blocksJson,
                                     final Path prismarineBlocksJson,
                                     final Path outputDirectory,
+                                    final String blockPackage,
                                     final String generatedPackage,
                                     final String registryDataPackage,
-                                    final String registryKeysPackage) throws IOException {
+                                    final String blockTypeKeysPackage) throws IOException {
 
         final List<BlockReportDefinition> blocks = blockReportParser.parse(blocksJson);
 
@@ -213,7 +216,7 @@ public final class RegistryGenerator {
                 ? prismarineBlockReportParser.parse(prismarineBlocksJson)
                 : Map.of();
 
-        blockStateGenerator.generate(blocks, lighting, generatedPackage, registryDataPackage, registryKeysPackage, outputDirectory);
+        blockStateGenerator.generate(blocks, lighting, blockPackage, generatedPackage, registryDataPackage, blockTypeKeysPackage, outputDirectory);
     }
 
     /**

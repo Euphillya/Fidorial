@@ -60,7 +60,6 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
     extension.getGeneratedPackage().convention("fr.fidorial.registry");
     extension.getRegistryDataPackage().convention(extension.getGeneratedPackage().map(p -> p + ".data"));
     extension.getRegistryKeysPackage().convention(extension.getGeneratedPackage().map(p -> p + ".keys"));
-    extension.getBlockTypeKeysPackage().convention(extension.getRegistryKeysPackage());
     extension.getRegistries().convention(Map.of());
     extension.getDataGeneratorArguments().convention(List.of("--reports"));
     extension.getPrismarineDataRef().convention("master");
@@ -178,7 +177,8 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
 
        task.getGeneratedPackage().set(extension.getGeneratedPackage());
        task.getRegistryDataPackage().set(extension.getRegistryDataPackage());
-       task.getBlockTypeKeysPackage().set(extension.getBlockTypeKeysPackage());
+       task.getBlockTypeKeysPackage().convention(extension.getRegistryKeysPackage());
+       task.getBlockPackage().convention(extension.getGeneratedPackage().map(p -> p + ".world.block"));
 
        task.getGeneratedSourcesDirectory().set(extension.getGeneratedSourcesDirectory());
     });

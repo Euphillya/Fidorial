@@ -1,9 +1,9 @@
 package fr.euphyllia.fidorial.server.registry.data;
 
-import fr.euphyllia.fidorial.server.world.block.BlockProperty;
-import fr.euphyllia.fidorial.server.world.block.BlockRegistry;
-import fr.euphyllia.fidorial.server.world.block.BlockType;
 import fr.fidorial.registry.keys.BlockTypeKeys;
+import fr.fidorial.world.block.BlockProperty;
+import fr.fidorial.world.block.BlockRegistry;
+import fr.fidorial.world.block.BlockType;
 import java.util.List;
 
 /**
