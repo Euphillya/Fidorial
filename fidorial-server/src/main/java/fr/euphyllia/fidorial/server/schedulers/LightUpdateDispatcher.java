@@ -1,11 +1,12 @@
 package fr.euphyllia.fidorial.server.schedulers;
 
+import ca.spottedleaf.concurrentutil.collection.MultiThreadedQueue;
 import ca.spottedleaf.concurrentutil.executor.PrioritisedExecutor;
-import ca.spottedleaf.concurrentutil.executor.queue.AreaDependentQueue;
 import ca.spottedleaf.concurrentutil.executor.thread.BalancedPrioritisedThreadPool;
 import ca.spottedleaf.concurrentutil.util.Priority;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundLightUpdatePacket;
+import fr.euphyllia.fidorial.server.util.ConcurrentLongSet;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
@@ -26,11 +27,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -40,12 +39,12 @@ public class LightUpdateDispatcher {
 
     private static final ComponentLogger LOGGER = ComponentLogger.logger(LightUpdateDispatcher.class);
 
-    private static final int CLUSTER_SHIFT = 3; // seems to give the most optimal CPS
+    private static final int CLUSTER_SHIFT = 4; // seems to give the most optimal CPS
 
     private final BalancedPrioritisedThreadPool lightPool;
     private final PrioritisedExecutor lightExecutor;
 
-    private final AreaDependentQueue lightQueue;
+    private final ChunkRegionScheduler regionScheduler;
 
     private final AtomicInteger lightThreadId = new AtomicInteger(0);
     private final Consumer<ClientboundPacket> broadcaster;
@@ -55,9 +54,9 @@ public class LightUpdateDispatcher {
 
     private final Map<Key, WorldLightState> states = new ConcurrentHashMap<>();
 
-    private final Map<Key, Queue<BlockPos>> pendingBlocks = new ConcurrentHashMap<>();
+    private final Map<Key, MultiThreadedQueue<BlockPos>> pendingBlocks = new ConcurrentHashMap<>();
     private final Set<Key> scheduledBlocks = ConcurrentHashMap.newKeySet();
-    private final Map<Key, Set<Long>> pendingChunks = new ConcurrentHashMap<>();
+    private final Map<Key, ConcurrentLongSet> pendingChunks = new ConcurrentHashMap<>();
     private final Set<Key> scheduledChunks = ConcurrentHashMap.newKeySet();
 
     public LightUpdateDispatcher(
@@ -75,7 +74,7 @@ public class LightUpdateDispatcher {
                         .unstarted(r)
         );
         this.lightExecutor = lightPool.createOrderedStreamGroup().createExecutor();
-        this.lightQueue = new AreaDependentQueue(lightExecutor, CLUSTER_SHIFT);
+        this.regionScheduler = new ChunkRegionScheduler(lightExecutor);
         this.lightPool.adjustThreadCount(Math.max(1, lightWorkers));
         this.enginePool = new LightEnginePool(lightWorkers, minY, height);
         this.broadcaster = broadcaster;
@@ -105,14 +104,14 @@ public class LightUpdateDispatcher {
         incrementArea(world, x >> 4, z >> 4);
 
         pendingBlocks
-                .computeIfAbsent(world, _ -> new ConcurrentLinkedQueue<>())
+                .computeIfAbsent(world, _ -> new MultiThreadedQueue<>())
                 .add(new BlockPos(x, y, z));
 
         scheduleBlocks(world);
     }
 
     public void queueChunkLoad(final Key world, final int chunkX, final int chunkZ) {
-        final Set<Long> set = pendingChunks.computeIfAbsent(world, _ -> ConcurrentHashMap.newKeySet());
+        final ConcurrentLongSet set = pendingChunks.computeIfAbsent(world, _ -> new ConcurrentLongSet());
         final WorldLightState state = stateFor(world);
 
         synchronized (state) {
@@ -156,7 +155,7 @@ public class LightUpdateDispatcher {
     }
 
     private void drainBlocks(final Key world) {
-        final Queue<BlockPos> queue = pendingBlocks.get(world);
+        final MultiThreadedQueue<BlockPos> queue = pendingBlocks.get(world);
         if (queue == null) {
             scheduledBlocks.remove(world);
             return;
@@ -227,34 +226,34 @@ public class LightUpdateDispatcher {
             return;
         }
 
-        int minX = Integer.MAX_VALUE;
-        int minZ = Integer.MAX_VALUE;
-        int maxX = Integer.MIN_VALUE;
-        int maxZ = Integer.MIN_VALUE;
+        final LongSet lockKeys = withNeighborRing(chunkKeys);
+        regionScheduler.submit(lockKeys, task, Priority.NORMAL);
+    }
 
+    private static LongSet withNeighborRing(final LongOpenHashSet chunkKeys) {
+        final LongOpenHashSet ring = new LongOpenHashSet(chunkKeys);
         final LongIterator it = chunkKeys.iterator();
         while (it.hasNext()) {
             final long key = it.nextLong();
-            final int cx = (int) (key >> 32);
-            final int cz = (int) key;
-            if (cx < minX) minX = cx;
-            if (cx > maxX) maxX = cx;
-            if (cz < minZ) minZ = cz;
-            if (cz > maxZ) maxZ = cz;
+            final int cx = (int) (key >> 32), cz = (int) key;
+            for (int dx = -1; dx <= 1; dx++)
+                for (int dz = -1; dz <= 1; dz++) {
+                    final long nk = ChunkPos.chunkKey(cx + dx, cz + dz);
+                    if (!chunkKeys.contains(nk)) ring.add(nk);
+                }
         }
-
-        lightQueue.queueTask(minX - 1, minZ - 1, maxX + 1, maxZ + 1, task, Priority.NORMAL);
+        return ring;
     }
 
     private void drainChunks(final Key world) {
-        final Set<Long> pending = pendingChunks.get(world);
+        final ConcurrentLongSet pending = pendingChunks.get(world);
         if (pending == null) {
             scheduledChunks.remove(world);
             return;
         }
 
         if (!pending.isEmpty()) {
-            final LongOpenHashSet snapshot = new LongOpenHashSet(pending);
+            final LongSet snapshot = pending.snapshot();
             pending.removeAll(snapshot);
 
             final ServerWorld serverWorld = worldLookup.apply(world);

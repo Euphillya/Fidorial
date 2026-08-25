@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import fr.euphyllia.fidorial.server.world.light.BlockLightProperties;
 import net.kyori.adventure.key.Key;
 
 public final class ChunkSection {
@@ -86,6 +87,10 @@ public final class ChunkSection {
 
     public Key getBiome(final int bx, final int by, final int bz) {
         return biomes.get((by << 4) | (bz << 2) | bx);
+    }
+
+    public boolean containsEmissiveBlocks() {
+        return blocks.contains(BlockLightProperties::hasEmission);
     }
 
     public void recomputeCounts() {

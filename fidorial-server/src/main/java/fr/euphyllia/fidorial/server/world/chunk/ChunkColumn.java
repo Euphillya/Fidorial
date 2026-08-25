@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import fr.euphyllia.fidorial.server.util.ConcurrentInt2ObjectMap;
 import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntity;
 import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntityTypes;
 import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
@@ -11,8 +12,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 public final class ChunkColumn {
@@ -24,7 +23,7 @@ public final class ChunkColumn {
     private final int minSectionY;
     private final int sectionCount;
     private final @Nullable ChunkSection[] sections;
-    private final Map<Integer, BlockEntity> blockEntities = new ConcurrentHashMap<>();
+    private final ConcurrentInt2ObjectMap<BlockEntity> blockEntities = new ConcurrentInt2ObjectMap<>();
 
     private long inhabitedTime;
     private long lastUpdate;
@@ -70,7 +69,7 @@ public final class ChunkColumn {
         return sectionCount;
     }
 
-    public ChunkSection[] sections() {
+    public @Nullable ChunkSection[] sections() {
         return sections;
     }
 
@@ -148,10 +147,10 @@ public final class ChunkColumn {
     /**
      * Returns every block entity of this column, in no particular order.
      *
-     * @return an unmodifiable view of the block entities
+     * @return an unmodifiable snapshot of the block entities
      */
     public Collection<BlockEntity> blockEntities() {
-        return Collections.unmodifiableCollection(blockEntities.values());
+        return Collections.unmodifiableCollection(blockEntities.valuesSnapshot());
     }
 
     public int blockEntityCount() {

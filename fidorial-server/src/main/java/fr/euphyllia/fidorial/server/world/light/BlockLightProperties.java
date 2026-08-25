@@ -67,6 +67,10 @@ public class BlockLightProperties {
         return data == null ? null : new Resolved(behaviour, data);
     }
 
+    public static boolean hasEmission(final BlockState state) {
+        return emission(state) > 0;
+    }
+
     private record Resolved(BlockBehaviour behaviour, BlockData data) {
     }
 }

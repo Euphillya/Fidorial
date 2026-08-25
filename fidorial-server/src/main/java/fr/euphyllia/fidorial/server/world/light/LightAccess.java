@@ -23,6 +23,8 @@ public interface LightAccess {
 
     boolean isLightPopulated(int chunkX, int chunkZ);
 
+    boolean sectionHasEmissiveBlocks(final int chunkX, final int sectionY, final int chunkZ);
+
     interface BlockColumnAccess {
         BlockState blockAt(int localX, int worldY, int localZ);
     }

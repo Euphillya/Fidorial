@@ -6,11 +6,10 @@ import fr.fidorial.world.light.LightType;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import java.util.Set;
-
 public class WorldLightManager {
 
     private final LightAccess access;
+    private final LongSet stitchedPairs = new LongOpenHashSet();
 
     public WorldLightManager(final LightAccess access) {
         this.access = access;
@@ -22,14 +21,15 @@ public class WorldLightManager {
         }
         engine.relight(LongSet.of(ChunkPos.chunkKey(chunkX, chunkZ)), access);
         column.setLightPopulated(true);
+        forgetChunk(chunkX, chunkZ);
         return true;
     }
 
-    public Set<Long> checkBlock(final int x, final int y, final int z, final LightEngine engine) {
+    public LongSet checkBlock(final int x, final int y, final int z, final LightEngine engine) {
         return engine.checkBlock(x, y, z, access);
     }
 
-    public Set<Long> checkChunkEdges(final Set<Long> chunkKeys, final LightEngine engine) {
+    public LongSet checkChunkEdges(final LongSet chunkKeys, final LightEngine engine) {
         final LongSet dirty = new LongOpenHashSet();
         final LongSet processedPairs = new LongOpenHashSet();
 
@@ -50,7 +50,19 @@ public class WorldLightManager {
                 if (!access.isLightPopulated(nx, nz)) {
                     continue;
                 }
-                dirty.addAll(engine.checkChunkEdge(chunkX, chunkZ, nx, nz, access));
+
+                synchronized (this) {
+                    if (stitchedPairs.contains(pairKey)) {
+                        continue;
+                    }
+                }
+
+                final LongSet edgeDirty = engine.checkChunkEdge(chunkX, chunkZ, nx, nz, access);
+                dirty.addAll(edgeDirty);
+
+                synchronized (this) {
+                    stitchedPairs.add(pairKey);
+                }
             }
         }
         return dirty;
@@ -65,7 +77,15 @@ public class WorldLightManager {
         return lo * 0x9E3779B97F4A7C15L ^ hi;
     }
 
-    public Set<Long> relightChunks(final Set<Long> chunkKeys, final LightEngine engine) {
+    public void forgetChunk(final int chunkX, final int chunkZ) {
+        synchronized (this) {
+            for (final int[] d : NEIGHBOR_OFFSETS) {
+                stitchedPairs.remove(pairKey(chunkX, chunkZ, chunkX + d[0], chunkZ + d[1]));
+            }
+        }
+    }
+
+    public LongSet relightChunks(final LongSet chunkKeys, final LightEngine engine) {
         final LongSet loaded = new LongOpenHashSet();
         for (final long key : chunkKeys) {
             if (access.lightAt((int) (key >> 32), (int) key) != null) {
@@ -73,6 +93,9 @@ public class WorldLightManager {
             }
         }
         engine.relight(loaded, access);
+        for (final long key : loaded) {
+            forgetChunk((int) (key >> 32), (int) key);
+        }
         return loaded;
     }
 

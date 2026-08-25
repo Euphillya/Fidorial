@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.world;
 
-import java.util.function.LongConsumer;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 public interface ChunkViewSource {
 
-    void collectViewedChunks(LongConsumer keys);
+    void collectViewedChunks(LongSet target);
 }
