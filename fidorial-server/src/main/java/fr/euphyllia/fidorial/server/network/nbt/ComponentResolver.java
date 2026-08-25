@@ -126,21 +126,20 @@ public final class ComponentResolver {
                 ? nbt.separator()
                 : Component.text(", ").color(NamedTextColor.GRAY);
 
-        final boolean effectiveInterpret = nbt.interpret() && !nbt.nbtPath().isEmpty();
+        final boolean shouldInterpret = nbt.interpret() && !nbt.nbtPath().isEmpty();
+        final Component interpreted = shouldInterpret ? resolveInterpreting(matches, separator) : Component.empty();
 
-        return effectiveInterpret
-                ? resolveInterpretting(matches, separator)
-                : resolveFormatting(matches, separator, nbt.plain());
+        return interpreted.equals(Component.empty()) ? resolveFormatting(matches, separator, nbt.plain()) : interpreted;
     }
 
-    private static Component resolveInterpretting(final List<BinaryTag> matches, final Component separator) {
+    private static Component resolveInterpreting(final List<BinaryTag> matches, final Component separator) {
         Component result = null;
         for (final BinaryTag tag : matches) {
             final Component parsed;
             try {
                 parsed = ComponentCodecs.COMPONENT_CODEC.parse(BinaryTagOps.binaryTagOps(), tag).getOrThrow();
             } catch (final Exception e) {
-                LOGGER.warn("Failed to parse component: {}", tag, e);
+                // might not be a component so render raw
                 continue;
             }
             result = (result == null) ? parsed : result.append(separator).append(parsed);
