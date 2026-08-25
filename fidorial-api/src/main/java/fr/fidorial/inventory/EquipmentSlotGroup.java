@@ -10,7 +10,7 @@ public enum EquipmentSlotGroup {
     OFF_HAND(2, "offhand"),
     HAND(3, "hand"),
     FEET(4, "feet"),
-    v(5, "legs"),
+    LEGS(5, "legs"),
     CHEST(6, "chest"),
     HEAD(7, "head"),
     ARMOR(8, "armor"),
