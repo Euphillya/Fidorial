@@ -41,8 +41,6 @@ public final class WorldManager implements AutoCloseable {
     private final Map<Key, ServerWorld> worlds = new ConcurrentHashMap<>();
     private volatile @Nullable LightUpdateDispatcher lightDispatcher;
     private final BlockStateRegistry blockStates;
-    private final int minY;
-    private final int height;
     private volatile @Nullable ChunkGenerator defaultGenerator;
     private volatile @Nullable AsyncChunkLoader chunkLoader;
     private volatile @Nullable IntSupplier entityIdSupplier;
@@ -54,9 +52,7 @@ public final class WorldManager implements AutoCloseable {
             final ChunkStorage storage,
             final EntityRegionStorage entityStorage,
             final AnvilEntitySerializer entitySerializer,
-            final BlockStateRegistry blockStates,
-            final int minY,
-            final int height
+            final BlockStateRegistry blockStates
     ) {
         this.paths = paths;
         this.levelData = levelData;
@@ -64,12 +60,9 @@ public final class WorldManager implements AutoCloseable {
         this.entityStorage = entityStorage;
         this.entitySerializer = entitySerializer;
         this.blockStates = blockStates;
-        this.minY = minY;
-        this.height = height;
     }
 
-    public static WorldManager openOrCreate(final Path worldRoot, final BlockStateRegistry blockStates, final int minY, final int height)
-            throws IOException {
+    public static WorldManager openOrCreate(final Path worldRoot, final BlockStateRegistry blockStates) throws IOException {
         final WorldPaths paths = new WorldPaths(worldRoot, WorldPaths.Layout.MODERN);
 
         final LevelData levelData;
@@ -83,18 +76,18 @@ public final class WorldManager implements AutoCloseable {
         }
 
         final AnvilChunkSerializer serializer = new AnvilChunkSerializer();
-        final ChunkStorage storage = new ChunkStorage(paths, serializer, minY, height, BlockState.of(BlockTypeKeys.AIR.key()), Key.key("plains"));
+        final ChunkStorage storage = new ChunkStorage(paths, serializer, BlockState.of(BlockTypeKeys.AIR.key()), Key.key("plains"));
 
         final EntityRegionStorage entityStorage = new EntityRegionStorage(paths);
         final AnvilEntitySerializer entitySerializer = new AnvilEntitySerializer();
 
-        return new WorldManager(paths, levelData, storage, entityStorage, entitySerializer, blockStates, minY, height);
+        return new WorldManager(paths, levelData, storage, entityStorage, entitySerializer, blockStates);
     }
 
     public ServerWorld registerDimension(final Dimension dim, final ChunkGenerator generator) {
         return worlds.computeIfAbsent(dim.id(), _ -> {
             final ServerWorld world = new ServerWorld(
-                    dim, storage, entityStorage, entitySerializer, generator, blockStates, minY, height);
+                    dim, storage, entityStorage, entitySerializer, generator, blockStates, generator.minY(), generator.height());
             if (chunkLoader != null) {
                 world.setChunkLoader(chunkLoader);
             }
@@ -158,7 +151,7 @@ public final class WorldManager implements AutoCloseable {
     public ServerWorld overworld() {
         final ChunkGenerator chunkGenerator = defaultGenerator;
         final ChunkGenerator generator =
-                chunkGenerator != null ? chunkGenerator : FlatChunkGenerator.cobblestone(minY, height);
+                chunkGenerator != null ? chunkGenerator : FlatChunkGenerator.cobblestone(WorldConstants.MIN_Y, WorldConstants.HEIGHT);
         return registerDimension(Dimension.OVERWORLD, generator);
     }
 
@@ -170,8 +163,8 @@ public final class WorldManager implements AutoCloseable {
         final Dimension dim = Dimension.datapack(key.namespace(), key.value());
         final ChunkGenerator chunkGenerator = generator != null
                 ? new PluginBackedChunkGenerator(
-                generator, FlatChunkGenerator.cobblestone(minY, height), minY, height)
-                : FlatChunkGenerator.cobblestone(minY, height);
+                generator, FlatChunkGenerator.cobblestone(generator.minY(), generator.height()), generator.minY(), generator.height())
+                : FlatChunkGenerator.cobblestone(WorldConstants.MIN_Y, WorldConstants.HEIGHT);
 
         final boolean existed = worlds.containsKey(dim.id());
         final ServerWorld world = registerDimension(dim, chunkGenerator);
@@ -221,11 +214,11 @@ public final class WorldManager implements AutoCloseable {
         return world;
     }
 
-    public ServerWorld dimension(final Dimension dim) {
+    public @Nullable ServerWorld dimension(final Dimension dim) {
         return worlds.get(dim.id());
     }
 
-    public ServerWorld world(final Key worldKey) {
+    public @Nullable ServerWorld world(final Key worldKey) {
         return worlds.get(worldKey);
     }
 

@@ -11,6 +11,7 @@ import fr.euphyllia.fidorial.testplugin.worldgen.stage.RavineCarver;
 import fr.euphyllia.fidorial.testplugin.worldgen.stage.SurfaceStage;
 import fr.euphyllia.fidorial.testplugin.worldgen.stage.TerrainStage;
 import fr.fidorial.world.generation.GeneratedChunk;
+import fr.fidorial.world.generation.GenerationDescriptor;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
@@ -68,6 +69,11 @@ public final class OverworldGenerator implements WorldGenerator {
         }
 
         scratch.flush(chunk);
+    }
+
+    @Override
+    public GenerationDescriptor describeForSave() {
+        return GenerationDescriptor.noise(Key.key("overworld"), Key.key("overworld"));
     }
 
     public ClimatePoint climateAt(final int worldX, final int worldZ) {

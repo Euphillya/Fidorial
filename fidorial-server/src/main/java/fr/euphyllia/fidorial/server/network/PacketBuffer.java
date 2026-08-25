@@ -209,6 +209,14 @@ public final class PacketBuffer {
         return this;
     }
 
+    public PacketBuffer writeKeyArray(final Key[] keys) {
+        writeVarInt(keys.length);
+        for (final Key key : keys) {
+            writeKey(key);
+        }
+        return this;
+    }
+
     public <T> RegistryKey<T> readRegistryKey() {
         final Key key = this.readKey();
         return RegistryKey.of(key);

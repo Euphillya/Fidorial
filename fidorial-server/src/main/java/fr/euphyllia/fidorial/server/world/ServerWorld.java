@@ -56,7 +56,7 @@ public final class ServerWorld implements World {
     private final ChunkStorage storage;
     private final EntityRegionStorage entityStorage;
     private final AnvilEntitySerializer entitySerializer;
-    private final ChunkGenerator generator;
+    public final ChunkGenerator generator;
     private final BlockStateRegistry blockStates;
     private final EntityManager entities = new EntityManager();
     private final WorldTimeEngine dayNightCycle;
@@ -261,7 +261,7 @@ public final class ServerWorld implements World {
         try {
             column = loaded.computeIfAbsent(k, _ -> {
                 try {
-                    final ChunkColumn fromDisk = storage.load(dimension, chunkX, chunkZ);
+                    final ChunkColumn fromDisk = storage.load(dimension, chunkX, chunkZ, generator.minY(), generator.height());
                     if (fromDisk != null) {
                         return fromDisk;
                     }

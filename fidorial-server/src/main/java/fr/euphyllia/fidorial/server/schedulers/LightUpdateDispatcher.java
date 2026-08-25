@@ -41,7 +41,9 @@ public class LightUpdateDispatcher {
 
     private static final int CLUSTER_SHIFT = 4; // seems to give the most optimal CPS
 
+    private final int lightWorkers;
     private final BalancedPrioritisedThreadPool lightPool;
+    private final Map<Bounds, LightEnginePool> enginePools = new ConcurrentHashMap<>();
     private final PrioritisedExecutor lightExecutor;
 
     private final ChunkRegionScheduler regionScheduler;
@@ -50,7 +52,6 @@ public class LightUpdateDispatcher {
     private final Consumer<ClientboundPacket> broadcaster;
     private final ChunkNetworkSerializer serializer;
     private final Function<Key, @Nullable ServerWorld> worldLookup;
-    private final LightEnginePool enginePool;
 
     private final Map<Key, WorldLightState> states = new ConcurrentHashMap<>();
 
@@ -61,12 +62,11 @@ public class LightUpdateDispatcher {
 
     public LightUpdateDispatcher(
             final int lightWorkers,
-            final int minY,
-            final int height,
             final Consumer<ClientboundPacket> broadcaster,
             final ChunkNetworkSerializer serializer,
             final Function<Key, @Nullable ServerWorld> worldLookup
     ) {
+        this.lightWorkers = lightWorkers;
         this.lightPool = new BalancedPrioritisedThreadPool(
                 BalancedPrioritisedThreadPool.DEFAULT_GROUP_TIME_SLICE,
                 r -> Thread.ofPlatform()
@@ -76,11 +76,15 @@ public class LightUpdateDispatcher {
         this.lightExecutor = lightPool.createOrderedStreamGroup().createExecutor();
         this.regionScheduler = new ChunkRegionScheduler(lightExecutor);
         this.lightPool.adjustThreadCount(Math.max(1, lightWorkers));
-        this.enginePool = new LightEnginePool(lightWorkers, minY, height);
         this.broadcaster = broadcaster;
         this.serializer = serializer;
         this.worldLookup = worldLookup;
         LOGGER.info("Light pool started with {} workers", lightWorkers);
+    }
+
+    private LightEnginePool poolFor(final ServerWorld serverWorld) {
+        final Bounds bounds = new Bounds(serverWorld.minY(), serverWorld.height());
+        return enginePools.computeIfAbsent(bounds, b -> new LightEnginePool(lightWorkers, b.minY(), b.height()));
     }
 
     private static void decrementLocked(final WorldLightState state, final long key) {
@@ -163,6 +167,7 @@ public class LightUpdateDispatcher {
 
         final ServerWorld serverWorld = worldLookup.apply(world);
         if (!queue.isEmpty() && serverWorld != null) {
+            final LightEnginePool pool = poolFor(serverWorld);
             final Long2ObjectOpenHashMap<List<BlockPos>> byCluster = new Long2ObjectOpenHashMap<>();
             int processed = 0;
             BlockPos pos;
@@ -183,7 +188,7 @@ public class LightUpdateDispatcher {
                 queueAreaTask(chunkKeys, () -> {
                     FloodFillLightEngine engine = null;
                     try {
-                        engine = enginePool.acquire();
+                        engine = pool.acquire();
                         final LongOpenHashSet dirtyChunks = new LongOpenHashSet();
                         for (final BlockPos p : positions) {
                             dirtyChunks.addAll(serverWorld.checkBlockLight(p.x(), p.y(), p.z(), engine));
@@ -208,7 +213,7 @@ public class LightUpdateDispatcher {
                             decrementArea(world, p.x() >> 4, p.z() >> 4);
                         }
                         if (engine != null) {
-                            enginePool.release(engine);
+                            pool.release(engine);
                         }
                     }
                 });
@@ -282,10 +287,11 @@ public class LightUpdateDispatcher {
     }
 
     private void submitRelightTask(final Key world, final ServerWorld serverWorld, final LongOpenHashSet subBatch) {
+        final LightEnginePool pool = poolFor(serverWorld);
         queueAreaTask(subBatch, () -> {
             FloodFillLightEngine engine = null;
             try {
-                engine = enginePool.acquire();
+                engine = pool.acquire();
                 final Set<Long> dirtyChunks = serverWorld.relightChunks(subBatch, engine);
                 if (!dirtyChunks.isEmpty()) {
                     final LongSet viewedChunks = serverWorld.collectAllViewedChunks();
@@ -303,7 +309,7 @@ public class LightUpdateDispatcher {
             } catch (final Throwable t) {
                 LOGGER.error("Lighting recalculation impossible for world {}", world, t);
             } finally {
-                if (engine != null) enginePool.release(engine);
+                if (engine != null) pool.release(engine);
                 decrement(world, subBatch.toLongArray());
             }
         });
@@ -381,5 +387,8 @@ public class LightUpdateDispatcher {
         WorldLightState() {
             refCounts.defaultReturnValue(0);
         }
+    }
+
+    private record Bounds(int minY, int height) {
     }
 }

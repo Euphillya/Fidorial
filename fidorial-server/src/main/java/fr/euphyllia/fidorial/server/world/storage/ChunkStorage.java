@@ -18,8 +18,6 @@ public final class ChunkStorage implements AutoCloseable {
 
     private final WorldPaths paths;
     private final AnvilChunkSerializer serializer;
-    private final int minY;
-    private final int height;
     private final BlockState defaultBlock;
     private final Key defaultBiome;
 
@@ -28,15 +26,11 @@ public final class ChunkStorage implements AutoCloseable {
     public ChunkStorage(
             final WorldPaths paths,
             final AnvilChunkSerializer serializer,
-            final int minY,
-            final int height,
             final BlockState defaultBlock,
             final Key defaultBiome
     ) {
         this.paths = paths;
         this.serializer = serializer;
-        this.minY = minY;
-        this.height = height;
         this.defaultBlock = defaultBlock;
         this.defaultBiome = defaultBiome;
     }
@@ -58,7 +52,7 @@ public final class ChunkStorage implements AutoCloseable {
         });
     }
 
-    public @Nullable ChunkColumn load(final Dimension dim, final int chunkX, final int chunkZ) throws IOException {
+    public @Nullable ChunkColumn load(final Dimension dim, final int chunkX, final int chunkZ, final int minY, final int height) throws IOException {
         final RegionFile rf = region(dim, chunkX, chunkZ);
         synchronized (rf) {
             if (!rf.hasChunk(chunkX, chunkZ)) return null;
