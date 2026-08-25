@@ -75,13 +75,12 @@ public class LightUpdateDispatcher {
         );
         this.lightExecutor = lightPool.createOrderedStreamGroup().createExecutor();
         this.regionScheduler = new ChunkRegionScheduler(lightExecutor);
-        final int actualLightWorkers = Math.max(1, lightWorkers);
-        this.lightPool.adjustThreadCount(actualLightWorkers);
-        this.enginePool = new LightEnginePool(actualLightWorkers, minY, height);
+        this.lightPool.adjustThreadCount(Math.max(1, lightWorkers));
+        this.enginePool = new LightEnginePool(lightWorkers, minY, height);
         this.broadcaster = broadcaster;
         this.serializer = serializer;
         this.worldLookup = worldLookup;
-        LOGGER.info("Light pool started with {} workers", actualLightWorkers);
+        LOGGER.info("Light pool started with {} workers", lightWorkers);
     }
 
     private static void decrementLocked(final WorldLightState state, final long key) {
