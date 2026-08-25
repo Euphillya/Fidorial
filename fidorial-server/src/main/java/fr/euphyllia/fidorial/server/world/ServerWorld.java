@@ -261,7 +261,7 @@ public final class ServerWorld implements World {
         try {
             column = loaded.computeIfAbsent(k, _ -> {
                 try {
-                    final ChunkColumn fromDisk = storage.load(dimension, chunkX, chunkZ);
+                    final ChunkColumn fromDisk = storage.load(dimension, chunkX, chunkZ, generator.minY(), generator.height());
                     if (fromDisk != null) {
                         return fromDisk;
                     }

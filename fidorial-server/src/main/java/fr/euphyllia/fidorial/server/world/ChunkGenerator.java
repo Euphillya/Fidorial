@@ -7,4 +7,8 @@ public interface ChunkGenerator {
     ChunkColumn generate(int chunkX, int chunkZ);
 
     ChunkGeneratorConfig describeForSave();
+
+    int minY();
+
+    int height();
 }

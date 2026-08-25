@@ -53,4 +53,14 @@ public final class PluginBackedChunkGenerator implements ChunkGenerator {
             case GenerationDescriptor.Unknown _ -> fallback.describeForSave();
         };
     }
+
+    @Override
+    public int minY() {
+        return this.minY;
+    }
+
+    @Override
+    public int height() {
+        return this.height;
+    }
 }

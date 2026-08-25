@@ -166,8 +166,7 @@ public final class FidorialServer implements Server {
     private final NbtPlayerEnderChestStorage defaultEnderChestStorage =
             new NbtPlayerEnderChestStorage(config.worldPath().resolve("player"), false);
     private final ChestViewerTracker chestViewers = new ChestViewerTracker();
-    private final WorldManager worldManager =
-            WorldManager.openOrCreate(config.worldPath(), blockStateRegistry, WorldConstants.MIN_Y, WorldConstants.HEIGHT);
+    private final WorldManager worldManager = WorldManager.openOrCreate(config.worldPath(), blockStateRegistry);
     private final FluidEngine fluidEngine =
             new FluidEngine(worldManager, regionizer, blockStateRegistry, this::broadcast);
     private final WeatherEngine weatherEngine = new WeatherEngine(worldManager.levelData(), this::broadcast);
@@ -175,7 +174,7 @@ public final class FidorialServer implements Server {
     private final DayNightThread dayNightEngine = new DayNightThread(worldManager, registries.dynamic());
     private final ChunkNetworkSerializer chunkSerializer = new ChunkNetworkSerializer(blockStateRegistry, registries.biomes());
     private final LightUpdateDispatcher lightDispatcher = new LightUpdateDispatcher(
-            config.lightWorkers(), WorldConstants.MIN_Y, WorldConstants.HEIGHT, this::broadcast, chunkSerializer, worldManager::world);
+            config.lightWorkers(), this::broadcast, chunkSerializer, worldManager::world);
     private final BlockEditService blockEdits = new BlockEditService(
             blockStateRegistry,
             (pos, stateId) -> broadcast(new ClientboundBlockUpdatePacket(pos, stateId)),

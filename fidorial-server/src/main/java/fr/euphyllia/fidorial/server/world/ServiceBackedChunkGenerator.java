@@ -61,4 +61,16 @@ public class ServiceBackedChunkGenerator implements ChunkGenerator {
             case GenerationDescriptor.Unknown _ -> fallback.describeForSave();
         };
     }
+
+    @Override
+    public int minY() {
+        final WorldGenerator custom = services.find(WorldGenerator.class).orElse(null);
+        return custom != null ? custom.minY() : this.minY;
+    }
+
+    @Override
+    public int height() {
+        final WorldGenerator custom = services.find(WorldGenerator.class).orElse(null);
+        return custom != null ? custom.height() : this.height;
+    }
 }
