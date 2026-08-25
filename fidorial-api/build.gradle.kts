@@ -82,10 +82,6 @@ publishing {
 fidorialRegistryGenerator {
     minecraftVersion.set("26.2")
 
-    generatedPackage.set(
-        "fr.fidorial.registry"
-    )
-
     generatedSourcesDirectory.set(
         layout.projectDirectory.dir(
             "src/generated/java"
@@ -94,5 +90,48 @@ fidorialRegistryGenerator {
 
     dataGeneratorArguments.set(
         listOf("--reports")
+    )
+
+    registries.set(
+        mapOf(
+            "minecraft:attribute" to "Attribute",
+            "minecraft:banner_pattern" to "BannerPattern",
+            "minecraft:worldgen/biome" to "Biome",
+            "minecraft:block" to "BlockType",
+            "minecraft:cat_sound_variant" to "CatSoundVariant",
+            "minecraft:cat_variant" to "CatVariant",
+            "minecraft:chat_type" to "ChatType",
+            "minecraft:chicken_sound_variant" to "ChickenSoundVariant",
+            "minecraft:chicken_variant" to "ChickenVariant",
+            "minecraft:cow_sound_variant" to "CowSoundVariant",
+            "minecraft:cow_variant" to "CowVariant",
+            "minecraft:damage_type" to "DamageType",
+            "minecraft:data_component_type" to "DataComponentType",
+            "minecraft:dialog" to "Dialog",
+            "minecraft:dimension_type" to "DimensionType",
+            "minecraft:enchantment" to "Enchantment",
+            "minecraft:frog_variant" to "FrogVariant",
+            "minecraft:game_event" to "GameEvent",
+            "minecraft:game_rule" to "GameRule",
+            "minecraft:instrument" to "Instrument",
+            "minecraft:item" to "Item",
+            "minecraft:jukebox_song" to "JukeboxSong",
+            "minecraft:map_decoration_type" to "MapDecorationType",
+            "minecraft:menu" to "MenuType",
+            "minecraft:mob_effect" to "MobEffect",
+            "minecraft:painting_variant" to "PaintingVariant",
+            "minecraft:pig_sound_variant" to "PigSoundVariant",
+            "minecraft:pig_variant" to "PigVariant",
+            "minecraft:sound_event" to "SoundEvent",
+            "minecraft:timeline" to "Timeline",
+            "minecraft:trim_material" to "TrimMaterial",
+            "minecraft:trim_pattern" to "TrimPattern",
+            "minecraft:villager_profession" to "VillagerProfession",
+            "minecraft:villager_type" to "VillagerType",
+            "minecraft:wolf_sound_variant" to "WolfSoundVariant",
+            "minecraft:wolf_variant" to "WolfVariant",
+            "minecraft:world_clock" to "WorldClock",
+            "minecraft:zombie_nautilus_variant" to "ZombieNautilusVariant"
+        )
     )
 }

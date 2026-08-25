@@ -34,8 +34,6 @@ import java.util.Set;
  */
 public final class BlockStateGenerator {
 
-    private static final String NETWORK_PACKAGE = "fr.euphyllia.fidorial.server.registry.data";
-    private static final String CHUNK_PACKAGE = "fr.euphyllia.fidorial.server.world.chunk";
     private static final String PROTOCOL_IDS_CLASS_NAME = "BlockStateIds";
     private static final String PROPERTIES_CLASS_NAME = "BlockStateProperties";
     private static final String LIGHT_PROPERTIES_CLASS_NAME = "BlockStateLightProperties";
@@ -46,7 +44,6 @@ public final class BlockStateGenerator {
     private static final int DEFAULT_EMISSION = 0;
     private static final int DEFAULT_OPACITY = 15; // fully opaque fallback for unmatched blocks
 
-    private static final ClassName KEY = ClassName.get(Key.class);
     private static final ClassName MAP = ClassName.get(Map.class);
     private static final ClassName LIST = ClassName.get(List.class);
     private static final ClassName OBJECT_2_OBJECT_OPEN_HASH_MAP =
@@ -54,45 +51,74 @@ public final class BlockStateGenerator {
     private static final ClassName OBJECT_2_INT_OPEN_HASH_MAP =
             ClassName.get("it.unimi.dsi.fastutil.objects", "Object2IntOpenHashMap");
 
-    private static final ClassName BLOCK_TYPE = ClassName.get("fr.fidorial.world.block", "BlockType");
-    private static final ClassName BLOCK_PROPERTY = ClassName.get("fr.fidorial.world.block", "BlockProperty");
-    private static final ClassName BLOCK_REGISTRY = ClassName.get("fr.fidorial.world.block", "BlockRegistry");
-    private static final ClassName BLOCK_STATE = ClassName.get(CHUNK_PACKAGE, "BlockState");
-
-    private static final ClassName BLOCK_TYPE_KEYS =
-            ClassName.get(RegistryKeysGenerator.KEYS_PACKAGE, SupportedRegistries.BLOCK.keysClassName());
-
-    private static final ParameterizedTypeName STATES_BY_KEY_TYPE =
-            ParameterizedTypeName.get(OBJECT_2_OBJECT_OPEN_HASH_MAP, KEY, ArrayTypeName.of(BLOCK_STATE));
-    private static final ParameterizedTypeName DEFAULT_STATE_BY_KEY_TYPE =
-            ParameterizedTypeName.get(OBJECT_2_OBJECT_OPEN_HASH_MAP, KEY, BLOCK_STATE);
-    private static final ParameterizedTypeName LIGHT_MAP_TYPE =
-            ParameterizedTypeName.get(OBJECT_2_INT_OPEN_HASH_MAP, KEY);
-
     /**
      * Generates the block state classes, and — when Prismarine lighting data is supplied —
-     * {@code BlockLightProperties}.
+     * {@code BlockStateLightProperties}.
      *
-     * @param blocks          parsed Mojang block definitions
-     * @param lighting        Prismarine light emission/opacity, keyed by plain block name;
-     *                        pass {@link Map#of()} to skip {@code BlockLightProperties} generation
-     * @param outputDirectory generated Java source root
+     * @param blocks               parsed Mojang block definitions
+     * @param lighting             Prismarine light emission/opacity, keyed by plain block name;
+     *                             pass {@link Map#of()} to skip {@code BlockStateLightProperties} generation
+     * @param generatedPackage     root package; {@code BlockType}/{@code BlockProperty}/{@code BlockRegistry}
+     *                             resolve to {@code <generatedPackage>.world.block}, {@code BlockState} to
+     *                             {@code <generatedPackage>.world.chunk}
+     * @param registryDataPackage  package for {@code BlockStateIds}/{@code BlockStateProperties}/
+     *                             {@code BlockStateLightProperties}
+     * @param registryKeysPackage  package holding the typed {@code BlockType} keys class (e.g. {@code BlockTypeKeys})
+     * @param outputDirectory      generated Java source root
      *
      * @throws IOException if a generated file cannot be written
      */
     public void generate(final List<BlockReportDefinition> blocks,
                          final Map<String, PrismarineBlockLightPropertiesDefinition> lighting,
+                         final String generatedPackage,
+                         final String registryDataPackage,
+                         final String registryKeysPackage,
                          final Path outputDirectory) throws IOException {
 
         Objects.requireNonNull(blocks, "blocks");
         Objects.requireNonNull(lighting, "lighting");
+        Objects.requireNonNull(generatedPackage, "generatedPackage");
+        Objects.requireNonNull(registryDataPackage, "registryDataPackage");
+        Objects.requireNonNull(registryKeysPackage, "registryKeysPackage");
         Objects.requireNonNull(outputDirectory, "outputDirectory");
 
-        generateProtocolIds(blocks, outputDirectory);
-        generateProperties(blocks, outputDirectory);
+        final Packages pkgs = new Packages(generatedPackage, registryDataPackage, registryKeysPackage);
+
+        generateProtocolIds(blocks, pkgs, outputDirectory);
+        generateProperties(blocks, pkgs, outputDirectory);
 
         if (!lighting.isEmpty()) {
-            generateLightProperties(blocks, lighting, outputDirectory);
+            generateLightProperties(blocks, lighting, pkgs, outputDirectory);
+        }
+    }
+
+    /**
+     * Bundles every {@link ClassName}/{@link ParameterizedTypeName} the private generation
+     * helpers need, resolved once per {@link #generate} call from the configured packages,
+     * so those helpers don't each need three or four separate package parameters.
+     */
+    private record Packages(ClassName key, ClassName blockType, ClassName blockProperty, ClassName blockRegistry,
+                            ClassName blockState, ClassName blockTypeKeys, String dataPackage,
+                            ParameterizedTypeName statesByKeyType, ParameterizedTypeName defaultStateByKeyType,
+                            ParameterizedTypeName lightMapType) {
+
+        Packages(final String generatedPackage, final String registryDataPackage, final String registryKeysPackage) {
+            this(
+                    ClassName.get(Key.class),
+                    ClassName.get(generatedPackage + ".world.block", "BlockType"),
+                    ClassName.get(generatedPackage + ".world.block", "BlockProperty"),
+                    ClassName.get(generatedPackage + ".world.block", "BlockRegistry"),
+                    ClassName.get(generatedPackage + ".world.chunk", "BlockState"),
+                    ClassName.get(SupportedRegistries.BLOCK.keysPackage(registryKeysPackage), SupportedRegistries.BLOCK.keysClassName()),
+                    registryDataPackage,
+                    ParameterizedTypeName.get(OBJECT_2_OBJECT_OPEN_HASH_MAP,
+                            ClassName.get(Key.class),
+                            ArrayTypeName.of(ClassName.get(generatedPackage + ".world.chunk", "BlockState"))),
+                    ParameterizedTypeName.get(OBJECT_2_OBJECT_OPEN_HASH_MAP,
+                            ClassName.get(Key.class),
+                            ClassName.get(generatedPackage + ".world.chunk", "BlockState")),
+                    ParameterizedTypeName.get(OBJECT_2_INT_OPEN_HASH_MAP, ClassName.get(Key.class))
+            );
         }
     }
 
@@ -101,11 +127,12 @@ public final class BlockStateGenerator {
      * full network state table with a {@code BlockRegistry}.
      *
      * @param blocks          parsed Mojang block definitions
+     * @param pkgs            resolved package/type info for this generation run
      * @param outputDirectory generated Java source root
      *
      * @throws IOException if the source file cannot be written
      */
-    private void generateProtocolIds(final List<BlockReportDefinition> blocks, final Path outputDirectory) throws IOException {
+    private void generateProtocolIds(final List<BlockReportDefinition> blocks, final Packages pkgs, final Path outputDirectory) throws IOException {
 
         final TypeSpec.Builder protocolIds = TypeSpec.classBuilder(PROTOCOL_IDS_CLASS_NAME)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -113,15 +140,16 @@ public final class BlockStateGenerator {
                 .addJavadoc("<p>Generated from Mojang's registry report; do not edit.</p>\n")
                 .addMethod(createPrivateConstructor(PROTOCOL_IDS_CLASS_NAME));
 
-        addProtocolIdRegistrationMethods(protocolIds, blocks);
+        addProtocolIdRegistrationMethods(protocolIds, blocks, pkgs);
 
-        JavaFile.builder(NETWORK_PACKAGE, protocolIds.build()).indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
+        JavaFile.builder(pkgs.dataPackage(), protocolIds.build()).indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
     }
 
     private static void addProtocolIdRegistrationMethods(final TypeSpec.Builder protocolIds,
-                                                         final List<BlockReportDefinition> blocks) {
+                                                         final List<BlockReportDefinition> blocks,
+                                                         final Packages pkgs) {
 
-        final ParameterSpec registryParameter = ParameterSpec.builder(BLOCK_REGISTRY, "registry", Modifier.FINAL).build();
+        final ParameterSpec registryParameter = ParameterSpec.builder(pkgs.blockRegistry(), "registry", Modifier.FINAL).build();
 
         final MethodSpec.Builder registerAll = MethodSpec.methodBuilder("registerAll")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -135,7 +163,7 @@ public final class BlockStateGenerator {
             final int end = Math.min(start + NETWORK_BLOCKS_PER_METHOD, blocks.size());
             final String chunkMethodName = "register" + chunkIndex;
 
-            protocolIds.addMethod(createRegistrationChunkMethod(chunkMethodName, registryParameter, blocks.subList(start, end)));
+            protocolIds.addMethod(createRegistrationChunkMethod(chunkMethodName, registryParameter, blocks.subList(start, end), pkgs));
             registerAll.addStatement("$N($N)", chunkMethodName, registryParameter);
 
             chunkIndex++;
@@ -146,26 +174,27 @@ public final class BlockStateGenerator {
 
     private static MethodSpec createRegistrationChunkMethod(final String methodName,
                                                             final ParameterSpec registryParameter,
-                                                            final List<BlockReportDefinition> blocks) {
+                                                            final List<BlockReportDefinition> blocks,
+                                                            final Packages pkgs) {
 
         final MethodSpec.Builder chunkMethod = MethodSpec.methodBuilder(methodName)
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(registryParameter);
 
         for (final BlockReportDefinition block : blocks) {
-            chunkMethod.addStatement("$N.register($L)", registryParameter, createBlockTypeInitializer(block));
+            chunkMethod.addStatement("$N.register($L)", registryParameter, createBlockTypeInitializer(block, pkgs));
         }
 
         return chunkMethod.build();
     }
 
-    private static CodeBlock createBlockTypeInitializer(final BlockReportDefinition block) {
+    private static CodeBlock createBlockTypeInitializer(final BlockReportDefinition block, final Packages pkgs) {
 
         return CodeBlock.of("$T.of($T.$N.key(), $L, $L, $L)",
-                BLOCK_TYPE,
-                BLOCK_TYPE_KEYS,
+                pkgs.blockType(),
+                pkgs.blockTypeKeys(),
                 keysFieldName(block.identifier()),
-                createPropertiesInitializer(block.properties()),
+                createPropertiesInitializer(block.properties(), pkgs),
                 createStateIdsInitializer(block.stateIdsInOrder()),
                 block.defaultOrdinal());
     }
@@ -175,29 +204,30 @@ public final class BlockStateGenerator {
      * permutation as a runtime chunk {@code BlockState}.
      *
      * @param blocks          parsed Mojang block definitions
+     * @param pkgs            resolved package/type info for this generation run
      * @param outputDirectory generated Java source root
      *
      * @throws IOException if the source file cannot be written
      */
-    private void generateProperties(final List<BlockReportDefinition> blocks, final Path outputDirectory) throws IOException {
+    private void generateProperties(final List<BlockReportDefinition> blocks, final Packages pkgs, final Path outputDirectory) throws IOException {
 
         final TypeSpec.Builder properties = TypeSpec.classBuilder(PROPERTIES_CLASS_NAME)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addJavadoc("Registers every real block-state permutation as a runtime {@code BlockState}.\n\n")
                 .addJavadoc("<p>Generated from Mojang's blocks report; do not edit.</p>\n")
-                .addField(createStateMapField("BY_KEY", STATES_BY_KEY_TYPE))
-                .addField(createStateMapField("DEFAULT", DEFAULT_STATE_BY_KEY_TYPE))
+                .addField(createStateMapField("BY_KEY", pkgs.statesByKeyType()))
+                .addField(createStateMapField("DEFAULT", pkgs.defaultStateByKeyType()))
                 .addMethod(createPrivateConstructor(PROPERTIES_CLASS_NAME))
-                .addMethod(createRegisterBlockHelper());
+                .addMethod(createRegisterBlockHelper(pkgs));
 
-        final CodeBlock bootstrapBody = addPropertyRegistrationMethods(properties, blocks);
+        final CodeBlock bootstrapBody = addPropertyRegistrationMethods(properties, blocks, pkgs);
 
-        properties.addMethod(createStatesOfMethod());
-        properties.addMethod(createStateAtMethod());
-        properties.addMethod(createDefaultStateOfMethod());
+        properties.addMethod(createStatesOfMethod(pkgs));
+        properties.addMethod(createStateAtMethod(pkgs));
+        properties.addMethod(createDefaultStateOfMethod(pkgs));
         properties.addMethod(createBootstrapMethod(bootstrapBody));
 
-        JavaFile.builder(CHUNK_PACKAGE, properties.build()).indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
+        JavaFile.builder(pkgs.blockState().packageName(), properties.build()).indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
     }
 
     private static FieldSpec createStateMapField(final String name, final ParameterizedTypeName fieldType) {
@@ -214,14 +244,16 @@ public final class BlockStateGenerator {
                 .build();
     }
 
-    private static CodeBlock addPropertyRegistrationMethods(final TypeSpec.Builder properties, final List<BlockReportDefinition> blocks) {
+    private static CodeBlock addPropertyRegistrationMethods(final TypeSpec.Builder properties,
+                                                            final List<BlockReportDefinition> blocks,
+                                                            final Packages pkgs) {
 
         final CodeBlock.Builder bootstrapInit = CodeBlock.builder();
         final Set<String> usedNames = new HashSet<>();
 
         for (final BlockReportDefinition block : blocks) {
             final String registerMethodName = uniqueMethodName("register" + GenerationUtils.className(block.identifier()), usedNames);
-            createPropertyRegisterMethods(properties, registerMethodName, block);
+            createPropertyRegisterMethods(properties, registerMethodName, block, pkgs);
             bootstrapInit.addStatement("$N()", registerMethodName);
         }
 
@@ -230,7 +262,8 @@ public final class BlockStateGenerator {
 
     private static void createPropertyRegisterMethods(final TypeSpec.Builder properties,
                                                       final String registerMethodName,
-                                                      final BlockReportDefinition block) {
+                                                      final BlockReportDefinition block,
+                                                      final Packages pkgs) {
 
         final List<Map<String, String>> statePropertiesInOrder = block.statePropertiesInOrder();
         final String fieldName = keysFieldName(block.identifier());
@@ -240,15 +273,15 @@ public final class BlockStateGenerator {
 
         if (statePropertiesInOrder.size() <= STATES_PER_FILL_METHOD) {
             registerMethod.addStatement("registerBlock($T.$N.key(), $L, $L)",
-                    BLOCK_TYPE_KEYS, fieldName, block.defaultOrdinal(),
-                    createStatesArrayInitializer(block));
+                    pkgs.blockTypeKeys(), fieldName, block.defaultOrdinal(),
+                    createStatesArrayInitializer(block, pkgs));
             properties.addMethod(registerMethod.build());
             return;
         }
 
         // too many states for one method
         registerMethod.addStatement("final $T[] states = new $T[$L]",
-                BLOCK_STATE, BLOCK_STATE, statePropertiesInOrder.size());
+                pkgs.blockState(), pkgs.blockState(), statePropertiesInOrder.size());
 
         int fillIndex = 0;
         for (int start = 0; start < statePropertiesInOrder.size(); start += STATES_PER_FILL_METHOD) {
@@ -256,27 +289,27 @@ public final class BlockStateGenerator {
             final int end = Math.min(start + STATES_PER_FILL_METHOD, statePropertiesInOrder.size());
             final String fillMethodName = registerMethodName + "Fill" + fillIndex;
 
-            properties.addMethod(createFillMethod(fillMethodName, block, start, end));
+            properties.addMethod(createFillMethod(fillMethodName, block, start, end, pkgs));
             registerMethod.addStatement("$N(states)", fillMethodName);
 
             fillIndex++;
         }
 
         registerMethod.addStatement("registerBlock($T.$N.key(), $L, states)",
-                BLOCK_TYPE_KEYS, fieldName, block.defaultOrdinal());
+                pkgs.blockTypeKeys(), fieldName, block.defaultOrdinal());
 
         properties.addMethod(registerMethod.build());
     }
 
     private static MethodSpec createFillMethod(final String methodName, final BlockReportDefinition block,
-                                               final int start, final int end) {
+                                               final int start, final int end, final Packages pkgs) {
 
         final List<Map<String, String>> statePropertiesInOrder = block.statePropertiesInOrder();
         final List<BlockPropertyDefinition> orderedProperties = block.properties();
         final String fieldName = keysFieldName(block.identifier());
 
         final ParameterSpec statesParameter =
-                ParameterSpec.builder(ArrayTypeName.of(BLOCK_STATE), "states", Modifier.FINAL).build();
+                ParameterSpec.builder(ArrayTypeName.of(pkgs.blockState()), "states", Modifier.FINAL).build();
 
         final MethodSpec.Builder fillMethod = MethodSpec.methodBuilder(methodName)
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
@@ -284,18 +317,18 @@ public final class BlockStateGenerator {
 
         for (int index = start; index < end; index++) {
             fillMethod.addStatement("states[$L] = $T.of($T.$N.key(), $L)",
-                    index, BLOCK_STATE, BLOCK_TYPE_KEYS, fieldName,
+                    index, pkgs.blockState(), pkgs.blockTypeKeys(), fieldName,
                     createPropertiesMapInitializer(statePropertiesInOrder.get(index), orderedProperties));
         }
 
         return fillMethod.build();
     }
 
-    private static MethodSpec createRegisterBlockHelper() {
+    private static MethodSpec createRegisterBlockHelper(final Packages pkgs) {
 
-        final ParameterSpec keyParameter = ParameterSpec.builder(KEY, "key", Modifier.FINAL).build();
+        final ParameterSpec keyParameter = ParameterSpec.builder(pkgs.key(), "key", Modifier.FINAL).build();
         final ParameterSpec defaultOrdinalParameter = ParameterSpec.builder(int.class, "defaultOrdinal", Modifier.FINAL).build();
-        final ParameterSpec statesParameter = ParameterSpec.builder(ArrayTypeName.of(BLOCK_STATE), "states", Modifier.FINAL).build();
+        final ParameterSpec statesParameter = ParameterSpec.builder(ArrayTypeName.of(pkgs.blockState()), "states", Modifier.FINAL).build();
 
         return MethodSpec.methodBuilder("registerBlock")
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
@@ -307,27 +340,27 @@ public final class BlockStateGenerator {
                 .build();
     }
 
-    private static CodeBlock createStatesArrayInitializer(final BlockReportDefinition block) {
+    private static CodeBlock createStatesArrayInitializer(final BlockReportDefinition block, final Packages pkgs) {
 
         final List<Map<String, String>> statePropertiesInOrder = block.statePropertiesInOrder();
         final List<BlockPropertyDefinition> orderedProperties = block.properties();
         final String fieldName = keysFieldName(block.identifier());
         if (statePropertiesInOrder.size() == 1) {
             return CodeBlock.of("new $T[] { $T.of($T.$N.key(), $L) }",
-                    BLOCK_STATE,
-                    BLOCK_STATE,
-                    BLOCK_TYPE_KEYS,
+                    pkgs.blockState(),
+                    pkgs.blockState(),
+                    pkgs.blockTypeKeys(),
                     fieldName,
                     createPropertiesMapInitializer(statePropertiesInOrder.getFirst(), orderedProperties));
         }
 
-        final CodeBlock.Builder initializer = CodeBlock.builder().add("new $T[] {\n", BLOCK_STATE).indent();
+        final CodeBlock.Builder initializer = CodeBlock.builder().add("new $T[] {\n", pkgs.blockState()).indent();
 
         for (int index = 0; index < statePropertiesInOrder.size(); index++) {
 
             initializer.add("$T.of($T.$N.key(), $L)",
-                    BLOCK_STATE,
-                    BLOCK_TYPE_KEYS,
+                    pkgs.blockState(),
+                    pkgs.blockTypeKeys(),
                     fieldName,
                     createPropertiesMapInitializer(statePropertiesInOrder.get(index), orderedProperties));
 
@@ -359,13 +392,13 @@ public final class BlockStateGenerator {
         return initializer.add(")").build();
     }
 
-    private static MethodSpec createStatesOfMethod() {
+    private static MethodSpec createStatesOfMethod(final Packages pkgs) {
 
-        final ParameterSpec keyParameter = ParameterSpec.builder(KEY, "key", Modifier.FINAL).build();
+        final ParameterSpec keyParameter = ParameterSpec.builder(pkgs.key(), "key", Modifier.FINAL).build();
 
         return MethodSpec.methodBuilder("statesOf")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(ArrayTypeName.of(BLOCK_STATE))
+                .returns(ArrayTypeName.of(pkgs.blockState()))
                 .addParameter(keyParameter)
                 .addJavadoc("Returns every state permutation for a block, in ordinal order.\n\n")
                 .addJavadoc("@param key namespaced block identifier\n")
@@ -374,14 +407,14 @@ public final class BlockStateGenerator {
                 .build();
     }
 
-    private static MethodSpec createStateAtMethod() {
+    private static MethodSpec createStateAtMethod(final Packages pkgs) {
 
-        final ParameterSpec keyParameter = ParameterSpec.builder(KEY, "key", Modifier.FINAL).build();
+        final ParameterSpec keyParameter = ParameterSpec.builder(pkgs.key(), "key", Modifier.FINAL).build();
         final ParameterSpec ordinalParameter = ParameterSpec.builder(int.class, "ordinal", Modifier.FINAL).build();
 
         return MethodSpec.methodBuilder("stateAt")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(BLOCK_STATE)
+                .returns(pkgs.blockState())
                 .addParameter(keyParameter)
                 .addParameter(ordinalParameter)
                 .addJavadoc("Returns the state at a specific ordinal for a block.\n\n")
@@ -392,13 +425,13 @@ public final class BlockStateGenerator {
                 .build();
     }
 
-    private static MethodSpec createDefaultStateOfMethod() {
+    private static MethodSpec createDefaultStateOfMethod(final Packages pkgs) {
 
-        final ParameterSpec keyParameter = ParameterSpec.builder(KEY, "key", Modifier.FINAL).build();
+        final ParameterSpec keyParameter = ParameterSpec.builder(pkgs.key(), "key", Modifier.FINAL).build();
 
         return MethodSpec.methodBuilder("defaultStateOf")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(BLOCK_STATE)
+                .returns(pkgs.blockState())
                 .addParameter(keyParameter)
                 .addJavadoc("Returns the default state for a block.\n\n")
                 .addJavadoc("@param key namespaced block identifier\n")
@@ -408,38 +441,40 @@ public final class BlockStateGenerator {
     }
 
     /**
-     * Generates {@code BlockLightProperties}, registering per-block light emission/opacity
+     * Generates {@code BlockStateLightProperties}, registering per-block light emission/opacity
      * sourced from PrismarineJS's {@code minecraft-data} (Mojang's own report doesn't expose this).
      *
      * @param blocks          parsed Mojang block definitions
      * @param lighting        Prismarine light emission/opacity, keyed by plain block name
+     * @param pkgs            resolved package/type info for this generation run
      * @param outputDirectory generated Java source root
      *
      * @throws IOException if the source file cannot be written
      */
     private void generateLightProperties(final List<BlockReportDefinition> blocks,
                                          final Map<String, PrismarineBlockLightPropertiesDefinition> lighting,
+                                         final Packages pkgs,
                                          final Path outputDirectory) throws IOException {
 
         final TypeSpec.Builder lightProperties = TypeSpec.classBuilder(LIGHT_PROPERTIES_CLASS_NAME)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addJavadoc("Per-block light emission/opacity, sourced from PrismarineJS's {@code minecraft-data}.\n\n")
                 .addJavadoc("<p>Generated from Prismarine's blocks report; do not edit.</p>\n")
-                .addField(createLightMapField("EMISSION"))
-                .addField(createLightMapField("OPACITY"))
+                .addField(createLightMapField("EMISSION", pkgs))
+                .addField(createLightMapField("OPACITY", pkgs))
                 .addStaticBlock(createLightDefaultsInitializer())
                 .addMethod(createPrivateConstructor(LIGHT_PROPERTIES_CLASS_NAME))
-                .addMethod(createLightAccessor("emission", "EMISSION", DEFAULT_EMISSION))
-                .addMethod(createLightAccessor("opacity", "OPACITY", DEFAULT_OPACITY))
-                .addMethod(createLightRegisterHelper());
+                .addMethod(createLightAccessor("emission", "EMISSION", DEFAULT_EMISSION, pkgs))
+                .addMethod(createLightAccessor("opacity", "OPACITY", DEFAULT_OPACITY, pkgs))
+                .addMethod(createLightRegisterHelper(pkgs));
 
-        addLightRegistrationMethods(lightProperties, blocks, lighting);
+        addLightRegistrationMethods(lightProperties, blocks, lighting, pkgs);
 
-        JavaFile.builder(NETWORK_PACKAGE, lightProperties.build()).indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
+        JavaFile.builder(pkgs.dataPackage(), lightProperties.build()).indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
     }
 
-    private static FieldSpec createLightMapField(final String name) {
-        return FieldSpec.builder(LIGHT_MAP_TYPE, name, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+    private static FieldSpec createLightMapField(final String name, final Packages pkgs) {
+        return FieldSpec.builder(pkgs.lightMapType(), name, Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                 .initializer("new $T<>()", OBJECT_2_INT_OPEN_HASH_MAP)
                 .build();
     }
@@ -450,9 +485,9 @@ public final class BlockStateGenerator {
                 .build();
     }
 
-    private static MethodSpec createLightAccessor(final String methodName, final String mapFieldName, final int defaultValue) {
+    private static MethodSpec createLightAccessor(final String methodName, final String mapFieldName, final int defaultValue, final Packages pkgs) {
 
-        final ParameterSpec keyParameter = ParameterSpec.builder(KEY, "key", Modifier.FINAL).build();
+        final ParameterSpec keyParameter = ParameterSpec.builder(pkgs.key(), "key", Modifier.FINAL).build();
 
         return MethodSpec.methodBuilder(methodName)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -464,9 +499,9 @@ public final class BlockStateGenerator {
                 .build();
     }
 
-    private static MethodSpec createLightRegisterHelper() {
+    private static MethodSpec createLightRegisterHelper(final Packages pkgs) {
 
-        final ParameterSpec keyParameter = ParameterSpec.builder(KEY, "key", Modifier.FINAL).build();
+        final ParameterSpec keyParameter = ParameterSpec.builder(pkgs.key(), "key", Modifier.FINAL).build();
         final ParameterSpec emissionParameter = ParameterSpec.builder(int.class, "emission", Modifier.FINAL).build();
         final ParameterSpec opacityParameter = ParameterSpec.builder(int.class, "opacity", Modifier.FINAL).build();
 
@@ -482,7 +517,8 @@ public final class BlockStateGenerator {
 
     private static void addLightRegistrationMethods(final TypeSpec.Builder lightProperties,
                                                     final List<BlockReportDefinition> blocks,
-                                                    final Map<String, PrismarineBlockLightPropertiesDefinition> lighting) {
+                                                    final Map<String, PrismarineBlockLightPropertiesDefinition> lighting,
+                                                    final Packages pkgs) {
 
         final List<BlockReportDefinition> known = new ArrayList<>();
         for (final BlockReportDefinition block : blocks) {
@@ -502,7 +538,7 @@ public final class BlockStateGenerator {
             final int end = Math.min(start + NETWORK_BLOCKS_PER_METHOD, known.size());
             final String chunkMethodName = "registerLight" + chunkIndex;
 
-            lightProperties.addMethod(createLightChunkMethod(chunkMethodName, known.subList(start, end), lighting));
+            lightProperties.addMethod(createLightChunkMethod(chunkMethodName, known.subList(start, end), lighting, pkgs));
             bootstrap.addStatement("$N()", chunkMethodName);
 
             chunkIndex++;
@@ -513,7 +549,8 @@ public final class BlockStateGenerator {
 
     private static MethodSpec createLightChunkMethod(final String methodName,
                                                      final List<BlockReportDefinition> blocks,
-                                                     final Map<String, PrismarineBlockLightPropertiesDefinition> lighting) {
+                                                     final Map<String, PrismarineBlockLightPropertiesDefinition> lighting,
+                                                     final Packages pkgs) {
 
         final MethodSpec.Builder chunkMethod = MethodSpec.methodBuilder(methodName)
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC);
@@ -521,7 +558,7 @@ public final class BlockStateGenerator {
         for (final BlockReportDefinition block : blocks) {
             final PrismarineBlockLightPropertiesDefinition entry = lighting.get(GenerationUtils.path(block.identifier()));
             chunkMethod.addStatement("register($T.$N.key(), $L, $L)",
-                    BLOCK_TYPE_KEYS, keysFieldName(block.identifier()), entry.emitLight(), entry.filterLight());
+                    pkgs.blockTypeKeys(), keysFieldName(block.identifier()), entry.emitLight(), entry.filterLight());
         }
 
         return chunkMethod.build();
@@ -551,7 +588,7 @@ public final class BlockStateGenerator {
                 .build();
     }
 
-    private static CodeBlock createPropertiesInitializer(final List<BlockPropertyDefinition> properties) {
+    private static CodeBlock createPropertiesInitializer(final List<BlockPropertyDefinition> properties, final Packages pkgs) {
 
         if (properties.isEmpty()) {
             return CodeBlock.of("$T.of()", LIST);
@@ -562,7 +599,7 @@ public final class BlockStateGenerator {
         for (int index = 0; index < properties.size(); index++) {
 
             final BlockPropertyDefinition property = properties.get(index);
-            initializer.add("new $T($S, $L)", BLOCK_PROPERTY, property.name(), createValuesInitializer(property.values()));
+            initializer.add("new $T($S, $L)", pkgs.blockProperty(), property.name(), createValuesInitializer(property.values()));
 
             initializer.add(index < properties.size() - 1 ? ",\n" : "\n");
         }

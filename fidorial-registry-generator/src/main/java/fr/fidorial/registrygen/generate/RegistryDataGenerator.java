@@ -25,19 +25,22 @@ import java.util.Objects;
  */
 public final class RegistryDataGenerator {
 
-    public static final String DATA_PACKAGE = "fr.fidorial.registry.data";
-
     /**
      * Generates the marker interface for a supported registry type.
      *
      * @param registryType    configured registry type
+     * @param dataPackage     package the marker interface is written to (already resolved,
+     *                        including the registry type's own subpackage if any)
      * @param outputDirectory generated Java source root
      *
      * @throws IOException if the source file cannot be written
      */
-    public void generate(final RegistryTypeDefinition registryType, final Path outputDirectory) throws IOException {
+    public void generate(final RegistryTypeDefinition registryType,
+                         final String dataPackage,
+                         final Path outputDirectory) throws IOException {
 
         Objects.requireNonNull(registryType, "registryType");
+        Objects.requireNonNull(dataPackage, "dataPackage");
         Objects.requireNonNull(outputDirectory, "outputDirectory");
 
         final ClassName apiStatus = ClassName.get("org.jetbrains.annotations",
@@ -54,6 +57,6 @@ public final class RegistryDataGenerator {
                 .addJavadoc("\n<p>Calling {@link net.kyori.adventure.key.Keyed#key()} returns the entry's registry key.</p>\n")
                 .build();
 
-        JavaFile.builder(DATA_PACKAGE, markerInterface).indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
+        JavaFile.builder(dataPackage, markerInterface).indent("    ").skipJavaLangImports(true).build().writeTo(outputDirectory);
     }
 }

@@ -1,5 +1,3 @@
-import fr.euphyllia.fidorial.gradle.patcher.task.RebuildPatchesTask
-
 extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
 
 plugins {
@@ -119,7 +117,19 @@ fidorialRegistryGenerator {
     prismarineMinecraftData.set("26.1")
 
     generatedPackage.set(
-        "fr.euphyllia.fidorial.server.registry"
+        "fr.euphyllia.fidorial.server"
+    )
+
+    registryDataPackage.set(
+        "fr.euphyllia.fidorial.server.registry.data"
+    )
+
+    registryKeysPackage.set(
+        "fr.euphyllia.fidorial.server.registry.keys"
+    )
+
+    blockTypeKeysPackage.set(
+        "fr.fidorial.registry.keys"
     )
 
     generatedSourcesDirectory.set(

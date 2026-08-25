@@ -2,7 +2,6 @@ package fr.fidorial.registrygen.task;
 
 import fr.fidorial.registrygen.generate.RegistryGenerator;
 import fr.fidorial.registrygen.model.RegistryTypeDefinition;
-import fr.fidorial.registrygen.model.SupportedRegistries;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.MapProperty;
@@ -37,6 +36,12 @@ public abstract class GenerateRegistriesTask extends DefaultTask {
     public abstract Property<String> getGeneratedPackage();
 
     @Input
+    public abstract Property<String> getRegistryDataPackage();
+
+    @Input
+    public abstract Property<String> getRegistryKeysPackage();
+
+    @Input
     public abstract MapProperty<String, String> getRegistries();
 
     @Input
@@ -54,16 +59,14 @@ public abstract class GenerateRegistriesTask extends DefaultTask {
 
         final Path registriesJson = getReportsDirectory().get().getAsFile().toPath().resolve("registries.json");
         final Path outputDirectory = getGeneratedSourcesDirectory().get().getAsFile().toPath();
-
         final Map<String, String> configured = getRegistries().getOrElse(Map.of());
 
-        final List<RegistryTypeDefinition> registryTypes = configured.isEmpty()
-                ? SupportedRegistries.ALL
-                : configured.entrySet().stream()
-                .map(entry -> new RegistryTypeDefinition(
-                        entry.getKey(), entry.getValue(), entry.getValue() + "Keys"))
+        final List<RegistryTypeDefinition> registryTypes = configured.entrySet().stream()
+                .map(e -> RegistryTypeDefinition.parse(e.getKey(), e.getValue()))
                 .toList();
 
-        new RegistryGenerator().generate(registriesJson, outputDirectory, registryTypes, getGenerateRegistryKey().get());
+        new RegistryGenerator().generate(registriesJson, outputDirectory, registryTypes,
+                getGeneratedPackage().get(), getRegistryDataPackage().get(), getRegistryKeysPackage().get(),
+                getGenerateRegistryKey().get());
     }
 }

@@ -14,6 +14,7 @@ import java.util.List;
  *
  * @since 0.1.0
  */
+@SuppressWarnings("unused")
 public final class SupportedRegistries {
 
   public static final RegistryTypeDefinition ARGUMENT_TYPE = registry("minecraft:command_argument_type", "ArgumentType");
@@ -63,8 +64,7 @@ public final class SupportedRegistries {
   private SupportedRegistries() {
   }
 
-  private static RegistryTypeDefinition registry(final String identifier, final String typeName) {
-
-    return new RegistryTypeDefinition(identifier, typeName, typeName + "Keys");
+  private static RegistryTypeDefinition registry(final String identifier, final String qualifiedTypeName) {
+    return RegistryTypeDefinition.parse(identifier, qualifiedTypeName);
   }
 }

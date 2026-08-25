@@ -43,10 +43,10 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
     final TaskProvider<DownloadPrismarineDataTask> prismarineTask = registerPrismarineDataTask(project, extension);
     final TaskProvider<GenerateReportsTask> reportsTask = registerReportsTask(project, extension, downloadTask);
     final TaskProvider<GenerateRegistriesTask> registriesTask = registerRegistriesTask(project, extension, reportsTask);
-    registerPacketsTask(project, extension, reportsTask);
-    registerBlockStatesTask(project, extension, reportsTask, prismarineTask);
+    final TaskProvider<GeneratePacketsTask> packetsTask = registerPacketsTask(project, extension, reportsTask);
+    final TaskProvider<GenerateBlockStatesTask> blockStatesTask = registerBlockStatesTask(project, extension, reportsTask, prismarineTask);
 
-    registerLifecycleTask(project, registriesTask);
+    registerLifecycleTask(project, registriesTask, packetsTask, blockStatesTask);
   }
 
   private static void configureDefaults(final Project project, final FidorialRegistryGeneratorExtension extension) {
@@ -58,6 +58,9 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
             .dir("generated/sources/fidorialRegistries/"));
 
     extension.getGeneratedPackage().convention("fr.fidorial.registry");
+    extension.getRegistryDataPackage().convention(extension.getGeneratedPackage().map(p -> p + ".data"));
+    extension.getRegistryKeysPackage().convention(extension.getGeneratedPackage().map(p -> p + ".keys"));
+    extension.getBlockTypeKeysPackage().convention(extension.getRegistryKeysPackage());
     extension.getRegistries().convention(Map.of());
     extension.getDataGeneratorArguments().convention(List.of("--reports"));
     extension.getPrismarineDataRef().convention("master");
@@ -124,6 +127,8 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
 
       task.getMinecraftVersion().set(extension.getMinecraftVersion());
       task.getGeneratedPackage().set(extension.getGeneratedPackage());
+      task.getRegistryDataPackage().set(extension.getRegistryDataPackage());
+      task.getRegistryKeysPackage().set(extension.getRegistryKeysPackage());
       task.getRegistries().set(extension.getRegistries());
       task.getGenerateRegistryKey().set(extension.getGenerateRegistryKey().orElse(true));
 
@@ -171,15 +176,23 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
               .flatMap(_ -> prismarineTask.flatMap(DownloadPrismarineDataTask::getDataDirectory))
               .map(dir -> dir.file("blocks.json")));
 
+       task.getGeneratedPackage().set(extension.getGeneratedPackage());
+       task.getRegistryDataPackage().set(extension.getRegistryDataPackage());
+       task.getBlockTypeKeysPackage().set(extension.getBlockTypeKeysPackage());
+
        task.getGeneratedSourcesDirectory().set(extension.getGeneratedSourcesDirectory());
     });
   }
 
-  private static void registerLifecycleTask(final Project project, final TaskProvider<GenerateRegistriesTask> registriesTask) {
-    project.getTasks().register("generateFidorialRegistries", task -> {
+  private static void registerLifecycleTask(final Project project,
+                                            final TaskProvider<GenerateRegistriesTask> registriesTask,
+                                            final TaskProvider<GeneratePacketsTask> packetsTask,
+                                            final TaskProvider<GenerateBlockStatesTask> blockStatesTask) {
+
+    project.getTasks().register("generateAll", task -> {
       task.setGroup("fidorial registry generation");
-      task.setDescription("Runs the complete registry generation pipeline.");
-      task.dependsOn(registriesTask);
+      task.setDescription("Runs the complete generation pipeline.");
+      task.dependsOn(registriesTask, packetsTask, blockStatesTask);
     });
   }
 
