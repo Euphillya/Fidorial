@@ -80,8 +80,92 @@ public final class TestBiomes {
             .skyColor(0x5DB7EF)
             .build();
 
+    public static final BiomeDefinition ASHEN_WASTELAND = BiomeDefinition
+            .builder(Key.key("fidorial", "ashen_wasteland"))
+            .temperature(1.6F)
+            .downfall(0.0F)
+            .hasPrecipitation(false)
+            .effects(effects -> effects
+                    .waterColor(0x6B6252)
+                    .grassColor(0x8A7A5C)
+                    .foliageColor(0x746653))
+            .skyColor(0x9C9484)
+            .fogColor(0xA69D8C)
+            .waterFogColor(0x4A4436)
+            .addAmbientParticle(AmbientParticle.of(Key.key("ash"), 0.01F))
+            .ambientSounds(new AmbientSounds(
+                    Key.key("ambient.basalt_deltas.loop"),
+                    MoodSound.CAVE,
+                    AdditionsSound.of(Key.key("ambient.basalt_deltas.additions"), 0.0111F)))
+            .attributes(attributes -> attributes
+                    .increasedFireBurnout(false)
+                    .snowGolemMelts(true)
+                    .waterEvaporates(true))
+            .build();
+
+    public static final BiomeDefinition TOXIC_CRATERS = BiomeDefinition
+            .builder(Key.key("fidorial", "toxic_craters"))
+            .temperature(0.9F)
+            .downfall(0.9F)
+            .effects(effects -> effects
+                    .waterColor(0x8FA83B)
+                    .grassColor(0x6B6B34)
+                    .foliageColor(0x6B6B34)
+                    .grassColorModifier(GrassColorModifier.SWAMP))
+            .skyColor(0x746B4A)
+            .waterFogColor(0x1F2410)
+            .attributes(attributes -> attributes
+                    .waterFogEndDistance(0.25F, Modifier.MULTIPLY)
+                    .increasedFireBurnout(true))
+            .build();
+
+    public static final BiomeDefinition MOLTEN_CRATERS = BiomeDefinition
+            .builder(Key.key("fidorial", "molten_craters"))
+            .temperature(2.0F)
+            .downfall(0.0F)
+            .hasPrecipitation(false)
+            .effects(effects -> effects
+                    .waterColor(0xB33F00)
+                    .grassColor(0x5C3A22)
+                    .foliageColor(0x4A2E1A))
+            .skyColor(0x8C3300)
+            .fogColor(0x4A1D08)
+            .waterFogColor(0x3A1200)
+            .addAmbientParticle(AmbientParticle.of(Key.key("white_ash"), 0.02F))
+            .ambientSounds(new AmbientSounds(
+                    Key.key("ambient.nether_wastes.loop"),
+                    MoodSound.CAVE,
+                    AdditionsSound.of(Key.key("ambient.nether_wastes.additions"), 0.0111F)))
+            .attributes(attributes -> attributes
+                    .increasedFireBurnout(true)
+                    .snowGolemMelts(true)
+                    .waterEvaporates(true))
+            .build();
+
+    public static final BiomeDefinition RUBBLE_FLATS = BiomeDefinition
+            .builder(Key.key("fidorial", "rubble_flats"))
+            .temperature(1.3F)
+            .downfall(0.2F)
+            .effects(effects -> effects.waterColor(0x736B5C))
+            .skyColor(0x8C8579)
+            .build();
+
+    public static final BiomeDefinition IRRADIATED_RIDGES = BiomeDefinition
+            .builder(Key.key("fidorial", "irradiated_ridges"))
+            .temperature(0.3F)
+            .downfall(0.1F)
+            .hasPrecipitation(false)
+            .effects(effects -> effects
+                    .waterColor(0x536655)
+                    .grassColor(0x4C5A3E))
+            .skyColor(0x554F42)
+            .fogColor(0x726A54)
+            .addAmbientParticle(AmbientParticle.of(Key.key("ash"), 0.015F))
+            .build();
+
     private static final List<BiomeDefinition> ALL =
-            List.of(VOLCANIC_PLAINS, FROZEN_PEAKS, TOXIC_RIVER, CRYSTAL_SHORE);
+            List.of(VOLCANIC_PLAINS, FROZEN_PEAKS, TOXIC_RIVER, CRYSTAL_SHORE,
+                    ASHEN_WASTELAND, TOXIC_CRATERS, MOLTEN_CRATERS, RUBBLE_FLATS, IRRADIATED_RIDGES);
 
     private TestBiomes() {
         throw new UnsupportedOperationException("TestBiomes cannot be instantiated.");

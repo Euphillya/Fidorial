@@ -8,6 +8,7 @@ import fr.fidorial.registrygen.model.ProtocolIdTarget;
 import fr.fidorial.registrygen.model.RegistriesHolder;
 import fr.fidorial.registrygen.model.RegistryDefinition;
 import fr.fidorial.registrygen.model.RegistryTypeDefinition;
+import fr.fidorial.registrygen.model.SupportedRegistries;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,6 +34,7 @@ public final class RegistryGenerator {
     private final BlockReportParser blockReportParser;
     private final PrismarineBlockReportParser prismarineBlockReportParser;
     private final BlockStateGenerator blockStateGenerator;
+    private final DimensionTypesGenerator dimensionTypesGenerator;
 
     /**
      * Creates a registry generator using the standard parser and
@@ -47,7 +49,8 @@ public final class RegistryGenerator {
                 new RegistryProtocolIdGenerator(),
                 new BlockReportParser(),
                 new PrismarineBlockReportParser(),
-                new BlockStateGenerator());
+                new BlockStateGenerator(),
+                new DimensionTypesGenerator());
     }
 
     /**
@@ -64,6 +67,7 @@ public final class RegistryGenerator {
      * @param blockReportParser   blocks report parser
      * @param prismarineBlockReportParser prismarine block report parser
      * @param blockStateGenerator block type registration generator
+     * @param dimensionTypesGenerator the dimension types generator
      */
     public RegistryGenerator(final RegistryReportParser parser,
                              final RegistryDataGenerator dataGenerator,
@@ -72,7 +76,8 @@ public final class RegistryGenerator {
                              final RegistryProtocolIdGenerator protocolIdGenerator,
                              final BlockReportParser blockReportParser,
                              final PrismarineBlockReportParser prismarineBlockReportParser,
-                             final BlockStateGenerator blockStateGenerator) {
+                             final BlockStateGenerator blockStateGenerator,
+                             final DimensionTypesGenerator dimensionTypesGenerator) {
 
         this.parser = Objects.requireNonNull(parser, "parser");
         this.dataGenerator = Objects.requireNonNull(dataGenerator, "dataGenerator");
@@ -82,6 +87,7 @@ public final class RegistryGenerator {
         this.blockReportParser = Objects.requireNonNull(blockReportParser, "blockReportParser");
         this.prismarineBlockReportParser = Objects.requireNonNull(prismarineBlockReportParser, "prismarineBlockReportParser");
         this.blockStateGenerator = Objects.requireNonNull(blockStateGenerator, "blockStateGenerator");
+        this.dimensionTypesGenerator = Objects.requireNonNull(dimensionTypesGenerator, "dimensionTypesGenerator");
     }
 
     /**
@@ -140,9 +146,15 @@ public final class RegistryGenerator {
             }
 
             dataGenerator.generate(registryType, registryType.dataPackage(dataPackage), outputDirectory);
-            keysGenerator.generate(registryType, registryDefinition.get(),
-                    registryPackage, registryType.dataPackage(dataPackage), registryType.keysPackage(keysPackage),
-                    outputDirectory);
+            keysGenerator.generate(
+                    registryType, registryDefinition.get(),
+                    registryPackage, registryType.dataPackage(dataPackage),
+                    registryType.keysPackage(keysPackage), outputDirectory
+            );
+
+            if (registryType.identifier().equals(SupportedRegistries.DIMENSION_TYPE.identifier())) {
+                dimensionTypesGenerator.generate(registryType, registryDefinition.get(), registryType.keysPackage(keysPackage), outputDirectory);
+            }
         }
 
         /*

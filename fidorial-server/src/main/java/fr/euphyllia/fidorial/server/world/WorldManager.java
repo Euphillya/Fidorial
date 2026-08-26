@@ -14,6 +14,7 @@ import fr.euphyllia.fidorial.server.world.storage.LevelData;
 import fr.euphyllia.fidorial.server.world.storage.WorldPaths;
 import fr.euphyllia.fidorial.server.world.time.WorldTimeEngine;
 import fr.fidorial.registry.keys.BlockTypeKeys;
+import fr.fidorial.world.dimension.types.VanillaDimensionTypes;
 import fr.fidorial.world.entity.EntitySpawnBridge;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
@@ -86,8 +87,7 @@ public final class WorldManager implements AutoCloseable {
 
     public ServerWorld registerDimension(final Dimension dim, final ChunkGenerator generator) {
         return worlds.computeIfAbsent(dim.id(), _ -> {
-            final ServerWorld world = new ServerWorld(
-                    dim, storage, entityStorage, entitySerializer, generator, blockStates, generator.minY(), generator.height());
+            final ServerWorld world = new ServerWorld(dim, storage, entityStorage, entitySerializer, generator, blockStates);
             if (chunkLoader != null) {
                 world.setChunkLoader(chunkLoader);
             }
@@ -151,7 +151,7 @@ public final class WorldManager implements AutoCloseable {
     public ServerWorld overworld() {
         final ChunkGenerator chunkGenerator = defaultGenerator;
         final ChunkGenerator generator =
-                chunkGenerator != null ? chunkGenerator : FlatChunkGenerator.cobblestone(WorldConstants.MIN_Y, WorldConstants.HEIGHT);
+                chunkGenerator != null ? chunkGenerator : FlatChunkGenerator.cobblestone(VanillaDimensionTypes.OVERWORLD);
         return registerDimension(Dimension.OVERWORLD, generator);
     }
 
@@ -160,11 +160,12 @@ public final class WorldManager implements AutoCloseable {
     }
 
     public ServerWorld createWorld(final Key key, final long seed, final @Nullable WorldGenerator generator) {
-        final Dimension dim = Dimension.datapack(key.namespace(), key.value());
         final ChunkGenerator chunkGenerator = generator != null
                 ? new PluginBackedChunkGenerator(
-                generator, FlatChunkGenerator.cobblestone(generator.minY(), generator.height()), generator.minY(), generator.height())
-                : FlatChunkGenerator.cobblestone(WorldConstants.MIN_Y, WorldConstants.HEIGHT);
+                generator, FlatChunkGenerator.cobblestone(generator.dimensionType()))
+                : FlatChunkGenerator.cobblestone(VanillaDimensionTypes.OVERWORLD);
+
+        final Dimension dim = Dimension.datapack(key, chunkGenerator.dimensionType().key());
 
         final boolean existed = worlds.containsKey(dim.id());
         final ServerWorld world = registerDimension(dim, chunkGenerator);

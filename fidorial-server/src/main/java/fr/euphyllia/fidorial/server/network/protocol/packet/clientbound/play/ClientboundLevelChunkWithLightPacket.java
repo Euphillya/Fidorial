@@ -15,18 +15,19 @@ public final class ClientboundLevelChunkWithLightPacket implements ClientboundPa
     private final byte[] payload;
 
     public ClientboundLevelChunkWithLightPacket(
-            final ChunkNetworkSerializer serializer, final ChunkColumn column) {
-        this(serializer, column, ByteBufAllocator.DEFAULT);
+            final ChunkNetworkSerializer serializer, final ChunkColumn column, final boolean hasSkylight) {
+        this(serializer, column, ByteBufAllocator.DEFAULT, hasSkylight);
     }
 
     public ClientboundLevelChunkWithLightPacket(
             final ChunkNetworkSerializer serializer,
             final ChunkColumn column,
-            final ByteBufAllocator allocator) {
+            final ByteBufAllocator allocator,
+            final boolean hasSkylight) {
 
         final ByteBuf scratch = allocator.buffer();
         try {
-            serializer.writeChunk(new PacketBuffer(scratch), allocator, column);
+            serializer.writeChunk(new PacketBuffer(scratch), allocator, column, hasSkylight);
             this.payload = new byte[scratch.readableBytes()];
             scratch.readBytes(this.payload);
         } finally {

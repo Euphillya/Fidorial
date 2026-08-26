@@ -21,6 +21,8 @@ public final class SupportedRegistries {
 
   public static final RegistryTypeDefinition BLOCK = registry("minecraft:block", "BlockType");
 
+  public static final RegistryTypeDefinition DIMENSION_TYPE = registry("minecraft:dimension_type", "DimensionType");
+
   public static final List<RegistryTypeDefinition> ALL = List.of(
           registry("minecraft:attribute", "Attribute"),
           registry("minecraft:banner_pattern", "BannerPattern"),
@@ -36,7 +38,7 @@ public final class SupportedRegistries {
           registry("minecraft:damage_type", "DamageType"),
           registry("minecraft:data_component_type", "DataComponentType"),
           registry("minecraft:dialog", "Dialog"),
-          registry("minecraft:dimension_type", "DimensionType"),
+          DIMENSION_TYPE,
           registry("minecraft:enchantment", "Enchantment"),
           registry("minecraft:frog_variant", "FrogVariant"),
           registry("minecraft:game_event", "GameEvent"),
