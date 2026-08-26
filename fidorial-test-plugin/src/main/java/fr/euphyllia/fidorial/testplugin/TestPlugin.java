@@ -160,6 +160,7 @@ public final class TestPlugin implements Plugin {
         server.commands().unregisterNamespace(context.meta());
         TestBiomes.unregisterAll(server.biomes());
         TestDialogs.unregisterAll(server.dialogs());
+        TestDimensionTypes.unregisterAll(context.server().dimensionTypes());
         BullMobs.unregisterAll(server.mobs(), this);
         server.mobs().unregisterAll(this);
         TestPluginTranslations.unregister();
