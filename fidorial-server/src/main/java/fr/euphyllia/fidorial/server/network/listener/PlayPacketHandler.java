@@ -660,8 +660,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         target.addEntity(player);
 
         final RegistryHolder dynamic = server.dynamicRegistries();
-        final int dimensionType =
-                Math.max(0, dynamic.networkId(Key.key("dimension_type"), target.dimension().id()));
+        final int dimensionType = server.dimensionTypes().networkId(target.generator.dimensionType().key());
         connection.send(new ClientboundRespawnPacket(
                 target.dimension().id(),
                 dimensionType,
@@ -778,9 +777,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
         player.resetOnRespawn();
 
-        final RegistryHolder dynamic = server.dynamicRegistries();
-        final int dimensionType =
-                Math.max(0, dynamic.networkId(Key.key("dimension_type"), world.dimension().id()));
+        final int dimensionType = server.dimensionTypes().networkId(world.generator.dimensionType().key());
         connection.send(new ClientboundRespawnPacket(
                 world.dimension().id(),
                 dimensionType,
