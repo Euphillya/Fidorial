@@ -29,6 +29,7 @@ import fr.fidorial.world.BlockPos;
 import fr.fidorial.world.Chunk;
 import fr.fidorial.world.ChunkPos;
 import fr.fidorial.world.World;
+import fr.fidorial.world.dimension.DimensionTypeDefinition;
 import fr.fidorial.world.entity.EntitySpawnBridge;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongIterable;
@@ -60,6 +61,7 @@ public final class ServerWorld implements World {
     private final BlockStateRegistry blockStates;
     private final EntityManager entities = new EntityManager();
     private final WorldTimeEngine dayNightCycle;
+    private final DimensionTypeDefinition dimensionType;
     private final int minY;
     private final int height;
     private final WorldLightManager lightManager;
@@ -85,9 +87,7 @@ public final class ServerWorld implements World {
             final EntityRegionStorage entityStorage,
             final AnvilEntitySerializer entitySerializer,
             final ChunkGenerator generator,
-            final BlockStateRegistry blockStates,
-            final int minY,
-            final int height
+            final BlockStateRegistry blockStates
     ) {
         this.dimension = dimension;
         this.storage = storage;
@@ -96,8 +96,9 @@ public final class ServerWorld implements World {
         this.generator = generator;
         this.blockStates = blockStates;
         this.dayNightCycle = new WorldTimeEngine(WorldClocks.forDimension(dimension));
-        this.minY = minY;
-        this.height = height;
+        this.dimensionType = generator.dimensionType();
+        this.minY = dimensionType.minY();
+        this.height = dimensionType.height();
         this.lightManager = new WorldLightManager(new WorldLightAccess());
         this.fallbackEngine = new FloodFillLightEngine(minY, height);
     }
@@ -133,6 +134,11 @@ public final class ServerWorld implements World {
     @Override
     public int height() {
         return height;
+    }
+
+    @Override
+    public DimensionTypeDefinition dimensionType() {
+        return dimensionType;
     }
 
     public void setChunkLoader(final AsyncChunkLoader loader) {
@@ -261,7 +267,7 @@ public final class ServerWorld implements World {
         try {
             column = loaded.computeIfAbsent(k, _ -> {
                 try {
-                    final ChunkColumn fromDisk = storage.load(dimension, chunkX, chunkZ, generator.minY(), generator.height());
+                    final ChunkColumn fromDisk = storage.load(dimension, chunkX, chunkZ, dimensionType.minY(), dimensionType.height());
                     if (fromDisk != null) {
                         return fromDisk;
                     }

@@ -3,33 +3,31 @@ package fr.euphyllia.fidorial.server.world;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
 import fr.fidorial.registry.keys.BlockTypeKeys;
+import fr.fidorial.world.dimension.DimensionTypeDefinition;
 import net.kyori.adventure.key.Key;
 
 public final class FlatChunkGenerator implements ChunkGenerator {
 
-    private final int minY;
-    private final int height;
     private final BlockState floor;
     private final Key biome;
     private final int floorThickness;
+    private final DimensionTypeDefinition dimensionType;
 
-    public FlatChunkGenerator(int minY, int height, BlockState floor, Key biome, int floorThickness) {
-        this.minY = minY;
-        this.height = height;
+    public FlatChunkGenerator(DimensionTypeDefinition dimensionType, BlockState floor, Key biome, int floorThickness) {
+        this.dimensionType = dimensionType;
         this.floor = floor;
         this.biome = biome;
         this.floorThickness = floorThickness;
     }
 
-    public static FlatChunkGenerator cobblestone(int minY, int height) {
-        return new FlatChunkGenerator(minY, height,
-                BlockState.of(Key.key("cobblestone")), Key.key("plains"), 16);
+    public static FlatChunkGenerator cobblestone(final DimensionTypeDefinition dimensionType) {
+        return new FlatChunkGenerator(dimensionType, BlockState.of(Key.key("cobblestone")), Key.key("plains"), 16);
     }
 
     @Override
     public ChunkColumn generate(int chunkX, int chunkZ) {
-        ChunkColumn chunk = new ChunkColumn(chunkX, chunkZ, minY, height, BlockState.of(BlockTypeKeys.AIR.key()), biome);
-        for (int y = minY; y < minY + floorThickness; y++) {
+        ChunkColumn chunk = new ChunkColumn(chunkX, chunkZ, dimensionType.minY(), dimensionType.height(), BlockState.of(BlockTypeKeys.AIR.key()), biome);
+        for (int y = dimensionType.minY(); y < dimensionType.minY() + floorThickness; y++) {
             for (int z = 0; z < 16; z++) {
                 for (int x = 0; x < 16; x++) {
                     chunk.setBlock(x, y, z, floor);
@@ -45,12 +43,7 @@ public final class FlatChunkGenerator implements ChunkGenerator {
     }
 
     @Override
-    public int minY() {
-        return this.minY;
-    }
-
-    @Override
-    public int height() {
-        return this.height;
+    public DimensionTypeDefinition dimensionType() {
+        return dimensionType;
     }
 }

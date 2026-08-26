@@ -24,6 +24,7 @@ import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
 import fr.euphyllia.fidorial.server.registry.dialog.FidorialDialogRegistry;
+import fr.euphyllia.fidorial.server.registry.dimension.FidorialDimensionTypeRegistry;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -161,7 +162,8 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
                 continue;
             }
             if (reg.name().equals(FidorialBiomeRegistry.REGISTRY_NAME)
-                    || reg.name().equals(FidorialDialogRegistry.REGISTRY_NAME)) {
+                    || reg.name().equals(FidorialDialogRegistry.REGISTRY_NAME)
+                    || reg.name().equals(FidorialDimensionTypeRegistry.REGISTRY_NAME)) {
                 continue;
             }
             connection.send(ClientboundRegistryDataPacket.knownOnly(reg.name(), reg.entries()));
@@ -174,11 +176,15 @@ public final class ConfigurationPacketHandler implements ConfigurationPacketList
         connection.send(new ClientboundRegistryDataPacket(
                 FidorialDialogRegistry.REGISTRY_NAME,
                 server.dialogs().networkEntries()));
+
+        connection.send(new ClientboundRegistryDataPacket(
+                FidorialDimensionTypeRegistry.REGISTRY_NAME,
+                server.dimensionTypes().networkEntries()));
     }
 
     private void sendTags() {
         connection.send(new ClientboundUpdateTagsPacket(
-                server.dynamicRegistries(), server.biomeRegistry(), server.dialogs()));
+                server.dynamicRegistries(), server.biomeRegistry(), server.dialogs(), server.dimensionTypes()));
     }
 
     private boolean sendResourcePackIfConfigured() {

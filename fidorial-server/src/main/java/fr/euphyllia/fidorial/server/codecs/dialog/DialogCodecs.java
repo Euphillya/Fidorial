@@ -163,21 +163,21 @@ public final class DialogCodecs {
     static {
         BODY_CODEC = DispatchCodecs.<DialogBody>matcher("type", List.of(
                 DispatchCodecs.Variant.of(
-                        "minecraft:plain_message", null, true, DialogBody.PlainMessage.class, PLAIN_MESSAGE_CODEC),
+                        "plain_message", null, true, DialogBody.PlainMessage.class, PLAIN_MESSAGE_CODEC),
                 DispatchCodecs.Variant.of(
-                        "minecraft:item", null, true, DialogBody.Item.class, ITEM_BODY_CODEC)
+                        "item", null, true, DialogBody.Item.class, ITEM_BODY_CODEC)
         )).codec();
 
         INPUT_CODEC = DispatchCodecs.<DialogInput>matcher("type", List.of(
                 DispatchCodecs.Variant.of(
-                        "minecraft:text", null, true, DialogInput.Text.class, TEXT_INPUT_CODEC),
+                        "text", null, true, DialogInput.Text.class, TEXT_INPUT_CODEC),
                 DispatchCodecs.Variant.of(
-                        "minecraft:boolean", null, true, DialogInput.Bool.class, BOOL_INPUT_CODEC),
+                        "boolean", null, true, DialogInput.Bool.class, BOOL_INPUT_CODEC),
                 DispatchCodecs.Variant.of(
-                        "minecraft:single_option", null, true,
+                        "single_option", null, true,
                         DialogInput.SingleOption.class, SINGLE_OPTION_INPUT_CODEC),
                 DispatchCodecs.Variant.of(
-                        "minecraft:number_range", null, true,
+                        "number_range", null, true,
                         DialogInput.NumberRange.class, NUMBER_RANGE_INPUT_CODEC)
         )).codec();
 
@@ -185,18 +185,18 @@ public final class DialogCodecs {
             final Codec<Dialog> dialog = eitherReferenceOr(self);
             return DispatchCodecs.<DialogDefinition>matcher("type", List.of(
                     DispatchCodecs.Variant.of(
-                            "minecraft:notice", null, true, NoticeDialog.class, noticeCodec()),
+                            "notice", null, true, NoticeDialog.class, noticeCodec()),
                     DispatchCodecs.Variant.of(
-                            "minecraft:confirmation", null, true,
+                            "confirmation", null, true,
                             ConfirmationDialog.class, confirmationCodec()),
                     DispatchCodecs.Variant.of(
-                            "minecraft:multi_action", null, true,
+                            "multi_action", null, true,
                             MultiActionDialog.class, multiActionCodec()),
                     DispatchCodecs.Variant.of(
-                            "minecraft:server_links", null, true,
+                            "server_links", null, true,
                             ServerLinksDialog.class, serverLinksCodec()),
                     DispatchCodecs.Variant.of(
-                            "minecraft:dialog_list", null, true,
+                            "dialog_list", null, true,
                             DialogListDialog.class, dialogListCodec(dialog))
             )).codec();
         });

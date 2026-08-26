@@ -1,6 +1,9 @@
 package fr.euphyllia.fidorial.testplugin.terrain;
 
+import fr.fidorial.world.dimension.DimensionTypeDefinition;
+import fr.fidorial.world.dimension.types.VanillaDimensionTypes;
 import fr.fidorial.world.generation.GeneratedChunk;
+import fr.fidorial.world.generation.GenerationDescriptor;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
 
@@ -39,13 +42,21 @@ public final class HillsGenerator implements WorldGenerator {
     private final PerlinNoise heightNoise;
     private final PerlinNoise detailNoise;
 
+    private final DimensionTypeDefinition dimensionType;
+
     public HillsGenerator(final long seed, final int baseHeight, final int amplitude, final int seaLevel) {
+        this(seed, baseHeight, amplitude, seaLevel, VanillaDimensionTypes.OVERWORLD);
+    }
+
+    public HillsGenerator(final long seed, final int baseHeight, final int amplitude, final int seaLevel,
+                          final DimensionTypeDefinition dimensionType) {
         this.baseHeight = baseHeight;
         this.amplitude = amplitude;
         this.seaLevel = seaLevel;
         this.highlandLevel = baseHeight + amplitude / 2;
         this.heightNoise = new PerlinNoise(seed);
         this.detailNoise = new PerlinNoise(seed * 31 + 7);
+        this.dimensionType = dimensionType;
     }
 
     @Override
@@ -91,8 +102,8 @@ public final class HillsGenerator implements WorldGenerator {
                 if ((x & 3) == 0 && (z & 3) == 0) {
                     final Key biome = underWater ? BIOME_RIVER
                             : surface <= seaLevel + 2 ? BIOME_BEACH
-                              : surface >= highlandLevel ? BIOME_PEAKS
-                                : BIOME_PLAINS;
+                            : surface >= highlandLevel ? BIOME_PEAKS
+                            : BIOME_PLAINS;
                     for (int y = minY; y < minY + chunk.height(); y += 4) {
                         chunk.setBiome(x, y, z, biome);
                     }
@@ -108,5 +119,15 @@ public final class HillsGenerator implements WorldGenerator {
         final double hills = heightNoise.fbm(worldX * 0.004, worldZ * 0.004, 4);
         final double detail = detailNoise.fbm(worldX * 0.02, worldZ * 0.02, 2);
         return baseHeight + (int) Math.round(hills * amplitude + detail * 4);
+    }
+
+    @Override
+    public DimensionTypeDefinition dimensionType() {
+        return dimensionType;
+    }
+
+    @Override
+    public GenerationDescriptor describeForSave() {
+        return GenerationDescriptor.noise(dimensionType.key(), Key.key("fidorial", "hills"));
     }
 }

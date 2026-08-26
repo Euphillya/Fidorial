@@ -14,21 +14,22 @@ public final class ClientboundLightUpdatePacket implements ClientboundPacket {
 
     private final byte[] payload;
 
-    public ClientboundLightUpdatePacket(final ChunkNetworkSerializer serializer, final ChunkColumn column) {
-        this(serializer, column, ByteBufAllocator.DEFAULT);
+    public ClientboundLightUpdatePacket(final ChunkNetworkSerializer serializer, final ChunkColumn column, final boolean hasSkylight) {
+        this(serializer, column, ByteBufAllocator.DEFAULT, hasSkylight);
     }
 
     public ClientboundLightUpdatePacket(
             final ChunkNetworkSerializer serializer,
             final ChunkColumn column,
-            final ByteBufAllocator allocator) {
+            final ByteBufAllocator allocator,
+            final boolean hasSkylight) {
 
         final ByteBuf scratch = allocator.buffer();
         try {
             final PacketBuffer out = new PacketBuffer(scratch);
             out.writeVarInt(column.chunkX());
             out.writeVarInt(column.chunkZ());
-            serializer.writeLightData(out, column);
+            serializer.writeLightData(out, column, hasSkylight);
             this.payload = new byte[scratch.readableBytes()];
             scratch.readBytes(this.payload);
         } finally {

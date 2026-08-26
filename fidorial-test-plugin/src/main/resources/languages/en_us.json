@@ -1,4 +1,5 @@
 {
   "fidorial.baguette.unknown": "<red>Unknown baguette type: '<arg:0>'</red>",
-  "console.fidorial.baguette.unknown": "<red>Unknown baguette type: '<arg:0>'</red>"
+  "console.fidorial.baguette.unknown": "<red>Unknown baguette type: '<arg:0>'</red>",
+  "fidorial.bed.sleep.not_allowed": "<red>You cannot sleep in this dimension. You can only set your spawn point at night."
 }

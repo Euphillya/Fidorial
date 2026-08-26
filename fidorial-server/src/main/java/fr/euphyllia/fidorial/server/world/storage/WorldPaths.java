@@ -26,7 +26,7 @@ public class WorldPaths {
     }
 
     private Path modernDimensionRoot(final Dimension dim) {
-        return worldRoot.resolve("dimensions").resolve(dim.namespace()).resolve(dim.path());
+        return worldRoot.resolve("dimensions").resolve(dim.id().namespace()).resolve(dim.id().value());
     }
 
     private Path legacyDimensionRoot(final Dimension dim) {

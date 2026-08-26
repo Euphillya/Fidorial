@@ -9,6 +9,8 @@ import fr.euphyllia.fidorial.testplugin.CounterService;
 import fr.euphyllia.fidorial.testplugin.TestPlugin;
 import fr.euphyllia.fidorial.testplugin.command.argument.BaguetteArgument;
 import fr.euphyllia.fidorial.testplugin.terrain.HillsGenerator;
+import fr.euphyllia.fidorial.testplugin.terrain.SwamplandGenerator;
+import fr.euphyllia.fidorial.testplugin.worldgen.OverworldGenerator;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.command.MessageComponentSerializer;
@@ -59,6 +61,10 @@ public final class ApiTestCommand {
 
     private final Map<UUID, Map<Key, BossBar>> playerBossBars = new ConcurrentHashMap<>();
 
+    private static final List<String> GENERATOR_NAMES = List.of(
+            "swampland", "hills", "overworld"
+    );
+
     public ApiTestCommand(final TestPlugin plugin) {
         ApiTestCommand.plugin = plugin;
     }
@@ -106,9 +112,23 @@ public final class ApiTestCommand {
                         .then(argument("name", ArgumentTypes.world())
                                 .executes(ctx -> tpWorld(plugin, ctx, ctx.getArgument("name", World.class).key()))))
                 .then(literal("createworld")
-                        .executes(ctx -> createWorld(ctx, Key.key(UUID.randomUUID().toString())))
+                        .executes(ctx -> createWorld(ctx, Key.key(UUID.randomUUID().toString()), "overworld"))
                         .then(argument("name", ArgumentTypes.key())
-                                .executes(ctx -> createWorld(ctx, ctx.getArgument("name", Key.class)))))
+                                .executes(ctx -> createWorld(ctx, ctx.getArgument("name", Key.class), "overworld"))
+                                .then(argument("generator", ArgumentTypes.greedyString())
+                                        .suggests((_, builder) -> {
+                                            final String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
+                                            for (final String name : GENERATOR_NAMES) {
+                                                if (name.startsWith(remaining)) {
+                                                    builder.suggest(name);
+                                                }
+                                            }
+                                            return builder.buildFuture();
+                                        })
+                                        .executes(ctx -> createWorld(
+                                                ctx,
+                                                ctx.getArgument("name", Key.class),
+                                                ctx.getArgument("generator", String.class))))))
                 .then(literal("unloadworld")
                         .executes(ctx -> unloadWorld(ctx, Key.key(UUID.randomUUID().toString())))
                         .then(argument("name", ArgumentTypes.world())
@@ -331,8 +351,6 @@ public final class ApiTestCommand {
         final CommandSender sender = ctx.getSource().sender();
 
         if (!(sender instanceof final Player player)) {
-            // placeholder, the server command should support non players executors as it will need the players selected
-            // look at mc brigadier commands https://mcsrc.dev/1/26.2/net/minecraft/server/commands/BossBarCommands
             plugin.msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
             return Command.SINGLE_SUCCESS;
         }
@@ -519,8 +537,17 @@ public final class ApiTestCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static WorldGenerator resolveGenerator(final String name, final long seed) {
+        return switch (name.toLowerCase(Locale.ROOT)) {
+            case "swampland" -> new SwamplandGenerator(seed, 68, 5, 62, 110);
+            case "hills" -> new HillsGenerator(seed, 64, 24, 60);
+            case "overworld" -> new OverworldGenerator(seed);
+            default -> throw new IllegalArgumentException("Unknown generator: " + name);
+        };
+    }
+
     private static int createWorld(
-            final CommandContext<CommandSource> ctx, final Key key) {
+            final CommandContext<CommandSource> ctx, final Key key, final String generatorName) {
         final CommandSender sender = ctx.getSource().sender();
 
         if (plugin.server().world(key).isPresent()) {
@@ -529,7 +556,7 @@ public final class ApiTestCommand {
         }
 
         final long seed = 20260716L;
-        final WorldGenerator generator = new HillsGenerator(seed, 64, 24, 60);
+        final WorldGenerator generator = resolveGenerator(generatorName, seed);
         final WorldBuilder spec = WorldBuilder.builder(key)
                 .seed(seed)
                 .generator(generator)
@@ -542,6 +569,7 @@ public final class ApiTestCommand {
                 "[TestPlugin] Monde cree: " + world.key()
                         + " | minY=" + world.minY()
                         + " | height=" + world.height()
+                        + " | type=" + world.dimensionType().key()
                         + " | total=" + plugin.server().worlds().size());
 
         return Command.SINGLE_SUCCESS;

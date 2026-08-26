@@ -80,6 +80,8 @@ module fr.fidorial {
     exports fr.fidorial.command.argument.custom;
     exports fr.fidorial.world.biome;
     exports fr.fidorial.world.environment;
+    exports fr.fidorial.world.dimension;
+    exports fr.fidorial.world.dimension.types;
 
     requires com.google.common;
     requires com.google.gson;

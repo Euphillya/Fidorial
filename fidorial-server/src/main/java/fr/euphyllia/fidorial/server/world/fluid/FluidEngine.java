@@ -332,7 +332,7 @@ public final class FluidEngine implements FluidManager {
         if (key == null || Dimension.OVERWORLD.id().equals(key)) {
             return worlds.overworld();
         }
-        return worlds.dimension(Dimension.datapack(key.namespace(), key.value()));
+        return worlds.dimension(Dimension.datapack(key));
     }
 
     public void setLightHook(final LightHook hook) {

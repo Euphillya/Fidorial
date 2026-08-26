@@ -175,7 +175,7 @@ public final class ChunkViewTracker implements ChunkViewSource {
 
         final ClientboundLevelChunkWithLightPacket packet;
         synchronized (world.lightManager()) {
-            packet = new ClientboundLevelChunkWithLightPacket(serializer, column);
+            packet = new ClientboundLevelChunkWithLightPacket(serializer, column, world.generator.dimensionType().hasSkylight());
         }
         connection.send(packet);
     }

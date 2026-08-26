@@ -203,7 +203,7 @@ public class LightUpdateDispatcher {
                                 if (column == null) {
                                     continue;
                                 }
-                                broadcaster.accept(new ClientboundLightUpdatePacket(serializer, column));
+                                broadcaster.accept(new ClientboundLightUpdatePacket(serializer, column, serverWorld.generator.dimensionType().hasSkylight()));
                             }
                         }
                     } catch (final InterruptedException e) {
@@ -301,7 +301,7 @@ public class LightUpdateDispatcher {
                         if (column == null) {
                             continue;
                         }
-                        broadcaster.accept(new ClientboundLightUpdatePacket(serializer, column));
+                        broadcaster.accept(new ClientboundLightUpdatePacket(serializer, column, serverWorld.generator.dimensionType().hasSkylight()));
                     }
                 }
             } catch (final InterruptedException e) {
