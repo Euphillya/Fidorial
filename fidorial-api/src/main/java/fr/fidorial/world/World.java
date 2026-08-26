@@ -1,6 +1,7 @@
 package fr.fidorial.world;
 
 import fr.fidorial.entity.Entity;
+import fr.fidorial.world.dimension.DimensionTypeDefinition;
 import fr.fidorial.world.time.DayNightCycle;
 import net.kyori.adventure.audience.ForwardingAudience;
 import net.kyori.adventure.key.Key;
@@ -16,6 +17,13 @@ public interface World extends Keyed, ForwardingAudience {
     int minY();
 
     int height();
+
+    /**
+     * {@return this world's dimension type}
+     *
+     * @since 0.1.0
+     */
+    DimensionTypeDefinition dimensionType();
 
     DayNightCycle dayNightCycle();
 

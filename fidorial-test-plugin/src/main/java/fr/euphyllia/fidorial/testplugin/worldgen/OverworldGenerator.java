@@ -10,6 +10,8 @@ import fr.euphyllia.fidorial.testplugin.worldgen.stage.OreStage;
 import fr.euphyllia.fidorial.testplugin.worldgen.stage.RavineCarver;
 import fr.euphyllia.fidorial.testplugin.worldgen.stage.SurfaceStage;
 import fr.euphyllia.fidorial.testplugin.worldgen.stage.TerrainStage;
+import fr.fidorial.world.dimension.DimensionTypeDefinition;
+import fr.fidorial.world.dimension.types.VanillaDimensionTypes;
 import fr.fidorial.world.generation.GeneratedChunk;
 import fr.fidorial.world.generation.GenerationDescriptor;
 import fr.fidorial.world.generation.WorldGenerator;
@@ -19,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 public final class OverworldGenerator implements WorldGenerator {
 
     private final GeneratorSettings settings;
+    private final DimensionTypeDefinition dimensionType;
     private final ClimateSampler climate;
     private final TerrainStage terrain;
     private final BiomeStage biomes;
@@ -30,7 +33,12 @@ public final class OverworldGenerator implements WorldGenerator {
     private final ThreadLocal<ChunkScratch> scratches = ThreadLocal.withInitial(ChunkScratch::new);
 
     public OverworldGenerator(final GeneratorSettings settings) {
+        this(settings, VanillaDimensionTypes.OVERWORLD);
+    }
+
+    public OverworldGenerator(final GeneratorSettings settings, final DimensionTypeDefinition dimensionType) {
         this.settings = settings;
+        this.dimensionType = dimensionType;
         this.climate = new ClimateSampler(settings.seed());
 
         final TerrainShaper shaper = new TerrainShaper(settings.seaLevel());
@@ -72,8 +80,13 @@ public final class OverworldGenerator implements WorldGenerator {
     }
 
     @Override
+    public DimensionTypeDefinition dimensionType() {
+        return dimensionType;
+    }
+
+    @Override
     public GenerationDescriptor describeForSave() {
-        return GenerationDescriptor.noise(Key.key("overworld"), Key.key("overworld"));
+        return GenerationDescriptor.noise(dimensionType.key(), Key.key("fidorial", "overworld"));
     }
 
     public ClimatePoint climateAt(final int worldX, final int worldZ) {

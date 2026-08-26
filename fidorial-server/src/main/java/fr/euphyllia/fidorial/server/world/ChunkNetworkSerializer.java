@@ -34,7 +34,7 @@ public final class ChunkNetworkSerializer {
         this.biomes = biomes;
     }
 
-    public void writeChunk(final PacketBuffer p, final ByteBufAllocator alloc, final ChunkColumn chunk) {
+    public void writeChunk(final PacketBuffer p, final ByteBufAllocator alloc, final ChunkColumn chunk, final boolean hasSkylight) {
         p.writeInt(chunk.chunkX());
         p.writeInt(chunk.chunkZ());
         p.writeVarInt(0); // heightmaps : 0 → le client recalcule
@@ -44,7 +44,7 @@ public final class ChunkNetworkSerializer {
 
         writeBlockEntities(p, chunk);
 
-        writeLightData(p, chunk);
+        writeLightData(p, chunk, hasSkylight);
     }
 
     /**
@@ -164,13 +164,17 @@ public final class ChunkNetworkSerializer {
             for (final Key biome : palette) {
                 sp.writeVarInt(biomes.networkIdOrFallback(biome));
             }
-            writeLongs(sp, container.packedData(), bits, ChunkSection.BIOME_COUNT);
+            writeLongs(sp, BitPacking.pack(snap.data(), bits), bits, ChunkSection.BIOME_COUNT);
             return;
         }
 
         final int directBits = BitPacking.bitsFor(biomes.totalRegistered(), 1);
         sp.writeByte(directBits);
-        writeLongs(sp, container.packedGlobal(directBits, biomes::networkIdOrFallback), directBits, ChunkSection.BIOME_COUNT);
+        final int[] global = new int[snap.data().length];
+        for (int i = 0; i < global.length; i++) {
+            global[i] = biomes.networkIdOrFallback(snap.get(i));
+        }
+        writeLongs(sp, BitPacking.pack(global, directBits), directBits, ChunkSection.BIOME_COUNT);
     }
 
     public byte[] buildBiomes(final ByteBufAllocator alloc, final ChunkColumn chunk) {
@@ -196,7 +200,7 @@ public final class ChunkNetworkSerializer {
         }
     }
 
-    public void writeLightData(final PacketBuffer p, final ChunkColumn chunk) {
+    public void writeLightData(final PacketBuffer p, final ChunkColumn chunk, final boolean hasSkylight) {
         final int worldSections = chunk.sectionCount();
         final int lightSections = worldSections + 2;
         final int topIndex = lightSections - 1;
@@ -214,7 +218,9 @@ public final class ChunkNetworkSerializer {
         for (int i = 0; i < lightSections; i++) {
             final byte[] sky;
 
-            if (i == topIndex) {
+            if (!hasSkylight) {
+                sky = null; // no sky light layer for this dimension at all
+            } else if (i == topIndex) {
                 sky = FULL_LIGHT;
             } else if (i == 0) {
                 sky = null;

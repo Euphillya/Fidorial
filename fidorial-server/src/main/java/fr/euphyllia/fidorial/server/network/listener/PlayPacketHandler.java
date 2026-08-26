@@ -129,7 +129,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.setPlayer(player);
         world.addEntity(player);
 
-        sendLoginSequence(dynamic);
+        sendLoginSequence();
         openChunkView(world, dynamic, spawn.chunk());
         spawnPlayer(spawn);
 
@@ -237,8 +237,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
     }
 
-    private void sendLoginSequence(final RegistryHolder dynamic) {
-        final int dimensionType = Math.max(0, dynamic.networkId(Key.key("dimension_type"), worldId()));
+    private void sendLoginSequence() {
+        final int dimensionType = server.dimensionTypes().networkId(worldManager().world(worldId()).generator.dimensionType().key());
         final Key[] dimensions = worldManager().worlds().stream().map(ServerWorld::key).toArray(Key[]::new);
         connection.send(new ClientboundLoginPacket(
                 player.entityId(),

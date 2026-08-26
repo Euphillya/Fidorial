@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import fr.fidorial.world.dimension.DimensionTypeDefinition;
 import fr.fidorial.world.generation.GenerationDescriptor;
 import fr.fidorial.world.generation.WorldGenerator;
 import net.kyori.adventure.key.Key;
@@ -14,20 +15,17 @@ public final class PluginBackedChunkGenerator implements ChunkGenerator {
 
     private final WorldGenerator generator;
     private final ChunkGenerator fallback;
-    private final int minY;
-    private final int height;
+    private final DimensionTypeDefinition dimensionType;
 
-    public PluginBackedChunkGenerator(
-            final WorldGenerator generator, final ChunkGenerator fallback, final int minY, final int height) {
+    public PluginBackedChunkGenerator(final WorldGenerator generator, final ChunkGenerator fallback) {
         this.generator = generator;
         this.fallback = fallback;
-        this.minY = minY;
-        this.height = height;
+        this.dimensionType = generator.dimensionType();
     }
 
     @Override
     public ChunkColumn generate(final int chunkX, final int chunkZ) {
-        final PluginGeneratedChunk chunk = new PluginGeneratedChunk(chunkX, chunkZ, minY, height, DEFAULT_BIOME);
+        final PluginGeneratedChunk chunk = new PluginGeneratedChunk(chunkX, chunkZ, dimensionType.minY(), dimensionType.height(), DEFAULT_BIOME);
         try {
             generator.generate(chunk);
             return chunk.column();
@@ -55,12 +53,7 @@ public final class PluginBackedChunkGenerator implements ChunkGenerator {
     }
 
     @Override
-    public int minY() {
-        return this.minY;
-    }
-
-    @Override
-    public int height() {
-        return this.height;
+    public DimensionTypeDefinition dimensionType() {
+        return dimensionType;
     }
 }

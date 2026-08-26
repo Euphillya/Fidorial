@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.registry;
 
 import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
 import fr.euphyllia.fidorial.server.registry.dialog.FidorialDialogRegistry;
+import fr.euphyllia.fidorial.server.registry.dimension.FidorialDimensionTypeRegistry;
 import fr.euphyllia.fidorial.server.registry.entity.EntityTypeRegistry;
 import fr.fidorial.registry.Registry;
 import fr.fidorial.registry.RegistryKey;
@@ -20,7 +21,6 @@ import fr.fidorial.registry.data.CowVariant;
 import fr.fidorial.registry.data.DamageType;
 import fr.fidorial.registry.data.DataComponentType;
 import fr.fidorial.registry.data.Dialog;
-import fr.fidorial.registry.data.DimensionType;
 import fr.fidorial.registry.data.Enchantment;
 import fr.fidorial.registry.data.FrogVariant;
 import fr.fidorial.registry.data.GameEvent;
@@ -57,7 +57,6 @@ import fr.fidorial.registry.keys.CowVariantKeys;
 import fr.fidorial.registry.keys.DamageTypeKeys;
 import fr.fidorial.registry.keys.DataComponentTypeKeys;
 import fr.fidorial.registry.keys.DialogKeys;
-import fr.fidorial.registry.keys.DimensionTypeKeys;
 import fr.fidorial.registry.keys.EnchantmentKeys;
 import fr.fidorial.registry.keys.FrogVariantKeys;
 import fr.fidorial.registry.keys.GameEventKeys;
@@ -96,19 +95,22 @@ public final class Registries {
     private final Map<RegistryKey<?>, Registry<?>> typedRegistries;
     private final FidorialBiomeRegistry biomes;
     private final FidorialDialogRegistry dialogs;
+    private final FidorialDimensionTypeRegistry dimensionTypes;
 
     private Registries(
             final RegistryHolder dynamic,
             final RegistryHolder frozen,
             final Map<RegistryKey<?>, Registry<?>> typedRegistries,
             final FidorialBiomeRegistry biomes,
-            final FidorialDialogRegistry dialogs
+            final FidorialDialogRegistry dialogs,
+            final FidorialDimensionTypeRegistry dimensionTypes
     ) {
         this.dynamic = dynamic;
         this.frozen = frozen;
         this.typedRegistries = Map.copyOf(typedRegistries);
         this.biomes = biomes;
         this.dialogs = dialogs;
+        this.dimensionTypes = dimensionTypes;
     }
 
     public static Registries load() {
@@ -117,6 +119,7 @@ public final class Registries {
         final RegistryHolder dynamic = RegistryHolder.of(data.dynamic());
         final FidorialBiomeRegistry biomes = FidorialBiomeRegistry.bootstrap(dynamic, FALLBACK_BIOME);
         final FidorialDialogRegistry dialogs = FidorialDialogRegistry.bootstrap(dynamic);
+        final FidorialDimensionTypeRegistry dimensionTypes = FidorialDimensionTypeRegistry.bootstrap(dynamic);
 
         // bootstrap our API registries
         registries.put(RegistryKey.ATTRIBUTE, simple(RegistryKey.ATTRIBUTE, Attribute.class, AttributeKeys.values()));
@@ -133,7 +136,6 @@ public final class Registries {
         registries.put(RegistryKey.DAMAGE_TYPE, simple(RegistryKey.DAMAGE_TYPE, DamageType.class, DamageTypeKeys.values()));
         registries.put(RegistryKey.DATA_COMPONENT_TYPE, simple(RegistryKey.DATA_COMPONENT_TYPE, DataComponentType.class, DataComponentTypeKeys.values()));
         registries.put(RegistryKey.DIALOG, simple(RegistryKey.DIALOG, Dialog.class, DialogKeys.values()));
-        registries.put(RegistryKey.DIMENSION_TYPE, simple(RegistryKey.DIMENSION_TYPE, DimensionType.class, DimensionTypeKeys.values()));
         registries.put(RegistryKey.ENCHANTMENT, simple(RegistryKey.ENCHANTMENT, Enchantment.class, EnchantmentKeys.values()));
         registries.put(RegistryKey.FROG_VARIANT, simple(RegistryKey.FROG_VARIANT, FrogVariant.class, FrogVariantKeys.values()));
         registries.put(RegistryKey.GAME_EVENT, simple(RegistryKey.GAME_EVENT, GameEvent.class, GameEventKeys.values()));
@@ -159,7 +161,7 @@ public final class Registries {
         registries.put(RegistryKey.ZOMBIE_NAUTILUS_VARIANT, simple(RegistryKey.ZOMBIE_NAUTILUS_VARIANT, ZombieNautilusVariant.class, ZombieNautilusVariantKeys.values()));
         registries.put(RegistryKey.ENTITY_TYPE, new EntityTypeRegistry());
 
-        return new Registries(dynamic, RegistryHolder.of(data.frozen()), registries, biomes, dialogs);
+        return new Registries(dynamic, RegistryHolder.of(data.frozen()), registries, biomes, dialogs, dimensionTypes);
     }
 
     private static <T> SimpleRegistry<T> simple(
@@ -176,6 +178,10 @@ public final class Registries {
 
     public FidorialDialogRegistry dialogs() {
         return dialogs;
+    }
+
+    public FidorialDimensionTypeRegistry dimensionTypes() {
+        return dimensionTypes;
     }
 
     public RegistryHolder dynamic() {

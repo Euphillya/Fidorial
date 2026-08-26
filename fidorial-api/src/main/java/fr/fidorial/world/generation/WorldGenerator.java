@@ -1,15 +1,15 @@
 package fr.fidorial.world.generation;
 
+import fr.fidorial.world.dimension.DimensionTypeDefinition;
+import fr.fidorial.world.dimension.types.VanillaDimensionTypes;
+
 @FunctionalInterface
 public interface WorldGenerator {
+
     void generate(GeneratedChunk chunk);
 
-    default int minY() {
-        return -64;
-    }
-
-    default int height() {
-        return 384;
+    default DimensionTypeDefinition dimensionType() {
+        return VanillaDimensionTypes.OVERWORLD;
     }
 
     default GenerationDescriptor describeForSave() {

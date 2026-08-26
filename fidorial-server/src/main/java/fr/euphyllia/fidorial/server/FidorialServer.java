@@ -43,6 +43,7 @@ import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
 import fr.euphyllia.fidorial.server.registry.data.BlockStateIds;
 import fr.euphyllia.fidorial.server.registry.data.BlockStateLightProperties;
 import fr.euphyllia.fidorial.server.registry.dialog.FidorialDialogRegistry;
+import fr.euphyllia.fidorial.server.registry.dimension.FidorialDimensionTypeRegistry;
 import fr.euphyllia.fidorial.server.schedulers.AiWorker;
 import fr.euphyllia.fidorial.server.schedulers.DayNightThread;
 import fr.euphyllia.fidorial.server.schedulers.LightUpdateDispatcher;
@@ -58,7 +59,6 @@ import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
 import fr.euphyllia.fidorial.server.world.FlatChunkGenerator;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.euphyllia.fidorial.server.world.ServiceBackedChunkGenerator;
-import fr.euphyllia.fidorial.server.world.WorldConstants;
 import fr.euphyllia.fidorial.server.world.WorldManager;
 import fr.euphyllia.fidorial.server.world.block.FidorialBlockRegistry;
 import fr.euphyllia.fidorial.server.world.chunk.BlockStateProperties;
@@ -91,6 +91,7 @@ import fr.fidorial.world.World;
 import fr.fidorial.world.WorldBuilder;
 import fr.fidorial.world.biome.BiomeRegistry;
 import fr.fidorial.world.block.Blocks;
+import fr.fidorial.world.dimension.types.VanillaDimensionTypes;
 import fr.fidorial.world.entity.EntitySpawnBridge;
 import fr.fidorial.world.fluid.FluidManager;
 import fr.fidorial.world.weather.WeatherManager;
@@ -346,9 +347,7 @@ public final class FidorialServer implements Server {
         });
         worldManager.setDefaultGenerator(new ServiceBackedChunkGenerator(
                 services,
-                FlatChunkGenerator.cobblestone(WorldConstants.MIN_Y, WorldConstants.HEIGHT),
-                WorldConstants.MIN_Y,
-                WorldConstants.HEIGHT));
+                FlatChunkGenerator.cobblestone(VanillaDimensionTypes.OVERWORLD)));
         worldManager.overworld();
         weatherEngine.start();
         dayNightEngine.start();
@@ -523,6 +522,11 @@ public final class FidorialServer implements Server {
     @Override
     public FidorialDialogRegistry dialogs() {
         return registries.dialogs();
+    }
+
+    @Override
+    public FidorialDimensionTypeRegistry dimensionTypes() {
+        return registries.dimensionTypes();
     }
 
     @Override

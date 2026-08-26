@@ -11,6 +11,7 @@ import fr.euphyllia.fidorial.testplugin.mob.BullMobs;
 import fr.euphyllia.fidorial.testplugin.mob.CompanionMobs;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
 import fr.euphyllia.fidorial.testplugin.terrain.TestBiomes;
+import fr.euphyllia.fidorial.testplugin.terrain.TestDimensionTypes;
 import fr.euphyllia.fidorial.testplugin.worldgen.GeneratorSettings;
 import fr.euphyllia.fidorial.testplugin.worldgen.OverworldGenerator;
 import fr.fidorial.Server;
@@ -107,6 +108,8 @@ public final class TestPlugin implements Plugin {
         TestBiomes.registerAll(context.server().biomes(), context.logger());
 
         TestDialogs.registerAll(context.server().dialogs(), context.logger());
+
+        TestDimensionTypes.registerAll(context.server().dimensionTypes(), context.logger());
 
 //        BullMobs.attachToCows(context.server().mobs(), this, context.logger());
        BullMobs.registerBull(context.server().mobs(), this, context.logger());

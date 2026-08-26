@@ -1,6 +1,7 @@
 package fr.euphyllia.fidorial.server.world;
 
 import fr.euphyllia.fidorial.server.world.chunk.ChunkColumn;
+import fr.fidorial.world.dimension.DimensionTypeDefinition;
 
 public interface ChunkGenerator {
 
@@ -8,7 +9,5 @@ public interface ChunkGenerator {
 
     ChunkGeneratorConfig describeForSave();
 
-    int minY();
-
-    int height();
+    DimensionTypeDefinition dimensionType();
 }

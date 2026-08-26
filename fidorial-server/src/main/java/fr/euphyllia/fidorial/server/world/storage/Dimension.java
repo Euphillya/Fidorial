@@ -1,24 +1,24 @@
 package fr.euphyllia.fidorial.server.world.storage;
 
+import fr.fidorial.registry.keys.DimensionTypeKeys;
 import net.kyori.adventure.key.Key;
 import org.jspecify.annotations.Nullable;
 
 public record Dimension(
-        String namespace,
-        String path,
+        Key id,
         @Nullable String legacyFolder,
-        Key id
+        Key dimensionType
 ) {
 
-    public static final Dimension OVERWORLD = new Dimension(Key.MINECRAFT_NAMESPACE, "overworld", null);
-    public static final Dimension THE_NETHER = new Dimension(Key.MINECRAFT_NAMESPACE, "the_nether", "DIM-1");
-    public static final Dimension THE_END = new Dimension(Key.MINECRAFT_NAMESPACE, "the_end", "DIM1");
+    public static final Dimension OVERWORLD = new Dimension(Key.key("overworld"), null, DimensionTypeKeys.OVERWORLD.key());
+    public static final Dimension THE_NETHER = new Dimension(Key.key("the_nether"), "DIM-1", DimensionTypeKeys.THE_NETHER.key());
+    public static final Dimension THE_END = new Dimension(Key.key("the_end"), "DIM1", DimensionTypeKeys.THE_END.key());
 
-    public Dimension(final String namespace, final String path, final @Nullable String legacyFolder) {
-        this(namespace, path, legacyFolder, Key.key(namespace, path));
+    public static Dimension datapack(final Key id, final Key dimensionType) {
+        return new Dimension(id, null, dimensionType);
     }
 
-    public static Dimension datapack(final String namespace, final String path) {
-        return new Dimension(namespace, path, null);
+    public static Dimension datapack(final Key id) {
+        return datapack(id, DimensionTypeKeys.OVERWORLD.key());
     }
 }

@@ -16,11 +16,11 @@ public class DialogItemCodecs {
 
     private static final MapCodec<ItemComponents> COMPONENTS_CODEC =
             RecordCodecBuilder.mapCodec(instance -> instance.group(
-                    COMPONENT_CODEC.optionalFieldOf("minecraft:custom_name")
+                    COMPONENT_CODEC.optionalFieldOf("custom_name")
                             .forGetter(ItemComponents::customName),
-                    COMPONENT_CODEC.optionalFieldOf("minecraft:item_name")
+                    COMPONENT_CODEC.optionalFieldOf("item_name")
                             .forGetter(ItemComponents::itemName),
-                    COMPONENT_CODEC.listOf().optionalFieldOf("minecraft:lore")
+                    COMPONENT_CODEC.listOf().optionalFieldOf("lore")
                             .forGetter(ItemComponents::lore)
             ).apply(instance, ItemComponents::new));
 

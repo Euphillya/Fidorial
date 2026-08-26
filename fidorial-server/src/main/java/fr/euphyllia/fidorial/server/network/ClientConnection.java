@@ -133,11 +133,19 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     }
 
     public void send(final ClientboundPacket packet) {
-        write(packet).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+        final ChannelFuture future = write(packet);
+        if (future != null) {
+            future.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+        }
     }
 
     public void sendAndClose(final ClientboundPacket packet) {
-        write(packet).addListener(ChannelFutureListener.CLOSE);
+        final ChannelFuture future = write(packet);
+        if (future != null) {
+            future.addListener(ChannelFutureListener.CLOSE);
+        } else {
+            close();
+        }
     }
 
     public void disconnect(final Component reason) {
@@ -154,7 +162,11 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         }
     }
 
-    private ChannelFuture write(final ClientboundPacket packet) {
+    private @Nullable ChannelFuture write(final ClientboundPacket packet) {
+        if (!isActive()) {
+            return null;
+        }
+
         final ByteBuf out = ctx.alloc().buffer();
         try {
             final PacketBuffer p = new PacketBuffer(out);
