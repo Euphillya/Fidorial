@@ -569,7 +569,7 @@ public final class ApiTestCommand {
                 "[TestPlugin] Monde cree: " + world.key()
                         + " | minY=" + world.minY()
                         + " | height=" + world.height()
-                        + " | type=" + world.dimensionType()
+                        + " | type=" + world.dimensionType().key()
                         + " | total=" + plugin.server().worlds().size());
 
         return Command.SINGLE_SUCCESS;
