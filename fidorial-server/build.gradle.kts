@@ -1,4 +1,4 @@
-import fr.euphyllia.fidorial.gradle.patcher.task.RebuildPatchesTask
+import fr.fidorial.registrygen.task.GenerateBlockStatesTask
 
 extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
 
@@ -114,12 +114,25 @@ tasks.shadowJar {
     exclude("META-INF/proguard/**")
 }
 
+tasks.withType<GenerateBlockStatesTask>().configureEach {
+    blockPackage.set("fr.fidorial.world.block")
+    blockTypeKeysPackage.set("fr.fidorial.registry.keys")
+}
+
 fidorialRegistryGenerator {
     minecraftVersion.set("26.2")
     prismarineMinecraftData.set("26.1")
 
     generatedPackage.set(
-        "fr.euphyllia.fidorial.server.registry"
+        "fr.euphyllia.fidorial.server"
+    )
+
+    registryDataPackage.set(
+        "fr.euphyllia.fidorial.server.registry.data"
+    )
+
+    registryKeysPackage.set(
+        "fr.euphyllia.fidorial.server.registry.keys"
     )
 
     generatedSourcesDirectory.set(

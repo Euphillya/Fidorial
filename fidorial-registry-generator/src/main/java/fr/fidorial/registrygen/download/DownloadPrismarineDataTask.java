@@ -67,6 +67,7 @@ public abstract class DownloadPrismarineDataTask extends DefaultTask {
         try {
             final HttpRequest listing = HttpRequest.newBuilder(URI.create(contentsUrl))
                     .header("Accept", "application/vnd.github+json")
+                    .header("User-Agent", "Fidorial/" + version + " (https://fidorial.euphyllia.moe)")
                     .timeout(Duration.ofSeconds(30))
                     .GET()
                     .build();

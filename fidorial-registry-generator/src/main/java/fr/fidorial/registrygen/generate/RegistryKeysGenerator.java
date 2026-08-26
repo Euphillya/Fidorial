@@ -1,6 +1,5 @@
 package fr.fidorial.registrygen.generate;
 
-import com.palantir.javapoet.AnnotationSpec;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.CodeBlock;
 import com.palantir.javapoet.FieldSpec;
@@ -13,18 +12,14 @@ import fr.fidorial.registrygen.GenerationUtils;
 import fr.fidorial.registrygen.model.RegistryDefinition;
 import fr.fidorial.registrygen.model.RegistryEntryDefinition;
 import fr.fidorial.registrygen.model.RegistryTypeDefinition;
+import net.kyori.adventure.key.KeyPattern;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -35,38 +30,45 @@ import java.util.stream.Stream;
  */
 public final class RegistryKeysGenerator {
 
-    public static final String REGISTRY_PACKAGE = "fr.fidorial.registry";
-    public static final String DATA_PACKAGE = "fr.fidorial.registry.data";
-    public static final String KEYS_PACKAGE = "fr.fidorial.registry.keys";
-
-    private static final ClassName REGISTRY_KEY = ClassName.get(REGISTRY_PACKAGE, "RegistryKey");
-    private static final ClassName TYPED_KEY = ClassName.get(REGISTRY_PACKAGE, "TypedKey");
-    private static final ClassName KEY_PATTERN = ClassName.get("net.kyori.adventure.key", "KeyPattern");
+    private static final ClassName KEY_PATTERN = ClassName.get(KeyPattern.class);
 
     /**
      * Generates a typed registry-entry key class.
      *
      * @param registryType      configured Java type information
      * @param registry          parsed Mojang registry definition
+     * @param registryPackage   package holding {@code RegistryKey}/{@code TypedKey}
+     * @param dataPackage       package holding the marker interface (already resolved, including
+     *                          the registry type's own subpackage if any)
+     * @param keysPackage       package this class is written to (already resolved, including
+     *                          the registry type's own subpackage if any)
      * @param outputDirectory   generated Java source root
      *
      * @throws IOException if the source file cannot be written
      */
     public void generate(final RegistryTypeDefinition registryType,
                          final RegistryDefinition registry,
+                         final String registryPackage,
+                         final String dataPackage,
+                         final String keysPackage,
                          final Path outputDirectory) throws IOException {
 
         Objects.requireNonNull(registryType, "registryType");
         Objects.requireNonNull(registry, "registry");
+        Objects.requireNonNull(registryPackage, "registryPackage");
+        Objects.requireNonNull(dataPackage, "dataPackage");
+        Objects.requireNonNull(keysPackage, "keysPackage");
         Objects.requireNonNull(outputDirectory, "outputDirectory");
 
         if (!registryType.identifier().equals(registry.identifier())) {
             throw new IllegalArgumentException("Registry type identifier '" + registryType.identifier() + "' does not match parsed registry identifier '" + registry.identifier() + "'.");
         }
 
-        final ClassName markerType = ClassName.get(DATA_PACKAGE, registryType.typeName());
+        final ClassName registryKey = ClassName.get(registryPackage, "RegistryKey");
+        final ClassName typedKey = ClassName.get(registryPackage, "TypedKey");
+        final ClassName markerType = ClassName.get(dataPackage, registryType.typeName());
 
-        final ParameterizedTypeName typedKeyType = ParameterizedTypeName.get(TYPED_KEY, markerType);
+        final ParameterizedTypeName typedKeyType = ParameterizedTypeName.get(typedKey, markerType);
 
         final TypeSpec.Builder keysClass = TypeSpec.classBuilder(registryType.keysClassName())
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
@@ -76,10 +78,10 @@ public final class RegistryKeysGenerator {
 
         keysClass.addField(createValuesField(fieldNames, typedKeyType));
         keysClass.addMethod(createPrivateConstructor(registryType.keysClassName()));
-        keysClass.addMethod(createFactoryMethod(registryType, markerType, typedKeyType));
+        keysClass.addMethod(createFactoryMethod(registryType, typedKeyType, registryKey, typedKey));
         keysClass.addMethod(createValuesMethod(typedKeyType));
 
-        JavaFile.builder(KEYS_PACKAGE, keysClass.build())
+        JavaFile.builder(keysPackage, keysClass.build())
                 .indent("    ")
                 .skipJavaLangImports(true)
                 .build()
@@ -87,8 +89,8 @@ public final class RegistryKeysGenerator {
     }
 
     private static List<String> addEntryFields(final TypeSpec.Builder keysClass,
-                                       final RegistryDefinition registry,
-                                       final ParameterizedTypeName typedKeyType) {
+                                               final RegistryDefinition registry,
+                                               final ParameterizedTypeName typedKeyType) {
 
         final LinkedHashSet<String> generatedFieldNames = new LinkedHashSet<>();
 
@@ -102,24 +104,24 @@ public final class RegistryKeysGenerator {
 
             final String keyValue = keyValue(entry.identifier());
             keysClass.addField(FieldSpec.builder(typedKeyType,
-                                                 fieldName,
-                                                 Modifier.PUBLIC,
-                                                 Modifier.STATIC,
-                                                 Modifier.FINAL)
-                                       .initializer("create($S)", keyValue)
-                                       .addJavadoc("Key for {@code $L}.\n", entry.identifier())
-                                       .build());
+                            fieldName,
+                            Modifier.PUBLIC,
+                            Modifier.STATIC,
+                            Modifier.FINAL)
+                    .initializer("create($S)", keyValue)
+                    .addJavadoc("Key for {@code $L}.\n", entry.identifier())
+                    .build());
         }
         return List.copyOf(generatedFieldNames);
     }
 
     private static FieldSpec createValuesField(final List<String> fieldNames, final ParameterizedTypeName typedKeyType) {
 
-        final ClassName LIST = ClassName.get(List.class);
-        final ParameterizedTypeName listType = ParameterizedTypeName.get(LIST, typedKeyType);
+        final ClassName listClass = ClassName.get(List.class);
+        final ParameterizedTypeName listType = ParameterizedTypeName.get(listClass, typedKeyType);
         final CodeBlock.Builder initializer = CodeBlock.builder();
 
-        initializer.add("$T.of(", LIST);
+        initializer.add("$T.of(", listClass);
 
         if (!fieldNames.isEmpty()) {
 
@@ -151,8 +153,9 @@ public final class RegistryKeysGenerator {
     }
 
     private static MethodSpec createFactoryMethod(final RegistryTypeDefinition registryType,
-                                                  final ClassName markerType,
-                                                  final ParameterizedTypeName typedKeyType) {
+                                                  final ParameterizedTypeName typedKeyType,
+                                                  final ClassName registryKey,
+                                                  final ClassName typedKey) {
 
         final String registryFieldName = GenerationUtils.constantName(registryType.path(), true);
         final ParameterSpec valueParameter = ParameterSpec.builder(String.class, "value", Modifier.FINAL)
@@ -163,7 +166,7 @@ public final class RegistryKeysGenerator {
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                 .returns(typedKeyType)
                 .addParameter(valueParameter)
-                .addStatement("return $T.create($T.$N, $N)", TYPED_KEY, REGISTRY_KEY, registryFieldName, "value")
+                .addStatement("return $T.create($T.$N, $N)", typedKey, registryKey, registryFieldName, "value")
                 .build();
     }
 

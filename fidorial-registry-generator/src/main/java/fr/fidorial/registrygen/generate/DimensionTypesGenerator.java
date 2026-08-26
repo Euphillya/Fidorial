@@ -7,6 +7,7 @@ import com.palantir.javapoet.TypeSpec;
 import fr.fidorial.registrygen.GenerationUtils;
 import fr.fidorial.registrygen.model.RegistryDefinition;
 import fr.fidorial.registrygen.model.RegistryEntryDefinition;
+import fr.fidorial.registrygen.model.RegistryTypeDefinition;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
@@ -16,10 +17,8 @@ public final class DimensionTypesGenerator {
 
     private static final ClassName DIMENSION_TYPE_DEFINITION =
             ClassName.get("fr.fidorial.world.dimension", "DimensionTypeDefinition");
-    private static final ClassName DIMENSION_TYPE_KEYS =
-            ClassName.get("fr.fidorial.registry.keys", "DimensionTypeKeys");
 
-    public void generate(final RegistryDefinition registry, final Path outputDirectory) throws IOException {
+    public void generate(final RegistryTypeDefinition registryType, final RegistryDefinition registry, final String registryKeysPackage, final Path outputDirectory) throws IOException {
         final TypeSpec.Builder type = TypeSpec.classBuilder("VanillaDimensionTypes")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addJavadoc("""
@@ -37,8 +36,13 @@ public final class DimensionTypesGenerator {
                         @since 0.1.0
                         """);
 
+        final ClassName registryKeysClass = ClassName.get(
+                registryKeysPackage,
+                registryType.keysClassName()
+        );
+
         for (final RegistryEntryDefinition entry : registry.entries()) {
-            addDimensionTypeField(type, entry);
+            addDimensionTypeField(type, entry, registryKeysClass);
         }
 
         JavaFile.builder("fr.fidorial.world.dimension.types", type.build())
@@ -50,7 +54,8 @@ public final class DimensionTypesGenerator {
 
     private static void addDimensionTypeField(
             final TypeSpec.Builder type,
-            final RegistryEntryDefinition entry
+            final RegistryEntryDefinition entry,
+            final ClassName registryKeysClass
     ) {
         final String fieldName = GenerationUtils.constantName(entry.identifier());
 
@@ -65,7 +70,7 @@ public final class DimensionTypesGenerator {
                         .initializer(
                                 "$T.builder($T.$N.key()).build()",
                                 DIMENSION_TYPE_DEFINITION,
-                                DIMENSION_TYPE_KEYS,
+                                registryKeysClass,
                                 fieldName
                         )
                         .addJavadoc(

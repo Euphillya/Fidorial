@@ -19,7 +19,7 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        create("fidorialRegistryGenerator") {
+        register("fidorialRegistryGenerator") {
             id = "fr.fidorial.registry-generator"
             implementationClass = "fr.fidorial.registrygen.FidorialRegistryGeneratorPlugin"
         }

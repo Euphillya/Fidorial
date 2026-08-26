@@ -33,6 +33,16 @@ public abstract class FidorialRegistryGeneratorExtension {
     public abstract Property<String> getGeneratedPackage();
 
     /**
+     * Subpackage used for generated registry keys.
+     */
+    public abstract Property<String> getRegistryKeysPackage();
+
+    /**
+     * Subpackage used for generated registry data.
+     */
+    public abstract Property<String> getRegistryDataPackage();
+
+    /**
      * Registry identifier to generated class name.
      * Example: {@code minecraft:entity_type -> EntityTypes}.
      */

@@ -97,17 +97,27 @@ public final class RegistryGenerator {
      * @param registriesJson  path to Mojang's {@code registries.json}
      * @param outputDirectory generated Java source root
      * @param registryTypes   the registries to generate
+     * @param dataPackage the subpackage for generated registry marker interfaces
+     * @param keysPackage the subpackage for generated registry keys
+     * @param registryPackage the package for generated registries
+     * @param generateRegistryKey whether to generate the {@code RegistryKey} class
      *
      * @throws IOException if parsing or source generation fails
      */
     public void generate(final Path registriesJson,
                          final Path outputDirectory,
                          final List<RegistryTypeDefinition> registryTypes,
+                         final String registryPackage,
+                         final String dataPackage,
+                         final String keysPackage,
                          final boolean generateRegistryKey) throws IOException {
 
         Objects.requireNonNull(registriesJson, "registriesJson");
         Objects.requireNonNull(outputDirectory, "outputDirectory");
         Objects.requireNonNull(registryTypes, "registryTypes");
+        Objects.requireNonNull(registryPackage, "registryPackage");
+        Objects.requireNonNull(dataPackage, "dataPackage");
+        Objects.requireNonNull(keysPackage, "keysPackage");
 
         validateInput(registriesJson);
 
@@ -135,17 +145,21 @@ public final class RegistryGenerator {
                 continue;
             }
 
-            dataGenerator.generate(registryType, outputDirectory);
-            keysGenerator.generate(registryType, registryDefinition.get(), outputDirectory);
+            dataGenerator.generate(registryType, registryType.dataPackage(dataPackage), outputDirectory);
+            keysGenerator.generate(
+                    registryType, registryDefinition.get(),
+                    registryPackage, registryType.dataPackage(dataPackage),
+                    registryType.keysPackage(keysPackage), outputDirectory
+            );
 
             if (registryType.identifier().equals(SupportedRegistries.DIMENSION_TYPE.identifier())) {
-                dimensionTypesGenerator.generate(registryDefinition.get(), outputDirectory);
+                dimensionTypesGenerator.generate(registryType, registryDefinition.get(), registryType.keysPackage(keysPackage), outputDirectory);
             }
         }
 
         /*
-         * Protocol-ID-only registries have no marker type in
-         * fr.fidorial.registry.data, so they must not appear in RegistryKey.
+         * Protocol-ID-only registries have no marker type in the data package,
+         * so they must not appear in RegistryKey.
          */
         final List<RegistryTypeDefinition> keyedRegistryTypes = registryTypes.stream()
                 .filter(registryType -> ProtocolIdRegistries.byIdentifier(registryType.identifier()).isEmpty())
@@ -155,7 +169,7 @@ public final class RegistryGenerator {
             return;
         }
 
-        registryKeyGenerator.generate(keyedRegistryTypes, outputDirectory);
+        registryKeyGenerator.generate(keyedRegistryTypes, registryPackage, dataPackage, outputDirectory);
     }
 
     /**
@@ -186,16 +200,27 @@ public final class RegistryGenerator {
     /**
      * Parses a Mojang blocks report (and, optionally, a Prismarine {@code minecraft-data} blocks
      * report for light emission/opacity) and generates {@code BlockStateIds}/{@code BlockStateProperties}
-     * (and, when Prismarine data is supplied, {@code BlockLighting}).
+     * (and, when Prismarine data is supplied, {@code BlockStateLightProperties}).
      *
-     * @param blocksJson           path to Mojang's {@code blocks.json}
-     * @param prismarineBlocksJson path to Prismarine's {@code blocks.json}, or {@code null} to skip lighting
-     * @param outputDirectory      generated Java source root
+     * @param blocksJson            path to Mojang's {@code blocks.json}
+     * @param prismarineBlocksJson  path to Prismarine's {@code blocks.json}, or {@code null} to skip lighting
+     * @param outputDirectory       generated Java source root
+     * @param blockPackage          package holding the {@code BlockType}, {@code BlockProperty}, and
+     *                              {@code BlockRegistry} classes
+     * @param generatedPackage      root package; {@code BlockState} resolves to {@code <generatedPackage>.world.chunk}
+     * @param registryDataPackage   package for {@code BlockStateIds}/{@code BlockStateProperties}/
+     *                              {@code BlockStateLightProperties}
+     * @param blockTypeKeysPackage  package holding the typed {@code BlockType} keys class (e.g. {@code BlockTypeKeys})
      *
      * @throws IOException if parsing or source generation fails
      */
-    public void generateBlockStates(final Path blocksJson, final Path prismarineBlocksJson,
-                                    final Path outputDirectory) throws IOException {
+    public void generateBlockStates(final Path blocksJson,
+                                    final Path prismarineBlocksJson,
+                                    final Path outputDirectory,
+                                    final String blockPackage,
+                                    final String generatedPackage,
+                                    final String registryDataPackage,
+                                    final String blockTypeKeysPackage) throws IOException {
 
         final List<BlockReportDefinition> blocks = blockReportParser.parse(blocksJson);
 
@@ -203,7 +228,7 @@ public final class RegistryGenerator {
                 ? prismarineBlockReportParser.parse(prismarineBlocksJson)
                 : Map.of();
 
-        blockStateGenerator.generate(blocks, lighting, outputDirectory);
+        blockStateGenerator.generate(blocks, lighting, blockPackage, generatedPackage, registryDataPackage, blockTypeKeysPackage, outputDirectory);
     }
 
     /**
