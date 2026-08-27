@@ -1,4 +1,11 @@
-extra.set("readUnnamedModules", setOf("fr.fidorial.auth"))
+plugins {
+    id("fidorial-java-module")
+}
+
+fidorialModule {
+    readUnnamedModules = setOf("fr.fidorial.auth")
+    license = "MIT"
+}
 
 dependencies {
     api(libs.gson)

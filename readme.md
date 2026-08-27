@@ -5,7 +5,7 @@
 
 [![Minecraft](https://img.shields.io/badge/Minecraft-26.2-blue.svg)](https://github.com/Euphillya/Fidorial)
 [![Java](https://img.shields.io/badge/Java-25+-orange.svg)](https://www.oracle.com/java/)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENCE)
+[![License](https://img.shields.io/badge/license-MIT%20%2F%20GPL--3.0-blue)](LICENSING.md)
 [![Servers](https://img.shields.io/endpoint?url=https%3A%2F%2Ffaststats.dev%2Fapi%2Fshields%2Ffidorial%3Fmetric%3Dservers&style=flat)](https://faststats.dev/project/fidorial)
 [![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Ffaststats.dev%2Fapi%2Fshields%2Ffidorial%3Fmetric%3Ddownloads&style=flat)](https://faststats.dev/project/fidorial)
 
@@ -204,4 +204,8 @@ welcome on [GitHub](https://github.com/Euphillya/Fidorial), and discussion happe
 
 ## License
 
-[MIT](LICENCE) © 2026 Euphyllia Bierque
+The API is [MIT](LICENSE-MIT.txt), the server implementation is
+[GPL-3.0](LICENSE-GPL-3.0.txt). See [LICENSING.md](LICENSING.md) for the
+per-module breakdown.
+
+© 2026 Euphyllia Bierque

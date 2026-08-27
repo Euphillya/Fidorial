@@ -2,25 +2,29 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 module fr.fidorial.server {
+    requires fr.fidorial.codecs;
+    requires fr.fidorial.command;
+    requires fr.fidorial.core;
+    requires fr.fidorial.entity;
+    requires fr.fidorial.protocol;
+    requires fr.fidorial.registry;
+    requires fr.fidorial.storage;
+    requires fr.fidorial.world;
     requires ch.qos.logback.classic;
     requires ch.qos.logback.core;
     requires com.google.common;
-    requires com.google.errorprone.annotations;
     requires com.google.gson;
-    requires dev.faststats.config;
     requires dev.faststats;
+    requires transitive fr.fidorial;
     requires fr.fidorial.auth;
-    requires fr.fidorial;
+    requires io.github.classgraph;
     requires io.netty.buffer;
-    requires io.netty.codec;
-    requires io.netty.transport.classes.epoll;
-    requires io.netty.transport.classes.io_uring;
-    requires io.netty.transport.classes.kqueue;
-    requires io.netty.transport.unix.common;
-    requires io.netty.transport;
-    requires java.management;
+    requires io.papermc.adventurex.nbt.dfu;
+    requires it.unimi.dsi.fastutil;
+    requires java.logging;
     requires net.kyori.adventure.api;
     requires net.kyori.adventure.key;
+    requires net.kyori.adventure.nbt;
     requires net.kyori.adventure.text.logger.slf4j;
     requires net.kyori.adventure.text.minimessage;
     requires net.kyori.adventure.text.serializer.ansi;
@@ -29,14 +33,8 @@ module fr.fidorial.server {
     requires org.jline.reader;
     requires org.jline.terminal;
     requires org.slf4j;
+    requires com.mojang.brigadier;
 
     requires static org.jetbrains.annotations;
     requires static org.jspecify;
-    requires net.kyori.adventure.nbt;
-    requires io.github.classgraph;
-    requires it.unimi.dsi.fastutil;
-    requires io.papermc.adventurex.nbt.dfu;
-    requires java.logging;
-
-    opens fr.euphyllia.fidorial.server.tests to fr.fidorial;
 }

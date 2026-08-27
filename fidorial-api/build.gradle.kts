@@ -1,8 +1,12 @@
-extra.set("readUnnamedModules", setOf("fr.fidorial"))
-
 plugins {
+    id("fidorial-java-module")
     `maven-publish`
     id("fr.fidorial.registry-generator")
+}
+
+fidorialModule {
+    readUnnamedModules = setOf("fr.fidorial")
+    license = "MIT"
 }
 
 dependencies {
@@ -50,7 +54,7 @@ tasks.javadoc {
 
     opt.bottom(
         "MIT © 2026 Euphyllia Bierque — " +
-                "<a href=\"https://github.com/Euphillya/Fidorial\">GitHub</a>"
+            "<a href=\"https://github.com/Euphillya/Fidorial\">GitHub</a>",
     )
 }
 
@@ -82,14 +86,16 @@ publishing {
 fidorialRegistryGenerator {
     minecraftVersion.set("26.2")
 
+    workingDirectory.set(rootProject.layout.buildDirectory.dir("registry-generator/working"))
+
     generatedSourcesDirectory.set(
         layout.projectDirectory.dir(
-            "src/generated/java"
-        )
+            "src/generated/java",
+        ),
     )
 
     dataGeneratorArguments.set(
-        listOf("--reports")
+        listOf("--reports"),
     )
 
     registries.set(
@@ -131,7 +137,7 @@ fidorialRegistryGenerator {
             "minecraft:wolf_sound_variant" to "WolfSoundVariant",
             "minecraft:wolf_variant" to "WolfVariant",
             "minecraft:world_clock" to "WorldClock",
-            "minecraft:zombie_nautilus_variant" to "ZombieNautilusVariant"
-        )
+            "minecraft:zombie_nautilus_variant" to "ZombieNautilusVariant",
+        ),
     )
 }

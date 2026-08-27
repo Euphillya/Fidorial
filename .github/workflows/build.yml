@@ -59,7 +59,7 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Format check
-        run: ./gradlew spotlessCheck --no-daemon --no-configuration-cache
+        run: ./gradlew spotlessCheck
 
       - name: Build and test
         run: ./gradlew build --no-daemon

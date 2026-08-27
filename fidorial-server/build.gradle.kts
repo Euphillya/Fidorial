@@ -1,12 +1,11 @@
-import fr.fidorial.registrygen.task.GenerateBlockStatesTask
-
-extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
-
 plugins {
+    id("fidorial-server-module")
     application
-    id("fr.fidorial.dependency-patcher")
-    id("fr.fidorial.registry-generator")
     id("com.gradleup.shadow")
+}
+
+fidorialModule {
+    readUnnamedModules = setOf("fr.fidorial", "fr.fidorial.server")
 }
 
 repositories {
@@ -15,6 +14,16 @@ repositories {
 }
 
 dependencies {
+    implementation(projects.fidorialCore)
+    implementation(projects.fidorialCodecs)
+    implementation(projects.fidorialStorage)
+    implementation(projects.fidorialRegistry)
+    implementation(projects.fidorialProtocol)
+    implementation(projects.fidorialWorld)
+    implementation(projects.fidorialEntity)
+    implementation(projects.fidorialCommand)
+    implementation(projects.fidorialAuth)
+
     implementation(libs.faststats.config)
     implementation(libs.faststats.core)
     implementation(libs.jline.ffm)
@@ -22,8 +31,6 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.netty.all)
     implementation(libs.classgraph)
-    implementation(projects.fidorialApi)
-    implementation(projects.fidorialAuth)
     implementation(libs.dfu)
     implementation(libs.adventure.nbt.dfu)
     implementation(libs.spark.common) {
@@ -45,13 +52,6 @@ dependencies {
 
 application {
     mainClass.set("fr.euphyllia.fidorial.server.Main")
-}
-
-java {
-    sourceSets.main {
-        java.srcDir("src/generated/java")
-        resources.srcDir("src/generated/resources")
-    }
 }
 
 tasks.run {
@@ -98,6 +98,9 @@ tasks.shadowJar {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 
+    exclude("module-info.class")
+    exclude("META-INF/versions/*/module-info.class")
+
     relocate("net.kyori.adventure.text.feature.pagination", "me.lucko.spark.lib.adventure.pagination")
     relocate("net.bytebuddy", "me.lucko.spark.lib.bytebuddy")
     relocate("com.google.protobuf", "me.lucko.spark.lib.protobuf")
@@ -112,54 +115,4 @@ tasks.shadowJar {
     exclude("**/*.proto")
     exclude("**/*.proto.bin")
     exclude("META-INF/proguard/**")
-}
-
-tasks.withType<GenerateBlockStatesTask>().configureEach {
-    blockPackage.set("fr.fidorial.world.block")
-    blockTypeKeysPackage.set("fr.fidorial.registry.keys")
-}
-
-fidorialRegistryGenerator {
-    minecraftVersion.set("26.2")
-    prismarineMinecraftData.set("26.1")
-
-    generatedPackage.set(
-        "fr.euphyllia.fidorial.server"
-    )
-
-    registryDataPackage.set(
-        "fr.euphyllia.fidorial.server.registry.data"
-    )
-
-    registryKeysPackage.set(
-        "fr.euphyllia.fidorial.server.registry.keys"
-    )
-
-    generatedSourcesDirectory.set(
-        layout.projectDirectory.dir(
-            "src/generated/java"
-        )
-    )
-
-    dataGeneratorArguments.set(
-        listOf("--reports")
-    )
-
-    registries.set(
-        mapOf(
-            "minecraft:command_argument_type" to "ArgumentType",
-            "minecraft:block_entity_type" to "BlockEntityType"
-        )
-    )
-
-    generateRegistryKey = false
-    generatePacketCatalogs = true
-    generateBlockStates = true
-}
-
-dependencyPatcher {
-    patchSet("brigadier") {
-        library.set(libs.brigadier)
-        autoRebuild = true
-    }
 }
