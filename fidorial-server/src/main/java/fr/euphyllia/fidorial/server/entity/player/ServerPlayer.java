@@ -530,6 +530,11 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     }
 
     @Override
+    public int ping() {
+        return connection.ping();
+    }
+
+    @Override
     public void sendResourcePacks(final ResourcePackRequest request) {
         connection.sendResourcePacks(request);
     }

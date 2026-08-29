@@ -1,0 +1,50 @@
+/*
+ * This file is part of spark.
+ *
+ *  Copyright (c) lucko (Luck) <luck@lucko.me>
+ *  Copyright (c) contributors
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package fr.euphyllia.fidorial.server.spark;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import me.lucko.spark.common.platform.serverconfig.ConfigParser;
+import me.lucko.spark.common.platform.serverconfig.PropertiesConfigParser;
+import me.lucko.spark.common.platform.serverconfig.ServerConfigProvider;
+
+import java.util.Collection;
+import java.util.Map;
+
+public final class SparkServerConfigProvider extends ServerConfigProvider {
+
+    static final String CONFIG_FILE = "fidorial.properties";
+
+    private static final Map<String, ConfigParser> FILES =
+            ImmutableMap.of(CONFIG_FILE, PropertiesConfigParser.INSTANCE);
+
+    private static final Collection<String> HIDDEN_PATHS = ImmutableSet.<String>builder()
+            .addAll(BASE_HIDDEN_PATHS)
+            .add("velocity-secret")
+            .add("resource-pack-url")
+            .add("resource-pack-hash")
+            .add("resource-pack-id")
+            .build();
+
+    public SparkServerConfigProvider() {
+        super(FILES, HIDDEN_PATHS);
+    }
+}

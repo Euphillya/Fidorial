@@ -296,7 +296,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleKeepAlive(final ServerboundKeepAlivePacket packet) {
-        // La reponse suffit a considerer la connexion vivante.
+        connection.acknowledgeKeepAlive(packet.id());
     }
 
     @Override

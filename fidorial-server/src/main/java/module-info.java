@@ -37,6 +37,7 @@ module fr.fidorial.server {
     requires it.unimi.dsi.fastutil;
     requires io.papermc.adventurex.nbt.dfu;
     requires java.logging;
+    requires java.instrument;
 
     opens fr.euphyllia.fidorial.server.tests to fr.fidorial;
 }

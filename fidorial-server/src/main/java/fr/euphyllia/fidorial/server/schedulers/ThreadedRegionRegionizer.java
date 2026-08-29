@@ -60,6 +60,8 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
 
     private volatile boolean shutdown;
 
+    private volatile RegionTickProfiler tickProfiler = RegionTickProfiler.NO_OP;
+
     public ThreadedRegionRegionizer(final int workerThreads, final int sectionShift) {
         SECTION_SHIFT = sectionShift;
 
@@ -100,6 +102,10 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
 
     public void registerTickHandler(final RegionTickHandler handler) {
         tickHandlers.add(handler);
+    }
+
+    public void setTickProfiler(final @Nullable RegionTickProfiler profiler) {
+        tickProfiler = profiler == null ? RegionTickProfiler.NO_OP : profiler;
     }
 
     public void addTicket(final Key worldName, final ChunkPos pos) {
@@ -349,6 +355,9 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
 
         @Override
         public boolean runTick() {
+            final RegionTickProfiler profiler = tickProfiler;
+            profiler.heartbeat();
+
             final long scheduledStart = getScheduledStart();
             final long tickStart = System.nanoTime();
             final long tickStartCpu = currentThreadCpuNanos();
@@ -372,7 +381,8 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
                 }
             } finally {
                 exit();
-                recordTick(scheduledStart, tickStart, tickStartCpu);
+                final long durationNanos = recordTick(scheduledStart, tickStart, tickStartCpu);
+                profiler.reportRegionTick(durationNanos / 1_000_000.0D);
                 scheduleNextTick(scheduledStart);
             }
 
@@ -435,7 +445,7 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
             setScheduledStart(TimeUtil.getGreatestTime(target, floor));
         }
 
-        private void recordTick(final long scheduledStart, final long tickStart, final long tickStartCpu) {
+        private long recordTick(final long scheduledStart, final long tickStart, final long tickStartCpu) {
             final long tickEnd = System.nanoTime();
             final long tickEndCpu = currentThreadCpuNanos();
             final boolean cpuMeasured = CPU_TIME_SUPPORTED && tickStartCpu >= 0 && tickEndCpu >= 0;
@@ -458,6 +468,8 @@ public final class ThreadedRegionRegionizer implements RegionizedScheduler {
             synchronized (tpsLock) {
                 tickData.addDataFrom(time);
             }
+
+            return tickEnd - tickStart;
         }
 
         @Nullable RegionTpsSnapshot snapshot() {

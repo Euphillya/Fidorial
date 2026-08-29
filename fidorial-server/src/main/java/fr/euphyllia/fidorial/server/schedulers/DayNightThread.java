@@ -35,6 +35,8 @@ public class DayNightThread implements AutoCloseable {
 
     private int sinceLastSync;
 
+    private volatile RegionTickProfiler tickProfiler = RegionTickProfiler.NO_OP;
+
     public DayNightThread(final WorldManager worldManager, final RegistryHolder registries) {
         this.worldManager = worldManager;
         this.registries = registries;
@@ -67,6 +69,10 @@ public class DayNightThread implements AutoCloseable {
                     cycle.timeOfDay(),
                     cycle.clock());
         }
+    }
+
+    public void setTickProfiler(final @Nullable RegionTickProfiler profiler) {
+        this.tickProfiler = profiler == null ? RegionTickProfiler.NO_OP : profiler;
     }
 
     public void attach(final ServerWorld world) {

@@ -58,6 +58,14 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
      */
     InetAddress address();
 
+    /**
+     * Gets the round-trip time between the server and this player's client.
+     *
+     * @return the round-trip time in milliseconds
+     * @since 0.1.0
+     */
+    int ping();
+
     void kick(Component reason);
 
     PlayerInventory inventory();

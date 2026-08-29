@@ -68,6 +68,7 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     private static final ComponentLogger LOGGER = ComponentLogger.logger(ClientConnection.class);
 
     private static final int KEEP_ALIVE_INTERVAL_SECONDS = 10;
+    private static final int LATENCY_SMOOTHING = 3;
 
     private final FidorialServer server;
     private final ProtocolMap protocol;
@@ -84,6 +85,9 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
     private @Nullable String forwardedAddress;
     private Locale locale = TranslationStore.defaultLocale();
     private @Nullable ScheduledFuture<?> keepAliveTask;
+
+    private volatile long pendingKeepAliveId;
+    private volatile int latencyMillis;
 
     public ClientConnection(final FidorialServer server) {
         this.server = server;
@@ -218,10 +222,33 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
         keepAliveTask = ctx.channel()
                 .eventLoop()
                 .scheduleAtFixedRate(
-                        () -> send(new ClientboundKeepAlivePacket(System.currentTimeMillis())),
+                        this::sendKeepAlive,
                         KEEP_ALIVE_INTERVAL_SECONDS,
                         KEEP_ALIVE_INTERVAL_SECONDS,
                         TimeUnit.SECONDS);
+    }
+
+    private void sendKeepAlive() {
+        final long id = System.currentTimeMillis();
+        pendingKeepAliveId = id;
+        send(new ClientboundKeepAlivePacket(id));
+    }
+
+    public void acknowledgeKeepAlive(final long id) {
+        if (id != pendingKeepAliveId || id == 0L) {
+            return;
+        }
+        pendingKeepAliveId = 0L;
+
+        final long sample = Math.clamp(System.currentTimeMillis() - id, 0L, Integer.MAX_VALUE);
+        final int previous = latencyMillis;
+        latencyMillis = previous == 0
+                ? (int) sample
+                : (int) ((previous * (long) LATENCY_SMOOTHING + sample) / (LATENCY_SMOOTHING + 1));
+    }
+
+    public int ping() {
+        return latencyMillis;
     }
 
     @Override

@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 
 public final class ServerWorld implements World {
@@ -596,6 +597,18 @@ public final class ServerWorld implements World {
 
     public @Nullable ChunkColumn loadedColumn(final int chunkX, final int chunkZ) {
         return loaded.get(ChunkPos.chunkKey(chunkX, chunkZ));
+    }
+
+
+    public int loadedChunkCount() {
+        return loaded.size();
+    }
+
+    public void forEachLoadedChunk(final Consumer<ChunkColumn> action) {
+        final BaseObjectIterator<ChunkColumn> columns = loaded.valueIterator();
+        while (columns.hasNext()) {
+            action.accept(columns.next());
+        }
     }
 
     public WorldLightManager lightManager() {
