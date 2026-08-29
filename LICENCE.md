@@ -44,7 +44,7 @@ The following contributors have chosen to release their original
 contributions to `fidorial-server` under the MIT License:
 
 ```text
-
+Toffikk <slodkitofik@gmail.com>
 ```
 
 To choose the MIT License for your contributions, simply add your name to the
