@@ -3,6 +3,7 @@ package fr.fidorial.registrygen;
 import fr.fidorial.registrygen.task.DownloadPrismarineDataTask;
 import fr.fidorial.registrygen.task.DownloadServerJarTask;
 import fr.fidorial.registrygen.task.GenerateBlockStatesTask;
+import fr.fidorial.registrygen.model.SupportedRegistries;
 import fr.fidorial.registrygen.task.GenerateItemPropertiesTask;
 import fr.fidorial.registrygen.task.GeneratePacketsTask;
 import fr.fidorial.registrygen.task.GenerateRegistriesTask;
@@ -196,8 +197,8 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
       task.setGroup("fidorial registry generation");
       task.setDescription("Generates ItemProperties from Mojang's item registry and Prismarine's items report.");
       task.dependsOn(reportsTask, prismarineTask);
-      
-      task.onlyIf(_ -> extension.getPrismarineMinecraftData().isPresent());
+      task.onlyIf(_ -> extension.getPrismarineMinecraftData().isPresent()
+              && extension.getRegistries().get().containsKey(SupportedRegistries.ITEM.identifier()));
 
       task.getRegistriesReport().set(reportsTask.flatMap(GenerateReportsTask::getDataDirectory)
               .map(dir -> dir.file("generated/reports/registries.json")));
