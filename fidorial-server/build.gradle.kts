@@ -121,7 +121,9 @@ tasks.withType<GenerateBlockStatesTask>().configureEach {
 
 fidorialRegistryGenerator {
     minecraftVersion.set("26.2")
-    prismarineMinecraftData.set("26.1")
+    prismarineMinecraftData.set("26.2")
+    prismarineDataRepository.set("Euphillya/minecraft-data") // PrismarineJS/minecraft-data
+    prismarineDataRef.set("ver/26.2") // master
 
     generatedPackage.set(
         "fr.euphyllia.fidorial.server"

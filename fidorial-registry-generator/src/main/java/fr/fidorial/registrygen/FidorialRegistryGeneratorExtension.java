@@ -81,7 +81,15 @@ public abstract class FidorialRegistryGeneratorExtension {
     public abstract Property<String> getPrismarineMinecraftData();
 
     /**
-     * Git ref (branch or tag) of {@code PrismarineJS/minecraft-data} to pull
+     * Repository hosting {@code minecraft-data}, as {@code owner/name}. Set this to
+     * a fork when a version isn't available upstream yet.
+     *
+     * <p>Defaults to {@code "PrismarineJS/minecraft-data"}.</p>
+     */
+    public abstract Property<String> getPrismarineDataRepository();
+
+    /**
+     * Git ref (branch, tag or commit SHA) of {@link #getPrismarineDataRepository()} to pull
      * {@link #getPrismarineMinecraftData()} from. Defaults to {@code "master"}.
      */
     public abstract Property<String> getPrismarineDataRef();

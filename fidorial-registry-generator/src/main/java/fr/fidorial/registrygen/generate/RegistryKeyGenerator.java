@@ -38,7 +38,6 @@ public final class RegistryKeyGenerator {
      * @param dataPackage     base package for marker interfaces (each registry type's own
      *                        subpackage is resolved against this, if it has one)
      * @param outputDirectory generated source root
-     *
      * @throws IOException if the generated file cannot be written
      */
     public void generate(final List<RegistryTypeDefinition> registryTypes,

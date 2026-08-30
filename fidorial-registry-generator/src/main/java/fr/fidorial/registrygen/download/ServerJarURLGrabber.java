@@ -20,7 +20,7 @@ import static fr.fidorial.registrygen.FidorialRegistryGeneratorPlugin.DOWNLOAD_M
  * The {@code ServerJarURLGrabber} class is a utility for retrieving server download information
  * for specific Minecraft versions. It interacts with Mojang's Minecraft version manifest
  * and metadata files to ascertain the download URL and SHA-1 checksum of a desired server JAR file.
- *
+ * <p>
  * This class is designed to handle HTTP communication, JSON parsing, and validation of data
  * integrity to ensure that only correct and valid information is returned to the caller.
  * It operates with a focus on error handling and provides meaningful exceptions when issues arise.
@@ -35,10 +35,10 @@ public final class ServerJarURLGrabber {
      * @param version the Minecraft version for which the server download information is to be fetched.
      *                Must not be null or blank.
      * @return a {@code ServerDownload} object containing the version, download URL, and SHA-1 checksum
-     *         of the server JAR file.
+     * of the server JAR file.
      * @throws IllegalArgumentException if the version is null, blank, or not recognized.
-     * @throws IOException if there is an error during the HTTP request or if the response
-     *                     is malformed or does not contain the required data.
+     * @throws IOException              if there is an error during the HTTP request or if the response
+     *                                  is malformed or does not contain the required data.
      */
     public static ServerDownload fetchServerDownload(final String version) throws IOException {
 
@@ -95,10 +95,9 @@ public final class ServerJarURLGrabber {
      *                Must not be null or blank.
      * @return the URL of the version JSON as a {@code String}, or {@code null} if no matching URL is found.
      * @throws IllegalArgumentException if the specified version is not recognized.
-     * @throws IOException if there is an error during the HTTP request or if the response is malformed.
+     * @throws IOException              if there is an error during the HTTP request or if the response is malformed.
      */
-    @Nullable
-    private static String fetchVersionJsonUrl(final String version) throws IOException {
+    @Nullable private static String fetchVersionJsonUrl(final String version) throws IOException {
 
         final URL url = URI.create(DOWNLOAD_MANIFEST_URL).toURL();
         final HttpURLConnection connection = (HttpURLConnection) url.openConnection();

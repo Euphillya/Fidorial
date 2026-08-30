@@ -65,7 +65,6 @@ public final class BlockStateGenerator {
      *                             {@code BlockStateLightProperties}
      * @param blockTypeKeysPackage package holding the typed {@code BlockType} keys class (e.g. {@code BlockTypeKeys})
      * @param outputDirectory      generated Java source root
-     *
      * @throws IOException if a generated file cannot be written
      */
     public void generate(final List<BlockReportDefinition> blocks,
@@ -132,7 +131,6 @@ public final class BlockStateGenerator {
      * @param blocks          parsed Mojang block definitions
      * @param pkgs            resolved package/type info for this generation run
      * @param outputDirectory generated Java source root
-     *
      * @throws IOException if the source file cannot be written
      */
     private void generateProtocolIds(final List<BlockReportDefinition> blocks, final Packages pkgs, final Path outputDirectory) throws IOException {
@@ -209,7 +207,6 @@ public final class BlockStateGenerator {
      * @param blocks          parsed Mojang block definitions
      * @param pkgs            resolved package/type info for this generation run
      * @param outputDirectory generated Java source root
-     *
      * @throws IOException if the source file cannot be written
      */
     private void generateProperties(final List<BlockReportDefinition> blocks, final Packages pkgs, final Path outputDirectory) throws IOException {
@@ -451,7 +448,6 @@ public final class BlockStateGenerator {
      * @param lighting        Prismarine light emission/opacity, keyed by plain block name
      * @param pkgs            resolved package/type info for this generation run
      * @param outputDirectory generated Java source root
-     *
      * @throws IOException if the source file cannot be written
      */
     private void generateLightProperties(final List<BlockReportDefinition> blocks,

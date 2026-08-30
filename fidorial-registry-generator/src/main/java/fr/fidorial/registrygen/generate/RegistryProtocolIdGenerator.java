@@ -51,7 +51,6 @@ public final class RegistryProtocolIdGenerator {
      * @param registry        parsed Mojang registry definition
      * @param target          generation target (package, class name, constant suffix, value kind)
      * @param outputDirectory generated Java source root
-     *
      * @throws IOException if the source file cannot be written
      */
     public void generate(final RegistryDefinition registry,

@@ -8,7 +8,6 @@ import java.util.Map;
  * @param networkId  network ID for this exact state
  * @param properties property values for this state
  * @param isDefault  whether this is the block's default state
- *
  * @since 0.1.0
  */
 public record BlockStateEntry(int networkId, Map<String, String> properties, boolean isDefault) {

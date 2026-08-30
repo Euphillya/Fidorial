@@ -14,7 +14,6 @@ import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -27,7 +26,7 @@ import java.util.List;
  * to create the necessary data files for a specified Minecraft version.
  * The task executes the data generation process using a given Java executable,
  * a server JAR file, and a set of provided arguments.
- *
+ * <p>
  * The generated data is stored in a designated output directory. The task ensures
  * that the output directory is created if it does not already exist. If the process
  * fails, it throws an exception with the generated process exit code.
@@ -99,7 +98,7 @@ public abstract class GenerateReportsTask extends DefaultTask {
         if (!Files.isRegularFile(registriesFile)) {
             throw new IOException(
                     "Minecraft data generator exited successfully, but did not generate "
-                    + registriesFile
+                            + registriesFile
             );
         }
     }

@@ -21,7 +21,7 @@ public record RegistriesHolder(List<RegistryDefinition> registries) {
     public Optional<RegistryDefinition> registry(final String identifier) {
 
         return registries.stream()
-                .filter(registry ->registry.identifier().equals(identifier))
+                .filter(registry -> registry.identifier().equals(identifier))
                 .findFirst();
     }
 }

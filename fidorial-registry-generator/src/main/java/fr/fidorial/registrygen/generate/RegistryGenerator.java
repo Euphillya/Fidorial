@@ -59,15 +59,15 @@ public final class RegistryGenerator {
      * <p>This constructor is useful for testing or replacing individual
      * generation stages.</p>
      *
-     * @param parser              registry report parser
-     * @param dataGenerator       marker-interface generator
-     * @param keysGenerator       typed registry-entry key generator
-     * @param registryKeyGenerator central registry-key generator
-     * @param protocolIdGenerator raw protocol ID constant generator
-     * @param blockReportParser   blocks report parser
+     * @param parser                      registry report parser
+     * @param dataGenerator               marker-interface generator
+     * @param keysGenerator               typed registry-entry key generator
+     * @param registryKeyGenerator        central registry-key generator
+     * @param protocolIdGenerator         raw protocol ID constant generator
+     * @param blockReportParser           blocks report parser
      * @param prismarineBlockReportParser prismarine block report parser
-     * @param blockStateGenerator block type registration generator
-     * @param dimensionTypesGenerator the dimension types generator
+     * @param blockStateGenerator         block type registration generator
+     * @param dimensionTypesGenerator     the dimension types generator
      */
     public RegistryGenerator(final RegistryReportParser parser,
                              final RegistryDataGenerator dataGenerator,
@@ -94,14 +94,13 @@ public final class RegistryGenerator {
      * Parses a Mojang registry report and generates all configured
      * Fidorial registry source files.
      *
-     * @param registriesJson  path to Mojang's {@code registries.json}
-     * @param outputDirectory generated Java source root
-     * @param registryTypes   the registries to generate
-     * @param dataPackage the subpackage for generated registry marker interfaces
-     * @param keysPackage the subpackage for generated registry keys
-     * @param registryPackage the package for generated registries
+     * @param registriesJson      path to Mojang's {@code registries.json}
+     * @param outputDirectory     generated Java source root
+     * @param registryTypes       the registries to generate
+     * @param dataPackage         the subpackage for generated registry marker interfaces
+     * @param keysPackage         the subpackage for generated registry keys
+     * @param registryPackage     the package for generated registries
      * @param generateRegistryKey whether to generate the {@code RegistryKey} class
-     *
      * @throws IOException if parsing or source generation fails
      */
     public void generate(final Path registriesJson,
@@ -178,7 +177,6 @@ public final class RegistryGenerator {
      *
      * @param packetsJson     path to {@code packets.json}
      * @param outputDirectory generated Java source root
-     *
      * @throws IOException if parsing or source generation fails
      */
     public void generatePackets(final Path packetsJson, final Path outputDirectory) throws IOException {
@@ -202,16 +200,15 @@ public final class RegistryGenerator {
      * report for light emission/opacity) and generates {@code BlockStateIds}/{@code BlockStateProperties}
      * (and, when Prismarine data is supplied, {@code BlockStateLightProperties}).
      *
-     * @param blocksJson            path to Mojang's {@code blocks.json}
-     * @param prismarineBlocksJson  path to Prismarine's {@code blocks.json}, or {@code null} to skip lighting
-     * @param outputDirectory       generated Java source root
-     * @param blockPackage          package holding the {@code BlockType}, {@code BlockProperty}, and
-     *                              {@code BlockRegistry} classes
-     * @param generatedPackage      root package; {@code BlockState} resolves to {@code <generatedPackage>.world.chunk}
-     * @param registryDataPackage   package for {@code BlockStateIds}/{@code BlockStateProperties}/
-     *                              {@code BlockStateLightProperties}
-     * @param blockTypeKeysPackage  package holding the typed {@code BlockType} keys class (e.g. {@code BlockTypeKeys})
-     *
+     * @param blocksJson           path to Mojang's {@code blocks.json}
+     * @param prismarineBlocksJson path to Prismarine's {@code blocks.json}, or {@code null} to skip lighting
+     * @param outputDirectory      generated Java source root
+     * @param blockPackage         package holding the {@code BlockType}, {@code BlockProperty}, and
+     *                             {@code BlockRegistry} classes
+     * @param generatedPackage     root package; {@code BlockState} resolves to {@code <generatedPackage>.world.chunk}
+     * @param registryDataPackage  package for {@code BlockStateIds}/{@code BlockStateProperties}/
+     *                             {@code BlockStateLightProperties}
+     * @param blockTypeKeysPackage package holding the typed {@code BlockType} keys class (e.g. {@code BlockTypeKeys})
      * @throws IOException if parsing or source generation fails
      */
     public void generateBlockStates(final Path blocksJson,

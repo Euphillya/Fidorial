@@ -33,7 +33,14 @@ import java.time.Duration;
 public abstract class DownloadPrismarineDataTask extends DefaultTask {
 
     private static final String CONTENTS_URL_TEMPLATE =
-            "https://api.github.com/repos/PrismarineJS/minecraft-data/contents/data/pc/%s?ref=%s";
+            "https://api.github.com/repos/%s/contents/data/pc/%s?ref=%s";
+
+    /**
+     * Repository hosting {@code minecraft-data}, as {@code owner/name}.
+     * Defaults to {@code PrismarineJS/minecraft-data}.
+     */
+    @Input
+    public abstract Property<String> getRepository();
 
     /**
      * Prismarine {@code minecraft-data} version directory, e.g. {@code "26.1"}. See the
@@ -54,9 +61,10 @@ public abstract class DownloadPrismarineDataTask extends DefaultTask {
     @TaskAction
     public void download() throws IOException {
 
+        final String repository = getRepository().get();
         final String version = getPrismarineMinecraftData().get();
         final String ref = getRef().get();
-        final String contentsUrl = CONTENTS_URL_TEMPLATE.formatted(version, ref);
+        final String contentsUrl = CONTENTS_URL_TEMPLATE.formatted(repository, version, ref);
 
         final Path outputDirectory = getDataDirectory().get().getAsFile().toPath();
         Files.createDirectories(outputDirectory);
