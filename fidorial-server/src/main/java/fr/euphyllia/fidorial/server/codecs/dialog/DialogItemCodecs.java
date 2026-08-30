@@ -3,7 +3,7 @@ package fr.euphyllia.fidorial.server.codecs.dialog;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.fidorial.inventory.ItemStack;
+import fr.fidorial.item.ItemStack;
 import net.kyori.adventure.text.Component;
 
 import java.util.List;

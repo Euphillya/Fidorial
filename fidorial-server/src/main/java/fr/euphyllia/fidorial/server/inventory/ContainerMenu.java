@@ -5,7 +5,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.fidorial.inventory.Container;
-import fr.fidorial.inventory.ItemStack;
+import fr.fidorial.item.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
 import net.kyori.adventure.text.Component;
 

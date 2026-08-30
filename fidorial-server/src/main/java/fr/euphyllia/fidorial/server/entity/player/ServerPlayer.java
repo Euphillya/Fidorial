@@ -37,7 +37,7 @@ import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.entity.RespawnPoint;
 import fr.fidorial.event.player.PlayerRespawnEvent;
 import fr.fidorial.inventory.EnderChestInventory;
-import fr.fidorial.inventory.ItemStack;
+import fr.fidorial.item.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
 import fr.fidorial.permission.PermissionResolver;
 import fr.fidorial.permission.PermissionState;

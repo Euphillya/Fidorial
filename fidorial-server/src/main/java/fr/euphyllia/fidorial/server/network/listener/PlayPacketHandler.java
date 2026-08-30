@@ -76,7 +76,7 @@ import fr.fidorial.event.player.PlayerQuitEvent;
 import fr.fidorial.event.player.PlayerRespawnEvent;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.EquipmentSlotGroup;
-import fr.fidorial.inventory.ItemStack;
+import fr.fidorial.item.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
 import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.storage.player.PlayerDataStorage;

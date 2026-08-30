@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.fidorial.inventory.Container;
-import fr.fidorial.inventory.ItemStack;
+import fr.fidorial.item.ItemStack;
 import io.papermc.adventurex.nbt.dfu.BinaryTagOps;
 import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
