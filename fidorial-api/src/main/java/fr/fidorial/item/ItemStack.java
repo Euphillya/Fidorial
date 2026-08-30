@@ -15,26 +15,6 @@ import java.util.function.UnaryOperator;
 /**
  * An item identifier, a count, and a patch over that item's default components.
  *
- * <p>Stacks are immutable. Every {@code with*} method returns a new stack and leaves
- * the receiver alone, so a stack can be shared across region threads without copying
- * or locking — which matters here, because inventories are touched from whichever
- * region thread owns the player.
- *
- * <p>Anything beyond identity and count lives in {@link #components()}. The named
- * accessors below ({@link #lore()}, {@link #enchantments()}, {@link #damage()} …) are
- * shorthands that read through to it.
- *
- * <h2>Example</h2>
- * {@snippet :
- * final ItemStack sword = ItemStack.builder(ItemKeys.DIAMOND_SWORD.key())
- *         .itemName(Component.text("Bailiff's Edge"))
- *         .lore(Component.text("Confiscates on hit."))
- *         .enchant(EnchantmentKeys.SHARPNESS.key(), 5)
- *         .unbreakable()
- *         .set(DataComponentTypes.CUSTOM_DATA, CustomData.of("owner", "bailiff"))
- *         .build();
- *}
- *
  * @param id         the item identifier, e.g. {@code minecraft:diamond_sword}
  * @param count      how many; {@code 0} or less means {@linkplain #isEmpty() empty}
  * @param components the patch over the item's defaults
@@ -61,28 +41,6 @@ public record ItemStack(Key id, int count, DataComponentMap components)
      */
     public ItemStack(final Key id, final int count) {
         this(id, count, DataComponentMap.EMPTY);
-    }
-
-    private static DataComponentMap patchOf(
-            final @Nullable Component customName,
-            final @Nullable Component itemName,
-            final List<Component> lore,
-            final List<AttributeModifier> attributeModifiers) {
-
-        Objects.requireNonNull(lore, "lore");
-        Objects.requireNonNull(attributeModifiers, "attributeModifiers");
-
-        final DataComponentMap.Builder builder = DataComponentMap.builder()
-                .setIfPresent(DataComponentTypes.CUSTOM_NAME, customName)
-                .setIfPresent(DataComponentTypes.ITEM_NAME, itemName);
-
-        if (!lore.isEmpty()) {
-            //builder.set(DataComponentTypes.LORE, new ItemLore(lore));
-        }
-        if (!attributeModifiers.isEmpty()) {
-            //builder.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, new ItemAttributeModifiers(attributeModifiers));
-        }
-        return builder.build();
     }
 
     /**
@@ -211,7 +169,7 @@ public record ItemStack(Key id, int count, DataComponentMap components)
      */
     public int maxStackSize() {
         final Integer override = get(DataComponentTypes.MAX_STACK_SIZE);
-        return override != null ? override : Integer.MAX_VALUE; //ItemProperties.maxStackSize(id);
+        return override != null ? override : 64; // Todo add properties
     }
 
     /**
@@ -220,7 +178,7 @@ public record ItemStack(Key id, int count, DataComponentMap components)
      */
     public int maxDamage() {
         final Integer override = get(DataComponentTypes.MAX_DAMAGE);
-        return override != null ? override : Integer.MAX_VALUE; //ItemProperties.maxDamage(id);
+        return override != null ? override : 0; // Todo add properties
     }
 
     /**
@@ -498,6 +456,10 @@ public record ItemStack(Key id, int count, DataComponentMap components)
          */
         public ItemStack build() {
             return new ItemStack(id, count, components.build());
+        }
+
+        public Builder unbreakable() {
+            return this; // Todo set
         }
     }
 }

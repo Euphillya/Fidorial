@@ -258,6 +258,20 @@ public final class PacketBuffer {
         return VarInts.readComponent(buf, maxLength);
     }
 
+    public @Nullable BinaryTag readNbt(final long maxBytes) {
+
+        if (!buf.isReadable()) {
+            throw new DecoderException("NBT payload truncated: no type byte");
+        }
+
+        if (buf.getByte(buf.readerIndex()) == BinaryTagTypes.END.id()) {
+            buf.skipBytes(1);
+            return null;
+        }
+
+        return NbtIo.readNbt(buf, maxBytes);
+    }
+
     public PacketBuffer writeNbt(final @Nullable CompoundBinaryTag nbt) {
         if (nbt == null) {
             buf.writeByte(BinaryTagTypes.END.id());

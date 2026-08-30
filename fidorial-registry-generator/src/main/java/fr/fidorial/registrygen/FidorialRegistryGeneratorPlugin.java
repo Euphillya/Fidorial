@@ -1,9 +1,9 @@
 package fr.fidorial.registrygen;
 
+import fr.fidorial.registrygen.model.SupportedRegistries;
 import fr.fidorial.registrygen.task.DownloadPrismarineDataTask;
 import fr.fidorial.registrygen.task.DownloadServerJarTask;
 import fr.fidorial.registrygen.task.GenerateBlockStatesTask;
-import fr.fidorial.registrygen.model.SupportedRegistries;
 import fr.fidorial.registrygen.task.GenerateItemPropertiesTask;
 import fr.fidorial.registrygen.task.GeneratePacketsTask;
 import fr.fidorial.registrygen.task.GenerateRegistriesTask;

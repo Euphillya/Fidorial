@@ -54,7 +54,6 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.Ser
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundSwingPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
 import fr.euphyllia.fidorial.server.network.session.ChunkViewTracker;
-import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.world.ChunkGeneratorConfig;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
@@ -76,8 +75,8 @@ import fr.fidorial.event.player.PlayerQuitEvent;
 import fr.fidorial.event.player.PlayerRespawnEvent;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.EquipmentSlotGroup;
-import fr.fidorial.item.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.item.ItemStack;
 import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.world.BlockFace;
@@ -322,7 +321,6 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     @Override
-    @SuppressWarnings("PatternValidation")
     public void handleSetCreativeModeSlot(final ServerboundSetCreativeModeSlotPacket packet) {
         if (player.gameMode() != GameMode.CREATIVE) {
             LOGGER.debug("{} envoie un paquet creatif hors mode creatif (ignore)", player.name());
@@ -332,16 +330,16 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (slot == InventorySlots.INVALID || slot >= player.inventory().size()) {
             return;
         }
-        if (packet.count() <= 0 || packet.itemId() < 0) {
+
+        final ItemStack stack = packet.stack();
+
+        if (stack.isEmpty()) {
             player.inventory().set(slot, ItemStack.EMPTY);
             return;
         }
-        final Registry items = server.registries().frozen().get(Key.key("item"));
-        if (items == null || packet.itemId() >= items.entries().size()) {
-            LOGGER.warn("{} envoie un id d'item hors borne : {}", player.name(), packet.itemId());
-            return;
-        }
-        player.inventory().set(slot, new ItemStack(items.entries().get(packet.itemId()), packet.count()));
+
+        final int maxCount = Math.max(1, stack.maxStackSize());
+        player.inventory().set(slot, stack.count() > maxCount ? stack.withCount(maxCount) : stack);
     }
 
     @Override

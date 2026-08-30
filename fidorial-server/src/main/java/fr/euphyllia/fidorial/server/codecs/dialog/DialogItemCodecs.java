@@ -3,6 +3,8 @@ package fr.euphyllia.fidorial.server.codecs.dialog;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.fidorial.item.DataComponentMap;
+import fr.fidorial.item.DataComponentTypes;
 import fr.fidorial.item.ItemStack;
 import net.kyori.adventure.text.Component;
 
@@ -34,13 +36,14 @@ public class DialogItemCodecs {
                     })
     ).apply(instance, (id, count, components) -> {
         final ItemComponents resolved = components.orElse(ItemComponents.EMPTY);
+        final DataComponentMap.Builder builder = DataComponentMap.builder()
+                .setIfPresent(DataComponentTypes.CUSTOM_NAME, resolved.customName().orElse(null))
+                .setIfPresent(DataComponentTypes.ITEM_NAME, resolved.itemName().orElse(null));
         return new ItemStack(
                 id,
                 count,
-                resolved.customName().orElse(null),
-                resolved.itemName().orElse(null),
-                resolved.lore().orElse(List.of()),
-                List.of());
+                builder.build()
+        );
     }));
 
     private DialogItemCodecs() {
