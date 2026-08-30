@@ -11,6 +11,7 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.common.C
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundAddEntityPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBossEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundContainerClosePacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundContainerSetContentPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundEntityEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundGameEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundOpenScreenPacket;
@@ -198,6 +199,17 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         return enderChest;
     }
 
+    @Override
+    public void updateInventory() {
+        final ContainerMenu menu = openMenu;
+        if (menu != null) {
+            connection.send(menu.buildSyncPacket(connection.server().registries().frozen()));
+        } else {
+            connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
+                    inventory, 0, ItemStack.EMPTY, connection.server().registries().frozen()));
+        }
+    }
+
     /**
      * The currently open container window, or {@code null}.
      */
@@ -283,6 +295,7 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         return this.locale;
     }
 
+    @Override
     public ItemStack heldItem() {
         return inventory.get(selectedSlot);
     }
@@ -597,10 +610,12 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         return Collections.unmodifiableSet(activeBossBars.keySet());
     }
 
+    @Override
     public int selectedSlot() {
         return selectedSlot;
     }
 
+    @Override
     public void setSelectedSlot(final int selectedSlot) {
         if (selectedSlot < 0 || selectedSlot > 8) {
             throw new IllegalArgumentException("slot de hotbar invalide : " + selectedSlot);
