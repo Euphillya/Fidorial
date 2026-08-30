@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractLivingEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
+import fr.euphyllia.fidorial.server.inventory.PlayerInventoryMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.nbt.ComponentResolver;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
@@ -11,7 +12,6 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.common.C
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundAddEntityPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBossEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundContainerClosePacket;
-import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundContainerSetContentPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundEntityEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundGameEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundOpenScreenPacket;
@@ -108,6 +108,8 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     private volatile int lastTeleportId;
     private volatile boolean flying;
     private volatile @Nullable ContainerMenu openMenu;
+    private final PlayerInventoryMenu inventoryMenu;
+    private volatile ItemStack carried = ItemStack.EMPTY;
     private volatile @Nullable RespawnPoint respawnPoint;
     private int nextWindowId = 1;
     private Locale locale;
@@ -125,6 +127,7 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         super(entityId, profile.uuid(), EntityTypes.PLAYER, world, location, MAX_HEALTH);
         this.profile = profile;
         this.inventory = inventory;
+        this.inventoryMenu = new PlayerInventoryMenu(this);
         this.enderChest = enderChest;
         this.gameMode = gameMode;
         this.connection = connection;
@@ -202,12 +205,8 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     @Override
     public void updateInventory() {
         final ContainerMenu menu = openMenu;
-        if (menu != null) {
-            connection.send(menu.buildSyncPacket(connection.server().registries().frozen()));
-        } else {
-            connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
-                    inventory, 0, ItemStack.EMPTY, connection.server().registries().frozen()));
-        }
+        connection.send((menu != null ? menu : inventoryMenu)
+                .buildSyncPacket(connection.server().registries().frozen()));
     }
 
     /**
@@ -215,6 +214,18 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
      */
     public @Nullable ContainerMenu openMenu() {
         return openMenu;
+    }
+
+    public PlayerInventoryMenu inventoryMenu() {
+        return inventoryMenu;
+    }
+
+    public ItemStack carried() {
+        return carried;
+    }
+
+    public void setCarried(final @Nullable ItemStack stack) {
+        this.carried = stack == null ? ItemStack.EMPTY : stack;
     }
 
     /**

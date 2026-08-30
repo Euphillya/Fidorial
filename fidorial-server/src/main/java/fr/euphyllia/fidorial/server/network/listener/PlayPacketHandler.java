@@ -9,12 +9,12 @@ import fr.euphyllia.fidorial.server.entity.player.InventorySlots;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
 import fr.euphyllia.fidorial.server.inventory.EnderChestMenu;
+import fr.euphyllia.fidorial.server.inventory.PlayerInventoryMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundAnimatePacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBlockChangedAckPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBlockEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundCommandSuggestionsPacket;
-import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundContainerSetContentPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundEntityPositionSyncPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundGameEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundLoginPacket;
@@ -279,8 +279,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     private void spawnPlayer(final Location spawn) {
         connection.send(new ClientboundPlayerPositionPacket(player.nextTeleportId(), spawn.x(), spawn.y(), spawn.z()));
-        connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
-                player.inventory(), 0, ItemStack.EMPTY, server.registries().frozen()));
+        connection.send(player.inventoryMenu().buildSyncPacket(server.registries().frozen()));
     }
 
     @Override
@@ -460,16 +459,22 @@ public final class PlayPacketHandler implements PlayPacketListener {
             server.chestViewers().close(enderChest.position(), this::broadcastLid);
             broadcastChestSound(enderChest.position(), "block.ender_chest.close");
         }
-        connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
-                player.inventory(), 0, ItemStack.EMPTY, server.registries().frozen()));
+        connection.send(player.inventoryMenu().buildSyncPacket(server.registries().frozen()));
+    }
+
+    private @Nullable ContainerMenu menuFor(final int windowId) {
+        if (windowId == PlayerInventoryMenu.WINDOW_ID) {
+            return player.inventoryMenu();
+        }
+        final ContainerMenu menu = player.openMenu();
+        return menu != null && menu.windowId() == windowId ? menu : null;
     }
 
     @Override
     public void handleContainerClick(final ServerboundContainerClickPacket packet) {
-        final ContainerMenu menu = player.openMenu();
-        if (menu == null || menu.windowId() != packet.windowId()) {
-            connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
-                    player.inventory(), 0, ItemStack.EMPTY, server.registries().frozen()));
+        final ContainerMenu menu = menuFor(packet.windowId());
+        if (menu == null) {
+            connection.send(player.inventoryMenu().buildSyncPacket(server.registries().frozen()));
             return;
         }
         menu.click(packet);
@@ -478,6 +483,13 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handleContainerClose(final ServerboundContainerClosePacket packet) {
+        if (packet.windowId() == PlayerInventoryMenu.WINDOW_ID) {
+            final PlayerInventoryMenu inventoryMenu = player.inventoryMenu();
+            inventoryMenu.returnCarried();
+            inventoryMenu.onClosed();
+            connection.send(inventoryMenu.buildSyncPacket(server.registries().frozen()));
+            return;
+        }
         closeOpenMenu(false);
     }
 
