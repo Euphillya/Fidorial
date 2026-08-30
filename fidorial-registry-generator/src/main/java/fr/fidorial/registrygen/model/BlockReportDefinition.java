@@ -11,7 +11,6 @@ import java.util.Map;
  * @param identifier namespaced block identifier, e.g. {@code minecraft:zombie_head}
  * @param properties block properties, in report order
  * @param states     every state permutation for the block
- *
  * @since 0.1.0
  */
 public record BlockReportDefinition(String identifier,

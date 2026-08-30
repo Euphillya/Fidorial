@@ -59,7 +59,7 @@ so a plugin can swap an entire subsystem without patching a single line of serve
 - Permission system with operator list and plugin-declared nodes
 - Plugin API based on JPMS modules, with [Adventure](https://docs.advntr.dev/) for all text
 - Scenario test harness running against a real server
-- Anonymous metrics via [FastStats](https://faststats.dev/project/fidorial/minecraft-plugin)
+- Pseudonymous metrics via [FastStats](https://faststats.dev/project/fidorial/minecraft-plugin)
 
 ## Getting started
 

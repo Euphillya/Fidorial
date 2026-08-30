@@ -9,7 +9,6 @@ package fr.fidorial.registrygen.model;
  * @param name        unnamespaced block identifier, e.g. {@code "oak_log"}
  * @param emitLight   light level emitted by the block, {@code 0-15}
  * @param filterLight light removed by the block as it passes through it, {@code 0-15} (opacity)
- *
  * @since 0.1.0
  */
 public record PrismarineBlockLightPropertiesDefinition(String name, int emitLight, int filterLight) {

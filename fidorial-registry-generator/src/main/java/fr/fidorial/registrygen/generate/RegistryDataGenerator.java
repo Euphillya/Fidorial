@@ -15,10 +15,10 @@ import java.util.Objects;
  * Utility class designed to generate marker interfaces for registry types in a Minecraft-related
  * registry system. This class facilitates creating Java source files representing marker interfaces
  * that serve as the types for entries in specific registries.
- *
+ * <p>
  * The generated marker interfaces are used as type-safe representations for the corresponding
  * registry entries and are associated with registry keys via generics.
- *
+ * <p>
  * This class is immutable and cannot be instantiated.
  *
  * @since 0.1.0
@@ -32,7 +32,6 @@ public final class RegistryDataGenerator {
      * @param dataPackage     package the marker interface is written to (already resolved,
      *                        including the registry type's own subpackage if any)
      * @param outputDirectory generated Java source root
-     *
      * @throws IOException if the source file cannot be written
      */
     public void generate(final RegistryTypeDefinition registryType,

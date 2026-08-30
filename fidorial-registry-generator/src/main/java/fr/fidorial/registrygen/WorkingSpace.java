@@ -10,7 +10,7 @@ import java.util.Objects;
  * Represents a workspace environment for generating Minecraft version-specific registries.
  * The `WorkingSpace` class manages directories and files associated with the
  * Minecraft version, server JAR, data output, and reports.
- *
+ * <p>
  * This class provides facilities to:
  * - Initialize necessary directory structures.
  * - Access paths associated with the workspace (e.g., server JAR location).
@@ -36,7 +36,7 @@ public final class WorkingSpace {
     /**
      * Creates a version-specific registry-generation workspace.
      *
-     * @param rootDirectory persistent working root, such as {@code build/working}
+     * @param rootDirectory    persistent working root, such as {@code build/working}
      * @param minecraftVersion target Minecraft version
      */
     public WorkingSpace(final Path rootDirectory, final String minecraftVersion) {
@@ -192,12 +192,12 @@ public final class WorkingSpace {
     /**
      * Deletes the directory associated with the current Minecraft version and all
      * of its contents recursively.
-     *
+     * <p>
      * This method targets the directory represented by the {@code versionDirectory}
      * field of the {@code WorkingSpace} class. It removes all files and
      * subdirectories within it. If the directory does not exist, the method exits without
      * performing any action.
-     *
+     * <p>
      * This operation is typically used to clean up resources specific to a Minecraft
      * version workspace. Use this method cautiously, as it permanently deletes all
      * contents within the directory and cannot be undone.
@@ -211,12 +211,12 @@ public final class WorkingSpace {
 
     /**
      * Deletes the root directory and all of its contents recursively.
-     *
+     * <p>
      * This method removes the persistent working root directory specified by the
      * {@code rootDirectory} field. All nested files and subdirectories are
      * deleted as part of this operation. If the directory does not exist,
      * the method exits without performing any action.
-     *
+     * <p>
      * This operation is intended for scenarios where the entire workspace
      * structure needs to be cleaned up. Use this with caution as it cannot
      * be undone.

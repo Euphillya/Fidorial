@@ -35,15 +35,14 @@ public final class RegistryKeysGenerator {
     /**
      * Generates a typed registry-entry key class.
      *
-     * @param registryType      configured Java type information
-     * @param registry          parsed Mojang registry definition
-     * @param registryPackage   package holding {@code RegistryKey}/{@code TypedKey}
-     * @param dataPackage       package holding the marker interface (already resolved, including
-     *                          the registry type's own subpackage if any)
-     * @param keysPackage       package this class is written to (already resolved, including
-     *                          the registry type's own subpackage if any)
-     * @param outputDirectory   generated Java source root
-     *
+     * @param registryType    configured Java type information
+     * @param registry        parsed Mojang registry definition
+     * @param registryPackage package holding {@code RegistryKey}/{@code TypedKey}
+     * @param dataPackage     package holding the marker interface (already resolved, including
+     *                        the registry type's own subpackage if any)
+     * @param keysPackage     package this class is written to (already resolved, including
+     *                        the registry type's own subpackage if any)
+     * @param outputDirectory generated Java source root
      * @throws IOException if the source file cannot be written
      */
     public void generate(final RegistryTypeDefinition registryType,

@@ -27,13 +27,12 @@ public final class PrismarineBlockReportParser {
      *
      * @param blocksJson path to Prismarine's {@code blocks.json}
      * @return lighting definitions keyed by plain block name
-     *
      * @throws IOException if the file cannot be read or isn't the expected array shape
      */
     public Map<String, PrismarineBlockLightPropertiesDefinition> parse(final Path blocksJson) throws IOException {
 
         final JsonArray root;
-        try (Reader reader = Files.newBufferedReader(blocksJson, StandardCharsets.UTF_8)) {
+        try (final Reader reader = Files.newBufferedReader(blocksJson, StandardCharsets.UTF_8)) {
             root = JsonParser.parseReader(reader).getAsJsonArray();
         }
 

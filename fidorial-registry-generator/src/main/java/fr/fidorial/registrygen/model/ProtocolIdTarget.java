@@ -13,14 +13,13 @@ import java.util.Objects;
  * {@code level_chunk_with_light} packet writes the block entity type as a bare
  * protocol ID.</p>
  *
- * @param registryIdentifier namespaced registry identifier, e.g. {@code minecraft:block_entity_type}
- * @param packageName        package of the generated constant holder
- * @param className          simple name of the generated constant holder
- * @param constantSuffix     suffix appended to every generated constant name
- * @param valueKind          the type of the protocol value
- * @param classJavadoc       the javadoc for the generated class
+ * @param registryIdentifier  namespaced registry identifier, e.g. {@code minecraft:block_entity_type}
+ * @param packageName         package of the generated constant holder
+ * @param className           simple name of the generated constant holder
+ * @param constantSuffix      suffix appended to every generated constant name
+ * @param valueKind           the type of the protocol value
+ * @param classJavadoc        the javadoc for the generated class
  * @param registryDescription the registry description
- *
  * @since 0.1.0
  */
 public record ProtocolIdTarget(String registryIdentifier,

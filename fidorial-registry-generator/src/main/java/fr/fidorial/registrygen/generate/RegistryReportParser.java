@@ -36,9 +36,7 @@ public final class RegistryReportParser {
      * Parses a Mojang registry report.
      *
      * @param registriesJson path to {@code registries.json}
-     *
      * @return parsed registry definitions
-     *
      * @throws IOException if the file cannot be read or contains an
      *                     unexpected structure
      */

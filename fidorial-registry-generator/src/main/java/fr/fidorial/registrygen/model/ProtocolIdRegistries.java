@@ -49,7 +49,6 @@ public final class ProtocolIdRegistries {
      * Returns the protocol ID target configured for the given registry, if any.
      *
      * @param registryIdentifier namespaced registry identifier
-     *
      * @return the matching target, or {@link Optional#empty()}
      */
     public static Optional<ProtocolIdTarget> byIdentifier(final String registryIdentifier) {

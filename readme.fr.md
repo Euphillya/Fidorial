@@ -61,7 +61,7 @@ veulent modifier le jeu. Ni Forge, ni Fabric, ni Mixin : un plugin s'abonne à d
 - Système de permissions avec liste d'opérateurs et nœuds déclarés par les plugins
 - API de plugins basée sur les modules JPMS, avec [Adventure](https://docs.advntr.dev/) pour tout le texte
 - Harnais de tests scénario exécutés contre un vrai serveur
-- Métriques anonymes via [FastStats](https://faststats.dev/project/fidorial/minecraft-plugin)
+- Métriques pseudonyme via [FastStats](https://faststats.dev/project/fidorial/minecraft-plugin)
 
 ## Démarrage
 
