@@ -389,6 +389,11 @@ public final class PlayClientboundPackets {
     public static final Key PONG_RESPONSE = Key.key("pong_response");
 
     /**
+     * {@code minecraft:post_effects}
+     */
+    public static final Key POST_EFFECTS = Key.key("post_effects");
+
+    /**
      * {@code minecraft:projectile_power}
      */
     public static final Key PROJECTILE_POWER = Key.key("projectile_power");
@@ -637,6 +642,11 @@ public final class PlayClientboundPackets {
      * {@code minecraft:store_cookie}
      */
     public static final Key STORE_COOKIE = Key.key("store_cookie");
+
+    /**
+     * {@code minecraft:swing_animation}
+     */
+    public static final Key SWING_ANIMATION = Key.key("swing_animation");
 
     /**
      * {@code minecraft:system_chat}

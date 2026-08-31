@@ -80,7 +80,7 @@ publishing {
 }
 
 fidorialRegistryGenerator {
-    minecraftVersion.set("26.2")
+    minecraftVersion.set("26.3-snapshot-10")
 
     generatedSourcesDirectory.set(
         layout.projectDirectory.dir(
