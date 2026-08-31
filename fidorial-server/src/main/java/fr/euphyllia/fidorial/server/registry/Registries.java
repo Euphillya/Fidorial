@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.server.registry;
 
 import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
 import fr.euphyllia.fidorial.server.registry.dialog.FidorialDialogRegistry;
+import fr.euphyllia.fidorial.server.registry.data.FrozenRegistries;
 import fr.euphyllia.fidorial.server.registry.dimension.FidorialDimensionTypeRegistry;
 import fr.euphyllia.fidorial.server.registry.entity.EntityTypeRegistry;
 import fr.fidorial.registry.Registry;
@@ -161,7 +162,17 @@ public final class Registries {
         registries.put(RegistryKey.ZOMBIE_NAUTILUS_VARIANT, simple(RegistryKey.ZOMBIE_NAUTILUS_VARIANT, ZombieNautilusVariant.class, ZombieNautilusVariantKeys.values()));
         registries.put(RegistryKey.ENTITY_TYPE, new EntityTypeRegistry());
 
-        return new Registries(dynamic, RegistryHolder.of(data.frozen()), registries, biomes, dialogs, dimensionTypes);
+        return new Registries(dynamic, loadFrozen(), registries, biomes, dialogs, dimensionTypes);
+    }
+
+    private static RegistryHolder loadFrozen() {
+
+        final Map<Key, fr.euphyllia.fidorial.server.registry.Registry> frozen = new LinkedHashMap<>();
+
+        FrozenRegistries.entries().forEach((name, entries) ->
+                frozen.put(name, fr.euphyllia.fidorial.server.registry.Registry.of(name, entries)));
+
+        return RegistryHolder.of(frozen);
     }
 
     private static <T> SimpleRegistry<T> simple(
