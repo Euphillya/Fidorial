@@ -8,6 +8,7 @@ import fr.euphyllia.fidorial.testplugin.command.ItemCommand;
 import fr.euphyllia.fidorial.testplugin.command.PregenCommand;
 import fr.euphyllia.fidorial.testplugin.command.WorldgenCommand;
 import fr.euphyllia.fidorial.testplugin.dialog.TestDialogs;
+import fr.euphyllia.fidorial.testplugin.items.MagicItems;
 import fr.euphyllia.fidorial.testplugin.mob.BullMobs;
 import fr.euphyllia.fidorial.testplugin.mob.CompanionMobs;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
@@ -113,7 +114,8 @@ public final class TestPlugin implements Plugin {
         TestDimensionTypes.registerAll(context.server().dimensionTypes(), context.logger());
 
 //        BullMobs.attachToCows(context.server().mobs(), this, context.logger());
-       BullMobs.registerBull(context.server().mobs(), this, context.logger());
+        MagicItems.registerMagicSword(context.server().items(), this, context.logger());
+        BullMobs.registerBull(context.server().mobs(), this, context.logger());
         CompanionMobs.register(context.server().mobs(), this, context.logger());
 
         final long seed = resolveSeed(context.logger());

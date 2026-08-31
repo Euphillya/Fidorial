@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.registry;
 
 import fr.euphyllia.fidorial.server.registry.biome.FidorialBiomeRegistry;
-import fr.euphyllia.fidorial.server.registry.dialog.FidorialDialogRegistry;
 import fr.euphyllia.fidorial.server.registry.data.FrozenRegistries;
+import fr.euphyllia.fidorial.server.registry.dialog.FidorialDialogRegistry;
 import fr.euphyllia.fidorial.server.registry.dimension.FidorialDimensionTypeRegistry;
 import fr.euphyllia.fidorial.server.registry.entity.EntityTypeRegistry;
 import fr.fidorial.registry.Registry;

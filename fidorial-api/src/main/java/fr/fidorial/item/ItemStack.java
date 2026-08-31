@@ -169,7 +169,7 @@ public record ItemStack(Key id, int count, DataComponentMap components)
      */
     public int maxStackSize() {
         final Integer override = get(DataComponentTypes.MAX_STACK_SIZE);
-        return override != null ? override : 64; // Todo add properties
+        return override != null ? override : ItemDefaults.maxStackSize(id);
     }
 
     /**
@@ -178,7 +178,7 @@ public record ItemStack(Key id, int count, DataComponentMap components)
      */
     public int maxDamage() {
         final Integer override = get(DataComponentTypes.MAX_DAMAGE);
-        return override != null ? override : 0; // Todo add properties
+        return override != null ? override : ItemDefaults.maxDamage(id);
     }
 
     /**

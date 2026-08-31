@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fr.euphyllia.fidorial.testplugin.TestPlugin;
+import fr.euphyllia.fidorial.testplugin.items.MagicItems;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Player;
@@ -47,10 +48,12 @@ public final class ItemCommand {
                 .damage(80)
                 .build();
 
-        player.inventory().set(player.selectedSlot(), sword);
+        final ItemStack magicSword = plugin.server().items().create(MagicItems.MAGIC_SWORD);
+
+        player.inventory().set(player.selectedSlot(), magicSword);
         player.updateInventory();
 
-        plugin.msg(player, "[TestPlugin] Vous recevez " + sword);
+        plugin.msg(player, "[TestPlugin] Vous recevez " + magicSword);
         return Command.SINGLE_SUCCESS;
     }
 

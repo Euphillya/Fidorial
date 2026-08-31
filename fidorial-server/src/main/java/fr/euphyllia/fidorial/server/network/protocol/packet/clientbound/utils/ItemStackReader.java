@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.utils;
 
+import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
@@ -54,7 +55,16 @@ public class ItemStackReader {
             }
         }
 
-        return new ItemStack(item, count, components.build());
+        final DataComponentMap built = components.build();
+
+        return new ItemStack(resolve(item, built.get(DataComponentTypes.ITEM_MODEL)), count, built);
+    }
+
+    private static Key resolve(final Key item, @Nullable final Key itemModel) {
+        if (itemModel == null) {
+            return item;
+        }
+        return FidorialServer.getInstance().items().resolve(item, itemModel);
     }
 
     private static void readComponent(final PacketBuffer buf,
