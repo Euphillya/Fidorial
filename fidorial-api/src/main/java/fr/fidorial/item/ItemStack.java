@@ -1,6 +1,7 @@
 package fr.fidorial.item;
 
 import fr.fidorial.attribute.AttributeModifier;
+import fr.fidorial.item.component.ItemLore;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -21,7 +22,7 @@ import java.util.function.UnaryOperator;
  * @since 0.1.0
  */
 public record ItemStack(Key id, int count, DataComponentMap components)
-        implements Translatable, HoverEventSource<HoverEvent.ShowItem> {
+        implements DataComponentHolder, Translatable, HoverEventSource<HoverEvent.ShowItem> {
 
     private static final Key AIR = Key.key("air");
 
@@ -73,40 +74,6 @@ public record ItemStack(Key id, int count, DataComponentMap components)
      */
     public Builder toBuilder() {
         return new Builder(id, count, components.toBuilder());
-    }
-
-    /**
-     * Reads a component off this stack.
-     *
-     * <p>Returns {@code null} both when the component is genuinely absent and when
-     * this stack has not patched an item default that is nevertheless present. Use
-     * the named accessors ({@link #maxDamage()}, {@link #maxStackSize()}) where the
-     * item's default matters.
-     *
-     * @param type the component to read
-     * @param <T>  the component's value type
-     * @return the value, or {@code null}
-     */
-    public <T> @Nullable T get(final DataComponentType<T> type) {
-        return components.get(type);
-    }
-
-    /**
-     * @param type     the component to read
-     * @param fallback returned when the component is unset
-     * @param <T>      the component's value type
-     * @return the value, or {@code fallback}
-     */
-    public <T> T getOrDefault(final DataComponentType<T> type, final T fallback) {
-        return components.getOrDefault(type, fallback);
-    }
-
-    /**
-     * @param type the component to test
-     * @return {@code true} when this stack patches it
-     */
-    public boolean has(final DataComponentType<?> type) {
-        return components.has(type);
     }
 
     /**
@@ -242,17 +209,12 @@ public record ItemStack(Key id, int count, DataComponentMap components)
     }
 
     /**
-     * @return the intrinsic name, or {@code null}
-     */
-    public @Nullable Component itemName() {
-        return get(DataComponentTypes.ITEM_NAME);
-    }
-
-    /**
+     * Shorthand for {@code lore().lines()}.
+     *
      * @return the tooltip lines, empty when unset
      */
-    public List<Component> lore() {
-        return List.of();
+    public List<Component> loreLines() {
+        return lore().lines();
     }
 
     /**
@@ -282,20 +244,6 @@ public record ItemStack(Key id, int count, DataComponentMap components)
      */
     public boolean hasCustomName() {
         return has(DataComponentTypes.CUSTOM_NAME);
-    }
-
-    /**
-     * @return {@code true} when {@link #itemName()} is set
-     */
-    public boolean hasItemName() {
-        return has(DataComponentTypes.ITEM_NAME);
-    }
-
-    /**
-     * @return {@code true} when there is at least one lore line
-     */
-    public boolean hasLore() {
-        return !lore().isEmpty();
     }
 
     /**
@@ -350,6 +298,22 @@ public record ItemStack(Key id, int count, DataComponentMap components)
      */
     public ItemStack withItemName(final Component name) {
         return with(DataComponentTypes.ITEM_NAME, name);
+    }
+
+    /**
+     * @param lines the tooltip lines, in the order they are drawn
+     * @return a new stack
+     */
+    public ItemStack withLore(final List<Component> lines) {
+        return with(DataComponentTypes.LORE, ItemLore.of(lines));
+    }
+
+    /**
+     * @param lines the tooltip lines, in the order they are drawn
+     * @return a new stack
+     */
+    public ItemStack withLore(final Component... lines) {
+        return with(DataComponentTypes.LORE, ItemLore.of(lines));
     }
 
     @Override
@@ -434,6 +398,21 @@ public record ItemStack(Key id, int count, DataComponentMap components)
             return set(DataComponentTypes.ITEM_NAME, name);
         }
 
+        /**
+         * @param lines the tooltip lines, in the order they are drawn
+         * @return this builder
+         */
+        public Builder lore(final List<Component> lines) {
+            return set(DataComponentTypes.LORE, ItemLore.of(lines));
+        }
+
+        /**
+         * @param lines the tooltip lines, in the order they are drawn
+         * @return this builder
+         */
+        public Builder lore(final Component... lines) {
+            return set(DataComponentTypes.LORE, ItemLore.of(lines));
+        }
 
         /**
          * @param damage spent durability

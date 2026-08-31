@@ -4,7 +4,6 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.fidorial.item.DataComponentMap;
 import fr.fidorial.item.DataComponentType;
-import fr.fidorial.item.DataComponentTypes;
 import fr.fidorial.item.ItemDefinition;
 import fr.fidorial.item.ItemRegistry;
 import fr.fidorial.item.ItemStack;
@@ -158,22 +157,7 @@ public final class FidorialItemRegistry implements ItemRegistry {
      */
     public static DataComponentMap withDefaults(final ItemDefinition definition, final DataComponentMap patch) {
 
-        final DataComponentMap.Builder components = DataComponentMap.builder();
-
-        components.set(DataComponentTypes.MAX_STACK_SIZE, definition.maxStackSize());
-        components.set(DataComponentTypes.ITEM_MODEL, definition.resolvedItemModel());
-
-        if (definition.maxDamage() > 0) {
-            components.set(DataComponentTypes.MAX_DAMAGE, definition.maxDamage());
-        }
-
-        if (definition.itemName() != null) {
-            components.set(DataComponentTypes.ITEM_NAME, definition.itemName());
-        }
-
-        if (definition.glint()) {
-            components.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
-        }
+        final DataComponentMap.Builder components = definition.components().toBuilder();
 
         for (final Map.Entry<DataComponentType<?>, Object> entry : patch.entries()) {
             setErased(components, entry.getKey(), entry.getValue());

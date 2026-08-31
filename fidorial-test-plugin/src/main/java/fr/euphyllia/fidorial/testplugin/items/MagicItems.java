@@ -24,6 +24,7 @@ public class MagicItems {
                 .maxStackSize(1)
                 .maxDamage(SWORD_DURABILITY)
                 .itemName(Component.text("Epee magique", NamedTextColor.LIGHT_PURPLE))
+                .lore(Component.text("First line"), Component.text("Second line"))
                 .glint(true)
                 .build();
 

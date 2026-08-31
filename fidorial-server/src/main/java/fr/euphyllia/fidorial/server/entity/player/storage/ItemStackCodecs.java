@@ -41,6 +41,7 @@ public final class ItemStackCodecs {
         register(DataComponentTypes.ITEM_MODEL, KEY_CODEC);
         register(DataComponentTypes.CUSTOM_NAME, ComponentCodecs.COMPONENT_CODEC);
         register(DataComponentTypes.ITEM_NAME, ComponentCodecs.COMPONENT_CODEC);
+        register(DataComponentTypes.LORE, ComponentCodecs.LORE_CODEC);
     }
 
     public static final Codec<DataComponentMap> COMPONENT_MAP_CODEC = new Codec<>() {

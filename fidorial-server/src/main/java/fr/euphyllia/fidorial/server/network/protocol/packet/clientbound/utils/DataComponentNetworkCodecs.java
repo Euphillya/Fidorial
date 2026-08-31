@@ -7,12 +7,15 @@ import fr.fidorial.attribute.AttributeModifier;
 import fr.fidorial.inventory.EquipmentSlotGroup;
 import fr.fidorial.item.DataComponentType;
 import fr.fidorial.item.DataComponentTypes;
+import fr.fidorial.item.component.ItemLore;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -39,6 +42,7 @@ public final class DataComponentNetworkCodecs {
         register(DataComponentTypes.ITEM_MODEL, identifierCodec());
         register(DataComponentTypes.CUSTOM_NAME, textCodec());
         register(DataComponentTypes.ITEM_NAME, textCodec());
+        register(DataComponentTypes.LORE, loreCodec());
 
     }
 
@@ -127,6 +131,29 @@ public final class DataComponentNetworkCodecs {
         };
     }
 
+    private static Codec<ItemLore> loreCodec() {
+        return new Codec<>() {
+            @Override
+            public void write(final PacketBuffer buf, final RegistryHolder frozen, final ItemLore value) {
+                buf.writeVarInt(value.size());
+                for (final Component line : value.lines()) {
+                    buf.writeComponent(line);
+                }
+            }
+
+            @Override
+            public ItemLore read(final PacketBuffer buf, final RegistryHolder frozen) {
+                final int size = readBoundedLength(buf, ItemLore.MAX_LINES, "lore");
+
+                final List<Component> lines = new ArrayList<>(size);
+                for (int i = 0; i < size; i++) {
+                    lines.add(buf.readComponent(MAX_COMPONENT_TEXT_LENGTH));
+                }
+
+                return new ItemLore(lines);
+            }
+        };
+    }
 
     private static int readBoundedLength(final PacketBuffer buf, final int max, final String what) {
         final int size = buf.readVarInt();

@@ -83,6 +83,14 @@ public final class ItemCommand {
         plugin.msg(player, "[TestPlugin] maxStackSize=" + held.maxStackSize()
                 + " hasCustomName=" + held.hasCustomName());
 
+        plugin.msg(player, "[TestPlugin] hasLore=" + held.hasLore()
+                + " lignes=" + held.lore().size());
+
+        int line = 0;
+        for (final Component loreLine : held.loreLines()) {
+            player.sendMessage(Component.text("[TestPlugin]   lore[" + line++ + "] ").append(loreLine));
+        }
+
         return Command.SINGLE_SUCCESS;
     }
 
@@ -110,6 +118,4 @@ public final class ItemCommand {
 
         return Command.SINGLE_SUCCESS;
     }
-
-
 }

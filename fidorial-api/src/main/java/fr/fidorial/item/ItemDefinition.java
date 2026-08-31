@@ -1,59 +1,77 @@
 package fr.fidorial.item;
 
+import fr.fidorial.item.component.ItemLore;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
  * Everything the server needs to build an item a plugin invented.
  *
- * @param key          the identifier the item is created and saved under
- * @param networkType  the vanilla item the client renders
- * @param maxStackSize how many fit in one slot
- * @param maxDamage    total durability, {@code 0} when the item cannot break
- * @param itemName     the name drawn upright, {@code null} to keep the vanilla one
- * @param itemModel    the model a resource pack draws, {@code null} to use {@link #key()}
- * @param glint        whether the enchantment shimmer is forced on
+ * @param key         the identifier the item is created and saved under
+ * @param networkType the vanilla item the client renders
+ * @param components  the components every stack of this item starts with
  * @since 0.1.0
  */
-public record ItemDefinition(
-        Key key,
-        Key networkType,
-        int maxStackSize,
-        int maxDamage,
-        @Nullable Component itemName,
-        @Nullable Key itemModel,
-        boolean glint) {
+public record ItemDefinition(Key key, Key networkType, DataComponentMap components)
+        implements DataComponentHolder {
+
+    /**
+     * What an item stacks to when it says nothing about it.
+     */
+    public static final int DEFAULT_MAX_STACK_SIZE = 1;
 
     public ItemDefinition {
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(networkType, "networkType");
+        Objects.requireNonNull(components, "components");
 
-        if (maxStackSize < 1) {
-            throw new IllegalArgumentException("maxStackSize must be at least 1, got " + maxStackSize);
+        final int stackSize = components.getOrDefault(DataComponentTypes.MAX_STACK_SIZE, DEFAULT_MAX_STACK_SIZE);
+        final int damage = components.getOrDefault(DataComponentTypes.MAX_DAMAGE, 0);
+
+        if (stackSize < 1) {
+            throw new IllegalArgumentException("maxStackSize must be at least 1, got " + stackSize);
         }
 
-        if (maxDamage < 0) {
-            throw new IllegalArgumentException("maxDamage cannot be negative, got " + maxDamage);
+        if (damage < 0) {
+            throw new IllegalArgumentException("maxDamage cannot be negative, got " + damage);
         }
 
-        if (maxStackSize > 1 && maxDamage > 0) {
+        if (stackSize > 1 && damage > 0) {
             throw new IllegalArgumentException(
-                    "An item that stacks cannot have durability: " + key + " stacks to " + maxStackSize);
+                    "An item that stacks cannot have durability: " + key + " stacks to " + stackSize);
         }
     }
 
     /**
-     * The model the client is told to draw. Defaults to {@link #key()}, which doubles
-     * as the marker the server reads the custom identity back from.
+     * @return how many fit in one slot
+     * @since 0.1.0
+     */
+    public int maxStackSize() {
+        return components.getOrDefault(DataComponentTypes.MAX_STACK_SIZE, DEFAULT_MAX_STACK_SIZE);
+    }
+
+    /**
+     * @return total durability, {@code 0} when the item cannot break
+     * @since 0.1.0
+     */
+    public int maxDamage() {
+        return components.getOrDefault(DataComponentTypes.MAX_DAMAGE, 0);
+    }
+
+    /**
+     * The model the client is told to draw. {@link Builder} seeds this with
+     * {@link #key()}, which doubles as the marker the server reads the custom
+     * identity back from.
      *
      * @return the resource-pack model identifier
      * @since 0.1.0
      */
     public Key resolvedItemModel() {
-        return itemModel != null ? itemModel : key;
+        final Key model = itemModel();
+        return model != null ? model : key;
     }
 
     /**
@@ -67,6 +85,14 @@ public record ItemDefinition(
     }
 
     /**
+     * @return a builder pre-populated with this definition
+     * @since 0.1.0
+     */
+    public Builder toBuilder() {
+        return new Builder(key, networkType, components.toBuilder());
+    }
+
+    /**
      * Assembles an {@link ItemDefinition}.
      *
      * @since 0.1.0
@@ -75,16 +101,40 @@ public record ItemDefinition(
 
         private final Key key;
         private final Key networkType;
-
-        private int maxStackSize = 1;
-        private int maxDamage;
-        private @Nullable Component itemName;
-        private @Nullable Key itemModel;
-        private boolean glint;
+        private final DataComponentMap.Builder components;
 
         private Builder(final Key key, final Key networkType) {
-            this.key = key;
-            this.networkType = networkType;
+            this(key, networkType, DataComponentMap.builder()
+                    .set(DataComponentTypes.MAX_STACK_SIZE, DEFAULT_MAX_STACK_SIZE)
+                    .set(DataComponentTypes.ITEM_MODEL, key));
+        }
+
+        private Builder(final Key key, final Key networkType, final DataComponentMap.Builder components) {
+            this.key = Objects.requireNonNull(key, "key");
+            this.networkType = Objects.requireNonNull(networkType, "networkType");
+            this.components = components;
+        }
+
+        /**
+         * @param type  the component to set
+         * @param value the value
+         * @param <T>   the component's value type
+         * @return this builder
+         * @since 0.1.0
+         */
+        public <T> Builder set(final DataComponentType<T> type, final T value) {
+            components.set(type, value);
+            return this;
+        }
+
+        /**
+         * @param type the component to stop declaring
+         * @return this builder
+         * @since 0.1.0
+         */
+        public Builder reset(final DataComponentType<?> type) {
+            components.reset(type);
+            return this;
         }
 
         /**
@@ -93,8 +143,7 @@ public record ItemDefinition(
          * @since 0.1.0
          */
         public Builder maxStackSize(final int maxStackSize) {
-            this.maxStackSize = maxStackSize;
-            return this;
+            return set(DataComponentTypes.MAX_STACK_SIZE, maxStackSize);
         }
 
         /**
@@ -103,8 +152,9 @@ public record ItemDefinition(
          * @since 0.1.0
          */
         public Builder maxDamage(final int maxDamage) {
-            this.maxDamage = maxDamage;
-            return this;
+            return maxDamage == 0
+                    ? reset(DataComponentTypes.MAX_DAMAGE)
+                    : set(DataComponentTypes.MAX_DAMAGE, maxDamage);
         }
 
         /**
@@ -113,8 +163,7 @@ public record ItemDefinition(
          * @since 0.1.0
          */
         public Builder itemName(final Component itemName) {
-            this.itemName = itemName;
-            return this;
+            return set(DataComponentTypes.ITEM_NAME, itemName);
         }
 
         /**
@@ -123,18 +172,36 @@ public record ItemDefinition(
          * @since 0.1.0
          */
         public Builder itemModel(final Key itemModel) {
-            this.itemModel = itemModel;
-            return this;
+            return set(DataComponentTypes.ITEM_MODEL, itemModel);
         }
 
         /**
-         * @param glint whether the enchantment shimmer is forced on
+         * @param lines the tooltip lines every stack of this item starts with
+         * @return this builder
+         * @since 0.1.0
+         */
+        public Builder lore(final List<Component> lines) {
+            final ItemLore lore = ItemLore.of(lines);
+            return lore.isEmpty() ? reset(DataComponentTypes.LORE) : set(DataComponentTypes.LORE, lore);
+        }
+
+        /**
+         * @param lines the tooltip lines every stack of this item starts with
+         * @return this builder
+         * @since 0.1.0
+         */
+        public Builder lore(final Component... lines) {
+            return lore(List.of(lines));
+        }
+
+        /**
+         * @param glint whether the enchantment shimmer is forced on; {@code false}
+         *              forces it <em>off</em>, even on an enchanted item
          * @return this builder
          * @since 0.1.0
          */
         public Builder glint(final boolean glint) {
-            this.glint = glint;
-            return this;
+            return set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, glint);
         }
 
         /**
@@ -142,7 +209,7 @@ public record ItemDefinition(
          * @since 0.1.0
          */
         public ItemDefinition build() {
-            return new ItemDefinition(key, networkType, maxStackSize, maxDamage, itemName, itemModel, glint);
+            return new ItemDefinition(key, networkType, components.build());
         }
     }
 }

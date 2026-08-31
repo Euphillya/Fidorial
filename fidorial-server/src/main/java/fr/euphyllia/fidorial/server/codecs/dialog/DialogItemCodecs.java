@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.fidorial.item.DataComponentMap;
 import fr.fidorial.item.DataComponentTypes;
 import fr.fidorial.item.ItemStack;
+import fr.fidorial.item.component.ItemLore;
 import net.kyori.adventure.text.Component;
 
 import java.util.List;
@@ -38,7 +39,8 @@ public class DialogItemCodecs {
         final ItemComponents resolved = components.orElse(ItemComponents.EMPTY);
         final DataComponentMap.Builder builder = DataComponentMap.builder()
                 .setIfPresent(DataComponentTypes.CUSTOM_NAME, resolved.customName().orElse(null))
-                .setIfPresent(DataComponentTypes.ITEM_NAME, resolved.itemName().orElse(null));
+                .setIfPresent(DataComponentTypes.ITEM_NAME, resolved.itemName().orElse(null))
+                .setIfPresent(DataComponentTypes.LORE, resolved.lore().map(ItemLore::of).orElse(null));
         return new ItemStack(
                 id,
                 count,
@@ -62,7 +64,7 @@ public class DialogItemCodecs {
             return new ItemComponents(
                     Optional.ofNullable(stack.customName()),
                     Optional.ofNullable(stack.itemName()),
-                    stack.lore().isEmpty() ? Optional.empty() : Optional.of(stack.lore()));
+                    stack.lore().isEmpty() ? Optional.empty() : Optional.of(stack.loreLines()));
         }
 
         boolean isEmpty() {

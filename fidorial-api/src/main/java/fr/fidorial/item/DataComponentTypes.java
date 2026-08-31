@@ -1,5 +1,6 @@
 package fr.fidorial.item;
 
+import fr.fidorial.item.component.ItemLore;
 import fr.fidorial.registry.keys.DataComponentTypeKeys;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -52,6 +53,13 @@ public class DataComponentTypes {
      */
     public static final DataComponentType<Key> ITEM_MODEL =
             register(DataComponentTypeKeys.ITEM_MODEL.key(), Key.class);
+
+    /**
+     * Extra tooltip lines, drawn under the item's name. Capped at
+     * {@value ItemLore#MAX_LINES} lines.
+     */
+    public static final DataComponentType<ItemLore> LORE =
+            register(DataComponentTypeKeys.LORE.key(), ItemLore.class);
 
 
     /**
