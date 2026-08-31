@@ -45,8 +45,8 @@ public class LevelData {
     public int difficulty = 2;     // 2 = normal
     public boolean hardcore = false;
     public boolean allowCommands = true;
-    public int dataVersion = AnvilChunkSerializer.DATA_VERSION_26_2;
-    public String versionName = "26.2";
+    public int dataVersion = AnvilChunkSerializer.DATA_VERSION_26_3_SNAPSHOT_10;
+    public String versionName = "26.3-snapshot-10";
 
     public boolean raining = false;
     public int rainTime = 0;
@@ -187,7 +187,7 @@ public class LevelData {
         version.putInt("Id", dataVersion);
         version.putString("Name", versionName);
         version.putString("Series", "main");
-        version.putBoolean("Snapshot", false);
+        version.putBoolean("Snapshot", true); // CHANGE ME
         data.put("Version", version.build());
 
         data.putInt("version", 19133); // version du format de niveau (Anvil)

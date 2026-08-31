@@ -18,12 +18,12 @@ import java.util.TreeMap;
 
 public class AnvilChunkSerializer {
 
-    public static final int DATA_VERSION_26_2 = 4903;
+    public static final int DATA_VERSION_26_3_SNAPSHOT_10 = 5015;
 
     private final int dataVersion;
 
     public AnvilChunkSerializer() {
-        this(DATA_VERSION_26_2);
+        this(DATA_VERSION_26_3_SNAPSHOT_10);
     }
 
     public AnvilChunkSerializer(final int dataVersion) {
