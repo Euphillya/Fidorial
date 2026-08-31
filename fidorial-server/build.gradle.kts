@@ -1,4 +1,5 @@
 import fr.fidorial.registrygen.task.GenerateBlockStatesTask
+import fr.fidorial.registrygen.task.GenerateItemPropertiesTask
 
 extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
 
@@ -117,6 +118,10 @@ tasks.shadowJar {
 tasks.withType<GenerateBlockStatesTask>().configureEach {
     blockPackage.set("fr.fidorial.world.block")
     blockTypeKeysPackage.set("fr.fidorial.registry.keys")
+}
+
+tasks.withType<GenerateItemPropertiesTask>().configureEach {
+    itemKeysPackage.set("fr.fidorial.registry.keys")
 }
 
 fidorialRegistryGenerator {
