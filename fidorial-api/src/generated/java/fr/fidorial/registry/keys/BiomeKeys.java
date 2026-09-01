@@ -4,9 +4,7 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.Biome;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -343,9 +341,6 @@ public final class BiomeKeys {
      */
     public static final TypedKey<Biome> WOODED_BADLANDS = create("wooded_badlands");
 
-    /**
-     * Entries in ascending {@code protocol_id} order - list index == network ID.
-     */
     private static final List<TypedKey<Biome>> VALUES = List.of(
         BADLANDS,
         BAMBOO_JUNGLE,
@@ -415,80 +410,6 @@ public final class BiomeKeys {
         WOODED_BADLANDS
     );
 
-    /**
-     * Namespaced tag identifier to flattened member entries.
-     */
-    private static final Map<Key, List<Key>> TAGS = Map.ofEntries(
-        Map.entry(Key.key("allows_surface_slime_spawns"), List.of(Key.key("mangrove_swamp"), Key.key("swamp"))),
-        Map.entry(Key.key("allows_tropical_fish_spawns_at_any_height"), List.of(Key.key("lush_caves"))),
-        Map.entry(Key.key("has_structure/ancient_city"), List.of(Key.key("deep_dark"))),
-        Map.entry(Key.key("has_structure/bastion_remnant"), List.of(Key.key("crimson_forest"), Key.key("nether_wastes"), Key.key("soul_sand_valley"), Key.key("warped_forest"))),
-        Map.entry(Key.key("has_structure/buried_treasure"), List.of(Key.key("beach"), Key.key("snowy_beach"))),
-        Map.entry(Key.key("has_structure/desert_pyramid"), List.of(Key.key("desert"))),
-        Map.entry(Key.key("has_structure/end_city"), List.of(Key.key("end_highlands"), Key.key("end_midlands"))),
-        Map.entry(Key.key("has_structure/igloo"), List.of(Key.key("snowy_plains"), Key.key("snowy_slopes"), Key.key("snowy_taiga"))),
-        Map.entry(Key.key("has_structure/jungle_temple"), List.of(Key.key("bamboo_jungle"), Key.key("jungle"))),
-        Map.entry(Key.key("has_structure/mineshaft"), List.of(Key.key("bamboo_jungle"), Key.key("beach"), Key.key("birch_forest"), Key.key("cherry_grove"), Key.key("cold_ocean"), Key.key("dark_forest"), Key.key("deep_cold_ocean"), Key.key("deep_frozen_ocean"), Key.key("deep_lukewarm_ocean"), Key.key("deep_ocean"), Key.key("desert"), Key.key("dripstone_caves"), Key.key("flower_forest"), Key.key("forest"), Key.key("frozen_ocean"), Key.key("frozen_peaks"), Key.key("frozen_river"), Key.key("grove"), Key.key("ice_spikes"), Key.key("jagged_peaks"), Key.key("jungle"), Key.key("lukewarm_ocean"), Key.key("lush_caves"), Key.key("mangrove_swamp"), Key.key("meadow"), Key.key("mushroom_fields"), Key.key("ocean"), Key.key("old_growth_birch_forest"), Key.key("old_growth_pine_taiga"), Key.key("old_growth_spruce_taiga"), Key.key("pale_garden"), Key.key("plains"), Key.key("river"), Key.key("savanna"), Key.key("savanna_plateau"), Key.key("snowy_beach"), Key.key("snowy_plains"), Key.key("snowy_slopes"), Key.key("snowy_taiga"), Key.key("sparse_jungle"), Key.key("stony_peaks"), Key.key("stony_shore"), Key.key("sulfur_caves"), Key.key("sunflower_plains"), Key.key("swamp"), Key.key("taiga"), Key.key("warm_ocean"), Key.key("windswept_forest"), Key.key("windswept_gravelly_hills"), Key.key("windswept_hills"), Key.key("windswept_savanna"))),
-        Map.entry(Key.key("has_structure/mineshaft_mesa"), List.of(Key.key("badlands"), Key.key("eroded_badlands"), Key.key("wooded_badlands"))),
-        Map.entry(Key.key("has_structure/nether_fortress"), List.of(Key.key("basalt_deltas"), Key.key("crimson_forest"), Key.key("nether_wastes"), Key.key("soul_sand_valley"), Key.key("warped_forest"))),
-        Map.entry(Key.key("has_structure/nether_fossil"), List.of(Key.key("soul_sand_valley"))),
-        Map.entry(Key.key("has_structure/ocean_monument"), List.of(Key.key("deep_cold_ocean"), Key.key("deep_frozen_ocean"), Key.key("deep_lukewarm_ocean"), Key.key("deep_ocean"))),
-        Map.entry(Key.key("has_structure/ocean_ruin_cold"), List.of(Key.key("cold_ocean"), Key.key("deep_cold_ocean"), Key.key("deep_frozen_ocean"), Key.key("deep_ocean"), Key.key("frozen_ocean"), Key.key("ocean"))),
-        Map.entry(Key.key("has_structure/ocean_ruin_warm"), List.of(Key.key("deep_lukewarm_ocean"), Key.key("lukewarm_ocean"), Key.key("warm_ocean"))),
-        Map.entry(Key.key("has_structure/pillager_outpost"), List.of(Key.key("cherry_grove"), Key.key("desert"), Key.key("frozen_peaks"), Key.key("grove"), Key.key("jagged_peaks"), Key.key("meadow"), Key.key("plains"), Key.key("savanna"), Key.key("snowy_plains"), Key.key("snowy_slopes"), Key.key("stony_peaks"), Key.key("taiga"))),
-        Map.entry(Key.key("has_structure/ruined_portal_desert"), List.of(Key.key("desert"))),
-        Map.entry(Key.key("has_structure/ruined_portal_jungle"), List.of(Key.key("bamboo_jungle"), Key.key("jungle"), Key.key("sparse_jungle"))),
-        Map.entry(Key.key("has_structure/ruined_portal_mountain"), List.of(Key.key("badlands"), Key.key("cherry_grove"), Key.key("eroded_badlands"), Key.key("frozen_peaks"), Key.key("jagged_peaks"), Key.key("meadow"), Key.key("savanna_plateau"), Key.key("snowy_slopes"), Key.key("stony_peaks"), Key.key("stony_shore"), Key.key("windswept_forest"), Key.key("windswept_gravelly_hills"), Key.key("windswept_hills"), Key.key("windswept_savanna"), Key.key("wooded_badlands"))),
-        Map.entry(Key.key("has_structure/ruined_portal_nether"), List.of(Key.key("basalt_deltas"), Key.key("crimson_forest"), Key.key("nether_wastes"), Key.key("soul_sand_valley"), Key.key("warped_forest"))),
-        Map.entry(Key.key("has_structure/ruined_portal_ocean"), List.of(Key.key("cold_ocean"), Key.key("deep_cold_ocean"), Key.key("deep_frozen_ocean"), Key.key("deep_lukewarm_ocean"), Key.key("deep_ocean"), Key.key("frozen_ocean"), Key.key("lukewarm_ocean"), Key.key("ocean"), Key.key("warm_ocean"))),
-        Map.entry(Key.key("has_structure/ruined_portal_standard"), List.of(Key.key("beach"), Key.key("birch_forest"), Key.key("dark_forest"), Key.key("dripstone_caves"), Key.key("flower_forest"), Key.key("forest"), Key.key("frozen_river"), Key.key("grove"), Key.key("ice_spikes"), Key.key("lush_caves"), Key.key("mushroom_fields"), Key.key("old_growth_birch_forest"), Key.key("old_growth_pine_taiga"), Key.key("old_growth_spruce_taiga"), Key.key("pale_garden"), Key.key("plains"), Key.key("river"), Key.key("savanna"), Key.key("snowy_beach"), Key.key("snowy_plains"), Key.key("snowy_taiga"), Key.key("sulfur_caves"), Key.key("sunflower_plains"), Key.key("taiga"))),
-        Map.entry(Key.key("has_structure/ruined_portal_swamp"), List.of(Key.key("mangrove_swamp"), Key.key("swamp"))),
-        Map.entry(Key.key("has_structure/shipwreck"), List.of(Key.key("cold_ocean"), Key.key("deep_cold_ocean"), Key.key("deep_frozen_ocean"), Key.key("deep_lukewarm_ocean"), Key.key("deep_ocean"), Key.key("frozen_ocean"), Key.key("lukewarm_ocean"), Key.key("ocean"), Key.key("warm_ocean"))),
-        Map.entry(Key.key("has_structure/shipwreck_beached"), List.of(Key.key("beach"), Key.key("snowy_beach"))),
-        Map.entry(Key.key("has_structure/stronghold"), List.of(Key.key("badlands"), Key.key("bamboo_jungle"), Key.key("beach"), Key.key("birch_forest"), Key.key("cherry_grove"), Key.key("cold_ocean"), Key.key("dark_forest"), Key.key("deep_cold_ocean"), Key.key("deep_dark"), Key.key("deep_frozen_ocean"), Key.key("deep_lukewarm_ocean"), Key.key("deep_ocean"), Key.key("desert"), Key.key("dripstone_caves"), Key.key("eroded_badlands"), Key.key("flower_forest"), Key.key("forest"), Key.key("frozen_ocean"), Key.key("frozen_peaks"), Key.key("frozen_river"), Key.key("grove"), Key.key("ice_spikes"), Key.key("jagged_peaks"), Key.key("jungle"), Key.key("lukewarm_ocean"), Key.key("lush_caves"), Key.key("mangrove_swamp"), Key.key("meadow"), Key.key("mushroom_fields"), Key.key("ocean"), Key.key("old_growth_birch_forest"), Key.key("old_growth_pine_taiga"), Key.key("old_growth_spruce_taiga"), Key.key("pale_garden"), Key.key("plains"), Key.key("river"), Key.key("savanna"), Key.key("savanna_plateau"), Key.key("snowy_beach"), Key.key("snowy_plains"), Key.key("snowy_slopes"), Key.key("snowy_taiga"), Key.key("sparse_jungle"), Key.key("stony_peaks"), Key.key("stony_shore"), Key.key("sulfur_caves"), Key.key("sunflower_plains"), Key.key("swamp"), Key.key("taiga"), Key.key("warm_ocean"), Key.key("windswept_forest"), Key.key("windswept_gravelly_hills"), Key.key("windswept_hills"), Key.key("windswept_savanna"), Key.key("wooded_badlands"))),
-        Map.entry(Key.key("has_structure/swamp_hut"), List.of(Key.key("swamp"))),
-        Map.entry(Key.key("has_structure/trail_ruins"), List.of(Key.key("jungle"), Key.key("old_growth_birch_forest"), Key.key("old_growth_pine_taiga"), Key.key("old_growth_spruce_taiga"), Key.key("snowy_taiga"), Key.key("taiga"))),
-        Map.entry(Key.key("has_structure/trial_chambers"), List.of(Key.key("badlands"), Key.key("bamboo_jungle"), Key.key("beach"), Key.key("birch_forest"), Key.key("cherry_grove"), Key.key("cold_ocean"), Key.key("dark_forest"), Key.key("deep_cold_ocean"), Key.key("deep_frozen_ocean"), Key.key("deep_lukewarm_ocean"), Key.key("deep_ocean"), Key.key("desert"), Key.key("dripstone_caves"), Key.key("eroded_badlands"), Key.key("flower_forest"), Key.key("forest"), Key.key("frozen_ocean"), Key.key("frozen_peaks"), Key.key("frozen_river"), Key.key("grove"), Key.key("ice_spikes"), Key.key("jagged_peaks"), Key.key("jungle"), Key.key("lukewarm_ocean"), Key.key("lush_caves"), Key.key("mangrove_swamp"), Key.key("meadow"), Key.key("mushroom_fields"), Key.key("ocean"), Key.key("old_growth_birch_forest"), Key.key("old_growth_pine_taiga"), Key.key("old_growth_spruce_taiga"), Key.key("pale_garden"), Key.key("plains"), Key.key("river"), Key.key("savanna"), Key.key("savanna_plateau"), Key.key("snowy_beach"), Key.key("snowy_plains"), Key.key("snowy_slopes"), Key.key("snowy_taiga"), Key.key("sparse_jungle"), Key.key("stony_peaks"), Key.key("stony_shore"), Key.key("sulfur_caves"), Key.key("sunflower_plains"), Key.key("swamp"), Key.key("taiga"), Key.key("warm_ocean"), Key.key("windswept_forest"), Key.key("windswept_gravelly_hills"), Key.key("windswept_hills"), Key.key("windswept_savanna"), Key.key("wooded_badlands"))),
-        Map.entry(Key.key("has_structure/village_desert"), List.of(Key.key("desert"))),
-        Map.entry(Key.key("has_structure/village_plains"), List.of(Key.key("meadow"), Key.key("plains"))),
-        Map.entry(Key.key("has_structure/village_savanna"), List.of(Key.key("savanna"))),
-        Map.entry(Key.key("has_structure/village_snowy"), List.of(Key.key("snowy_plains"))),
-        Map.entry(Key.key("has_structure/village_taiga"), List.of(Key.key("taiga"))),
-        Map.entry(Key.key("has_structure/woodland_mansion"), List.of(Key.key("dark_forest"), Key.key("pale_garden"))),
-        Map.entry(Key.key("is_badlands"), List.of(Key.key("badlands"), Key.key("eroded_badlands"), Key.key("wooded_badlands"))),
-        Map.entry(Key.key("is_beach"), List.of(Key.key("beach"), Key.key("snowy_beach"))),
-        Map.entry(Key.key("is_deep_ocean"), List.of(Key.key("deep_cold_ocean"), Key.key("deep_frozen_ocean"), Key.key("deep_lukewarm_ocean"), Key.key("deep_ocean"))),
-        Map.entry(Key.key("is_end"), List.of(Key.key("end_barrens"), Key.key("end_highlands"), Key.key("end_midlands"), Key.key("small_end_islands"), Key.key("the_end"))),
-        Map.entry(Key.key("is_forest"), List.of(Key.key("birch_forest"), Key.key("dark_forest"), Key.key("flower_forest"), Key.key("forest"), Key.key("grove"), Key.key("old_growth_birch_forest"), Key.key("pale_garden"))),
-        Map.entry(Key.key("is_hill"), List.of(Key.key("windswept_forest"), Key.key("windswept_gravelly_hills"), Key.key("windswept_hills"))),
-        Map.entry(Key.key("is_jungle"), List.of(Key.key("bamboo_jungle"), Key.key("jungle"), Key.key("sparse_jungle"))),
-        Map.entry(Key.key("is_mountain"), List.of(Key.key("cherry_grove"), Key.key("frozen_peaks"), Key.key("jagged_peaks"), Key.key("meadow"), Key.key("snowy_slopes"), Key.key("stony_peaks"))),
-        Map.entry(Key.key("is_nether"), List.of(Key.key("basalt_deltas"), Key.key("crimson_forest"), Key.key("nether_wastes"), Key.key("soul_sand_valley"), Key.key("warped_forest"))),
-        Map.entry(Key.key("is_ocean"), List.of(Key.key("cold_ocean"), Key.key("deep_cold_ocean"), Key.key("deep_frozen_ocean"), Key.key("deep_lukewarm_ocean"), Key.key("deep_ocean"), Key.key("frozen_ocean"), Key.key("lukewarm_ocean"), Key.key("ocean"), Key.key("warm_ocean"))),
-        Map.entry(Key.key("is_overworld"), List.of(Key.key("badlands"), Key.key("bamboo_jungle"), Key.key("beach"), Key.key("birch_forest"), Key.key("cherry_grove"), Key.key("cold_ocean"), Key.key("dark_forest"), Key.key("deep_cold_ocean"), Key.key("deep_dark"), Key.key("deep_frozen_ocean"), Key.key("deep_lukewarm_ocean"), Key.key("deep_ocean"), Key.key("desert"), Key.key("dripstone_caves"), Key.key("eroded_badlands"), Key.key("flower_forest"), Key.key("forest"), Key.key("frozen_ocean"), Key.key("frozen_peaks"), Key.key("frozen_river"), Key.key("grove"), Key.key("ice_spikes"), Key.key("jagged_peaks"), Key.key("jungle"), Key.key("lukewarm_ocean"), Key.key("lush_caves"), Key.key("mangrove_swamp"), Key.key("meadow"), Key.key("mushroom_fields"), Key.key("ocean"), Key.key("old_growth_birch_forest"), Key.key("old_growth_pine_taiga"), Key.key("old_growth_spruce_taiga"), Key.key("pale_garden"), Key.key("plains"), Key.key("river"), Key.key("savanna"), Key.key("savanna_plateau"), Key.key("snowy_beach"), Key.key("snowy_plains"), Key.key("snowy_slopes"), Key.key("snowy_taiga"), Key.key("sparse_jungle"), Key.key("stony_peaks"), Key.key("stony_shore"), Key.key("sulfur_caves"), Key.key("sunflower_plains"), Key.key("swamp"), Key.key("taiga"), Key.key("warm_ocean"), Key.key("windswept_forest"), Key.key("windswept_gravelly_hills"), Key.key("windswept_hills"), Key.key("windswept_savanna"), Key.key("wooded_badlands"))),
-        Map.entry(Key.key("is_river"), List.of(Key.key("frozen_river"), Key.key("river"))),
-        Map.entry(Key.key("is_savanna"), List.of(Key.key("savanna"), Key.key("savanna_plateau"), Key.key("windswept_savanna"))),
-        Map.entry(Key.key("is_taiga"), List.of(Key.key("old_growth_pine_taiga"), Key.key("old_growth_spruce_taiga"), Key.key("snowy_taiga"), Key.key("taiga"))),
-        Map.entry(Key.key("mineshaft_blocking"), List.of(Key.key("deep_dark"))),
-        Map.entry(Key.key("more_frequent_drowned_spawns"), List.of(Key.key("frozen_river"), Key.key("river"))),
-        Map.entry(Key.key("polar_bears_spawn_on_alternate_blocks"), List.of(Key.key("deep_frozen_ocean"), Key.key("frozen_ocean"))),
-        Map.entry(Key.key("produces_corals_from_bonemeal"), List.of(Key.key("warm_ocean"))),
-        Map.entry(Key.key("reduce_water_ambient_spawns"), List.of(Key.key("frozen_river"), Key.key("river"))),
-        Map.entry(Key.key("required_ocean_monument_surrounding"), List.of(Key.key("cold_ocean"), Key.key("deep_cold_ocean"), Key.key("deep_frozen_ocean"), Key.key("deep_lukewarm_ocean"), Key.key("deep_ocean"), Key.key("frozen_ocean"), Key.key("frozen_river"), Key.key("lukewarm_ocean"), Key.key("ocean"), Key.key("river"), Key.key("warm_ocean"))),
-        Map.entry(Key.key("spawns_cold_variant_farm_animals"), List.of(Key.key("cold_ocean"), Key.key("deep_cold_ocean"), Key.key("deep_dark"), Key.key("deep_frozen_ocean"), Key.key("end_barrens"), Key.key("end_highlands"), Key.key("end_midlands"), Key.key("frozen_ocean"), Key.key("frozen_peaks"), Key.key("frozen_river"), Key.key("grove"), Key.key("ice_spikes"), Key.key("jagged_peaks"), Key.key("old_growth_pine_taiga"), Key.key("old_growth_spruce_taiga"), Key.key("small_end_islands"), Key.key("snowy_beach"), Key.key("snowy_plains"), Key.key("snowy_slopes"), Key.key("snowy_taiga"), Key.key("stony_peaks"), Key.key("taiga"), Key.key("the_end"), Key.key("windswept_forest"), Key.key("windswept_gravelly_hills"), Key.key("windswept_hills"))),
-        Map.entry(Key.key("spawns_cold_variant_frogs"), List.of(Key.key("deep_dark"), Key.key("deep_frozen_ocean"), Key.key("end_barrens"), Key.key("end_highlands"), Key.key("end_midlands"), Key.key("frozen_ocean"), Key.key("frozen_peaks"), Key.key("frozen_river"), Key.key("grove"), Key.key("ice_spikes"), Key.key("jagged_peaks"), Key.key("small_end_islands"), Key.key("snowy_beach"), Key.key("snowy_plains"), Key.key("snowy_slopes"), Key.key("snowy_taiga"), Key.key("the_end"))),
-        Map.entry(Key.key("spawns_coral_variant_zombie_nautilus"), List.of(Key.key("warm_ocean"))),
-        Map.entry(Key.key("spawns_gold_rabbits"), List.of(Key.key("desert"))),
-        Map.entry(Key.key("spawns_snow_foxes"), List.of(Key.key("frozen_ocean"), Key.key("frozen_peaks"), Key.key("frozen_river"), Key.key("grove"), Key.key("ice_spikes"), Key.key("jagged_peaks"), Key.key("snowy_beach"), Key.key("snowy_plains"), Key.key("snowy_slopes"), Key.key("snowy_taiga"))),
-        Map.entry(Key.key("spawns_warm_variant_farm_animals"), List.of(Key.key("badlands"), Key.key("bamboo_jungle"), Key.key("basalt_deltas"), Key.key("crimson_forest"), Key.key("deep_lukewarm_ocean"), Key.key("desert"), Key.key("eroded_badlands"), Key.key("jungle"), Key.key("lukewarm_ocean"), Key.key("mangrove_swamp"), Key.key("nether_wastes"), Key.key("savanna"), Key.key("savanna_plateau"), Key.key("soul_sand_valley"), Key.key("sparse_jungle"), Key.key("warm_ocean"), Key.key("warped_forest"), Key.key("windswept_savanna"), Key.key("wooded_badlands"))),
-        Map.entry(Key.key("spawns_warm_variant_frogs"), List.of(Key.key("badlands"), Key.key("bamboo_jungle"), Key.key("basalt_deltas"), Key.key("crimson_forest"), Key.key("desert"), Key.key("eroded_badlands"), Key.key("jungle"), Key.key("mangrove_swamp"), Key.key("nether_wastes"), Key.key("savanna"), Key.key("savanna_plateau"), Key.key("soul_sand_valley"), Key.key("sparse_jungle"), Key.key("warm_ocean"), Key.key("warped_forest"), Key.key("windswept_savanna"), Key.key("wooded_badlands"))),
-        Map.entry(Key.key("spawns_white_rabbits"), List.of(Key.key("frozen_ocean"), Key.key("frozen_peaks"), Key.key("frozen_river"), Key.key("grove"), Key.key("ice_spikes"), Key.key("jagged_peaks"), Key.key("snowy_beach"), Key.key("snowy_plains"), Key.key("snowy_slopes"), Key.key("snowy_taiga"))),
-        Map.entry(Key.key("stronghold_biased_to"), List.of(Key.key("badlands"), Key.key("bamboo_jungle"), Key.key("birch_forest"), Key.key("cherry_grove"), Key.key("dark_forest"), Key.key("desert"), Key.key("dripstone_caves"), Key.key("eroded_badlands"), Key.key("flower_forest"), Key.key("forest"), Key.key("frozen_peaks"), Key.key("grove"), Key.key("ice_spikes"), Key.key("jagged_peaks"), Key.key("jungle"), Key.key("lush_caves"), Key.key("meadow"), Key.key("mushroom_fields"), Key.key("old_growth_birch_forest"), Key.key("old_growth_pine_taiga"), Key.key("old_growth_spruce_taiga"), Key.key("pale_garden"), Key.key("plains"), Key.key("savanna"), Key.key("savanna_plateau"), Key.key("snowy_plains"), Key.key("snowy_slopes"), Key.key("snowy_taiga"), Key.key("sparse_jungle"), Key.key("stony_peaks"), Key.key("sulfur_caves"), Key.key("sunflower_plains"), Key.key("taiga"), Key.key("windswept_forest"), Key.key("windswept_gravelly_hills"), Key.key("windswept_hills"), Key.key("windswept_savanna"), Key.key("wooded_badlands"))),
-        Map.entry(Key.key("water_on_map_outlines"), List.of(Key.key("cold_ocean"), Key.key("deep_cold_ocean"), Key.key("deep_frozen_ocean"), Key.key("deep_lukewarm_ocean"), Key.key("deep_ocean"), Key.key("frozen_ocean"), Key.key("frozen_river"), Key.key("lukewarm_ocean"), Key.key("mangrove_swamp"), Key.key("ocean"), Key.key("river"), Key.key("swamp"), Key.key("warm_ocean"))),
-        Map.entry(Key.key("without_wandering_trader_spawns"), List.of(Key.key("the_void"))),
-        Map.entry(Key.key("without_zombie_sieges"), List.of(Key.key("mushroom_fields")))
-    );
-
     private BiomeKeys() {
         throw new UnsupportedOperationException("BiomeKeys cannot be instantiated.");
     }
@@ -504,14 +425,5 @@ public final class BiomeKeys {
      */
     public static Stream<TypedKey<Biome>> values() {
         return VALUES.stream();
-    }
-
-    /**
-     * Returns this registry's tags (namespaced tag identifier to member entries).
-     *
-     * @return an immutable map of tags, or an empty map if this registry defines none
-     */
-    public static Map<Key, List<Key>> tags() {
-        return TAGS;
     }
 }

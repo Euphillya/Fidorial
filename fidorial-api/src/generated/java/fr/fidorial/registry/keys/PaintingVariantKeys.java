@@ -4,9 +4,7 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.PaintingVariant;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -268,9 +266,6 @@ public final class PaintingVariantKeys {
      */
     public static final TypedKey<PaintingVariant> WITHER = create("wither");
 
-    /**
-     * Entries in ascending {@code protocol_id} order - list index == network ID.
-     */
     private static final List<TypedKey<PaintingVariant>> VALUES = List.of(
         ALBAN,
         AZTEC,
@@ -325,13 +320,6 @@ public final class PaintingVariantKeys {
         WITHER
     );
 
-    /**
-     * Namespaced tag identifier to flattened member entries.
-     */
-    private static final Map<Key, List<Key>> TAGS = Map.ofEntries(
-        Map.entry(Key.key("placeable"), List.of(Key.key("alban"), Key.key("aztec"), Key.key("aztec2"), Key.key("backyard"), Key.key("baroque"), Key.key("bomb"), Key.key("bouquet"), Key.key("burning_skull"), Key.key("bust"), Key.key("cavebird"), Key.key("changing"), Key.key("cotan"), Key.key("courbet"), Key.key("creebet"), Key.key("dennis"), Key.key("donkey_kong"), Key.key("endboss"), Key.key("fern"), Key.key("fighters"), Key.key("finding"), Key.key("graham"), Key.key("humble"), Key.key("kebab"), Key.key("lowmist"), Key.key("match"), Key.key("meditative"), Key.key("orb"), Key.key("owlemons"), Key.key("passage"), Key.key("pigscene"), Key.key("plant"), Key.key("pointer"), Key.key("pond"), Key.key("pool"), Key.key("prairie_ride"), Key.key("sea"), Key.key("skeleton"), Key.key("skull_and_roses"), Key.key("stage"), Key.key("sunflowers"), Key.key("sunset"), Key.key("tides"), Key.key("unpacked"), Key.key("void"), Key.key("wanderer"), Key.key("wasteland"), Key.key("wither")))
-    );
-
     private PaintingVariantKeys() {
         throw new UnsupportedOperationException("PaintingVariantKeys cannot be instantiated.");
     }
@@ -347,14 +335,5 @@ public final class PaintingVariantKeys {
      */
     public static Stream<TypedKey<PaintingVariant>> values() {
         return VALUES.stream();
-    }
-
-    /**
-     * Returns this registry's tags (namespaced tag identifier to member entries).
-     *
-     * @return an immutable map of tags, or an empty map if this registry defines none
-     */
-    public static Map<Key, List<Key>> tags() {
-        return TAGS;
     }
 }

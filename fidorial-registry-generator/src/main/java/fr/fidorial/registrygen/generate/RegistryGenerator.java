@@ -7,8 +7,6 @@ import fr.fidorial.registrygen.model.ProtocolIdRegistries;
 import fr.fidorial.registrygen.model.ProtocolIdTarget;
 import fr.fidorial.registrygen.model.RegistriesHolder;
 import fr.fidorial.registrygen.model.RegistryDefinition;
-import fr.fidorial.registrygen.model.RegistryEntryDefinition;
-import fr.fidorial.registrygen.model.RegistryTagDefinition;
 import fr.fidorial.registrygen.model.RegistryTypeDefinition;
 import fr.fidorial.registrygen.model.SupportedRegistries;
 
@@ -19,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Coordinates source generation from Mojang's
@@ -31,7 +27,6 @@ import java.util.stream.Collectors;
 public final class RegistryGenerator {
 
     private final RegistryReportParser parser;
-    private final RegistryTagReportParser tagReportParser;
     private final RegistryDataGenerator dataGenerator;
     private final RegistryKeysGenerator keysGenerator;
     private final RegistryKeyGenerator registryKeyGenerator;
@@ -48,7 +43,6 @@ public final class RegistryGenerator {
     public RegistryGenerator() {
 
         this(new RegistryReportParser(),
-                new RegistryTagReportParser(),
                 new RegistryDataGenerator(),
                 new RegistryKeysGenerator(),
                 new RegistryKeyGenerator(),
@@ -66,7 +60,6 @@ public final class RegistryGenerator {
      * generation stages.</p>
      *
      * @param parser                      registry report parser
-     * @param tagReportParser             vanilla tag file parser
      * @param dataGenerator               marker-interface generator
      * @param keysGenerator               typed registry-entry key generator
      * @param registryKeyGenerator        central registry-key generator
@@ -77,7 +70,6 @@ public final class RegistryGenerator {
      * @param dimensionTypesGenerator     the dimension types generator
      */
     public RegistryGenerator(final RegistryReportParser parser,
-                             final RegistryTagReportParser tagReportParser,
                              final RegistryDataGenerator dataGenerator,
                              final RegistryKeysGenerator keysGenerator,
                              final RegistryKeyGenerator registryKeyGenerator,
@@ -88,7 +80,6 @@ public final class RegistryGenerator {
                              final DimensionTypesGenerator dimensionTypesGenerator) {
 
         this.parser = Objects.requireNonNull(parser, "parser");
-        this.tagReportParser = Objects.requireNonNull(tagReportParser, "tagReportParser");
         this.dataGenerator = Objects.requireNonNull(dataGenerator, "dataGenerator");
         this.keysGenerator = Objects.requireNonNull(keysGenerator, "keysGenerator");
         this.registryKeyGenerator = Objects.requireNonNull(registryKeyGenerator, "registryKeyGenerator");
@@ -104,13 +95,6 @@ public final class RegistryGenerator {
      * Fidorial registry source files.
      *
      * @param registriesJson      path to Mojang's {@code registries.json}
-     * @param vanillaDataDirectory root of the vanilla data dump produced by the
-     *                             {@code --server} data generator flag (i.e. the
-     *                             directory directly containing {@code minecraft/}),
-     *                             used to additionally resolve tags for each registry.
-     *                             May be {@code null} or non-existent - tag generation is
-     *                             then silently skipped and every {@code *Keys} class still
-     *                             gets a {@code tags()} method returning an empty map.
      * @param outputDirectory     generated Java source root
      * @param registryTypes       the registries to generate
      * @param dataPackage         the subpackage for generated registry marker interfaces
@@ -120,7 +104,6 @@ public final class RegistryGenerator {
      * @throws IOException if parsing or source generation fails
      */
     public void generate(final Path registriesJson,
-                         final Path vanillaDataDirectory,
                          final Path outputDirectory,
                          final List<RegistryTypeDefinition> registryTypes,
                          final String registryPackage,
@@ -161,16 +144,9 @@ public final class RegistryGenerator {
                 continue;
             }
 
-            final Set<String> knownEntryIdentifiers = registryDefinition.get().entries().stream()
-                    .map(RegistryEntryDefinition::identifier)
-                    .collect(Collectors.toUnmodifiableSet());
-
-            final List<RegistryTagDefinition> tags =
-                    tagReportParser.parse(vanillaDataDirectory, registryType.path(), knownEntryIdentifiers);
-
             dataGenerator.generate(registryType, registryType.dataPackage(dataPackage), outputDirectory);
             keysGenerator.generate(
-                    registryType, registryDefinition.get(), tags,
+                    registryType, registryDefinition.get(),
                     registryPackage, registryType.dataPackage(dataPackage),
                     registryType.keysPackage(keysPackage), outputDirectory
             );

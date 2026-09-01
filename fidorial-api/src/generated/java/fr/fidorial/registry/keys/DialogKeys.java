@@ -4,9 +4,7 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.Dialog;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -28,21 +26,10 @@ public final class DialogKeys {
      */
     public static final TypedKey<Dialog> SERVER_LINKS = create("server_links");
 
-    /**
-     * Entries in ascending {@code protocol_id} order - list index == network ID.
-     */
     private static final List<TypedKey<Dialog>> VALUES = List.of(
         CUSTOM_OPTIONS,
         QUICK_ACTIONS,
         SERVER_LINKS
-    );
-
-    /**
-     * Namespaced tag identifier to flattened member entries.
-     */
-    private static final Map<Key, List<Key>> TAGS = Map.ofEntries(
-        Map.entry(Key.key("pause_screen_additions"), List.of()),
-        Map.entry(Key.key("quick_actions"), List.of())
     );
 
     private DialogKeys() {
@@ -60,14 +47,5 @@ public final class DialogKeys {
      */
     public static Stream<TypedKey<Dialog>> values() {
         return VALUES.stream();
-    }
-
-    /**
-     * Returns this registry's tags (namespaced tag identifier to member entries).
-     *
-     * @return an immutable map of tags, or an empty map if this registry defines none
-     */
-    public static Map<Key, List<Key>> tags() {
-        return TAGS;
     }
 }

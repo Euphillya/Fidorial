@@ -4,9 +4,7 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.MapDecorationType;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -188,45 +186,42 @@ public final class MapDecorationTypeKeys {
      */
     public static final TypedKey<MapDecorationType> VILLAGE_TAIGA = create("village_taiga");
 
-    /**
-     * Entries in ascending {@code protocol_id} order - list index == network ID.
-     */
     private static final List<TypedKey<MapDecorationType>> VALUES = List.of(
-        PLAYER,
-        FRAME,
-        RED_MARKER,
-        BLUE_MARKER,
-        TARGET_X,
-        TARGET_POINT,
-        PLAYER_OFF_MAP,
-        PLAYER_OFF_LIMITS,
-        MANSION,
-        MONUMENT,
-        BANNER_WHITE,
-        BANNER_ORANGE,
-        BANNER_MAGENTA,
-        BANNER_LIGHT_BLUE,
-        BANNER_YELLOW,
-        BANNER_LIME,
-        BANNER_PINK,
-        BANNER_GRAY,
-        BANNER_LIGHT_GRAY,
-        BANNER_CYAN,
-        BANNER_PURPLE,
+        BANNER_BLACK,
         BANNER_BLUE,
         BANNER_BROWN,
+        BANNER_CYAN,
+        BANNER_GRAY,
         BANNER_GREEN,
+        BANNER_LIGHT_BLUE,
+        BANNER_LIGHT_GRAY,
+        BANNER_LIME,
+        BANNER_MAGENTA,
+        BANNER_ORANGE,
+        BANNER_PINK,
+        BANNER_PURPLE,
         BANNER_RED,
-        BANNER_BLACK,
+        BANNER_WHITE,
+        BANNER_YELLOW,
+        BLUE_MARKER,
+        FRAME,
+        JUNGLE_TEMPLE,
+        MANSION,
+        MONUMENT,
+        PLAYER,
+        PLAYER_OFF_LIMITS,
+        PLAYER_OFF_MAP,
+        RED_MARKER,
         RED_X,
+        SWAMP_HUT,
+        TARGET_POINT,
+        TARGET_X,
+        TRIAL_CHAMBERS,
         VILLAGE_DESERT,
         VILLAGE_PLAINS,
         VILLAGE_SAVANNA,
         VILLAGE_SNOWY,
-        VILLAGE_TAIGA,
-        JUNGLE_TEMPLE,
-        SWAMP_HUT,
-        TRIAL_CHAMBERS
+        VILLAGE_TAIGA
     );
 
     private MapDecorationTypeKeys() {
@@ -244,14 +239,5 @@ public final class MapDecorationTypeKeys {
      */
     public static Stream<TypedKey<MapDecorationType>> values() {
         return VALUES.stream();
-    }
-
-    /**
-     * Returns this registry's tags (namespaced tag identifier to member entries).
-     *
-     * @return an immutable map of tags, or an empty map if this registry defines none
-     */
-    public static Map<Key, List<Key>> tags() {
-        return Map.of();
     }
 }

@@ -4,9 +4,7 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.Item;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -364,6 +362,16 @@ public final class ItemKeys {
     public static final TypedKey<Item> BEDROCK = create("bedrock");
 
     /**
+     * Key for {@code minecraft:bee_nest}.
+     */
+    public static final TypedKey<Item> BEE_NEST = create("bee_nest");
+
+    /**
+     * Key for {@code minecraft:bee_spawn_egg}.
+     */
+    public static final TypedKey<Item> BEE_SPAWN_EGG = create("bee_spawn_egg");
+
+    /**
      * Key for {@code minecraft:beef}.
      */
     public static final TypedKey<Item> BEEF = create("beef");
@@ -387,16 +395,6 @@ public final class ItemKeys {
      * Key for {@code minecraft:beetroot_soup}.
      */
     public static final TypedKey<Item> BEETROOT_SOUP = create("beetroot_soup");
-
-    /**
-     * Key for {@code minecraft:bee_nest}.
-     */
-    public static final TypedKey<Item> BEE_NEST = create("bee_nest");
-
-    /**
-     * Key for {@code minecraft:bee_spawn_egg}.
-     */
-    public static final TypedKey<Item> BEE_SPAWN_EGG = create("bee_spawn_egg");
 
     /**
      * Key for {@code minecraft:bell}.
@@ -499,26 +497,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> BIRCH_WOOD = create("birch_wood");
 
     /**
-     * Key for {@code minecraft:blackstone}.
-     */
-    public static final TypedKey<Item> BLACKSTONE = create("blackstone");
-
-    /**
-     * Key for {@code minecraft:blackstone_slab}.
-     */
-    public static final TypedKey<Item> BLACKSTONE_SLAB = create("blackstone_slab");
-
-    /**
-     * Key for {@code minecraft:blackstone_stairs}.
-     */
-    public static final TypedKey<Item> BLACKSTONE_STAIRS = create("blackstone_stairs");
-
-    /**
-     * Key for {@code minecraft:blackstone_wall}.
-     */
-    public static final TypedKey<Item> BLACKSTONE_WALL = create("blackstone_wall");
-
-    /**
      * Key for {@code minecraft:black_banner}.
      */
     public static final TypedKey<Item> BLACK_BANNER = create("black_banner");
@@ -592,6 +570,26 @@ public final class ItemKeys {
      * Key for {@code minecraft:black_wool}.
      */
     public static final TypedKey<Item> BLACK_WOOL = create("black_wool");
+
+    /**
+     * Key for {@code minecraft:blackstone}.
+     */
+    public static final TypedKey<Item> BLACKSTONE = create("blackstone");
+
+    /**
+     * Key for {@code minecraft:blackstone_slab}.
+     */
+    public static final TypedKey<Item> BLACKSTONE_SLAB = create("blackstone_slab");
+
+    /**
+     * Key for {@code minecraft:blackstone_stairs}.
+     */
+    public static final TypedKey<Item> BLACKSTONE_STAIRS = create("blackstone_stairs");
+
+    /**
+     * Key for {@code minecraft:blackstone_wall}.
+     */
+    public static final TypedKey<Item> BLACKSTONE_WALL = create("blackstone_wall");
 
     /**
      * Key for {@code minecraft:blade_pottery_sherd}.
@@ -804,11 +802,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> BRICK = create("brick");
 
     /**
-     * Key for {@code minecraft:bricks}.
-     */
-    public static final TypedKey<Item> BRICKS = create("bricks");
-
-    /**
      * Key for {@code minecraft:brick_slab}.
      */
     public static final TypedKey<Item> BRICK_SLAB = create("brick_slab");
@@ -822,6 +815,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:brick_wall}.
      */
     public static final TypedKey<Item> BRICK_WALL = create("brick_wall");
+
+    /**
+     * Key for {@code minecraft:bricks}.
+     */
+    public static final TypedKey<Item> BRICKS = create("bricks");
 
     /**
      * Key for {@code minecraft:brown_banner}.
@@ -1039,6 +1037,11 @@ public final class ItemKeys {
     public static final TypedKey<Item> CAVE_SPIDER_SPAWN_EGG = create("cave_spider_spawn_egg");
 
     /**
+     * Key for {@code minecraft:chain_command_block}.
+     */
+    public static final TypedKey<Item> CHAIN_COMMAND_BLOCK = create("chain_command_block");
+
+    /**
      * Key for {@code minecraft:chainmail_boots}.
      */
     public static final TypedKey<Item> CHAINMAIL_BOOTS = create("chainmail_boots");
@@ -1057,11 +1060,6 @@ public final class ItemKeys {
      * Key for {@code minecraft:chainmail_leggings}.
      */
     public static final TypedKey<Item> CHAINMAIL_LEGGINGS = create("chainmail_leggings");
-
-    /**
-     * Key for {@code minecraft:chain_command_block}.
-     */
-    public static final TypedKey<Item> CHAIN_COMMAND_BLOCK = create("chain_command_block");
 
     /**
      * Key for {@code minecraft:charcoal}.
@@ -1274,11 +1272,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> CINNABAR = create("cinnabar");
 
     /**
-     * Key for {@code minecraft:cinnabar_bricks}.
-     */
-    public static final TypedKey<Item> CINNABAR_BRICKS = create("cinnabar_bricks");
-
-    /**
      * Key for {@code minecraft:cinnabar_brick_slab}.
      */
     public static final TypedKey<Item> CINNABAR_BRICK_SLAB = create("cinnabar_brick_slab");
@@ -1292,6 +1285,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:cinnabar_brick_wall}.
      */
     public static final TypedKey<Item> CINNABAR_BRICK_WALL = create("cinnabar_brick_wall");
+
+    /**
+     * Key for {@code minecraft:cinnabar_bricks}.
+     */
+    public static final TypedKey<Item> CINNABAR_BRICKS = create("cinnabar_bricks");
 
     /**
      * Key for {@code minecraft:cinnabar_slab}.
@@ -2119,11 +2117,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> DEEPSLATE = create("deepslate");
 
     /**
-     * Key for {@code minecraft:deepslate_bricks}.
-     */
-    public static final TypedKey<Item> DEEPSLATE_BRICKS = create("deepslate_bricks");
-
-    /**
      * Key for {@code minecraft:deepslate_brick_slab}.
      */
     public static final TypedKey<Item> DEEPSLATE_BRICK_SLAB = create("deepslate_brick_slab");
@@ -2137,6 +2130,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:deepslate_brick_wall}.
      */
     public static final TypedKey<Item> DEEPSLATE_BRICK_WALL = create("deepslate_brick_wall");
+
+    /**
+     * Key for {@code minecraft:deepslate_bricks}.
+     */
+    public static final TypedKey<Item> DEEPSLATE_BRICKS = create("deepslate_bricks");
 
     /**
      * Key for {@code minecraft:deepslate_coal_ore}.
@@ -2179,11 +2177,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> DEEPSLATE_REDSTONE_ORE = create("deepslate_redstone_ore");
 
     /**
-     * Key for {@code minecraft:deepslate_tiles}.
-     */
-    public static final TypedKey<Item> DEEPSLATE_TILES = create("deepslate_tiles");
-
-    /**
      * Key for {@code minecraft:deepslate_tile_slab}.
      */
     public static final TypedKey<Item> DEEPSLATE_TILE_SLAB = create("deepslate_tile_slab");
@@ -2197,6 +2190,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:deepslate_tile_wall}.
      */
     public static final TypedKey<Item> DEEPSLATE_TILE_WALL = create("deepslate_tile_wall");
+
+    /**
+     * Key for {@code minecraft:deepslate_tiles}.
+     */
+    public static final TypedKey<Item> DEEPSLATE_TILES = create("deepslate_tiles");
 
     /**
      * Key for {@code minecraft:detector_rail}.
@@ -2429,14 +2427,44 @@ public final class ItemKeys {
     public static final TypedKey<Item> ENCHANTING_TABLE = create("enchanting_table");
 
     /**
-     * Key for {@code minecraft:enderman_spawn_egg}.
+     * Key for {@code minecraft:end_crystal}.
      */
-    public static final TypedKey<Item> ENDERMAN_SPAWN_EGG = create("enderman_spawn_egg");
+    public static final TypedKey<Item> END_CRYSTAL = create("end_crystal");
 
     /**
-     * Key for {@code minecraft:endermite_spawn_egg}.
+     * Key for {@code minecraft:end_portal_frame}.
      */
-    public static final TypedKey<Item> ENDERMITE_SPAWN_EGG = create("endermite_spawn_egg");
+    public static final TypedKey<Item> END_PORTAL_FRAME = create("end_portal_frame");
+
+    /**
+     * Key for {@code minecraft:end_rod}.
+     */
+    public static final TypedKey<Item> END_ROD = create("end_rod");
+
+    /**
+     * Key for {@code minecraft:end_stone}.
+     */
+    public static final TypedKey<Item> END_STONE = create("end_stone");
+
+    /**
+     * Key for {@code minecraft:end_stone_brick_slab}.
+     */
+    public static final TypedKey<Item> END_STONE_BRICK_SLAB = create("end_stone_brick_slab");
+
+    /**
+     * Key for {@code minecraft:end_stone_brick_stairs}.
+     */
+    public static final TypedKey<Item> END_STONE_BRICK_STAIRS = create("end_stone_brick_stairs");
+
+    /**
+     * Key for {@code minecraft:end_stone_brick_wall}.
+     */
+    public static final TypedKey<Item> END_STONE_BRICK_WALL = create("end_stone_brick_wall");
+
+    /**
+     * Key for {@code minecraft:end_stone_bricks}.
+     */
+    public static final TypedKey<Item> END_STONE_BRICKS = create("end_stone_bricks");
 
     /**
      * Key for {@code minecraft:ender_chest}.
@@ -2459,44 +2487,14 @@ public final class ItemKeys {
     public static final TypedKey<Item> ENDER_PEARL = create("ender_pearl");
 
     /**
-     * Key for {@code minecraft:end_crystal}.
+     * Key for {@code minecraft:enderman_spawn_egg}.
      */
-    public static final TypedKey<Item> END_CRYSTAL = create("end_crystal");
+    public static final TypedKey<Item> ENDERMAN_SPAWN_EGG = create("enderman_spawn_egg");
 
     /**
-     * Key for {@code minecraft:end_portal_frame}.
+     * Key for {@code minecraft:endermite_spawn_egg}.
      */
-    public static final TypedKey<Item> END_PORTAL_FRAME = create("end_portal_frame");
-
-    /**
-     * Key for {@code minecraft:end_rod}.
-     */
-    public static final TypedKey<Item> END_ROD = create("end_rod");
-
-    /**
-     * Key for {@code minecraft:end_stone}.
-     */
-    public static final TypedKey<Item> END_STONE = create("end_stone");
-
-    /**
-     * Key for {@code minecraft:end_stone_bricks}.
-     */
-    public static final TypedKey<Item> END_STONE_BRICKS = create("end_stone_bricks");
-
-    /**
-     * Key for {@code minecraft:end_stone_brick_slab}.
-     */
-    public static final TypedKey<Item> END_STONE_BRICK_SLAB = create("end_stone_brick_slab");
-
-    /**
-     * Key for {@code minecraft:end_stone_brick_stairs}.
-     */
-    public static final TypedKey<Item> END_STONE_BRICK_STAIRS = create("end_stone_brick_stairs");
-
-    /**
-     * Key for {@code minecraft:end_stone_brick_wall}.
-     */
-    public static final TypedKey<Item> END_STONE_BRICK_WALL = create("end_stone_brick_wall");
+    public static final TypedKey<Item> ENDERMITE_SPAWN_EGG = create("endermite_spawn_egg");
 
     /**
      * Key for {@code minecraft:evoker_spawn_egg}.
@@ -2624,21 +2622,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> FILLED_MAP = create("filled_map");
 
     /**
-     * Key for {@code minecraft:firefly_bush}.
-     */
-    public static final TypedKey<Item> FIREFLY_BUSH = create("firefly_bush");
-
-    /**
-     * Key for {@code minecraft:firework_rocket}.
-     */
-    public static final TypedKey<Item> FIREWORK_ROCKET = create("firework_rocket");
-
-    /**
-     * Key for {@code minecraft:firework_star}.
-     */
-    public static final TypedKey<Item> FIREWORK_STAR = create("firework_star");
-
-    /**
      * Key for {@code minecraft:fire_charge}.
      */
     public static final TypedKey<Item> FIRE_CHARGE = create("fire_charge");
@@ -2657,6 +2640,21 @@ public final class ItemKeys {
      * Key for {@code minecraft:fire_coral_fan}.
      */
     public static final TypedKey<Item> FIRE_CORAL_FAN = create("fire_coral_fan");
+
+    /**
+     * Key for {@code minecraft:firefly_bush}.
+     */
+    public static final TypedKey<Item> FIREFLY_BUSH = create("firefly_bush");
+
+    /**
+     * Key for {@code minecraft:firework_rocket}.
+     */
+    public static final TypedKey<Item> FIREWORK_ROCKET = create("firework_rocket");
+
+    /**
+     * Key for {@code minecraft:firework_star}.
+     */
+    public static final TypedKey<Item> FIREWORK_STAR = create("firework_star");
 
     /**
      * Key for {@code minecraft:fishing_rod}.
@@ -2679,26 +2677,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> FLINT_AND_STEEL = create("flint_and_steel");
 
     /**
-     * Key for {@code minecraft:flowering_azalea}.
-     */
-    public static final TypedKey<Item> FLOWERING_AZALEA = create("flowering_azalea");
-
-    /**
-     * Key for {@code minecraft:flowering_azalea_leaves}.
-     */
-    public static final TypedKey<Item> FLOWERING_AZALEA_LEAVES = create("flowering_azalea_leaves");
-
-    /**
-     * Key for {@code minecraft:flower_banner_pattern}.
-     */
-    public static final TypedKey<Item> FLOWER_BANNER_PATTERN = create("flower_banner_pattern");
-
-    /**
-     * Key for {@code minecraft:flower_pot}.
-     */
-    public static final TypedKey<Item> FLOWER_POT = create("flower_pot");
-
-    /**
      * Key for {@code minecraft:flow_armor_trim_smithing_template}.
      */
     public static final TypedKey<Item> FLOW_ARMOR_TRIM_SMITHING_TEMPLATE = create("flow_armor_trim_smithing_template");
@@ -2714,6 +2692,26 @@ public final class ItemKeys {
     public static final TypedKey<Item> FLOW_POTTERY_SHERD = create("flow_pottery_sherd");
 
     /**
+     * Key for {@code minecraft:flower_banner_pattern}.
+     */
+    public static final TypedKey<Item> FLOWER_BANNER_PATTERN = create("flower_banner_pattern");
+
+    /**
+     * Key for {@code minecraft:flower_pot}.
+     */
+    public static final TypedKey<Item> FLOWER_POT = create("flower_pot");
+
+    /**
+     * Key for {@code minecraft:flowering_azalea}.
+     */
+    public static final TypedKey<Item> FLOWERING_AZALEA = create("flowering_azalea");
+
+    /**
+     * Key for {@code minecraft:flowering_azalea_leaves}.
+     */
+    public static final TypedKey<Item> FLOWERING_AZALEA_LEAVES = create("flowering_azalea_leaves");
+
+    /**
      * Key for {@code minecraft:fox_spawn_egg}.
      */
     public static final TypedKey<Item> FOX_SPAWN_EGG = create("fox_spawn_egg");
@@ -2724,14 +2722,14 @@ public final class ItemKeys {
     public static final TypedKey<Item> FRIEND_POTTERY_SHERD = create("friend_pottery_sherd");
 
     /**
-     * Key for {@code minecraft:frogspawn}.
-     */
-    public static final TypedKey<Item> FROGSPAWN = create("frogspawn");
-
-    /**
      * Key for {@code minecraft:frog_spawn_egg}.
      */
     public static final TypedKey<Item> FROG_SPAWN_EGG = create("frog_spawn_egg");
+
+    /**
+     * Key for {@code minecraft:frogspawn}.
+     */
+    public static final TypedKey<Item> FROGSPAWN = create("frogspawn");
 
     /**
      * Key for {@code minecraft:furnace}.
@@ -2784,16 +2782,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> GLOBE_BANNER_PATTERN = create("globe_banner_pattern");
 
     /**
-     * Key for {@code minecraft:glowstone}.
-     */
-    public static final TypedKey<Item> GLOWSTONE = create("glowstone");
-
-    /**
-     * Key for {@code minecraft:glowstone_dust}.
-     */
-    public static final TypedKey<Item> GLOWSTONE_DUST = create("glowstone_dust");
-
-    /**
      * Key for {@code minecraft:glow_berries}.
      */
     public static final TypedKey<Item> GLOW_BERRIES = create("glow_berries");
@@ -2819,6 +2807,16 @@ public final class ItemKeys {
     public static final TypedKey<Item> GLOW_SQUID_SPAWN_EGG = create("glow_squid_spawn_egg");
 
     /**
+     * Key for {@code minecraft:glowstone}.
+     */
+    public static final TypedKey<Item> GLOWSTONE = create("glowstone");
+
+    /**
+     * Key for {@code minecraft:glowstone_dust}.
+     */
+    public static final TypedKey<Item> GLOWSTONE_DUST = create("glowstone_dust");
+
+    /**
      * Key for {@code minecraft:goat_horn}.
      */
     public static final TypedKey<Item> GOAT_HORN = create("goat_horn");
@@ -2827,6 +2825,26 @@ public final class ItemKeys {
      * Key for {@code minecraft:goat_spawn_egg}.
      */
     public static final TypedKey<Item> GOAT_SPAWN_EGG = create("goat_spawn_egg");
+
+    /**
+     * Key for {@code minecraft:gold_block}.
+     */
+    public static final TypedKey<Item> GOLD_BLOCK = create("gold_block");
+
+    /**
+     * Key for {@code minecraft:gold_ingot}.
+     */
+    public static final TypedKey<Item> GOLD_INGOT = create("gold_ingot");
+
+    /**
+     * Key for {@code minecraft:gold_nugget}.
+     */
+    public static final TypedKey<Item> GOLD_NUGGET = create("gold_nugget");
+
+    /**
+     * Key for {@code minecraft:gold_ore}.
+     */
+    public static final TypedKey<Item> GOLD_ORE = create("gold_ore");
 
     /**
      * Key for {@code minecraft:golden_apple}.
@@ -2902,26 +2920,6 @@ public final class ItemKeys {
      * Key for {@code minecraft:golden_sword}.
      */
     public static final TypedKey<Item> GOLDEN_SWORD = create("golden_sword");
-
-    /**
-     * Key for {@code minecraft:gold_block}.
-     */
-    public static final TypedKey<Item> GOLD_BLOCK = create("gold_block");
-
-    /**
-     * Key for {@code minecraft:gold_ingot}.
-     */
-    public static final TypedKey<Item> GOLD_INGOT = create("gold_ingot");
-
-    /**
-     * Key for {@code minecraft:gold_nugget}.
-     */
-    public static final TypedKey<Item> GOLD_NUGGET = create("gold_nugget");
-
-    /**
-     * Key for {@code minecraft:gold_ore}.
-     */
-    public static final TypedKey<Item> GOLD_ORE = create("gold_ore");
 
     /**
      * Key for {@code minecraft:granite}.
@@ -3144,11 +3142,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> HAY_BLOCK = create("hay_block");
 
     /**
-     * Key for {@code minecraft:heartbreak_pottery_sherd}.
-     */
-    public static final TypedKey<Item> HEARTBREAK_POTTERY_SHERD = create("heartbreak_pottery_sherd");
-
-    /**
      * Key for {@code minecraft:heart_of_the_sea}.
      */
     public static final TypedKey<Item> HEART_OF_THE_SEA = create("heart_of_the_sea");
@@ -3157,6 +3150,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:heart_pottery_sherd}.
      */
     public static final TypedKey<Item> HEART_POTTERY_SHERD = create("heart_pottery_sherd");
+
+    /**
+     * Key for {@code minecraft:heartbreak_pottery_sherd}.
+     */
+    public static final TypedKey<Item> HEARTBREAK_POTTERY_SHERD = create("heartbreak_pottery_sherd");
 
     /**
      * Key for {@code minecraft:heavy_core}.
@@ -3174,16 +3172,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> HOGLIN_SPAWN_EGG = create("hoglin_spawn_egg");
 
     /**
-     * Key for {@code minecraft:honeycomb}.
-     */
-    public static final TypedKey<Item> HONEYCOMB = create("honeycomb");
-
-    /**
-     * Key for {@code minecraft:honeycomb_block}.
-     */
-    public static final TypedKey<Item> HONEYCOMB_BLOCK = create("honeycomb_block");
-
-    /**
      * Key for {@code minecraft:honey_block}.
      */
     public static final TypedKey<Item> HONEY_BLOCK = create("honey_block");
@@ -3192,6 +3180,16 @@ public final class ItemKeys {
      * Key for {@code minecraft:honey_bottle}.
      */
     public static final TypedKey<Item> HONEY_BOTTLE = create("honey_bottle");
+
+    /**
+     * Key for {@code minecraft:honeycomb}.
+     */
+    public static final TypedKey<Item> HONEYCOMB = create("honeycomb");
+
+    /**
+     * Key for {@code minecraft:honeycomb_block}.
+     */
+    public static final TypedKey<Item> HONEYCOMB_BLOCK = create("honeycomb_block");
 
     /**
      * Key for {@code minecraft:hopper}.
@@ -3604,11 +3602,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> LIGHT = create("light");
 
     /**
-     * Key for {@code minecraft:lightning_rod}.
-     */
-    public static final TypedKey<Item> LIGHTNING_ROD = create("lightning_rod");
-
-    /**
      * Key for {@code minecraft:light_blue_banner}.
      */
     public static final TypedKey<Item> LIGHT_BLUE_BANNER = create("light_blue_banner");
@@ -3762,6 +3755,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:light_weighted_pressure_plate}.
      */
     public static final TypedKey<Item> LIGHT_WEIGHTED_PRESSURE_PLATE = create("light_weighted_pressure_plate");
+
+    /**
+     * Key for {@code minecraft:lightning_rod}.
+     */
+    public static final TypedKey<Item> LIGHTNING_ROD = create("lightning_rod");
 
     /**
      * Key for {@code minecraft:lilac}.
@@ -4114,6 +4112,16 @@ public final class ItemKeys {
     public static final TypedKey<Item> MOOSHROOM_SPAWN_EGG = create("mooshroom_spawn_egg");
 
     /**
+     * Key for {@code minecraft:moss_block}.
+     */
+    public static final TypedKey<Item> MOSS_BLOCK = create("moss_block");
+
+    /**
+     * Key for {@code minecraft:moss_carpet}.
+     */
+    public static final TypedKey<Item> MOSS_CARPET = create("moss_carpet");
+
+    /**
      * Key for {@code minecraft:mossy_cobblestone}.
      */
     public static final TypedKey<Item> MOSSY_COBBLESTONE = create("mossy_cobblestone");
@@ -4134,11 +4142,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> MOSSY_COBBLESTONE_WALL = create("mossy_cobblestone_wall");
 
     /**
-     * Key for {@code minecraft:mossy_stone_bricks}.
-     */
-    public static final TypedKey<Item> MOSSY_STONE_BRICKS = create("mossy_stone_bricks");
-
-    /**
      * Key for {@code minecraft:mossy_stone_brick_slab}.
      */
     public static final TypedKey<Item> MOSSY_STONE_BRICK_SLAB = create("mossy_stone_brick_slab");
@@ -4154,14 +4157,9 @@ public final class ItemKeys {
     public static final TypedKey<Item> MOSSY_STONE_BRICK_WALL = create("mossy_stone_brick_wall");
 
     /**
-     * Key for {@code minecraft:moss_block}.
+     * Key for {@code minecraft:mossy_stone_bricks}.
      */
-    public static final TypedKey<Item> MOSS_BLOCK = create("moss_block");
-
-    /**
-     * Key for {@code minecraft:moss_carpet}.
-     */
-    public static final TypedKey<Item> MOSS_CARPET = create("moss_carpet");
+    public static final TypedKey<Item> MOSSY_STONE_BRICKS = create("mossy_stone_bricks");
 
     /**
      * Key for {@code minecraft:mourner_pottery_sherd}.
@@ -4172,16 +4170,6 @@ public final class ItemKeys {
      * Key for {@code minecraft:mud}.
      */
     public static final TypedKey<Item> MUD = create("mud");
-
-    /**
-     * Key for {@code minecraft:muddy_mangrove_roots}.
-     */
-    public static final TypedKey<Item> MUDDY_MANGROVE_ROOTS = create("muddy_mangrove_roots");
-
-    /**
-     * Key for {@code minecraft:mud_bricks}.
-     */
-    public static final TypedKey<Item> MUD_BRICKS = create("mud_bricks");
 
     /**
      * Key for {@code minecraft:mud_brick_slab}.
@@ -4197,6 +4185,16 @@ public final class ItemKeys {
      * Key for {@code minecraft:mud_brick_wall}.
      */
     public static final TypedKey<Item> MUD_BRICK_WALL = create("mud_brick_wall");
+
+    /**
+     * Key for {@code minecraft:mud_bricks}.
+     */
+    public static final TypedKey<Item> MUD_BRICKS = create("mud_bricks");
+
+    /**
+     * Key for {@code minecraft:muddy_mangrove_roots}.
+     */
+    public static final TypedKey<Item> MUDDY_MANGROVE_ROOTS = create("muddy_mangrove_roots");
 
     /**
      * Key for {@code minecraft:mule_spawn_egg}.
@@ -4349,6 +4347,66 @@ public final class ItemKeys {
     public static final TypedKey<Item> NAUTILUS_SPAWN_EGG = create("nautilus_spawn_egg");
 
     /**
+     * Key for {@code minecraft:nether_brick}.
+     */
+    public static final TypedKey<Item> NETHER_BRICK = create("nether_brick");
+
+    /**
+     * Key for {@code minecraft:nether_brick_fence}.
+     */
+    public static final TypedKey<Item> NETHER_BRICK_FENCE = create("nether_brick_fence");
+
+    /**
+     * Key for {@code minecraft:nether_brick_slab}.
+     */
+    public static final TypedKey<Item> NETHER_BRICK_SLAB = create("nether_brick_slab");
+
+    /**
+     * Key for {@code minecraft:nether_brick_stairs}.
+     */
+    public static final TypedKey<Item> NETHER_BRICK_STAIRS = create("nether_brick_stairs");
+
+    /**
+     * Key for {@code minecraft:nether_brick_wall}.
+     */
+    public static final TypedKey<Item> NETHER_BRICK_WALL = create("nether_brick_wall");
+
+    /**
+     * Key for {@code minecraft:nether_bricks}.
+     */
+    public static final TypedKey<Item> NETHER_BRICKS = create("nether_bricks");
+
+    /**
+     * Key for {@code minecraft:nether_gold_ore}.
+     */
+    public static final TypedKey<Item> NETHER_GOLD_ORE = create("nether_gold_ore");
+
+    /**
+     * Key for {@code minecraft:nether_quartz_ore}.
+     */
+    public static final TypedKey<Item> NETHER_QUARTZ_ORE = create("nether_quartz_ore");
+
+    /**
+     * Key for {@code minecraft:nether_sprouts}.
+     */
+    public static final TypedKey<Item> NETHER_SPROUTS = create("nether_sprouts");
+
+    /**
+     * Key for {@code minecraft:nether_star}.
+     */
+    public static final TypedKey<Item> NETHER_STAR = create("nether_star");
+
+    /**
+     * Key for {@code minecraft:nether_wart}.
+     */
+    public static final TypedKey<Item> NETHER_WART = create("nether_wart");
+
+    /**
+     * Key for {@code minecraft:nether_wart_block}.
+     */
+    public static final TypedKey<Item> NETHER_WART_BLOCK = create("nether_wart_block");
+
+    /**
      * Key for {@code minecraft:netherite_axe}.
      */
     public static final TypedKey<Item> NETHERITE_AXE = create("netherite_axe");
@@ -4432,66 +4490,6 @@ public final class ItemKeys {
      * Key for {@code minecraft:netherrack}.
      */
     public static final TypedKey<Item> NETHERRACK = create("netherrack");
-
-    /**
-     * Key for {@code minecraft:nether_brick}.
-     */
-    public static final TypedKey<Item> NETHER_BRICK = create("nether_brick");
-
-    /**
-     * Key for {@code minecraft:nether_bricks}.
-     */
-    public static final TypedKey<Item> NETHER_BRICKS = create("nether_bricks");
-
-    /**
-     * Key for {@code minecraft:nether_brick_fence}.
-     */
-    public static final TypedKey<Item> NETHER_BRICK_FENCE = create("nether_brick_fence");
-
-    /**
-     * Key for {@code minecraft:nether_brick_slab}.
-     */
-    public static final TypedKey<Item> NETHER_BRICK_SLAB = create("nether_brick_slab");
-
-    /**
-     * Key for {@code minecraft:nether_brick_stairs}.
-     */
-    public static final TypedKey<Item> NETHER_BRICK_STAIRS = create("nether_brick_stairs");
-
-    /**
-     * Key for {@code minecraft:nether_brick_wall}.
-     */
-    public static final TypedKey<Item> NETHER_BRICK_WALL = create("nether_brick_wall");
-
-    /**
-     * Key for {@code minecraft:nether_gold_ore}.
-     */
-    public static final TypedKey<Item> NETHER_GOLD_ORE = create("nether_gold_ore");
-
-    /**
-     * Key for {@code minecraft:nether_quartz_ore}.
-     */
-    public static final TypedKey<Item> NETHER_QUARTZ_ORE = create("nether_quartz_ore");
-
-    /**
-     * Key for {@code minecraft:nether_sprouts}.
-     */
-    public static final TypedKey<Item> NETHER_SPROUTS = create("nether_sprouts");
-
-    /**
-     * Key for {@code minecraft:nether_star}.
-     */
-    public static final TypedKey<Item> NETHER_STAR = create("nether_star");
-
-    /**
-     * Key for {@code minecraft:nether_wart}.
-     */
-    public static final TypedKey<Item> NETHER_WART = create("nether_wart");
-
-    /**
-     * Key for {@code minecraft:nether_wart_block}.
-     */
-    public static final TypedKey<Item> NETHER_WART_BLOCK = create("nether_wart_block");
 
     /**
      * Key for {@code minecraft:note_block}.
@@ -4949,6 +4947,11 @@ public final class ItemKeys {
     public static final TypedKey<Item> PHANTOM_SPAWN_EGG = create("phantom_spawn_egg");
 
     /**
+     * Key for {@code minecraft:pig_spawn_egg}.
+     */
+    public static final TypedKey<Item> PIG_SPAWN_EGG = create("pig_spawn_egg");
+
+    /**
      * Key for {@code minecraft:piglin_banner_pattern}.
      */
     public static final TypedKey<Item> PIGLIN_BANNER_PATTERN = create("piglin_banner_pattern");
@@ -4967,11 +4970,6 @@ public final class ItemKeys {
      * Key for {@code minecraft:piglin_spawn_egg}.
      */
     public static final TypedKey<Item> PIGLIN_SPAWN_EGG = create("piglin_spawn_egg");
-
-    /**
-     * Key for {@code minecraft:pig_spawn_egg}.
-     */
-    public static final TypedKey<Item> PIG_SPAWN_EGG = create("pig_spawn_egg");
 
     /**
      * Key for {@code minecraft:pillager_spawn_egg}.
@@ -5134,11 +5132,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> POLISHED_BLACKSTONE = create("polished_blackstone");
 
     /**
-     * Key for {@code minecraft:polished_blackstone_bricks}.
-     */
-    public static final TypedKey<Item> POLISHED_BLACKSTONE_BRICKS = create("polished_blackstone_bricks");
-
-    /**
      * Key for {@code minecraft:polished_blackstone_brick_slab}.
      */
     public static final TypedKey<Item> POLISHED_BLACKSTONE_BRICK_SLAB = create("polished_blackstone_brick_slab");
@@ -5152,6 +5145,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:polished_blackstone_brick_wall}.
      */
     public static final TypedKey<Item> POLISHED_BLACKSTONE_BRICK_WALL = create("polished_blackstone_brick_wall");
+
+    /**
+     * Key for {@code minecraft:polished_blackstone_bricks}.
+     */
+    public static final TypedKey<Item> POLISHED_BLACKSTONE_BRICKS = create("polished_blackstone_bricks");
 
     /**
      * Key for {@code minecraft:polished_blackstone_button}.
@@ -5334,11 +5332,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> PRISMARINE = create("prismarine");
 
     /**
-     * Key for {@code minecraft:prismarine_bricks}.
-     */
-    public static final TypedKey<Item> PRISMARINE_BRICKS = create("prismarine_bricks");
-
-    /**
      * Key for {@code minecraft:prismarine_brick_slab}.
      */
     public static final TypedKey<Item> PRISMARINE_BRICK_SLAB = create("prismarine_brick_slab");
@@ -5347,6 +5340,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:prismarine_brick_stairs}.
      */
     public static final TypedKey<Item> PRISMARINE_BRICK_STAIRS = create("prismarine_brick_stairs");
+
+    /**
+     * Key for {@code minecraft:prismarine_bricks}.
+     */
+    public static final TypedKey<Item> PRISMARINE_BRICKS = create("prismarine_bricks");
 
     /**
      * Key for {@code minecraft:prismarine_crystals}.
@@ -5609,31 +5607,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> RECOVERY_COMPASS = create("recovery_compass");
 
     /**
-     * Key for {@code minecraft:redstone}.
-     */
-    public static final TypedKey<Item> REDSTONE = create("redstone");
-
-    /**
-     * Key for {@code minecraft:redstone_block}.
-     */
-    public static final TypedKey<Item> REDSTONE_BLOCK = create("redstone_block");
-
-    /**
-     * Key for {@code minecraft:redstone_lamp}.
-     */
-    public static final TypedKey<Item> REDSTONE_LAMP = create("redstone_lamp");
-
-    /**
-     * Key for {@code minecraft:redstone_ore}.
-     */
-    public static final TypedKey<Item> REDSTONE_ORE = create("redstone_ore");
-
-    /**
-     * Key for {@code minecraft:redstone_torch}.
-     */
-    public static final TypedKey<Item> REDSTONE_TORCH = create("redstone_torch");
-
-    /**
      * Key for {@code minecraft:red_banner}.
      */
     public static final TypedKey<Item> RED_BANNER = create("red_banner");
@@ -5694,11 +5667,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> RED_MUSHROOM_BLOCK = create("red_mushroom_block");
 
     /**
-     * Key for {@code minecraft:red_nether_bricks}.
-     */
-    public static final TypedKey<Item> RED_NETHER_BRICKS = create("red_nether_bricks");
-
-    /**
      * Key for {@code minecraft:red_nether_brick_slab}.
      */
     public static final TypedKey<Item> RED_NETHER_BRICK_SLAB = create("red_nether_brick_slab");
@@ -5712,6 +5680,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:red_nether_brick_wall}.
      */
     public static final TypedKey<Item> RED_NETHER_BRICK_WALL = create("red_nether_brick_wall");
+
+    /**
+     * Key for {@code minecraft:red_nether_bricks}.
+     */
+    public static final TypedKey<Item> RED_NETHER_BRICKS = create("red_nether_bricks");
 
     /**
      * Key for {@code minecraft:red_sand}.
@@ -5769,6 +5742,31 @@ public final class ItemKeys {
     public static final TypedKey<Item> RED_WOOL = create("red_wool");
 
     /**
+     * Key for {@code minecraft:redstone}.
+     */
+    public static final TypedKey<Item> REDSTONE = create("redstone");
+
+    /**
+     * Key for {@code minecraft:redstone_block}.
+     */
+    public static final TypedKey<Item> REDSTONE_BLOCK = create("redstone_block");
+
+    /**
+     * Key for {@code minecraft:redstone_lamp}.
+     */
+    public static final TypedKey<Item> REDSTONE_LAMP = create("redstone_lamp");
+
+    /**
+     * Key for {@code minecraft:redstone_ore}.
+     */
+    public static final TypedKey<Item> REDSTONE_ORE = create("redstone_ore");
+
+    /**
+     * Key for {@code minecraft:redstone_torch}.
+     */
+    public static final TypedKey<Item> REDSTONE_TORCH = create("redstone_torch");
+
+    /**
      * Key for {@code minecraft:reinforced_deepslate}.
      */
     public static final TypedKey<Item> REINFORCED_DEEPSLATE = create("reinforced_deepslate");
@@ -5794,11 +5792,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> RESIN_BRICK = create("resin_brick");
 
     /**
-     * Key for {@code minecraft:resin_bricks}.
-     */
-    public static final TypedKey<Item> RESIN_BRICKS = create("resin_bricks");
-
-    /**
      * Key for {@code minecraft:resin_brick_slab}.
      */
     public static final TypedKey<Item> RESIN_BRICK_SLAB = create("resin_brick_slab");
@@ -5812,6 +5805,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:resin_brick_wall}.
      */
     public static final TypedKey<Item> RESIN_BRICK_WALL = create("resin_brick_wall");
+
+    /**
+     * Key for {@code minecraft:resin_bricks}.
+     */
+    public static final TypedKey<Item> RESIN_BRICKS = create("resin_bricks");
 
     /**
      * Key for {@code minecraft:resin_clump}.
@@ -5924,11 +5922,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> SCULK_VEIN = create("sculk_vein");
 
     /**
-     * Key for {@code minecraft:seagrass}.
-     */
-    public static final TypedKey<Item> SEAGRASS = create("seagrass");
-
-    /**
      * Key for {@code minecraft:sea_lantern}.
      */
     public static final TypedKey<Item> SEA_LANTERN = create("sea_lantern");
@@ -5937,6 +5930,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:sea_pickle}.
      */
     public static final TypedKey<Item> SEA_PICKLE = create("sea_pickle");
+
+    /**
+     * Key for {@code minecraft:seagrass}.
+     */
+    public static final TypedKey<Item> SEAGRASS = create("seagrass");
 
     /**
      * Key for {@code minecraft:sentry_armor_trim_smithing_template}.
@@ -6159,11 +6157,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> SNOW = create("snow");
 
     /**
-     * Key for {@code minecraft:snowball}.
-     */
-    public static final TypedKey<Item> SNOWBALL = create("snowball");
-
-    /**
      * Key for {@code minecraft:snow_block}.
      */
     public static final TypedKey<Item> SNOW_BLOCK = create("snow_block");
@@ -6172,6 +6165,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:snow_golem_spawn_egg}.
      */
     public static final TypedKey<Item> SNOW_GOLEM_SPAWN_EGG = create("snow_golem_spawn_egg");
+
+    /**
+     * Key for {@code minecraft:snowball}.
+     */
+    public static final TypedKey<Item> SNOWBALL = create("snowball");
 
     /**
      * Key for {@code minecraft:soul_campfire}.
@@ -6354,19 +6352,9 @@ public final class ItemKeys {
     public static final TypedKey<Item> STONE = create("stone");
 
     /**
-     * Key for {@code minecraft:stonecutter}.
-     */
-    public static final TypedKey<Item> STONECUTTER = create("stonecutter");
-
-    /**
      * Key for {@code minecraft:stone_axe}.
      */
     public static final TypedKey<Item> STONE_AXE = create("stone_axe");
-
-    /**
-     * Key for {@code minecraft:stone_bricks}.
-     */
-    public static final TypedKey<Item> STONE_BRICKS = create("stone_bricks");
 
     /**
      * Key for {@code minecraft:stone_brick_slab}.
@@ -6382,6 +6370,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:stone_brick_wall}.
      */
     public static final TypedKey<Item> STONE_BRICK_WALL = create("stone_brick_wall");
+
+    /**
+     * Key for {@code minecraft:stone_bricks}.
+     */
+    public static final TypedKey<Item> STONE_BRICKS = create("stone_bricks");
 
     /**
      * Key for {@code minecraft:stone_button}.
@@ -6427,6 +6420,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:stone_sword}.
      */
     public static final TypedKey<Item> STONE_SWORD = create("stone_sword");
+
+    /**
+     * Key for {@code minecraft:stonecutter}.
+     */
+    public static final TypedKey<Item> STONECUTTER = create("stonecutter");
 
     /**
      * Key for {@code minecraft:stray_spawn_egg}.
@@ -6584,11 +6582,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> SULFUR = create("sulfur");
 
     /**
-     * Key for {@code minecraft:sulfur_bricks}.
-     */
-    public static final TypedKey<Item> SULFUR_BRICKS = create("sulfur_bricks");
-
-    /**
      * Key for {@code minecraft:sulfur_brick_slab}.
      */
     public static final TypedKey<Item> SULFUR_BRICK_SLAB = create("sulfur_brick_slab");
@@ -6602,6 +6595,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:sulfur_brick_wall}.
      */
     public static final TypedKey<Item> SULFUR_BRICK_WALL = create("sulfur_brick_wall");
+
+    /**
+     * Key for {@code minecraft:sulfur_bricks}.
+     */
+    public static final TypedKey<Item> SULFUR_BRICKS = create("sulfur_bricks");
 
     /**
      * Key for {@code minecraft:sulfur_cube_bucket}.
@@ -6809,11 +6807,6 @@ public final class ItemKeys {
     public static final TypedKey<Item> TUFF = create("tuff");
 
     /**
-     * Key for {@code minecraft:tuff_bricks}.
-     */
-    public static final TypedKey<Item> TUFF_BRICKS = create("tuff_bricks");
-
-    /**
      * Key for {@code minecraft:tuff_brick_slab}.
      */
     public static final TypedKey<Item> TUFF_BRICK_SLAB = create("tuff_brick_slab");
@@ -6827,6 +6820,11 @@ public final class ItemKeys {
      * Key for {@code minecraft:tuff_brick_wall}.
      */
     public static final TypedKey<Item> TUFF_BRICK_WALL = create("tuff_brick_wall");
+
+    /**
+     * Key for {@code minecraft:tuff_bricks}.
+     */
+    public static final TypedKey<Item> TUFF_BRICKS = create("tuff_bricks");
 
     /**
      * Key for {@code minecraft:tuff_slab}.
@@ -6909,14 +6907,14 @@ public final class ItemKeys {
     public static final TypedKey<Item> WANDERING_TRADER_SPAWN_EGG = create("wandering_trader_spawn_egg");
 
     /**
-     * Key for {@code minecraft:warden_spawn_egg}.
-     */
-    public static final TypedKey<Item> WARDEN_SPAWN_EGG = create("warden_spawn_egg");
-
-    /**
      * Key for {@code minecraft:ward_armor_trim_smithing_template}.
      */
     public static final TypedKey<Item> WARD_ARMOR_TRIM_SMITHING_TEMPLATE = create("ward_armor_trim_smithing_template");
+
+    /**
+     * Key for {@code minecraft:warden_spawn_egg}.
+     */
+    public static final TypedKey<Item> WARDEN_SPAWN_EGG = create("warden_spawn_egg");
 
     /**
      * Key for {@code minecraft:warped_button}.
@@ -7499,14 +7497,14 @@ public final class ItemKeys {
     public static final TypedKey<Item> WHITE_WOOL = create("white_wool");
 
     /**
-     * Key for {@code minecraft:wildflowers}.
-     */
-    public static final TypedKey<Item> WILDFLOWERS = create("wildflowers");
-
-    /**
      * Key for {@code minecraft:wild_armor_trim_smithing_template}.
      */
     public static final TypedKey<Item> WILD_ARMOR_TRIM_SMITHING_TEMPLATE = create("wild_armor_trim_smithing_template");
+
+    /**
+     * Key for {@code minecraft:wildflowers}.
+     */
+    public static final TypedKey<Item> WILDFLOWERS = create("wildflowers");
 
     /**
      * Key for {@code minecraft:wind_charge}.
@@ -7698,1353 +7696,853 @@ public final class ItemKeys {
      */
     public static final TypedKey<Item> ZOMBIFIED_PIGLIN_SPAWN_EGG = create("zombified_piglin_spawn_egg");
 
-    /**
-     * Entries in ascending {@code protocol_id} order - list index == network ID.
-     */
     private static final List<TypedKey<Item>> VALUES = List.of(
-        AIR,
-        STONE,
-        GRANITE,
-        POLISHED_GRANITE,
-        DIORITE,
-        POLISHED_DIORITE,
-        ANDESITE,
-        POLISHED_ANDESITE,
-        DEEPSLATE,
-        COBBLED_DEEPSLATE,
-        POLISHED_DEEPSLATE,
-        CALCITE,
-        TUFF,
-        TUFF_SLAB,
-        TUFF_STAIRS,
-        TUFF_WALL,
-        CHISELED_TUFF,
-        POLISHED_TUFF,
-        POLISHED_TUFF_SLAB,
-        POLISHED_TUFF_STAIRS,
-        POLISHED_TUFF_WALL,
-        TUFF_BRICKS,
-        TUFF_BRICK_SLAB,
-        TUFF_BRICK_STAIRS,
-        TUFF_BRICK_WALL,
-        CHISELED_TUFF_BRICKS,
-        SULFUR,
-        POTENT_SULFUR,
-        SULFUR_SLAB,
-        SULFUR_STAIRS,
-        SULFUR_WALL,
-        POLISHED_SULFUR,
-        POLISHED_SULFUR_SLAB,
-        POLISHED_SULFUR_STAIRS,
-        POLISHED_SULFUR_WALL,
-        SULFUR_BRICKS,
-        SULFUR_BRICK_SLAB,
-        SULFUR_BRICK_STAIRS,
-        SULFUR_BRICK_WALL,
-        CHISELED_SULFUR,
-        CINNABAR,
-        CINNABAR_SLAB,
-        CINNABAR_STAIRS,
-        CINNABAR_WALL,
-        POLISHED_CINNABAR,
-        POLISHED_CINNABAR_SLAB,
-        POLISHED_CINNABAR_STAIRS,
-        POLISHED_CINNABAR_WALL,
-        CINNABAR_BRICKS,
-        CINNABAR_BRICK_SLAB,
-        CINNABAR_BRICK_STAIRS,
-        CINNABAR_BRICK_WALL,
-        CHISELED_CINNABAR,
-        DRIPSTONE_BLOCK,
-        GRASS_BLOCK,
-        DIRT,
-        COARSE_DIRT,
-        PODZOL,
-        ROOTED_DIRT,
-        MUD,
-        CRIMSON_NYLIUM,
-        WARPED_NYLIUM,
-        COBBLESTONE,
-        OAK_PLANKS,
-        SPRUCE_PLANKS,
-        BIRCH_PLANKS,
-        JUNGLE_PLANKS,
-        ACACIA_PLANKS,
-        CHERRY_PLANKS,
-        DARK_OAK_PLANKS,
-        PALE_OAK_PLANKS,
-        MANGROVE_PLANKS,
-        BAMBOO_PLANKS,
-        CRIMSON_PLANKS,
-        WARPED_PLANKS,
-        BAMBOO_MOSAIC,
-        OAK_SAPLING,
-        SPRUCE_SAPLING,
-        BIRCH_SAPLING,
-        JUNGLE_SAPLING,
-        ACACIA_SAPLING,
-        CHERRY_SAPLING,
-        DARK_OAK_SAPLING,
-        PALE_OAK_SAPLING,
-        MANGROVE_PROPAGULE,
-        BEDROCK,
-        SAND,
-        SUSPICIOUS_SAND,
-        SUSPICIOUS_GRAVEL,
-        RED_SAND,
-        GRAVEL,
-        COAL_ORE,
-        DEEPSLATE_COAL_ORE,
-        IRON_ORE,
-        DEEPSLATE_IRON_ORE,
-        COPPER_ORE,
-        DEEPSLATE_COPPER_ORE,
-        GOLD_ORE,
-        DEEPSLATE_GOLD_ORE,
-        REDSTONE_ORE,
-        DEEPSLATE_REDSTONE_ORE,
-        EMERALD_ORE,
-        DEEPSLATE_EMERALD_ORE,
-        LAPIS_ORE,
-        DEEPSLATE_LAPIS_ORE,
-        DIAMOND_ORE,
-        DEEPSLATE_DIAMOND_ORE,
-        NETHER_GOLD_ORE,
-        NETHER_QUARTZ_ORE,
-        ANCIENT_DEBRIS,
-        COAL_BLOCK,
-        RAW_IRON_BLOCK,
-        RAW_COPPER_BLOCK,
-        RAW_GOLD_BLOCK,
-        HEAVY_CORE,
-        AMETHYST_BLOCK,
-        BUDDING_AMETHYST,
-        IRON_BLOCK,
-        COPPER_BLOCK,
-        EXPOSED_COPPER,
-        WEATHERED_COPPER,
-        OXIDIZED_COPPER,
-        WAXED_COPPER_BLOCK,
-        WAXED_EXPOSED_COPPER,
-        WAXED_WEATHERED_COPPER,
-        WAXED_OXIDIZED_COPPER,
-        GOLD_BLOCK,
-        DIAMOND_BLOCK,
-        NETHERITE_BLOCK,
-        CHISELED_COPPER,
-        EXPOSED_CHISELED_COPPER,
-        WEATHERED_CHISELED_COPPER,
-        OXIDIZED_CHISELED_COPPER,
-        WAXED_CHISELED_COPPER,
-        WAXED_EXPOSED_CHISELED_COPPER,
-        WAXED_WEATHERED_CHISELED_COPPER,
-        WAXED_OXIDIZED_CHISELED_COPPER,
-        CUT_COPPER,
-        EXPOSED_CUT_COPPER,
-        WEATHERED_CUT_COPPER,
-        OXIDIZED_CUT_COPPER,
-        WAXED_CUT_COPPER,
-        WAXED_EXPOSED_CUT_COPPER,
-        WAXED_WEATHERED_CUT_COPPER,
-        WAXED_OXIDIZED_CUT_COPPER,
-        CUT_COPPER_STAIRS,
-        EXPOSED_CUT_COPPER_STAIRS,
-        WEATHERED_CUT_COPPER_STAIRS,
-        OXIDIZED_CUT_COPPER_STAIRS,
-        WAXED_CUT_COPPER_STAIRS,
-        WAXED_EXPOSED_CUT_COPPER_STAIRS,
-        WAXED_WEATHERED_CUT_COPPER_STAIRS,
-        WAXED_OXIDIZED_CUT_COPPER_STAIRS,
-        CUT_COPPER_SLAB,
-        EXPOSED_CUT_COPPER_SLAB,
-        WEATHERED_CUT_COPPER_SLAB,
-        OXIDIZED_CUT_COPPER_SLAB,
-        WAXED_CUT_COPPER_SLAB,
-        WAXED_EXPOSED_CUT_COPPER_SLAB,
-        WAXED_WEATHERED_CUT_COPPER_SLAB,
-        WAXED_OXIDIZED_CUT_COPPER_SLAB,
-        OAK_LOG,
-        SPRUCE_LOG,
-        BIRCH_LOG,
-        JUNGLE_LOG,
-        ACACIA_LOG,
-        CHERRY_LOG,
-        PALE_OAK_LOG,
-        DARK_OAK_LOG,
-        MANGROVE_LOG,
-        MANGROVE_ROOTS,
-        MUDDY_MANGROVE_ROOTS,
-        CRIMSON_STEM,
-        WARPED_STEM,
-        BAMBOO_BLOCK,
-        STRIPPED_OAK_LOG,
-        STRIPPED_SPRUCE_LOG,
-        STRIPPED_BIRCH_LOG,
-        STRIPPED_JUNGLE_LOG,
-        STRIPPED_ACACIA_LOG,
-        STRIPPED_CHERRY_LOG,
-        STRIPPED_DARK_OAK_LOG,
-        STRIPPED_PALE_OAK_LOG,
-        STRIPPED_MANGROVE_LOG,
-        STRIPPED_CRIMSON_STEM,
-        STRIPPED_WARPED_STEM,
-        STRIPPED_OAK_WOOD,
-        STRIPPED_SPRUCE_WOOD,
-        STRIPPED_BIRCH_WOOD,
-        STRIPPED_JUNGLE_WOOD,
-        STRIPPED_ACACIA_WOOD,
-        STRIPPED_CHERRY_WOOD,
-        STRIPPED_DARK_OAK_WOOD,
-        STRIPPED_PALE_OAK_WOOD,
-        STRIPPED_MANGROVE_WOOD,
-        STRIPPED_CRIMSON_HYPHAE,
-        STRIPPED_WARPED_HYPHAE,
-        STRIPPED_BAMBOO_BLOCK,
-        OAK_WOOD,
-        SPRUCE_WOOD,
-        BIRCH_WOOD,
-        JUNGLE_WOOD,
-        ACACIA_WOOD,
-        CHERRY_WOOD,
-        PALE_OAK_WOOD,
-        DARK_OAK_WOOD,
-        MANGROVE_WOOD,
-        CRIMSON_HYPHAE,
-        WARPED_HYPHAE,
-        OAK_LEAVES,
-        SPRUCE_LEAVES,
-        BIRCH_LEAVES,
-        JUNGLE_LEAVES,
-        ACACIA_LEAVES,
-        CHERRY_LEAVES,
-        DARK_OAK_LEAVES,
-        PALE_OAK_LEAVES,
-        MANGROVE_LEAVES,
-        AZALEA_LEAVES,
-        FLOWERING_AZALEA_LEAVES,
-        SPONGE,
-        WET_SPONGE,
-        GLASS,
-        TINTED_GLASS,
-        LAPIS_BLOCK,
-        SANDSTONE,
-        CHISELED_SANDSTONE,
-        CUT_SANDSTONE,
-        COBWEB,
-        SHORT_GRASS,
-        FERN,
-        BUSH,
-        AZALEA,
-        FLOWERING_AZALEA,
-        DEAD_BUSH,
-        FIREFLY_BUSH,
-        SHORT_DRY_GRASS,
-        TALL_DRY_GRASS,
-        SEAGRASS,
-        SEA_PICKLE,
-        WHITE_WOOL,
-        ORANGE_WOOL,
-        MAGENTA_WOOL,
-        LIGHT_BLUE_WOOL,
-        YELLOW_WOOL,
-        LIME_WOOL,
-        PINK_WOOL,
-        GRAY_WOOL,
-        LIGHT_GRAY_WOOL,
-        CYAN_WOOL,
-        PURPLE_WOOL,
-        BLUE_WOOL,
-        BROWN_WOOL,
-        GREEN_WOOL,
-        RED_WOOL,
-        BLACK_WOOL,
-        DANDELION,
-        GOLDEN_DANDELION,
-        OPEN_EYEBLOSSOM,
-        CLOSED_EYEBLOSSOM,
-        POPPY,
-        BLUE_ORCHID,
-        ALLIUM,
-        AZURE_BLUET,
-        RED_TULIP,
-        ORANGE_TULIP,
-        WHITE_TULIP,
-        PINK_TULIP,
-        OXEYE_DAISY,
-        CORNFLOWER,
-        LILY_OF_THE_VALLEY,
-        WITHER_ROSE,
-        TORCHFLOWER,
-        PITCHER_PLANT,
-        SPORE_BLOSSOM,
-        BROWN_MUSHROOM,
-        RED_MUSHROOM,
-        CRIMSON_FUNGUS,
-        WARPED_FUNGUS,
-        CRIMSON_ROOTS,
-        WARPED_ROOTS,
-        NETHER_SPROUTS,
-        WEEPING_VINES,
-        TWISTING_VINES,
-        SUGAR_CANE,
-        KELP,
-        PINK_PETALS,
-        WILDFLOWERS,
-        LEAF_LITTER,
-        MOSS_CARPET,
-        MOSS_BLOCK,
-        PALE_MOSS_CARPET,
-        PALE_HANGING_MOSS,
-        PALE_MOSS_BLOCK,
-        HANGING_ROOTS,
-        BIG_DRIPLEAF,
-        SMALL_DRIPLEAF,
-        BAMBOO,
-        OAK_SLAB,
-        SPRUCE_SLAB,
-        BIRCH_SLAB,
-        JUNGLE_SLAB,
-        ACACIA_SLAB,
-        CHERRY_SLAB,
-        DARK_OAK_SLAB,
-        PALE_OAK_SLAB,
-        MANGROVE_SLAB,
-        BAMBOO_SLAB,
-        BAMBOO_MOSAIC_SLAB,
-        CRIMSON_SLAB,
-        WARPED_SLAB,
-        STONE_SLAB,
-        SMOOTH_STONE_SLAB,
-        SANDSTONE_SLAB,
-        CUT_SANDSTONE_SLAB,
-        PETRIFIED_OAK_SLAB,
-        COBBLESTONE_SLAB,
-        BRICK_SLAB,
-        STONE_BRICK_SLAB,
-        MUD_BRICK_SLAB,
-        NETHER_BRICK_SLAB,
-        QUARTZ_SLAB,
-        RED_SANDSTONE_SLAB,
-        CUT_RED_SANDSTONE_SLAB,
-        PURPUR_SLAB,
-        PRISMARINE_SLAB,
-        PRISMARINE_BRICK_SLAB,
-        DARK_PRISMARINE_SLAB,
-        SMOOTH_QUARTZ,
-        SMOOTH_RED_SANDSTONE,
-        SMOOTH_SANDSTONE,
-        SMOOTH_STONE,
-        BRICKS,
-        ACACIA_SHELF,
-        BAMBOO_SHELF,
-        BIRCH_SHELF,
-        CHERRY_SHELF,
-        CRIMSON_SHELF,
-        DARK_OAK_SHELF,
-        JUNGLE_SHELF,
-        MANGROVE_SHELF,
-        OAK_SHELF,
-        PALE_OAK_SHELF,
-        SPRUCE_SHELF,
-        WARPED_SHELF,
-        BOOKSHELF,
-        CHISELED_BOOKSHELF,
-        DECORATED_POT,
-        MOSSY_COBBLESTONE,
-        OBSIDIAN,
-        TORCH,
-        END_ROD,
-        CHORUS_PLANT,
-        CHORUS_FLOWER,
-        PURPUR_BLOCK,
-        PURPUR_PILLAR,
-        PURPUR_STAIRS,
-        SPAWNER,
-        CREAKING_HEART,
-        CHEST,
-        CRAFTING_TABLE,
-        FARMLAND,
-        FURNACE,
-        LADDER,
-        COBBLESTONE_STAIRS,
-        SNOW,
-        ICE,
-        SNOW_BLOCK,
-        CACTUS,
-        CACTUS_FLOWER,
-        CLAY,
-        JUKEBOX,
-        OAK_FENCE,
-        SPRUCE_FENCE,
-        BIRCH_FENCE,
-        JUNGLE_FENCE,
-        ACACIA_FENCE,
-        CHERRY_FENCE,
-        DARK_OAK_FENCE,
-        PALE_OAK_FENCE,
-        MANGROVE_FENCE,
-        BAMBOO_FENCE,
-        CRIMSON_FENCE,
-        WARPED_FENCE,
-        PUMPKIN,
-        CARVED_PUMPKIN,
-        JACK_O_LANTERN,
-        NETHERRACK,
-        SOUL_SAND,
-        SOUL_SOIL,
-        BASALT,
-        POLISHED_BASALT,
-        SMOOTH_BASALT,
-        SOUL_TORCH,
-        COPPER_TORCH,
-        GLOWSTONE,
-        INFESTED_STONE,
-        INFESTED_COBBLESTONE,
-        INFESTED_STONE_BRICKS,
-        INFESTED_MOSSY_STONE_BRICKS,
-        INFESTED_CRACKED_STONE_BRICKS,
-        INFESTED_CHISELED_STONE_BRICKS,
-        INFESTED_DEEPSLATE,
-        STONE_BRICKS,
-        MOSSY_STONE_BRICKS,
-        CRACKED_STONE_BRICKS,
-        CHISELED_STONE_BRICKS,
-        PACKED_MUD,
-        MUD_BRICKS,
-        DEEPSLATE_BRICKS,
-        CRACKED_DEEPSLATE_BRICKS,
-        DEEPSLATE_TILES,
-        CRACKED_DEEPSLATE_TILES,
-        CHISELED_DEEPSLATE,
-        REINFORCED_DEEPSLATE,
-        BROWN_MUSHROOM_BLOCK,
-        RED_MUSHROOM_BLOCK,
-        MUSHROOM_STEM,
-        IRON_BARS,
-        COPPER_BARS,
-        EXPOSED_COPPER_BARS,
-        WEATHERED_COPPER_BARS,
-        OXIDIZED_COPPER_BARS,
-        WAXED_COPPER_BARS,
-        WAXED_EXPOSED_COPPER_BARS,
-        WAXED_WEATHERED_COPPER_BARS,
-        WAXED_OXIDIZED_COPPER_BARS,
-        IRON_CHAIN,
-        COPPER_CHAIN,
-        EXPOSED_COPPER_CHAIN,
-        WEATHERED_COPPER_CHAIN,
-        OXIDIZED_COPPER_CHAIN,
-        WAXED_COPPER_CHAIN,
-        WAXED_EXPOSED_COPPER_CHAIN,
-        WAXED_WEATHERED_COPPER_CHAIN,
-        WAXED_OXIDIZED_COPPER_CHAIN,
-        GLASS_PANE,
-        MELON,
-        VINE,
-        GLOW_LICHEN,
-        RESIN_CLUMP,
-        RESIN_BLOCK,
-        RESIN_BRICKS,
-        RESIN_BRICK_STAIRS,
-        RESIN_BRICK_SLAB,
-        RESIN_BRICK_WALL,
-        CHISELED_RESIN_BRICKS,
-        BRICK_STAIRS,
-        STONE_BRICK_STAIRS,
-        MUD_BRICK_STAIRS,
-        MYCELIUM,
-        LILY_PAD,
-        NETHER_BRICKS,
-        CRACKED_NETHER_BRICKS,
-        CHISELED_NETHER_BRICKS,
-        NETHER_BRICK_FENCE,
-        NETHER_BRICK_STAIRS,
-        SCULK,
-        SCULK_VEIN,
-        SCULK_CATALYST,
-        SCULK_SHRIEKER,
-        ENCHANTING_TABLE,
-        END_PORTAL_FRAME,
-        END_STONE,
-        END_STONE_BRICKS,
-        DRAGON_EGG,
-        SANDSTONE_STAIRS,
-        ENDER_CHEST,
-        EMERALD_BLOCK,
-        OAK_STAIRS,
-        SPRUCE_STAIRS,
-        BIRCH_STAIRS,
-        JUNGLE_STAIRS,
-        ACACIA_STAIRS,
-        CHERRY_STAIRS,
-        DARK_OAK_STAIRS,
-        PALE_OAK_STAIRS,
-        MANGROVE_STAIRS,
-        BAMBOO_STAIRS,
-        BAMBOO_MOSAIC_STAIRS,
-        CRIMSON_STAIRS,
-        WARPED_STAIRS,
-        COMMAND_BLOCK,
-        BEACON,
-        COBBLESTONE_WALL,
-        MOSSY_COBBLESTONE_WALL,
-        BRICK_WALL,
-        PRISMARINE_WALL,
-        RED_SANDSTONE_WALL,
-        MOSSY_STONE_BRICK_WALL,
-        GRANITE_WALL,
-        STONE_BRICK_WALL,
-        MUD_BRICK_WALL,
-        NETHER_BRICK_WALL,
-        ANDESITE_WALL,
-        RED_NETHER_BRICK_WALL,
-        SANDSTONE_WALL,
-        END_STONE_BRICK_WALL,
-        DIORITE_WALL,
-        BLACKSTONE_WALL,
-        POLISHED_BLACKSTONE_WALL,
-        POLISHED_BLACKSTONE_BRICK_WALL,
-        COBBLED_DEEPSLATE_WALL,
-        POLISHED_DEEPSLATE_WALL,
-        DEEPSLATE_BRICK_WALL,
-        DEEPSLATE_TILE_WALL,
-        ANVIL,
-        CHIPPED_ANVIL,
-        DAMAGED_ANVIL,
-        CHISELED_QUARTZ_BLOCK,
-        QUARTZ_BLOCK,
-        QUARTZ_BRICKS,
-        QUARTZ_PILLAR,
-        QUARTZ_STAIRS,
-        WHITE_TERRACOTTA,
-        ORANGE_TERRACOTTA,
-        MAGENTA_TERRACOTTA,
-        LIGHT_BLUE_TERRACOTTA,
-        YELLOW_TERRACOTTA,
-        LIME_TERRACOTTA,
-        PINK_TERRACOTTA,
-        GRAY_TERRACOTTA,
-        LIGHT_GRAY_TERRACOTTA,
-        CYAN_TERRACOTTA,
-        PURPLE_TERRACOTTA,
-        BLUE_TERRACOTTA,
-        BROWN_TERRACOTTA,
-        GREEN_TERRACOTTA,
-        RED_TERRACOTTA,
-        BLACK_TERRACOTTA,
-        BARRIER,
-        LIGHT,
-        HAY_BLOCK,
-        WHITE_CARPET,
-        ORANGE_CARPET,
-        MAGENTA_CARPET,
-        LIGHT_BLUE_CARPET,
-        YELLOW_CARPET,
-        LIME_CARPET,
-        PINK_CARPET,
-        GRAY_CARPET,
-        LIGHT_GRAY_CARPET,
-        CYAN_CARPET,
-        PURPLE_CARPET,
-        BLUE_CARPET,
-        BROWN_CARPET,
-        GREEN_CARPET,
-        RED_CARPET,
-        BLACK_CARPET,
-        TERRACOTTA,
-        PACKED_ICE,
-        DIRT_PATH,
-        SUNFLOWER,
-        LILAC,
-        ROSE_BUSH,
-        PEONY,
-        TALL_GRASS,
-        LARGE_FERN,
-        WHITE_STAINED_GLASS,
-        ORANGE_STAINED_GLASS,
-        MAGENTA_STAINED_GLASS,
-        LIGHT_BLUE_STAINED_GLASS,
-        YELLOW_STAINED_GLASS,
-        LIME_STAINED_GLASS,
-        PINK_STAINED_GLASS,
-        GRAY_STAINED_GLASS,
-        LIGHT_GRAY_STAINED_GLASS,
-        CYAN_STAINED_GLASS,
-        PURPLE_STAINED_GLASS,
-        BLUE_STAINED_GLASS,
-        BROWN_STAINED_GLASS,
-        GREEN_STAINED_GLASS,
-        RED_STAINED_GLASS,
-        BLACK_STAINED_GLASS,
-        WHITE_STAINED_GLASS_PANE,
-        ORANGE_STAINED_GLASS_PANE,
-        MAGENTA_STAINED_GLASS_PANE,
-        LIGHT_BLUE_STAINED_GLASS_PANE,
-        YELLOW_STAINED_GLASS_PANE,
-        LIME_STAINED_GLASS_PANE,
-        PINK_STAINED_GLASS_PANE,
-        GRAY_STAINED_GLASS_PANE,
-        LIGHT_GRAY_STAINED_GLASS_PANE,
-        CYAN_STAINED_GLASS_PANE,
-        PURPLE_STAINED_GLASS_PANE,
-        BLUE_STAINED_GLASS_PANE,
-        BROWN_STAINED_GLASS_PANE,
-        GREEN_STAINED_GLASS_PANE,
-        RED_STAINED_GLASS_PANE,
-        BLACK_STAINED_GLASS_PANE,
-        PRISMARINE,
-        PRISMARINE_BRICKS,
-        DARK_PRISMARINE,
-        PRISMARINE_STAIRS,
-        PRISMARINE_BRICK_STAIRS,
-        DARK_PRISMARINE_STAIRS,
-        SEA_LANTERN,
-        RED_SANDSTONE,
-        CHISELED_RED_SANDSTONE,
-        CUT_RED_SANDSTONE,
-        RED_SANDSTONE_STAIRS,
-        REPEATING_COMMAND_BLOCK,
-        CHAIN_COMMAND_BLOCK,
-        MAGMA_BLOCK,
-        NETHER_WART_BLOCK,
-        WARPED_WART_BLOCK,
-        RED_NETHER_BRICKS,
-        BONE_BLOCK,
-        STRUCTURE_VOID,
-        SHULKER_BOX,
-        WHITE_SHULKER_BOX,
-        ORANGE_SHULKER_BOX,
-        MAGENTA_SHULKER_BOX,
-        LIGHT_BLUE_SHULKER_BOX,
-        YELLOW_SHULKER_BOX,
-        LIME_SHULKER_BOX,
-        PINK_SHULKER_BOX,
-        GRAY_SHULKER_BOX,
-        LIGHT_GRAY_SHULKER_BOX,
-        CYAN_SHULKER_BOX,
-        PURPLE_SHULKER_BOX,
-        BLUE_SHULKER_BOX,
-        BROWN_SHULKER_BOX,
-        GREEN_SHULKER_BOX,
-        RED_SHULKER_BOX,
-        BLACK_SHULKER_BOX,
-        WHITE_GLAZED_TERRACOTTA,
-        ORANGE_GLAZED_TERRACOTTA,
-        MAGENTA_GLAZED_TERRACOTTA,
-        LIGHT_BLUE_GLAZED_TERRACOTTA,
-        YELLOW_GLAZED_TERRACOTTA,
-        LIME_GLAZED_TERRACOTTA,
-        PINK_GLAZED_TERRACOTTA,
-        GRAY_GLAZED_TERRACOTTA,
-        LIGHT_GRAY_GLAZED_TERRACOTTA,
-        CYAN_GLAZED_TERRACOTTA,
-        PURPLE_GLAZED_TERRACOTTA,
-        BLUE_GLAZED_TERRACOTTA,
-        BROWN_GLAZED_TERRACOTTA,
-        GREEN_GLAZED_TERRACOTTA,
-        RED_GLAZED_TERRACOTTA,
-        BLACK_GLAZED_TERRACOTTA,
-        WHITE_CONCRETE,
-        ORANGE_CONCRETE,
-        MAGENTA_CONCRETE,
-        LIGHT_BLUE_CONCRETE,
-        YELLOW_CONCRETE,
-        LIME_CONCRETE,
-        PINK_CONCRETE,
-        GRAY_CONCRETE,
-        LIGHT_GRAY_CONCRETE,
-        CYAN_CONCRETE,
-        PURPLE_CONCRETE,
-        BLUE_CONCRETE,
-        BROWN_CONCRETE,
-        GREEN_CONCRETE,
-        RED_CONCRETE,
-        BLACK_CONCRETE,
-        WHITE_CONCRETE_POWDER,
-        ORANGE_CONCRETE_POWDER,
-        MAGENTA_CONCRETE_POWDER,
-        LIGHT_BLUE_CONCRETE_POWDER,
-        YELLOW_CONCRETE_POWDER,
-        LIME_CONCRETE_POWDER,
-        PINK_CONCRETE_POWDER,
-        GRAY_CONCRETE_POWDER,
-        LIGHT_GRAY_CONCRETE_POWDER,
-        CYAN_CONCRETE_POWDER,
-        PURPLE_CONCRETE_POWDER,
-        BLUE_CONCRETE_POWDER,
-        BROWN_CONCRETE_POWDER,
-        GREEN_CONCRETE_POWDER,
-        RED_CONCRETE_POWDER,
-        BLACK_CONCRETE_POWDER,
-        TURTLE_EGG,
-        SNIFFER_EGG,
-        DRIED_GHAST,
-        DEAD_TUBE_CORAL_BLOCK,
-        DEAD_BRAIN_CORAL_BLOCK,
-        DEAD_BUBBLE_CORAL_BLOCK,
-        DEAD_FIRE_CORAL_BLOCK,
-        DEAD_HORN_CORAL_BLOCK,
-        TUBE_CORAL_BLOCK,
-        BRAIN_CORAL_BLOCK,
-        BUBBLE_CORAL_BLOCK,
-        FIRE_CORAL_BLOCK,
-        HORN_CORAL_BLOCK,
-        TUBE_CORAL,
-        BRAIN_CORAL,
-        BUBBLE_CORAL,
-        FIRE_CORAL,
-        HORN_CORAL,
-        DEAD_BRAIN_CORAL,
-        DEAD_BUBBLE_CORAL,
-        DEAD_FIRE_CORAL,
-        DEAD_HORN_CORAL,
-        DEAD_TUBE_CORAL,
-        TUBE_CORAL_FAN,
-        BRAIN_CORAL_FAN,
-        BUBBLE_CORAL_FAN,
-        FIRE_CORAL_FAN,
-        HORN_CORAL_FAN,
-        DEAD_TUBE_CORAL_FAN,
-        DEAD_BRAIN_CORAL_FAN,
-        DEAD_BUBBLE_CORAL_FAN,
-        DEAD_FIRE_CORAL_FAN,
-        DEAD_HORN_CORAL_FAN,
-        BLUE_ICE,
-        CONDUIT,
-        POLISHED_GRANITE_STAIRS,
-        SMOOTH_RED_SANDSTONE_STAIRS,
-        MOSSY_STONE_BRICK_STAIRS,
-        POLISHED_DIORITE_STAIRS,
-        MOSSY_COBBLESTONE_STAIRS,
-        END_STONE_BRICK_STAIRS,
-        STONE_STAIRS,
-        SMOOTH_SANDSTONE_STAIRS,
-        SMOOTH_QUARTZ_STAIRS,
-        GRANITE_STAIRS,
-        ANDESITE_STAIRS,
-        RED_NETHER_BRICK_STAIRS,
-        POLISHED_ANDESITE_STAIRS,
-        DIORITE_STAIRS,
-        COBBLED_DEEPSLATE_STAIRS,
-        POLISHED_DEEPSLATE_STAIRS,
-        DEEPSLATE_BRICK_STAIRS,
-        DEEPSLATE_TILE_STAIRS,
-        POLISHED_GRANITE_SLAB,
-        SMOOTH_RED_SANDSTONE_SLAB,
-        MOSSY_STONE_BRICK_SLAB,
-        POLISHED_DIORITE_SLAB,
-        MOSSY_COBBLESTONE_SLAB,
-        END_STONE_BRICK_SLAB,
-        SMOOTH_SANDSTONE_SLAB,
-        SMOOTH_QUARTZ_SLAB,
-        GRANITE_SLAB,
-        ANDESITE_SLAB,
-        RED_NETHER_BRICK_SLAB,
-        POLISHED_ANDESITE_SLAB,
-        DIORITE_SLAB,
-        COBBLED_DEEPSLATE_SLAB,
-        POLISHED_DEEPSLATE_SLAB,
-        DEEPSLATE_BRICK_SLAB,
-        DEEPSLATE_TILE_SLAB,
-        SCAFFOLDING,
-        REDSTONE,
-        REDSTONE_TORCH,
-        REDSTONE_BLOCK,
-        REPEATER,
-        COMPARATOR,
-        PISTON,
-        STICKY_PISTON,
-        SLIME_BLOCK,
-        HONEY_BLOCK,
-        OBSERVER,
-        HOPPER,
-        DISPENSER,
-        DROPPER,
-        LECTERN,
-        TARGET,
-        LEVER,
-        LIGHTNING_ROD,
-        EXPOSED_LIGHTNING_ROD,
-        WEATHERED_LIGHTNING_ROD,
-        OXIDIZED_LIGHTNING_ROD,
-        WAXED_LIGHTNING_ROD,
-        WAXED_EXPOSED_LIGHTNING_ROD,
-        WAXED_WEATHERED_LIGHTNING_ROD,
-        WAXED_OXIDIZED_LIGHTNING_ROD,
-        DAYLIGHT_DETECTOR,
-        SCULK_SENSOR,
-        CALIBRATED_SCULK_SENSOR,
-        TRIPWIRE_HOOK,
-        TRAPPED_CHEST,
-        TNT,
-        REDSTONE_LAMP,
-        NOTE_BLOCK,
-        STONE_BUTTON,
-        POLISHED_BLACKSTONE_BUTTON,
-        OAK_BUTTON,
-        SPRUCE_BUTTON,
-        BIRCH_BUTTON,
-        JUNGLE_BUTTON,
-        ACACIA_BUTTON,
-        CHERRY_BUTTON,
-        DARK_OAK_BUTTON,
-        PALE_OAK_BUTTON,
-        MANGROVE_BUTTON,
-        BAMBOO_BUTTON,
-        CRIMSON_BUTTON,
-        WARPED_BUTTON,
-        STONE_PRESSURE_PLATE,
-        POLISHED_BLACKSTONE_PRESSURE_PLATE,
-        LIGHT_WEIGHTED_PRESSURE_PLATE,
-        HEAVY_WEIGHTED_PRESSURE_PLATE,
-        OAK_PRESSURE_PLATE,
-        SPRUCE_PRESSURE_PLATE,
-        BIRCH_PRESSURE_PLATE,
-        JUNGLE_PRESSURE_PLATE,
-        ACACIA_PRESSURE_PLATE,
-        CHERRY_PRESSURE_PLATE,
-        DARK_OAK_PRESSURE_PLATE,
-        PALE_OAK_PRESSURE_PLATE,
-        MANGROVE_PRESSURE_PLATE,
-        BAMBOO_PRESSURE_PLATE,
-        CRIMSON_PRESSURE_PLATE,
-        WARPED_PRESSURE_PLATE,
-        IRON_DOOR,
-        OAK_DOOR,
-        SPRUCE_DOOR,
-        BIRCH_DOOR,
-        JUNGLE_DOOR,
-        ACACIA_DOOR,
-        CHERRY_DOOR,
-        DARK_OAK_DOOR,
-        PALE_OAK_DOOR,
-        MANGROVE_DOOR,
-        BAMBOO_DOOR,
-        CRIMSON_DOOR,
-        WARPED_DOOR,
-        COPPER_DOOR,
-        EXPOSED_COPPER_DOOR,
-        WEATHERED_COPPER_DOOR,
-        OXIDIZED_COPPER_DOOR,
-        WAXED_COPPER_DOOR,
-        WAXED_EXPOSED_COPPER_DOOR,
-        WAXED_WEATHERED_COPPER_DOOR,
-        WAXED_OXIDIZED_COPPER_DOOR,
-        IRON_TRAPDOOR,
-        OAK_TRAPDOOR,
-        SPRUCE_TRAPDOOR,
-        BIRCH_TRAPDOOR,
-        JUNGLE_TRAPDOOR,
-        ACACIA_TRAPDOOR,
-        CHERRY_TRAPDOOR,
-        DARK_OAK_TRAPDOOR,
-        PALE_OAK_TRAPDOOR,
-        MANGROVE_TRAPDOOR,
-        BAMBOO_TRAPDOOR,
-        CRIMSON_TRAPDOOR,
-        WARPED_TRAPDOOR,
-        COPPER_TRAPDOOR,
-        EXPOSED_COPPER_TRAPDOOR,
-        WEATHERED_COPPER_TRAPDOOR,
-        OXIDIZED_COPPER_TRAPDOOR,
-        WAXED_COPPER_TRAPDOOR,
-        WAXED_EXPOSED_COPPER_TRAPDOOR,
-        WAXED_WEATHERED_COPPER_TRAPDOOR,
-        WAXED_OXIDIZED_COPPER_TRAPDOOR,
-        OAK_FENCE_GATE,
-        SPRUCE_FENCE_GATE,
-        BIRCH_FENCE_GATE,
-        JUNGLE_FENCE_GATE,
-        ACACIA_FENCE_GATE,
-        CHERRY_FENCE_GATE,
-        DARK_OAK_FENCE_GATE,
-        PALE_OAK_FENCE_GATE,
-        MANGROVE_FENCE_GATE,
-        BAMBOO_FENCE_GATE,
-        CRIMSON_FENCE_GATE,
-        WARPED_FENCE_GATE,
-        POWERED_RAIL,
-        DETECTOR_RAIL,
-        RAIL,
-        ACTIVATOR_RAIL,
-        SADDLE,
-        WHITE_HARNESS,
-        ORANGE_HARNESS,
-        MAGENTA_HARNESS,
-        LIGHT_BLUE_HARNESS,
-        YELLOW_HARNESS,
-        LIME_HARNESS,
-        PINK_HARNESS,
-        GRAY_HARNESS,
-        LIGHT_GRAY_HARNESS,
-        CYAN_HARNESS,
-        PURPLE_HARNESS,
-        BLUE_HARNESS,
-        BROWN_HARNESS,
-        GREEN_HARNESS,
-        RED_HARNESS,
-        BLACK_HARNESS,
-        MINECART,
-        CHEST_MINECART,
-        FURNACE_MINECART,
-        TNT_MINECART,
-        HOPPER_MINECART,
-        CARROT_ON_A_STICK,
-        WARPED_FUNGUS_ON_A_STICK,
-        PHANTOM_MEMBRANE,
-        ELYTRA,
-        OAK_BOAT,
-        OAK_CHEST_BOAT,
-        SPRUCE_BOAT,
-        SPRUCE_CHEST_BOAT,
-        BIRCH_BOAT,
-        BIRCH_CHEST_BOAT,
-        JUNGLE_BOAT,
-        JUNGLE_CHEST_BOAT,
         ACACIA_BOAT,
+        ACACIA_BUTTON,
         ACACIA_CHEST_BOAT,
-        CHERRY_BOAT,
-        CHERRY_CHEST_BOAT,
-        DARK_OAK_BOAT,
-        DARK_OAK_CHEST_BOAT,
-        PALE_OAK_BOAT,
-        PALE_OAK_CHEST_BOAT,
-        MANGROVE_BOAT,
-        MANGROVE_CHEST_BOAT,
-        BAMBOO_RAFT,
-        BAMBOO_CHEST_RAFT,
-        STRUCTURE_BLOCK,
-        JIGSAW,
-        TEST_BLOCK,
-        TEST_INSTANCE_BLOCK,
-        TURTLE_HELMET,
-        TURTLE_SCUTE,
-        ARMADILLO_SCUTE,
-        WOLF_ARMOR,
-        FLINT_AND_STEEL,
-        BOWL,
-        APPLE,
-        BOW,
-        ARROW,
-        COAL,
-        CHARCOAL,
-        DIAMOND,
-        EMERALD,
-        LAPIS_LAZULI,
-        QUARTZ,
-        AMETHYST_SHARD,
-        RAW_IRON,
-        IRON_INGOT,
-        RAW_COPPER,
-        COPPER_INGOT,
-        RAW_GOLD,
-        GOLD_INGOT,
-        NETHERITE_INGOT,
-        NETHERITE_SCRAP,
-        WOODEN_SWORD,
-        WOODEN_SHOVEL,
-        WOODEN_PICKAXE,
-        WOODEN_AXE,
-        WOODEN_HOE,
-        COPPER_SWORD,
-        COPPER_SHOVEL,
-        COPPER_PICKAXE,
-        COPPER_AXE,
-        COPPER_HOE,
-        STONE_SWORD,
-        STONE_SHOVEL,
-        STONE_PICKAXE,
-        STONE_AXE,
-        STONE_HOE,
-        GOLDEN_SWORD,
-        GOLDEN_SHOVEL,
-        GOLDEN_PICKAXE,
-        GOLDEN_AXE,
-        GOLDEN_HOE,
-        IRON_SWORD,
-        IRON_SHOVEL,
-        IRON_PICKAXE,
-        IRON_AXE,
-        IRON_HOE,
-        DIAMOND_SWORD,
-        DIAMOND_SHOVEL,
-        DIAMOND_PICKAXE,
-        DIAMOND_AXE,
-        DIAMOND_HOE,
-        NETHERITE_SWORD,
-        NETHERITE_SHOVEL,
-        NETHERITE_PICKAXE,
-        NETHERITE_AXE,
-        NETHERITE_HOE,
-        STICK,
-        MUSHROOM_STEW,
-        STRING,
-        FEATHER,
-        GUNPOWDER,
-        WHEAT_SEEDS,
-        WHEAT,
-        BREAD,
-        LEATHER_HELMET,
-        LEATHER_CHESTPLATE,
-        LEATHER_LEGGINGS,
-        LEATHER_BOOTS,
-        COPPER_HELMET,
-        COPPER_CHESTPLATE,
-        COPPER_LEGGINGS,
-        COPPER_BOOTS,
-        CHAINMAIL_HELMET,
-        CHAINMAIL_CHESTPLATE,
-        CHAINMAIL_LEGGINGS,
-        CHAINMAIL_BOOTS,
-        IRON_HELMET,
-        IRON_CHESTPLATE,
-        IRON_LEGGINGS,
-        IRON_BOOTS,
-        DIAMOND_HELMET,
-        DIAMOND_CHESTPLATE,
-        DIAMOND_LEGGINGS,
-        DIAMOND_BOOTS,
-        GOLDEN_HELMET,
-        GOLDEN_CHESTPLATE,
-        GOLDEN_LEGGINGS,
-        GOLDEN_BOOTS,
-        NETHERITE_HELMET,
-        NETHERITE_CHESTPLATE,
-        NETHERITE_LEGGINGS,
-        NETHERITE_BOOTS,
-        FLINT,
-        PORKCHOP,
-        COOKED_PORKCHOP,
-        PAINTING,
-        GOLDEN_APPLE,
-        ENCHANTED_GOLDEN_APPLE,
-        OAK_SIGN,
-        SPRUCE_SIGN,
-        BIRCH_SIGN,
-        JUNGLE_SIGN,
-        ACACIA_SIGN,
-        CHERRY_SIGN,
-        DARK_OAK_SIGN,
-        PALE_OAK_SIGN,
-        MANGROVE_SIGN,
-        BAMBOO_SIGN,
-        CRIMSON_SIGN,
-        WARPED_SIGN,
-        OAK_HANGING_SIGN,
-        SPRUCE_HANGING_SIGN,
-        BIRCH_HANGING_SIGN,
-        JUNGLE_HANGING_SIGN,
+        ACACIA_DOOR,
+        ACACIA_FENCE,
+        ACACIA_FENCE_GATE,
         ACACIA_HANGING_SIGN,
-        CHERRY_HANGING_SIGN,
-        DARK_OAK_HANGING_SIGN,
-        PALE_OAK_HANGING_SIGN,
-        MANGROVE_HANGING_SIGN,
-        BAMBOO_HANGING_SIGN,
-        CRIMSON_HANGING_SIGN,
-        WARPED_HANGING_SIGN,
-        BUCKET,
-        WATER_BUCKET,
-        LAVA_BUCKET,
-        POWDER_SNOW_BUCKET,
-        SNOWBALL,
-        LEATHER,
-        MILK_BUCKET,
-        PUFFERFISH_BUCKET,
-        SALMON_BUCKET,
-        COD_BUCKET,
-        TROPICAL_FISH_BUCKET,
-        AXOLOTL_BUCKET,
-        SULFUR_CUBE_BUCKET,
-        TADPOLE_BUCKET,
-        BRICK,
-        CLAY_BALL,
-        DRIED_KELP_BLOCK,
-        PAPER,
-        BOOK,
-        SLIME_BALL,
-        EGG,
-        BLUE_EGG,
-        BROWN_EGG,
-        COMPASS,
-        RECOVERY_COMPASS,
-        BUNDLE,
-        WHITE_BUNDLE,
-        ORANGE_BUNDLE,
-        MAGENTA_BUNDLE,
-        LIGHT_BLUE_BUNDLE,
-        YELLOW_BUNDLE,
-        LIME_BUNDLE,
-        PINK_BUNDLE,
-        GRAY_BUNDLE,
-        LIGHT_GRAY_BUNDLE,
-        CYAN_BUNDLE,
-        PURPLE_BUNDLE,
-        BLUE_BUNDLE,
-        BROWN_BUNDLE,
-        GREEN_BUNDLE,
-        RED_BUNDLE,
-        BLACK_BUNDLE,
-        FISHING_ROD,
-        CLOCK,
-        SPYGLASS,
-        GLOWSTONE_DUST,
-        COD,
-        SALMON,
-        TROPICAL_FISH,
-        PUFFERFISH,
-        COOKED_COD,
-        COOKED_SALMON,
-        INK_SAC,
-        GLOW_INK_SAC,
-        COCOA_BEANS,
-        WHITE_DYE,
-        ORANGE_DYE,
-        MAGENTA_DYE,
-        LIGHT_BLUE_DYE,
-        YELLOW_DYE,
-        LIME_DYE,
-        PINK_DYE,
-        GRAY_DYE,
-        LIGHT_GRAY_DYE,
-        CYAN_DYE,
-        PURPLE_DYE,
-        BLUE_DYE,
-        BROWN_DYE,
-        GREEN_DYE,
-        RED_DYE,
-        BLACK_DYE,
-        BONE_MEAL,
-        BONE,
-        SUGAR,
-        CAKE,
-        WHITE_BED,
-        ORANGE_BED,
-        MAGENTA_BED,
-        LIGHT_BLUE_BED,
-        YELLOW_BED,
-        LIME_BED,
-        PINK_BED,
-        GRAY_BED,
-        LIGHT_GRAY_BED,
-        CYAN_BED,
-        PURPLE_BED,
-        BLUE_BED,
-        BROWN_BED,
-        GREEN_BED,
-        RED_BED,
-        BLACK_BED,
-        COOKIE,
-        CRAFTER,
-        FILLED_MAP,
-        SHEARS,
-        MELON_SLICE,
-        DRIED_KELP,
-        PUMPKIN_SEEDS,
-        MELON_SEEDS,
-        BEEF,
-        COOKED_BEEF,
-        CHICKEN,
-        COOKED_CHICKEN,
-        ROTTEN_FLESH,
-        ENDER_PEARL,
-        BLAZE_ROD,
-        GHAST_TEAR,
-        GOLD_NUGGET,
-        NETHER_WART,
-        GLASS_BOTTLE,
-        POTION,
-        SPIDER_EYE,
-        FERMENTED_SPIDER_EYE,
-        BLAZE_POWDER,
-        MAGMA_CREAM,
-        BREWING_STAND,
-        CAULDRON,
-        ENDER_EYE,
-        GLISTERING_MELON_SLICE,
-        CHICKEN_SPAWN_EGG,
-        COW_SPAWN_EGG,
-        PIG_SPAWN_EGG,
-        SHEEP_SPAWN_EGG,
-        CAMEL_SPAWN_EGG,
-        DONKEY_SPAWN_EGG,
-        HORSE_SPAWN_EGG,
-        MULE_SPAWN_EGG,
-        CAT_SPAWN_EGG,
-        PARROT_SPAWN_EGG,
-        WOLF_SPAWN_EGG,
-        ARMADILLO_SPAWN_EGG,
-        BAT_SPAWN_EGG,
-        BEE_SPAWN_EGG,
-        FOX_SPAWN_EGG,
-        GOAT_SPAWN_EGG,
-        LLAMA_SPAWN_EGG,
-        OCELOT_SPAWN_EGG,
-        PANDA_SPAWN_EGG,
-        POLAR_BEAR_SPAWN_EGG,
-        RABBIT_SPAWN_EGG,
-        AXOLOTL_SPAWN_EGG,
-        COD_SPAWN_EGG,
-        DOLPHIN_SPAWN_EGG,
-        FROG_SPAWN_EGG,
-        GLOW_SQUID_SPAWN_EGG,
-        NAUTILUS_SPAWN_EGG,
-        PUFFERFISH_SPAWN_EGG,
-        SALMON_SPAWN_EGG,
-        SQUID_SPAWN_EGG,
-        TADPOLE_SPAWN_EGG,
-        TROPICAL_FISH_SPAWN_EGG,
-        TURTLE_SPAWN_EGG,
+        ACACIA_LEAVES,
+        ACACIA_LOG,
+        ACACIA_PLANKS,
+        ACACIA_PRESSURE_PLATE,
+        ACACIA_SAPLING,
+        ACACIA_SHELF,
+        ACACIA_SIGN,
+        ACACIA_SLAB,
+        ACACIA_STAIRS,
+        ACACIA_TRAPDOOR,
+        ACACIA_WOOD,
+        ACTIVATOR_RAIL,
+        AIR,
         ALLAY_SPAWN_EGG,
-        MOOSHROOM_SPAWN_EGG,
-        SNIFFER_SPAWN_EGG,
-        SULFUR_CUBE_SPAWN_EGG,
-        COPPER_GOLEM_SPAWN_EGG,
-        IRON_GOLEM_SPAWN_EGG,
-        SNOW_GOLEM_SPAWN_EGG,
-        TRADER_LLAMA_SPAWN_EGG,
-        VILLAGER_SPAWN_EGG,
-        WANDERING_TRADER_SPAWN_EGG,
-        BOGGED_SPAWN_EGG,
-        CAMEL_HUSK_SPAWN_EGG,
-        DROWNED_SPAWN_EGG,
-        HUSK_SPAWN_EGG,
-        PARCHED_SPAWN_EGG,
-        SKELETON_SPAWN_EGG,
-        SKELETON_HORSE_SPAWN_EGG,
-        STRAY_SPAWN_EGG,
-        WITHER_SPAWN_EGG,
-        WITHER_SKELETON_SPAWN_EGG,
-        ZOMBIE_SPAWN_EGG,
-        ZOMBIE_HORSE_SPAWN_EGG,
-        ZOMBIE_NAUTILUS_SPAWN_EGG,
-        ZOMBIE_VILLAGER_SPAWN_EGG,
-        CAVE_SPIDER_SPAWN_EGG,
-        SPIDER_SPAWN_EGG,
-        BREEZE_SPAWN_EGG,
-        CREAKING_SPAWN_EGG,
-        CREEPER_SPAWN_EGG,
-        ELDER_GUARDIAN_SPAWN_EGG,
-        GUARDIAN_SPAWN_EGG,
-        PHANTOM_SPAWN_EGG,
-        SILVERFISH_SPAWN_EGG,
-        SLIME_SPAWN_EGG,
-        WARDEN_SPAWN_EGG,
-        WITCH_SPAWN_EGG,
-        EVOKER_SPAWN_EGG,
-        PILLAGER_SPAWN_EGG,
-        RAVAGER_SPAWN_EGG,
-        VINDICATOR_SPAWN_EGG,
-        VEX_SPAWN_EGG,
-        BLAZE_SPAWN_EGG,
-        GHAST_SPAWN_EGG,
-        HAPPY_GHAST_SPAWN_EGG,
-        HOGLIN_SPAWN_EGG,
-        MAGMA_CUBE_SPAWN_EGG,
-        PIGLIN_SPAWN_EGG,
-        PIGLIN_BRUTE_SPAWN_EGG,
-        STRIDER_SPAWN_EGG,
-        ZOGLIN_SPAWN_EGG,
-        ZOMBIFIED_PIGLIN_SPAWN_EGG,
-        ENDER_DRAGON_SPAWN_EGG,
-        ENDERMAN_SPAWN_EGG,
-        ENDERMITE_SPAWN_EGG,
-        SHULKER_SPAWN_EGG,
-        EXPERIENCE_BOTTLE,
-        FIRE_CHARGE,
-        WIND_CHARGE,
-        WRITABLE_BOOK,
-        WRITTEN_BOOK,
-        BREEZE_ROD,
-        MACE,
-        ITEM_FRAME,
-        GLOW_ITEM_FRAME,
-        FLOWER_POT,
-        CARROT,
-        POTATO,
-        BAKED_POTATO,
-        POISONOUS_POTATO,
-        MAP,
-        GOLDEN_CARROT,
-        SKELETON_SKULL,
-        WITHER_SKELETON_SKULL,
-        PLAYER_HEAD,
-        ZOMBIE_HEAD,
-        CREEPER_HEAD,
-        DRAGON_HEAD,
-        PIGLIN_HEAD,
-        NETHER_STAR,
-        PUMPKIN_PIE,
-        FIREWORK_ROCKET,
-        FIREWORK_STAR,
-        ENCHANTED_BOOK,
-        NETHER_BRICK,
-        RESIN_BRICK,
-        PRISMARINE_SHARD,
-        PRISMARINE_CRYSTALS,
-        RABBIT,
-        COOKED_RABBIT,
-        RABBIT_STEW,
-        RABBIT_FOOT,
-        RABBIT_HIDE,
+        ALLIUM,
+        AMETHYST_BLOCK,
+        AMETHYST_CLUSTER,
+        AMETHYST_SHARD,
+        ANCIENT_DEBRIS,
+        ANDESITE,
+        ANDESITE_SLAB,
+        ANDESITE_STAIRS,
+        ANDESITE_WALL,
+        ANGLER_POTTERY_SHERD,
+        ANVIL,
+        APPLE,
+        ARCHER_POTTERY_SHERD,
+        ARMADILLO_SCUTE,
+        ARMADILLO_SPAWN_EGG,
         ARMOR_STAND,
-        COPPER_HORSE_ARMOR,
-        IRON_HORSE_ARMOR,
-        GOLDEN_HORSE_ARMOR,
-        DIAMOND_HORSE_ARMOR,
-        NETHERITE_HORSE_ARMOR,
-        LEATHER_HORSE_ARMOR,
-        LEAD,
-        NAME_TAG,
-        COMMAND_BLOCK_MINECART,
-        MUTTON,
-        COOKED_MUTTON,
-        WHITE_BANNER,
-        ORANGE_BANNER,
-        MAGENTA_BANNER,
-        LIGHT_BLUE_BANNER,
-        YELLOW_BANNER,
-        LIME_BANNER,
-        PINK_BANNER,
-        GRAY_BANNER,
-        LIGHT_GRAY_BANNER,
-        CYAN_BANNER,
-        PURPLE_BANNER,
-        BLUE_BANNER,
-        BROWN_BANNER,
-        GREEN_BANNER,
-        RED_BANNER,
-        BLACK_BANNER,
-        END_CRYSTAL,
-        CHORUS_FRUIT,
-        POPPED_CHORUS_FRUIT,
-        TORCHFLOWER_SEEDS,
-        PITCHER_POD,
+        ARMS_UP_POTTERY_SHERD,
+        ARROW,
+        AXOLOTL_BUCKET,
+        AXOLOTL_SPAWN_EGG,
+        AZALEA,
+        AZALEA_LEAVES,
+        AZURE_BLUET,
+        BAKED_POTATO,
+        BAMBOO,
+        BAMBOO_BLOCK,
+        BAMBOO_BUTTON,
+        BAMBOO_CHEST_RAFT,
+        BAMBOO_DOOR,
+        BAMBOO_FENCE,
+        BAMBOO_FENCE_GATE,
+        BAMBOO_HANGING_SIGN,
+        BAMBOO_MOSAIC,
+        BAMBOO_MOSAIC_SLAB,
+        BAMBOO_MOSAIC_STAIRS,
+        BAMBOO_PLANKS,
+        BAMBOO_PRESSURE_PLATE,
+        BAMBOO_RAFT,
+        BAMBOO_SHELF,
+        BAMBOO_SIGN,
+        BAMBOO_SLAB,
+        BAMBOO_STAIRS,
+        BAMBOO_TRAPDOOR,
+        BARREL,
+        BARRIER,
+        BASALT,
+        BAT_SPAWN_EGG,
+        BEACON,
+        BEDROCK,
+        BEE_NEST,
+        BEE_SPAWN_EGG,
+        BEEF,
+        BEEHIVE,
         BEETROOT,
         BEETROOT_SEEDS,
         BEETROOT_SOUP,
-        DRAGON_BREATH,
-        SPLASH_POTION,
-        SPECTRAL_ARROW,
-        TIPPED_ARROW,
-        LINGERING_POTION,
-        SHIELD,
-        WOODEN_SPEAR,
-        STONE_SPEAR,
-        COPPER_SPEAR,
-        IRON_SPEAR,
-        GOLDEN_SPEAR,
-        DIAMOND_SPEAR,
-        NETHERITE_SPEAR,
-        TOTEM_OF_UNDYING,
-        SHULKER_SHELL,
-        IRON_NUGGET,
+        BELL,
+        BIG_DRIPLEAF,
+        BIRCH_BOAT,
+        BIRCH_BUTTON,
+        BIRCH_CHEST_BOAT,
+        BIRCH_DOOR,
+        BIRCH_FENCE,
+        BIRCH_FENCE_GATE,
+        BIRCH_HANGING_SIGN,
+        BIRCH_LEAVES,
+        BIRCH_LOG,
+        BIRCH_PLANKS,
+        BIRCH_PRESSURE_PLATE,
+        BIRCH_SAPLING,
+        BIRCH_SHELF,
+        BIRCH_SIGN,
+        BIRCH_SLAB,
+        BIRCH_STAIRS,
+        BIRCH_TRAPDOOR,
+        BIRCH_WOOD,
+        BLACK_BANNER,
+        BLACK_BED,
+        BLACK_BUNDLE,
+        BLACK_CANDLE,
+        BLACK_CARPET,
+        BLACK_CONCRETE,
+        BLACK_CONCRETE_POWDER,
+        BLACK_DYE,
+        BLACK_GLAZED_TERRACOTTA,
+        BLACK_HARNESS,
+        BLACK_SHULKER_BOX,
+        BLACK_STAINED_GLASS,
+        BLACK_STAINED_GLASS_PANE,
+        BLACK_TERRACOTTA,
+        BLACK_WOOL,
+        BLACKSTONE,
+        BLACKSTONE_SLAB,
+        BLACKSTONE_STAIRS,
+        BLACKSTONE_WALL,
+        BLADE_POTTERY_SHERD,
+        BLAST_FURNACE,
+        BLAZE_POWDER,
+        BLAZE_ROD,
+        BLAZE_SPAWN_EGG,
+        BLUE_BANNER,
+        BLUE_BED,
+        BLUE_BUNDLE,
+        BLUE_CANDLE,
+        BLUE_CARPET,
+        BLUE_CONCRETE,
+        BLUE_CONCRETE_POWDER,
+        BLUE_DYE,
+        BLUE_EGG,
+        BLUE_GLAZED_TERRACOTTA,
+        BLUE_HARNESS,
+        BLUE_ICE,
+        BLUE_ORCHID,
+        BLUE_SHULKER_BOX,
+        BLUE_STAINED_GLASS,
+        BLUE_STAINED_GLASS_PANE,
+        BLUE_TERRACOTTA,
+        BLUE_WOOL,
+        BOGGED_SPAWN_EGG,
+        BOLT_ARMOR_TRIM_SMITHING_TEMPLATE,
+        BONE,
+        BONE_BLOCK,
+        BONE_MEAL,
+        BOOK,
+        BOOKSHELF,
+        BORDURE_INDENTED_BANNER_PATTERN,
+        BOW,
+        BOWL,
+        BRAIN_CORAL,
+        BRAIN_CORAL_BLOCK,
+        BRAIN_CORAL_FAN,
+        BREAD,
+        BREEZE_ROD,
+        BREEZE_SPAWN_EGG,
+        BREWER_POTTERY_SHERD,
+        BREWING_STAND,
+        BRICK,
+        BRICK_SLAB,
+        BRICK_STAIRS,
+        BRICK_WALL,
+        BRICKS,
+        BROWN_BANNER,
+        BROWN_BED,
+        BROWN_BUNDLE,
+        BROWN_CANDLE,
+        BROWN_CARPET,
+        BROWN_CONCRETE,
+        BROWN_CONCRETE_POWDER,
+        BROWN_DYE,
+        BROWN_EGG,
+        BROWN_GLAZED_TERRACOTTA,
+        BROWN_HARNESS,
+        BROWN_MUSHROOM,
+        BROWN_MUSHROOM_BLOCK,
+        BROWN_SHULKER_BOX,
+        BROWN_STAINED_GLASS,
+        BROWN_STAINED_GLASS_PANE,
+        BROWN_TERRACOTTA,
+        BROWN_WOOL,
+        BRUSH,
+        BUBBLE_CORAL,
+        BUBBLE_CORAL_BLOCK,
+        BUBBLE_CORAL_FAN,
+        BUCKET,
+        BUDDING_AMETHYST,
+        BUNDLE,
+        BURN_POTTERY_SHERD,
+        BUSH,
+        CACTUS,
+        CACTUS_FLOWER,
+        CAKE,
+        CALCITE,
+        CALIBRATED_SCULK_SENSOR,
+        CAMEL_HUSK_SPAWN_EGG,
+        CAMEL_SPAWN_EGG,
+        CAMPFIRE,
+        CANDLE,
+        CARROT,
+        CARROT_ON_A_STICK,
+        CARTOGRAPHY_TABLE,
+        CARVED_PUMPKIN,
+        CAT_SPAWN_EGG,
+        CAULDRON,
+        CAVE_SPIDER_SPAWN_EGG,
+        CHAIN_COMMAND_BLOCK,
+        CHAINMAIL_BOOTS,
+        CHAINMAIL_CHESTPLATE,
+        CHAINMAIL_HELMET,
+        CHAINMAIL_LEGGINGS,
+        CHARCOAL,
+        CHERRY_BOAT,
+        CHERRY_BUTTON,
+        CHERRY_CHEST_BOAT,
+        CHERRY_DOOR,
+        CHERRY_FENCE,
+        CHERRY_FENCE_GATE,
+        CHERRY_HANGING_SIGN,
+        CHERRY_LEAVES,
+        CHERRY_LOG,
+        CHERRY_PLANKS,
+        CHERRY_PRESSURE_PLATE,
+        CHERRY_SAPLING,
+        CHERRY_SHELF,
+        CHERRY_SIGN,
+        CHERRY_SLAB,
+        CHERRY_STAIRS,
+        CHERRY_TRAPDOOR,
+        CHERRY_WOOD,
+        CHEST,
+        CHEST_MINECART,
+        CHICKEN,
+        CHICKEN_SPAWN_EGG,
+        CHIPPED_ANVIL,
+        CHISELED_BOOKSHELF,
+        CHISELED_CINNABAR,
+        CHISELED_COPPER,
+        CHISELED_DEEPSLATE,
+        CHISELED_NETHER_BRICKS,
+        CHISELED_POLISHED_BLACKSTONE,
+        CHISELED_QUARTZ_BLOCK,
+        CHISELED_RED_SANDSTONE,
+        CHISELED_RESIN_BRICKS,
+        CHISELED_SANDSTONE,
+        CHISELED_STONE_BRICKS,
+        CHISELED_SULFUR,
+        CHISELED_TUFF,
+        CHISELED_TUFF_BRICKS,
+        CHORUS_FLOWER,
+        CHORUS_FRUIT,
+        CHORUS_PLANT,
+        CINNABAR,
+        CINNABAR_BRICK_SLAB,
+        CINNABAR_BRICK_STAIRS,
+        CINNABAR_BRICK_WALL,
+        CINNABAR_BRICKS,
+        CINNABAR_SLAB,
+        CINNABAR_STAIRS,
+        CINNABAR_WALL,
+        CLAY,
+        CLAY_BALL,
+        CLOCK,
+        CLOSED_EYEBLOSSOM,
+        COAL,
+        COAL_BLOCK,
+        COAL_ORE,
+        COARSE_DIRT,
+        COAST_ARMOR_TRIM_SMITHING_TEMPLATE,
+        COBBLED_DEEPSLATE,
+        COBBLED_DEEPSLATE_SLAB,
+        COBBLED_DEEPSLATE_STAIRS,
+        COBBLED_DEEPSLATE_WALL,
+        COBBLESTONE,
+        COBBLESTONE_SLAB,
+        COBBLESTONE_STAIRS,
+        COBBLESTONE_WALL,
+        COBWEB,
+        COCOA_BEANS,
+        COD,
+        COD_BUCKET,
+        COD_SPAWN_EGG,
+        COMMAND_BLOCK,
+        COMMAND_BLOCK_MINECART,
+        COMPARATOR,
+        COMPASS,
+        COMPOSTER,
+        CONDUIT,
+        COOKED_BEEF,
+        COOKED_CHICKEN,
+        COOKED_COD,
+        COOKED_MUTTON,
+        COOKED_PORKCHOP,
+        COOKED_RABBIT,
+        COOKED_SALMON,
+        COOKIE,
+        COPPER_AXE,
+        COPPER_BARS,
+        COPPER_BLOCK,
+        COPPER_BOOTS,
+        COPPER_BULB,
+        COPPER_CHAIN,
+        COPPER_CHEST,
+        COPPER_CHESTPLATE,
+        COPPER_DOOR,
+        COPPER_GOLEM_SPAWN_EGG,
+        COPPER_GOLEM_STATUE,
+        COPPER_GRATE,
+        COPPER_HELMET,
+        COPPER_HOE,
+        COPPER_HORSE_ARMOR,
+        COPPER_INGOT,
+        COPPER_LANTERN,
+        COPPER_LEGGINGS,
+        COPPER_NAUTILUS_ARMOR,
         COPPER_NUGGET,
-        KNOWLEDGE_BOOK,
+        COPPER_ORE,
+        COPPER_PICKAXE,
+        COPPER_SHOVEL,
+        COPPER_SPEAR,
+        COPPER_SWORD,
+        COPPER_TORCH,
+        COPPER_TRAPDOOR,
+        CORNFLOWER,
+        COW_SPAWN_EGG,
+        CRACKED_DEEPSLATE_BRICKS,
+        CRACKED_DEEPSLATE_TILES,
+        CRACKED_NETHER_BRICKS,
+        CRACKED_POLISHED_BLACKSTONE_BRICKS,
+        CRACKED_STONE_BRICKS,
+        CRAFTER,
+        CRAFTING_TABLE,
+        CREAKING_HEART,
+        CREAKING_SPAWN_EGG,
+        CREEPER_BANNER_PATTERN,
+        CREEPER_HEAD,
+        CREEPER_SPAWN_EGG,
+        CRIMSON_BUTTON,
+        CRIMSON_DOOR,
+        CRIMSON_FENCE,
+        CRIMSON_FENCE_GATE,
+        CRIMSON_FUNGUS,
+        CRIMSON_HANGING_SIGN,
+        CRIMSON_HYPHAE,
+        CRIMSON_NYLIUM,
+        CRIMSON_PLANKS,
+        CRIMSON_PRESSURE_PLATE,
+        CRIMSON_ROOTS,
+        CRIMSON_SHELF,
+        CRIMSON_SIGN,
+        CRIMSON_SLAB,
+        CRIMSON_STAIRS,
+        CRIMSON_STEM,
+        CRIMSON_TRAPDOOR,
+        CROSSBOW,
+        CRYING_OBSIDIAN,
+        CUT_COPPER,
+        CUT_COPPER_SLAB,
+        CUT_COPPER_STAIRS,
+        CUT_RED_SANDSTONE,
+        CUT_RED_SANDSTONE_SLAB,
+        CUT_SANDSTONE,
+        CUT_SANDSTONE_SLAB,
+        CYAN_BANNER,
+        CYAN_BED,
+        CYAN_BUNDLE,
+        CYAN_CANDLE,
+        CYAN_CARPET,
+        CYAN_CONCRETE,
+        CYAN_CONCRETE_POWDER,
+        CYAN_DYE,
+        CYAN_GLAZED_TERRACOTTA,
+        CYAN_HARNESS,
+        CYAN_SHULKER_BOX,
+        CYAN_STAINED_GLASS,
+        CYAN_STAINED_GLASS_PANE,
+        CYAN_TERRACOTTA,
+        CYAN_WOOL,
+        DAMAGED_ANVIL,
+        DANDELION,
+        DANGER_POTTERY_SHERD,
+        DARK_OAK_BOAT,
+        DARK_OAK_BUTTON,
+        DARK_OAK_CHEST_BOAT,
+        DARK_OAK_DOOR,
+        DARK_OAK_FENCE,
+        DARK_OAK_FENCE_GATE,
+        DARK_OAK_HANGING_SIGN,
+        DARK_OAK_LEAVES,
+        DARK_OAK_LOG,
+        DARK_OAK_PLANKS,
+        DARK_OAK_PRESSURE_PLATE,
+        DARK_OAK_SAPLING,
+        DARK_OAK_SHELF,
+        DARK_OAK_SIGN,
+        DARK_OAK_SLAB,
+        DARK_OAK_STAIRS,
+        DARK_OAK_TRAPDOOR,
+        DARK_OAK_WOOD,
+        DARK_PRISMARINE,
+        DARK_PRISMARINE_SLAB,
+        DARK_PRISMARINE_STAIRS,
+        DAYLIGHT_DETECTOR,
+        DEAD_BRAIN_CORAL,
+        DEAD_BRAIN_CORAL_BLOCK,
+        DEAD_BRAIN_CORAL_FAN,
+        DEAD_BUBBLE_CORAL,
+        DEAD_BUBBLE_CORAL_BLOCK,
+        DEAD_BUBBLE_CORAL_FAN,
+        DEAD_BUSH,
+        DEAD_FIRE_CORAL,
+        DEAD_FIRE_CORAL_BLOCK,
+        DEAD_FIRE_CORAL_FAN,
+        DEAD_HORN_CORAL,
+        DEAD_HORN_CORAL_BLOCK,
+        DEAD_HORN_CORAL_FAN,
+        DEAD_TUBE_CORAL,
+        DEAD_TUBE_CORAL_BLOCK,
+        DEAD_TUBE_CORAL_FAN,
         DEBUG_STICK,
+        DECORATED_POT,
+        DEEPSLATE,
+        DEEPSLATE_BRICK_SLAB,
+        DEEPSLATE_BRICK_STAIRS,
+        DEEPSLATE_BRICK_WALL,
+        DEEPSLATE_BRICKS,
+        DEEPSLATE_COAL_ORE,
+        DEEPSLATE_COPPER_ORE,
+        DEEPSLATE_DIAMOND_ORE,
+        DEEPSLATE_EMERALD_ORE,
+        DEEPSLATE_GOLD_ORE,
+        DEEPSLATE_IRON_ORE,
+        DEEPSLATE_LAPIS_ORE,
+        DEEPSLATE_REDSTONE_ORE,
+        DEEPSLATE_TILE_SLAB,
+        DEEPSLATE_TILE_STAIRS,
+        DEEPSLATE_TILE_WALL,
+        DEEPSLATE_TILES,
+        DETECTOR_RAIL,
+        DIAMOND,
+        DIAMOND_AXE,
+        DIAMOND_BLOCK,
+        DIAMOND_BOOTS,
+        DIAMOND_CHESTPLATE,
+        DIAMOND_HELMET,
+        DIAMOND_HOE,
+        DIAMOND_HORSE_ARMOR,
+        DIAMOND_LEGGINGS,
+        DIAMOND_NAUTILUS_ARMOR,
+        DIAMOND_ORE,
+        DIAMOND_PICKAXE,
+        DIAMOND_SHOVEL,
+        DIAMOND_SPEAR,
+        DIAMOND_SWORD,
+        DIORITE,
+        DIORITE_SLAB,
+        DIORITE_STAIRS,
+        DIORITE_WALL,
+        DIRT,
+        DIRT_PATH,
+        DISC_FRAGMENT_5,
+        DISPENSER,
+        DOLPHIN_SPAWN_EGG,
+        DONKEY_SPAWN_EGG,
+        DRAGON_BREATH,
+        DRAGON_EGG,
+        DRAGON_HEAD,
+        DRIED_GHAST,
+        DRIED_KELP,
+        DRIED_KELP_BLOCK,
+        DRIPSTONE_BLOCK,
+        DROPPER,
+        DROWNED_SPAWN_EGG,
+        DUNE_ARMOR_TRIM_SMITHING_TEMPLATE,
+        ECHO_SHARD,
+        EGG,
+        ELDER_GUARDIAN_SPAWN_EGG,
+        ELYTRA,
+        EMERALD,
+        EMERALD_BLOCK,
+        EMERALD_ORE,
+        ENCHANTED_BOOK,
+        ENCHANTED_GOLDEN_APPLE,
+        ENCHANTING_TABLE,
+        END_CRYSTAL,
+        END_PORTAL_FRAME,
+        END_ROD,
+        END_STONE,
+        END_STONE_BRICK_SLAB,
+        END_STONE_BRICK_STAIRS,
+        END_STONE_BRICK_WALL,
+        END_STONE_BRICKS,
+        ENDER_CHEST,
+        ENDER_DRAGON_SPAWN_EGG,
+        ENDER_EYE,
+        ENDER_PEARL,
+        ENDERMAN_SPAWN_EGG,
+        ENDERMITE_SPAWN_EGG,
+        EVOKER_SPAWN_EGG,
+        EXPERIENCE_BOTTLE,
+        EXPLORER_POTTERY_SHERD,
+        EXPOSED_CHISELED_COPPER,
+        EXPOSED_COPPER,
+        EXPOSED_COPPER_BARS,
+        EXPOSED_COPPER_BULB,
+        EXPOSED_COPPER_CHAIN,
+        EXPOSED_COPPER_CHEST,
+        EXPOSED_COPPER_DOOR,
+        EXPOSED_COPPER_GOLEM_STATUE,
+        EXPOSED_COPPER_GRATE,
+        EXPOSED_COPPER_LANTERN,
+        EXPOSED_COPPER_TRAPDOOR,
+        EXPOSED_CUT_COPPER,
+        EXPOSED_CUT_COPPER_SLAB,
+        EXPOSED_CUT_COPPER_STAIRS,
+        EXPOSED_LIGHTNING_ROD,
+        EYE_ARMOR_TRIM_SMITHING_TEMPLATE,
+        FARMLAND,
+        FEATHER,
+        FERMENTED_SPIDER_EYE,
+        FERN,
+        FIELD_MASONED_BANNER_PATTERN,
+        FILLED_MAP,
+        FIRE_CHARGE,
+        FIRE_CORAL,
+        FIRE_CORAL_BLOCK,
+        FIRE_CORAL_FAN,
+        FIREFLY_BUSH,
+        FIREWORK_ROCKET,
+        FIREWORK_STAR,
+        FISHING_ROD,
+        FLETCHING_TABLE,
+        FLINT,
+        FLINT_AND_STEEL,
+        FLOW_ARMOR_TRIM_SMITHING_TEMPLATE,
+        FLOW_BANNER_PATTERN,
+        FLOW_POTTERY_SHERD,
+        FLOWER_BANNER_PATTERN,
+        FLOWER_POT,
+        FLOWERING_AZALEA,
+        FLOWERING_AZALEA_LEAVES,
+        FOX_SPAWN_EGG,
+        FRIEND_POTTERY_SHERD,
+        FROG_SPAWN_EGG,
+        FROGSPAWN,
+        FURNACE,
+        FURNACE_MINECART,
+        GHAST_SPAWN_EGG,
+        GHAST_TEAR,
+        GILDED_BLACKSTONE,
+        GLASS,
+        GLASS_BOTTLE,
+        GLASS_PANE,
+        GLISTERING_MELON_SLICE,
+        GLOBE_BANNER_PATTERN,
+        GLOW_BERRIES,
+        GLOW_INK_SAC,
+        GLOW_ITEM_FRAME,
+        GLOW_LICHEN,
+        GLOW_SQUID_SPAWN_EGG,
+        GLOWSTONE,
+        GLOWSTONE_DUST,
+        GOAT_HORN,
+        GOAT_SPAWN_EGG,
+        GOLD_BLOCK,
+        GOLD_INGOT,
+        GOLD_NUGGET,
+        GOLD_ORE,
+        GOLDEN_APPLE,
+        GOLDEN_AXE,
+        GOLDEN_BOOTS,
+        GOLDEN_CARROT,
+        GOLDEN_CHESTPLATE,
+        GOLDEN_DANDELION,
+        GOLDEN_HELMET,
+        GOLDEN_HOE,
+        GOLDEN_HORSE_ARMOR,
+        GOLDEN_LEGGINGS,
+        GOLDEN_NAUTILUS_ARMOR,
+        GOLDEN_PICKAXE,
+        GOLDEN_SHOVEL,
+        GOLDEN_SPEAR,
+        GOLDEN_SWORD,
+        GRANITE,
+        GRANITE_SLAB,
+        GRANITE_STAIRS,
+        GRANITE_WALL,
+        GRASS_BLOCK,
+        GRAVEL,
+        GRAY_BANNER,
+        GRAY_BED,
+        GRAY_BUNDLE,
+        GRAY_CANDLE,
+        GRAY_CARPET,
+        GRAY_CONCRETE,
+        GRAY_CONCRETE_POWDER,
+        GRAY_DYE,
+        GRAY_GLAZED_TERRACOTTA,
+        GRAY_HARNESS,
+        GRAY_SHULKER_BOX,
+        GRAY_STAINED_GLASS,
+        GRAY_STAINED_GLASS_PANE,
+        GRAY_TERRACOTTA,
+        GRAY_WOOL,
+        GREEN_BANNER,
+        GREEN_BED,
+        GREEN_BUNDLE,
+        GREEN_CANDLE,
+        GREEN_CARPET,
+        GREEN_CONCRETE,
+        GREEN_CONCRETE_POWDER,
+        GREEN_DYE,
+        GREEN_GLAZED_TERRACOTTA,
+        GREEN_HARNESS,
+        GREEN_SHULKER_BOX,
+        GREEN_STAINED_GLASS,
+        GREEN_STAINED_GLASS_PANE,
+        GREEN_TERRACOTTA,
+        GREEN_WOOL,
+        GRINDSTONE,
+        GUARDIAN_SPAWN_EGG,
+        GUNPOWDER,
+        GUSTER_BANNER_PATTERN,
+        GUSTER_POTTERY_SHERD,
+        HANGING_ROOTS,
+        HAPPY_GHAST_SPAWN_EGG,
+        HAY_BLOCK,
+        HEART_OF_THE_SEA,
+        HEART_POTTERY_SHERD,
+        HEARTBREAK_POTTERY_SHERD,
+        HEAVY_CORE,
+        HEAVY_WEIGHTED_PRESSURE_PLATE,
+        HOGLIN_SPAWN_EGG,
+        HONEY_BLOCK,
+        HONEY_BOTTLE,
+        HONEYCOMB,
+        HONEYCOMB_BLOCK,
+        HOPPER,
+        HOPPER_MINECART,
+        HORN_CORAL,
+        HORN_CORAL_BLOCK,
+        HORN_CORAL_FAN,
+        HORSE_SPAWN_EGG,
+        HOST_ARMOR_TRIM_SMITHING_TEMPLATE,
+        HOWL_POTTERY_SHERD,
+        HUSK_SPAWN_EGG,
+        ICE,
+        INFESTED_CHISELED_STONE_BRICKS,
+        INFESTED_COBBLESTONE,
+        INFESTED_CRACKED_STONE_BRICKS,
+        INFESTED_DEEPSLATE,
+        INFESTED_MOSSY_STONE_BRICKS,
+        INFESTED_STONE,
+        INFESTED_STONE_BRICKS,
+        INK_SAC,
+        IRON_AXE,
+        IRON_BARS,
+        IRON_BLOCK,
+        IRON_BOOTS,
+        IRON_CHAIN,
+        IRON_CHESTPLATE,
+        IRON_DOOR,
+        IRON_GOLEM_SPAWN_EGG,
+        IRON_HELMET,
+        IRON_HOE,
+        IRON_HORSE_ARMOR,
+        IRON_INGOT,
+        IRON_LEGGINGS,
+        IRON_NAUTILUS_ARMOR,
+        IRON_NUGGET,
+        IRON_ORE,
+        IRON_PICKAXE,
+        IRON_SHOVEL,
+        IRON_SPEAR,
+        IRON_SWORD,
+        IRON_TRAPDOOR,
+        ITEM_FRAME,
+        JACK_O_LANTERN,
+        JIGSAW,
+        JUKEBOX,
+        JUNGLE_BOAT,
+        JUNGLE_BUTTON,
+        JUNGLE_CHEST_BOAT,
+        JUNGLE_DOOR,
+        JUNGLE_FENCE,
+        JUNGLE_FENCE_GATE,
+        JUNGLE_HANGING_SIGN,
+        JUNGLE_LEAVES,
+        JUNGLE_LOG,
+        JUNGLE_PLANKS,
+        JUNGLE_PRESSURE_PLATE,
+        JUNGLE_SAPLING,
+        JUNGLE_SHELF,
+        JUNGLE_SIGN,
+        JUNGLE_SLAB,
+        JUNGLE_STAIRS,
+        JUNGLE_TRAPDOOR,
+        JUNGLE_WOOD,
+        KELP,
+        KNOWLEDGE_BOOK,
+        LADDER,
+        LANTERN,
+        LAPIS_BLOCK,
+        LAPIS_LAZULI,
+        LAPIS_ORE,
+        LARGE_AMETHYST_BUD,
+        LARGE_FERN,
+        LAVA_BUCKET,
+        LEAD,
+        LEAF_LITTER,
+        LEATHER,
+        LEATHER_BOOTS,
+        LEATHER_CHESTPLATE,
+        LEATHER_HELMET,
+        LEATHER_HORSE_ARMOR,
+        LEATHER_LEGGINGS,
+        LECTERN,
+        LEVER,
+        LIGHT,
+        LIGHT_BLUE_BANNER,
+        LIGHT_BLUE_BED,
+        LIGHT_BLUE_BUNDLE,
+        LIGHT_BLUE_CANDLE,
+        LIGHT_BLUE_CARPET,
+        LIGHT_BLUE_CONCRETE,
+        LIGHT_BLUE_CONCRETE_POWDER,
+        LIGHT_BLUE_DYE,
+        LIGHT_BLUE_GLAZED_TERRACOTTA,
+        LIGHT_BLUE_HARNESS,
+        LIGHT_BLUE_SHULKER_BOX,
+        LIGHT_BLUE_STAINED_GLASS,
+        LIGHT_BLUE_STAINED_GLASS_PANE,
+        LIGHT_BLUE_TERRACOTTA,
+        LIGHT_BLUE_WOOL,
+        LIGHT_GRAY_BANNER,
+        LIGHT_GRAY_BED,
+        LIGHT_GRAY_BUNDLE,
+        LIGHT_GRAY_CANDLE,
+        LIGHT_GRAY_CARPET,
+        LIGHT_GRAY_CONCRETE,
+        LIGHT_GRAY_CONCRETE_POWDER,
+        LIGHT_GRAY_DYE,
+        LIGHT_GRAY_GLAZED_TERRACOTTA,
+        LIGHT_GRAY_HARNESS,
+        LIGHT_GRAY_SHULKER_BOX,
+        LIGHT_GRAY_STAINED_GLASS,
+        LIGHT_GRAY_STAINED_GLASS_PANE,
+        LIGHT_GRAY_TERRACOTTA,
+        LIGHT_GRAY_WOOL,
+        LIGHT_WEIGHTED_PRESSURE_PLATE,
+        LIGHTNING_ROD,
+        LILAC,
+        LILY_OF_THE_VALLEY,
+        LILY_PAD,
+        LIME_BANNER,
+        LIME_BED,
+        LIME_BUNDLE,
+        LIME_CANDLE,
+        LIME_CARPET,
+        LIME_CONCRETE,
+        LIME_CONCRETE_POWDER,
+        LIME_DYE,
+        LIME_GLAZED_TERRACOTTA,
+        LIME_HARNESS,
+        LIME_SHULKER_BOX,
+        LIME_STAINED_GLASS,
+        LIME_STAINED_GLASS_PANE,
+        LIME_TERRACOTTA,
+        LIME_WOOL,
+        LINGERING_POTION,
+        LLAMA_SPAWN_EGG,
+        LODESTONE,
+        LOOM,
+        MACE,
+        MAGENTA_BANNER,
+        MAGENTA_BED,
+        MAGENTA_BUNDLE,
+        MAGENTA_CANDLE,
+        MAGENTA_CARPET,
+        MAGENTA_CONCRETE,
+        MAGENTA_CONCRETE_POWDER,
+        MAGENTA_DYE,
+        MAGENTA_GLAZED_TERRACOTTA,
+        MAGENTA_HARNESS,
+        MAGENTA_SHULKER_BOX,
+        MAGENTA_STAINED_GLASS,
+        MAGENTA_STAINED_GLASS_PANE,
+        MAGENTA_TERRACOTTA,
+        MAGENTA_WOOL,
+        MAGMA_BLOCK,
+        MAGMA_CREAM,
+        MAGMA_CUBE_SPAWN_EGG,
+        MANGROVE_BOAT,
+        MANGROVE_BUTTON,
+        MANGROVE_CHEST_BOAT,
+        MANGROVE_DOOR,
+        MANGROVE_FENCE,
+        MANGROVE_FENCE_GATE,
+        MANGROVE_HANGING_SIGN,
+        MANGROVE_LEAVES,
+        MANGROVE_LOG,
+        MANGROVE_PLANKS,
+        MANGROVE_PRESSURE_PLATE,
+        MANGROVE_PROPAGULE,
+        MANGROVE_ROOTS,
+        MANGROVE_SHELF,
+        MANGROVE_SIGN,
+        MANGROVE_SLAB,
+        MANGROVE_STAIRS,
+        MANGROVE_TRAPDOOR,
+        MANGROVE_WOOD,
+        MAP,
+        MEDIUM_AMETHYST_BUD,
+        MELON,
+        MELON_SEEDS,
+        MELON_SLICE,
+        MILK_BUCKET,
+        MINECART,
+        MINER_POTTERY_SHERD,
+        MOJANG_BANNER_PATTERN,
+        MOOSHROOM_SPAWN_EGG,
+        MOSS_BLOCK,
+        MOSS_CARPET,
+        MOSSY_COBBLESTONE,
+        MOSSY_COBBLESTONE_SLAB,
+        MOSSY_COBBLESTONE_STAIRS,
+        MOSSY_COBBLESTONE_WALL,
+        MOSSY_STONE_BRICK_SLAB,
+        MOSSY_STONE_BRICK_STAIRS,
+        MOSSY_STONE_BRICK_WALL,
+        MOSSY_STONE_BRICKS,
+        MOURNER_POTTERY_SHERD,
+        MUD,
+        MUD_BRICK_SLAB,
+        MUD_BRICK_STAIRS,
+        MUD_BRICK_WALL,
+        MUD_BRICKS,
+        MUDDY_MANGROVE_ROOTS,
+        MULE_SPAWN_EGG,
+        MUSHROOM_STEM,
+        MUSHROOM_STEW,
+        MUSIC_DISC_11,
         MUSIC_DISC_13,
-        MUSIC_DISC_CAT,
+        MUSIC_DISC_5,
         MUSIC_DISC_BLOCKS,
         MUSIC_DISC_BOUNCE,
+        MUSIC_DISC_CAT,
         MUSIC_DISC_CHIRP,
         MUSIC_DISC_CREATOR,
         MUSIC_DISC_CREATOR_MUSIC_BOX,
@@ -9052,423 +8550,690 @@ public final class ItemKeys {
         MUSIC_DISC_LAVA_CHICKEN,
         MUSIC_DISC_MALL,
         MUSIC_DISC_MELLOHI,
-        MUSIC_DISC_STAL,
-        MUSIC_DISC_STRAD,
-        MUSIC_DISC_WARD,
-        MUSIC_DISC_11,
-        MUSIC_DISC_WAIT,
         MUSIC_DISC_OTHERSIDE,
-        MUSIC_DISC_RELIC,
-        MUSIC_DISC_5,
         MUSIC_DISC_PIGSTEP,
         MUSIC_DISC_PRECIPICE,
+        MUSIC_DISC_RELIC,
+        MUSIC_DISC_STAL,
+        MUSIC_DISC_STRAD,
         MUSIC_DISC_TEARS,
-        DISC_FRAGMENT_5,
-        TRIDENT,
+        MUSIC_DISC_WAIT,
+        MUSIC_DISC_WARD,
+        MUTTON,
+        MYCELIUM,
+        NAME_TAG,
         NAUTILUS_SHELL,
-        IRON_NAUTILUS_ARMOR,
-        GOLDEN_NAUTILUS_ARMOR,
-        DIAMOND_NAUTILUS_ARMOR,
+        NAUTILUS_SPAWN_EGG,
+        NETHER_BRICK,
+        NETHER_BRICK_FENCE,
+        NETHER_BRICK_SLAB,
+        NETHER_BRICK_STAIRS,
+        NETHER_BRICK_WALL,
+        NETHER_BRICKS,
+        NETHER_GOLD_ORE,
+        NETHER_QUARTZ_ORE,
+        NETHER_SPROUTS,
+        NETHER_STAR,
+        NETHER_WART,
+        NETHER_WART_BLOCK,
+        NETHERITE_AXE,
+        NETHERITE_BLOCK,
+        NETHERITE_BOOTS,
+        NETHERITE_CHESTPLATE,
+        NETHERITE_HELMET,
+        NETHERITE_HOE,
+        NETHERITE_HORSE_ARMOR,
+        NETHERITE_INGOT,
+        NETHERITE_LEGGINGS,
         NETHERITE_NAUTILUS_ARMOR,
-        COPPER_NAUTILUS_ARMOR,
-        HEART_OF_THE_SEA,
-        CROSSBOW,
-        SUSPICIOUS_STEW,
-        LOOM,
-        FLOWER_BANNER_PATTERN,
-        CREEPER_BANNER_PATTERN,
-        SKULL_BANNER_PATTERN,
-        MOJANG_BANNER_PATTERN,
-        GLOBE_BANNER_PATTERN,
-        PIGLIN_BANNER_PATTERN,
-        FLOW_BANNER_PATTERN,
-        GUSTER_BANNER_PATTERN,
-        FIELD_MASONED_BANNER_PATTERN,
-        BORDURE_INDENTED_BANNER_PATTERN,
-        GOAT_HORN,
-        COMPOSTER,
-        BARREL,
-        SMOKER,
-        BLAST_FURNACE,
-        CARTOGRAPHY_TABLE,
-        FLETCHING_TABLE,
-        GRINDSTONE,
-        SMITHING_TABLE,
-        STONECUTTER,
-        BELL,
-        LANTERN,
-        SOUL_LANTERN,
-        COPPER_LANTERN,
-        EXPOSED_COPPER_LANTERN,
-        WEATHERED_COPPER_LANTERN,
+        NETHERITE_PICKAXE,
+        NETHERITE_SCRAP,
+        NETHERITE_SHOVEL,
+        NETHERITE_SPEAR,
+        NETHERITE_SWORD,
+        NETHERITE_UPGRADE_SMITHING_TEMPLATE,
+        NETHERRACK,
+        NOTE_BLOCK,
+        OAK_BOAT,
+        OAK_BUTTON,
+        OAK_CHEST_BOAT,
+        OAK_DOOR,
+        OAK_FENCE,
+        OAK_FENCE_GATE,
+        OAK_HANGING_SIGN,
+        OAK_LEAVES,
+        OAK_LOG,
+        OAK_PLANKS,
+        OAK_PRESSURE_PLATE,
+        OAK_SAPLING,
+        OAK_SHELF,
+        OAK_SIGN,
+        OAK_SLAB,
+        OAK_STAIRS,
+        OAK_TRAPDOOR,
+        OAK_WOOD,
+        OBSERVER,
+        OBSIDIAN,
+        OCELOT_SPAWN_EGG,
+        OCHRE_FROGLIGHT,
+        OMINOUS_BOTTLE,
+        OMINOUS_TRIAL_KEY,
+        OPEN_EYEBLOSSOM,
+        ORANGE_BANNER,
+        ORANGE_BED,
+        ORANGE_BUNDLE,
+        ORANGE_CANDLE,
+        ORANGE_CARPET,
+        ORANGE_CONCRETE,
+        ORANGE_CONCRETE_POWDER,
+        ORANGE_DYE,
+        ORANGE_GLAZED_TERRACOTTA,
+        ORANGE_HARNESS,
+        ORANGE_SHULKER_BOX,
+        ORANGE_STAINED_GLASS,
+        ORANGE_STAINED_GLASS_PANE,
+        ORANGE_TERRACOTTA,
+        ORANGE_TULIP,
+        ORANGE_WOOL,
+        OXEYE_DAISY,
+        OXIDIZED_CHISELED_COPPER,
+        OXIDIZED_COPPER,
+        OXIDIZED_COPPER_BARS,
+        OXIDIZED_COPPER_BULB,
+        OXIDIZED_COPPER_CHAIN,
+        OXIDIZED_COPPER_CHEST,
+        OXIDIZED_COPPER_DOOR,
+        OXIDIZED_COPPER_GOLEM_STATUE,
+        OXIDIZED_COPPER_GRATE,
         OXIDIZED_COPPER_LANTERN,
-        WAXED_COPPER_LANTERN,
-        WAXED_EXPOSED_COPPER_LANTERN,
-        WAXED_WEATHERED_COPPER_LANTERN,
-        WAXED_OXIDIZED_COPPER_LANTERN,
-        SWEET_BERRIES,
-        GLOW_BERRIES,
-        CAMPFIRE,
-        SOUL_CAMPFIRE,
-        SHROOMLIGHT,
-        HONEYCOMB,
-        BEE_NEST,
-        BEEHIVE,
-        HONEY_BOTTLE,
-        HONEYCOMB_BLOCK,
-        LODESTONE,
-        CRYING_OBSIDIAN,
-        BLACKSTONE,
-        BLACKSTONE_SLAB,
-        BLACKSTONE_STAIRS,
-        GILDED_BLACKSTONE,
+        OXIDIZED_COPPER_TRAPDOOR,
+        OXIDIZED_CUT_COPPER,
+        OXIDIZED_CUT_COPPER_SLAB,
+        OXIDIZED_CUT_COPPER_STAIRS,
+        OXIDIZED_LIGHTNING_ROD,
+        PACKED_ICE,
+        PACKED_MUD,
+        PAINTING,
+        PALE_HANGING_MOSS,
+        PALE_MOSS_BLOCK,
+        PALE_MOSS_CARPET,
+        PALE_OAK_BOAT,
+        PALE_OAK_BUTTON,
+        PALE_OAK_CHEST_BOAT,
+        PALE_OAK_DOOR,
+        PALE_OAK_FENCE,
+        PALE_OAK_FENCE_GATE,
+        PALE_OAK_HANGING_SIGN,
+        PALE_OAK_LEAVES,
+        PALE_OAK_LOG,
+        PALE_OAK_PLANKS,
+        PALE_OAK_PRESSURE_PLATE,
+        PALE_OAK_SAPLING,
+        PALE_OAK_SHELF,
+        PALE_OAK_SIGN,
+        PALE_OAK_SLAB,
+        PALE_OAK_STAIRS,
+        PALE_OAK_TRAPDOOR,
+        PALE_OAK_WOOD,
+        PANDA_SPAWN_EGG,
+        PAPER,
+        PARCHED_SPAWN_EGG,
+        PARROT_SPAWN_EGG,
+        PEARLESCENT_FROGLIGHT,
+        PEONY,
+        PETRIFIED_OAK_SLAB,
+        PHANTOM_MEMBRANE,
+        PHANTOM_SPAWN_EGG,
+        PIG_SPAWN_EGG,
+        PIGLIN_BANNER_PATTERN,
+        PIGLIN_BRUTE_SPAWN_EGG,
+        PIGLIN_HEAD,
+        PIGLIN_SPAWN_EGG,
+        PILLAGER_SPAWN_EGG,
+        PINK_BANNER,
+        PINK_BED,
+        PINK_BUNDLE,
+        PINK_CANDLE,
+        PINK_CARPET,
+        PINK_CONCRETE,
+        PINK_CONCRETE_POWDER,
+        PINK_DYE,
+        PINK_GLAZED_TERRACOTTA,
+        PINK_HARNESS,
+        PINK_PETALS,
+        PINK_SHULKER_BOX,
+        PINK_STAINED_GLASS,
+        PINK_STAINED_GLASS_PANE,
+        PINK_TERRACOTTA,
+        PINK_TULIP,
+        PINK_WOOL,
+        PISTON,
+        PITCHER_PLANT,
+        PITCHER_POD,
+        PLAYER_HEAD,
+        PLENTY_POTTERY_SHERD,
+        PODZOL,
+        POINTED_DRIPSTONE,
+        POISONOUS_POTATO,
+        POLAR_BEAR_SPAWN_EGG,
+        POLISHED_ANDESITE,
+        POLISHED_ANDESITE_SLAB,
+        POLISHED_ANDESITE_STAIRS,
+        POLISHED_BASALT,
         POLISHED_BLACKSTONE,
-        POLISHED_BLACKSTONE_SLAB,
-        POLISHED_BLACKSTONE_STAIRS,
-        CHISELED_POLISHED_BLACKSTONE,
-        POLISHED_BLACKSTONE_BRICKS,
         POLISHED_BLACKSTONE_BRICK_SLAB,
         POLISHED_BLACKSTONE_BRICK_STAIRS,
-        CRACKED_POLISHED_BLACKSTONE_BRICKS,
-        RESPAWN_ANCHOR,
-        CANDLE,
-        WHITE_CANDLE,
-        ORANGE_CANDLE,
-        MAGENTA_CANDLE,
-        LIGHT_BLUE_CANDLE,
-        YELLOW_CANDLE,
-        LIME_CANDLE,
-        PINK_CANDLE,
-        GRAY_CANDLE,
-        LIGHT_GRAY_CANDLE,
-        CYAN_CANDLE,
-        PURPLE_CANDLE,
-        BLUE_CANDLE,
-        BROWN_CANDLE,
-        GREEN_CANDLE,
-        RED_CANDLE,
-        BLACK_CANDLE,
-        SMALL_AMETHYST_BUD,
-        MEDIUM_AMETHYST_BUD,
-        LARGE_AMETHYST_BUD,
-        AMETHYST_CLUSTER,
-        POINTED_DRIPSTONE,
-        SULFUR_SPIKE,
-        OCHRE_FROGLIGHT,
-        VERDANT_FROGLIGHT,
-        PEARLESCENT_FROGLIGHT,
-        FROGSPAWN,
-        ECHO_SHARD,
-        BRUSH,
-        NETHERITE_UPGRADE_SMITHING_TEMPLATE,
-        SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE,
-        DUNE_ARMOR_TRIM_SMITHING_TEMPLATE,
-        COAST_ARMOR_TRIM_SMITHING_TEMPLATE,
-        WILD_ARMOR_TRIM_SMITHING_TEMPLATE,
-        WARD_ARMOR_TRIM_SMITHING_TEMPLATE,
-        EYE_ARMOR_TRIM_SMITHING_TEMPLATE,
-        VEX_ARMOR_TRIM_SMITHING_TEMPLATE,
-        TIDE_ARMOR_TRIM_SMITHING_TEMPLATE,
-        SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE,
-        RIB_ARMOR_TRIM_SMITHING_TEMPLATE,
-        SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE,
-        WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE,
-        SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE,
-        SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE,
-        RAISER_ARMOR_TRIM_SMITHING_TEMPLATE,
-        HOST_ARMOR_TRIM_SMITHING_TEMPLATE,
-        FLOW_ARMOR_TRIM_SMITHING_TEMPLATE,
-        BOLT_ARMOR_TRIM_SMITHING_TEMPLATE,
-        ANGLER_POTTERY_SHERD,
-        ARCHER_POTTERY_SHERD,
-        ARMS_UP_POTTERY_SHERD,
-        BLADE_POTTERY_SHERD,
-        BREWER_POTTERY_SHERD,
-        BURN_POTTERY_SHERD,
-        DANGER_POTTERY_SHERD,
-        EXPLORER_POTTERY_SHERD,
-        FLOW_POTTERY_SHERD,
-        FRIEND_POTTERY_SHERD,
-        GUSTER_POTTERY_SHERD,
-        HEART_POTTERY_SHERD,
-        HEARTBREAK_POTTERY_SHERD,
-        HOWL_POTTERY_SHERD,
-        MINER_POTTERY_SHERD,
-        MOURNER_POTTERY_SHERD,
-        PLENTY_POTTERY_SHERD,
+        POLISHED_BLACKSTONE_BRICK_WALL,
+        POLISHED_BLACKSTONE_BRICKS,
+        POLISHED_BLACKSTONE_BUTTON,
+        POLISHED_BLACKSTONE_PRESSURE_PLATE,
+        POLISHED_BLACKSTONE_SLAB,
+        POLISHED_BLACKSTONE_STAIRS,
+        POLISHED_BLACKSTONE_WALL,
+        POLISHED_CINNABAR,
+        POLISHED_CINNABAR_SLAB,
+        POLISHED_CINNABAR_STAIRS,
+        POLISHED_CINNABAR_WALL,
+        POLISHED_DEEPSLATE,
+        POLISHED_DEEPSLATE_SLAB,
+        POLISHED_DEEPSLATE_STAIRS,
+        POLISHED_DEEPSLATE_WALL,
+        POLISHED_DIORITE,
+        POLISHED_DIORITE_SLAB,
+        POLISHED_DIORITE_STAIRS,
+        POLISHED_GRANITE,
+        POLISHED_GRANITE_SLAB,
+        POLISHED_GRANITE_STAIRS,
+        POLISHED_SULFUR,
+        POLISHED_SULFUR_SLAB,
+        POLISHED_SULFUR_STAIRS,
+        POLISHED_SULFUR_WALL,
+        POLISHED_TUFF,
+        POLISHED_TUFF_SLAB,
+        POLISHED_TUFF_STAIRS,
+        POLISHED_TUFF_WALL,
+        POPPED_CHORUS_FRUIT,
+        POPPY,
+        PORKCHOP,
+        POTATO,
+        POTENT_SULFUR,
+        POTION,
+        POWDER_SNOW_BUCKET,
+        POWERED_RAIL,
+        PRISMARINE,
+        PRISMARINE_BRICK_SLAB,
+        PRISMARINE_BRICK_STAIRS,
+        PRISMARINE_BRICKS,
+        PRISMARINE_CRYSTALS,
+        PRISMARINE_SHARD,
+        PRISMARINE_SLAB,
+        PRISMARINE_STAIRS,
+        PRISMARINE_WALL,
         PRIZE_POTTERY_SHERD,
+        PUFFERFISH,
+        PUFFERFISH_BUCKET,
+        PUFFERFISH_SPAWN_EGG,
+        PUMPKIN,
+        PUMPKIN_PIE,
+        PUMPKIN_SEEDS,
+        PURPLE_BANNER,
+        PURPLE_BED,
+        PURPLE_BUNDLE,
+        PURPLE_CANDLE,
+        PURPLE_CARPET,
+        PURPLE_CONCRETE,
+        PURPLE_CONCRETE_POWDER,
+        PURPLE_DYE,
+        PURPLE_GLAZED_TERRACOTTA,
+        PURPLE_HARNESS,
+        PURPLE_SHULKER_BOX,
+        PURPLE_STAINED_GLASS,
+        PURPLE_STAINED_GLASS_PANE,
+        PURPLE_TERRACOTTA,
+        PURPLE_WOOL,
+        PURPUR_BLOCK,
+        PURPUR_PILLAR,
+        PURPUR_SLAB,
+        PURPUR_STAIRS,
+        QUARTZ,
+        QUARTZ_BLOCK,
+        QUARTZ_BRICKS,
+        QUARTZ_PILLAR,
+        QUARTZ_SLAB,
+        QUARTZ_STAIRS,
+        RABBIT,
+        RABBIT_FOOT,
+        RABBIT_HIDE,
+        RABBIT_SPAWN_EGG,
+        RABBIT_STEW,
+        RAIL,
+        RAISER_ARMOR_TRIM_SMITHING_TEMPLATE,
+        RAVAGER_SPAWN_EGG,
+        RAW_COPPER,
+        RAW_COPPER_BLOCK,
+        RAW_GOLD,
+        RAW_GOLD_BLOCK,
+        RAW_IRON,
+        RAW_IRON_BLOCK,
+        RECOVERY_COMPASS,
+        RED_BANNER,
+        RED_BED,
+        RED_BUNDLE,
+        RED_CANDLE,
+        RED_CARPET,
+        RED_CONCRETE,
+        RED_CONCRETE_POWDER,
+        RED_DYE,
+        RED_GLAZED_TERRACOTTA,
+        RED_HARNESS,
+        RED_MUSHROOM,
+        RED_MUSHROOM_BLOCK,
+        RED_NETHER_BRICK_SLAB,
+        RED_NETHER_BRICK_STAIRS,
+        RED_NETHER_BRICK_WALL,
+        RED_NETHER_BRICKS,
+        RED_SAND,
+        RED_SANDSTONE,
+        RED_SANDSTONE_SLAB,
+        RED_SANDSTONE_STAIRS,
+        RED_SANDSTONE_WALL,
+        RED_SHULKER_BOX,
+        RED_STAINED_GLASS,
+        RED_STAINED_GLASS_PANE,
+        RED_TERRACOTTA,
+        RED_TULIP,
+        RED_WOOL,
+        REDSTONE,
+        REDSTONE_BLOCK,
+        REDSTONE_LAMP,
+        REDSTONE_ORE,
+        REDSTONE_TORCH,
+        REINFORCED_DEEPSLATE,
+        REPEATER,
+        REPEATING_COMMAND_BLOCK,
+        RESIN_BLOCK,
+        RESIN_BRICK,
+        RESIN_BRICK_SLAB,
+        RESIN_BRICK_STAIRS,
+        RESIN_BRICK_WALL,
+        RESIN_BRICKS,
+        RESIN_CLUMP,
+        RESPAWN_ANCHOR,
+        RIB_ARMOR_TRIM_SMITHING_TEMPLATE,
+        ROOTED_DIRT,
+        ROSE_BUSH,
+        ROTTEN_FLESH,
+        SADDLE,
+        SALMON,
+        SALMON_BUCKET,
+        SALMON_SPAWN_EGG,
+        SAND,
+        SANDSTONE,
+        SANDSTONE_SLAB,
+        SANDSTONE_STAIRS,
+        SANDSTONE_WALL,
+        SCAFFOLDING,
         SCRAPE_POTTERY_SHERD,
+        SCULK,
+        SCULK_CATALYST,
+        SCULK_SENSOR,
+        SCULK_SHRIEKER,
+        SCULK_VEIN,
+        SEA_LANTERN,
+        SEA_PICKLE,
+        SEAGRASS,
+        SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE,
+        SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE,
         SHEAF_POTTERY_SHERD,
+        SHEARS,
+        SHEEP_SPAWN_EGG,
         SHELTER_POTTERY_SHERD,
+        SHIELD,
+        SHORT_DRY_GRASS,
+        SHORT_GRASS,
+        SHROOMLIGHT,
+        SHULKER_BOX,
+        SHULKER_SHELL,
+        SHULKER_SPAWN_EGG,
+        SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE,
+        SILVERFISH_SPAWN_EGG,
+        SKELETON_HORSE_SPAWN_EGG,
+        SKELETON_SKULL,
+        SKELETON_SPAWN_EGG,
+        SKULL_BANNER_PATTERN,
         SKULL_POTTERY_SHERD,
+        SLIME_BALL,
+        SLIME_BLOCK,
+        SLIME_SPAWN_EGG,
+        SMALL_AMETHYST_BUD,
+        SMALL_DRIPLEAF,
+        SMITHING_TABLE,
+        SMOKER,
+        SMOOTH_BASALT,
+        SMOOTH_QUARTZ,
+        SMOOTH_QUARTZ_SLAB,
+        SMOOTH_QUARTZ_STAIRS,
+        SMOOTH_RED_SANDSTONE,
+        SMOOTH_RED_SANDSTONE_SLAB,
+        SMOOTH_RED_SANDSTONE_STAIRS,
+        SMOOTH_SANDSTONE,
+        SMOOTH_SANDSTONE_SLAB,
+        SMOOTH_SANDSTONE_STAIRS,
+        SMOOTH_STONE,
+        SMOOTH_STONE_SLAB,
+        SNIFFER_EGG,
+        SNIFFER_SPAWN_EGG,
         SNORT_POTTERY_SHERD,
-        COPPER_GRATE,
-        EXPOSED_COPPER_GRATE,
-        WEATHERED_COPPER_GRATE,
-        OXIDIZED_COPPER_GRATE,
-        WAXED_COPPER_GRATE,
-        WAXED_EXPOSED_COPPER_GRATE,
-        WAXED_WEATHERED_COPPER_GRATE,
-        WAXED_OXIDIZED_COPPER_GRATE,
-        COPPER_BULB,
-        EXPOSED_COPPER_BULB,
-        WEATHERED_COPPER_BULB,
-        OXIDIZED_COPPER_BULB,
-        WAXED_COPPER_BULB,
-        WAXED_EXPOSED_COPPER_BULB,
-        WAXED_WEATHERED_COPPER_BULB,
-        WAXED_OXIDIZED_COPPER_BULB,
-        COPPER_CHEST,
-        EXPOSED_COPPER_CHEST,
-        WEATHERED_COPPER_CHEST,
-        OXIDIZED_COPPER_CHEST,
-        WAXED_COPPER_CHEST,
-        WAXED_EXPOSED_COPPER_CHEST,
-        WAXED_WEATHERED_COPPER_CHEST,
-        WAXED_OXIDIZED_COPPER_CHEST,
-        COPPER_GOLEM_STATUE,
-        EXPOSED_COPPER_GOLEM_STATUE,
-        WEATHERED_COPPER_GOLEM_STATUE,
-        OXIDIZED_COPPER_GOLEM_STATUE,
-        WAXED_COPPER_GOLEM_STATUE,
-        WAXED_EXPOSED_COPPER_GOLEM_STATUE,
-        WAXED_WEATHERED_COPPER_GOLEM_STATUE,
-        WAXED_OXIDIZED_COPPER_GOLEM_STATUE,
-        TRIAL_SPAWNER,
+        SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE,
+        SNOW,
+        SNOW_BLOCK,
+        SNOW_GOLEM_SPAWN_EGG,
+        SNOWBALL,
+        SOUL_CAMPFIRE,
+        SOUL_LANTERN,
+        SOUL_SAND,
+        SOUL_SOIL,
+        SOUL_TORCH,
+        SPAWNER,
+        SPECTRAL_ARROW,
+        SPIDER_EYE,
+        SPIDER_SPAWN_EGG,
+        SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE,
+        SPLASH_POTION,
+        SPONGE,
+        SPORE_BLOSSOM,
+        SPRUCE_BOAT,
+        SPRUCE_BUTTON,
+        SPRUCE_CHEST_BOAT,
+        SPRUCE_DOOR,
+        SPRUCE_FENCE,
+        SPRUCE_FENCE_GATE,
+        SPRUCE_HANGING_SIGN,
+        SPRUCE_LEAVES,
+        SPRUCE_LOG,
+        SPRUCE_PLANKS,
+        SPRUCE_PRESSURE_PLATE,
+        SPRUCE_SAPLING,
+        SPRUCE_SHELF,
+        SPRUCE_SIGN,
+        SPRUCE_SLAB,
+        SPRUCE_STAIRS,
+        SPRUCE_TRAPDOOR,
+        SPRUCE_WOOD,
+        SPYGLASS,
+        SQUID_SPAWN_EGG,
+        STICK,
+        STICKY_PISTON,
+        STONE,
+        STONE_AXE,
+        STONE_BRICK_SLAB,
+        STONE_BRICK_STAIRS,
+        STONE_BRICK_WALL,
+        STONE_BRICKS,
+        STONE_BUTTON,
+        STONE_HOE,
+        STONE_PICKAXE,
+        STONE_PRESSURE_PLATE,
+        STONE_SHOVEL,
+        STONE_SLAB,
+        STONE_SPEAR,
+        STONE_STAIRS,
+        STONE_SWORD,
+        STONECUTTER,
+        STRAY_SPAWN_EGG,
+        STRIDER_SPAWN_EGG,
+        STRING,
+        STRIPPED_ACACIA_LOG,
+        STRIPPED_ACACIA_WOOD,
+        STRIPPED_BAMBOO_BLOCK,
+        STRIPPED_BIRCH_LOG,
+        STRIPPED_BIRCH_WOOD,
+        STRIPPED_CHERRY_LOG,
+        STRIPPED_CHERRY_WOOD,
+        STRIPPED_CRIMSON_HYPHAE,
+        STRIPPED_CRIMSON_STEM,
+        STRIPPED_DARK_OAK_LOG,
+        STRIPPED_DARK_OAK_WOOD,
+        STRIPPED_JUNGLE_LOG,
+        STRIPPED_JUNGLE_WOOD,
+        STRIPPED_MANGROVE_LOG,
+        STRIPPED_MANGROVE_WOOD,
+        STRIPPED_OAK_LOG,
+        STRIPPED_OAK_WOOD,
+        STRIPPED_PALE_OAK_LOG,
+        STRIPPED_PALE_OAK_WOOD,
+        STRIPPED_SPRUCE_LOG,
+        STRIPPED_SPRUCE_WOOD,
+        STRIPPED_WARPED_HYPHAE,
+        STRIPPED_WARPED_STEM,
+        STRUCTURE_BLOCK,
+        STRUCTURE_VOID,
+        SUGAR,
+        SUGAR_CANE,
+        SULFUR,
+        SULFUR_BRICK_SLAB,
+        SULFUR_BRICK_STAIRS,
+        SULFUR_BRICK_WALL,
+        SULFUR_BRICKS,
+        SULFUR_CUBE_BUCKET,
+        SULFUR_CUBE_SPAWN_EGG,
+        SULFUR_SLAB,
+        SULFUR_SPIKE,
+        SULFUR_STAIRS,
+        SULFUR_WALL,
+        SUNFLOWER,
+        SUSPICIOUS_GRAVEL,
+        SUSPICIOUS_SAND,
+        SUSPICIOUS_STEW,
+        SWEET_BERRIES,
+        TADPOLE_BUCKET,
+        TADPOLE_SPAWN_EGG,
+        TALL_DRY_GRASS,
+        TALL_GRASS,
+        TARGET,
+        TERRACOTTA,
+        TEST_BLOCK,
+        TEST_INSTANCE_BLOCK,
+        TIDE_ARMOR_TRIM_SMITHING_TEMPLATE,
+        TINTED_GLASS,
+        TIPPED_ARROW,
+        TNT,
+        TNT_MINECART,
+        TORCH,
+        TORCHFLOWER,
+        TORCHFLOWER_SEEDS,
+        TOTEM_OF_UNDYING,
+        TRADER_LLAMA_SPAWN_EGG,
+        TRAPPED_CHEST,
         TRIAL_KEY,
-        OMINOUS_TRIAL_KEY,
+        TRIAL_SPAWNER,
+        TRIDENT,
+        TRIPWIRE_HOOK,
+        TROPICAL_FISH,
+        TROPICAL_FISH_BUCKET,
+        TROPICAL_FISH_SPAWN_EGG,
+        TUBE_CORAL,
+        TUBE_CORAL_BLOCK,
+        TUBE_CORAL_FAN,
+        TUFF,
+        TUFF_BRICK_SLAB,
+        TUFF_BRICK_STAIRS,
+        TUFF_BRICK_WALL,
+        TUFF_BRICKS,
+        TUFF_SLAB,
+        TUFF_STAIRS,
+        TUFF_WALL,
+        TURTLE_EGG,
+        TURTLE_HELMET,
+        TURTLE_SCUTE,
+        TURTLE_SPAWN_EGG,
+        TWISTING_VINES,
         VAULT,
-        OMINOUS_BOTTLE
-    );
-
-    /**
-     * Namespaced tag identifier to flattened member entries.
-     */
-    private static final Map<Key, List<Key>> TAGS = Map.ofEntries(
-        Map.entry(Key.key("acacia_logs"), List.of(Key.key("acacia_log"), Key.key("acacia_wood"), Key.key("stripped_acacia_log"), Key.key("stripped_acacia_wood"))),
-        Map.entry(Key.key("anvil"), List.of(Key.key("anvil"), Key.key("chipped_anvil"), Key.key("damaged_anvil"))),
-        Map.entry(Key.key("armadillo_food"), List.of(Key.key("spider_eye"))),
-        Map.entry(Key.key("arrows"), List.of(Key.key("arrow"), Key.key("spectral_arrow"), Key.key("tipped_arrow"))),
-        Map.entry(Key.key("axes"), List.of(Key.key("copper_axe"), Key.key("diamond_axe"), Key.key("golden_axe"), Key.key("iron_axe"), Key.key("netherite_axe"), Key.key("stone_axe"), Key.key("wooden_axe"))),
-        Map.entry(Key.key("axolotl_food"), List.of(Key.key("tropical_fish_bucket"))),
-        Map.entry(Key.key("bamboo_blocks"), List.of(Key.key("bamboo_block"), Key.key("stripped_bamboo_block"))),
-        Map.entry(Key.key("banners"), List.of(Key.key("black_banner"), Key.key("blue_banner"), Key.key("brown_banner"), Key.key("cyan_banner"), Key.key("gray_banner"), Key.key("green_banner"), Key.key("light_blue_banner"), Key.key("light_gray_banner"), Key.key("lime_banner"), Key.key("magenta_banner"), Key.key("orange_banner"), Key.key("pink_banner"), Key.key("purple_banner"), Key.key("red_banner"), Key.key("white_banner"), Key.key("yellow_banner"))),
-        Map.entry(Key.key("bars"), List.of(Key.key("copper_bars"), Key.key("exposed_copper_bars"), Key.key("iron_bars"), Key.key("oxidized_copper_bars"), Key.key("waxed_copper_bars"), Key.key("waxed_exposed_copper_bars"), Key.key("waxed_oxidized_copper_bars"), Key.key("waxed_weathered_copper_bars"), Key.key("weathered_copper_bars"))),
-        Map.entry(Key.key("beacon_payment_items"), List.of(Key.key("diamond"), Key.key("emerald"), Key.key("gold_ingot"), Key.key("iron_ingot"), Key.key("netherite_ingot"))),
-        Map.entry(Key.key("beds"), List.of(Key.key("black_bed"), Key.key("blue_bed"), Key.key("brown_bed"), Key.key("cyan_bed"), Key.key("gray_bed"), Key.key("green_bed"), Key.key("light_blue_bed"), Key.key("light_gray_bed"), Key.key("lime_bed"), Key.key("magenta_bed"), Key.key("orange_bed"), Key.key("pink_bed"), Key.key("purple_bed"), Key.key("red_bed"), Key.key("white_bed"), Key.key("yellow_bed"))),
-        Map.entry(Key.key("bee_food"), List.of(Key.key("allium"), Key.key("azure_bluet"), Key.key("blue_orchid"), Key.key("cactus_flower"), Key.key("cherry_leaves"), Key.key("chorus_flower"), Key.key("cornflower"), Key.key("dandelion"), Key.key("flowering_azalea"), Key.key("flowering_azalea_leaves"), Key.key("lilac"), Key.key("lily_of_the_valley"), Key.key("mangrove_propagule"), Key.key("open_eyeblossom"), Key.key("orange_tulip"), Key.key("oxeye_daisy"), Key.key("peony"), Key.key("pink_petals"), Key.key("pink_tulip"), Key.key("pitcher_plant"), Key.key("poppy"), Key.key("red_tulip"), Key.key("rose_bush"), Key.key("spore_blossom"), Key.key("sunflower"), Key.key("torchflower"), Key.key("white_tulip"), Key.key("wildflowers"), Key.key("wither_rose"))),
-        Map.entry(Key.key("birch_logs"), List.of(Key.key("birch_log"), Key.key("birch_wood"), Key.key("stripped_birch_log"), Key.key("stripped_birch_wood"))),
-        Map.entry(Key.key("boats"), List.of(Key.key("acacia_boat"), Key.key("acacia_chest_boat"), Key.key("bamboo_chest_raft"), Key.key("bamboo_raft"), Key.key("birch_boat"), Key.key("birch_chest_boat"), Key.key("cherry_boat"), Key.key("cherry_chest_boat"), Key.key("dark_oak_boat"), Key.key("dark_oak_chest_boat"), Key.key("jungle_boat"), Key.key("jungle_chest_boat"), Key.key("mangrove_boat"), Key.key("mangrove_chest_boat"), Key.key("oak_boat"), Key.key("oak_chest_boat"), Key.key("pale_oak_boat"), Key.key("pale_oak_chest_boat"), Key.key("spruce_boat"), Key.key("spruce_chest_boat"))),
-        Map.entry(Key.key("book_cloning_target"), List.of(Key.key("writable_book"))),
-        Map.entry(Key.key("bookshelf_books"), List.of(Key.key("book"), Key.key("enchanted_book"), Key.key("knowledge_book"), Key.key("writable_book"), Key.key("written_book"))),
-        Map.entry(Key.key("breaks_decorated_pots"), List.of(Key.key("copper_axe"), Key.key("copper_hoe"), Key.key("copper_pickaxe"), Key.key("copper_shovel"), Key.key("copper_sword"), Key.key("diamond_axe"), Key.key("diamond_hoe"), Key.key("diamond_pickaxe"), Key.key("diamond_shovel"), Key.key("diamond_sword"), Key.key("golden_axe"), Key.key("golden_hoe"), Key.key("golden_pickaxe"), Key.key("golden_shovel"), Key.key("golden_sword"), Key.key("iron_axe"), Key.key("iron_hoe"), Key.key("iron_pickaxe"), Key.key("iron_shovel"), Key.key("iron_sword"), Key.key("mace"), Key.key("netherite_axe"), Key.key("netherite_hoe"), Key.key("netherite_pickaxe"), Key.key("netherite_shovel"), Key.key("netherite_sword"), Key.key("stone_axe"), Key.key("stone_hoe"), Key.key("stone_pickaxe"), Key.key("stone_shovel"), Key.key("stone_sword"), Key.key("trident"), Key.key("wooden_axe"), Key.key("wooden_hoe"), Key.key("wooden_pickaxe"), Key.key("wooden_shovel"), Key.key("wooden_sword"))),
-        Map.entry(Key.key("brewing_fuel"), List.of(Key.key("blaze_powder"))),
-        Map.entry(Key.key("bundles"), List.of(Key.key("black_bundle"), Key.key("blue_bundle"), Key.key("brown_bundle"), Key.key("bundle"), Key.key("cyan_bundle"), Key.key("gray_bundle"), Key.key("green_bundle"), Key.key("light_blue_bundle"), Key.key("light_gray_bundle"), Key.key("lime_bundle"), Key.key("magenta_bundle"), Key.key("orange_bundle"), Key.key("pink_bundle"), Key.key("purple_bundle"), Key.key("red_bundle"), Key.key("white_bundle"), Key.key("yellow_bundle"))),
-        Map.entry(Key.key("buttons"), List.of(Key.key("acacia_button"), Key.key("bamboo_button"), Key.key("birch_button"), Key.key("cherry_button"), Key.key("crimson_button"), Key.key("dark_oak_button"), Key.key("jungle_button"), Key.key("mangrove_button"), Key.key("oak_button"), Key.key("pale_oak_button"), Key.key("polished_blackstone_button"), Key.key("spruce_button"), Key.key("stone_button"), Key.key("warped_button"))),
-        Map.entry(Key.key("camel_food"), List.of(Key.key("cactus"))),
-        Map.entry(Key.key("camel_husk_food"), List.of(Key.key("rabbit_foot"))),
-        Map.entry(Key.key("candles"), List.of(Key.key("black_candle"), Key.key("blue_candle"), Key.key("brown_candle"), Key.key("candle"), Key.key("cyan_candle"), Key.key("gray_candle"), Key.key("green_candle"), Key.key("light_blue_candle"), Key.key("light_gray_candle"), Key.key("lime_candle"), Key.key("magenta_candle"), Key.key("orange_candle"), Key.key("pink_candle"), Key.key("purple_candle"), Key.key("red_candle"), Key.key("white_candle"), Key.key("yellow_candle"))),
-        Map.entry(Key.key("cat_collar_dyes"), List.of(Key.key("black_dye"), Key.key("blue_dye"), Key.key("brown_dye"), Key.key("cyan_dye"), Key.key("gray_dye"), Key.key("green_dye"), Key.key("light_blue_dye"), Key.key("light_gray_dye"), Key.key("lime_dye"), Key.key("magenta_dye"), Key.key("orange_dye"), Key.key("pink_dye"), Key.key("purple_dye"), Key.key("red_dye"), Key.key("white_dye"), Key.key("yellow_dye"))),
-        Map.entry(Key.key("cat_food"), List.of(Key.key("cod"), Key.key("salmon"))),
-        Map.entry(Key.key("cauldron_can_remove_dye"), List.of(Key.key("leather_boots"), Key.key("leather_chestplate"), Key.key("leather_helmet"), Key.key("leather_horse_armor"), Key.key("leather_leggings"), Key.key("wolf_armor"))),
-        Map.entry(Key.key("chains"), List.of(Key.key("copper_chain"), Key.key("exposed_copper_chain"), Key.key("iron_chain"), Key.key("oxidized_copper_chain"), Key.key("waxed_copper_chain"), Key.key("waxed_exposed_copper_chain"), Key.key("waxed_oxidized_copper_chain"), Key.key("waxed_weathered_copper_chain"), Key.key("weathered_copper_chain"))),
-        Map.entry(Key.key("cherry_logs"), List.of(Key.key("cherry_log"), Key.key("cherry_wood"), Key.key("stripped_cherry_log"), Key.key("stripped_cherry_wood"))),
-        Map.entry(Key.key("chest_armor"), List.of(Key.key("chainmail_chestplate"), Key.key("copper_chestplate"), Key.key("diamond_chestplate"), Key.key("golden_chestplate"), Key.key("iron_chestplate"), Key.key("leather_chestplate"), Key.key("netherite_chestplate"))),
-        Map.entry(Key.key("chest_boats"), List.of(Key.key("acacia_chest_boat"), Key.key("bamboo_chest_raft"), Key.key("birch_chest_boat"), Key.key("cherry_chest_boat"), Key.key("dark_oak_chest_boat"), Key.key("jungle_chest_boat"), Key.key("mangrove_chest_boat"), Key.key("oak_chest_boat"), Key.key("pale_oak_chest_boat"), Key.key("spruce_chest_boat"))),
-        Map.entry(Key.key("chicken_food"), List.of(Key.key("beetroot_seeds"), Key.key("melon_seeds"), Key.key("pitcher_pod"), Key.key("pumpkin_seeds"), Key.key("torchflower_seeds"), Key.key("wheat_seeds"))),
-        Map.entry(Key.key("cluster_max_harvestables"), List.of(Key.key("copper_pickaxe"), Key.key("diamond_pickaxe"), Key.key("golden_pickaxe"), Key.key("iron_pickaxe"), Key.key("netherite_pickaxe"), Key.key("stone_pickaxe"), Key.key("wooden_pickaxe"))),
-        Map.entry(Key.key("coal_ores"), List.of(Key.key("coal_ore"), Key.key("deepslate_coal_ore"))),
-        Map.entry(Key.key("coals"), List.of(Key.key("charcoal"), Key.key("coal"))),
-        Map.entry(Key.key("compasses"), List.of(Key.key("compass"), Key.key("recovery_compass"))),
-        Map.entry(Key.key("completes_find_tree_tutorial"), List.of(Key.key("acacia_leaves"), Key.key("acacia_log"), Key.key("acacia_wood"), Key.key("azalea_leaves"), Key.key("birch_leaves"), Key.key("birch_log"), Key.key("birch_wood"), Key.key("cherry_leaves"), Key.key("cherry_log"), Key.key("cherry_wood"), Key.key("crimson_hyphae"), Key.key("crimson_stem"), Key.key("dark_oak_leaves"), Key.key("dark_oak_log"), Key.key("dark_oak_wood"), Key.key("flowering_azalea_leaves"), Key.key("jungle_leaves"), Key.key("jungle_log"), Key.key("jungle_wood"), Key.key("mangrove_leaves"), Key.key("mangrove_log"), Key.key("mangrove_wood"), Key.key("nether_wart_block"), Key.key("oak_leaves"), Key.key("oak_log"), Key.key("oak_wood"), Key.key("pale_oak_leaves"), Key.key("pale_oak_log"), Key.key("pale_oak_wood"), Key.key("spruce_leaves"), Key.key("spruce_log"), Key.key("spruce_wood"), Key.key("stripped_acacia_log"), Key.key("stripped_acacia_wood"), Key.key("stripped_birch_log"), Key.key("stripped_birch_wood"), Key.key("stripped_cherry_log"), Key.key("stripped_cherry_wood"), Key.key("stripped_crimson_hyphae"), Key.key("stripped_crimson_stem"), Key.key("stripped_dark_oak_log"), Key.key("stripped_dark_oak_wood"), Key.key("stripped_jungle_log"), Key.key("stripped_jungle_wood"), Key.key("stripped_mangrove_log"), Key.key("stripped_mangrove_wood"), Key.key("stripped_oak_log"), Key.key("stripped_oak_wood"), Key.key("stripped_pale_oak_log"), Key.key("stripped_pale_oak_wood"), Key.key("stripped_spruce_log"), Key.key("stripped_spruce_wood"), Key.key("stripped_warped_hyphae"), Key.key("stripped_warped_stem"), Key.key("warped_hyphae"), Key.key("warped_stem"), Key.key("warped_wart_block"))),
-        Map.entry(Key.key("concrete"), List.of(Key.key("black_concrete"), Key.key("blue_concrete"), Key.key("brown_concrete"), Key.key("cyan_concrete"), Key.key("gray_concrete"), Key.key("green_concrete"), Key.key("light_blue_concrete"), Key.key("light_gray_concrete"), Key.key("lime_concrete"), Key.key("magenta_concrete"), Key.key("orange_concrete"), Key.key("pink_concrete"), Key.key("purple_concrete"), Key.key("red_concrete"), Key.key("white_concrete"), Key.key("yellow_concrete"))),
-        Map.entry(Key.key("concrete_powders"), List.of(Key.key("black_concrete_powder"), Key.key("blue_concrete_powder"), Key.key("brown_concrete_powder"), Key.key("cyan_concrete_powder"), Key.key("gray_concrete_powder"), Key.key("green_concrete_powder"), Key.key("light_blue_concrete_powder"), Key.key("light_gray_concrete_powder"), Key.key("lime_concrete_powder"), Key.key("magenta_concrete_powder"), Key.key("orange_concrete_powder"), Key.key("pink_concrete_powder"), Key.key("purple_concrete_powder"), Key.key("red_concrete_powder"), Key.key("white_concrete_powder"), Key.key("yellow_concrete_powder"))),
-        Map.entry(Key.key("copper"), List.of(Key.key("copper_block"), Key.key("exposed_copper"), Key.key("oxidized_copper"), Key.key("waxed_copper_block"), Key.key("waxed_exposed_copper"), Key.key("waxed_oxidized_copper"), Key.key("waxed_weathered_copper"), Key.key("weathered_copper"))),
-        Map.entry(Key.key("copper_chests"), List.of(Key.key("copper_chest"), Key.key("exposed_copper_chest"), Key.key("oxidized_copper_chest"), Key.key("waxed_copper_chest"), Key.key("waxed_exposed_copper_chest"), Key.key("waxed_oxidized_copper_chest"), Key.key("waxed_weathered_copper_chest"), Key.key("weathered_copper_chest"))),
-        Map.entry(Key.key("copper_golem_statues"), List.of(Key.key("copper_golem_statue"), Key.key("exposed_copper_golem_statue"), Key.key("oxidized_copper_golem_statue"), Key.key("waxed_copper_golem_statue"), Key.key("waxed_exposed_copper_golem_statue"), Key.key("waxed_oxidized_copper_golem_statue"), Key.key("waxed_weathered_copper_golem_statue"), Key.key("weathered_copper_golem_statue"))),
-        Map.entry(Key.key("copper_ores"), List.of(Key.key("copper_ore"), Key.key("deepslate_copper_ore"))),
-        Map.entry(Key.key("copper_tool_materials"), List.of(Key.key("copper_ingot"))),
-        Map.entry(Key.key("cow_food"), List.of(Key.key("wheat"))),
-        Map.entry(Key.key("creeper_drop_music_discs"), List.of(Key.key("music_disc_11"), Key.key("music_disc_13"), Key.key("music_disc_blocks"), Key.key("music_disc_cat"), Key.key("music_disc_chirp"), Key.key("music_disc_far"), Key.key("music_disc_mall"), Key.key("music_disc_mellohi"), Key.key("music_disc_stal"), Key.key("music_disc_strad"), Key.key("music_disc_wait"), Key.key("music_disc_ward"))),
-        Map.entry(Key.key("creeper_igniters"), List.of(Key.key("fire_charge"), Key.key("flint_and_steel"))),
-        Map.entry(Key.key("crimson_stems"), List.of(Key.key("crimson_hyphae"), Key.key("crimson_stem"), Key.key("stripped_crimson_hyphae"), Key.key("stripped_crimson_stem"))),
-        Map.entry(Key.key("dampens_vibrations"), List.of(Key.key("black_carpet"), Key.key("black_wool"), Key.key("blue_carpet"), Key.key("blue_wool"), Key.key("brown_carpet"), Key.key("brown_wool"), Key.key("cyan_carpet"), Key.key("cyan_wool"), Key.key("gray_carpet"), Key.key("gray_wool"), Key.key("green_carpet"), Key.key("green_wool"), Key.key("light_blue_carpet"), Key.key("light_blue_wool"), Key.key("light_gray_carpet"), Key.key("light_gray_wool"), Key.key("lime_carpet"), Key.key("lime_wool"), Key.key("magenta_carpet"), Key.key("magenta_wool"), Key.key("orange_carpet"), Key.key("orange_wool"), Key.key("pink_carpet"), Key.key("pink_wool"), Key.key("purple_carpet"), Key.key("purple_wool"), Key.key("red_carpet"), Key.key("red_wool"), Key.key("white_carpet"), Key.key("white_wool"), Key.key("yellow_carpet"), Key.key("yellow_wool"))),
-        Map.entry(Key.key("dark_oak_logs"), List.of(Key.key("dark_oak_log"), Key.key("dark_oak_wood"), Key.key("stripped_dark_oak_log"), Key.key("stripped_dark_oak_wood"))),
-        Map.entry(Key.key("decorated_pot_ingredients"), List.of(Key.key("angler_pottery_sherd"), Key.key("archer_pottery_sherd"), Key.key("arms_up_pottery_sherd"), Key.key("blade_pottery_sherd"), Key.key("brewer_pottery_sherd"), Key.key("brick"), Key.key("burn_pottery_sherd"), Key.key("danger_pottery_sherd"), Key.key("explorer_pottery_sherd"), Key.key("flow_pottery_sherd"), Key.key("friend_pottery_sherd"), Key.key("guster_pottery_sherd"), Key.key("heart_pottery_sherd"), Key.key("heartbreak_pottery_sherd"), Key.key("howl_pottery_sherd"), Key.key("miner_pottery_sherd"), Key.key("mourner_pottery_sherd"), Key.key("plenty_pottery_sherd"), Key.key("prize_pottery_sherd"), Key.key("scrape_pottery_sherd"), Key.key("sheaf_pottery_sherd"), Key.key("shelter_pottery_sherd"), Key.key("skull_pottery_sherd"), Key.key("snort_pottery_sherd"))),
-        Map.entry(Key.key("decorated_pot_sherds"), List.of(Key.key("angler_pottery_sherd"), Key.key("archer_pottery_sherd"), Key.key("arms_up_pottery_sherd"), Key.key("blade_pottery_sherd"), Key.key("brewer_pottery_sherd"), Key.key("burn_pottery_sherd"), Key.key("danger_pottery_sherd"), Key.key("explorer_pottery_sherd"), Key.key("flow_pottery_sherd"), Key.key("friend_pottery_sherd"), Key.key("guster_pottery_sherd"), Key.key("heart_pottery_sherd"), Key.key("heartbreak_pottery_sherd"), Key.key("howl_pottery_sherd"), Key.key("miner_pottery_sherd"), Key.key("mourner_pottery_sherd"), Key.key("plenty_pottery_sherd"), Key.key("prize_pottery_sherd"), Key.key("scrape_pottery_sherd"), Key.key("sheaf_pottery_sherd"), Key.key("shelter_pottery_sherd"), Key.key("skull_pottery_sherd"), Key.key("snort_pottery_sherd"))),
-        Map.entry(Key.key("diamond_ores"), List.of(Key.key("deepslate_diamond_ore"), Key.key("diamond_ore"))),
-        Map.entry(Key.key("diamond_tool_materials"), List.of(Key.key("diamond"))),
-        Map.entry(Key.key("dirt"), List.of(Key.key("coarse_dirt"), Key.key("dirt"), Key.key("rooted_dirt"))),
-        Map.entry(Key.key("doors"), List.of(Key.key("acacia_door"), Key.key("bamboo_door"), Key.key("birch_door"), Key.key("cherry_door"), Key.key("copper_door"), Key.key("crimson_door"), Key.key("dark_oak_door"), Key.key("exposed_copper_door"), Key.key("iron_door"), Key.key("jungle_door"), Key.key("mangrove_door"), Key.key("oak_door"), Key.key("oxidized_copper_door"), Key.key("pale_oak_door"), Key.key("spruce_door"), Key.key("warped_door"), Key.key("waxed_copper_door"), Key.key("waxed_exposed_copper_door"), Key.key("waxed_oxidized_copper_door"), Key.key("waxed_weathered_copper_door"), Key.key("weathered_copper_door"))),
-        Map.entry(Key.key("drowned_preferred_weapons"), List.of(Key.key("trident"))),
-        Map.entry(Key.key("duplicates_allays"), List.of(Key.key("amethyst_shard"))),
-        Map.entry(Key.key("dyes"), List.of(Key.key("black_dye"), Key.key("blue_dye"), Key.key("brown_dye"), Key.key("cyan_dye"), Key.key("gray_dye"), Key.key("green_dye"), Key.key("light_blue_dye"), Key.key("light_gray_dye"), Key.key("lime_dye"), Key.key("magenta_dye"), Key.key("orange_dye"), Key.key("pink_dye"), Key.key("purple_dye"), Key.key("red_dye"), Key.key("white_dye"), Key.key("yellow_dye"))),
-        Map.entry(Key.key("eggs"), List.of(Key.key("blue_egg"), Key.key("brown_egg"), Key.key("egg"))),
-        Map.entry(Key.key("emerald_ores"), List.of(Key.key("deepslate_emerald_ore"), Key.key("emerald_ore"))),
-        Map.entry(Key.key("enchantable/armor"), List.of(Key.key("chainmail_boots"), Key.key("chainmail_chestplate"), Key.key("chainmail_helmet"), Key.key("chainmail_leggings"), Key.key("copper_boots"), Key.key("copper_chestplate"), Key.key("copper_helmet"), Key.key("copper_leggings"), Key.key("diamond_boots"), Key.key("diamond_chestplate"), Key.key("diamond_helmet"), Key.key("diamond_leggings"), Key.key("golden_boots"), Key.key("golden_chestplate"), Key.key("golden_helmet"), Key.key("golden_leggings"), Key.key("iron_boots"), Key.key("iron_chestplate"), Key.key("iron_helmet"), Key.key("iron_leggings"), Key.key("leather_boots"), Key.key("leather_chestplate"), Key.key("leather_helmet"), Key.key("leather_leggings"), Key.key("netherite_boots"), Key.key("netherite_chestplate"), Key.key("netherite_helmet"), Key.key("netherite_leggings"), Key.key("turtle_helmet"))),
-        Map.entry(Key.key("enchantable/bow"), List.of(Key.key("bow"))),
-        Map.entry(Key.key("enchantable/chest_armor"), List.of(Key.key("chainmail_chestplate"), Key.key("copper_chestplate"), Key.key("diamond_chestplate"), Key.key("golden_chestplate"), Key.key("iron_chestplate"), Key.key("leather_chestplate"), Key.key("netherite_chestplate"))),
-        Map.entry(Key.key("enchantable/crossbow"), List.of(Key.key("crossbow"))),
-        Map.entry(Key.key("enchantable/durability"), List.of(Key.key("bow"), Key.key("brush"), Key.key("carrot_on_a_stick"), Key.key("chainmail_boots"), Key.key("chainmail_chestplate"), Key.key("chainmail_helmet"), Key.key("chainmail_leggings"), Key.key("copper_axe"), Key.key("copper_boots"), Key.key("copper_chestplate"), Key.key("copper_helmet"), Key.key("copper_hoe"), Key.key("copper_leggings"), Key.key("copper_pickaxe"), Key.key("copper_shovel"), Key.key("copper_spear"), Key.key("copper_sword"), Key.key("crossbow"), Key.key("diamond_axe"), Key.key("diamond_boots"), Key.key("diamond_chestplate"), Key.key("diamond_helmet"), Key.key("diamond_hoe"), Key.key("diamond_leggings"), Key.key("diamond_pickaxe"), Key.key("diamond_shovel"), Key.key("diamond_spear"), Key.key("diamond_sword"), Key.key("elytra"), Key.key("fishing_rod"), Key.key("flint_and_steel"), Key.key("golden_axe"), Key.key("golden_boots"), Key.key("golden_chestplate"), Key.key("golden_helmet"), Key.key("golden_hoe"), Key.key("golden_leggings"), Key.key("golden_pickaxe"), Key.key("golden_shovel"), Key.key("golden_spear"), Key.key("golden_sword"), Key.key("iron_axe"), Key.key("iron_boots"), Key.key("iron_chestplate"), Key.key("iron_helmet"), Key.key("iron_hoe"), Key.key("iron_leggings"), Key.key("iron_pickaxe"), Key.key("iron_shovel"), Key.key("iron_spear"), Key.key("iron_sword"), Key.key("leather_boots"), Key.key("leather_chestplate"), Key.key("leather_helmet"), Key.key("leather_leggings"), Key.key("mace"), Key.key("netherite_axe"), Key.key("netherite_boots"), Key.key("netherite_chestplate"), Key.key("netherite_helmet"), Key.key("netherite_hoe"), Key.key("netherite_leggings"), Key.key("netherite_pickaxe"), Key.key("netherite_shovel"), Key.key("netherite_spear"), Key.key("netherite_sword"), Key.key("shears"), Key.key("shield"), Key.key("stone_axe"), Key.key("stone_hoe"), Key.key("stone_pickaxe"), Key.key("stone_shovel"), Key.key("stone_spear"), Key.key("stone_sword"), Key.key("trident"), Key.key("turtle_helmet"), Key.key("warped_fungus_on_a_stick"), Key.key("wooden_axe"), Key.key("wooden_hoe"), Key.key("wooden_pickaxe"), Key.key("wooden_shovel"), Key.key("wooden_spear"), Key.key("wooden_sword"))),
-        Map.entry(Key.key("enchantable/equippable"), List.of(Key.key("carved_pumpkin"), Key.key("chainmail_boots"), Key.key("chainmail_chestplate"), Key.key("chainmail_helmet"), Key.key("chainmail_leggings"), Key.key("copper_boots"), Key.key("copper_chestplate"), Key.key("copper_helmet"), Key.key("copper_leggings"), Key.key("creeper_head"), Key.key("diamond_boots"), Key.key("diamond_chestplate"), Key.key("diamond_helmet"), Key.key("diamond_leggings"), Key.key("dragon_head"), Key.key("elytra"), Key.key("golden_boots"), Key.key("golden_chestplate"), Key.key("golden_helmet"), Key.key("golden_leggings"), Key.key("iron_boots"), Key.key("iron_chestplate"), Key.key("iron_helmet"), Key.key("iron_leggings"), Key.key("leather_boots"), Key.key("leather_chestplate"), Key.key("leather_helmet"), Key.key("leather_leggings"), Key.key("netherite_boots"), Key.key("netherite_chestplate"), Key.key("netherite_helmet"), Key.key("netherite_leggings"), Key.key("piglin_head"), Key.key("player_head"), Key.key("skeleton_skull"), Key.key("turtle_helmet"), Key.key("wither_skeleton_skull"), Key.key("zombie_head"))),
-        Map.entry(Key.key("enchantable/fire_aspect"), List.of(Key.key("copper_spear"), Key.key("copper_sword"), Key.key("diamond_spear"), Key.key("diamond_sword"), Key.key("golden_spear"), Key.key("golden_sword"), Key.key("iron_spear"), Key.key("iron_sword"), Key.key("mace"), Key.key("netherite_spear"), Key.key("netherite_sword"), Key.key("stone_spear"), Key.key("stone_sword"), Key.key("wooden_spear"), Key.key("wooden_sword"))),
-        Map.entry(Key.key("enchantable/fishing"), List.of(Key.key("fishing_rod"))),
-        Map.entry(Key.key("enchantable/foot_armor"), List.of(Key.key("chainmail_boots"), Key.key("copper_boots"), Key.key("diamond_boots"), Key.key("golden_boots"), Key.key("iron_boots"), Key.key("leather_boots"), Key.key("netherite_boots"))),
-        Map.entry(Key.key("enchantable/head_armor"), List.of(Key.key("chainmail_helmet"), Key.key("copper_helmet"), Key.key("diamond_helmet"), Key.key("golden_helmet"), Key.key("iron_helmet"), Key.key("leather_helmet"), Key.key("netherite_helmet"), Key.key("turtle_helmet"))),
-        Map.entry(Key.key("enchantable/leg_armor"), List.of(Key.key("chainmail_leggings"), Key.key("copper_leggings"), Key.key("diamond_leggings"), Key.key("golden_leggings"), Key.key("iron_leggings"), Key.key("leather_leggings"), Key.key("netherite_leggings"))),
-        Map.entry(Key.key("enchantable/lunge"), List.of(Key.key("copper_spear"), Key.key("diamond_spear"), Key.key("golden_spear"), Key.key("iron_spear"), Key.key("netherite_spear"), Key.key("stone_spear"), Key.key("wooden_spear"))),
-        Map.entry(Key.key("enchantable/mace"), List.of(Key.key("mace"))),
-        Map.entry(Key.key("enchantable/melee_weapon"), List.of(Key.key("copper_spear"), Key.key("copper_sword"), Key.key("diamond_spear"), Key.key("diamond_sword"), Key.key("golden_spear"), Key.key("golden_sword"), Key.key("iron_spear"), Key.key("iron_sword"), Key.key("netherite_spear"), Key.key("netherite_sword"), Key.key("stone_spear"), Key.key("stone_sword"), Key.key("wooden_spear"), Key.key("wooden_sword"))),
-        Map.entry(Key.key("enchantable/mining"), List.of(Key.key("copper_axe"), Key.key("copper_hoe"), Key.key("copper_pickaxe"), Key.key("copper_shovel"), Key.key("diamond_axe"), Key.key("diamond_hoe"), Key.key("diamond_pickaxe"), Key.key("diamond_shovel"), Key.key("golden_axe"), Key.key("golden_hoe"), Key.key("golden_pickaxe"), Key.key("golden_shovel"), Key.key("iron_axe"), Key.key("iron_hoe"), Key.key("iron_pickaxe"), Key.key("iron_shovel"), Key.key("netherite_axe"), Key.key("netherite_hoe"), Key.key("netherite_pickaxe"), Key.key("netherite_shovel"), Key.key("shears"), Key.key("stone_axe"), Key.key("stone_hoe"), Key.key("stone_pickaxe"), Key.key("stone_shovel"), Key.key("wooden_axe"), Key.key("wooden_hoe"), Key.key("wooden_pickaxe"), Key.key("wooden_shovel"))),
-        Map.entry(Key.key("enchantable/mining_loot"), List.of(Key.key("copper_axe"), Key.key("copper_hoe"), Key.key("copper_pickaxe"), Key.key("copper_shovel"), Key.key("diamond_axe"), Key.key("diamond_hoe"), Key.key("diamond_pickaxe"), Key.key("diamond_shovel"), Key.key("golden_axe"), Key.key("golden_hoe"), Key.key("golden_pickaxe"), Key.key("golden_shovel"), Key.key("iron_axe"), Key.key("iron_hoe"), Key.key("iron_pickaxe"), Key.key("iron_shovel"), Key.key("netherite_axe"), Key.key("netherite_hoe"), Key.key("netherite_pickaxe"), Key.key("netherite_shovel"), Key.key("stone_axe"), Key.key("stone_hoe"), Key.key("stone_pickaxe"), Key.key("stone_shovel"), Key.key("wooden_axe"), Key.key("wooden_hoe"), Key.key("wooden_pickaxe"), Key.key("wooden_shovel"))),
-        Map.entry(Key.key("enchantable/sharp_weapon"), List.of(Key.key("copper_axe"), Key.key("copper_spear"), Key.key("copper_sword"), Key.key("diamond_axe"), Key.key("diamond_spear"), Key.key("diamond_sword"), Key.key("golden_axe"), Key.key("golden_spear"), Key.key("golden_sword"), Key.key("iron_axe"), Key.key("iron_spear"), Key.key("iron_sword"), Key.key("netherite_axe"), Key.key("netherite_spear"), Key.key("netherite_sword"), Key.key("stone_axe"), Key.key("stone_spear"), Key.key("stone_sword"), Key.key("wooden_axe"), Key.key("wooden_spear"), Key.key("wooden_sword"))),
-        Map.entry(Key.key("enchantable/sweeping"), List.of(Key.key("copper_sword"), Key.key("diamond_sword"), Key.key("golden_sword"), Key.key("iron_sword"), Key.key("netherite_sword"), Key.key("stone_sword"), Key.key("wooden_sword"))),
-        Map.entry(Key.key("enchantable/trident"), List.of(Key.key("trident"))),
-        Map.entry(Key.key("enchantable/vanishing"), List.of(Key.key("bow"), Key.key("brush"), Key.key("carrot_on_a_stick"), Key.key("carved_pumpkin"), Key.key("chainmail_boots"), Key.key("chainmail_chestplate"), Key.key("chainmail_helmet"), Key.key("chainmail_leggings"), Key.key("compass"), Key.key("copper_axe"), Key.key("copper_boots"), Key.key("copper_chestplate"), Key.key("copper_helmet"), Key.key("copper_hoe"), Key.key("copper_leggings"), Key.key("copper_pickaxe"), Key.key("copper_shovel"), Key.key("copper_spear"), Key.key("copper_sword"), Key.key("creeper_head"), Key.key("crossbow"), Key.key("diamond_axe"), Key.key("diamond_boots"), Key.key("diamond_chestplate"), Key.key("diamond_helmet"), Key.key("diamond_hoe"), Key.key("diamond_leggings"), Key.key("diamond_pickaxe"), Key.key("diamond_shovel"), Key.key("diamond_spear"), Key.key("diamond_sword"), Key.key("dragon_head"), Key.key("elytra"), Key.key("fishing_rod"), Key.key("flint_and_steel"), Key.key("golden_axe"), Key.key("golden_boots"), Key.key("golden_chestplate"), Key.key("golden_helmet"), Key.key("golden_hoe"), Key.key("golden_leggings"), Key.key("golden_pickaxe"), Key.key("golden_shovel"), Key.key("golden_spear"), Key.key("golden_sword"), Key.key("iron_axe"), Key.key("iron_boots"), Key.key("iron_chestplate"), Key.key("iron_helmet"), Key.key("iron_hoe"), Key.key("iron_leggings"), Key.key("iron_pickaxe"), Key.key("iron_shovel"), Key.key("iron_spear"), Key.key("iron_sword"), Key.key("leather_boots"), Key.key("leather_chestplate"), Key.key("leather_helmet"), Key.key("leather_leggings"), Key.key("mace"), Key.key("netherite_axe"), Key.key("netherite_boots"), Key.key("netherite_chestplate"), Key.key("netherite_helmet"), Key.key("netherite_hoe"), Key.key("netherite_leggings"), Key.key("netherite_pickaxe"), Key.key("netherite_shovel"), Key.key("netherite_spear"), Key.key("netherite_sword"), Key.key("piglin_head"), Key.key("player_head"), Key.key("shears"), Key.key("shield"), Key.key("skeleton_skull"), Key.key("stone_axe"), Key.key("stone_hoe"), Key.key("stone_pickaxe"), Key.key("stone_shovel"), Key.key("stone_spear"), Key.key("stone_sword"), Key.key("trident"), Key.key("turtle_helmet"), Key.key("warped_fungus_on_a_stick"), Key.key("wither_skeleton_skull"), Key.key("wooden_axe"), Key.key("wooden_hoe"), Key.key("wooden_pickaxe"), Key.key("wooden_shovel"), Key.key("wooden_spear"), Key.key("wooden_sword"), Key.key("zombie_head"))),
-        Map.entry(Key.key("enchantable/weapon"), List.of(Key.key("copper_axe"), Key.key("copper_spear"), Key.key("copper_sword"), Key.key("diamond_axe"), Key.key("diamond_spear"), Key.key("diamond_sword"), Key.key("golden_axe"), Key.key("golden_spear"), Key.key("golden_sword"), Key.key("iron_axe"), Key.key("iron_spear"), Key.key("iron_sword"), Key.key("mace"), Key.key("netherite_axe"), Key.key("netherite_spear"), Key.key("netherite_sword"), Key.key("stone_axe"), Key.key("stone_spear"), Key.key("stone_sword"), Key.key("wooden_axe"), Key.key("wooden_spear"), Key.key("wooden_sword"))),
-        Map.entry(Key.key("fence_gates"), List.of(Key.key("acacia_fence_gate"), Key.key("bamboo_fence_gate"), Key.key("birch_fence_gate"), Key.key("cherry_fence_gate"), Key.key("crimson_fence_gate"), Key.key("dark_oak_fence_gate"), Key.key("jungle_fence_gate"), Key.key("mangrove_fence_gate"), Key.key("oak_fence_gate"), Key.key("pale_oak_fence_gate"), Key.key("spruce_fence_gate"), Key.key("warped_fence_gate"))),
-        Map.entry(Key.key("fences"), List.of(Key.key("acacia_fence"), Key.key("bamboo_fence"), Key.key("birch_fence"), Key.key("cherry_fence"), Key.key("crimson_fence"), Key.key("dark_oak_fence"), Key.key("jungle_fence"), Key.key("mangrove_fence"), Key.key("nether_brick_fence"), Key.key("oak_fence"), Key.key("pale_oak_fence"), Key.key("spruce_fence"), Key.key("warped_fence"))),
-        Map.entry(Key.key("fishes"), List.of(Key.key("cod"), Key.key("cooked_cod"), Key.key("cooked_salmon"), Key.key("pufferfish"), Key.key("salmon"), Key.key("tropical_fish"))),
-        Map.entry(Key.key("flowers"), List.of(Key.key("allium"), Key.key("azure_bluet"), Key.key("blue_orchid"), Key.key("cactus_flower"), Key.key("cherry_leaves"), Key.key("chorus_flower"), Key.key("closed_eyeblossom"), Key.key("cornflower"), Key.key("dandelion"), Key.key("flowering_azalea"), Key.key("flowering_azalea_leaves"), Key.key("golden_dandelion"), Key.key("lilac"), Key.key("lily_of_the_valley"), Key.key("mangrove_propagule"), Key.key("open_eyeblossom"), Key.key("orange_tulip"), Key.key("oxeye_daisy"), Key.key("peony"), Key.key("pink_petals"), Key.key("pink_tulip"), Key.key("pitcher_plant"), Key.key("poppy"), Key.key("red_tulip"), Key.key("rose_bush"), Key.key("spore_blossom"), Key.key("sunflower"), Key.key("torchflower"), Key.key("white_tulip"), Key.key("wildflowers"), Key.key("wither_rose"))),
-        Map.entry(Key.key("foot_armor"), List.of(Key.key("chainmail_boots"), Key.key("copper_boots"), Key.key("diamond_boots"), Key.key("golden_boots"), Key.key("iron_boots"), Key.key("leather_boots"), Key.key("netherite_boots"))),
-        Map.entry(Key.key("fox_food"), List.of(Key.key("glow_berries"), Key.key("sweet_berries"))),
-        Map.entry(Key.key("freeze_immune_wearables"), List.of(Key.key("leather_boots"), Key.key("leather_chestplate"), Key.key("leather_helmet"), Key.key("leather_horse_armor"), Key.key("leather_leggings"))),
-        Map.entry(Key.key("frog_food"), List.of(Key.key("slime_ball"))),
-        Map.entry(Key.key("furnace_minecart_fuel"), List.of(Key.key("charcoal"), Key.key("coal"))),
-        Map.entry(Key.key("gaze_disguise_equipment"), List.of(Key.key("carved_pumpkin"))),
-        Map.entry(Key.key("glazed_terracotta"), List.of(Key.key("black_glazed_terracotta"), Key.key("blue_glazed_terracotta"), Key.key("brown_glazed_terracotta"), Key.key("cyan_glazed_terracotta"), Key.key("gray_glazed_terracotta"), Key.key("green_glazed_terracotta"), Key.key("light_blue_glazed_terracotta"), Key.key("light_gray_glazed_terracotta"), Key.key("lime_glazed_terracotta"), Key.key("magenta_glazed_terracotta"), Key.key("orange_glazed_terracotta"), Key.key("pink_glazed_terracotta"), Key.key("purple_glazed_terracotta"), Key.key("red_glazed_terracotta"), Key.key("white_glazed_terracotta"), Key.key("yellow_glazed_terracotta"))),
-        Map.entry(Key.key("goat_food"), List.of(Key.key("wheat"))),
-        Map.entry(Key.key("gold_ores"), List.of(Key.key("deepslate_gold_ore"), Key.key("gold_ore"), Key.key("nether_gold_ore"))),
-        Map.entry(Key.key("gold_tool_materials"), List.of(Key.key("gold_ingot"))),
-        Map.entry(Key.key("grass_blocks"), List.of(Key.key("grass_block"), Key.key("mycelium"), Key.key("podzol"))),
-        Map.entry(Key.key("hanging_signs"), List.of(Key.key("acacia_hanging_sign"), Key.key("bamboo_hanging_sign"), Key.key("birch_hanging_sign"), Key.key("cherry_hanging_sign"), Key.key("crimson_hanging_sign"), Key.key("dark_oak_hanging_sign"), Key.key("jungle_hanging_sign"), Key.key("mangrove_hanging_sign"), Key.key("oak_hanging_sign"), Key.key("pale_oak_hanging_sign"), Key.key("spruce_hanging_sign"), Key.key("warped_hanging_sign"))),
-        Map.entry(Key.key("happy_ghast_food"), List.of(Key.key("snowball"))),
-        Map.entry(Key.key("happy_ghast_tempt_items"), List.of(Key.key("black_harness"), Key.key("blue_harness"), Key.key("brown_harness"), Key.key("cyan_harness"), Key.key("gray_harness"), Key.key("green_harness"), Key.key("light_blue_harness"), Key.key("light_gray_harness"), Key.key("lime_harness"), Key.key("magenta_harness"), Key.key("orange_harness"), Key.key("pink_harness"), Key.key("purple_harness"), Key.key("red_harness"), Key.key("snowball"), Key.key("white_harness"), Key.key("yellow_harness"))),
-        Map.entry(Key.key("harnesses"), List.of(Key.key("black_harness"), Key.key("blue_harness"), Key.key("brown_harness"), Key.key("cyan_harness"), Key.key("gray_harness"), Key.key("green_harness"), Key.key("light_blue_harness"), Key.key("light_gray_harness"), Key.key("lime_harness"), Key.key("magenta_harness"), Key.key("orange_harness"), Key.key("pink_harness"), Key.key("purple_harness"), Key.key("red_harness"), Key.key("white_harness"), Key.key("yellow_harness"))),
-        Map.entry(Key.key("head_armor"), List.of(Key.key("chainmail_helmet"), Key.key("copper_helmet"), Key.key("diamond_helmet"), Key.key("golden_helmet"), Key.key("iron_helmet"), Key.key("leather_helmet"), Key.key("netherite_helmet"), Key.key("turtle_helmet"))),
-        Map.entry(Key.key("hoes"), List.of(Key.key("copper_hoe"), Key.key("diamond_hoe"), Key.key("golden_hoe"), Key.key("iron_hoe"), Key.key("netherite_hoe"), Key.key("stone_hoe"), Key.key("wooden_hoe"))),
-        Map.entry(Key.key("hoglin_food"), List.of(Key.key("crimson_fungus"))),
-        Map.entry(Key.key("horse_food"), List.of(Key.key("apple"), Key.key("carrot"), Key.key("enchanted_golden_apple"), Key.key("golden_apple"), Key.key("golden_carrot"), Key.key("hay_block"), Key.key("sugar"), Key.key("wheat"))),
-        Map.entry(Key.key("horse_tempt_items"), List.of(Key.key("enchanted_golden_apple"), Key.key("golden_apple"), Key.key("golden_carrot"))),
-        Map.entry(Key.key("ignored_by_piglin_babies"), List.of(Key.key("leather"))),
-        Map.entry(Key.key("iron_ores"), List.of(Key.key("deepslate_iron_ore"), Key.key("iron_ore"))),
-        Map.entry(Key.key("iron_tool_materials"), List.of(Key.key("iron_ingot"))),
-        Map.entry(Key.key("jungle_logs"), List.of(Key.key("jungle_log"), Key.key("jungle_wood"), Key.key("stripped_jungle_log"), Key.key("stripped_jungle_wood"))),
-        Map.entry(Key.key("lanterns"), List.of(Key.key("copper_lantern"), Key.key("exposed_copper_lantern"), Key.key("lantern"), Key.key("oxidized_copper_lantern"), Key.key("soul_lantern"), Key.key("waxed_copper_lantern"), Key.key("waxed_exposed_copper_lantern"), Key.key("waxed_oxidized_copper_lantern"), Key.key("waxed_weathered_copper_lantern"), Key.key("weathered_copper_lantern"))),
-        Map.entry(Key.key("lapis_ores"), List.of(Key.key("deepslate_lapis_ore"), Key.key("lapis_ore"))),
-        Map.entry(Key.key("leaves"), List.of(Key.key("acacia_leaves"), Key.key("azalea_leaves"), Key.key("birch_leaves"), Key.key("cherry_leaves"), Key.key("dark_oak_leaves"), Key.key("flowering_azalea_leaves"), Key.key("jungle_leaves"), Key.key("mangrove_leaves"), Key.key("oak_leaves"), Key.key("pale_oak_leaves"), Key.key("spruce_leaves"))),
-        Map.entry(Key.key("lectern_books"), List.of(Key.key("writable_book"), Key.key("written_book"))),
-        Map.entry(Key.key("leg_armor"), List.of(Key.key("chainmail_leggings"), Key.key("copper_leggings"), Key.key("diamond_leggings"), Key.key("golden_leggings"), Key.key("iron_leggings"), Key.key("leather_leggings"), Key.key("netherite_leggings"))),
-        Map.entry(Key.key("lightning_rods"), List.of(Key.key("exposed_lightning_rod"), Key.key("lightning_rod"), Key.key("oxidized_lightning_rod"), Key.key("waxed_exposed_lightning_rod"), Key.key("waxed_lightning_rod"), Key.key("waxed_oxidized_lightning_rod"), Key.key("waxed_weathered_lightning_rod"), Key.key("weathered_lightning_rod"))),
-        Map.entry(Key.key("llama_food"), List.of(Key.key("hay_block"), Key.key("wheat"))),
-        Map.entry(Key.key("llama_tempt_items"), List.of(Key.key("hay_block"))),
-        Map.entry(Key.key("logs"), List.of(Key.key("acacia_log"), Key.key("acacia_wood"), Key.key("birch_log"), Key.key("birch_wood"), Key.key("cherry_log"), Key.key("cherry_wood"), Key.key("crimson_hyphae"), Key.key("crimson_stem"), Key.key("dark_oak_log"), Key.key("dark_oak_wood"), Key.key("jungle_log"), Key.key("jungle_wood"), Key.key("mangrove_log"), Key.key("mangrove_wood"), Key.key("oak_log"), Key.key("oak_wood"), Key.key("pale_oak_log"), Key.key("pale_oak_wood"), Key.key("spruce_log"), Key.key("spruce_wood"), Key.key("stripped_acacia_log"), Key.key("stripped_acacia_wood"), Key.key("stripped_birch_log"), Key.key("stripped_birch_wood"), Key.key("stripped_cherry_log"), Key.key("stripped_cherry_wood"), Key.key("stripped_crimson_hyphae"), Key.key("stripped_crimson_stem"), Key.key("stripped_dark_oak_log"), Key.key("stripped_dark_oak_wood"), Key.key("stripped_jungle_log"), Key.key("stripped_jungle_wood"), Key.key("stripped_mangrove_log"), Key.key("stripped_mangrove_wood"), Key.key("stripped_oak_log"), Key.key("stripped_oak_wood"), Key.key("stripped_pale_oak_log"), Key.key("stripped_pale_oak_wood"), Key.key("stripped_spruce_log"), Key.key("stripped_spruce_wood"), Key.key("stripped_warped_hyphae"), Key.key("stripped_warped_stem"), Key.key("warped_hyphae"), Key.key("warped_stem"))),
-        Map.entry(Key.key("logs_that_burn"), List.of(Key.key("acacia_log"), Key.key("acacia_wood"), Key.key("birch_log"), Key.key("birch_wood"), Key.key("cherry_log"), Key.key("cherry_wood"), Key.key("dark_oak_log"), Key.key("dark_oak_wood"), Key.key("jungle_log"), Key.key("jungle_wood"), Key.key("mangrove_log"), Key.key("mangrove_wood"), Key.key("oak_log"), Key.key("oak_wood"), Key.key("pale_oak_log"), Key.key("pale_oak_wood"), Key.key("spruce_log"), Key.key("spruce_wood"), Key.key("stripped_acacia_log"), Key.key("stripped_acacia_wood"), Key.key("stripped_birch_log"), Key.key("stripped_birch_wood"), Key.key("stripped_cherry_log"), Key.key("stripped_cherry_wood"), Key.key("stripped_dark_oak_log"), Key.key("stripped_dark_oak_wood"), Key.key("stripped_jungle_log"), Key.key("stripped_jungle_wood"), Key.key("stripped_mangrove_log"), Key.key("stripped_mangrove_wood"), Key.key("stripped_oak_log"), Key.key("stripped_oak_wood"), Key.key("stripped_pale_oak_log"), Key.key("stripped_pale_oak_wood"), Key.key("stripped_spruce_log"), Key.key("stripped_spruce_wood"))),
-        Map.entry(Key.key("loom_dyes"), List.of(Key.key("black_dye"), Key.key("blue_dye"), Key.key("brown_dye"), Key.key("cyan_dye"), Key.key("gray_dye"), Key.key("green_dye"), Key.key("light_blue_dye"), Key.key("light_gray_dye"), Key.key("lime_dye"), Key.key("magenta_dye"), Key.key("orange_dye"), Key.key("pink_dye"), Key.key("purple_dye"), Key.key("red_dye"), Key.key("white_dye"), Key.key("yellow_dye"))),
-        Map.entry(Key.key("loom_patterns"), List.of(Key.key("bordure_indented_banner_pattern"), Key.key("creeper_banner_pattern"), Key.key("field_masoned_banner_pattern"), Key.key("flow_banner_pattern"), Key.key("flower_banner_pattern"), Key.key("globe_banner_pattern"), Key.key("guster_banner_pattern"), Key.key("mojang_banner_pattern"), Key.key("piglin_banner_pattern"), Key.key("skull_banner_pattern"))),
-        Map.entry(Key.key("mangrove_logs"), List.of(Key.key("mangrove_log"), Key.key("mangrove_wood"), Key.key("stripped_mangrove_log"), Key.key("stripped_mangrove_wood"))),
-        Map.entry(Key.key("map_invisibility_equipment"), List.of(Key.key("carved_pumpkin"))),
-        Map.entry(Key.key("meat"), List.of(Key.key("beef"), Key.key("chicken"), Key.key("cooked_beef"), Key.key("cooked_chicken"), Key.key("cooked_mutton"), Key.key("cooked_porkchop"), Key.key("cooked_rabbit"), Key.key("mutton"), Key.key("porkchop"), Key.key("rabbit"), Key.key("rotten_flesh"))),
-        Map.entry(Key.key("metal_nuggets"), List.of(Key.key("copper_nugget"), Key.key("gold_nugget"), Key.key("iron_nugget"))),
-        Map.entry(Key.key("moss_blocks"), List.of(Key.key("moss_block"), Key.key("pale_moss_block"))),
-        Map.entry(Key.key("mud"), List.of(Key.key("mud"), Key.key("muddy_mangrove_roots"))),
-        Map.entry(Key.key("nautilus_bucket_food"), List.of(Key.key("cod_bucket"), Key.key("pufferfish_bucket"), Key.key("salmon_bucket"), Key.key("tropical_fish_bucket"))),
-        Map.entry(Key.key("nautilus_food"), List.of(Key.key("cod"), Key.key("cod_bucket"), Key.key("cooked_cod"), Key.key("cooked_salmon"), Key.key("pufferfish"), Key.key("pufferfish_bucket"), Key.key("salmon"), Key.key("salmon_bucket"), Key.key("tropical_fish"), Key.key("tropical_fish_bucket"))),
-        Map.entry(Key.key("nautilus_taming_items"), List.of(Key.key("pufferfish"), Key.key("pufferfish_bucket"))),
-        Map.entry(Key.key("netherite_tool_materials"), List.of(Key.key("netherite_ingot"))),
-        Map.entry(Key.key("non_flammable_wood"), List.of(Key.key("crimson_button"), Key.key("crimson_door"), Key.key("crimson_fence"), Key.key("crimson_fence_gate"), Key.key("crimson_hanging_sign"), Key.key("crimson_hyphae"), Key.key("crimson_planks"), Key.key("crimson_pressure_plate"), Key.key("crimson_shelf"), Key.key("crimson_sign"), Key.key("crimson_slab"), Key.key("crimson_stairs"), Key.key("crimson_stem"), Key.key("crimson_trapdoor"), Key.key("stripped_crimson_hyphae"), Key.key("stripped_crimson_stem"), Key.key("stripped_warped_hyphae"), Key.key("stripped_warped_stem"), Key.key("warped_button"), Key.key("warped_door"), Key.key("warped_fence"), Key.key("warped_fence_gate"), Key.key("warped_hanging_sign"), Key.key("warped_hyphae"), Key.key("warped_planks"), Key.key("warped_pressure_plate"), Key.key("warped_shelf"), Key.key("warped_sign"), Key.key("warped_slab"), Key.key("warped_stairs"), Key.key("warped_stem"), Key.key("warped_trapdoor"))),
-        Map.entry(Key.key("noteblock_top_instruments"), List.of(Key.key("creeper_head"), Key.key("dragon_head"), Key.key("piglin_head"), Key.key("player_head"), Key.key("skeleton_skull"), Key.key("wither_skeleton_skull"), Key.key("zombie_head"))),
-        Map.entry(Key.key("oak_logs"), List.of(Key.key("oak_log"), Key.key("oak_wood"), Key.key("stripped_oak_log"), Key.key("stripped_oak_wood"))),
-        Map.entry(Key.key("ocelot_food"), List.of(Key.key("cod"), Key.key("salmon"))),
-        Map.entry(Key.key("pale_oak_logs"), List.of(Key.key("pale_oak_log"), Key.key("pale_oak_wood"), Key.key("stripped_pale_oak_log"), Key.key("stripped_pale_oak_wood"))),
-        Map.entry(Key.key("panda_eats_from_ground"), List.of(Key.key("bamboo"), Key.key("cake"))),
-        Map.entry(Key.key("panda_food"), List.of(Key.key("bamboo"))),
-        Map.entry(Key.key("parrot_food"), List.of(Key.key("beetroot_seeds"), Key.key("melon_seeds"), Key.key("pitcher_pod"), Key.key("pumpkin_seeds"), Key.key("torchflower_seeds"), Key.key("wheat_seeds"))),
-        Map.entry(Key.key("parrot_poisonous_food"), List.of(Key.key("cookie"))),
-        Map.entry(Key.key("pickaxes"), List.of(Key.key("copper_pickaxe"), Key.key("diamond_pickaxe"), Key.key("golden_pickaxe"), Key.key("iron_pickaxe"), Key.key("netherite_pickaxe"), Key.key("stone_pickaxe"), Key.key("wooden_pickaxe"))),
-        Map.entry(Key.key("pig_food"), List.of(Key.key("beetroot"), Key.key("carrot"), Key.key("potato"))),
-        Map.entry(Key.key("piglin_food"), List.of(Key.key("cooked_porkchop"), Key.key("porkchop"))),
-        Map.entry(Key.key("piglin_loved"), List.of(Key.key("bell"), Key.key("clock"), Key.key("deepslate_gold_ore"), Key.key("enchanted_golden_apple"), Key.key("gilded_blackstone"), Key.key("glistering_melon_slice"), Key.key("gold_block"), Key.key("gold_ingot"), Key.key("gold_ore"), Key.key("golden_apple"), Key.key("golden_axe"), Key.key("golden_boots"), Key.key("golden_carrot"), Key.key("golden_chestplate"), Key.key("golden_dandelion"), Key.key("golden_helmet"), Key.key("golden_hoe"), Key.key("golden_horse_armor"), Key.key("golden_leggings"), Key.key("golden_nautilus_armor"), Key.key("golden_pickaxe"), Key.key("golden_shovel"), Key.key("golden_spear"), Key.key("golden_sword"), Key.key("light_weighted_pressure_plate"), Key.key("nether_gold_ore"), Key.key("raw_gold"), Key.key("raw_gold_block"))),
-        Map.entry(Key.key("piglin_preferred_weapons"), List.of(Key.key("crossbow"), Key.key("golden_spear"))),
-        Map.entry(Key.key("piglin_repellents"), List.of(Key.key("soul_campfire"), Key.key("soul_lantern"), Key.key("soul_torch"))),
-        Map.entry(Key.key("piglin_safe_armor"), List.of(Key.key("golden_boots"), Key.key("golden_chestplate"), Key.key("golden_helmet"), Key.key("golden_leggings"))),
-        Map.entry(Key.key("pillager_preferred_weapons"), List.of(Key.key("crossbow"))),
-        Map.entry(Key.key("planks"), List.of(Key.key("acacia_planks"), Key.key("bamboo_planks"), Key.key("birch_planks"), Key.key("cherry_planks"), Key.key("crimson_planks"), Key.key("dark_oak_planks"), Key.key("jungle_planks"), Key.key("mangrove_planks"), Key.key("oak_planks"), Key.key("pale_oak_planks"), Key.key("spruce_planks"), Key.key("warped_planks"))),
-        Map.entry(Key.key("rabbit_food"), List.of(Key.key("carrot"), Key.key("dandelion"), Key.key("golden_carrot"))),
-        Map.entry(Key.key("rails"), List.of(Key.key("activator_rail"), Key.key("detector_rail"), Key.key("powered_rail"), Key.key("rail"))),
-        Map.entry(Key.key("redstone_ores"), List.of(Key.key("deepslate_redstone_ore"), Key.key("redstone_ore"))),
-        Map.entry(Key.key("repairs_chain_armor"), List.of(Key.key("iron_ingot"))),
-        Map.entry(Key.key("repairs_copper_armor"), List.of(Key.key("copper_ingot"))),
-        Map.entry(Key.key("repairs_diamond_armor"), List.of(Key.key("diamond"))),
-        Map.entry(Key.key("repairs_gold_armor"), List.of(Key.key("gold_ingot"))),
-        Map.entry(Key.key("repairs_iron_armor"), List.of(Key.key("iron_ingot"))),
-        Map.entry(Key.key("repairs_leather_armor"), List.of(Key.key("leather"))),
-        Map.entry(Key.key("repairs_netherite_armor"), List.of(Key.key("netherite_ingot"))),
-        Map.entry(Key.key("repairs_turtle_helmet"), List.of(Key.key("turtle_scute"))),
-        Map.entry(Key.key("repairs_wolf_armor"), List.of(Key.key("armadillo_scute"))),
-        Map.entry(Key.key("sand"), List.of(Key.key("red_sand"), Key.key("sand"), Key.key("suspicious_sand"))),
-        Map.entry(Key.key("saplings"), List.of(Key.key("acacia_sapling"), Key.key("azalea"), Key.key("birch_sapling"), Key.key("cherry_sapling"), Key.key("dark_oak_sapling"), Key.key("flowering_azalea"), Key.key("jungle_sapling"), Key.key("mangrove_propagule"), Key.key("oak_sapling"), Key.key("pale_oak_sapling"), Key.key("spruce_sapling"))),
-        Map.entry(Key.key("shearable_from_copper_golem"), List.of(Key.key("poppy"))),
-        Map.entry(Key.key("sheep_food"), List.of(Key.key("wheat"))),
-        Map.entry(Key.key("shovels"), List.of(Key.key("copper_shovel"), Key.key("diamond_shovel"), Key.key("golden_shovel"), Key.key("iron_shovel"), Key.key("netherite_shovel"), Key.key("stone_shovel"), Key.key("wooden_shovel"))),
-        Map.entry(Key.key("shulker_boxes"), List.of(Key.key("black_shulker_box"), Key.key("blue_shulker_box"), Key.key("brown_shulker_box"), Key.key("cyan_shulker_box"), Key.key("gray_shulker_box"), Key.key("green_shulker_box"), Key.key("light_blue_shulker_box"), Key.key("light_gray_shulker_box"), Key.key("lime_shulker_box"), Key.key("magenta_shulker_box"), Key.key("orange_shulker_box"), Key.key("pink_shulker_box"), Key.key("purple_shulker_box"), Key.key("red_shulker_box"), Key.key("shulker_box"), Key.key("white_shulker_box"), Key.key("yellow_shulker_box"))),
-        Map.entry(Key.key("signs"), List.of(Key.key("acacia_sign"), Key.key("bamboo_sign"), Key.key("birch_sign"), Key.key("cherry_sign"), Key.key("crimson_sign"), Key.key("dark_oak_sign"), Key.key("jungle_sign"), Key.key("mangrove_sign"), Key.key("oak_sign"), Key.key("pale_oak_sign"), Key.key("spruce_sign"), Key.key("warped_sign"))),
-        Map.entry(Key.key("skeleton_preferred_weapons"), List.of(Key.key("bow"))),
-        Map.entry(Key.key("skulls"), List.of(Key.key("creeper_head"), Key.key("dragon_head"), Key.key("piglin_head"), Key.key("player_head"), Key.key("skeleton_skull"), Key.key("wither_skeleton_skull"), Key.key("zombie_head"))),
-        Map.entry(Key.key("slabs"), List.of(Key.key("acacia_slab"), Key.key("andesite_slab"), Key.key("bamboo_mosaic_slab"), Key.key("bamboo_slab"), Key.key("birch_slab"), Key.key("blackstone_slab"), Key.key("brick_slab"), Key.key("cherry_slab"), Key.key("cinnabar_brick_slab"), Key.key("cinnabar_slab"), Key.key("cobbled_deepslate_slab"), Key.key("cobblestone_slab"), Key.key("crimson_slab"), Key.key("cut_copper_slab"), Key.key("cut_red_sandstone_slab"), Key.key("cut_sandstone_slab"), Key.key("dark_oak_slab"), Key.key("dark_prismarine_slab"), Key.key("deepslate_brick_slab"), Key.key("deepslate_tile_slab"), Key.key("diorite_slab"), Key.key("end_stone_brick_slab"), Key.key("exposed_cut_copper_slab"), Key.key("granite_slab"), Key.key("jungle_slab"), Key.key("mangrove_slab"), Key.key("mossy_cobblestone_slab"), Key.key("mossy_stone_brick_slab"), Key.key("mud_brick_slab"), Key.key("nether_brick_slab"), Key.key("oak_slab"), Key.key("oxidized_cut_copper_slab"), Key.key("pale_oak_slab"), Key.key("petrified_oak_slab"), Key.key("polished_andesite_slab"), Key.key("polished_blackstone_brick_slab"), Key.key("polished_blackstone_slab"), Key.key("polished_cinnabar_slab"), Key.key("polished_deepslate_slab"), Key.key("polished_diorite_slab"), Key.key("polished_granite_slab"), Key.key("polished_sulfur_slab"), Key.key("polished_tuff_slab"), Key.key("prismarine_brick_slab"), Key.key("prismarine_slab"), Key.key("purpur_slab"), Key.key("quartz_slab"), Key.key("red_nether_brick_slab"), Key.key("red_sandstone_slab"), Key.key("resin_brick_slab"), Key.key("sandstone_slab"), Key.key("smooth_quartz_slab"), Key.key("smooth_red_sandstone_slab"), Key.key("smooth_sandstone_slab"), Key.key("smooth_stone_slab"), Key.key("spruce_slab"), Key.key("stone_brick_slab"), Key.key("stone_slab"), Key.key("sulfur_brick_slab"), Key.key("sulfur_slab"), Key.key("tuff_brick_slab"), Key.key("tuff_slab"), Key.key("warped_slab"), Key.key("waxed_cut_copper_slab"), Key.key("waxed_exposed_cut_copper_slab"), Key.key("waxed_oxidized_cut_copper_slab"), Key.key("waxed_weathered_cut_copper_slab"), Key.key("weathered_cut_copper_slab"))),
-        Map.entry(Key.key("small_flowers"), List.of(Key.key("allium"), Key.key("azure_bluet"), Key.key("blue_orchid"), Key.key("closed_eyeblossom"), Key.key("cornflower"), Key.key("dandelion"), Key.key("golden_dandelion"), Key.key("lily_of_the_valley"), Key.key("open_eyeblossom"), Key.key("orange_tulip"), Key.key("oxeye_daisy"), Key.key("pink_tulip"), Key.key("poppy"), Key.key("red_tulip"), Key.key("torchflower"), Key.key("white_tulip"), Key.key("wither_rose"))),
-        Map.entry(Key.key("smelts_to_glass"), List.of(Key.key("red_sand"), Key.key("sand"))),
-        Map.entry(Key.key("sniffer_food"), List.of(Key.key("torchflower_seeds"))),
-        Map.entry(Key.key("soul_fire_base_blocks"), List.of(Key.key("soul_sand"), Key.key("soul_soil"))),
-        Map.entry(Key.key("spears"), List.of(Key.key("copper_spear"), Key.key("diamond_spear"), Key.key("golden_spear"), Key.key("iron_spear"), Key.key("netherite_spear"), Key.key("stone_spear"), Key.key("wooden_spear"))),
-        Map.entry(Key.key("spruce_logs"), List.of(Key.key("spruce_log"), Key.key("spruce_wood"), Key.key("stripped_spruce_log"), Key.key("stripped_spruce_wood"))),
-        Map.entry(Key.key("stairs"), List.of(Key.key("acacia_stairs"), Key.key("andesite_stairs"), Key.key("bamboo_mosaic_stairs"), Key.key("bamboo_stairs"), Key.key("birch_stairs"), Key.key("blackstone_stairs"), Key.key("brick_stairs"), Key.key("cherry_stairs"), Key.key("cinnabar_brick_stairs"), Key.key("cinnabar_stairs"), Key.key("cobbled_deepslate_stairs"), Key.key("cobblestone_stairs"), Key.key("crimson_stairs"), Key.key("cut_copper_stairs"), Key.key("dark_oak_stairs"), Key.key("dark_prismarine_stairs"), Key.key("deepslate_brick_stairs"), Key.key("deepslate_tile_stairs"), Key.key("diorite_stairs"), Key.key("end_stone_brick_stairs"), Key.key("exposed_cut_copper_stairs"), Key.key("granite_stairs"), Key.key("jungle_stairs"), Key.key("mangrove_stairs"), Key.key("mossy_cobblestone_stairs"), Key.key("mossy_stone_brick_stairs"), Key.key("mud_brick_stairs"), Key.key("nether_brick_stairs"), Key.key("oak_stairs"), Key.key("oxidized_cut_copper_stairs"), Key.key("pale_oak_stairs"), Key.key("polished_andesite_stairs"), Key.key("polished_blackstone_brick_stairs"), Key.key("polished_blackstone_stairs"), Key.key("polished_cinnabar_stairs"), Key.key("polished_deepslate_stairs"), Key.key("polished_diorite_stairs"), Key.key("polished_granite_stairs"), Key.key("polished_sulfur_stairs"), Key.key("polished_tuff_stairs"), Key.key("prismarine_brick_stairs"), Key.key("prismarine_stairs"), Key.key("purpur_stairs"), Key.key("quartz_stairs"), Key.key("red_nether_brick_stairs"), Key.key("red_sandstone_stairs"), Key.key("resin_brick_stairs"), Key.key("sandstone_stairs"), Key.key("smooth_quartz_stairs"), Key.key("smooth_red_sandstone_stairs"), Key.key("smooth_sandstone_stairs"), Key.key("spruce_stairs"), Key.key("stone_brick_stairs"), Key.key("stone_stairs"), Key.key("sulfur_brick_stairs"), Key.key("sulfur_stairs"), Key.key("tuff_brick_stairs"), Key.key("tuff_stairs"), Key.key("warped_stairs"), Key.key("waxed_cut_copper_stairs"), Key.key("waxed_exposed_cut_copper_stairs"), Key.key("waxed_oxidized_cut_copper_stairs"), Key.key("waxed_weathered_cut_copper_stairs"), Key.key("weathered_cut_copper_stairs"))),
-        Map.entry(Key.key("stone_bricks"), List.of(Key.key("chiseled_stone_bricks"), Key.key("cracked_stone_bricks"), Key.key("mossy_stone_bricks"), Key.key("stone_bricks"))),
-        Map.entry(Key.key("stone_buttons"), List.of(Key.key("polished_blackstone_button"), Key.key("stone_button"))),
-        Map.entry(Key.key("stone_crafting_materials"), List.of(Key.key("blackstone"), Key.key("cobbled_deepslate"), Key.key("cobblestone"))),
-        Map.entry(Key.key("stone_tool_materials"), List.of(Key.key("blackstone"), Key.key("cobbled_deepslate"), Key.key("cobblestone"))),
-        Map.entry(Key.key("strider_food"), List.of(Key.key("warped_fungus"))),
-        Map.entry(Key.key("strider_tempt_items"), List.of(Key.key("warped_fungus"), Key.key("warped_fungus_on_a_stick"))),
-        Map.entry(Key.key("sulfur_cube_archetype/bouncy"), List.of(Key.key("acacia_log"), Key.key("acacia_planks"), Key.key("acacia_wood"), Key.key("bamboo_block"), Key.key("bamboo_mosaic"), Key.key("bamboo_planks"), Key.key("birch_log"), Key.key("birch_planks"), Key.key("birch_wood"), Key.key("cherry_log"), Key.key("cherry_planks"), Key.key("cherry_wood"), Key.key("crimson_hyphae"), Key.key("crimson_planks"), Key.key("crimson_stem"), Key.key("dark_oak_log"), Key.key("dark_oak_planks"), Key.key("dark_oak_wood"), Key.key("jungle_log"), Key.key("jungle_planks"), Key.key("jungle_wood"), Key.key("mangrove_log"), Key.key("mangrove_planks"), Key.key("mangrove_wood"), Key.key("oak_log"), Key.key("oak_planks"), Key.key("oak_wood"), Key.key("pale_oak_log"), Key.key("pale_oak_planks"), Key.key("pale_oak_wood"), Key.key("spruce_log"), Key.key("spruce_planks"), Key.key("spruce_wood"), Key.key("stripped_acacia_log"), Key.key("stripped_acacia_wood"), Key.key("stripped_bamboo_block"), Key.key("stripped_birch_log"), Key.key("stripped_birch_wood"), Key.key("stripped_cherry_log"), Key.key("stripped_cherry_wood"), Key.key("stripped_crimson_hyphae"), Key.key("stripped_crimson_stem"), Key.key("stripped_dark_oak_log"), Key.key("stripped_dark_oak_wood"), Key.key("stripped_jungle_log"), Key.key("stripped_jungle_wood"), Key.key("stripped_mangrove_log"), Key.key("stripped_mangrove_wood"), Key.key("stripped_oak_log"), Key.key("stripped_oak_wood"), Key.key("stripped_pale_oak_log"), Key.key("stripped_pale_oak_wood"), Key.key("stripped_spruce_log"), Key.key("stripped_spruce_wood"), Key.key("stripped_warped_hyphae"), Key.key("stripped_warped_stem"), Key.key("warped_hyphae"), Key.key("warped_planks"), Key.key("warped_stem"))),
-        Map.entry(Key.key("sulfur_cube_archetype/explosive"), List.of(Key.key("tnt"))),
-        Map.entry(Key.key("sulfur_cube_archetype/fast_flat"), List.of(Key.key("brain_coral_block"), Key.key("bubble_coral_block"), Key.key("carved_pumpkin"), Key.key("chiseled_resin_bricks"), Key.key("dead_brain_coral_block"), Key.key("dead_bubble_coral_block"), Key.key("dead_fire_coral_block"), Key.key("dead_horn_coral_block"), Key.key("dead_tube_coral_block"), Key.key("dried_kelp_block"), Key.key("fire_coral_block"), Key.key("hay_block"), Key.key("horn_coral_block"), Key.key("jack_o_lantern"), Key.key("melon"), Key.key("moss_block"), Key.key("ochre_froglight"), Key.key("pale_moss_block"), Key.key("pearlescent_froglight"), Key.key("pumpkin"), Key.key("resin_block"), Key.key("resin_bricks"), Key.key("sponge"), Key.key("tube_coral_block"), Key.key("verdant_froglight"), Key.key("wet_sponge"))),
-        Map.entry(Key.key("sulfur_cube_archetype/fast_sliding"), List.of(Key.key("blue_ice"), Key.key("packed_ice"), Key.key("snow_block"))),
-        Map.entry(Key.key("sulfur_cube_archetype/high_resistance"), List.of(Key.key("soul_sand"), Key.key("soul_soil"))),
-        Map.entry(Key.key("sulfur_cube_archetype/hot"), List.of(Key.key("magma_block"))),
-        Map.entry(Key.key("sulfur_cube_archetype/light"), List.of(Key.key("black_wool"), Key.key("blue_wool"), Key.key("brown_wool"), Key.key("cyan_wool"), Key.key("gray_wool"), Key.key("green_wool"), Key.key("light_blue_wool"), Key.key("light_gray_wool"), Key.key("lime_wool"), Key.key("magenta_wool"), Key.key("orange_wool"), Key.key("pink_wool"), Key.key("purple_wool"), Key.key("red_wool"), Key.key("white_wool"), Key.key("yellow_wool"))),
-        Map.entry(Key.key("sulfur_cube_archetype/regular"), List.of(Key.key("black_concrete_powder"), Key.key("blue_concrete_powder"), Key.key("bone_block"), Key.key("brown_concrete_powder"), Key.key("clay"), Key.key("coal_block"), Key.key("coarse_dirt"), Key.key("cyan_concrete_powder"), Key.key("dirt"), Key.key("grass_block"), Key.key("gray_concrete_powder"), Key.key("green_concrete_powder"), Key.key("light_blue_concrete_powder"), Key.key("light_gray_concrete_powder"), Key.key("lime_concrete_powder"), Key.key("magenta_concrete_powder"), Key.key("mud"), Key.key("muddy_mangrove_roots"), Key.key("orange_concrete_powder"), Key.key("packed_mud"), Key.key("pink_concrete_powder"), Key.key("podzol"), Key.key("purple_concrete_powder"), Key.key("red_concrete_powder"), Key.key("rooted_dirt"), Key.key("white_concrete_powder"), Key.key("yellow_concrete_powder"))),
-        Map.entry(Key.key("sulfur_cube_archetype/slow_bouncy"), List.of(Key.key("amethyst_block"), Key.key("andesite"), Key.key("basalt"), Key.key("black_concrete"), Key.key("black_glazed_terracotta"), Key.key("black_terracotta"), Key.key("blackstone"), Key.key("blue_concrete"), Key.key("blue_glazed_terracotta"), Key.key("blue_terracotta"), Key.key("bricks"), Key.key("brown_concrete"), Key.key("brown_glazed_terracotta"), Key.key("brown_terracotta"), Key.key("calcite"), Key.key("chiseled_cinnabar"), Key.key("chiseled_deepslate"), Key.key("chiseled_nether_bricks"), Key.key("chiseled_polished_blackstone"), Key.key("chiseled_quartz_block"), Key.key("chiseled_red_sandstone"), Key.key("chiseled_sandstone"), Key.key("chiseled_stone_bricks"), Key.key("chiseled_sulfur"), Key.key("chiseled_tuff"), Key.key("chiseled_tuff_bricks"), Key.key("cinnabar"), Key.key("cinnabar_bricks"), Key.key("coal_ore"), Key.key("cobbled_deepslate"), Key.key("cobblestone"), Key.key("cracked_deepslate_bricks"), Key.key("cracked_deepslate_tiles"), Key.key("cracked_nether_bricks"), Key.key("cracked_polished_blackstone_bricks"), Key.key("cracked_stone_bricks"), Key.key("crimson_nylium"), Key.key("crying_obsidian"), Key.key("cut_red_sandstone"), Key.key("cut_sandstone"), Key.key("cyan_concrete"), Key.key("cyan_glazed_terracotta"), Key.key("cyan_terracotta"), Key.key("dark_prismarine"), Key.key("deepslate"), Key.key("deepslate_bricks"), Key.key("deepslate_coal_ore"), Key.key("deepslate_diamond_ore"), Key.key("deepslate_emerald_ore"), Key.key("deepslate_lapis_ore"), Key.key("deepslate_redstone_ore"), Key.key("deepslate_tiles"), Key.key("diamond_block"), Key.key("diamond_ore"), Key.key("diorite"), Key.key("dripstone_block"), Key.key("emerald_block"), Key.key("emerald_ore"), Key.key("end_stone"), Key.key("end_stone_bricks"), Key.key("gilded_blackstone"), Key.key("glowstone"), Key.key("granite"), Key.key("gray_concrete"), Key.key("gray_glazed_terracotta"), Key.key("gray_terracotta"), Key.key("green_concrete"), Key.key("green_glazed_terracotta"), Key.key("green_terracotta"), Key.key("lapis_block"), Key.key("lapis_ore"), Key.key("light_blue_concrete"), Key.key("light_blue_glazed_terracotta"), Key.key("light_blue_terracotta"), Key.key("light_gray_concrete"), Key.key("light_gray_glazed_terracotta"), Key.key("light_gray_terracotta"), Key.key("lime_concrete"), Key.key("lime_glazed_terracotta"), Key.key("lime_terracotta"), Key.key("magenta_concrete"), Key.key("magenta_glazed_terracotta"), Key.key("magenta_terracotta"), Key.key("mossy_cobblestone"), Key.key("mossy_stone_bricks"), Key.key("mud_bricks"), Key.key("nether_bricks"), Key.key("nether_quartz_ore"), Key.key("netherrack"), Key.key("observer"), Key.key("obsidian"), Key.key("orange_concrete"), Key.key("orange_glazed_terracotta"), Key.key("orange_terracotta"), Key.key("pink_concrete"), Key.key("pink_glazed_terracotta"), Key.key("pink_terracotta"), Key.key("polished_andesite"), Key.key("polished_basalt"), Key.key("polished_blackstone"), Key.key("polished_blackstone_bricks"), Key.key("polished_cinnabar"), Key.key("polished_deepslate"), Key.key("polished_diorite"), Key.key("polished_granite"), Key.key("polished_sulfur"), Key.key("polished_tuff"), Key.key("prismarine"), Key.key("prismarine_bricks"), Key.key("purple_concrete"), Key.key("purple_glazed_terracotta"), Key.key("purple_terracotta"), Key.key("purpur_block"), Key.key("purpur_pillar"), Key.key("quartz_block"), Key.key("quartz_bricks"), Key.key("quartz_pillar"), Key.key("red_concrete"), Key.key("red_glazed_terracotta"), Key.key("red_nether_bricks"), Key.key("red_sandstone"), Key.key("red_terracotta"), Key.key("redstone_lamp"), Key.key("redstone_ore"), Key.key("sandstone"), Key.key("sea_lantern"), Key.key("smooth_basalt"), Key.key("smooth_quartz"), Key.key("smooth_red_sandstone"), Key.key("smooth_sandstone"), Key.key("smooth_stone"), Key.key("stone"), Key.key("stone_bricks"), Key.key("sulfur"), Key.key("sulfur_bricks"), Key.key("terracotta"), Key.key("tuff"), Key.key("tuff_bricks"), Key.key("warped_nylium"), Key.key("white_concrete"), Key.key("white_glazed_terracotta"), Key.key("white_terracotta"), Key.key("yellow_concrete"), Key.key("yellow_glazed_terracotta"), Key.key("yellow_terracotta"))),
-        Map.entry(Key.key("sulfur_cube_archetype/slow_flat"), List.of(Key.key("ancient_debris"), Key.key("chiseled_copper"), Key.key("copper_block"), Key.key("copper_bulb"), Key.key("copper_ore"), Key.key("cut_copper"), Key.key("deepslate_copper_ore"), Key.key("deepslate_gold_ore"), Key.key("deepslate_iron_ore"), Key.key("exposed_chiseled_copper"), Key.key("exposed_copper"), Key.key("exposed_copper_bulb"), Key.key("exposed_cut_copper"), Key.key("gold_block"), Key.key("gold_ore"), Key.key("iron_block"), Key.key("iron_ore"), Key.key("nether_gold_ore"), Key.key("netherite_block"), Key.key("oxidized_chiseled_copper"), Key.key("oxidized_copper"), Key.key("oxidized_copper_bulb"), Key.key("oxidized_cut_copper"), Key.key("raw_copper_block"), Key.key("raw_gold_block"), Key.key("raw_iron_block"), Key.key("waxed_chiseled_copper"), Key.key("waxed_copper_block"), Key.key("waxed_copper_bulb"), Key.key("waxed_cut_copper"), Key.key("waxed_exposed_chiseled_copper"), Key.key("waxed_exposed_copper"), Key.key("waxed_exposed_copper_bulb"), Key.key("waxed_exposed_cut_copper"), Key.key("waxed_oxidized_chiseled_copper"), Key.key("waxed_oxidized_copper"), Key.key("waxed_oxidized_copper_bulb"), Key.key("waxed_oxidized_cut_copper"), Key.key("waxed_weathered_chiseled_copper"), Key.key("waxed_weathered_copper"), Key.key("waxed_weathered_copper_bulb"), Key.key("waxed_weathered_cut_copper"), Key.key("weathered_chiseled_copper"), Key.key("weathered_copper"), Key.key("weathered_copper_bulb"), Key.key("weathered_cut_copper"))),
-        Map.entry(Key.key("sulfur_cube_archetype/slow_sliding"), List.of(Key.key("brown_mushroom_block"), Key.key("mushroom_stem"), Key.key("mycelium"), Key.key("nether_wart_block"), Key.key("red_mushroom_block"), Key.key("shroomlight"), Key.key("warped_wart_block"))),
-        Map.entry(Key.key("sulfur_cube_archetype/sticky"), List.of(Key.key("honeycomb_block"))),
-        Map.entry(Key.key("sulfur_cube_food"), List.of(Key.key("slime_ball"))),
-        Map.entry(Key.key("sulfur_cube_swallowable"), List.of(Key.key("acacia_log"), Key.key("acacia_planks"), Key.key("acacia_wood"), Key.key("amethyst_block"), Key.key("ancient_debris"), Key.key("andesite"), Key.key("bamboo_block"), Key.key("bamboo_mosaic"), Key.key("bamboo_planks"), Key.key("basalt"), Key.key("birch_log"), Key.key("birch_planks"), Key.key("birch_wood"), Key.key("black_concrete"), Key.key("black_concrete_powder"), Key.key("black_glazed_terracotta"), Key.key("black_terracotta"), Key.key("black_wool"), Key.key("blackstone"), Key.key("blue_concrete"), Key.key("blue_concrete_powder"), Key.key("blue_glazed_terracotta"), Key.key("blue_ice"), Key.key("blue_terracotta"), Key.key("blue_wool"), Key.key("bone_block"), Key.key("brain_coral_block"), Key.key("bricks"), Key.key("brown_concrete"), Key.key("brown_concrete_powder"), Key.key("brown_glazed_terracotta"), Key.key("brown_mushroom_block"), Key.key("brown_terracotta"), Key.key("brown_wool"), Key.key("bubble_coral_block"), Key.key("calcite"), Key.key("carved_pumpkin"), Key.key("cherry_log"), Key.key("cherry_planks"), Key.key("cherry_wood"), Key.key("chiseled_cinnabar"), Key.key("chiseled_copper"), Key.key("chiseled_deepslate"), Key.key("chiseled_nether_bricks"), Key.key("chiseled_polished_blackstone"), Key.key("chiseled_quartz_block"), Key.key("chiseled_red_sandstone"), Key.key("chiseled_resin_bricks"), Key.key("chiseled_sandstone"), Key.key("chiseled_stone_bricks"), Key.key("chiseled_sulfur"), Key.key("chiseled_tuff"), Key.key("chiseled_tuff_bricks"), Key.key("cinnabar"), Key.key("cinnabar_bricks"), Key.key("clay"), Key.key("coal_block"), Key.key("coal_ore"), Key.key("coarse_dirt"), Key.key("cobbled_deepslate"), Key.key("cobblestone"), Key.key("copper_block"), Key.key("copper_bulb"), Key.key("copper_ore"), Key.key("cracked_deepslate_bricks"), Key.key("cracked_deepslate_tiles"), Key.key("cracked_nether_bricks"), Key.key("cracked_polished_blackstone_bricks"), Key.key("cracked_stone_bricks"), Key.key("crimson_hyphae"), Key.key("crimson_nylium"), Key.key("crimson_planks"), Key.key("crimson_stem"), Key.key("crying_obsidian"), Key.key("cut_copper"), Key.key("cut_red_sandstone"), Key.key("cut_sandstone"), Key.key("cyan_concrete"), Key.key("cyan_concrete_powder"), Key.key("cyan_glazed_terracotta"), Key.key("cyan_terracotta"), Key.key("cyan_wool"), Key.key("dark_oak_log"), Key.key("dark_oak_planks"), Key.key("dark_oak_wood"), Key.key("dark_prismarine"), Key.key("dead_brain_coral_block"), Key.key("dead_bubble_coral_block"), Key.key("dead_fire_coral_block"), Key.key("dead_horn_coral_block"), Key.key("dead_tube_coral_block"), Key.key("deepslate"), Key.key("deepslate_bricks"), Key.key("deepslate_coal_ore"), Key.key("deepslate_copper_ore"), Key.key("deepslate_diamond_ore"), Key.key("deepslate_emerald_ore"), Key.key("deepslate_gold_ore"), Key.key("deepslate_iron_ore"), Key.key("deepslate_lapis_ore"), Key.key("deepslate_redstone_ore"), Key.key("deepslate_tiles"), Key.key("diamond_block"), Key.key("diamond_ore"), Key.key("diorite"), Key.key("dirt"), Key.key("dried_kelp_block"), Key.key("dripstone_block"), Key.key("emerald_block"), Key.key("emerald_ore"), Key.key("end_stone"), Key.key("end_stone_bricks"), Key.key("exposed_chiseled_copper"), Key.key("exposed_copper"), Key.key("exposed_copper_bulb"), Key.key("exposed_cut_copper"), Key.key("fire_coral_block"), Key.key("gilded_blackstone"), Key.key("glowstone"), Key.key("gold_block"), Key.key("gold_ore"), Key.key("granite"), Key.key("grass_block"), Key.key("gray_concrete"), Key.key("gray_concrete_powder"), Key.key("gray_glazed_terracotta"), Key.key("gray_terracotta"), Key.key("gray_wool"), Key.key("green_concrete"), Key.key("green_concrete_powder"), Key.key("green_glazed_terracotta"), Key.key("green_terracotta"), Key.key("green_wool"), Key.key("hay_block"), Key.key("honeycomb_block"), Key.key("horn_coral_block"), Key.key("iron_block"), Key.key("iron_ore"), Key.key("jack_o_lantern"), Key.key("jungle_log"), Key.key("jungle_planks"), Key.key("jungle_wood"), Key.key("lapis_block"), Key.key("lapis_ore"), Key.key("light_blue_concrete"), Key.key("light_blue_concrete_powder"), Key.key("light_blue_glazed_terracotta"), Key.key("light_blue_terracotta"), Key.key("light_blue_wool"), Key.key("light_gray_concrete"), Key.key("light_gray_concrete_powder"), Key.key("light_gray_glazed_terracotta"), Key.key("light_gray_terracotta"), Key.key("light_gray_wool"), Key.key("lime_concrete"), Key.key("lime_concrete_powder"), Key.key("lime_glazed_terracotta"), Key.key("lime_terracotta"), Key.key("lime_wool"), Key.key("magenta_concrete"), Key.key("magenta_concrete_powder"), Key.key("magenta_glazed_terracotta"), Key.key("magenta_terracotta"), Key.key("magenta_wool"), Key.key("magma_block"), Key.key("mangrove_log"), Key.key("mangrove_planks"), Key.key("mangrove_wood"), Key.key("melon"), Key.key("moss_block"), Key.key("mossy_cobblestone"), Key.key("mossy_stone_bricks"), Key.key("mud"), Key.key("mud_bricks"), Key.key("muddy_mangrove_roots"), Key.key("mushroom_stem"), Key.key("mycelium"), Key.key("nether_bricks"), Key.key("nether_gold_ore"), Key.key("nether_quartz_ore"), Key.key("nether_wart_block"), Key.key("netherite_block"), Key.key("netherrack"), Key.key("oak_log"), Key.key("oak_planks"), Key.key("oak_wood"), Key.key("observer"), Key.key("obsidian"), Key.key("ochre_froglight"), Key.key("orange_concrete"), Key.key("orange_concrete_powder"), Key.key("orange_glazed_terracotta"), Key.key("orange_terracotta"), Key.key("orange_wool"), Key.key("oxidized_chiseled_copper"), Key.key("oxidized_copper"), Key.key("oxidized_copper_bulb"), Key.key("oxidized_cut_copper"), Key.key("packed_ice"), Key.key("packed_mud"), Key.key("pale_moss_block"), Key.key("pale_oak_log"), Key.key("pale_oak_planks"), Key.key("pale_oak_wood"), Key.key("pearlescent_froglight"), Key.key("pink_concrete"), Key.key("pink_concrete_powder"), Key.key("pink_glazed_terracotta"), Key.key("pink_terracotta"), Key.key("pink_wool"), Key.key("podzol"), Key.key("polished_andesite"), Key.key("polished_basalt"), Key.key("polished_blackstone"), Key.key("polished_blackstone_bricks"), Key.key("polished_cinnabar"), Key.key("polished_deepslate"), Key.key("polished_diorite"), Key.key("polished_granite"), Key.key("polished_sulfur"), Key.key("polished_tuff"), Key.key("prismarine"), Key.key("prismarine_bricks"), Key.key("pumpkin"), Key.key("purple_concrete"), Key.key("purple_concrete_powder"), Key.key("purple_glazed_terracotta"), Key.key("purple_terracotta"), Key.key("purple_wool"), Key.key("purpur_block"), Key.key("purpur_pillar"), Key.key("quartz_block"), Key.key("quartz_bricks"), Key.key("quartz_pillar"), Key.key("raw_copper_block"), Key.key("raw_gold_block"), Key.key("raw_iron_block"), Key.key("red_concrete"), Key.key("red_concrete_powder"), Key.key("red_glazed_terracotta"), Key.key("red_mushroom_block"), Key.key("red_nether_bricks"), Key.key("red_sandstone"), Key.key("red_terracotta"), Key.key("red_wool"), Key.key("redstone_lamp"), Key.key("redstone_ore"), Key.key("resin_block"), Key.key("resin_bricks"), Key.key("rooted_dirt"), Key.key("sandstone"), Key.key("sea_lantern"), Key.key("shroomlight"), Key.key("smooth_basalt"), Key.key("smooth_quartz"), Key.key("smooth_red_sandstone"), Key.key("smooth_sandstone"), Key.key("smooth_stone"), Key.key("snow_block"), Key.key("soul_sand"), Key.key("soul_soil"), Key.key("sponge"), Key.key("spruce_log"), Key.key("spruce_planks"), Key.key("spruce_wood"), Key.key("stone"), Key.key("stone_bricks"), Key.key("stripped_acacia_log"), Key.key("stripped_acacia_wood"), Key.key("stripped_bamboo_block"), Key.key("stripped_birch_log"), Key.key("stripped_birch_wood"), Key.key("stripped_cherry_log"), Key.key("stripped_cherry_wood"), Key.key("stripped_crimson_hyphae"), Key.key("stripped_crimson_stem"), Key.key("stripped_dark_oak_log"), Key.key("stripped_dark_oak_wood"), Key.key("stripped_jungle_log"), Key.key("stripped_jungle_wood"), Key.key("stripped_mangrove_log"), Key.key("stripped_mangrove_wood"), Key.key("stripped_oak_log"), Key.key("stripped_oak_wood"), Key.key("stripped_pale_oak_log"), Key.key("stripped_pale_oak_wood"), Key.key("stripped_spruce_log"), Key.key("stripped_spruce_wood"), Key.key("stripped_warped_hyphae"), Key.key("stripped_warped_stem"), Key.key("sulfur"), Key.key("sulfur_bricks"), Key.key("terracotta"), Key.key("tnt"), Key.key("tube_coral_block"), Key.key("tuff"), Key.key("tuff_bricks"), Key.key("verdant_froglight"), Key.key("warped_hyphae"), Key.key("warped_nylium"), Key.key("warped_planks"), Key.key("warped_stem"), Key.key("warped_wart_block"), Key.key("waxed_chiseled_copper"), Key.key("waxed_copper_block"), Key.key("waxed_copper_bulb"), Key.key("waxed_cut_copper"), Key.key("waxed_exposed_chiseled_copper"), Key.key("waxed_exposed_copper"), Key.key("waxed_exposed_copper_bulb"), Key.key("waxed_exposed_cut_copper"), Key.key("waxed_oxidized_chiseled_copper"), Key.key("waxed_oxidized_copper"), Key.key("waxed_oxidized_copper_bulb"), Key.key("waxed_oxidized_cut_copper"), Key.key("waxed_weathered_chiseled_copper"), Key.key("waxed_weathered_copper"), Key.key("waxed_weathered_copper_bulb"), Key.key("waxed_weathered_cut_copper"), Key.key("weathered_chiseled_copper"), Key.key("weathered_copper"), Key.key("weathered_copper_bulb"), Key.key("weathered_cut_copper"), Key.key("wet_sponge"), Key.key("white_concrete"), Key.key("white_concrete_powder"), Key.key("white_glazed_terracotta"), Key.key("white_terracotta"), Key.key("white_wool"), Key.key("yellow_concrete"), Key.key("yellow_concrete_powder"), Key.key("yellow_glazed_terracotta"), Key.key("yellow_terracotta"), Key.key("yellow_wool"))),
-        Map.entry(Key.key("swords"), List.of(Key.key("copper_sword"), Key.key("diamond_sword"), Key.key("golden_sword"), Key.key("iron_sword"), Key.key("netherite_sword"), Key.key("stone_sword"), Key.key("wooden_sword"))),
-        Map.entry(Key.key("terracotta"), List.of(Key.key("black_terracotta"), Key.key("blue_terracotta"), Key.key("brown_terracotta"), Key.key("cyan_terracotta"), Key.key("gray_terracotta"), Key.key("green_terracotta"), Key.key("light_blue_terracotta"), Key.key("light_gray_terracotta"), Key.key("lime_terracotta"), Key.key("magenta_terracotta"), Key.key("orange_terracotta"), Key.key("pink_terracotta"), Key.key("purple_terracotta"), Key.key("red_terracotta"), Key.key("terracotta"), Key.key("white_terracotta"), Key.key("yellow_terracotta"))),
-        Map.entry(Key.key("trapdoors"), List.of(Key.key("acacia_trapdoor"), Key.key("bamboo_trapdoor"), Key.key("birch_trapdoor"), Key.key("cherry_trapdoor"), Key.key("copper_trapdoor"), Key.key("crimson_trapdoor"), Key.key("dark_oak_trapdoor"), Key.key("exposed_copper_trapdoor"), Key.key("iron_trapdoor"), Key.key("jungle_trapdoor"), Key.key("mangrove_trapdoor"), Key.key("oak_trapdoor"), Key.key("oxidized_copper_trapdoor"), Key.key("pale_oak_trapdoor"), Key.key("spruce_trapdoor"), Key.key("warped_trapdoor"), Key.key("waxed_copper_trapdoor"), Key.key("waxed_exposed_copper_trapdoor"), Key.key("waxed_oxidized_copper_trapdoor"), Key.key("waxed_weathered_copper_trapdoor"), Key.key("weathered_copper_trapdoor"))),
-        Map.entry(Key.key("trim_materials"), List.of(Key.key("amethyst_shard"), Key.key("copper_ingot"), Key.key("diamond"), Key.key("emerald"), Key.key("gold_ingot"), Key.key("iron_ingot"), Key.key("lapis_lazuli"), Key.key("netherite_ingot"), Key.key("quartz"), Key.key("redstone"), Key.key("resin_brick"))),
-        Map.entry(Key.key("trimmable_armor"), List.of(Key.key("chainmail_boots"), Key.key("chainmail_chestplate"), Key.key("chainmail_helmet"), Key.key("chainmail_leggings"), Key.key("copper_boots"), Key.key("copper_chestplate"), Key.key("copper_helmet"), Key.key("copper_leggings"), Key.key("diamond_boots"), Key.key("diamond_chestplate"), Key.key("diamond_helmet"), Key.key("diamond_leggings"), Key.key("golden_boots"), Key.key("golden_chestplate"), Key.key("golden_helmet"), Key.key("golden_leggings"), Key.key("iron_boots"), Key.key("iron_chestplate"), Key.key("iron_helmet"), Key.key("iron_leggings"), Key.key("leather_boots"), Key.key("leather_chestplate"), Key.key("leather_helmet"), Key.key("leather_leggings"), Key.key("netherite_boots"), Key.key("netherite_chestplate"), Key.key("netherite_helmet"), Key.key("netherite_leggings"), Key.key("turtle_helmet"))),
-        Map.entry(Key.key("turtle_food"), List.of(Key.key("seagrass"))),
-        Map.entry(Key.key("villager_picks_up"), List.of(Key.key("beetroot"), Key.key("beetroot_seeds"), Key.key("bread"), Key.key("carrot"), Key.key("pitcher_pod"), Key.key("potato"), Key.key("torchflower_seeds"), Key.key("wheat"), Key.key("wheat_seeds"))),
-        Map.entry(Key.key("villager_plantable_seeds"), List.of(Key.key("beetroot_seeds"), Key.key("carrot"), Key.key("pitcher_pod"), Key.key("potato"), Key.key("torchflower_seeds"), Key.key("wheat_seeds"))),
-        Map.entry(Key.key("walls"), List.of(Key.key("andesite_wall"), Key.key("blackstone_wall"), Key.key("brick_wall"), Key.key("cinnabar_brick_wall"), Key.key("cinnabar_wall"), Key.key("cobbled_deepslate_wall"), Key.key("cobblestone_wall"), Key.key("deepslate_brick_wall"), Key.key("deepslate_tile_wall"), Key.key("diorite_wall"), Key.key("end_stone_brick_wall"), Key.key("granite_wall"), Key.key("mossy_cobblestone_wall"), Key.key("mossy_stone_brick_wall"), Key.key("mud_brick_wall"), Key.key("nether_brick_wall"), Key.key("polished_blackstone_brick_wall"), Key.key("polished_blackstone_wall"), Key.key("polished_cinnabar_wall"), Key.key("polished_deepslate_wall"), Key.key("polished_sulfur_wall"), Key.key("polished_tuff_wall"), Key.key("prismarine_wall"), Key.key("red_nether_brick_wall"), Key.key("red_sandstone_wall"), Key.key("resin_brick_wall"), Key.key("sandstone_wall"), Key.key("stone_brick_wall"), Key.key("sulfur_brick_wall"), Key.key("sulfur_wall"), Key.key("tuff_brick_wall"), Key.key("tuff_wall"))),
-        Map.entry(Key.key("warped_stems"), List.of(Key.key("stripped_warped_hyphae"), Key.key("stripped_warped_stem"), Key.key("warped_hyphae"), Key.key("warped_stem"))),
-        Map.entry(Key.key("wart_blocks"), List.of(Key.key("nether_wart_block"), Key.key("warped_wart_block"))),
-        Map.entry(Key.key("wither_skeleton_disliked_weapons"), List.of(Key.key("bow"), Key.key("crossbow"))),
-        Map.entry(Key.key("wolf_collar_dyes"), List.of(Key.key("black_dye"), Key.key("blue_dye"), Key.key("brown_dye"), Key.key("cyan_dye"), Key.key("gray_dye"), Key.key("green_dye"), Key.key("light_blue_dye"), Key.key("light_gray_dye"), Key.key("lime_dye"), Key.key("magenta_dye"), Key.key("orange_dye"), Key.key("pink_dye"), Key.key("purple_dye"), Key.key("red_dye"), Key.key("white_dye"), Key.key("yellow_dye"))),
-        Map.entry(Key.key("wolf_food"), List.of(Key.key("beef"), Key.key("chicken"), Key.key("cod"), Key.key("cooked_beef"), Key.key("cooked_chicken"), Key.key("cooked_cod"), Key.key("cooked_mutton"), Key.key("cooked_porkchop"), Key.key("cooked_rabbit"), Key.key("cooked_salmon"), Key.key("mutton"), Key.key("porkchop"), Key.key("pufferfish"), Key.key("rabbit"), Key.key("rabbit_stew"), Key.key("rotten_flesh"), Key.key("salmon"), Key.key("tropical_fish"))),
-        Map.entry(Key.key("wooden_buttons"), List.of(Key.key("acacia_button"), Key.key("bamboo_button"), Key.key("birch_button"), Key.key("cherry_button"), Key.key("crimson_button"), Key.key("dark_oak_button"), Key.key("jungle_button"), Key.key("mangrove_button"), Key.key("oak_button"), Key.key("pale_oak_button"), Key.key("spruce_button"), Key.key("warped_button"))),
-        Map.entry(Key.key("wooden_doors"), List.of(Key.key("acacia_door"), Key.key("bamboo_door"), Key.key("birch_door"), Key.key("cherry_door"), Key.key("crimson_door"), Key.key("dark_oak_door"), Key.key("jungle_door"), Key.key("mangrove_door"), Key.key("oak_door"), Key.key("pale_oak_door"), Key.key("spruce_door"), Key.key("warped_door"))),
-        Map.entry(Key.key("wooden_fences"), List.of(Key.key("acacia_fence"), Key.key("bamboo_fence"), Key.key("birch_fence"), Key.key("cherry_fence"), Key.key("crimson_fence"), Key.key("dark_oak_fence"), Key.key("jungle_fence"), Key.key("mangrove_fence"), Key.key("oak_fence"), Key.key("pale_oak_fence"), Key.key("spruce_fence"), Key.key("warped_fence"))),
-        Map.entry(Key.key("wooden_pressure_plates"), List.of(Key.key("acacia_pressure_plate"), Key.key("bamboo_pressure_plate"), Key.key("birch_pressure_plate"), Key.key("cherry_pressure_plate"), Key.key("crimson_pressure_plate"), Key.key("dark_oak_pressure_plate"), Key.key("jungle_pressure_plate"), Key.key("mangrove_pressure_plate"), Key.key("oak_pressure_plate"), Key.key("pale_oak_pressure_plate"), Key.key("spruce_pressure_plate"), Key.key("warped_pressure_plate"))),
-        Map.entry(Key.key("wooden_shelves"), List.of(Key.key("acacia_shelf"), Key.key("bamboo_shelf"), Key.key("birch_shelf"), Key.key("cherry_shelf"), Key.key("crimson_shelf"), Key.key("dark_oak_shelf"), Key.key("jungle_shelf"), Key.key("mangrove_shelf"), Key.key("oak_shelf"), Key.key("pale_oak_shelf"), Key.key("spruce_shelf"), Key.key("warped_shelf"))),
-        Map.entry(Key.key("wooden_slabs"), List.of(Key.key("acacia_slab"), Key.key("bamboo_slab"), Key.key("birch_slab"), Key.key("cherry_slab"), Key.key("crimson_slab"), Key.key("dark_oak_slab"), Key.key("jungle_slab"), Key.key("mangrove_slab"), Key.key("oak_slab"), Key.key("pale_oak_slab"), Key.key("spruce_slab"), Key.key("warped_slab"))),
-        Map.entry(Key.key("wooden_stairs"), List.of(Key.key("acacia_stairs"), Key.key("bamboo_stairs"), Key.key("birch_stairs"), Key.key("cherry_stairs"), Key.key("crimson_stairs"), Key.key("dark_oak_stairs"), Key.key("jungle_stairs"), Key.key("mangrove_stairs"), Key.key("oak_stairs"), Key.key("pale_oak_stairs"), Key.key("spruce_stairs"), Key.key("warped_stairs"))),
-        Map.entry(Key.key("wooden_tool_materials"), List.of(Key.key("acacia_planks"), Key.key("bamboo_planks"), Key.key("birch_planks"), Key.key("cherry_planks"), Key.key("crimson_planks"), Key.key("dark_oak_planks"), Key.key("jungle_planks"), Key.key("mangrove_planks"), Key.key("oak_planks"), Key.key("pale_oak_planks"), Key.key("spruce_planks"), Key.key("warped_planks"))),
-        Map.entry(Key.key("wooden_trapdoors"), List.of(Key.key("acacia_trapdoor"), Key.key("bamboo_trapdoor"), Key.key("birch_trapdoor"), Key.key("cherry_trapdoor"), Key.key("crimson_trapdoor"), Key.key("dark_oak_trapdoor"), Key.key("jungle_trapdoor"), Key.key("mangrove_trapdoor"), Key.key("oak_trapdoor"), Key.key("pale_oak_trapdoor"), Key.key("spruce_trapdoor"), Key.key("warped_trapdoor"))),
-        Map.entry(Key.key("wool"), List.of(Key.key("black_wool"), Key.key("blue_wool"), Key.key("brown_wool"), Key.key("cyan_wool"), Key.key("gray_wool"), Key.key("green_wool"), Key.key("light_blue_wool"), Key.key("light_gray_wool"), Key.key("lime_wool"), Key.key("magenta_wool"), Key.key("orange_wool"), Key.key("pink_wool"), Key.key("purple_wool"), Key.key("red_wool"), Key.key("white_wool"), Key.key("yellow_wool"))),
-        Map.entry(Key.key("wool_carpets"), List.of(Key.key("black_carpet"), Key.key("blue_carpet"), Key.key("brown_carpet"), Key.key("cyan_carpet"), Key.key("gray_carpet"), Key.key("green_carpet"), Key.key("light_blue_carpet"), Key.key("light_gray_carpet"), Key.key("lime_carpet"), Key.key("magenta_carpet"), Key.key("orange_carpet"), Key.key("pink_carpet"), Key.key("purple_carpet"), Key.key("red_carpet"), Key.key("white_carpet"), Key.key("yellow_carpet"))),
-        Map.entry(Key.key("zombie_horse_food"), List.of(Key.key("red_mushroom")))
+        VERDANT_FROGLIGHT,
+        VEX_ARMOR_TRIM_SMITHING_TEMPLATE,
+        VEX_SPAWN_EGG,
+        VILLAGER_SPAWN_EGG,
+        VINDICATOR_SPAWN_EGG,
+        VINE,
+        WANDERING_TRADER_SPAWN_EGG,
+        WARD_ARMOR_TRIM_SMITHING_TEMPLATE,
+        WARDEN_SPAWN_EGG,
+        WARPED_BUTTON,
+        WARPED_DOOR,
+        WARPED_FENCE,
+        WARPED_FENCE_GATE,
+        WARPED_FUNGUS,
+        WARPED_FUNGUS_ON_A_STICK,
+        WARPED_HANGING_SIGN,
+        WARPED_HYPHAE,
+        WARPED_NYLIUM,
+        WARPED_PLANKS,
+        WARPED_PRESSURE_PLATE,
+        WARPED_ROOTS,
+        WARPED_SHELF,
+        WARPED_SIGN,
+        WARPED_SLAB,
+        WARPED_STAIRS,
+        WARPED_STEM,
+        WARPED_TRAPDOOR,
+        WARPED_WART_BLOCK,
+        WATER_BUCKET,
+        WAXED_CHISELED_COPPER,
+        WAXED_COPPER_BARS,
+        WAXED_COPPER_BLOCK,
+        WAXED_COPPER_BULB,
+        WAXED_COPPER_CHAIN,
+        WAXED_COPPER_CHEST,
+        WAXED_COPPER_DOOR,
+        WAXED_COPPER_GOLEM_STATUE,
+        WAXED_COPPER_GRATE,
+        WAXED_COPPER_LANTERN,
+        WAXED_COPPER_TRAPDOOR,
+        WAXED_CUT_COPPER,
+        WAXED_CUT_COPPER_SLAB,
+        WAXED_CUT_COPPER_STAIRS,
+        WAXED_EXPOSED_CHISELED_COPPER,
+        WAXED_EXPOSED_COPPER,
+        WAXED_EXPOSED_COPPER_BARS,
+        WAXED_EXPOSED_COPPER_BULB,
+        WAXED_EXPOSED_COPPER_CHAIN,
+        WAXED_EXPOSED_COPPER_CHEST,
+        WAXED_EXPOSED_COPPER_DOOR,
+        WAXED_EXPOSED_COPPER_GOLEM_STATUE,
+        WAXED_EXPOSED_COPPER_GRATE,
+        WAXED_EXPOSED_COPPER_LANTERN,
+        WAXED_EXPOSED_COPPER_TRAPDOOR,
+        WAXED_EXPOSED_CUT_COPPER,
+        WAXED_EXPOSED_CUT_COPPER_SLAB,
+        WAXED_EXPOSED_CUT_COPPER_STAIRS,
+        WAXED_EXPOSED_LIGHTNING_ROD,
+        WAXED_LIGHTNING_ROD,
+        WAXED_OXIDIZED_CHISELED_COPPER,
+        WAXED_OXIDIZED_COPPER,
+        WAXED_OXIDIZED_COPPER_BARS,
+        WAXED_OXIDIZED_COPPER_BULB,
+        WAXED_OXIDIZED_COPPER_CHAIN,
+        WAXED_OXIDIZED_COPPER_CHEST,
+        WAXED_OXIDIZED_COPPER_DOOR,
+        WAXED_OXIDIZED_COPPER_GOLEM_STATUE,
+        WAXED_OXIDIZED_COPPER_GRATE,
+        WAXED_OXIDIZED_COPPER_LANTERN,
+        WAXED_OXIDIZED_COPPER_TRAPDOOR,
+        WAXED_OXIDIZED_CUT_COPPER,
+        WAXED_OXIDIZED_CUT_COPPER_SLAB,
+        WAXED_OXIDIZED_CUT_COPPER_STAIRS,
+        WAXED_OXIDIZED_LIGHTNING_ROD,
+        WAXED_WEATHERED_CHISELED_COPPER,
+        WAXED_WEATHERED_COPPER,
+        WAXED_WEATHERED_COPPER_BARS,
+        WAXED_WEATHERED_COPPER_BULB,
+        WAXED_WEATHERED_COPPER_CHAIN,
+        WAXED_WEATHERED_COPPER_CHEST,
+        WAXED_WEATHERED_COPPER_DOOR,
+        WAXED_WEATHERED_COPPER_GOLEM_STATUE,
+        WAXED_WEATHERED_COPPER_GRATE,
+        WAXED_WEATHERED_COPPER_LANTERN,
+        WAXED_WEATHERED_COPPER_TRAPDOOR,
+        WAXED_WEATHERED_CUT_COPPER,
+        WAXED_WEATHERED_CUT_COPPER_SLAB,
+        WAXED_WEATHERED_CUT_COPPER_STAIRS,
+        WAXED_WEATHERED_LIGHTNING_ROD,
+        WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE,
+        WEATHERED_CHISELED_COPPER,
+        WEATHERED_COPPER,
+        WEATHERED_COPPER_BARS,
+        WEATHERED_COPPER_BULB,
+        WEATHERED_COPPER_CHAIN,
+        WEATHERED_COPPER_CHEST,
+        WEATHERED_COPPER_DOOR,
+        WEATHERED_COPPER_GOLEM_STATUE,
+        WEATHERED_COPPER_GRATE,
+        WEATHERED_COPPER_LANTERN,
+        WEATHERED_COPPER_TRAPDOOR,
+        WEATHERED_CUT_COPPER,
+        WEATHERED_CUT_COPPER_SLAB,
+        WEATHERED_CUT_COPPER_STAIRS,
+        WEATHERED_LIGHTNING_ROD,
+        WEEPING_VINES,
+        WET_SPONGE,
+        WHEAT,
+        WHEAT_SEEDS,
+        WHITE_BANNER,
+        WHITE_BED,
+        WHITE_BUNDLE,
+        WHITE_CANDLE,
+        WHITE_CARPET,
+        WHITE_CONCRETE,
+        WHITE_CONCRETE_POWDER,
+        WHITE_DYE,
+        WHITE_GLAZED_TERRACOTTA,
+        WHITE_HARNESS,
+        WHITE_SHULKER_BOX,
+        WHITE_STAINED_GLASS,
+        WHITE_STAINED_GLASS_PANE,
+        WHITE_TERRACOTTA,
+        WHITE_TULIP,
+        WHITE_WOOL,
+        WILD_ARMOR_TRIM_SMITHING_TEMPLATE,
+        WILDFLOWERS,
+        WIND_CHARGE,
+        WITCH_SPAWN_EGG,
+        WITHER_ROSE,
+        WITHER_SKELETON_SKULL,
+        WITHER_SKELETON_SPAWN_EGG,
+        WITHER_SPAWN_EGG,
+        WOLF_ARMOR,
+        WOLF_SPAWN_EGG,
+        WOODEN_AXE,
+        WOODEN_HOE,
+        WOODEN_PICKAXE,
+        WOODEN_SHOVEL,
+        WOODEN_SPEAR,
+        WOODEN_SWORD,
+        WRITABLE_BOOK,
+        WRITTEN_BOOK,
+        YELLOW_BANNER,
+        YELLOW_BED,
+        YELLOW_BUNDLE,
+        YELLOW_CANDLE,
+        YELLOW_CARPET,
+        YELLOW_CONCRETE,
+        YELLOW_CONCRETE_POWDER,
+        YELLOW_DYE,
+        YELLOW_GLAZED_TERRACOTTA,
+        YELLOW_HARNESS,
+        YELLOW_SHULKER_BOX,
+        YELLOW_STAINED_GLASS,
+        YELLOW_STAINED_GLASS_PANE,
+        YELLOW_TERRACOTTA,
+        YELLOW_WOOL,
+        ZOGLIN_SPAWN_EGG,
+        ZOMBIE_HEAD,
+        ZOMBIE_HORSE_SPAWN_EGG,
+        ZOMBIE_NAUTILUS_SPAWN_EGG,
+        ZOMBIE_SPAWN_EGG,
+        ZOMBIE_VILLAGER_SPAWN_EGG,
+        ZOMBIFIED_PIGLIN_SPAWN_EGG
     );
 
     private ItemKeys() {
@@ -9486,14 +9251,5 @@ public final class ItemKeys {
      */
     public static Stream<TypedKey<Item>> values() {
         return VALUES.stream();
-    }
-
-    /**
-     * Returns this registry's tags (namespaced tag identifier to member entries).
-     *
-     * @return an immutable map of tags, or an empty map if this registry defines none
-     */
-    public static Map<Key, List<Key>> tags() {
-        return TAGS;
     }
 }
