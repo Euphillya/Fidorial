@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.world.storage;
 
+import com.google.common.hash.Hashing;
 import fr.euphyllia.fidorial.server.world.ChunkGeneratorConfig;
 import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
@@ -351,6 +352,10 @@ public class LevelData {
                 yield generator.build();
             }
         };
+    }
+
+    public final long hashedSeed() {
+        return Hashing.sha256().hashLong(seed).asLong();
     }
 
     public boolean exists(final Path levelDat) {

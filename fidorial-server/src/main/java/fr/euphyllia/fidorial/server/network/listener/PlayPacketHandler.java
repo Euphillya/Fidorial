@@ -248,6 +248,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 dimensions,
                 worldId(),
                 dimensionType,
+                worldManager().levelData().hashedSeed(),
                 config.viewDistance(),
                 player.gameMode().id(),
                 describeGenerator(worldId()) instanceof ChunkGeneratorConfig.Debug,
@@ -680,6 +681,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.send(new ClientboundRespawnPacket(
                 target.dimension().id(),
                 dimensionType,
+                worldManager().levelData().hashedSeed(),
                 player.gameMode().id(),
                 ClientboundRespawnPacket.KEEP_ALL,
                 describeGenerator(target.dimension().id()) instanceof ChunkGeneratorConfig.Debug,
@@ -801,6 +803,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.send(new ClientboundRespawnPacket(
                 world.dimension().id(),
                 dimensionType,
+                worldManager().levelData().hashedSeed(),
                 player.gameMode().id(),
                 ClientboundRespawnPacket.KEEP_NOTHING,
                 describeGenerator(world.dimension().id()) instanceof ChunkGeneratorConfig.Debug,
