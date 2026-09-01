@@ -47,6 +47,12 @@ public final class PositionData {
         }
     }
 
+    public record VelocityVec3D(double x, double y, double z) {
+        public void writeTo(PacketBuffer buf) {
+            buf.writeLpVec3(x, y, z);
+        }
+    }
+
     public record FloatRotation(float yaw, float pitch) {
         public void writeTo(PacketBuffer buf) {
             buf.writeFloat(yaw);

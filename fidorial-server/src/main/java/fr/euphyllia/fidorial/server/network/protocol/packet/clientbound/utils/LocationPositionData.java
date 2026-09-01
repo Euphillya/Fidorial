@@ -12,15 +12,19 @@ public final class LocationPositionData {
         return new PositionData.Vec3D(location.x(), location.y(), location.z());
     }
 
+    public static PositionData.@Nullable DeltaVec3D deltaVec3(final Location previous, final Location location) {
+        return PositionData.DeltaVec3D.between(vec3(previous), vec3(location));
+    }
+
+    public static PositionData.VelocityVec3D velocityVec3D(final Location location) {
+        return new PositionData.VelocityVec3D(location.x(), location.y(), location.z());
+    }
+
     public static PositionData.FloatRotation floatRotation(final Location location) {
         return new PositionData.FloatRotation(location.yaw(), location.pitch());
     }
 
     public static PositionData.AngleRotation angleRotation(final Location location) {
         return new PositionData.AngleRotation(location.yaw(), location.pitch());
-    }
-
-    public static PositionData.@Nullable DeltaVec3D deltaVec3(final Location previous, final Location location) {
-        return PositionData.DeltaVec3D.between(vec3(previous), vec3(location));
     }
 }
