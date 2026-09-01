@@ -120,7 +120,7 @@ tasks.withType<GenerateBlockStatesTask>().configureEach {
 }
 
 fidorialRegistryGenerator {
-    minecraftVersion.set("26.3-snapshot-10")
+    minecraftVersion.set("26.3-pre-1")
     prismarineMinecraftData.set("26.3-snapshot-10")
     prismarineDataRepository.set("Toffikk/minecraft-data") // PrismarineJS/minecraft-data
     prismarineDataRef.set("ver/26.3-snapshot-10") // master
@@ -144,7 +144,7 @@ fidorialRegistryGenerator {
     )
 
     dataGeneratorArguments.set(
-        listOf("--reports")
+        listOf("--reports", "--server")
     )
 
     registries.set(

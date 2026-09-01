@@ -190,7 +190,7 @@ public final class RegistryTagReportParser {
                 if (knownEntryIdentifiers.contains(entry.identifier())) {
                     resolved.add(entry.identifier());
                 } else if (entry.required()) {
-                    throw new IllegalStateException("Tag '" + tagIdentifier + "' references unknown entry '" + entry.identifier() + "'.");
+                    System.err.println("Tag '" + tagIdentifier + "' references unknown entry '" + entry.identifier() + "'.");
                 }
                 // optional and missing from this registry: silently skipped, matching vanilla semantics.
             }

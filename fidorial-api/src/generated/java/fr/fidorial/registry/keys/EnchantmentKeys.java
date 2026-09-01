@@ -4,9 +4,7 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.Enchantment;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -228,9 +226,6 @@ public final class EnchantmentKeys {
      */
     public static final TypedKey<Enchantment> WIND_BURST = create("wind_burst");
 
-    /**
-     * Entries in ascending {@code protocol_id} order - list index == network ID.
-     */
     private static final List<TypedKey<Enchantment>> VALUES = List.of(
         AQUA_AFFINITY,
         BANE_OF_ARTHROPODS,
@@ -292,14 +287,5 @@ public final class EnchantmentKeys {
      */
     public static Stream<TypedKey<Enchantment>> values() {
         return VALUES.stream();
-    }
-
-    /**
-     * Returns this registry's tags (namespaced tag identifier to member entries).
-     *
-     * @return an immutable map of tags, or an empty map if this registry defines none
-     */
-    public static Map<Key, List<Key>> tags() {
-        return Map.of();
     }
 }

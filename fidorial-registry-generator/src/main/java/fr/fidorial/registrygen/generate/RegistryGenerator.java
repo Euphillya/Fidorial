@@ -8,6 +8,7 @@ import fr.fidorial.registrygen.model.ProtocolIdTarget;
 import fr.fidorial.registrygen.model.RegistriesHolder;
 import fr.fidorial.registrygen.model.RegistryDefinition;
 import fr.fidorial.registrygen.model.RegistryEntryDefinition;
+import fr.fidorial.registrygen.model.RegistrySync;
 import fr.fidorial.registrygen.model.RegistryTagDefinition;
 import fr.fidorial.registrygen.model.RegistryTypeDefinition;
 import fr.fidorial.registrygen.model.SupportedRegistries;
@@ -15,6 +16,7 @@ import fr.fidorial.registrygen.model.SupportedRegistries;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,6 +36,7 @@ public final class RegistryGenerator {
     private final RegistryTagReportParser tagReportParser;
     private final RegistryDataGenerator dataGenerator;
     private final RegistryKeysGenerator keysGenerator;
+    private final RegistryDatasetGenerator datasetGenerator;
     private final RegistryKeyGenerator registryKeyGenerator;
     private final RegistryProtocolIdGenerator protocolIdGenerator;
     private final BlockReportParser blockReportParser;
@@ -51,6 +54,7 @@ public final class RegistryGenerator {
                 new RegistryTagReportParser(),
                 new RegistryDataGenerator(),
                 new RegistryKeysGenerator(),
+                new RegistryDatasetGenerator(),
                 new RegistryKeyGenerator(),
                 new RegistryProtocolIdGenerator(),
                 new BlockReportParser(),
@@ -69,6 +73,7 @@ public final class RegistryGenerator {
      * @param tagReportParser             vanilla tag file parser
      * @param dataGenerator               marker-interface generator
      * @param keysGenerator               typed registry-entry key generator
+     * @param datasetGenerator            runtime registry dataset generator
      * @param registryKeyGenerator        central registry-key generator
      * @param protocolIdGenerator         raw protocol ID constant generator
      * @param blockReportParser           blocks report parser
@@ -80,6 +85,7 @@ public final class RegistryGenerator {
                              final RegistryTagReportParser tagReportParser,
                              final RegistryDataGenerator dataGenerator,
                              final RegistryKeysGenerator keysGenerator,
+                             final RegistryDatasetGenerator datasetGenerator,
                              final RegistryKeyGenerator registryKeyGenerator,
                              final RegistryProtocolIdGenerator protocolIdGenerator,
                              final BlockReportParser blockReportParser,
@@ -91,6 +97,7 @@ public final class RegistryGenerator {
         this.tagReportParser = Objects.requireNonNull(tagReportParser, "tagReportParser");
         this.dataGenerator = Objects.requireNonNull(dataGenerator, "dataGenerator");
         this.keysGenerator = Objects.requireNonNull(keysGenerator, "keysGenerator");
+        this.datasetGenerator = Objects.requireNonNull(datasetGenerator, "datasetGenerator");
         this.registryKeyGenerator = Objects.requireNonNull(registryKeyGenerator, "registryKeyGenerator");
         this.protocolIdGenerator = Objects.requireNonNull(protocolIdGenerator, "protocolIdGenerator");
         this.blockReportParser = Objects.requireNonNull(blockReportParser, "blockReportParser");
@@ -105,13 +112,14 @@ public final class RegistryGenerator {
      *
      * @param registriesJson      path to Mojang's {@code registries.json}
      * @param vanillaDataDirectory root of the vanilla data dump produced by the
-     *                             {@code --server} data generator flag (i.e. the
-     *                             directory directly containing {@code minecraft/}),
-     *                             used to additionally resolve tags for each registry.
-     *                             May be {@code null} or non-existent - tag generation is
-     *                             then silently skipped and every {@code *Keys} class still
-     *                             gets a {@code tags()} method returning an empty map.
+     *                             {@code --server} data generator flag (the directory
+     *                             directly containing {@code minecraft/}), used to
+     *                             resolve each registry's tags. May be {@code null} or
+     *                             non-existent, in which case the dataset is written
+     *                             with empty tags.
      * @param outputDirectory     generated Java source root
+     * @param datasetDirectory    directory receiving {@code registries_frozen.json} and
+     *                            {@code registries_dynamic.json}, or {@code null} to skip them
      * @param registryTypes       the registries to generate
      * @param dataPackage         the subpackage for generated registry marker interfaces
      * @param keysPackage         the subpackage for generated registry keys
@@ -122,6 +130,7 @@ public final class RegistryGenerator {
     public void generate(final Path registriesJson,
                          final Path vanillaDataDirectory,
                          final Path outputDirectory,
+                         final Path datasetDirectory,
                          final List<RegistryTypeDefinition> registryTypes,
                          final String registryPackage,
                          final String dataPackage,
@@ -140,6 +149,9 @@ public final class RegistryGenerator {
         Files.createDirectories(outputDirectory);
 
         final RegistriesHolder registries = parser.parse(registriesJson);
+
+        final Map<String, RegistryDefinition> generatedRegistries = new LinkedHashMap<>();
+        final Map<String, List<RegistryTagDefinition>> resolvedTags = new LinkedHashMap<>();
 
         for (final RegistryTypeDefinition registryType : registryTypes) {
 
@@ -161,16 +173,21 @@ public final class RegistryGenerator {
                 continue;
             }
 
-            final Set<String> knownEntryIdentifiers = registryDefinition.get().entries().stream()
-                    .map(RegistryEntryDefinition::identifier)
-                    .collect(Collectors.toUnmodifiableSet());
+            generatedRegistries.put(registryType.identifier(), registryDefinition.get());
 
-            final List<RegistryTagDefinition> tags =
-                    tagReportParser.parse(vanillaDataDirectory, registryType.path(), knownEntryIdentifiers);
+            if (registryType.sync() != RegistrySync.NONE) {
+
+                final Set<String> knownEntryIdentifiers = registryDefinition.get().entries().stream()
+                        .map(RegistryEntryDefinition::identifier)
+                        .collect(Collectors.toUnmodifiableSet());
+
+                resolvedTags.put(registryType.identifier(),
+                        tagReportParser.parse(vanillaDataDirectory, registryType.path(), knownEntryIdentifiers));
+            }
 
             dataGenerator.generate(registryType, registryType.dataPackage(dataPackage), outputDirectory);
             keysGenerator.generate(
-                    registryType, registryDefinition.get(), tags,
+                    registryType, registryDefinition.get(),
                     registryPackage, registryType.dataPackage(dataPackage),
                     registryType.keysPackage(keysPackage), outputDirectory
             );
@@ -178,6 +195,15 @@ public final class RegistryGenerator {
             if (registryType.identifier().equals(SupportedRegistries.DIMENSION_TYPE.identifier())) {
                 dimensionTypesGenerator.generate(registryType, registryDefinition.get(), registryType.keysPackage(keysPackage), outputDirectory);
             }
+        }
+
+        /*
+         * Entries and tags ship as data rather than as bytecode: inlining them into the
+         * generated *Keys classes overflows the JVM's 64 KiB per-method limit on large
+         * registries, and it is the server, not the API, that needs them at runtime.
+         */
+        if (datasetDirectory != null) {
+            datasetGenerator.generate(generatedRegistries, resolvedTags, registryTypes, datasetDirectory);
         }
 
         /*

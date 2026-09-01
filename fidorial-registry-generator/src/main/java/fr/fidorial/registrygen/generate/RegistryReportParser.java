@@ -142,7 +142,11 @@ public final class RegistryReportParser {
             entries.add(new RegistryEntryDefinition(entryIdentifier, protocolId));
         }
 
-        entries.sort(Comparator.comparingInt(RegistryEntryDefinition::protocolId));
+        /*
+         * Sort alphabetically by registry entry identifier so generated
+         * key constants are emitted in a predictable, readable order.
+         */
+        entries.sort(Comparator.comparing(RegistryEntryDefinition::identifier));
 
         return List.copyOf(entries);
     }

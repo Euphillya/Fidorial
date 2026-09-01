@@ -140,6 +140,7 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
                     .map(directory -> directory.dir("generated/data")));
 
             task.getGeneratedSourcesDirectory().set(extension.getGeneratedSourcesDirectory());
+            task.getRegistriesDatasetDirectory().set(extension.getRegistriesDatasetDirectory());
         });
     }
 

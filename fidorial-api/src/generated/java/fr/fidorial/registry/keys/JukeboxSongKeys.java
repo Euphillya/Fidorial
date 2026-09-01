@@ -4,15 +4,28 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.JukeboxSong;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
  * Typed keys for entries in the {@code minecraft:jukebox_song} registry.
  */
 public final class JukeboxSongKeys {
+    /**
+     * Key for {@code minecraft:11}.
+     */
+    public static final TypedKey<JukeboxSong> _11 = create("11");
+
+    /**
+     * Key for {@code minecraft:13}.
+     */
+    public static final TypedKey<JukeboxSong> _13 = create("13");
+
+    /**
+     * Key for {@code minecraft:5}.
+     */
+    public static final TypedKey<JukeboxSong> _5 = create("5");
+
     /**
      * Key for {@code minecraft:blocks}.
      */
@@ -108,24 +121,6 @@ public final class JukeboxSongKeys {
      */
     public static final TypedKey<JukeboxSong> WARD = create("ward");
 
-    /**
-     * Key for {@code minecraft:11}.
-     */
-    public static final TypedKey<JukeboxSong> _11 = create("11");
-
-    /**
-     * Key for {@code minecraft:13}.
-     */
-    public static final TypedKey<JukeboxSong> _13 = create("13");
-
-    /**
-     * Key for {@code minecraft:5}.
-     */
-    public static final TypedKey<JukeboxSong> _5 = create("5");
-
-    /**
-     * Entries in ascending {@code protocol_id} order - list index == network ID.
-     */
     private static final List<TypedKey<JukeboxSong>> VALUES = List.of(
         _11,
         _13,
@@ -166,14 +161,5 @@ public final class JukeboxSongKeys {
      */
     public static Stream<TypedKey<JukeboxSong>> values() {
         return VALUES.stream();
-    }
-
-    /**
-     * Returns this registry's tags (namespaced tag identifier to member entries).
-     *
-     * @return an immutable map of tags, or an empty map if this registry defines none
-     */
-    public static Map<Key, List<Key>> tags() {
-        return Map.of();
     }
 }

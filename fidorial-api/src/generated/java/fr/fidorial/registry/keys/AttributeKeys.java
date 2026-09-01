@@ -4,9 +4,7 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.Attribute;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -213,9 +211,6 @@ public final class AttributeKeys {
      */
     public static final TypedKey<Attribute> WAYPOINT_TRANSMIT_RANGE = create("waypoint_transmit_range");
 
-    /**
-     * Entries in ascending {@code protocol_id} order - list index == network ID.
-     */
     private static final List<TypedKey<Attribute>> VALUES = List.of(
         AIR_DRAG_MODIFIER,
         ARMOR,
@@ -229,8 +224,8 @@ public final class AttributeKeys {
         BOUNCINESS,
         BURNING_TIME,
         CAMERA_DISTANCE,
-        EXPLOSION_KNOCKBACK_RESISTANCE,
         ENTITY_INTERACTION_RANGE,
+        EXPLOSION_KNOCKBACK_RESISTANCE,
         FALL_DAMAGE_MULTIPLIER,
         FLYING_SPEED,
         FOLLOW_RANGE,
@@ -255,8 +250,8 @@ public final class AttributeKeys {
         SWEEPING_DAMAGE_RATIO,
         TEMPT_RANGE,
         WATER_MOVEMENT_EFFICIENCY,
-        WAYPOINT_TRANSMIT_RANGE,
-        WAYPOINT_RECEIVE_RANGE
+        WAYPOINT_RECEIVE_RANGE,
+        WAYPOINT_TRANSMIT_RANGE
     );
 
     private AttributeKeys() {
@@ -274,14 +269,5 @@ public final class AttributeKeys {
      */
     public static Stream<TypedKey<Attribute>> values() {
         return VALUES.stream();
-    }
-
-    /**
-     * Returns this registry's tags (namespaced tag identifier to member entries).
-     *
-     * @return an immutable map of tags, or an empty map if this registry defines none
-     */
-    public static Map<Key, List<Key>> tags() {
-        return Map.of();
     }
 }
