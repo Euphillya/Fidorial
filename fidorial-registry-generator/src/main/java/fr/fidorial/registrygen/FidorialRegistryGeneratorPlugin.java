@@ -136,6 +136,9 @@ public final class FidorialRegistryGeneratorPlugin implements Plugin<Project> {
             task.getReportsDirectory().set(reportsTask.flatMap(GenerateReportsTask::getDataDirectory)
                     .map(directory -> directory.dir("generated/reports")));
 
+            task.getVanillaDataDirectory().set(reportsTask.flatMap(GenerateReportsTask::getDataDirectory)
+                    .map(directory -> directory.dir("generated/data")));
+
             task.getGeneratedSourcesDirectory().set(extension.getGeneratedSourcesDirectory());
         });
     }

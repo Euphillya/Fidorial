@@ -4,7 +4,9 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.VillagerProfession;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -86,7 +88,11 @@ public final class VillagerProfessionKeys {
      */
     public static final TypedKey<VillagerProfession> WEAPONSMITH = create("weaponsmith");
 
+    /**
+     * Entries in ascending {@code protocol_id} order - list index == network ID.
+     */
     private static final List<TypedKey<VillagerProfession>> VALUES = List.of(
+        NONE,
         ARMORER,
         BUTCHER,
         CARTOGRAPHER,
@@ -98,7 +104,6 @@ public final class VillagerProfessionKeys {
         LIBRARIAN,
         MASON,
         NITWIT,
-        NONE,
         SHEPHERD,
         TOOLSMITH,
         WEAPONSMITH
@@ -119,5 +124,14 @@ public final class VillagerProfessionKeys {
      */
     public static Stream<TypedKey<VillagerProfession>> values() {
         return VALUES.stream();
+    }
+
+    /**
+     * Returns this registry's tags (namespaced tag identifier to member entries).
+     *
+     * @return an immutable map of tags, or an empty map if this registry defines none
+     */
+    public static Map<Key, List<Key>> tags() {
+        return Map.of();
     }
 }
