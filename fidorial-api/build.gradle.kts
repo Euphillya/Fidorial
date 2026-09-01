@@ -79,6 +79,29 @@ publishing {
     }
 }
 
+
+val verifyRegistryDataset = tasks.register("verifyRegistryDataset") {
+    group = "verification"
+    description = "Fails if the generated registry dataset is missing from the packaged resources."
+
+    dependsOn(tasks.processResources)
+
+    val datasetDirectory = sourceSets.main.get().output.resourcesDir!!.resolve("fidorial-data")
+    val expected = listOf("registries_frozen.json", "registries_dynamic.json")
+
+    doLast {
+        val missing = expected.filter { datasetDirectory.resolve(it).length() <= 2 }
+        if (missing.isNotEmpty()) {
+            throw GradleException(
+                "Registry dataset missing or empty: ${missing.joinToString()}. " +
+                        "Run ':fidorial-api:generateRegistries'."
+            )
+        }
+    }
+}
+
+tasks.named("check") { dependsOn(verifyRegistryDataset) }
+
 fidorialRegistryGenerator {
     minecraftVersion.set("26.2")
 
@@ -88,50 +111,14 @@ fidorialRegistryGenerator {
         )
     )
 
+    // "--server" additionally dumps the vanilla tag files the dataset is built from.
     dataGeneratorArguments.set(
-        listOf("--reports")
+        listOf("--reports", "--server")
     )
 
-    registries.set(
-        mapOf(
-            "minecraft:attribute" to "Attribute",
-            "minecraft:banner_pattern" to "BannerPattern",
-            "minecraft:worldgen/biome" to "Biome",
-            "minecraft:block" to "BlockType",
-            "minecraft:cat_sound_variant" to "CatSoundVariant",
-            "minecraft:cat_variant" to "CatVariant",
-            "minecraft:chat_type" to "ChatType",
-            "minecraft:chicken_sound_variant" to "ChickenSoundVariant",
-            "minecraft:chicken_variant" to "ChickenVariant",
-            "minecraft:cow_sound_variant" to "CowSoundVariant",
-            "minecraft:cow_variant" to "CowVariant",
-            "minecraft:damage_type" to "DamageType",
-            "minecraft:data_component_type" to "DataComponentType",
-            "minecraft:dialog" to "Dialog",
-            "minecraft:dimension_type" to "DimensionType",
-            "minecraft:enchantment" to "Enchantment",
-            "minecraft:frog_variant" to "FrogVariant",
-            "minecraft:game_event" to "GameEvent",
-            "minecraft:game_rule" to "GameRule",
-            "minecraft:instrument" to "Instrument",
-            "minecraft:item" to "Item",
-            "minecraft:jukebox_song" to "JukeboxSong",
-            "minecraft:map_decoration_type" to "MapDecorationType",
-            "minecraft:menu" to "MenuType",
-            "minecraft:mob_effect" to "MobEffect",
-            "minecraft:painting_variant" to "PaintingVariant",
-            "minecraft:pig_sound_variant" to "PigSoundVariant",
-            "minecraft:pig_variant" to "PigVariant",
-            "minecraft:sound_event" to "SoundEvent",
-            "minecraft:timeline" to "Timeline",
-            "minecraft:trim_material" to "TrimMaterial",
-            "minecraft:trim_pattern" to "TrimPattern",
-            "minecraft:villager_profession" to "VillagerProfession",
-            "minecraft:villager_type" to "VillagerType",
-            "minecraft:wolf_sound_variant" to "WolfSoundVariant",
-            "minecraft:wolf_variant" to "WolfVariant",
-            "minecraft:world_clock" to "WorldClock",
-            "minecraft:zombie_nautilus_variant" to "ZombieNautilusVariant"
+    registriesDatasetDirectory.set(
+        layout.projectDirectory.dir(
+            "src/generated/resources/fidorial-data"
         )
     )
 }
