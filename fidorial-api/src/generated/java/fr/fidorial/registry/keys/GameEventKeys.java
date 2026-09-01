@@ -4,7 +4,9 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.GameEvent;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -316,6 +318,9 @@ public final class GameEventKeys {
      */
     public static final TypedKey<GameEvent> UNEQUIP = create("unequip");
 
+    /**
+     * Entries in ascending {@code protocol_id} order - list index == network ID.
+     */
     private static final List<TypedKey<GameEvent>> VALUES = List.of(
         BLOCK_ACTIVATE,
         BLOCK_ATTACH,
@@ -332,13 +337,13 @@ public final class GameEventKeys {
         DRINK,
         EAT,
         ELYTRA_GLIDE,
-        ENTITY_ACTION,
         ENTITY_DAMAGE,
         ENTITY_DIE,
         ENTITY_DISMOUNT,
         ENTITY_INTERACT,
         ENTITY_MOUNT,
         ENTITY_PLACE,
+        ENTITY_ACTION,
         EQUIP,
         EXPLODE,
         FLAP,
@@ -355,13 +360,15 @@ public final class GameEventKeys {
         PRIME_FUSE,
         PROJECTILE_LAND,
         PROJECTILE_SHOOT,
+        SCULK_SENSOR_TENDRILS_CLICKING,
+        SHEAR,
+        SHRIEK,
+        SPLASH,
+        STEP,
+        SWIM,
+        TELEPORT,
+        UNEQUIP,
         RESONATE_1,
-        RESONATE_10,
-        RESONATE_11,
-        RESONATE_12,
-        RESONATE_13,
-        RESONATE_14,
-        RESONATE_15,
         RESONATE_2,
         RESONATE_3,
         RESONATE_4,
@@ -370,14 +377,23 @@ public final class GameEventKeys {
         RESONATE_7,
         RESONATE_8,
         RESONATE_9,
-        SCULK_SENSOR_TENDRILS_CLICKING,
-        SHEAR,
-        SHRIEK,
-        SPLASH,
-        STEP,
-        SWIM,
-        TELEPORT,
-        UNEQUIP
+        RESONATE_10,
+        RESONATE_11,
+        RESONATE_12,
+        RESONATE_13,
+        RESONATE_14,
+        RESONATE_15
+    );
+
+    /**
+     * Namespaced tag identifier to flattened member entries.
+     */
+    private static final Map<Key, List<Key>> TAGS = Map.ofEntries(
+        Map.entry(Key.key("allay_can_listen"), List.of(Key.key("note_block_play"))),
+        Map.entry(Key.key("ignore_vibrations_sneaking"), List.of(Key.key("hit_ground"), Key.key("item_interact_finish"), Key.key("item_interact_start"), Key.key("projectile_shoot"), Key.key("step"), Key.key("swim"))),
+        Map.entry(Key.key("shrieker_can_listen"), List.of(Key.key("sculk_sensor_tendrils_clicking"))),
+        Map.entry(Key.key("vibrations"), List.of(Key.key("block_activate"), Key.key("block_attach"), Key.key("block_change"), Key.key("block_close"), Key.key("block_deactivate"), Key.key("block_destroy"), Key.key("block_detach"), Key.key("block_open"), Key.key("block_place"), Key.key("bounce"), Key.key("container_close"), Key.key("container_open"), Key.key("drink"), Key.key("eat"), Key.key("elytra_glide"), Key.key("entity_action"), Key.key("entity_damage"), Key.key("entity_die"), Key.key("entity_dismount"), Key.key("entity_interact"), Key.key("entity_mount"), Key.key("entity_place"), Key.key("equip"), Key.key("explode"), Key.key("flap"), Key.key("fluid_pickup"), Key.key("fluid_place"), Key.key("hit_ground"), Key.key("instrument_play"), Key.key("item_interact_finish"), Key.key("lightning_strike"), Key.key("note_block_play"), Key.key("prime_fuse"), Key.key("projectile_land"), Key.key("projectile_shoot"), Key.key("resonate_1"), Key.key("resonate_10"), Key.key("resonate_11"), Key.key("resonate_12"), Key.key("resonate_13"), Key.key("resonate_14"), Key.key("resonate_15"), Key.key("resonate_2"), Key.key("resonate_3"), Key.key("resonate_4"), Key.key("resonate_5"), Key.key("resonate_6"), Key.key("resonate_7"), Key.key("resonate_8"), Key.key("resonate_9"), Key.key("shear"), Key.key("splash"), Key.key("step"), Key.key("swim"), Key.key("teleport"), Key.key("unequip"))),
+        Map.entry(Key.key("warden_can_listen"), List.of(Key.key("block_activate"), Key.key("block_attach"), Key.key("block_change"), Key.key("block_close"), Key.key("block_deactivate"), Key.key("block_destroy"), Key.key("block_detach"), Key.key("block_open"), Key.key("block_place"), Key.key("bounce"), Key.key("container_close"), Key.key("container_open"), Key.key("drink"), Key.key("eat"), Key.key("elytra_glide"), Key.key("entity_action"), Key.key("entity_damage"), Key.key("entity_die"), Key.key("entity_dismount"), Key.key("entity_interact"), Key.key("entity_mount"), Key.key("entity_place"), Key.key("equip"), Key.key("explode"), Key.key("fluid_pickup"), Key.key("fluid_place"), Key.key("hit_ground"), Key.key("instrument_play"), Key.key("item_interact_finish"), Key.key("lightning_strike"), Key.key("note_block_play"), Key.key("prime_fuse"), Key.key("projectile_land"), Key.key("projectile_shoot"), Key.key("resonate_1"), Key.key("resonate_10"), Key.key("resonate_11"), Key.key("resonate_12"), Key.key("resonate_13"), Key.key("resonate_14"), Key.key("resonate_15"), Key.key("resonate_2"), Key.key("resonate_3"), Key.key("resonate_4"), Key.key("resonate_5"), Key.key("resonate_6"), Key.key("resonate_7"), Key.key("resonate_8"), Key.key("resonate_9"), Key.key("sculk_sensor_tendrils_clicking"), Key.key("shear"), Key.key("shriek"), Key.key("splash"), Key.key("step"), Key.key("swim"), Key.key("teleport"), Key.key("unequip")))
     );
 
     private GameEventKeys() {
@@ -395,5 +411,14 @@ public final class GameEventKeys {
      */
     public static Stream<TypedKey<GameEvent>> values() {
         return VALUES.stream();
+    }
+
+    /**
+     * Returns this registry's tags (namespaced tag identifier to member entries).
+     *
+     * @return an immutable map of tags, or an empty map if this registry defines none
+     */
+    public static Map<Key, List<Key>> tags() {
+        return TAGS;
     }
 }

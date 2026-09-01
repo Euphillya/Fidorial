@@ -4,7 +4,9 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.Instrument;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -51,6 +53,9 @@ public final class InstrumentKeys {
      */
     public static final TypedKey<Instrument> YEARN_GOAT_HORN = create("yearn_goat_horn");
 
+    /**
+     * Entries in ascending {@code protocol_id} order - list index == network ID.
+     */
     private static final List<TypedKey<Instrument>> VALUES = List.of(
         ADMIRE_GOAT_HORN,
         CALL_GOAT_HORN,
@@ -60,6 +65,15 @@ public final class InstrumentKeys {
         SEEK_GOAT_HORN,
         SING_GOAT_HORN,
         YEARN_GOAT_HORN
+    );
+
+    /**
+     * Namespaced tag identifier to flattened member entries.
+     */
+    private static final Map<Key, List<Key>> TAGS = Map.ofEntries(
+        Map.entry(Key.key("goat_horns"), List.of(Key.key("admire_goat_horn"), Key.key("call_goat_horn"), Key.key("dream_goat_horn"), Key.key("feel_goat_horn"), Key.key("ponder_goat_horn"), Key.key("seek_goat_horn"), Key.key("sing_goat_horn"), Key.key("yearn_goat_horn"))),
+        Map.entry(Key.key("regular_goat_horns"), List.of(Key.key("feel_goat_horn"), Key.key("ponder_goat_horn"), Key.key("seek_goat_horn"), Key.key("sing_goat_horn"))),
+        Map.entry(Key.key("screaming_goat_horns"), List.of(Key.key("admire_goat_horn"), Key.key("call_goat_horn"), Key.key("dream_goat_horn"), Key.key("yearn_goat_horn")))
     );
 
     private InstrumentKeys() {
@@ -77,5 +91,14 @@ public final class InstrumentKeys {
      */
     public static Stream<TypedKey<Instrument>> values() {
         return VALUES.stream();
+    }
+
+    /**
+     * Returns this registry's tags (namespaced tag identifier to member entries).
+     *
+     * @return an immutable map of tags, or an empty map if this registry defines none
+     */
+    public static Map<Key, List<Key>> tags() {
+        return TAGS;
     }
 }

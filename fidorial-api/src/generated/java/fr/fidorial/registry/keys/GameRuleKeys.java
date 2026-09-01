@@ -4,7 +4,9 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.GameRule;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -37,14 +39,14 @@ public final class GameRuleKeys {
     public static final TypedKey<GameRule> BLOCK_EXPLOSION_DROP_DECAY = create("block_explosion_drop_decay");
 
     /**
-     * Key for {@code minecraft:command_block_output}.
-     */
-    public static final TypedKey<GameRule> COMMAND_BLOCK_OUTPUT = create("command_block_output");
-
-    /**
      * Key for {@code minecraft:command_blocks_work}.
      */
     public static final TypedKey<GameRule> COMMAND_BLOCKS_WORK = create("command_blocks_work");
+
+    /**
+     * Key for {@code minecraft:command_block_output}.
+     */
+    public static final TypedKey<GameRule> COMMAND_BLOCK_OUTPUT = create("command_block_output");
 
     /**
      * Key for {@code minecraft:drowning_damage}.
@@ -177,11 +179,6 @@ public final class GameRuleKeys {
     public static final TypedKey<GameRule> NATURAL_HEALTH_REGENERATION = create("natural_health_regeneration");
 
     /**
-     * Key for {@code minecraft:player_movement_check}.
-     */
-    public static final TypedKey<GameRule> PLAYER_MOVEMENT_CHECK = create("player_movement_check");
-
-    /**
      * Key for {@code minecraft:players_nether_portal_creative_delay}.
      */
     public static final TypedKey<GameRule> PLAYERS_NETHER_PORTAL_CREATIVE_DELAY = create("players_nether_portal_creative_delay");
@@ -195,6 +192,11 @@ public final class GameRuleKeys {
      * Key for {@code minecraft:players_sleeping_percentage}.
      */
     public static final TypedKey<GameRule> PLAYERS_SLEEPING_PERCENTAGE = create("players_sleeping_percentage");
+
+    /**
+     * Key for {@code minecraft:player_movement_check}.
+     */
+    public static final TypedKey<GameRule> PLAYER_MOVEMENT_CHECK = create("player_movement_check");
 
     /**
      * Key for {@code minecraft:projectiles_can_break_blocks}.
@@ -242,6 +244,11 @@ public final class GameRuleKeys {
     public static final TypedKey<GameRule> SHOW_DEATH_MESSAGES = create("show_death_messages");
 
     /**
+     * Key for {@code minecraft:spawner_blocks_work}.
+     */
+    public static final TypedKey<GameRule> SPAWNER_BLOCKS_WORK = create("spawner_blocks_work");
+
+    /**
      * Key for {@code minecraft:spawn_mobs}.
      */
     public static final TypedKey<GameRule> SPAWN_MOBS = create("spawn_mobs");
@@ -270,11 +277,6 @@ public final class GameRuleKeys {
      * Key for {@code minecraft:spawn_wardens}.
      */
     public static final TypedKey<GameRule> SPAWN_WARDENS = create("spawn_wardens");
-
-    /**
-     * Key for {@code minecraft:spawner_blocks_work}.
-     */
-    public static final TypedKey<GameRule> SPAWNER_BLOCKS_WORK = create("spawner_blocks_work");
 
     /**
      * Key for {@code minecraft:spectators_generate_chunks}.
@@ -306,14 +308,17 @@ public final class GameRuleKeys {
      */
     public static final TypedKey<GameRule> WATER_SOURCE_CONVERSION = create("water_source_conversion");
 
+    /**
+     * Entries in ascending {@code protocol_id} order - list index == network ID.
+     */
     private static final List<TypedKey<GameRule>> VALUES = List.of(
         ADVANCE_TIME,
         ADVANCE_WEATHER,
         ALLOW_ENTERING_NETHER_USING_PORTALS,
         BLOCK_DROPS,
         BLOCK_EXPLOSION_DROP_DECAY,
-        COMMAND_BLOCK_OUTPUT,
         COMMAND_BLOCKS_WORK,
+        COMMAND_BLOCK_OUTPUT,
         DROWNING_DAMAGE,
         ELYTRA_MOVEMENT_CHECK,
         ENDER_PEARLS_VANISH_ON_DEATH,
@@ -353,13 +358,13 @@ public final class GameRuleKeys {
         SEND_COMMAND_FEEDBACK,
         SHOW_ADVANCEMENT_MESSAGES,
         SHOW_DEATH_MESSAGES,
+        SPAWNER_BLOCKS_WORK,
         SPAWN_MOBS,
         SPAWN_MONSTERS,
         SPAWN_PATROLS,
         SPAWN_PHANTOMS,
         SPAWN_WANDERING_TRADERS,
         SPAWN_WARDENS,
-        SPAWNER_BLOCKS_WORK,
         SPECTATORS_GENERATE_CHUNKS,
         SPREAD_VINES,
         TNT_EXPLODES,
@@ -383,5 +388,14 @@ public final class GameRuleKeys {
      */
     public static Stream<TypedKey<GameRule>> values() {
         return VALUES.stream();
+    }
+
+    /**
+     * Returns this registry's tags (namespaced tag identifier to member entries).
+     *
+     * @return an immutable map of tags, or an empty map if this registry defines none
+     */
+    public static Map<Key, List<Key>> tags() {
+        return Map.of();
     }
 }
