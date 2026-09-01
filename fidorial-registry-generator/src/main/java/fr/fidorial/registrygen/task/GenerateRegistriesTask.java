@@ -2,6 +2,7 @@ package fr.fidorial.registrygen.task;
 
 import fr.fidorial.registrygen.generate.RegistryGenerator;
 import fr.fidorial.registrygen.model.RegistryTypeDefinition;
+import fr.fidorial.registrygen.model.SupportedRegistries;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.provider.MapProperty;
@@ -9,12 +10,14 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -51,8 +54,17 @@ public abstract class GenerateRegistriesTask extends DefaultTask {
     @PathSensitive(PathSensitivity.RELATIVE)
     public abstract DirectoryProperty getReportsDirectory();
 
+    @Optional
+    @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
+    public abstract DirectoryProperty getVanillaDataDirectory();
+
     @OutputDirectory
     public abstract DirectoryProperty getGeneratedSourcesDirectory();
+
+    @Optional
+    @OutputDirectory
+    public abstract DirectoryProperty getRegistriesDatasetDirectory();
 
     @TaskAction
     public void generateRegistries() throws IOException {
@@ -61,12 +73,27 @@ public abstract class GenerateRegistriesTask extends DefaultTask {
         final Path outputDirectory = getGeneratedSourcesDirectory().get().getAsFile().toPath();
         final Map<String, String> configured = getRegistries().getOrElse(Map.of());
 
-        final List<RegistryTypeDefinition> registryTypes = configured.entrySet().stream()
-                .map(e -> RegistryTypeDefinition.parse(e.getKey(), e.getValue()))
-                .toList();
+        final Path vanillaDataDirectory = getVanillaDataDirectory().isPresent()
+                ? getVanillaDataDirectory().get().getAsFile().toPath()
+                : null;
 
-        new RegistryGenerator().generate(registriesJson, outputDirectory, registryTypes,
-                getGeneratedPackage().get(), getRegistryDataPackage().get(), getRegistryKeysPackage().get(),
-                getGenerateRegistryKey().get());
+        if (vanillaDataDirectory == null || !Files.isDirectory(vanillaDataDirectory)) {
+            getLogger().lifecycle("No vanilla data directory (add \"--server\" to dataGeneratorArguments "
+                    + "to also generate registry tags) - every registry in the dataset will have empty tags.");
+        }
+
+        final Path datasetDirectory = getRegistriesDatasetDirectory().isPresent()
+                ? getRegistriesDatasetDirectory().get().getAsFile().toPath()
+                : null;
+
+        final List<RegistryTypeDefinition> registryTypes = configured.isEmpty()
+                ? SupportedRegistries.ALL
+                : configured.entrySet().stream()
+                  .map(e -> RegistryTypeDefinition.parse(e.getKey(), e.getValue()))
+                  .toList();
+
+        new RegistryGenerator().generate(registriesJson, vanillaDataDirectory, outputDirectory, datasetDirectory,
+                registryTypes, getGeneratedPackage().get(), getRegistryDataPackage().get(),
+                getRegistryKeysPackage().get(), getGenerateRegistryKey().get());
     }
 }

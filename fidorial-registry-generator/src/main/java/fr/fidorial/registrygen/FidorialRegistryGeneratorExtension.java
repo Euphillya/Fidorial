@@ -55,6 +55,13 @@ public abstract class FidorialRegistryGeneratorExtension {
     public abstract MapProperty<String, String> getRegistries();
 
     /**
+     * Directory receiving the runtime registry dataset: {@code registries_frozen.json}
+     * and {@code registries_dynamic.json}, holding the protocol-ordered entries and the
+     * tags of every registry that reaches the client.
+     */
+    public abstract DirectoryProperty getRegistriesDatasetDirectory();
+
+    /**
      * Whether the {@code generatePacketCatalogs} task should be registered.
      */
     public abstract Property<Boolean> getGeneratePacketCatalogs();
