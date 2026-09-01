@@ -42,7 +42,7 @@ public interface LivingEntity extends Entity {
     float headYaw();
 
     /**
-     * @param headYaw the new head yew
+     * @param headYaw the head yaw to set
      */
     void setHeadYaw(float headYaw);
 
