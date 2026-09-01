@@ -43,6 +43,11 @@ public class WorldPaths {
         return base.resolve("entities");
     }
 
+    // Maybe we should store data per-dimension like Paper for multi-world
+    public Path dataDir() {
+        return worldRoot.resolve("data");
+    }
+
     public Path poiDir(final Dimension dim) {
         final Path base = writeLayout == Layout.MODERN ? modernDimensionRoot(dim) : legacyDimensionRoot(dim);
         return base.resolve("poi");

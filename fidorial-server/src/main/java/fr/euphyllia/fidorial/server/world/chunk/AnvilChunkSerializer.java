@@ -18,6 +18,7 @@ import java.util.TreeMap;
 
 public class AnvilChunkSerializer {
 
+    // https://minecraft.wiki/w/Data_version#List_of_data_versions
     public static final int DATA_VERSION_26_3_SNAPSHOT_10 = 5015;
 
     private final int dataVersion;
