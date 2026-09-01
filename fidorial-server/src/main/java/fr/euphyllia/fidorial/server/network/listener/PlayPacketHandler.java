@@ -29,6 +29,8 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.Cli
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSoundPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSwingAnimationPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundSystemChatPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.utils.LocationPositionData;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.utils.PositionData;
 import fr.euphyllia.fidorial.server.network.protocol.packet.listener.PlayPacketListener;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.common.ServerboundClientInformationPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundAcceptTeleportationPacket;
@@ -279,7 +281,12 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private void spawnPlayer(final Location spawn) {
-        connection.send(new ClientboundPlayerPositionPacket(player.nextTeleportId(), spawn.x(), spawn.y(), spawn.z()));
+        connection.send(new ClientboundPlayerPositionPacket(
+                player.nextTeleportId(),
+                new PositionData.PositionMoveRotationData(
+                        LocationPositionData.vec3((spawn)),
+                        new PositionData.Vec3D(0.0, 0.0, 0.0),
+                        LocationPositionData.floatRotation(spawn))));
         connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
                 player.inventory(), 0, ItemStack.EMPTY, server.registries().frozen()));
     }
@@ -597,7 +604,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
         serverWorld().entityManager().moved(player, previous.chunk(), current.chunk());
 
         player.sendToTrackers(new ClientboundEntityPositionSyncPacket(
-                player.entityId(), x, y, z, 0, 0, 0, yaw, pitch, false));
+                player.entityId(),
+                new PositionData.LinearPositionPath(LocationPositionData.vec3(current)),
+                LocationPositionData.floatRotation(current),
+                !player.isFlying()));
         player.sendToTrackers(new ClientboundRotateHeadPacket(player.entityId(), yaw));
         server.entityTracker().update(player, server.players());
 
@@ -621,11 +631,17 @@ public final class PlayPacketHandler implements PlayPacketListener {
             player.setLocation(location);
             from.entityManager().moved(player, previous.chunk(), destChunk);
             connection.send(new ClientboundPlayerPositionPacket(
-                    player.nextTeleportId(), location.x(), location.y(), location.z()));
+                    player.nextTeleportId(),
+                    new PositionData.PositionMoveRotationData(
+                            LocationPositionData.vec3(location),
+                            new PositionData.Vec3D(0.0, 0.0, 0.0),
+                            LocationPositionData.floatRotation(location))));
 
             player.sendToTrackers(new ClientboundEntityPositionSyncPacket(
-                    player.entityId(), location.x(), location.y(), location.z(),
-                    0, 0, 0, location.yaw(), location.pitch(), false));
+                    player.entityId(),
+                    new PositionData.LinearPositionPath(LocationPositionData.vec3(location)),
+                    LocationPositionData.floatRotation(location),
+                    !player.isFlying()));
             player.sendToTrackers(new ClientboundRotateHeadPacket(player.entityId(), location.yaw()));
 
             if (chunkView != null && chunkView.moveTo(destChunk.x(), destChunk.z()) && ticket != null) {
@@ -672,7 +688,11 @@ public final class PlayPacketHandler implements PlayPacketListener {
         connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         openChunkView(target, dynamic, destChunk);
         connection.send(new ClientboundPlayerPositionPacket(
-                player.nextTeleportId(), location.x(), location.y(), location.z()));
+                player.nextTeleportId(),
+                new PositionData.PositionMoveRotationData(
+                        LocationPositionData.vec3(location),
+                        new PositionData.Vec3D(0.0, 0.0, 0.0),
+                        LocationPositionData.floatRotation(location))));
         server.dayNightEngine().syncTo(target, connection::send);
         server.entityTracker().update(player, server.players());
         return true;
@@ -792,7 +812,11 @@ public final class PlayPacketHandler implements PlayPacketListener {
         moveToRespawnPoint(world, spawn);
 
         connection.send(new ClientboundPlayerPositionPacket(
-                player.nextTeleportId(), spawn.x(), spawn.y(), spawn.z()));
+                player.nextTeleportId(),
+                new PositionData.PositionMoveRotationData(
+                        LocationPositionData.vec3(spawn),
+                        new PositionData.Vec3D(0.0, 0.0, 0.0),
+                        LocationPositionData.floatRotation(spawn))));
         server.dayNightEngine().syncTo(world, connection::send);
         server.entityTracker().update(player, server.players());
         LOGGER.debug("{} respawned at {}", player.name(), spawn);

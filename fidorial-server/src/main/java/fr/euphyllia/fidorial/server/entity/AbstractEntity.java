@@ -5,6 +5,8 @@ import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.protocol.packet.ClientboundPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundAddEntityPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundEntityPositionSyncPacket;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.utils.LocationPositionData;
+import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.utils.PositionData;
 import fr.euphyllia.fidorial.server.world.ServerWorld;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.entity.Entity;
@@ -166,14 +168,8 @@ public abstract class AbstractEntity implements Entity {
 
             sendToTrackers(new ClientboundEntityPositionSyncPacket(
                     entityId(),
-                    location.x(),
-                    location.y(),
-                    location.z(),
-                    0.0,
-                    0.0,
-                    0.0,
-                    location.yaw(),
-                    location.pitch(),
+                    new PositionData.LinearPositionPath(LocationPositionData.vec3(location)),
+                    LocationPositionData.floatRotation(location),
                     false));
             server().entityTracker().update(this, server().players());
             return true;
