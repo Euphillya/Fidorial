@@ -62,7 +62,7 @@ public final class LevelData {
     public boolean allowCommands = true;
 
     public int dataVersion = AnvilChunkSerializer.DATA_VERSION_26_3_PRE_1;
-    public String versionName = "26.3-snapshot-10";
+    public String versionName = "26.3-pre-1";
     public boolean snapshot = true; // CHANGE ME
     public boolean wasModded = false;
     public final List<Integer> versionHistory = new ArrayList<>();
