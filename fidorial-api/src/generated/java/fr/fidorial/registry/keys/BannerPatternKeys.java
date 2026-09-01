@@ -4,9 +4,7 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.BannerPattern;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -209,16 +207,6 @@ public final class BannerPatternKeys {
     public static final TypedKey<BannerPattern> STRIPE_TOP = create("stripe_top");
 
     /**
-     * Key for {@code minecraft:triangles_bottom}.
-     */
-    public static final TypedKey<BannerPattern> TRIANGLES_BOTTOM = create("triangles_bottom");
-
-    /**
-     * Key for {@code minecraft:triangles_top}.
-     */
-    public static final TypedKey<BannerPattern> TRIANGLES_TOP = create("triangles_top");
-
-    /**
      * Key for {@code minecraft:triangle_bottom}.
      */
     public static final TypedKey<BannerPattern> TRIANGLE_BOTTOM = create("triangle_bottom");
@@ -229,8 +217,15 @@ public final class BannerPatternKeys {
     public static final TypedKey<BannerPattern> TRIANGLE_TOP = create("triangle_top");
 
     /**
-     * Entries in ascending {@code protocol_id} order - list index == network ID.
+     * Key for {@code minecraft:triangles_bottom}.
      */
+    public static final TypedKey<BannerPattern> TRIANGLES_BOTTOM = create("triangles_bottom");
+
+    /**
+     * Key for {@code minecraft:triangles_top}.
+     */
+    public static final TypedKey<BannerPattern> TRIANGLES_TOP = create("triangles_top");
+
     private static final List<TypedKey<BannerPattern>> VALUES = List.of(
         BASE,
         BORDER,
@@ -277,23 +272,6 @@ public final class BannerPatternKeys {
         TRIANGLES_TOP
     );
 
-    /**
-     * Namespaced tag identifier to flattened member entries.
-     */
-    private static final Map<Key, List<Key>> TAGS = Map.ofEntries(
-        Map.entry(Key.key("no_item_required"), List.of(Key.key("border"), Key.key("circle"), Key.key("cross"), Key.key("diagonal_left"), Key.key("diagonal_right"), Key.key("diagonal_up_left"), Key.key("diagonal_up_right"), Key.key("gradient"), Key.key("gradient_up"), Key.key("half_horizontal"), Key.key("half_horizontal_bottom"), Key.key("half_vertical"), Key.key("half_vertical_right"), Key.key("rhombus"), Key.key("small_stripes"), Key.key("square_bottom_left"), Key.key("square_bottom_right"), Key.key("square_top_left"), Key.key("square_top_right"), Key.key("straight_cross"), Key.key("stripe_bottom"), Key.key("stripe_center"), Key.key("stripe_downleft"), Key.key("stripe_downright"), Key.key("stripe_left"), Key.key("stripe_middle"), Key.key("stripe_right"), Key.key("stripe_top"), Key.key("triangle_bottom"), Key.key("triangle_top"), Key.key("triangles_bottom"), Key.key("triangles_top"))),
-        Map.entry(Key.key("pattern_item/bordure_indented"), List.of(Key.key("curly_border"))),
-        Map.entry(Key.key("pattern_item/creeper"), List.of(Key.key("creeper"))),
-        Map.entry(Key.key("pattern_item/field_masoned"), List.of(Key.key("bricks"))),
-        Map.entry(Key.key("pattern_item/flow"), List.of(Key.key("flow"))),
-        Map.entry(Key.key("pattern_item/flower"), List.of(Key.key("flower"))),
-        Map.entry(Key.key("pattern_item/globe"), List.of(Key.key("globe"))),
-        Map.entry(Key.key("pattern_item/guster"), List.of(Key.key("guster"))),
-        Map.entry(Key.key("pattern_item/mojang"), List.of(Key.key("mojang"))),
-        Map.entry(Key.key("pattern_item/piglin"), List.of(Key.key("piglin"))),
-        Map.entry(Key.key("pattern_item/skull"), List.of(Key.key("skull")))
-    );
-
     private BannerPatternKeys() {
         throw new UnsupportedOperationException("BannerPatternKeys cannot be instantiated.");
     }
@@ -309,14 +287,5 @@ public final class BannerPatternKeys {
      */
     public static Stream<TypedKey<BannerPattern>> values() {
         return VALUES.stream();
-    }
-
-    /**
-     * Returns this registry's tags (namespaced tag identifier to member entries).
-     *
-     * @return an immutable map of tags, or an empty map if this registry defines none
-     */
-    public static Map<Key, List<Key>> tags() {
-        return TAGS;
     }
 }

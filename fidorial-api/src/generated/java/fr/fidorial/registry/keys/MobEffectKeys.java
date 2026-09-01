@@ -4,9 +4,7 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.MobEffect;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -159,14 +157,14 @@ public final class MobEffectKeys {
     public static final TypedKey<MobEffect> SATURATION = create("saturation");
 
     /**
-     * Key for {@code minecraft:slowness}.
-     */
-    public static final TypedKey<MobEffect> SLOWNESS = create("slowness");
-
-    /**
      * Key for {@code minecraft:slow_falling}.
      */
     public static final TypedKey<MobEffect> SLOW_FALLING = create("slow_falling");
+
+    /**
+     * Key for {@code minecraft:slowness}.
+     */
+    public static final TypedKey<MobEffect> SLOWNESS = create("slowness");
 
     /**
      * Key for {@code minecraft:speed}.
@@ -213,50 +211,47 @@ public final class MobEffectKeys {
      */
     public static final TypedKey<MobEffect> WITHER = create("wither");
 
-    /**
-     * Entries in ascending {@code protocol_id} order - list index == network ID.
-     */
     private static final List<TypedKey<MobEffect>> VALUES = List.of(
-        SPEED,
-        SLOWNESS,
-        HASTE,
-        MINING_FATIGUE,
-        STRENGTH,
-        INSTANT_HEALTH,
-        INSTANT_DAMAGE,
-        JUMP_BOOST,
-        NAUSEA,
-        REGENERATION,
-        RESISTANCE,
-        FIRE_RESISTANCE,
-        WATER_BREATHING,
-        INVISIBILITY,
-        BLINDNESS,
-        NIGHT_VISION,
-        HUNGER,
-        WEAKNESS,
-        POISON,
-        WITHER,
-        HEALTH_BOOST,
         ABSORPTION,
-        SATURATION,
+        BAD_OMEN,
+        BLINDNESS,
+        BREATH_OF_THE_NAUTILUS,
+        CONDUIT_POWER,
+        DARKNESS,
+        DOLPHINS_GRACE,
+        FIRE_RESISTANCE,
         GLOWING,
+        HASTE,
+        HEALTH_BOOST,
+        HERO_OF_THE_VILLAGE,
+        HUNGER,
+        INFESTED,
+        INSTANT_DAMAGE,
+        INSTANT_HEALTH,
+        INVISIBILITY,
+        JUMP_BOOST,
         LEVITATION,
         LUCK,
-        UNLUCK,
-        SLOW_FALLING,
-        CONDUIT_POWER,
-        DOLPHINS_GRACE,
-        BAD_OMEN,
-        HERO_OF_THE_VILLAGE,
-        DARKNESS,
-        TRIAL_OMEN,
-        RAID_OMEN,
-        WIND_CHARGED,
-        WEAVING,
+        MINING_FATIGUE,
+        NAUSEA,
+        NIGHT_VISION,
         OOZING,
-        INFESTED,
-        BREATH_OF_THE_NAUTILUS
+        POISON,
+        RAID_OMEN,
+        REGENERATION,
+        RESISTANCE,
+        SATURATION,
+        SLOW_FALLING,
+        SLOWNESS,
+        SPEED,
+        STRENGTH,
+        TRIAL_OMEN,
+        UNLUCK,
+        WATER_BREATHING,
+        WEAKNESS,
+        WEAVING,
+        WIND_CHARGED,
+        WITHER
     );
 
     private MobEffectKeys() {
@@ -274,14 +269,5 @@ public final class MobEffectKeys {
      */
     public static Stream<TypedKey<MobEffect>> values() {
         return VALUES.stream();
-    }
-
-    /**
-     * Returns this registry's tags (namespaced tag identifier to member entries).
-     *
-     * @return an immutable map of tags, or an empty map if this registry defines none
-     */
-    public static Map<Key, List<Key>> tags() {
-        return Map.of();
     }
 }

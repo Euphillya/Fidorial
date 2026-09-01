@@ -4,9 +4,7 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.Timeline;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -33,24 +31,11 @@ public final class TimelineKeys {
      */
     public static final TypedKey<Timeline> VILLAGER_SCHEDULE = create("villager_schedule");
 
-    /**
-     * Entries in ascending {@code protocol_id} order - list index == network ID.
-     */
     private static final List<TypedKey<Timeline>> VALUES = List.of(
         DAY,
         EARLY_GAME,
         MOON,
         VILLAGER_SCHEDULE
-    );
-
-    /**
-     * Namespaced tag identifier to flattened member entries.
-     */
-    private static final Map<Key, List<Key>> TAGS = Map.ofEntries(
-        Map.entry(Key.key("in_end"), List.of(Key.key("villager_schedule"))),
-        Map.entry(Key.key("in_nether"), List.of(Key.key("villager_schedule"))),
-        Map.entry(Key.key("in_overworld"), List.of(Key.key("day"), Key.key("early_game"), Key.key("moon"), Key.key("villager_schedule"))),
-        Map.entry(Key.key("universal"), List.of(Key.key("villager_schedule")))
     );
 
     private TimelineKeys() {
@@ -68,14 +53,5 @@ public final class TimelineKeys {
      */
     public static Stream<TypedKey<Timeline>> values() {
         return VALUES.stream();
-    }
-
-    /**
-     * Returns this registry's tags (namespaced tag identifier to member entries).
-     *
-     * @return an immutable map of tags, or an empty map if this registry defines none
-     */
-    public static Map<Key, List<Key>> tags() {
-        return TAGS;
     }
 }
