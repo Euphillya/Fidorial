@@ -89,7 +89,7 @@ fidorialRegistryGenerator {
     )
 
     dataGeneratorArguments.set(
-        listOf("--reports")
+        listOf("--reports", "--server")
     )
 
     registries.set(

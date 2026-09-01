@@ -4,7 +4,9 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.BannerPattern;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -207,6 +209,16 @@ public final class BannerPatternKeys {
     public static final TypedKey<BannerPattern> STRIPE_TOP = create("stripe_top");
 
     /**
+     * Key for {@code minecraft:triangles_bottom}.
+     */
+    public static final TypedKey<BannerPattern> TRIANGLES_BOTTOM = create("triangles_bottom");
+
+    /**
+     * Key for {@code minecraft:triangles_top}.
+     */
+    public static final TypedKey<BannerPattern> TRIANGLES_TOP = create("triangles_top");
+
+    /**
      * Key for {@code minecraft:triangle_bottom}.
      */
     public static final TypedKey<BannerPattern> TRIANGLE_BOTTOM = create("triangle_bottom");
@@ -217,15 +229,8 @@ public final class BannerPatternKeys {
     public static final TypedKey<BannerPattern> TRIANGLE_TOP = create("triangle_top");
 
     /**
-     * Key for {@code minecraft:triangles_bottom}.
+     * Entries in ascending {@code protocol_id} order - list index == network ID.
      */
-    public static final TypedKey<BannerPattern> TRIANGLES_BOTTOM = create("triangles_bottom");
-
-    /**
-     * Key for {@code minecraft:triangles_top}.
-     */
-    public static final TypedKey<BannerPattern> TRIANGLES_TOP = create("triangles_top");
-
     private static final List<TypedKey<BannerPattern>> VALUES = List.of(
         BASE,
         BORDER,
@@ -287,5 +292,14 @@ public final class BannerPatternKeys {
      */
     public static Stream<TypedKey<BannerPattern>> values() {
         return VALUES.stream();
+    }
+
+    /**
+     * Returns this registry's tags (namespaced tag identifier to member entries).
+     *
+     * @return an immutable map of tags, or an empty map if this registry defines none
+     */
+    public static Map<Key, List<Key>> tags() {
+        return Map.of();
     }
 }

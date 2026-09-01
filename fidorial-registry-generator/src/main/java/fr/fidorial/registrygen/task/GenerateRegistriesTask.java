@@ -9,12 +9,14 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +53,9 @@ public abstract class GenerateRegistriesTask extends DefaultTask {
     @PathSensitive(PathSensitivity.RELATIVE)
     public abstract DirectoryProperty getReportsDirectory();
 
+    @Internal
+    public abstract DirectoryProperty getVanillaDataDirectory();
+
     @OutputDirectory
     public abstract DirectoryProperty getGeneratedSourcesDirectory();
 
@@ -61,11 +66,20 @@ public abstract class GenerateRegistriesTask extends DefaultTask {
         final Path outputDirectory = getGeneratedSourcesDirectory().get().getAsFile().toPath();
         final Map<String, String> configured = getRegistries().getOrElse(Map.of());
 
+        final Path vanillaDataDirectory = getVanillaDataDirectory().isPresent()
+                ? getVanillaDataDirectory().get().getAsFile().toPath()
+                : null;
+
+        if (vanillaDataDirectory == null || !Files.isDirectory(vanillaDataDirectory)) {
+            getLogger().lifecycle("No vanilla data directory (add \"--server\" to dataGeneratorArguments to also generate registry tags) - "
+                    + "generated *Keys classes will have empty tags().");
+        }
+
         final List<RegistryTypeDefinition> registryTypes = configured.entrySet().stream()
                 .map(e -> RegistryTypeDefinition.parse(e.getKey(), e.getValue()))
                 .toList();
 
-        new RegistryGenerator().generate(registriesJson, outputDirectory, registryTypes,
+        new RegistryGenerator().generate(registriesJson, vanillaDataDirectory, outputDirectory, registryTypes,
                 getGeneratedPackage().get(), getRegistryDataPackage().get(), getRegistryKeysPackage().get(),
                 getGenerateRegistryKey().get());
     }

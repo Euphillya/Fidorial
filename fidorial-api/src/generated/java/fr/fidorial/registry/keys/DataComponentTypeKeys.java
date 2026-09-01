@@ -4,7 +4,9 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.DataComponentType;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -52,6 +54,11 @@ public final class DataComponentTypeKeys {
     public static final TypedKey<DataComponentType> BEES = create("bees");
 
     /**
+     * Key for {@code minecraft:blocks_attacks}.
+     */
+    public static final TypedKey<DataComponentType> BLOCKS_ATTACKS = create("blocks_attacks");
+
+    /**
      * Key for {@code minecraft:block_entity_data}.
      */
     public static final TypedKey<DataComponentType> BLOCK_ENTITY_DATA = create("block_entity_data");
@@ -65,11 +72,6 @@ public final class DataComponentTypeKeys {
      * Key for {@code minecraft:block_transformer}.
      */
     public static final TypedKey<DataComponentType> BLOCK_TRANSFORMER = create("block_transformer");
-
-    /**
-     * Key for {@code minecraft:blocks_attacks}.
-     */
-    public static final TypedKey<DataComponentType> BLOCKS_ATTACKS = create("blocks_attacks");
 
     /**
      * Key for {@code minecraft:break_sound}.
@@ -232,14 +234,14 @@ public final class DataComponentTypeKeys {
     public static final TypedKey<DataComponentType> ENCHANTABLE = create("enchantable");
 
     /**
-     * Key for {@code minecraft:enchantment_glint_override}.
-     */
-    public static final TypedKey<DataComponentType> ENCHANTMENT_GLINT_OVERRIDE = create("enchantment_glint_override");
-
-    /**
      * Key for {@code minecraft:enchantments}.
      */
     public static final TypedKey<DataComponentType> ENCHANTMENTS = create("enchantments");
+
+    /**
+     * Key for {@code minecraft:enchantment_glint_override}.
+     */
+    public static final TypedKey<DataComponentType> ENCHANTMENT_GLINT_OVERRIDE = create("enchantment_glint_override");
 
     /**
      * Key for {@code minecraft:entity_data}.
@@ -252,14 +254,14 @@ public final class DataComponentTypeKeys {
     public static final TypedKey<DataComponentType> EQUIPPABLE = create("equippable");
 
     /**
-     * Key for {@code minecraft:firework_explosion}.
-     */
-    public static final TypedKey<DataComponentType> FIREWORK_EXPLOSION = create("firework_explosion");
-
-    /**
      * Key for {@code minecraft:fireworks}.
      */
     public static final TypedKey<DataComponentType> FIREWORKS = create("fireworks");
+
+    /**
+     * Key for {@code minecraft:firework_explosion}.
+     */
+    public static final TypedKey<DataComponentType> FIREWORK_EXPLOSION = create("firework_explosion");
 
     /**
      * Key for {@code minecraft:food}.
@@ -417,11 +419,6 @@ public final class DataComponentTypeKeys {
     public static final TypedKey<DataComponentType> PIG_VARIANT = create("pig/variant");
 
     /**
-     * Key for {@code minecraft:pot_decorations}.
-     */
-    public static final TypedKey<DataComponentType> POT_DECORATIONS = create("pot_decorations");
-
-    /**
      * Key for {@code minecraft:potion_contents}.
      */
     public static final TypedKey<DataComponentType> POTION_CONTENTS = create("potion_contents");
@@ -430,6 +427,11 @@ public final class DataComponentTypeKeys {
      * Key for {@code minecraft:potion_duration_scale}.
      */
     public static final TypedKey<DataComponentType> POTION_DURATION_SCALE = create("potion_duration_scale");
+
+    /**
+     * Key for {@code minecraft:pot_decorations}.
+     */
+    public static final TypedKey<DataComponentType> POT_DECORATIONS = create("pot_decorations");
 
     /**
      * Key for {@code minecraft:profile}.
@@ -467,14 +469,14 @@ public final class DataComponentTypeKeys {
     public static final TypedKey<DataComponentType> RECIPES = create("recipes");
 
     /**
-     * Key for {@code minecraft:repair_cost}.
-     */
-    public static final TypedKey<DataComponentType> REPAIR_COST = create("repair_cost");
-
-    /**
      * Key for {@code minecraft:repairable}.
      */
     public static final TypedKey<DataComponentType> REPAIRABLE = create("repairable");
+
+    /**
+     * Key for {@code minecraft:repair_cost}.
+     */
+    public static final TypedKey<DataComponentType> REPAIR_COST = create("repair_cost");
 
     /**
      * Key for {@code minecraft:salmon/size}.
@@ -572,14 +574,14 @@ public final class DataComponentTypeKeys {
     public static final TypedKey<DataComponentType> USE_REMAINDER = create("use_remainder");
 
     /**
-     * Key for {@code minecraft:villager/variant}.
-     */
-    public static final TypedKey<DataComponentType> VILLAGER_VARIANT = create("villager/variant");
-
-    /**
      * Key for {@code minecraft:villager_food}.
      */
     public static final TypedKey<DataComponentType> VILLAGER_FOOD = create("villager_food");
+
+    /**
+     * Key for {@code minecraft:villager/variant}.
+     */
+    public static final TypedKey<DataComponentType> VILLAGER_VARIANT = create("villager/variant");
 
     /**
      * Key for {@code minecraft:waxed}.
@@ -621,129 +623,132 @@ public final class DataComponentTypeKeys {
      */
     public static final TypedKey<DataComponentType> ZOMBIE_NAUTILUS_VARIANT = create("zombie_nautilus/variant");
 
+    /**
+     * Entries in ascending {@code protocol_id} order - list index == network ID.
+     */
     private static final List<TypedKey<DataComponentType>> VALUES = List.of(
-        ADDITIONAL_TRADE_COST,
-        ATTACK_ANIMATION,
-        ATTACK_RANGE,
-        ATTRIBUTE_MODIFIERS,
-        AXOLOTL_VARIANT,
-        BANNER_PATTERNS,
-        BASE_COLOR,
-        BEES,
-        BLOCK_ENTITY_DATA,
-        BLOCK_STATE,
-        BLOCK_TRANSFORMER,
-        BLOCKS_ATTACKS,
-        BREAK_SOUND,
-        BREWING_FUEL,
-        BUCKET_ENTITY_DATA,
-        BUNDLE_CONTENTS,
-        CAN_BREAK,
-        CAN_PLACE_ON,
-        CAT_COLLAR,
-        CAT_SOUND_VARIANT,
-        CAT_VARIANT,
-        CHARGED_PROJECTILES,
-        CHICKEN_SOUND_VARIANT,
-        CHICKEN_VARIANT,
-        COMPOSTABLE,
-        CONSUMABLE,
-        CONTAINER,
-        CONTAINER_LOOT,
-        COOKING_FUEL,
-        COW_SOUND_VARIANT,
-        COW_VARIANT,
-        CREATIVE_SLOT_LOCK,
-        CUSHION_COLOR,
         CUSTOM_DATA,
-        CUSTOM_MODEL_DATA,
-        CUSTOM_NAME,
+        MAX_STACK_SIZE,
+        MAX_DAMAGE,
         DAMAGE,
-        DAMAGE_RESISTANT,
+        UNBREAKABLE,
+        USE_EFFECTS,
+        CUSTOM_NAME,
+        MINIMUM_ATTACK_CHARGE,
         DAMAGE_TYPE,
+        ITEM_NAME,
+        ITEM_MODEL,
+        LORE,
+        RARITY,
+        ENCHANTMENTS,
+        CAN_PLACE_ON,
+        CAN_BREAK,
+        ATTRIBUTE_MODIFIERS,
+        CUSTOM_MODEL_DATA,
+        TOOLTIP_DISPLAY,
+        REPAIR_COST,
+        CREATIVE_SLOT_LOCK,
+        ENCHANTMENT_GLINT_OVERRIDE,
+        INTANGIBLE_PROJECTILE,
+        FOOD,
+        CONSUMABLE,
+        USE_REMAINDER,
+        USE_COOLDOWN,
+        DAMAGE_RESISTANT,
+        TOOL,
+        WEAPON,
+        ATTACK_RANGE,
+        ENCHANTABLE,
+        EQUIPPABLE,
+        REPAIRABLE,
+        GLIDER,
+        TOOLTIP_STYLE,
         DEATH_PROTECTION,
-        DEBUG_STICK_STATE,
+        BLOCKS_ATTACKS,
+        PIERCING_WEAPON,
+        KINETIC_WEAPON,
+        ATTACK_ANIMATION,
+        INTERACT_ANIMATION,
+        ADDITIONAL_TRADE_COST,
+        BLOCK_TRANSFORMER,
+        VILLAGER_FOOD,
+        STORED_ENCHANTMENTS,
         DYE,
         DYED_COLOR,
-        ENCHANTABLE,
-        ENCHANTMENT_GLINT_OVERRIDE,
-        ENCHANTMENTS,
-        ENTITY_DATA,
-        EQUIPPABLE,
-        FIREWORK_EXPLOSION,
-        FIREWORKS,
-        FOOD,
-        FOX_VARIANT,
-        FROG_VARIANT,
-        GLIDER,
-        HORSE_VARIANT,
-        INSTRUMENT,
-        INTANGIBLE_PROJECTILE,
-        INTERACT_ANIMATION,
-        ITEM_MODEL,
-        ITEM_NAME,
-        JUKEBOX_PLAYABLE,
-        KINETIC_WEAPON,
-        LLAMA_VARIANT,
-        LOCK,
-        LODESTONE_TRACKER,
-        LORE,
-        MAP_DECORATIONS,
         MAP_ID,
+        MAP_DECORATIONS,
         MAP_POST_PROCESSING,
-        MAX_DAMAGE,
-        MAX_STACK_SIZE,
-        MINIMUM_ATTACK_CHARGE,
-        MOB_VISIBILITY,
-        MOOSHROOM_VARIANT,
-        NOTE_BLOCK_SOUND,
-        OMINOUS_BOTTLE_AMPLIFIER,
-        PAINTING_VARIANT,
-        PARROT_VARIANT,
-        PIERCING_WEAPON,
-        PIG_SOUND_VARIANT,
-        PIG_VARIANT,
-        POT_DECORATIONS,
+        CHARGED_PROJECTILES,
+        BUNDLE_CONTENTS,
         POTION_CONTENTS,
         POTION_DURATION_SCALE,
-        PROFILE,
-        PROVIDES_BANNER_PATTERNS,
-        PROVIDES_POTTERY_PATTERN,
-        PROVIDES_TRIM_MATERIAL,
-        RABBIT_VARIANT,
-        RARITY,
-        RECIPES,
-        REPAIR_COST,
-        REPAIRABLE,
-        SALMON_SIZE,
-        SHEEP_COLOR,
-        SHULKER_COLOR,
-        SIGN_TEXT_BACK,
-        SIGN_TEXT_FRONT,
-        STORED_ENCHANTMENTS,
-        SULFUR_CUBE_CONTENT,
         SUSPICIOUS_STEW_EFFECTS,
-        TOOL,
-        TOOLTIP_DISPLAY,
-        TOOLTIP_STYLE,
-        TRIM,
-        TROPICAL_FISH_BASE_COLOR,
-        TROPICAL_FISH_PATTERN,
-        TROPICAL_FISH_PATTERN_COLOR,
-        UNBREAKABLE,
-        USE_COOLDOWN,
-        USE_EFFECTS,
-        USE_REMAINDER,
-        VILLAGER_VARIANT,
-        VILLAGER_FOOD,
-        WAXED,
-        WEAPON,
-        WOLF_COLLAR,
-        WOLF_SOUND_VARIANT,
-        WOLF_VARIANT,
         WRITABLE_BOOK_CONTENT,
         WRITTEN_BOOK_CONTENT,
-        ZOMBIE_NAUTILUS_VARIANT
+        TRIM,
+        DEBUG_STICK_STATE,
+        ENTITY_DATA,
+        BUCKET_ENTITY_DATA,
+        BLOCK_ENTITY_DATA,
+        INSTRUMENT,
+        PROVIDES_TRIM_MATERIAL,
+        OMINOUS_BOTTLE_AMPLIFIER,
+        JUKEBOX_PLAYABLE,
+        PROVIDES_BANNER_PATTERNS,
+        RECIPES,
+        LODESTONE_TRACKER,
+        FIREWORK_EXPLOSION,
+        FIREWORKS,
+        PROFILE,
+        NOTE_BLOCK_SOUND,
+        BANNER_PATTERNS,
+        BASE_COLOR,
+        POT_DECORATIONS,
+        CONTAINER,
+        BLOCK_STATE,
+        BEES,
+        SULFUR_CUBE_CONTENT,
+        LOCK,
+        CONTAINER_LOOT,
+        BREAK_SOUND,
+        COMPOSTABLE,
+        COOKING_FUEL,
+        BREWING_FUEL,
+        MOB_VISIBILITY,
+        VILLAGER_VARIANT,
+        WOLF_VARIANT,
+        WOLF_SOUND_VARIANT,
+        WOLF_COLLAR,
+        FOX_VARIANT,
+        SALMON_SIZE,
+        PARROT_VARIANT,
+        TROPICAL_FISH_PATTERN,
+        TROPICAL_FISH_BASE_COLOR,
+        TROPICAL_FISH_PATTERN_COLOR,
+        MOOSHROOM_VARIANT,
+        RABBIT_VARIANT,
+        PIG_VARIANT,
+        PIG_SOUND_VARIANT,
+        COW_VARIANT,
+        COW_SOUND_VARIANT,
+        CHICKEN_VARIANT,
+        CHICKEN_SOUND_VARIANT,
+        ZOMBIE_NAUTILUS_VARIANT,
+        FROG_VARIANT,
+        HORSE_VARIANT,
+        PAINTING_VARIANT,
+        LLAMA_VARIANT,
+        AXOLOTL_VARIANT,
+        CAT_VARIANT,
+        CAT_SOUND_VARIANT,
+        CAT_COLLAR,
+        SHEEP_COLOR,
+        SHULKER_COLOR,
+        PROVIDES_POTTERY_PATTERN,
+        SIGN_TEXT_FRONT,
+        SIGN_TEXT_BACK,
+        WAXED,
+        CUSHION_COLOR
     );
 
     private DataComponentTypeKeys() {
@@ -761,5 +766,14 @@ public final class DataComponentTypeKeys {
      */
     public static Stream<TypedKey<DataComponentType>> values() {
         return VALUES.stream();
+    }
+
+    /**
+     * Returns this registry's tags (namespaced tag identifier to member entries).
+     *
+     * @return an immutable map of tags, or an empty map if this registry defines none
+     */
+    public static Map<Key, List<Key>> tags() {
+        return Map.of();
     }
 }

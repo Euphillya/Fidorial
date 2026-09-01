@@ -4,7 +4,9 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.DamageType;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -117,6 +119,11 @@ public final class DamageTypeKeys {
     public static final TypedKey<DamageType> HOT_FLOOR = create("hot_floor");
 
     /**
+     * Key for {@code minecraft:indirect_magic}.
+     */
+    public static final TypedKey<DamageType> INDIRECT_MAGIC = create("indirect_magic");
+
+    /**
      * Key for {@code minecraft:in_fire}.
      */
     public static final TypedKey<DamageType> IN_FIRE = create("in_fire");
@@ -125,11 +132,6 @@ public final class DamageTypeKeys {
      * Key for {@code minecraft:in_wall}.
      */
     public static final TypedKey<DamageType> IN_WALL = create("in_wall");
-
-    /**
-     * Key for {@code minecraft:indirect_magic}.
-     */
-    public static final TypedKey<DamageType> INDIRECT_MAGIC = create("indirect_magic");
 
     /**
      * Key for {@code minecraft:lava}.
@@ -172,14 +174,14 @@ public final class DamageTypeKeys {
     public static final TypedKey<DamageType> ON_FIRE = create("on_fire");
 
     /**
-     * Key for {@code minecraft:out_of_world}.
-     */
-    public static final TypedKey<DamageType> OUT_OF_WORLD = create("out_of_world");
-
-    /**
      * Key for {@code minecraft:outside_border}.
      */
     public static final TypedKey<DamageType> OUTSIDE_BORDER = create("outside_border");
+
+    /**
+     * Key for {@code minecraft:out_of_world}.
+     */
+    public static final TypedKey<DamageType> OUT_OF_WORLD = create("out_of_world");
 
     /**
      * Key for {@code minecraft:player_attack}.
@@ -266,6 +268,9 @@ public final class DamageTypeKeys {
      */
     public static final TypedKey<DamageType> WITHER_SKULL = create("wither_skull");
 
+    /**
+     * Entries in ascending {@code protocol_id} order - list index == network ID.
+     */
     private static final List<TypedKey<DamageType>> VALUES = List.of(
         ARROW,
         BAD_RESPAWN_POINT,
@@ -335,5 +340,14 @@ public final class DamageTypeKeys {
      */
     public static Stream<TypedKey<DamageType>> values() {
         return VALUES.stream();
+    }
+
+    /**
+     * Returns this registry's tags (namespaced tag identifier to member entries).
+     *
+     * @return an immutable map of tags, or an empty map if this registry defines none
+     */
+    public static Map<Key, List<Key>> tags() {
+        return Map.of();
     }
 }

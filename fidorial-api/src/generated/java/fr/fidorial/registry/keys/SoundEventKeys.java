@@ -4,7 +4,9 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.registry.TypedKey;
 import fr.fidorial.registry.data.SoundEvent;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
 
 /**
@@ -262,16 +264,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_AZALEA_HIT = create("block.azalea.hit");
 
     /**
-     * Key for {@code minecraft:block.azalea.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_AZALEA_PLACE = create("block.azalea.place");
-
-    /**
-     * Key for {@code minecraft:block.azalea.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_AZALEA_STEP = create("block.azalea.step");
-
-    /**
      * Key for {@code minecraft:block.azalea_leaves.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_AZALEA_LEAVES_BREAK = create("block.azalea_leaves.break");
@@ -297,6 +289,16 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_AZALEA_LEAVES_STEP = create("block.azalea_leaves.step");
 
     /**
+     * Key for {@code minecraft:block.azalea.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_AZALEA_PLACE = create("block.azalea.place");
+
+    /**
+     * Key for {@code minecraft:block.azalea.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_AZALEA_STEP = create("block.azalea.step");
+
+    /**
      * Key for {@code minecraft:block.bamboo.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_BAMBOO_BREAK = create("block.bamboo.break");
@@ -317,11 +319,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_BAMBOO_PLACE = create("block.bamboo.place");
 
     /**
-     * Key for {@code minecraft:block.bamboo.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_BAMBOO_STEP = create("block.bamboo.step");
-
-    /**
      * Key for {@code minecraft:block.bamboo_sapling.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_BAMBOO_SAPLING_BREAK = create("block.bamboo_sapling.break");
@@ -337,29 +334,14 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_BAMBOO_SAPLING_PLACE = create("block.bamboo_sapling.place");
 
     /**
+     * Key for {@code minecraft:block.bamboo.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_BAMBOO_STEP = create("block.bamboo.step");
+
+    /**
      * Key for {@code minecraft:block.bamboo_wood.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_BREAK = create("block.bamboo_wood.break");
-
-    /**
-     * Key for {@code minecraft:block.bamboo_wood.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_FALL = create("block.bamboo_wood.fall");
-
-    /**
-     * Key for {@code minecraft:block.bamboo_wood.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_HIT = create("block.bamboo_wood.hit");
-
-    /**
-     * Key for {@code minecraft:block.bamboo_wood.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_PLACE = create("block.bamboo_wood.place");
-
-    /**
-     * Key for {@code minecraft:block.bamboo_wood.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_STEP = create("block.bamboo_wood.step");
 
     /**
      * Key for {@code minecraft:block.bamboo_wood_button.click_off}.
@@ -380,6 +362,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.bamboo_wood_door.open}.
      */
     public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_DOOR_OPEN = create("block.bamboo_wood_door.open");
+
+    /**
+     * Key for {@code minecraft:block.bamboo_wood.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_FALL = create("block.bamboo_wood.fall");
 
     /**
      * Key for {@code minecraft:block.bamboo_wood_fence_gate.close}.
@@ -417,6 +404,16 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_HANGING_SIGN_STEP = create("block.bamboo_wood_hanging_sign.step");
 
     /**
+     * Key for {@code minecraft:block.bamboo_wood.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_HIT = create("block.bamboo_wood.hit");
+
+    /**
+     * Key for {@code minecraft:block.bamboo_wood.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_PLACE = create("block.bamboo_wood.place");
+
+    /**
      * Key for {@code minecraft:block.bamboo_wood_pressure_plate.click_off}.
      */
     public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_PRESSURE_PLATE_CLICK_OFF = create("block.bamboo_wood_pressure_plate.click_off");
@@ -425,6 +422,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.bamboo_wood_pressure_plate.click_on}.
      */
     public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_PRESSURE_PLATE_CLICK_ON = create("block.bamboo_wood_pressure_plate.click_on");
+
+    /**
+     * Key for {@code minecraft:block.bamboo_wood.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_BAMBOO_WOOD_STEP = create("block.bamboo_wood.step");
 
     /**
      * Key for {@code minecraft:block.bamboo_wood_trapdoor.close}.
@@ -812,26 +814,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_BREAK = create("block.cherry_wood.break");
 
     /**
-     * Key for {@code minecraft:block.cherry_wood.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_FALL = create("block.cherry_wood.fall");
-
-    /**
-     * Key for {@code minecraft:block.cherry_wood.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_HIT = create("block.cherry_wood.hit");
-
-    /**
-     * Key for {@code minecraft:block.cherry_wood.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_PLACE = create("block.cherry_wood.place");
-
-    /**
-     * Key for {@code minecraft:block.cherry_wood.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_STEP = create("block.cherry_wood.step");
-
-    /**
      * Key for {@code minecraft:block.cherry_wood_button.click_off}.
      */
     public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_BUTTON_CLICK_OFF = create("block.cherry_wood_button.click_off");
@@ -850,6 +832,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.cherry_wood_door.open}.
      */
     public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_DOOR_OPEN = create("block.cherry_wood_door.open");
+
+    /**
+     * Key for {@code minecraft:block.cherry_wood.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_FALL = create("block.cherry_wood.fall");
 
     /**
      * Key for {@code minecraft:block.cherry_wood_fence_gate.close}.
@@ -887,6 +874,16 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_HANGING_SIGN_STEP = create("block.cherry_wood_hanging_sign.step");
 
     /**
+     * Key for {@code minecraft:block.cherry_wood.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_HIT = create("block.cherry_wood.hit");
+
+    /**
+     * Key for {@code minecraft:block.cherry_wood.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_PLACE = create("block.cherry_wood.place");
+
+    /**
      * Key for {@code minecraft:block.cherry_wood_pressure_plate.click_off}.
      */
     public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_PRESSURE_PLATE_CLICK_OFF = create("block.cherry_wood_pressure_plate.click_off");
@@ -895,6 +892,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.cherry_wood_pressure_plate.click_on}.
      */
     public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_PRESSURE_PLATE_CLICK_ON = create("block.cherry_wood_pressure_plate.click_on");
+
+    /**
+     * Key for {@code minecraft:block.cherry_wood.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_CHERRY_WOOD_STEP = create("block.cherry_wood.step");
 
     /**
      * Key for {@code minecraft:block.cherry_wood_trapdoor.close}.
@@ -1082,26 +1084,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_COPPER_BREAK = create("block.copper.break");
 
     /**
-     * Key for {@code minecraft:block.copper.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_COPPER_FALL = create("block.copper.fall");
-
-    /**
-     * Key for {@code minecraft:block.copper.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_COPPER_HIT = create("block.copper.hit");
-
-    /**
-     * Key for {@code minecraft:block.copper.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_COPPER_PLACE = create("block.copper.place");
-
-    /**
-     * Key for {@code minecraft:block.copper.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_COPPER_STEP = create("block.copper.step");
-
-    /**
      * Key for {@code minecraft:block.copper_bulb.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_COPPER_BULB_BREAK = create("block.copper_bulb.break");
@@ -1177,6 +1159,11 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_COPPER_DOOR_OPEN = create("block.copper_door.open");
 
     /**
+     * Key for {@code minecraft:block.copper.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_COPPER_FALL = create("block.copper.fall");
+
+    /**
      * Key for {@code minecraft:block.copper_golem_statue.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_COPPER_GOLEM_STATUE_BREAK = create("block.copper_golem_statue.break");
@@ -1225,6 +1212,21 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.copper_grate.step}.
      */
     public static final TypedKey<SoundEvent> BLOCK_COPPER_GRATE_STEP = create("block.copper_grate.step");
+
+    /**
+     * Key for {@code minecraft:block.copper.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_COPPER_HIT = create("block.copper.hit");
+
+    /**
+     * Key for {@code minecraft:block.copper.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_COPPER_PLACE = create("block.copper.place");
+
+    /**
+     * Key for {@code minecraft:block.copper.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_COPPER_STEP = create("block.copper.step");
 
     /**
      * Key for {@code minecraft:block.copper_trapdoor.close}.
@@ -1367,26 +1369,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_DEEPSLATE_BREAK = create("block.deepslate.break");
 
     /**
-     * Key for {@code minecraft:block.deepslate.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_DEEPSLATE_FALL = create("block.deepslate.fall");
-
-    /**
-     * Key for {@code minecraft:block.deepslate.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_DEEPSLATE_HIT = create("block.deepslate.hit");
-
-    /**
-     * Key for {@code minecraft:block.deepslate.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_DEEPSLATE_PLACE = create("block.deepslate.place");
-
-    /**
-     * Key for {@code minecraft:block.deepslate.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_DEEPSLATE_STEP = create("block.deepslate.step");
-
-    /**
      * Key for {@code minecraft:block.deepslate_bricks.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_DEEPSLATE_BRICKS_BREAK = create("block.deepslate_bricks.break");
@@ -1410,6 +1392,26 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.deepslate_bricks.step}.
      */
     public static final TypedKey<SoundEvent> BLOCK_DEEPSLATE_BRICKS_STEP = create("block.deepslate_bricks.step");
+
+    /**
+     * Key for {@code minecraft:block.deepslate.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_DEEPSLATE_FALL = create("block.deepslate.fall");
+
+    /**
+     * Key for {@code minecraft:block.deepslate.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_DEEPSLATE_HIT = create("block.deepslate.hit");
+
+    /**
+     * Key for {@code minecraft:block.deepslate.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_DEEPSLATE_PLACE = create("block.deepslate.place");
+
+    /**
+     * Key for {@code minecraft:block.deepslate.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_DEEPSLATE_STEP = create("block.deepslate.step");
 
     /**
      * Key for {@code minecraft:block.deepslate_tiles.break}.
@@ -1527,21 +1529,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_ENCHANTMENT_TABLE_USE = create("block.enchantment_table.use");
 
     /**
-     * Key for {@code minecraft:block.end_gateway.spawn}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_END_GATEWAY_SPAWN = create("block.end_gateway.spawn");
-
-    /**
-     * Key for {@code minecraft:block.end_portal.spawn}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_END_PORTAL_SPAWN = create("block.end_portal.spawn");
-
-    /**
-     * Key for {@code minecraft:block.end_portal_frame.fill}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_END_PORTAL_FRAME_FILL = create("block.end_portal_frame.fill");
-
-    /**
      * Key for {@code minecraft:block.ender_chest.close}.
      */
     public static final TypedKey<SoundEvent> BLOCK_ENDER_CHEST_CLOSE = create("block.ender_chest.close");
@@ -1550,6 +1537,21 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.ender_chest.open}.
      */
     public static final TypedKey<SoundEvent> BLOCK_ENDER_CHEST_OPEN = create("block.ender_chest.open");
+
+    /**
+     * Key for {@code minecraft:block.end_gateway.spawn}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_END_GATEWAY_SPAWN = create("block.end_gateway.spawn");
+
+    /**
+     * Key for {@code minecraft:block.end_portal_frame.fill}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_END_PORTAL_FRAME_FILL = create("block.end_portal_frame.fill");
+
+    /**
+     * Key for {@code minecraft:block.end_portal.spawn}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_END_PORTAL_SPAWN = create("block.end_portal.spawn");
 
     /**
      * Key for {@code minecraft:block.eyeblossom.close}.
@@ -1587,6 +1589,11 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_FENCE_GATE_OPEN = create("block.fence_gate.open");
 
     /**
+     * Key for {@code minecraft:block.firefly_bush.idle}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_FIREFLY_BUSH_IDLE = create("block.firefly_bush.idle");
+
+    /**
      * Key for {@code minecraft:block.fire.ambient}.
      */
     public static final TypedKey<SoundEvent> BLOCK_FIRE_AMBIENT = create("block.fire.ambient");
@@ -1595,11 +1602,6 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.fire.extinguish}.
      */
     public static final TypedKey<SoundEvent> BLOCK_FIRE_EXTINGUISH = create("block.fire.extinguish");
-
-    /**
-     * Key for {@code minecraft:block.firefly_bush.idle}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_FIREFLY_BUSH_IDLE = create("block.firefly_bush.idle");
 
     /**
      * Key for {@code minecraft:block.flowering_azalea.break}.
@@ -1937,6 +1939,16 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_IRON_BREAK = create("block.iron.break");
 
     /**
+     * Key for {@code minecraft:block.iron_door.close}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_IRON_DOOR_CLOSE = create("block.iron_door.close");
+
+    /**
+     * Key for {@code minecraft:block.iron_door.open}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_IRON_DOOR_OPEN = create("block.iron_door.open");
+
+    /**
      * Key for {@code minecraft:block.iron.fall}.
      */
     public static final TypedKey<SoundEvent> BLOCK_IRON_FALL = create("block.iron.fall");
@@ -1955,16 +1967,6 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.iron.step}.
      */
     public static final TypedKey<SoundEvent> BLOCK_IRON_STEP = create("block.iron.step");
-
-    /**
-     * Key for {@code minecraft:block.iron_door.close}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_IRON_DOOR_CLOSE = create("block.iron_door.close");
-
-    /**
-     * Key for {@code minecraft:block.iron_door.open}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_IRON_DOOR_OPEN = create("block.iron_door.open");
 
     /**
      * Key for {@code minecraft:block.iron_trapdoor.close}.
@@ -2167,11 +2169,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_METAL_PLACE = create("block.metal.place");
 
     /**
-     * Key for {@code minecraft:block.metal.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_METAL_STEP = create("block.metal.step");
-
-    /**
      * Key for {@code minecraft:block.metal_pressure_plate.click_off}.
      */
     public static final TypedKey<SoundEvent> BLOCK_METAL_PRESSURE_PLATE_CLICK_OFF = create("block.metal_pressure_plate.click_off");
@@ -2182,29 +2179,14 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_METAL_PRESSURE_PLATE_CLICK_ON = create("block.metal_pressure_plate.click_on");
 
     /**
+     * Key for {@code minecraft:block.metal.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_METAL_STEP = create("block.metal.step");
+
+    /**
      * Key for {@code minecraft:block.moss.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_MOSS_BREAK = create("block.moss.break");
-
-    /**
-     * Key for {@code minecraft:block.moss.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_MOSS_FALL = create("block.moss.fall");
-
-    /**
-     * Key for {@code minecraft:block.moss.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_MOSS_HIT = create("block.moss.hit");
-
-    /**
-     * Key for {@code minecraft:block.moss.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_MOSS_PLACE = create("block.moss.place");
-
-    /**
-     * Key for {@code minecraft:block.moss.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_MOSS_STEP = create("block.moss.step");
 
     /**
      * Key for {@code minecraft:block.moss_carpet.break}.
@@ -2232,29 +2214,54 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_MOSS_CARPET_STEP = create("block.moss_carpet.step");
 
     /**
+     * Key for {@code minecraft:block.moss.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_MOSS_FALL = create("block.moss.fall");
+
+    /**
+     * Key for {@code minecraft:block.moss.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_MOSS_HIT = create("block.moss.hit");
+
+    /**
+     * Key for {@code minecraft:block.moss.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_MOSS_PLACE = create("block.moss.place");
+
+    /**
+     * Key for {@code minecraft:block.moss.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_MOSS_STEP = create("block.moss.step");
+
+    /**
+     * Key for {@code minecraft:block.muddy_mangrove_roots.break}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_MUDDY_MANGROVE_ROOTS_BREAK = create("block.muddy_mangrove_roots.break");
+
+    /**
+     * Key for {@code minecraft:block.muddy_mangrove_roots.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_MUDDY_MANGROVE_ROOTS_FALL = create("block.muddy_mangrove_roots.fall");
+
+    /**
+     * Key for {@code minecraft:block.muddy_mangrove_roots.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_MUDDY_MANGROVE_ROOTS_HIT = create("block.muddy_mangrove_roots.hit");
+
+    /**
+     * Key for {@code minecraft:block.muddy_mangrove_roots.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_MUDDY_MANGROVE_ROOTS_PLACE = create("block.muddy_mangrove_roots.place");
+
+    /**
+     * Key for {@code minecraft:block.muddy_mangrove_roots.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_MUDDY_MANGROVE_ROOTS_STEP = create("block.muddy_mangrove_roots.step");
+
+    /**
      * Key for {@code minecraft:block.mud.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_MUD_BREAK = create("block.mud.break");
-
-    /**
-     * Key for {@code minecraft:block.mud.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_MUD_FALL = create("block.mud.fall");
-
-    /**
-     * Key for {@code minecraft:block.mud.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_MUD_HIT = create("block.mud.hit");
-
-    /**
-     * Key for {@code minecraft:block.mud.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_MUD_PLACE = create("block.mud.place");
-
-    /**
-     * Key for {@code minecraft:block.mud.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_MUD_STEP = create("block.mud.step");
 
     /**
      * Key for {@code minecraft:block.mud_bricks.break}.
@@ -2282,29 +2289,74 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_MUD_BRICKS_STEP = create("block.mud_bricks.step");
 
     /**
-     * Key for {@code minecraft:block.muddy_mangrove_roots.break}.
+     * Key for {@code minecraft:block.mud.fall}.
      */
-    public static final TypedKey<SoundEvent> BLOCK_MUDDY_MANGROVE_ROOTS_BREAK = create("block.muddy_mangrove_roots.break");
+    public static final TypedKey<SoundEvent> BLOCK_MUD_FALL = create("block.mud.fall");
 
     /**
-     * Key for {@code minecraft:block.muddy_mangrove_roots.fall}.
+     * Key for {@code minecraft:block.mud.hit}.
      */
-    public static final TypedKey<SoundEvent> BLOCK_MUDDY_MANGROVE_ROOTS_FALL = create("block.muddy_mangrove_roots.fall");
+    public static final TypedKey<SoundEvent> BLOCK_MUD_HIT = create("block.mud.hit");
 
     /**
-     * Key for {@code minecraft:block.muddy_mangrove_roots.hit}.
+     * Key for {@code minecraft:block.mud.place}.
      */
-    public static final TypedKey<SoundEvent> BLOCK_MUDDY_MANGROVE_ROOTS_HIT = create("block.muddy_mangrove_roots.hit");
+    public static final TypedKey<SoundEvent> BLOCK_MUD_PLACE = create("block.mud.place");
 
     /**
-     * Key for {@code minecraft:block.muddy_mangrove_roots.place}.
+     * Key for {@code minecraft:block.mud.step}.
      */
-    public static final TypedKey<SoundEvent> BLOCK_MUDDY_MANGROVE_ROOTS_PLACE = create("block.muddy_mangrove_roots.place");
+    public static final TypedKey<SoundEvent> BLOCK_MUD_STEP = create("block.mud.step");
 
     /**
-     * Key for {@code minecraft:block.muddy_mangrove_roots.step}.
+     * Key for {@code minecraft:block.netherite_block.break}.
      */
-    public static final TypedKey<SoundEvent> BLOCK_MUDDY_MANGROVE_ROOTS_STEP = create("block.muddy_mangrove_roots.step");
+    public static final TypedKey<SoundEvent> BLOCK_NETHERITE_BLOCK_BREAK = create("block.netherite_block.break");
+
+    /**
+     * Key for {@code minecraft:block.netherite_block.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHERITE_BLOCK_FALL = create("block.netherite_block.fall");
+
+    /**
+     * Key for {@code minecraft:block.netherite_block.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHERITE_BLOCK_HIT = create("block.netherite_block.hit");
+
+    /**
+     * Key for {@code minecraft:block.netherite_block.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHERITE_BLOCK_PLACE = create("block.netherite_block.place");
+
+    /**
+     * Key for {@code minecraft:block.netherite_block.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHERITE_BLOCK_STEP = create("block.netherite_block.step");
+
+    /**
+     * Key for {@code minecraft:block.netherrack.break}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHERRACK_BREAK = create("block.netherrack.break");
+
+    /**
+     * Key for {@code minecraft:block.netherrack.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHERRACK_FALL = create("block.netherrack.fall");
+
+    /**
+     * Key for {@code minecraft:block.netherrack.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHERRACK_HIT = create("block.netherrack.hit");
+
+    /**
+     * Key for {@code minecraft:block.netherrack.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHERRACK_PLACE = create("block.netherrack.place");
+
+    /**
+     * Key for {@code minecraft:block.netherrack.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHERRACK_STEP = create("block.netherrack.step");
 
     /**
      * Key for {@code minecraft:block.nether_bricks.break}.
@@ -2417,26 +2469,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_BREAK = create("block.nether_wood.break");
 
     /**
-     * Key for {@code minecraft:block.nether_wood.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_FALL = create("block.nether_wood.fall");
-
-    /**
-     * Key for {@code minecraft:block.nether_wood.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_HIT = create("block.nether_wood.hit");
-
-    /**
-     * Key for {@code minecraft:block.nether_wood.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_PLACE = create("block.nether_wood.place");
-
-    /**
-     * Key for {@code minecraft:block.nether_wood.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_STEP = create("block.nether_wood.step");
-
-    /**
      * Key for {@code minecraft:block.nether_wood_button.click_off}.
      */
     public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_BUTTON_CLICK_OFF = create("block.nether_wood_button.click_off");
@@ -2455,6 +2487,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.nether_wood_door.open}.
      */
     public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_DOOR_OPEN = create("block.nether_wood_door.open");
+
+    /**
+     * Key for {@code minecraft:block.nether_wood.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_FALL = create("block.nether_wood.fall");
 
     /**
      * Key for {@code minecraft:block.nether_wood_fence_gate.close}.
@@ -2492,6 +2529,16 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_HANGING_SIGN_STEP = create("block.nether_wood_hanging_sign.step");
 
     /**
+     * Key for {@code minecraft:block.nether_wood.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_HIT = create("block.nether_wood.hit");
+
+    /**
+     * Key for {@code minecraft:block.nether_wood.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_PLACE = create("block.nether_wood.place");
+
+    /**
      * Key for {@code minecraft:block.nether_wood_pressure_plate.click_off}.
      */
     public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_PRESSURE_PLATE_CLICK_OFF = create("block.nether_wood_pressure_plate.click_off");
@@ -2502,6 +2549,11 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_PRESSURE_PLATE_CLICK_ON = create("block.nether_wood_pressure_plate.click_on");
 
     /**
+     * Key for {@code minecraft:block.nether_wood.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_STEP = create("block.nether_wood.step");
+
+    /**
      * Key for {@code minecraft:block.nether_wood_trapdoor.close}.
      */
     public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_TRAPDOOR_CLOSE = create("block.nether_wood_trapdoor.close");
@@ -2510,56 +2562,6 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.nether_wood_trapdoor.open}.
      */
     public static final TypedKey<SoundEvent> BLOCK_NETHER_WOOD_TRAPDOOR_OPEN = create("block.nether_wood_trapdoor.open");
-
-    /**
-     * Key for {@code minecraft:block.netherite_block.break}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHERITE_BLOCK_BREAK = create("block.netherite_block.break");
-
-    /**
-     * Key for {@code minecraft:block.netherite_block.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHERITE_BLOCK_FALL = create("block.netherite_block.fall");
-
-    /**
-     * Key for {@code minecraft:block.netherite_block.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHERITE_BLOCK_HIT = create("block.netherite_block.hit");
-
-    /**
-     * Key for {@code minecraft:block.netherite_block.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHERITE_BLOCK_PLACE = create("block.netherite_block.place");
-
-    /**
-     * Key for {@code minecraft:block.netherite_block.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHERITE_BLOCK_STEP = create("block.netherite_block.step");
-
-    /**
-     * Key for {@code minecraft:block.netherrack.break}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHERRACK_BREAK = create("block.netherrack.break");
-
-    /**
-     * Key for {@code minecraft:block.netherrack.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHERRACK_FALL = create("block.netherrack.fall");
-
-    /**
-     * Key for {@code minecraft:block.netherrack.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHERRACK_HIT = create("block.netherrack.hit");
-
-    /**
-     * Key for {@code minecraft:block.netherrack.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHERRACK_PLACE = create("block.netherrack.place");
-
-    /**
-     * Key for {@code minecraft:block.netherrack.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_NETHERRACK_STEP = create("block.netherrack.step");
 
     /**
      * Key for {@code minecraft:block.note_block.banjo}.
@@ -3007,6 +3009,11 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_PUMPKIN_CARVE = create("block.pumpkin.carve");
 
     /**
+     * Key for {@code minecraft:block.redstone_torch.burnout}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_REDSTONE_TORCH_BURNOUT = create("block.redstone_torch.burnout");
+
+    /**
      * Key for {@code minecraft:block.red_shrub.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_RED_SHRUB_BREAK = create("block.red_shrub.break");
@@ -3017,29 +3024,9 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_RED_SHRUB_PLACE = create("block.red_shrub.place");
 
     /**
-     * Key for {@code minecraft:block.redstone_torch.burnout}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_REDSTONE_TORCH_BURNOUT = create("block.redstone_torch.burnout");
-
-    /**
      * Key for {@code minecraft:block.resin.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_RESIN_BREAK = create("block.resin.break");
-
-    /**
-     * Key for {@code minecraft:block.resin.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_RESIN_FALL = create("block.resin.fall");
-
-    /**
-     * Key for {@code minecraft:block.resin.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_RESIN_PLACE = create("block.resin.place");
-
-    /**
-     * Key for {@code minecraft:block.resin.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_RESIN_STEP = create("block.resin.step");
 
     /**
      * Key for {@code minecraft:block.resin_bricks.break}.
@@ -3065,6 +3052,21 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.resin_bricks.step}.
      */
     public static final TypedKey<SoundEvent> BLOCK_RESIN_BRICKS_STEP = create("block.resin_bricks.step");
+
+    /**
+     * Key for {@code minecraft:block.resin.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_RESIN_FALL = create("block.resin.fall");
+
+    /**
+     * Key for {@code minecraft:block.resin.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_RESIN_PLACE = create("block.resin.place");
+
+    /**
+     * Key for {@code minecraft:block.resin.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_RESIN_STEP = create("block.resin.step");
 
     /**
      * Key for {@code minecraft:block.respawn_anchor.ambient}.
@@ -3197,36 +3199,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_SCULK_BREAK = create("block.sculk.break");
 
     /**
-     * Key for {@code minecraft:block.sculk.charge}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SCULK_CHARGE = create("block.sculk.charge");
-
-    /**
-     * Key for {@code minecraft:block.sculk.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SCULK_FALL = create("block.sculk.fall");
-
-    /**
-     * Key for {@code minecraft:block.sculk.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SCULK_HIT = create("block.sculk.hit");
-
-    /**
-     * Key for {@code minecraft:block.sculk.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SCULK_PLACE = create("block.sculk.place");
-
-    /**
-     * Key for {@code minecraft:block.sculk.spread}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SCULK_SPREAD = create("block.sculk.spread");
-
-    /**
-     * Key for {@code minecraft:block.sculk.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SCULK_STEP = create("block.sculk.step");
-
-    /**
      * Key for {@code minecraft:block.sculk_catalyst.bloom}.
      */
     public static final TypedKey<SoundEvent> BLOCK_SCULK_CATALYST_BLOOM = create("block.sculk_catalyst.bloom");
@@ -3255,6 +3227,26 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.sculk_catalyst.step}.
      */
     public static final TypedKey<SoundEvent> BLOCK_SCULK_CATALYST_STEP = create("block.sculk_catalyst.step");
+
+    /**
+     * Key for {@code minecraft:block.sculk.charge}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SCULK_CHARGE = create("block.sculk.charge");
+
+    /**
+     * Key for {@code minecraft:block.sculk.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SCULK_FALL = create("block.sculk.fall");
+
+    /**
+     * Key for {@code minecraft:block.sculk.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SCULK_HIT = create("block.sculk.hit");
+
+    /**
+     * Key for {@code minecraft:block.sculk.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SCULK_PLACE = create("block.sculk.place");
 
     /**
      * Key for {@code minecraft:block.sculk_sensor.break}.
@@ -3322,6 +3314,16 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_SCULK_SHRIEKER_STEP = create("block.sculk_shrieker.step");
 
     /**
+     * Key for {@code minecraft:block.sculk.spread}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SCULK_SPREAD = create("block.sculk.spread");
+
+    /**
+     * Key for {@code minecraft:block.sculk.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SCULK_STEP = create("block.sculk.step");
+
+    /**
      * Key for {@code minecraft:block.sculk_vein.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_SCULK_VEIN_BREAK = create("block.sculk_vein.break");
@@ -3377,31 +3379,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_SHELF_MULTI_SWAP = create("block.shelf.multi_swap");
 
     /**
-     * Key for {@code minecraft:block.shelf.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SHELF_PLACE = create("block.shelf.place");
-
-    /**
-     * Key for {@code minecraft:block.shelf.place_item}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SHELF_PLACE_ITEM = create("block.shelf.place_item");
-
-    /**
-     * Key for {@code minecraft:block.shelf.single_swap}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SHELF_SINGLE_SWAP = create("block.shelf.single_swap");
-
-    /**
-     * Key for {@code minecraft:block.shelf.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SHELF_STEP = create("block.shelf.step");
-
-    /**
-     * Key for {@code minecraft:block.shelf.take_item}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SHELF_TAKE_ITEM = create("block.shelf.take_item");
-
-    /**
      * Key for {@code minecraft:block.shelf_mushroom.bounce}.
      */
     public static final TypedKey<SoundEvent> BLOCK_SHELF_MUSHROOM_BOUNCE = create("block.shelf_mushroom.bounce");
@@ -3425,6 +3402,31 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.shelf_mushroom.step}.
      */
     public static final TypedKey<SoundEvent> BLOCK_SHELF_MUSHROOM_STEP = create("block.shelf_mushroom.step");
+
+    /**
+     * Key for {@code minecraft:block.shelf.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SHELF_PLACE = create("block.shelf.place");
+
+    /**
+     * Key for {@code minecraft:block.shelf.place_item}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SHELF_PLACE_ITEM = create("block.shelf.place_item");
+
+    /**
+     * Key for {@code minecraft:block.shelf.single_swap}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SHELF_SINGLE_SWAP = create("block.shelf.single_swap");
+
+    /**
+     * Key for {@code minecraft:block.shelf.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SHELF_STEP = create("block.shelf.step");
+
+    /**
+     * Key for {@code minecraft:block.shelf.take_item}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SHELF_TAKE_ITEM = create("block.shelf.take_item");
 
     /**
      * Key for {@code minecraft:block.shroomlight.break}.
@@ -3737,6 +3739,16 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_STONE_BREAK = create("block.stone.break");
 
     /**
+     * Key for {@code minecraft:block.stone_button.click_off}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_STONE_BUTTON_CLICK_OFF = create("block.stone_button.click_off");
+
+    /**
+     * Key for {@code minecraft:block.stone_button.click_on}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_STONE_BUTTON_CLICK_ON = create("block.stone_button.click_on");
+
+    /**
      * Key for {@code minecraft:block.stone.fall}.
      */
     public static final TypedKey<SoundEvent> BLOCK_STONE_FALL = create("block.stone.fall");
@@ -3752,21 +3764,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_STONE_PLACE = create("block.stone.place");
 
     /**
-     * Key for {@code minecraft:block.stone.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_STONE_STEP = create("block.stone.step");
-
-    /**
-     * Key for {@code minecraft:block.stone_button.click_off}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_STONE_BUTTON_CLICK_OFF = create("block.stone_button.click_off");
-
-    /**
-     * Key for {@code minecraft:block.stone_button.click_on}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_STONE_BUTTON_CLICK_ON = create("block.stone_button.click_on");
-
-    /**
      * Key for {@code minecraft:block.stone_pressure_plate.click_off}.
      */
     public static final TypedKey<SoundEvent> BLOCK_STONE_PRESSURE_PLATE_CLICK_OFF = create("block.stone_pressure_plate.click_off");
@@ -3775,6 +3772,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.stone_pressure_plate.click_on}.
      */
     public static final TypedKey<SoundEvent> BLOCK_STONE_PRESSURE_PLATE_CLICK_ON = create("block.stone_pressure_plate.click_on");
+
+    /**
+     * Key for {@code minecraft:block.stone.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_STONE_STEP = create("block.stone.step");
 
     /**
      * Key for {@code minecraft:block.straw_bed.break}.
@@ -3827,11 +3829,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_SULFUR_PLACE = create("block.sulfur.place");
 
     /**
-     * Key for {@code minecraft:block.sulfur.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_SULFUR_STEP = create("block.sulfur.step");
-
-    /**
      * Key for {@code minecraft:block.sulfur_spike.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_SULFUR_SPIKE_BREAK = create("block.sulfur_spike.break");
@@ -3860,6 +3857,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.sulfur_spike.step}.
      */
     public static final TypedKey<SoundEvent> BLOCK_SULFUR_SPIKE_STEP = create("block.sulfur_spike.step");
+
+    /**
+     * Key for {@code minecraft:block.sulfur.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_SULFUR_STEP = create("block.sulfur.step");
 
     /**
      * Key for {@code minecraft:block.suspicious_gravel.break}.
@@ -4032,26 +4034,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_TUFF_BREAK = create("block.tuff.break");
 
     /**
-     * Key for {@code minecraft:block.tuff.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_TUFF_FALL = create("block.tuff.fall");
-
-    /**
-     * Key for {@code minecraft:block.tuff.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_TUFF_HIT = create("block.tuff.hit");
-
-    /**
-     * Key for {@code minecraft:block.tuff.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_TUFF_PLACE = create("block.tuff.place");
-
-    /**
-     * Key for {@code minecraft:block.tuff.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_TUFF_STEP = create("block.tuff.step");
-
-    /**
      * Key for {@code minecraft:block.tuff_bricks.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_TUFF_BRICKS_BREAK = create("block.tuff_bricks.break");
@@ -4075,6 +4057,26 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:block.tuff_bricks.step}.
      */
     public static final TypedKey<SoundEvent> BLOCK_TUFF_BRICKS_STEP = create("block.tuff_bricks.step");
+
+    /**
+     * Key for {@code minecraft:block.tuff.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_TUFF_FALL = create("block.tuff.fall");
+
+    /**
+     * Key for {@code minecraft:block.tuff.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_TUFF_HIT = create("block.tuff.hit");
+
+    /**
+     * Key for {@code minecraft:block.tuff.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_TUFF_PLACE = create("block.tuff.place");
+
+    /**
+     * Key for {@code minecraft:block.tuff.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_TUFF_STEP = create("block.tuff.step");
 
     /**
      * Key for {@code minecraft:block.vault.activate}.
@@ -4282,31 +4284,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_WET_SPONGE_STEP = create("block.wet_sponge.step");
 
     /**
-     * Key for {@code minecraft:block.wood.break}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_WOOD_BREAK = create("block.wood.break");
-
-    /**
-     * Key for {@code minecraft:block.wood.fall}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_WOOD_FALL = create("block.wood.fall");
-
-    /**
-     * Key for {@code minecraft:block.wood.hit}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_WOOD_HIT = create("block.wood.hit");
-
-    /**
-     * Key for {@code minecraft:block.wood.place}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_WOOD_PLACE = create("block.wood.place");
-
-    /**
-     * Key for {@code minecraft:block.wood.step}.
-     */
-    public static final TypedKey<SoundEvent> BLOCK_WOOD_STEP = create("block.wood.step");
-
-    /**
      * Key for {@code minecraft:block.wooden_button.click_off}.
      */
     public static final TypedKey<SoundEvent> BLOCK_WOODEN_BUTTON_CLICK_OFF = create("block.wooden_button.click_off");
@@ -4347,6 +4324,31 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> BLOCK_WOODEN_TRAPDOOR_OPEN = create("block.wooden_trapdoor.open");
 
     /**
+     * Key for {@code minecraft:block.wood.break}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_WOOD_BREAK = create("block.wood.break");
+
+    /**
+     * Key for {@code minecraft:block.wood.fall}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_WOOD_FALL = create("block.wood.fall");
+
+    /**
+     * Key for {@code minecraft:block.wood.hit}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_WOOD_HIT = create("block.wood.hit");
+
+    /**
+     * Key for {@code minecraft:block.wood.place}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_WOOD_PLACE = create("block.wood.place");
+
+    /**
+     * Key for {@code minecraft:block.wood.step}.
+     */
+    public static final TypedKey<SoundEvent> BLOCK_WOOD_STEP = create("block.wood.step");
+
+    /**
      * Key for {@code minecraft:block.wool.break}.
      */
     public static final TypedKey<SoundEvent> BLOCK_WOOL_BREAK = create("block.wool.break");
@@ -4377,14 +4379,14 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENCHANT_THORNS_HIT = create("enchant.thorns.hit");
 
     /**
-     * Key for {@code minecraft:entity.allay.ambient_with_item}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ALLAY_AMBIENT_WITH_ITEM = create("entity.allay.ambient_with_item");
-
-    /**
      * Key for {@code minecraft:entity.allay.ambient_without_item}.
      */
     public static final TypedKey<SoundEvent> ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM = create("entity.allay.ambient_without_item");
+
+    /**
+     * Key for {@code minecraft:entity.allay.ambient_with_item}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ALLAY_AMBIENT_WITH_ITEM = create("entity.allay.ambient_with_item");
 
     /**
      * Key for {@code minecraft:entity.allay.death}.
@@ -4962,31 +4964,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_CAMEL_HURT = create("entity.camel.hurt");
 
     /**
-     * Key for {@code minecraft:entity.camel.saddle}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_CAMEL_SADDLE = create("entity.camel.saddle");
-
-    /**
-     * Key for {@code minecraft:entity.camel.sit}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_CAMEL_SIT = create("entity.camel.sit");
-
-    /**
-     * Key for {@code minecraft:entity.camel.stand}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_CAMEL_STAND = create("entity.camel.stand");
-
-    /**
-     * Key for {@code minecraft:entity.camel.step}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_CAMEL_STEP = create("entity.camel.step");
-
-    /**
-     * Key for {@code minecraft:entity.camel.step_sand}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_CAMEL_STEP_SAND = create("entity.camel.step_sand");
-
-    /**
      * Key for {@code minecraft:entity.camel_husk.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_CAMEL_HUSK_AMBIENT = create("entity.camel_husk.ambient");
@@ -5042,6 +5019,31 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_CAMEL_HUSK_STEP_SAND = create("entity.camel_husk.step_sand");
 
     /**
+     * Key for {@code minecraft:entity.camel.saddle}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_CAMEL_SADDLE = create("entity.camel.saddle");
+
+    /**
+     * Key for {@code minecraft:entity.camel.sit}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_CAMEL_SIT = create("entity.camel.sit");
+
+    /**
+     * Key for {@code minecraft:entity.camel.stand}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_CAMEL_STAND = create("entity.camel.stand");
+
+    /**
+     * Key for {@code minecraft:entity.camel.step}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_CAMEL_STEP = create("entity.camel.step");
+
+    /**
+     * Key for {@code minecraft:entity.camel.step_sand}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_CAMEL_STEP_SAND = create("entity.camel.step_sand");
+
+    /**
      * Key for {@code minecraft:entity.cat.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_CAT_AMBIENT = create("entity.cat.ambient");
@@ -5080,11 +5082,6 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.cat.purreow}.
      */
     public static final TypedKey<SoundEvent> ENTITY_CAT_PURREOW = create("entity.cat.purreow");
-
-    /**
-     * Key for {@code minecraft:entity.cat.stray_ambient}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_CAT_STRAY_AMBIENT = create("entity.cat.stray_ambient");
 
     /**
      * Key for {@code minecraft:entity.cat_royal.ambient}.
@@ -5132,6 +5129,11 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_CAT_ROYAL_STRAY_AMBIENT = create("entity.cat_royal.stray_ambient");
 
     /**
+     * Key for {@code minecraft:entity.cat.stray_ambient}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_CAT_STRAY_AMBIENT = create("entity.cat.stray_ambient");
+
+    /**
      * Key for {@code minecraft:entity.chicken.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_CHICKEN_AMBIENT = create("entity.chicken.ambient");
@@ -5152,11 +5154,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_CHICKEN_HURT = create("entity.chicken.hurt");
 
     /**
-     * Key for {@code minecraft:entity.chicken.step}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_CHICKEN_STEP = create("entity.chicken.step");
-
-    /**
      * Key for {@code minecraft:entity.chicken_picky.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_CHICKEN_PICKY_AMBIENT = create("entity.chicken_picky.ambient");
@@ -5170,6 +5167,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.chicken_picky.hurt}.
      */
     public static final TypedKey<SoundEvent> ENTITY_CHICKEN_PICKY_HURT = create("entity.chicken_picky.hurt");
+
+    /**
+     * Key for {@code minecraft:entity.chicken.step}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_CHICKEN_STEP = create("entity.chicken.step");
 
     /**
      * Key for {@code minecraft:entity.cod.ambient}.
@@ -5190,6 +5192,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.cod.hurt}.
      */
     public static final TypedKey<SoundEvent> ENTITY_COD_HURT = create("entity.cod.hurt");
+
+    /**
+     * Key for {@code minecraft:entity.copper_golem_become_statue}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_BECOME_STATUE = create("entity.copper_golem_become_statue");
 
     /**
      * Key for {@code minecraft:entity.copper_golem.death}.
@@ -5222,31 +5229,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_NO_ITEM_NO_GET = create("entity.copper_golem.no_item_no_get");
 
     /**
-     * Key for {@code minecraft:entity.copper_golem.shear}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_SHEAR = create("entity.copper_golem.shear");
-
-    /**
-     * Key for {@code minecraft:entity.copper_golem.spawn}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_SPAWN = create("entity.copper_golem.spawn");
-
-    /**
-     * Key for {@code minecraft:entity.copper_golem.spin}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_SPIN = create("entity.copper_golem.spin");
-
-    /**
-     * Key for {@code minecraft:entity.copper_golem.step}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_STEP = create("entity.copper_golem.step");
-
-    /**
-     * Key for {@code minecraft:entity.copper_golem_become_statue}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_BECOME_STATUE = create("entity.copper_golem_become_statue");
-
-    /**
      * Key for {@code minecraft:entity.copper_golem_oxidized.death}.
      */
     public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_OXIDIZED_DEATH = create("entity.copper_golem_oxidized.death");
@@ -5265,6 +5247,26 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.copper_golem_oxidized.step}.
      */
     public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_OXIDIZED_STEP = create("entity.copper_golem_oxidized.step");
+
+    /**
+     * Key for {@code minecraft:entity.copper_golem.shear}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_SHEAR = create("entity.copper_golem.shear");
+
+    /**
+     * Key for {@code minecraft:entity.copper_golem.spawn}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_SPAWN = create("entity.copper_golem.spawn");
+
+    /**
+     * Key for {@code minecraft:entity.copper_golem.spin}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_SPIN = create("entity.copper_golem.spin");
+
+    /**
+     * Key for {@code minecraft:entity.copper_golem.step}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_COPPER_GOLEM_STEP = create("entity.copper_golem.step");
 
     /**
      * Key for {@code minecraft:entity.copper_golem_weathered.death}.
@@ -5307,11 +5309,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_COW_MILK = create("entity.cow.milk");
 
     /**
-     * Key for {@code minecraft:entity.cow.step}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_COW_STEP = create("entity.cow.step");
-
-    /**
      * Key for {@code minecraft:entity.cow_moody.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_COW_MOODY_AMBIENT = create("entity.cow_moody.ambient");
@@ -5330,6 +5327,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.cow_moody.step}.
      */
     public static final TypedKey<SoundEvent> ENTITY_COW_MOODY_STEP = create("entity.cow_moody.step");
+
+    /**
+     * Key for {@code minecraft:entity.cow.step}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_COW_STEP = create("entity.cow.step");
 
     /**
      * Key for {@code minecraft:entity.creaking.activate}.
@@ -5602,51 +5604,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_ELDER_GUARDIAN_HURT_LAND = create("entity.elder_guardian.hurt_land");
 
     /**
-     * Key for {@code minecraft:entity.ender_dragon.ambient}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_AMBIENT = create("entity.ender_dragon.ambient");
-
-    /**
-     * Key for {@code minecraft:entity.ender_dragon.death}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_DEATH = create("entity.ender_dragon.death");
-
-    /**
-     * Key for {@code minecraft:entity.ender_dragon.flap}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_FLAP = create("entity.ender_dragon.flap");
-
-    /**
-     * Key for {@code minecraft:entity.ender_dragon.growl}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_GROWL = create("entity.ender_dragon.growl");
-
-    /**
-     * Key for {@code minecraft:entity.ender_dragon.hurt}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_HURT = create("entity.ender_dragon.hurt");
-
-    /**
-     * Key for {@code minecraft:entity.ender_dragon.shoot}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_SHOOT = create("entity.ender_dragon.shoot");
-
-    /**
-     * Key for {@code minecraft:entity.ender_eye.death}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ENDER_EYE_DEATH = create("entity.ender_eye.death");
-
-    /**
-     * Key for {@code minecraft:entity.ender_eye.launch}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ENDER_EYE_LAUNCH = create("entity.ender_eye.launch");
-
-    /**
-     * Key for {@code minecraft:entity.ender_pearl.throw}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ENDER_PEARL_THROW = create("entity.ender_pearl.throw");
-
-    /**
      * Key for {@code minecraft:entity.enderman.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_ENDERMAN_AMBIENT = create("entity.enderman.ambient");
@@ -5697,6 +5654,51 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_ENDERMITE_STEP = create("entity.endermite.step");
 
     /**
+     * Key for {@code minecraft:entity.ender_dragon.ambient}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_AMBIENT = create("entity.ender_dragon.ambient");
+
+    /**
+     * Key for {@code minecraft:entity.ender_dragon.death}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_DEATH = create("entity.ender_dragon.death");
+
+    /**
+     * Key for {@code minecraft:entity.ender_dragon.flap}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_FLAP = create("entity.ender_dragon.flap");
+
+    /**
+     * Key for {@code minecraft:entity.ender_dragon.growl}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_GROWL = create("entity.ender_dragon.growl");
+
+    /**
+     * Key for {@code minecraft:entity.ender_dragon.hurt}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_HURT = create("entity.ender_dragon.hurt");
+
+    /**
+     * Key for {@code minecraft:entity.ender_dragon.shoot}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ENDER_DRAGON_SHOOT = create("entity.ender_dragon.shoot");
+
+    /**
+     * Key for {@code minecraft:entity.ender_eye.death}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ENDER_EYE_DEATH = create("entity.ender_eye.death");
+
+    /**
+     * Key for {@code minecraft:entity.ender_eye.launch}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ENDER_EYE_LAUNCH = create("entity.ender_eye.launch");
+
+    /**
+     * Key for {@code minecraft:entity.ender_pearl.throw}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ENDER_PEARL_THROW = create("entity.ender_pearl.throw");
+
+    /**
      * Key for {@code minecraft:entity.evoker.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_EVOKER_AMBIENT = create("entity.evoker.ambient");
@@ -5717,6 +5719,11 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_EVOKER_DEATH = create("entity.evoker.death");
 
     /**
+     * Key for {@code minecraft:entity.evoker_fangs.attack}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_EVOKER_FANGS_ATTACK = create("entity.evoker_fangs.attack");
+
+    /**
      * Key for {@code minecraft:entity.evoker.hurt}.
      */
     public static final TypedKey<SoundEvent> ENTITY_EVOKER_HURT = create("entity.evoker.hurt");
@@ -5735,11 +5742,6 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.evoker.prepare_wololo}.
      */
     public static final TypedKey<SoundEvent> ENTITY_EVOKER_PREPARE_WOLOLO = create("entity.evoker.prepare_wololo");
-
-    /**
-     * Key for {@code minecraft:entity.evoker_fangs.attack}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_EVOKER_FANGS_ATTACK = create("entity.evoker_fangs.attack");
 
     /**
      * Key for {@code minecraft:entity.experience_bottle.throw}.
@@ -5792,11 +5794,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_FIREWORK_ROCKET_TWINKLE_FAR = create("entity.firework_rocket.twinkle_far");
 
     /**
-     * Key for {@code minecraft:entity.fish.swim}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_FISH_SWIM = create("entity.fish.swim");
-
-    /**
      * Key for {@code minecraft:entity.fishing_bobber.retrieve}.
      */
     public static final TypedKey<SoundEvent> ENTITY_FISHING_BOBBER_RETRIEVE = create("entity.fishing_bobber.retrieve");
@@ -5810,6 +5807,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.fishing_bobber.throw}.
      */
     public static final TypedKey<SoundEvent> ENTITY_FISHING_BOBBER_THROW = create("entity.fishing_bobber.throw");
+
+    /**
+     * Key for {@code minecraft:entity.fish.swim}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_FISH_SWIM = create("entity.fish.swim");
 
     /**
      * Key for {@code minecraft:entity.fox.aggro}.
@@ -5962,6 +5964,26 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_GENERIC_SWIM = create("entity.generic.swim");
 
     /**
+     * Key for {@code minecraft:entity.ghastling.ambient}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_GHASTLING_AMBIENT = create("entity.ghastling.ambient");
+
+    /**
+     * Key for {@code minecraft:entity.ghastling.death}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_GHASTLING_DEATH = create("entity.ghastling.death");
+
+    /**
+     * Key for {@code minecraft:entity.ghastling.hurt}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_GHASTLING_HURT = create("entity.ghastling.hurt");
+
+    /**
+     * Key for {@code minecraft:entity.ghastling.spawn}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_GHASTLING_SPAWN = create("entity.ghastling.spawn");
+
+    /**
      * Key for {@code minecraft:entity.ghast.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_GHAST_AMBIENT = create("entity.ghast.ambient");
@@ -5990,26 +6012,6 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.ghast.warn}.
      */
     public static final TypedKey<SoundEvent> ENTITY_GHAST_WARN = create("entity.ghast.warn");
-
-    /**
-     * Key for {@code minecraft:entity.ghastling.ambient}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_GHASTLING_AMBIENT = create("entity.ghastling.ambient");
-
-    /**
-     * Key for {@code minecraft:entity.ghastling.death}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_GHASTLING_DEATH = create("entity.ghastling.death");
-
-    /**
-     * Key for {@code minecraft:entity.ghastling.hurt}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_GHASTLING_HURT = create("entity.ghastling.hurt");
-
-    /**
-     * Key for {@code minecraft:entity.ghastling.spawn}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_GHASTLING_SPAWN = create("entity.ghastling.spawn");
 
     /**
      * Key for {@code minecraft:entity.glow_item_frame.add_item}.
@@ -6457,11 +6459,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_ITEM_BREAK = create("entity.item.break");
 
     /**
-     * Key for {@code minecraft:entity.item.pickup}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ITEM_PICKUP = create("entity.item.pickup");
-
-    /**
      * Key for {@code minecraft:entity.item_frame.add_item}.
      */
     public static final TypedKey<SoundEvent> ENTITY_ITEM_FRAME_ADD_ITEM = create("entity.item_frame.add_item");
@@ -6485,6 +6482,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.item_frame.rotate_item}.
      */
     public static final TypedKey<SoundEvent> ENTITY_ITEM_FRAME_ROTATE_ITEM = create("entity.item_frame.rotate_item");
+
+    /**
+     * Key for {@code minecraft:entity.item.pickup}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ITEM_PICKUP = create("entity.item.pickup");
 
     /**
      * Key for {@code minecraft:entity.lightning_bolt.impact}.
@@ -6887,14 +6889,14 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_PARROT_IMITATE_ELDER_GUARDIAN = create("entity.parrot.imitate.elder_guardian");
 
     /**
-     * Key for {@code minecraft:entity.parrot.imitate.ender_dragon}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PARROT_IMITATE_ENDER_DRAGON = create("entity.parrot.imitate.ender_dragon");
-
-    /**
      * Key for {@code minecraft:entity.parrot.imitate.endermite}.
      */
     public static final TypedKey<SoundEvent> ENTITY_PARROT_IMITATE_ENDERMITE = create("entity.parrot.imitate.endermite");
+
+    /**
+     * Key for {@code minecraft:entity.parrot.imitate.ender_dragon}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PARROT_IMITATE_ENDER_DRAGON = create("entity.parrot.imitate.ender_dragon");
 
     /**
      * Key for {@code minecraft:entity.parrot.imitate.evoker}.
@@ -7082,76 +7084,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_PHANTOM_SWOOP = create("entity.phantom.swoop");
 
     /**
-     * Key for {@code minecraft:entity.pig.ambient}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_AMBIENT = create("entity.pig.ambient");
-
-    /**
-     * Key for {@code minecraft:entity.pig.death}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_DEATH = create("entity.pig.death");
-
-    /**
-     * Key for {@code minecraft:entity.pig.eat}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_EAT = create("entity.pig.eat");
-
-    /**
-     * Key for {@code minecraft:entity.pig.hurt}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_HURT = create("entity.pig.hurt");
-
-    /**
-     * Key for {@code minecraft:entity.pig.saddle}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_SADDLE = create("entity.pig.saddle");
-
-    /**
-     * Key for {@code minecraft:entity.pig.step}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_STEP = create("entity.pig.step");
-
-    /**
-     * Key for {@code minecraft:entity.pig_big.ambient}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_BIG_AMBIENT = create("entity.pig_big.ambient");
-
-    /**
-     * Key for {@code minecraft:entity.pig_big.death}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_BIG_DEATH = create("entity.pig_big.death");
-
-    /**
-     * Key for {@code minecraft:entity.pig_big.eat}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_BIG_EAT = create("entity.pig_big.eat");
-
-    /**
-     * Key for {@code minecraft:entity.pig_big.hurt}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_BIG_HURT = create("entity.pig_big.hurt");
-
-    /**
-     * Key for {@code minecraft:entity.pig_mini.ambient}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_MINI_AMBIENT = create("entity.pig_mini.ambient");
-
-    /**
-     * Key for {@code minecraft:entity.pig_mini.death}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_MINI_DEATH = create("entity.pig_mini.death");
-
-    /**
-     * Key for {@code minecraft:entity.pig_mini.eat}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_MINI_EAT = create("entity.pig_mini.eat");
-
-    /**
-     * Key for {@code minecraft:entity.pig_mini.hurt}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_PIG_MINI_HURT = create("entity.pig_mini.hurt");
-
-    /**
      * Key for {@code minecraft:entity.piglin.admiring_item}.
      */
     public static final TypedKey<SoundEvent> ENTITY_PIGLIN_ADMIRING_ITEM = create("entity.piglin.admiring_item");
@@ -7165,6 +7097,36 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.piglin.angry}.
      */
     public static final TypedKey<SoundEvent> ENTITY_PIGLIN_ANGRY = create("entity.piglin.angry");
+
+    /**
+     * Key for {@code minecraft:entity.piglin_brute.ambient}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_AMBIENT = create("entity.piglin_brute.ambient");
+
+    /**
+     * Key for {@code minecraft:entity.piglin_brute.angry}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_ANGRY = create("entity.piglin_brute.angry");
+
+    /**
+     * Key for {@code minecraft:entity.piglin_brute.converted_to_zombified}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_CONVERTED_TO_ZOMBIFIED = create("entity.piglin_brute.converted_to_zombified");
+
+    /**
+     * Key for {@code minecraft:entity.piglin_brute.death}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_DEATH = create("entity.piglin_brute.death");
+
+    /**
+     * Key for {@code minecraft:entity.piglin_brute.hurt}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_HURT = create("entity.piglin_brute.hurt");
+
+    /**
+     * Key for {@code minecraft:entity.piglin_brute.step}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_STEP = create("entity.piglin_brute.step");
 
     /**
      * Key for {@code minecraft:entity.piglin.celebrate}.
@@ -7202,34 +7164,74 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_PIGLIN_STEP = create("entity.piglin.step");
 
     /**
-     * Key for {@code minecraft:entity.piglin_brute.ambient}.
+     * Key for {@code minecraft:entity.pig.ambient}.
      */
-    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_AMBIENT = create("entity.piglin_brute.ambient");
+    public static final TypedKey<SoundEvent> ENTITY_PIG_AMBIENT = create("entity.pig.ambient");
 
     /**
-     * Key for {@code minecraft:entity.piglin_brute.angry}.
+     * Key for {@code minecraft:entity.pig_big.ambient}.
      */
-    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_ANGRY = create("entity.piglin_brute.angry");
+    public static final TypedKey<SoundEvent> ENTITY_PIG_BIG_AMBIENT = create("entity.pig_big.ambient");
 
     /**
-     * Key for {@code minecraft:entity.piglin_brute.converted_to_zombified}.
+     * Key for {@code minecraft:entity.pig_big.death}.
      */
-    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_CONVERTED_TO_ZOMBIFIED = create("entity.piglin_brute.converted_to_zombified");
+    public static final TypedKey<SoundEvent> ENTITY_PIG_BIG_DEATH = create("entity.pig_big.death");
 
     /**
-     * Key for {@code minecraft:entity.piglin_brute.death}.
+     * Key for {@code minecraft:entity.pig_big.eat}.
      */
-    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_DEATH = create("entity.piglin_brute.death");
+    public static final TypedKey<SoundEvent> ENTITY_PIG_BIG_EAT = create("entity.pig_big.eat");
 
     /**
-     * Key for {@code minecraft:entity.piglin_brute.hurt}.
+     * Key for {@code minecraft:entity.pig_big.hurt}.
      */
-    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_HURT = create("entity.piglin_brute.hurt");
+    public static final TypedKey<SoundEvent> ENTITY_PIG_BIG_HURT = create("entity.pig_big.hurt");
 
     /**
-     * Key for {@code minecraft:entity.piglin_brute.step}.
+     * Key for {@code minecraft:entity.pig.death}.
      */
-    public static final TypedKey<SoundEvent> ENTITY_PIGLIN_BRUTE_STEP = create("entity.piglin_brute.step");
+    public static final TypedKey<SoundEvent> ENTITY_PIG_DEATH = create("entity.pig.death");
+
+    /**
+     * Key for {@code minecraft:entity.pig.eat}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIG_EAT = create("entity.pig.eat");
+
+    /**
+     * Key for {@code minecraft:entity.pig.hurt}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIG_HURT = create("entity.pig.hurt");
+
+    /**
+     * Key for {@code minecraft:entity.pig_mini.ambient}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIG_MINI_AMBIENT = create("entity.pig_mini.ambient");
+
+    /**
+     * Key for {@code minecraft:entity.pig_mini.death}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIG_MINI_DEATH = create("entity.pig_mini.death");
+
+    /**
+     * Key for {@code minecraft:entity.pig_mini.eat}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIG_MINI_EAT = create("entity.pig_mini.eat");
+
+    /**
+     * Key for {@code minecraft:entity.pig_mini.hurt}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIG_MINI_HURT = create("entity.pig_mini.hurt");
+
+    /**
+     * Key for {@code minecraft:entity.pig.saddle}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIG_SADDLE = create("entity.pig.saddle");
+
+    /**
+     * Key for {@code minecraft:entity.pig.step}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_PIG_STEP = create("entity.pig.step");
 
     /**
      * Key for {@code minecraft:entity.pillager.ambient}.
@@ -7532,6 +7534,16 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_SHULKER_AMBIENT = create("entity.shulker.ambient");
 
     /**
+     * Key for {@code minecraft:entity.shulker_bullet.hit}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_SHULKER_BULLET_HIT = create("entity.shulker_bullet.hit");
+
+    /**
+     * Key for {@code minecraft:entity.shulker_bullet.hurt}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_SHULKER_BULLET_HURT = create("entity.shulker_bullet.hurt");
+
+    /**
      * Key for {@code minecraft:entity.shulker.close}.
      */
     public static final TypedKey<SoundEvent> ENTITY_SHULKER_CLOSE = create("entity.shulker.close");
@@ -7567,16 +7579,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_SHULKER_TELEPORT = create("entity.shulker.teleport");
 
     /**
-     * Key for {@code minecraft:entity.shulker_bullet.hit}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_SHULKER_BULLET_HIT = create("entity.shulker_bullet.hit");
-
-    /**
-     * Key for {@code minecraft:entity.shulker_bullet.hurt}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_SHULKER_BULLET_HURT = create("entity.shulker_bullet.hurt");
-
-    /**
      * Key for {@code minecraft:entity.silverfish.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_SILVERFISH_AMBIENT = create("entity.silverfish.ambient");
@@ -7610,21 +7612,6 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.skeleton.death}.
      */
     public static final TypedKey<SoundEvent> ENTITY_SKELETON_DEATH = create("entity.skeleton.death");
-
-    /**
-     * Key for {@code minecraft:entity.skeleton.hurt}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_SKELETON_HURT = create("entity.skeleton.hurt");
-
-    /**
-     * Key for {@code minecraft:entity.skeleton.shoot}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_SKELETON_SHOOT = create("entity.skeleton.shoot");
-
-    /**
-     * Key for {@code minecraft:entity.skeleton.step}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_SKELETON_STEP = create("entity.skeleton.step");
 
     /**
      * Key for {@code minecraft:entity.skeleton_horse.ambient}.
@@ -7665,6 +7652,21 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.skeleton_horse.swim}.
      */
     public static final TypedKey<SoundEvent> ENTITY_SKELETON_HORSE_SWIM = create("entity.skeleton_horse.swim");
+
+    /**
+     * Key for {@code minecraft:entity.skeleton.hurt}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_SKELETON_HURT = create("entity.skeleton.hurt");
+
+    /**
+     * Key for {@code minecraft:entity.skeleton.shoot}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_SKELETON_SHOOT = create("entity.skeleton.shoot");
+
+    /**
+     * Key for {@code minecraft:entity.skeleton.step}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_SKELETON_STEP = create("entity.skeleton.step");
 
     /**
      * Key for {@code minecraft:entity.slime.attack}.
@@ -7797,6 +7799,11 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_SNIFFER_STEP = create("entity.sniffer.step");
 
     /**
+     * Key for {@code minecraft:entity.snowball.throw}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_SNOWBALL_THROW = create("entity.snowball.throw");
+
+    /**
      * Key for {@code minecraft:entity.snow_golem.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_SNOW_GOLEM_AMBIENT = create("entity.snow_golem.ambient");
@@ -7820,11 +7827,6 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.snow_golem.shoot}.
      */
     public static final TypedKey<SoundEvent> ENTITY_SNOW_GOLEM_SHOOT = create("entity.snow_golem.shoot");
-
-    /**
-     * Key for {@code minecraft:entity.snowball.throw}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_SNOWBALL_THROW = create("entity.snowball.throw");
 
     /**
      * Key for {@code minecraft:entity.spider.ambient}.
@@ -8557,11 +8559,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_WITHER_SHOOT = create("entity.wither.shoot");
 
     /**
-     * Key for {@code minecraft:entity.wither.spawn}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_WITHER_SPAWN = create("entity.wither.spawn");
-
-    /**
      * Key for {@code minecraft:entity.wither_skeleton.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_WITHER_SKELETON_AMBIENT = create("entity.wither_skeleton.ambient");
@@ -8582,44 +8579,14 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_WITHER_SKELETON_STEP = create("entity.wither_skeleton.step");
 
     /**
+     * Key for {@code minecraft:entity.wither.spawn}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_WITHER_SPAWN = create("entity.wither.spawn");
+
+    /**
      * Key for {@code minecraft:entity.wolf.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_WOLF_AMBIENT = create("entity.wolf.ambient");
-
-    /**
-     * Key for {@code minecraft:entity.wolf.death}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_WOLF_DEATH = create("entity.wolf.death");
-
-    /**
-     * Key for {@code minecraft:entity.wolf.growl}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_WOLF_GROWL = create("entity.wolf.growl");
-
-    /**
-     * Key for {@code minecraft:entity.wolf.hurt}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_WOLF_HURT = create("entity.wolf.hurt");
-
-    /**
-     * Key for {@code minecraft:entity.wolf.pant}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_WOLF_PANT = create("entity.wolf.pant");
-
-    /**
-     * Key for {@code minecraft:entity.wolf.shake}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_WOLF_SHAKE = create("entity.wolf.shake");
-
-    /**
-     * Key for {@code minecraft:entity.wolf.step}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_WOLF_STEP = create("entity.wolf.step");
-
-    /**
-     * Key for {@code minecraft:entity.wolf.whine}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_WOLF_WHINE = create("entity.wolf.whine");
 
     /**
      * Key for {@code minecraft:entity.wolf_angry.ambient}.
@@ -8712,6 +8679,16 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_WOLF_CUTE_WHINE = create("entity.wolf_cute.whine");
 
     /**
+     * Key for {@code minecraft:entity.wolf.death}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_WOLF_DEATH = create("entity.wolf.death");
+
+    /**
+     * Key for {@code minecraft:entity.wolf.growl}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_WOLF_GROWL = create("entity.wolf.growl");
+
+    /**
      * Key for {@code minecraft:entity.wolf_grumpy.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_WOLF_GRUMPY_AMBIENT = create("entity.wolf_grumpy.ambient");
@@ -8740,6 +8717,16 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.wolf_grumpy.whine}.
      */
     public static final TypedKey<SoundEvent> ENTITY_WOLF_GRUMPY_WHINE = create("entity.wolf_grumpy.whine");
+
+    /**
+     * Key for {@code minecraft:entity.wolf.hurt}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_WOLF_HURT = create("entity.wolf.hurt");
+
+    /**
+     * Key for {@code minecraft:entity.wolf.pant}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_WOLF_PANT = create("entity.wolf.pant");
 
     /**
      * Key for {@code minecraft:entity.wolf_puglin.ambient}.
@@ -8800,6 +8787,21 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.wolf_sad.whine}.
      */
     public static final TypedKey<SoundEvent> ENTITY_WOLF_SAD_WHINE = create("entity.wolf_sad.whine");
+
+    /**
+     * Key for {@code minecraft:entity.wolf.shake}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_WOLF_SHAKE = create("entity.wolf.shake");
+
+    /**
+     * Key for {@code minecraft:entity.wolf.step}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_WOLF_STEP = create("entity.wolf.step");
+
+    /**
+     * Key for {@code minecraft:entity.wolf.whine}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_WOLF_WHINE = create("entity.wolf.whine");
 
     /**
      * Key for {@code minecraft:entity.zoglin.ambient}.
@@ -8867,21 +8869,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ENTITY_ZOMBIE_DESTROY_EGG = create("entity.zombie.destroy_egg");
 
     /**
-     * Key for {@code minecraft:entity.zombie.hurt}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ZOMBIE_HURT = create("entity.zombie.hurt");
-
-    /**
-     * Key for {@code minecraft:entity.zombie.infect}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ZOMBIE_INFECT = create("entity.zombie.infect");
-
-    /**
-     * Key for {@code minecraft:entity.zombie.step}.
-     */
-    public static final TypedKey<SoundEvent> ENTITY_ZOMBIE_STEP = create("entity.zombie.step");
-
-    /**
      * Key for {@code minecraft:entity.zombie_horse.ambient}.
      */
     public static final TypedKey<SoundEvent> ENTITY_ZOMBIE_HORSE_AMBIENT = create("entity.zombie_horse.ambient");
@@ -8905,6 +8892,16 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.zombie_horse.hurt}.
      */
     public static final TypedKey<SoundEvent> ENTITY_ZOMBIE_HORSE_HURT = create("entity.zombie_horse.hurt");
+
+    /**
+     * Key for {@code minecraft:entity.zombie.hurt}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ZOMBIE_HURT = create("entity.zombie.hurt");
+
+    /**
+     * Key for {@code minecraft:entity.zombie.infect}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ZOMBIE_INFECT = create("entity.zombie.infect");
 
     /**
      * Key for {@code minecraft:entity.zombie_nautilus.ambient}.
@@ -8965,6 +8962,11 @@ public final class SoundEventKeys {
      * Key for {@code minecraft:entity.zombie_nautilus.swim}.
      */
     public static final TypedKey<SoundEvent> ENTITY_ZOMBIE_NAUTILUS_SWIM = create("entity.zombie_nautilus.swim");
+
+    /**
+     * Key for {@code minecraft:entity.zombie.step}.
+     */
+    public static final TypedKey<SoundEvent> ENTITY_ZOMBIE_STEP = create("entity.zombie.step");
 
     /**
      * Key for {@code minecraft:entity.zombie_villager.ambient}.
@@ -9402,14 +9404,14 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> ITEM_HOE_TILL = create("item.hoe.till");
 
     /**
-     * Key for {@code minecraft:item.honey_bottle.drink}.
-     */
-    public static final TypedKey<SoundEvent> ITEM_HONEY_BOTTLE_DRINK = create("item.honey_bottle.drink");
-
-    /**
      * Key for {@code minecraft:item.honeycomb.wax_on}.
      */
     public static final TypedKey<SoundEvent> ITEM_HONEYCOMB_WAX_ON = create("item.honeycomb.wax_on");
+
+    /**
+     * Key for {@code minecraft:item.honey_bottle.drink}.
+     */
+    public static final TypedKey<SoundEvent> ITEM_HONEY_BOTTLE_DRINK = create("item.honey_bottle.drink");
 
     /**
      * Key for {@code minecraft:item.horse_armor.unequip}.
@@ -9637,6 +9639,116 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> MUSIC_CREDITS = create("music.credits");
 
     /**
+     * Key for {@code minecraft:music_disc.11}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_11 = create("music_disc.11");
+
+    /**
+     * Key for {@code minecraft:music_disc.13}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_13 = create("music_disc.13");
+
+    /**
+     * Key for {@code minecraft:music_disc.5}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_5 = create("music_disc.5");
+
+    /**
+     * Key for {@code minecraft:music_disc.blocks}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_BLOCKS = create("music_disc.blocks");
+
+    /**
+     * Key for {@code minecraft:music_disc.bounce}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_BOUNCE = create("music_disc.bounce");
+
+    /**
+     * Key for {@code minecraft:music_disc.cat}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_CAT = create("music_disc.cat");
+
+    /**
+     * Key for {@code minecraft:music_disc.chirp}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_CHIRP = create("music_disc.chirp");
+
+    /**
+     * Key for {@code minecraft:music_disc.creator}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_CREATOR = create("music_disc.creator");
+
+    /**
+     * Key for {@code minecraft:music_disc.creator_music_box}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_CREATOR_MUSIC_BOX = create("music_disc.creator_music_box");
+
+    /**
+     * Key for {@code minecraft:music_disc.far}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_FAR = create("music_disc.far");
+
+    /**
+     * Key for {@code minecraft:music_disc.lava_chicken}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_LAVA_CHICKEN = create("music_disc.lava_chicken");
+
+    /**
+     * Key for {@code minecraft:music_disc.mall}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_MALL = create("music_disc.mall");
+
+    /**
+     * Key for {@code minecraft:music_disc.mellohi}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_MELLOHI = create("music_disc.mellohi");
+
+    /**
+     * Key for {@code minecraft:music_disc.otherside}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_OTHERSIDE = create("music_disc.otherside");
+
+    /**
+     * Key for {@code minecraft:music_disc.pigstep}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_PIGSTEP = create("music_disc.pigstep");
+
+    /**
+     * Key for {@code minecraft:music_disc.precipice}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_PRECIPICE = create("music_disc.precipice");
+
+    /**
+     * Key for {@code minecraft:music_disc.relic}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_RELIC = create("music_disc.relic");
+
+    /**
+     * Key for {@code minecraft:music_disc.stal}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_STAL = create("music_disc.stal");
+
+    /**
+     * Key for {@code minecraft:music_disc.strad}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_STRAD = create("music_disc.strad");
+
+    /**
+     * Key for {@code minecraft:music_disc.tears}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_TEARS = create("music_disc.tears");
+
+    /**
+     * Key for {@code minecraft:music_disc.wait}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_WAIT = create("music_disc.wait");
+
+    /**
+     * Key for {@code minecraft:music_disc.ward}.
+     */
+    public static final TypedKey<SoundEvent> MUSIC_DISC_WARD = create("music_disc.ward");
+
+    /**
      * Key for {@code minecraft:music.dragon}.
      */
     public static final TypedKey<SoundEvent> MUSIC_DRAGON = create("music.dragon");
@@ -9787,116 +9899,6 @@ public final class SoundEventKeys {
     public static final TypedKey<SoundEvent> MUSIC_UNDER_WATER = create("music.under_water");
 
     /**
-     * Key for {@code minecraft:music_disc.11}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_11 = create("music_disc.11");
-
-    /**
-     * Key for {@code minecraft:music_disc.13}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_13 = create("music_disc.13");
-
-    /**
-     * Key for {@code minecraft:music_disc.5}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_5 = create("music_disc.5");
-
-    /**
-     * Key for {@code minecraft:music_disc.blocks}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_BLOCKS = create("music_disc.blocks");
-
-    /**
-     * Key for {@code minecraft:music_disc.bounce}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_BOUNCE = create("music_disc.bounce");
-
-    /**
-     * Key for {@code minecraft:music_disc.cat}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_CAT = create("music_disc.cat");
-
-    /**
-     * Key for {@code minecraft:music_disc.chirp}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_CHIRP = create("music_disc.chirp");
-
-    /**
-     * Key for {@code minecraft:music_disc.creator}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_CREATOR = create("music_disc.creator");
-
-    /**
-     * Key for {@code minecraft:music_disc.creator_music_box}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_CREATOR_MUSIC_BOX = create("music_disc.creator_music_box");
-
-    /**
-     * Key for {@code minecraft:music_disc.far}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_FAR = create("music_disc.far");
-
-    /**
-     * Key for {@code minecraft:music_disc.lava_chicken}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_LAVA_CHICKEN = create("music_disc.lava_chicken");
-
-    /**
-     * Key for {@code minecraft:music_disc.mall}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_MALL = create("music_disc.mall");
-
-    /**
-     * Key for {@code minecraft:music_disc.mellohi}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_MELLOHI = create("music_disc.mellohi");
-
-    /**
-     * Key for {@code minecraft:music_disc.otherside}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_OTHERSIDE = create("music_disc.otherside");
-
-    /**
-     * Key for {@code minecraft:music_disc.pigstep}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_PIGSTEP = create("music_disc.pigstep");
-
-    /**
-     * Key for {@code minecraft:music_disc.precipice}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_PRECIPICE = create("music_disc.precipice");
-
-    /**
-     * Key for {@code minecraft:music_disc.relic}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_RELIC = create("music_disc.relic");
-
-    /**
-     * Key for {@code minecraft:music_disc.stal}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_STAL = create("music_disc.stal");
-
-    /**
-     * Key for {@code minecraft:music_disc.strad}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_STRAD = create("music_disc.strad");
-
-    /**
-     * Key for {@code minecraft:music_disc.tears}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_TEARS = create("music_disc.tears");
-
-    /**
-     * Key for {@code minecraft:music_disc.wait}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_WAIT = create("music_disc.wait");
-
-    /**
-     * Key for {@code minecraft:music_disc.ward}.
-     */
-    public static final TypedKey<SoundEvent> MUSIC_DISC_WARD = create("music_disc.ward");
-
-    /**
      * Key for {@code minecraft:particle.soul_escape}.
      */
     public static final TypedKey<SoundEvent> PARTICLE_SOUL_ESCAPE = create("particle.soul_escape");
@@ -9966,11 +9968,21 @@ public final class SoundEventKeys {
      */
     public static final TypedKey<SoundEvent> WEATHER_RAIN_ABOVE = create("weather.rain.above");
 
+    /**
+     * Entries in ascending {@code protocol_id} order - list index == network ID.
+     */
     private static final List<TypedKey<SoundEvent>> VALUES = List.of(
+        ENTITY_ALLAY_AMBIENT_WITH_ITEM,
+        ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM,
+        ENTITY_ALLAY_DEATH,
+        ENTITY_ALLAY_HURT,
+        ENTITY_ALLAY_ITEM_GIVEN,
+        ENTITY_ALLAY_ITEM_TAKEN,
+        ENTITY_ALLAY_ITEM_THROWN,
+        AMBIENT_CAVE,
         AMBIENT_BASALT_DELTAS_ADDITIONS,
         AMBIENT_BASALT_DELTAS_LOOP,
         AMBIENT_BASALT_DELTAS_MOOD,
-        AMBIENT_CAVE,
         AMBIENT_CRIMSON_FOREST_ADDITIONS,
         AMBIENT_CRIMSON_FOREST_LOOP,
         AMBIENT_CRIMSON_FOREST_MOOD,
@@ -9980,15 +9992,15 @@ public final class SoundEventKeys {
         AMBIENT_SOUL_SAND_VALLEY_ADDITIONS,
         AMBIENT_SOUL_SAND_VALLEY_LOOP,
         AMBIENT_SOUL_SAND_VALLEY_MOOD,
+        AMBIENT_WARPED_FOREST_ADDITIONS,
+        AMBIENT_WARPED_FOREST_LOOP,
+        AMBIENT_WARPED_FOREST_MOOD,
         AMBIENT_UNDERWATER_ENTER,
         AMBIENT_UNDERWATER_EXIT,
         AMBIENT_UNDERWATER_LOOP,
         AMBIENT_UNDERWATER_LOOP_ADDITIONS,
         AMBIENT_UNDERWATER_LOOP_ADDITIONS_RARE,
         AMBIENT_UNDERWATER_LOOP_ADDITIONS_ULTRA_RARE,
-        AMBIENT_WARPED_FOREST_ADDITIONS,
-        AMBIENT_WARPED_FOREST_LOOP,
-        AMBIENT_WARPED_FOREST_MOOD,
         BLOCK_AMETHYST_BLOCK_BREAK,
         BLOCK_AMETHYST_BLOCK_CHIME,
         BLOCK_AMETHYST_BLOCK_FALL,
@@ -10002,10 +10014,10 @@ public final class SoundEventKeys {
         BLOCK_AMETHYST_CLUSTER_PLACE,
         BLOCK_AMETHYST_CLUSTER_STEP,
         BLOCK_ANCIENT_DEBRIS_BREAK,
-        BLOCK_ANCIENT_DEBRIS_FALL,
-        BLOCK_ANCIENT_DEBRIS_HIT,
-        BLOCK_ANCIENT_DEBRIS_PLACE,
         BLOCK_ANCIENT_DEBRIS_STEP,
+        BLOCK_ANCIENT_DEBRIS_PLACE,
+        BLOCK_ANCIENT_DEBRIS_HIT,
+        BLOCK_ANCIENT_DEBRIS_FALL,
         BLOCK_ANVIL_BREAK,
         BLOCK_ANVIL_DESTROY,
         BLOCK_ANVIL_FALL,
@@ -10014,6 +10026,50 @@ public final class SoundEventKeys {
         BLOCK_ANVIL_PLACE,
         BLOCK_ANVIL_STEP,
         BLOCK_ANVIL_USE,
+        ENTITY_ARMADILLO_EAT,
+        ENTITY_ARMADILLO_HURT,
+        ENTITY_ARMADILLO_HURT_REDUCED,
+        ENTITY_ARMADILLO_AMBIENT,
+        ENTITY_ARMADILLO_STEP,
+        ENTITY_ARMADILLO_DEATH,
+        ENTITY_ARMADILLO_ROLL,
+        ENTITY_ARMADILLO_LAND,
+        ENTITY_ARMADILLO_SCUTE_DROP,
+        ENTITY_ARMADILLO_UNROLL_FINISH,
+        ENTITY_ARMADILLO_PEEK,
+        ENTITY_ARMADILLO_UNROLL_START,
+        ENTITY_ARMADILLO_BRUSH,
+        ITEM_ARMOR_EQUIP_CHAIN,
+        ITEM_ARMOR_EQUIP_DIAMOND,
+        ITEM_ARMOR_EQUIP_ELYTRA,
+        ITEM_ARMOR_EQUIP_GENERIC,
+        ITEM_ARMOR_EQUIP_GOLD,
+        ITEM_ARMOR_EQUIP_IRON,
+        ITEM_ARMOR_EQUIP_LEATHER,
+        ITEM_ARMOR_EQUIP_COPPER,
+        ITEM_ARMOR_EQUIP_NETHERITE,
+        ITEM_ARMOR_EQUIP_TURTLE,
+        ITEM_ARMOR_EQUIP_WOLF,
+        ITEM_ARMOR_UNEQUIP_WOLF,
+        ITEM_ARMOR_EQUIP_NAUTILUS,
+        ITEM_ARMOR_UNEQUIP_NAUTILUS,
+        ENTITY_ARMOR_STAND_BREAK,
+        ENTITY_ARMOR_STAND_FALL,
+        ENTITY_ARMOR_STAND_HIT,
+        ENTITY_ARMOR_STAND_PLACE,
+        ENTITY_ARROW_HIT,
+        ENTITY_ARROW_HIT_PLAYER,
+        ENTITY_ARROW_SHOOT,
+        ITEM_AXE_STRIP,
+        ITEM_AXE_SCRAPE,
+        ITEM_AXE_WAX_OFF,
+        ENTITY_AXOLOTL_ATTACK,
+        ENTITY_AXOLOTL_DEATH,
+        ENTITY_AXOLOTL_HURT,
+        ENTITY_AXOLOTL_IDLE_AIR,
+        ENTITY_AXOLOTL_IDLE_WATER,
+        ENTITY_AXOLOTL_SPLASH,
+        ENTITY_AXOLOTL_SWIM,
         BLOCK_AZALEA_BREAK,
         BLOCK_AZALEA_FALL,
         BLOCK_AZALEA_HIT,
@@ -10024,6 +10080,15 @@ public final class SoundEventKeys {
         BLOCK_AZALEA_LEAVES_HIT,
         BLOCK_AZALEA_LEAVES_PLACE,
         BLOCK_AZALEA_LEAVES_STEP,
+        ENTITY_BABY_NAUTILUS_AMBIENT,
+        ENTITY_BABY_NAUTILUS_AMBIENT_LAND,
+        ENTITY_BABY_NAUTILUS_DEATH,
+        ENTITY_BABY_NAUTILUS_DEATH_LAND,
+        ENTITY_BABY_NAUTILUS_EAT,
+        ENTITY_BABY_NAUTILUS_HURT,
+        ENTITY_BABY_NAUTILUS_HURT_LAND,
+        ENTITY_NAUTILUS_RIDING,
+        ENTITY_BABY_NAUTILUS_SWIM,
         BLOCK_BAMBOO_BREAK,
         BLOCK_BAMBOO_FALL,
         BLOCK_BAMBOO_HIT,
@@ -10037,895 +10102,50 @@ public final class SoundEventKeys {
         BLOCK_BAMBOO_WOOD_HIT,
         BLOCK_BAMBOO_WOOD_PLACE,
         BLOCK_BAMBOO_WOOD_STEP,
-        BLOCK_BAMBOO_WOOD_BUTTON_CLICK_OFF,
-        BLOCK_BAMBOO_WOOD_BUTTON_CLICK_ON,
         BLOCK_BAMBOO_WOOD_DOOR_CLOSE,
         BLOCK_BAMBOO_WOOD_DOOR_OPEN,
-        BLOCK_BAMBOO_WOOD_FENCE_GATE_CLOSE,
-        BLOCK_BAMBOO_WOOD_FENCE_GATE_OPEN,
-        BLOCK_BAMBOO_WOOD_HANGING_SIGN_BREAK,
-        BLOCK_BAMBOO_WOOD_HANGING_SIGN_FALL,
-        BLOCK_BAMBOO_WOOD_HANGING_SIGN_HIT,
-        BLOCK_BAMBOO_WOOD_HANGING_SIGN_PLACE,
-        BLOCK_BAMBOO_WOOD_HANGING_SIGN_STEP,
-        BLOCK_BAMBOO_WOOD_PRESSURE_PLATE_CLICK_OFF,
-        BLOCK_BAMBOO_WOOD_PRESSURE_PLATE_CLICK_ON,
         BLOCK_BAMBOO_WOOD_TRAPDOOR_CLOSE,
         BLOCK_BAMBOO_WOOD_TRAPDOOR_OPEN,
+        BLOCK_BAMBOO_WOOD_BUTTON_CLICK_OFF,
+        BLOCK_BAMBOO_WOOD_BUTTON_CLICK_ON,
+        BLOCK_BAMBOO_WOOD_PRESSURE_PLATE_CLICK_OFF,
+        BLOCK_BAMBOO_WOOD_PRESSURE_PLATE_CLICK_ON,
+        BLOCK_BAMBOO_WOOD_FENCE_GATE_CLOSE,
+        BLOCK_BAMBOO_WOOD_FENCE_GATE_OPEN,
         BLOCK_BARREL_CLOSE,
         BLOCK_BARREL_OPEN,
         BLOCK_BASALT_BREAK,
-        BLOCK_BASALT_FALL,
-        BLOCK_BASALT_HIT,
-        BLOCK_BASALT_PLACE,
         BLOCK_BASALT_STEP,
-        BLOCK_BEACON_ACTIVATE,
-        BLOCK_BEACON_AMBIENT,
-        BLOCK_BEACON_DEACTIVATE,
-        BLOCK_BEACON_POWER_SELECT,
-        BLOCK_BEEHIVE_DRIP,
-        BLOCK_BEEHIVE_ENTER,
-        BLOCK_BEEHIVE_EXIT,
-        BLOCK_BEEHIVE_SHEAR,
-        BLOCK_BEEHIVE_WORK,
-        BLOCK_BELL_RESONATE,
-        BLOCK_BELL_USE,
-        BLOCK_BIG_DRIPLEAF_BREAK,
-        BLOCK_BIG_DRIPLEAF_FALL,
-        BLOCK_BIG_DRIPLEAF_HIT,
-        BLOCK_BIG_DRIPLEAF_PLACE,
-        BLOCK_BIG_DRIPLEAF_STEP,
-        BLOCK_BIG_DRIPLEAF_TILT_DOWN,
-        BLOCK_BIG_DRIPLEAF_TILT_UP,
-        BLOCK_BLASTFURNACE_FIRE_CRACKLE,
-        BLOCK_BONE_BLOCK_BREAK,
-        BLOCK_BONE_BLOCK_FALL,
-        BLOCK_BONE_BLOCK_HIT,
-        BLOCK_BONE_BLOCK_PLACE,
-        BLOCK_BONE_BLOCK_STEP,
-        BLOCK_BREWING_STAND_BREW,
-        BLOCK_BUBBLE_COLUMN_BUBBLE_POP,
-        BLOCK_BUBBLE_COLUMN_UPWARDS_AMBIENT,
-        BLOCK_BUBBLE_COLUMN_UPWARDS_INSIDE,
-        BLOCK_BUBBLE_COLUMN_WHIRLPOOL_AMBIENT,
-        BLOCK_BUBBLE_COLUMN_WHIRLPOOL_INSIDE,
-        BLOCK_CACTUS_FLOWER_BREAK,
-        BLOCK_CACTUS_FLOWER_PLACE,
-        BLOCK_CAKE_ADD_CANDLE,
-        BLOCK_CALCITE_BREAK,
-        BLOCK_CALCITE_FALL,
-        BLOCK_CALCITE_HIT,
-        BLOCK_CALCITE_PLACE,
-        BLOCK_CALCITE_STEP,
-        BLOCK_CAMPFIRE_CRACKLE,
-        BLOCK_CANDLE_AMBIENT,
-        BLOCK_CANDLE_BREAK,
-        BLOCK_CANDLE_EXTINGUISH,
-        BLOCK_CANDLE_FALL,
-        BLOCK_CANDLE_HIT,
-        BLOCK_CANDLE_PLACE,
-        BLOCK_CANDLE_STEP,
-        BLOCK_CAVE_VINES_BREAK,
-        BLOCK_CAVE_VINES_FALL,
-        BLOCK_CAVE_VINES_HIT,
-        BLOCK_CAVE_VINES_PICK_BERRIES,
-        BLOCK_CAVE_VINES_PLACE,
-        BLOCK_CAVE_VINES_STEP,
-        BLOCK_CHAIN_BREAK,
-        BLOCK_CHAIN_FALL,
-        BLOCK_CHAIN_HIT,
-        BLOCK_CHAIN_PLACE,
-        BLOCK_CHAIN_STEP,
-        BLOCK_CHERRY_LEAVES_BREAK,
-        BLOCK_CHERRY_LEAVES_FALL,
-        BLOCK_CHERRY_LEAVES_HIT,
-        BLOCK_CHERRY_LEAVES_PLACE,
-        BLOCK_CHERRY_LEAVES_STEP,
-        BLOCK_CHERRY_SAPLING_BREAK,
-        BLOCK_CHERRY_SAPLING_FALL,
-        BLOCK_CHERRY_SAPLING_HIT,
-        BLOCK_CHERRY_SAPLING_PLACE,
-        BLOCK_CHERRY_SAPLING_STEP,
-        BLOCK_CHERRY_WOOD_BREAK,
-        BLOCK_CHERRY_WOOD_FALL,
-        BLOCK_CHERRY_WOOD_HIT,
-        BLOCK_CHERRY_WOOD_PLACE,
-        BLOCK_CHERRY_WOOD_STEP,
-        BLOCK_CHERRY_WOOD_BUTTON_CLICK_OFF,
-        BLOCK_CHERRY_WOOD_BUTTON_CLICK_ON,
-        BLOCK_CHERRY_WOOD_DOOR_CLOSE,
-        BLOCK_CHERRY_WOOD_DOOR_OPEN,
-        BLOCK_CHERRY_WOOD_FENCE_GATE_CLOSE,
-        BLOCK_CHERRY_WOOD_FENCE_GATE_OPEN,
-        BLOCK_CHERRY_WOOD_HANGING_SIGN_BREAK,
-        BLOCK_CHERRY_WOOD_HANGING_SIGN_FALL,
-        BLOCK_CHERRY_WOOD_HANGING_SIGN_HIT,
-        BLOCK_CHERRY_WOOD_HANGING_SIGN_PLACE,
-        BLOCK_CHERRY_WOOD_HANGING_SIGN_STEP,
-        BLOCK_CHERRY_WOOD_PRESSURE_PLATE_CLICK_OFF,
-        BLOCK_CHERRY_WOOD_PRESSURE_PLATE_CLICK_ON,
-        BLOCK_CHERRY_WOOD_TRAPDOOR_CLOSE,
-        BLOCK_CHERRY_WOOD_TRAPDOOR_OPEN,
-        BLOCK_CHEST_CLOSE,
-        BLOCK_CHEST_LOCKED,
-        BLOCK_CHEST_OPEN,
-        BLOCK_CHISELED_BOOKSHELF_BREAK,
-        BLOCK_CHISELED_BOOKSHELF_FALL,
-        BLOCK_CHISELED_BOOKSHELF_HIT,
-        BLOCK_CHISELED_BOOKSHELF_INSERT,
-        BLOCK_CHISELED_BOOKSHELF_INSERT_ENCHANTED,
-        BLOCK_CHISELED_BOOKSHELF_PICKUP,
-        BLOCK_CHISELED_BOOKSHELF_PICKUP_ENCHANTED,
-        BLOCK_CHISELED_BOOKSHELF_PLACE,
-        BLOCK_CHISELED_BOOKSHELF_STEP,
-        BLOCK_CHORUS_FLOWER_DEATH,
-        BLOCK_CHORUS_FLOWER_GROW,
-        BLOCK_CINNABAR_BREAK,
-        BLOCK_CINNABAR_FALL,
-        BLOCK_CINNABAR_HIT,
-        BLOCK_CINNABAR_PLACE,
-        BLOCK_CINNABAR_STEP,
-        BLOCK_COBWEB_BREAK,
-        BLOCK_COBWEB_FALL,
-        BLOCK_COBWEB_HIT,
-        BLOCK_COBWEB_PLACE,
-        BLOCK_COBWEB_STEP,
-        BLOCK_COMPARATOR_CLICK,
-        BLOCK_COMPOSTER_EMPTY,
-        BLOCK_COMPOSTER_FILL,
-        BLOCK_COMPOSTER_FILL_SUCCESS,
-        BLOCK_COMPOSTER_READY,
-        BLOCK_CONDUIT_ACTIVATE,
-        BLOCK_CONDUIT_AMBIENT,
-        BLOCK_CONDUIT_AMBIENT_SHORT,
-        BLOCK_CONDUIT_ATTACK_TARGET,
-        BLOCK_CONDUIT_DEACTIVATE,
-        BLOCK_COPPER_BREAK,
-        BLOCK_COPPER_FALL,
-        BLOCK_COPPER_HIT,
-        BLOCK_COPPER_PLACE,
-        BLOCK_COPPER_STEP,
-        BLOCK_COPPER_BULB_BREAK,
-        BLOCK_COPPER_BULB_FALL,
-        BLOCK_COPPER_BULB_HIT,
-        BLOCK_COPPER_BULB_PLACE,
-        BLOCK_COPPER_BULB_STEP,
-        BLOCK_COPPER_BULB_TURN_OFF,
-        BLOCK_COPPER_BULB_TURN_ON,
-        BLOCK_COPPER_CHEST_CLOSE,
-        BLOCK_COPPER_CHEST_OPEN,
-        BLOCK_COPPER_CHEST_OXIDIZED_CLOSE,
-        BLOCK_COPPER_CHEST_OXIDIZED_OPEN,
-        BLOCK_COPPER_CHEST_WEATHERED_CLOSE,
-        BLOCK_COPPER_CHEST_WEATHERED_OPEN,
-        BLOCK_COPPER_DOOR_CLOSE,
-        BLOCK_COPPER_DOOR_OPEN,
-        BLOCK_COPPER_GOLEM_STATUE_BREAK,
-        BLOCK_COPPER_GOLEM_STATUE_FALL,
-        BLOCK_COPPER_GOLEM_STATUE_HIT,
-        BLOCK_COPPER_GOLEM_STATUE_PLACE,
-        BLOCK_COPPER_GOLEM_STATUE_STEP,
-        BLOCK_COPPER_GRATE_BREAK,
-        BLOCK_COPPER_GRATE_FALL,
-        BLOCK_COPPER_GRATE_HIT,
-        BLOCK_COPPER_GRATE_PLACE,
-        BLOCK_COPPER_GRATE_STEP,
-        BLOCK_COPPER_TRAPDOOR_CLOSE,
-        BLOCK_COPPER_TRAPDOOR_OPEN,
-        BLOCK_CORAL_BLOCK_BREAK,
-        BLOCK_CORAL_BLOCK_FALL,
-        BLOCK_CORAL_BLOCK_HIT,
-        BLOCK_CORAL_BLOCK_PLACE,
-        BLOCK_CORAL_BLOCK_STEP,
-        BLOCK_CRAFTER_CRAFT,
-        BLOCK_CRAFTER_FAIL,
-        BLOCK_CREAKING_HEART_BREAK,
-        BLOCK_CREAKING_HEART_FALL,
-        BLOCK_CREAKING_HEART_HIT,
-        BLOCK_CREAKING_HEART_HURT,
-        BLOCK_CREAKING_HEART_IDLE,
-        BLOCK_CREAKING_HEART_PLACE,
-        BLOCK_CREAKING_HEART_SPAWN,
-        BLOCK_CREAKING_HEART_STEP,
-        BLOCK_CROP_BREAK,
-        BLOCK_DEADBUSH_IDLE,
-        BLOCK_DECORATED_POT_BREAK,
-        BLOCK_DECORATED_POT_FALL,
-        BLOCK_DECORATED_POT_HIT,
-        BLOCK_DECORATED_POT_INSERT,
-        BLOCK_DECORATED_POT_INSERT_FAIL,
-        BLOCK_DECORATED_POT_PLACE,
-        BLOCK_DECORATED_POT_SHATTER,
-        BLOCK_DECORATED_POT_STEP,
-        BLOCK_DEEPSLATE_BREAK,
-        BLOCK_DEEPSLATE_FALL,
-        BLOCK_DEEPSLATE_HIT,
-        BLOCK_DEEPSLATE_PLACE,
-        BLOCK_DEEPSLATE_STEP,
-        BLOCK_DEEPSLATE_BRICKS_BREAK,
-        BLOCK_DEEPSLATE_BRICKS_FALL,
-        BLOCK_DEEPSLATE_BRICKS_HIT,
-        BLOCK_DEEPSLATE_BRICKS_PLACE,
-        BLOCK_DEEPSLATE_BRICKS_STEP,
-        BLOCK_DEEPSLATE_TILES_BREAK,
-        BLOCK_DEEPSLATE_TILES_FALL,
-        BLOCK_DEEPSLATE_TILES_HIT,
-        BLOCK_DEEPSLATE_TILES_PLACE,
-        BLOCK_DEEPSLATE_TILES_STEP,
-        BLOCK_DISPENSER_DISPENSE,
-        BLOCK_DISPENSER_FAIL,
-        BLOCK_DISPENSER_LAUNCH,
-        BLOCK_DRIED_GHAST_AMBIENT,
-        BLOCK_DRIED_GHAST_AMBIENT_WATER,
-        BLOCK_DRIED_GHAST_BREAK,
-        BLOCK_DRIED_GHAST_FALL,
-        BLOCK_DRIED_GHAST_PLACE,
-        BLOCK_DRIED_GHAST_PLACE_IN_WATER,
-        BLOCK_DRIED_GHAST_STEP,
-        BLOCK_DRIED_GHAST_TRANSITION,
-        BLOCK_DRIPSTONE_BLOCK_BREAK,
-        BLOCK_DRIPSTONE_BLOCK_FALL,
-        BLOCK_DRIPSTONE_BLOCK_HIT,
-        BLOCK_DRIPSTONE_BLOCK_PLACE,
-        BLOCK_DRIPSTONE_BLOCK_STEP,
-        BLOCK_DRY_GRASS_AMBIENT,
-        BLOCK_ENCHANTMENT_TABLE_USE,
-        BLOCK_END_GATEWAY_SPAWN,
-        BLOCK_END_PORTAL_SPAWN,
-        BLOCK_END_PORTAL_FRAME_FILL,
-        BLOCK_ENDER_CHEST_CLOSE,
-        BLOCK_ENDER_CHEST_OPEN,
-        BLOCK_EYEBLOSSOM_CLOSE,
-        BLOCK_EYEBLOSSOM_CLOSE_LONG,
-        BLOCK_EYEBLOSSOM_IDLE,
-        BLOCK_EYEBLOSSOM_OPEN,
-        BLOCK_EYEBLOSSOM_OPEN_LONG,
-        BLOCK_FENCE_GATE_CLOSE,
-        BLOCK_FENCE_GATE_OPEN,
-        BLOCK_FIRE_AMBIENT,
-        BLOCK_FIRE_EXTINGUISH,
-        BLOCK_FIREFLY_BUSH_IDLE,
-        BLOCK_FLOWERING_AZALEA_BREAK,
-        BLOCK_FLOWERING_AZALEA_FALL,
-        BLOCK_FLOWERING_AZALEA_HIT,
-        BLOCK_FLOWERING_AZALEA_PLACE,
-        BLOCK_FLOWERING_AZALEA_STEP,
-        BLOCK_FROGLIGHT_BREAK,
-        BLOCK_FROGLIGHT_FALL,
-        BLOCK_FROGLIGHT_HIT,
-        BLOCK_FROGLIGHT_PLACE,
-        BLOCK_FROGLIGHT_STEP,
-        BLOCK_FROGSPAWN_BREAK,
-        BLOCK_FROGSPAWN_FALL,
-        BLOCK_FROGSPAWN_HATCH,
-        BLOCK_FROGSPAWN_HIT,
-        BLOCK_FROGSPAWN_PLACE,
-        BLOCK_FROGSPAWN_STEP,
-        BLOCK_FUNGUS_BREAK,
-        BLOCK_FUNGUS_FALL,
-        BLOCK_FUNGUS_HIT,
-        BLOCK_FUNGUS_PLACE,
-        BLOCK_FUNGUS_STEP,
-        BLOCK_FURNACE_FIRE_CRACKLE,
-        BLOCK_GILDED_BLACKSTONE_BREAK,
-        BLOCK_GILDED_BLACKSTONE_FALL,
-        BLOCK_GILDED_BLACKSTONE_HIT,
-        BLOCK_GILDED_BLACKSTONE_PLACE,
-        BLOCK_GILDED_BLACKSTONE_STEP,
-        BLOCK_GLASS_BREAK,
-        BLOCK_GLASS_FALL,
-        BLOCK_GLASS_HIT,
-        BLOCK_GLASS_PLACE,
-        BLOCK_GLASS_STEP,
-        BLOCK_GRASS_BREAK,
-        BLOCK_GRASS_FALL,
-        BLOCK_GRASS_HIT,
-        BLOCK_GRASS_PLACE,
-        BLOCK_GRASS_STEP,
-        BLOCK_GRAVEL_BREAK,
-        BLOCK_GRAVEL_FALL,
-        BLOCK_GRAVEL_HIT,
-        BLOCK_GRAVEL_PLACE,
-        BLOCK_GRAVEL_STEP,
-        BLOCK_GRINDSTONE_USE,
-        BLOCK_GROWING_PLANT_CROP,
-        BLOCK_HANGING_ROOTS_BREAK,
-        BLOCK_HANGING_ROOTS_FALL,
-        BLOCK_HANGING_ROOTS_HIT,
-        BLOCK_HANGING_ROOTS_PLACE,
-        BLOCK_HANGING_ROOTS_STEP,
-        BLOCK_HANGING_SIGN_BREAK,
-        BLOCK_HANGING_SIGN_FALL,
-        BLOCK_HANGING_SIGN_HIT,
-        BLOCK_HANGING_SIGN_PLACE,
-        BLOCK_HANGING_SIGN_STEP,
-        BLOCK_HANGING_SIGN_WAXED_INTERACT_FAIL,
-        BLOCK_HEAVY_CORE_BREAK,
-        BLOCK_HEAVY_CORE_FALL,
-        BLOCK_HEAVY_CORE_HIT,
-        BLOCK_HEAVY_CORE_PLACE,
-        BLOCK_HEAVY_CORE_STEP,
-        BLOCK_HONEY_BLOCK_BREAK,
-        BLOCK_HONEY_BLOCK_FALL,
-        BLOCK_HONEY_BLOCK_HIT,
-        BLOCK_HONEY_BLOCK_PLACE,
-        BLOCK_HONEY_BLOCK_SLIDE,
-        BLOCK_HONEY_BLOCK_STEP,
-        BLOCK_IRON_BREAK,
-        BLOCK_IRON_FALL,
-        BLOCK_IRON_HIT,
-        BLOCK_IRON_PLACE,
-        BLOCK_IRON_STEP,
-        BLOCK_IRON_DOOR_CLOSE,
-        BLOCK_IRON_DOOR_OPEN,
-        BLOCK_IRON_TRAPDOOR_CLOSE,
-        BLOCK_IRON_TRAPDOOR_OPEN,
-        BLOCK_LADDER_BREAK,
-        BLOCK_LADDER_FALL,
-        BLOCK_LADDER_HIT,
-        BLOCK_LADDER_PLACE,
-        BLOCK_LADDER_STEP,
-        BLOCK_LANTERN_BREAK,
-        BLOCK_LANTERN_FALL,
-        BLOCK_LANTERN_HIT,
-        BLOCK_LANTERN_PLACE,
-        BLOCK_LANTERN_STEP,
-        BLOCK_LARGE_AMETHYST_BUD_BREAK,
-        BLOCK_LARGE_AMETHYST_BUD_PLACE,
-        BLOCK_LAVA_AMBIENT,
-        BLOCK_LAVA_EXTINGUISH,
-        BLOCK_LAVA_POP,
-        BLOCK_LEAF_LITTER_BREAK,
-        BLOCK_LEAF_LITTER_FALL,
-        BLOCK_LEAF_LITTER_HIT,
-        BLOCK_LEAF_LITTER_PLACE,
-        BLOCK_LEAF_LITTER_STEP,
-        BLOCK_LEVER_CLICK,
-        BLOCK_LILY_PAD_PLACE,
-        BLOCK_LODESTONE_BREAK,
-        BLOCK_LODESTONE_FALL,
-        BLOCK_LODESTONE_HIT,
-        BLOCK_LODESTONE_PLACE,
-        BLOCK_LODESTONE_STEP,
-        BLOCK_MANGROVE_ROOTS_BREAK,
-        BLOCK_MANGROVE_ROOTS_FALL,
-        BLOCK_MANGROVE_ROOTS_HIT,
-        BLOCK_MANGROVE_ROOTS_PLACE,
-        BLOCK_MANGROVE_ROOTS_STEP,
-        BLOCK_MEDIUM_AMETHYST_BUD_BREAK,
-        BLOCK_MEDIUM_AMETHYST_BUD_PLACE,
-        BLOCK_METAL_BREAK,
-        BLOCK_METAL_FALL,
-        BLOCK_METAL_HIT,
-        BLOCK_METAL_PLACE,
-        BLOCK_METAL_STEP,
-        BLOCK_METAL_PRESSURE_PLATE_CLICK_OFF,
-        BLOCK_METAL_PRESSURE_PLATE_CLICK_ON,
-        BLOCK_MOSS_BREAK,
-        BLOCK_MOSS_FALL,
-        BLOCK_MOSS_HIT,
-        BLOCK_MOSS_PLACE,
-        BLOCK_MOSS_STEP,
-        BLOCK_MOSS_CARPET_BREAK,
-        BLOCK_MOSS_CARPET_FALL,
-        BLOCK_MOSS_CARPET_HIT,
-        BLOCK_MOSS_CARPET_PLACE,
-        BLOCK_MOSS_CARPET_STEP,
-        BLOCK_MUD_BREAK,
-        BLOCK_MUD_FALL,
-        BLOCK_MUD_HIT,
-        BLOCK_MUD_PLACE,
-        BLOCK_MUD_STEP,
-        BLOCK_MUD_BRICKS_BREAK,
-        BLOCK_MUD_BRICKS_FALL,
-        BLOCK_MUD_BRICKS_HIT,
-        BLOCK_MUD_BRICKS_PLACE,
-        BLOCK_MUD_BRICKS_STEP,
-        BLOCK_MUDDY_MANGROVE_ROOTS_BREAK,
-        BLOCK_MUDDY_MANGROVE_ROOTS_FALL,
-        BLOCK_MUDDY_MANGROVE_ROOTS_HIT,
-        BLOCK_MUDDY_MANGROVE_ROOTS_PLACE,
-        BLOCK_MUDDY_MANGROVE_ROOTS_STEP,
-        BLOCK_NETHER_BRICKS_BREAK,
-        BLOCK_NETHER_BRICKS_FALL,
-        BLOCK_NETHER_BRICKS_HIT,
-        BLOCK_NETHER_BRICKS_PLACE,
-        BLOCK_NETHER_BRICKS_STEP,
-        BLOCK_NETHER_GOLD_ORE_BREAK,
-        BLOCK_NETHER_GOLD_ORE_FALL,
-        BLOCK_NETHER_GOLD_ORE_HIT,
-        BLOCK_NETHER_GOLD_ORE_PLACE,
-        BLOCK_NETHER_GOLD_ORE_STEP,
-        BLOCK_NETHER_ORE_BREAK,
-        BLOCK_NETHER_ORE_FALL,
-        BLOCK_NETHER_ORE_HIT,
-        BLOCK_NETHER_ORE_PLACE,
-        BLOCK_NETHER_ORE_STEP,
-        BLOCK_NETHER_SPROUTS_BREAK,
-        BLOCK_NETHER_SPROUTS_FALL,
-        BLOCK_NETHER_SPROUTS_HIT,
-        BLOCK_NETHER_SPROUTS_PLACE,
-        BLOCK_NETHER_SPROUTS_STEP,
-        BLOCK_NETHER_WART_BREAK,
-        BLOCK_NETHER_WOOD_BREAK,
-        BLOCK_NETHER_WOOD_FALL,
-        BLOCK_NETHER_WOOD_HIT,
-        BLOCK_NETHER_WOOD_PLACE,
-        BLOCK_NETHER_WOOD_STEP,
-        BLOCK_NETHER_WOOD_BUTTON_CLICK_OFF,
-        BLOCK_NETHER_WOOD_BUTTON_CLICK_ON,
-        BLOCK_NETHER_WOOD_DOOR_CLOSE,
-        BLOCK_NETHER_WOOD_DOOR_OPEN,
-        BLOCK_NETHER_WOOD_FENCE_GATE_CLOSE,
-        BLOCK_NETHER_WOOD_FENCE_GATE_OPEN,
-        BLOCK_NETHER_WOOD_HANGING_SIGN_BREAK,
-        BLOCK_NETHER_WOOD_HANGING_SIGN_FALL,
-        BLOCK_NETHER_WOOD_HANGING_SIGN_HIT,
-        BLOCK_NETHER_WOOD_HANGING_SIGN_PLACE,
-        BLOCK_NETHER_WOOD_HANGING_SIGN_STEP,
-        BLOCK_NETHER_WOOD_PRESSURE_PLATE_CLICK_OFF,
-        BLOCK_NETHER_WOOD_PRESSURE_PLATE_CLICK_ON,
-        BLOCK_NETHER_WOOD_TRAPDOOR_CLOSE,
-        BLOCK_NETHER_WOOD_TRAPDOOR_OPEN,
-        BLOCK_NETHERITE_BLOCK_BREAK,
-        BLOCK_NETHERITE_BLOCK_FALL,
-        BLOCK_NETHERITE_BLOCK_HIT,
-        BLOCK_NETHERITE_BLOCK_PLACE,
-        BLOCK_NETHERITE_BLOCK_STEP,
-        BLOCK_NETHERRACK_BREAK,
-        BLOCK_NETHERRACK_FALL,
-        BLOCK_NETHERRACK_HIT,
-        BLOCK_NETHERRACK_PLACE,
-        BLOCK_NETHERRACK_STEP,
-        BLOCK_NOTE_BLOCK_BANJO,
-        BLOCK_NOTE_BLOCK_BASEDRUM,
-        BLOCK_NOTE_BLOCK_BASS,
-        BLOCK_NOTE_BLOCK_BELL,
-        BLOCK_NOTE_BLOCK_BIT,
-        BLOCK_NOTE_BLOCK_CHIME,
-        BLOCK_NOTE_BLOCK_COW_BELL,
-        BLOCK_NOTE_BLOCK_DIDGERIDOO,
-        BLOCK_NOTE_BLOCK_FLUTE,
-        BLOCK_NOTE_BLOCK_GUITAR,
-        BLOCK_NOTE_BLOCK_HARP,
-        BLOCK_NOTE_BLOCK_HAT,
-        BLOCK_NOTE_BLOCK_IMITATE_CREEPER,
-        BLOCK_NOTE_BLOCK_IMITATE_ENDER_DRAGON,
-        BLOCK_NOTE_BLOCK_IMITATE_PIGLIN,
-        BLOCK_NOTE_BLOCK_IMITATE_SKELETON,
-        BLOCK_NOTE_BLOCK_IMITATE_WITHER_SKELETON,
-        BLOCK_NOTE_BLOCK_IMITATE_ZOMBIE,
-        BLOCK_NOTE_BLOCK_IRON_XYLOPHONE,
-        BLOCK_NOTE_BLOCK_PLING,
-        BLOCK_NOTE_BLOCK_SNARE,
-        BLOCK_NOTE_BLOCK_TRUMPET,
-        BLOCK_NOTE_BLOCK_TRUMPET_EXPOSED,
-        BLOCK_NOTE_BLOCK_TRUMPET_OXIDIZED,
-        BLOCK_NOTE_BLOCK_TRUMPET_WEATHERED,
-        BLOCK_NOTE_BLOCK_XYLOPHONE,
-        BLOCK_NYLIUM_BREAK,
-        BLOCK_NYLIUM_FALL,
-        BLOCK_NYLIUM_HIT,
-        BLOCK_NYLIUM_PLACE,
-        BLOCK_NYLIUM_STEP,
-        BLOCK_PACKED_MUD_BREAK,
-        BLOCK_PACKED_MUD_FALL,
-        BLOCK_PACKED_MUD_HIT,
-        BLOCK_PACKED_MUD_PLACE,
-        BLOCK_PACKED_MUD_STEP,
-        BLOCK_PALE_HANGING_MOSS_IDLE,
-        BLOCK_PINK_PETALS_BREAK,
-        BLOCK_PINK_PETALS_FALL,
-        BLOCK_PINK_PETALS_HIT,
-        BLOCK_PINK_PETALS_PLACE,
-        BLOCK_PINK_PETALS_STEP,
-        BLOCK_PISTON_CONTRACT,
-        BLOCK_PISTON_EXTEND,
-        BLOCK_POINTED_DRIPSTONE_BREAK,
-        BLOCK_POINTED_DRIPSTONE_DRIP_LAVA,
-        BLOCK_POINTED_DRIPSTONE_DRIP_LAVA_INTO_CAULDRON,
-        BLOCK_POINTED_DRIPSTONE_DRIP_WATER,
-        BLOCK_POINTED_DRIPSTONE_DRIP_WATER_INTO_CAULDRON,
-        BLOCK_POINTED_DRIPSTONE_FALL,
-        BLOCK_POINTED_DRIPSTONE_HIT,
-        BLOCK_POINTED_DRIPSTONE_LAND,
-        BLOCK_POINTED_DRIPSTONE_PLACE,
-        BLOCK_POINTED_DRIPSTONE_STEP,
-        BLOCK_POLISHED_DEEPSLATE_BREAK,
-        BLOCK_POLISHED_DEEPSLATE_FALL,
-        BLOCK_POLISHED_DEEPSLATE_HIT,
-        BLOCK_POLISHED_DEEPSLATE_PLACE,
-        BLOCK_POLISHED_DEEPSLATE_STEP,
-        BLOCK_POLISHED_TUFF_BREAK,
-        BLOCK_POLISHED_TUFF_FALL,
-        BLOCK_POLISHED_TUFF_HIT,
-        BLOCK_POLISHED_TUFF_PLACE,
-        BLOCK_POLISHED_TUFF_STEP,
-        BLOCK_POPLAR_LEAVES_AMBIENT,
-        BLOCK_POPLAR_LEAVES_BREAK,
-        BLOCK_POPLAR_LEAVES_FALL,
-        BLOCK_POPLAR_LEAVES_HIT,
-        BLOCK_POPLAR_LEAVES_PLACE,
-        BLOCK_POPLAR_LEAVES_STEP,
-        BLOCK_PORTAL_AMBIENT,
-        BLOCK_PORTAL_TRAVEL,
-        BLOCK_PORTAL_TRIGGER,
-        BLOCK_POTENT_SULFUR_BREAK,
-        BLOCK_POTENT_SULFUR_FALL,
-        BLOCK_POTENT_SULFUR_GEYSER_CONTINUOUS_ERUPTION,
-        BLOCK_POTENT_SULFUR_GEYSER_CONTINUOUS_ERUPTION_ACTIVE,
-        BLOCK_POTENT_SULFUR_GEYSER_ERUPTION,
-        BLOCK_POTENT_SULFUR_GEYSER_ERUPTION_ACTIVE,
-        BLOCK_POTENT_SULFUR_HIT,
-        BLOCK_POTENT_SULFUR_NOXIOUS_GAS,
-        BLOCK_POTENT_SULFUR_PLACE,
-        BLOCK_POTENT_SULFUR_STEP,
-        BLOCK_POWDER_SNOW_BREAK,
-        BLOCK_POWDER_SNOW_FALL,
-        BLOCK_POWDER_SNOW_HIT,
-        BLOCK_POWDER_SNOW_PLACE,
-        BLOCK_POWDER_SNOW_STEP,
-        BLOCK_PUMPKIN_CARVE,
-        BLOCK_RED_SHRUB_BREAK,
-        BLOCK_RED_SHRUB_PLACE,
-        BLOCK_REDSTONE_TORCH_BURNOUT,
-        BLOCK_RESIN_BREAK,
-        BLOCK_RESIN_FALL,
-        BLOCK_RESIN_PLACE,
-        BLOCK_RESIN_STEP,
-        BLOCK_RESIN_BRICKS_BREAK,
-        BLOCK_RESIN_BRICKS_FALL,
-        BLOCK_RESIN_BRICKS_HIT,
-        BLOCK_RESIN_BRICKS_PLACE,
-        BLOCK_RESIN_BRICKS_STEP,
-        BLOCK_RESPAWN_ANCHOR_AMBIENT,
-        BLOCK_RESPAWN_ANCHOR_CHARGE,
-        BLOCK_RESPAWN_ANCHOR_DEPLETE,
-        BLOCK_RESPAWN_ANCHOR_SET_SPAWN,
-        BLOCK_ROOTED_DIRT_BREAK,
-        BLOCK_ROOTED_DIRT_FALL,
-        BLOCK_ROOTED_DIRT_HIT,
-        BLOCK_ROOTED_DIRT_PLACE,
-        BLOCK_ROOTED_DIRT_STEP,
-        BLOCK_ROOTS_BREAK,
-        BLOCK_ROOTS_FALL,
-        BLOCK_ROOTS_HIT,
-        BLOCK_ROOTS_PLACE,
-        BLOCK_ROOTS_STEP,
-        BLOCK_SAND_BREAK,
-        BLOCK_SAND_FALL,
-        BLOCK_SAND_HIT,
-        BLOCK_SAND_IDLE,
-        BLOCK_SAND_PLACE,
-        BLOCK_SAND_STEP,
-        BLOCK_SCAFFOLDING_BREAK,
-        BLOCK_SCAFFOLDING_FALL,
-        BLOCK_SCAFFOLDING_HIT,
-        BLOCK_SCAFFOLDING_PLACE,
-        BLOCK_SCAFFOLDING_STEP,
-        BLOCK_SCULK_BREAK,
-        BLOCK_SCULK_CHARGE,
-        BLOCK_SCULK_FALL,
-        BLOCK_SCULK_HIT,
-        BLOCK_SCULK_PLACE,
-        BLOCK_SCULK_SPREAD,
-        BLOCK_SCULK_STEP,
-        BLOCK_SCULK_CATALYST_BLOOM,
-        BLOCK_SCULK_CATALYST_BREAK,
-        BLOCK_SCULK_CATALYST_FALL,
-        BLOCK_SCULK_CATALYST_HIT,
-        BLOCK_SCULK_CATALYST_PLACE,
-        BLOCK_SCULK_CATALYST_STEP,
-        BLOCK_SCULK_SENSOR_BREAK,
-        BLOCK_SCULK_SENSOR_CLICKING,
-        BLOCK_SCULK_SENSOR_CLICKING_STOP,
-        BLOCK_SCULK_SENSOR_FALL,
-        BLOCK_SCULK_SENSOR_HIT,
-        BLOCK_SCULK_SENSOR_PLACE,
-        BLOCK_SCULK_SENSOR_STEP,
-        BLOCK_SCULK_SHRIEKER_BREAK,
-        BLOCK_SCULK_SHRIEKER_FALL,
-        BLOCK_SCULK_SHRIEKER_HIT,
-        BLOCK_SCULK_SHRIEKER_PLACE,
-        BLOCK_SCULK_SHRIEKER_SHRIEK,
-        BLOCK_SCULK_SHRIEKER_STEP,
-        BLOCK_SCULK_VEIN_BREAK,
-        BLOCK_SCULK_VEIN_FALL,
-        BLOCK_SCULK_VEIN_HIT,
-        BLOCK_SCULK_VEIN_PLACE,
-        BLOCK_SCULK_VEIN_STEP,
-        BLOCK_SHELF_ACTIVATE,
-        BLOCK_SHELF_BREAK,
-        BLOCK_SHELF_DEACTIVATE,
-        BLOCK_SHELF_FALL,
-        BLOCK_SHELF_HIT,
-        BLOCK_SHELF_MULTI_SWAP,
-        BLOCK_SHELF_PLACE,
-        BLOCK_SHELF_PLACE_ITEM,
-        BLOCK_SHELF_SINGLE_SWAP,
-        BLOCK_SHELF_STEP,
-        BLOCK_SHELF_TAKE_ITEM,
-        BLOCK_SHELF_MUSHROOM_BOUNCE,
-        BLOCK_SHELF_MUSHROOM_BREAK,
-        BLOCK_SHELF_MUSHROOM_FALL,
-        BLOCK_SHELF_MUSHROOM_PLACE,
-        BLOCK_SHELF_MUSHROOM_STEP,
-        BLOCK_SHROOMLIGHT_BREAK,
-        BLOCK_SHROOMLIGHT_FALL,
-        BLOCK_SHROOMLIGHT_HIT,
-        BLOCK_SHROOMLIGHT_PLACE,
-        BLOCK_SHROOMLIGHT_STEP,
-        BLOCK_SHULKER_BOX_CLOSE,
-        BLOCK_SHULKER_BOX_OPEN,
-        BLOCK_SIGN_WAXED_INTERACT_FAIL,
-        BLOCK_SLIME_BLOCK_BREAK,
-        BLOCK_SLIME_BLOCK_FALL,
-        BLOCK_SLIME_BLOCK_HIT,
-        BLOCK_SLIME_BLOCK_PLACE,
-        BLOCK_SLIME_BLOCK_STEP,
-        BLOCK_SMALL_AMETHYST_BUD_BREAK,
-        BLOCK_SMALL_AMETHYST_BUD_PLACE,
-        BLOCK_SMALL_DRIPLEAF_BREAK,
-        BLOCK_SMALL_DRIPLEAF_FALL,
-        BLOCK_SMALL_DRIPLEAF_HIT,
-        BLOCK_SMALL_DRIPLEAF_PLACE,
-        BLOCK_SMALL_DRIPLEAF_STEP,
-        BLOCK_SMITHING_TABLE_USE,
-        BLOCK_SMOKER_SMOKE,
-        BLOCK_SNIFFER_EGG_CRACK,
-        BLOCK_SNIFFER_EGG_HATCH,
-        BLOCK_SNIFFER_EGG_PLOP,
-        BLOCK_SNOW_BREAK,
-        BLOCK_SNOW_FALL,
-        BLOCK_SNOW_HIT,
-        BLOCK_SNOW_PLACE,
-        BLOCK_SNOW_STEP,
-        BLOCK_SOUL_SAND_BREAK,
-        BLOCK_SOUL_SAND_FALL,
-        BLOCK_SOUL_SAND_HIT,
-        BLOCK_SOUL_SAND_PLACE,
-        BLOCK_SOUL_SAND_STEP,
-        BLOCK_SOUL_SOIL_BREAK,
-        BLOCK_SOUL_SOIL_FALL,
-        BLOCK_SOUL_SOIL_HIT,
-        BLOCK_SOUL_SOIL_PLACE,
-        BLOCK_SOUL_SOIL_STEP,
-        BLOCK_SPAWNER_BREAK,
-        BLOCK_SPAWNER_FALL,
-        BLOCK_SPAWNER_HIT,
-        BLOCK_SPAWNER_PLACE,
-        BLOCK_SPAWNER_STEP,
-        BLOCK_SPONGE_ABSORB,
-        BLOCK_SPONGE_BREAK,
-        BLOCK_SPONGE_FALL,
-        BLOCK_SPONGE_HIT,
-        BLOCK_SPONGE_PLACE,
-        BLOCK_SPONGE_STEP,
-        BLOCK_SPORE_BLOSSOM_BREAK,
-        BLOCK_SPORE_BLOSSOM_FALL,
-        BLOCK_SPORE_BLOSSOM_HIT,
-        BLOCK_SPORE_BLOSSOM_PLACE,
-        BLOCK_SPORE_BLOSSOM_STEP,
-        BLOCK_STEM_BREAK,
-        BLOCK_STEM_FALL,
-        BLOCK_STEM_HIT,
-        BLOCK_STEM_PLACE,
-        BLOCK_STEM_STEP,
-        BLOCK_STONE_BREAK,
-        BLOCK_STONE_FALL,
-        BLOCK_STONE_HIT,
-        BLOCK_STONE_PLACE,
-        BLOCK_STONE_STEP,
-        BLOCK_STONE_BUTTON_CLICK_OFF,
-        BLOCK_STONE_BUTTON_CLICK_ON,
-        BLOCK_STONE_PRESSURE_PLATE_CLICK_OFF,
-        BLOCK_STONE_PRESSURE_PLATE_CLICK_ON,
-        BLOCK_STRAW_BED_BREAK,
-        BLOCK_STRAW_BED_BREAK_LEAVE,
-        BLOCK_STRAW_BED_FALL,
-        BLOCK_STRAW_BED_HIT,
-        BLOCK_STRAW_BED_PLACE,
-        BLOCK_STRAW_BED_STEP,
-        BLOCK_SULFUR_BREAK,
-        BLOCK_SULFUR_FALL,
-        BLOCK_SULFUR_HIT,
-        BLOCK_SULFUR_PLACE,
-        BLOCK_SULFUR_STEP,
-        BLOCK_SULFUR_SPIKE_BREAK,
-        BLOCK_SULFUR_SPIKE_FALL,
-        BLOCK_SULFUR_SPIKE_HIT,
-        BLOCK_SULFUR_SPIKE_LAND,
-        BLOCK_SULFUR_SPIKE_PLACE,
-        BLOCK_SULFUR_SPIKE_STEP,
-        BLOCK_SUSPICIOUS_GRAVEL_BREAK,
-        BLOCK_SUSPICIOUS_GRAVEL_FALL,
-        BLOCK_SUSPICIOUS_GRAVEL_HIT,
-        BLOCK_SUSPICIOUS_GRAVEL_PLACE,
-        BLOCK_SUSPICIOUS_GRAVEL_STEP,
-        BLOCK_SUSPICIOUS_SAND_BREAK,
-        BLOCK_SUSPICIOUS_SAND_FALL,
-        BLOCK_SUSPICIOUS_SAND_HIT,
-        BLOCK_SUSPICIOUS_SAND_PLACE,
-        BLOCK_SUSPICIOUS_SAND_STEP,
-        BLOCK_SWEET_BERRY_BUSH_BREAK,
-        BLOCK_SWEET_BERRY_BUSH_PICK_BERRIES,
-        BLOCK_SWEET_BERRY_BUSH_PLACE,
-        BLOCK_TRIAL_SPAWNER_ABOUT_TO_SPAWN_ITEM,
-        BLOCK_TRIAL_SPAWNER_AMBIENT,
-        BLOCK_TRIAL_SPAWNER_AMBIENT_OMINOUS,
-        BLOCK_TRIAL_SPAWNER_BREAK,
-        BLOCK_TRIAL_SPAWNER_CLOSE_SHUTTER,
-        BLOCK_TRIAL_SPAWNER_DETECT_PLAYER,
-        BLOCK_TRIAL_SPAWNER_EJECT_ITEM,
-        BLOCK_TRIAL_SPAWNER_FALL,
-        BLOCK_TRIAL_SPAWNER_HIT,
-        BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE,
-        BLOCK_TRIAL_SPAWNER_OPEN_SHUTTER,
-        BLOCK_TRIAL_SPAWNER_PLACE,
-        BLOCK_TRIAL_SPAWNER_SPAWN_ITEM,
-        BLOCK_TRIAL_SPAWNER_SPAWN_ITEM_BEGIN,
-        BLOCK_TRIAL_SPAWNER_SPAWN_MOB,
-        BLOCK_TRIAL_SPAWNER_STEP,
-        BLOCK_TRIPWIRE_ATTACH,
-        BLOCK_TRIPWIRE_CLICK_OFF,
-        BLOCK_TRIPWIRE_CLICK_ON,
-        BLOCK_TRIPWIRE_DETACH,
-        BLOCK_TUFF_BREAK,
-        BLOCK_TUFF_FALL,
-        BLOCK_TUFF_HIT,
-        BLOCK_TUFF_PLACE,
-        BLOCK_TUFF_STEP,
-        BLOCK_TUFF_BRICKS_BREAK,
-        BLOCK_TUFF_BRICKS_FALL,
-        BLOCK_TUFF_BRICKS_HIT,
-        BLOCK_TUFF_BRICKS_PLACE,
-        BLOCK_TUFF_BRICKS_STEP,
-        BLOCK_VAULT_ACTIVATE,
-        BLOCK_VAULT_AMBIENT,
-        BLOCK_VAULT_BREAK,
-        BLOCK_VAULT_CLOSE_SHUTTER,
-        BLOCK_VAULT_DEACTIVATE,
-        BLOCK_VAULT_EJECT_ITEM,
-        BLOCK_VAULT_FALL,
-        BLOCK_VAULT_HIT,
-        BLOCK_VAULT_INSERT_ITEM,
-        BLOCK_VAULT_INSERT_ITEM_FAIL,
-        BLOCK_VAULT_OPEN_SHUTTER,
-        BLOCK_VAULT_PLACE,
-        BLOCK_VAULT_REJECT_REWARDED_PLAYER,
-        BLOCK_VAULT_STEP,
-        BLOCK_VINE_BREAK,
-        BLOCK_VINE_FALL,
-        BLOCK_VINE_HIT,
-        BLOCK_VINE_PLACE,
-        BLOCK_VINE_STEP,
-        BLOCK_WART_BLOCK_BREAK,
-        BLOCK_WART_BLOCK_FALL,
-        BLOCK_WART_BLOCK_HIT,
-        BLOCK_WART_BLOCK_PLACE,
-        BLOCK_WART_BLOCK_STEP,
-        BLOCK_WATER_AMBIENT,
-        BLOCK_WEEPING_VINES_BREAK,
-        BLOCK_WEEPING_VINES_FALL,
-        BLOCK_WEEPING_VINES_HIT,
-        BLOCK_WEEPING_VINES_PLACE,
-        BLOCK_WEEPING_VINES_STEP,
-        BLOCK_WET_GRASS_BREAK,
-        BLOCK_WET_GRASS_FALL,
-        BLOCK_WET_GRASS_HIT,
-        BLOCK_WET_GRASS_PLACE,
-        BLOCK_WET_GRASS_STEP,
-        BLOCK_WET_SPONGE_BREAK,
-        BLOCK_WET_SPONGE_DRIES,
-        BLOCK_WET_SPONGE_FALL,
-        BLOCK_WET_SPONGE_HIT,
-        BLOCK_WET_SPONGE_PLACE,
-        BLOCK_WET_SPONGE_STEP,
-        BLOCK_WOOD_BREAK,
-        BLOCK_WOOD_FALL,
-        BLOCK_WOOD_HIT,
-        BLOCK_WOOD_PLACE,
-        BLOCK_WOOD_STEP,
-        BLOCK_WOODEN_BUTTON_CLICK_OFF,
-        BLOCK_WOODEN_BUTTON_CLICK_ON,
-        BLOCK_WOODEN_DOOR_CLOSE,
-        BLOCK_WOODEN_DOOR_OPEN,
-        BLOCK_WOODEN_PRESSURE_PLATE_CLICK_OFF,
-        BLOCK_WOODEN_PRESSURE_PLATE_CLICK_ON,
-        BLOCK_WOODEN_TRAPDOOR_CLOSE,
-        BLOCK_WOODEN_TRAPDOOR_OPEN,
-        BLOCK_WOOL_BREAK,
-        BLOCK_WOOL_FALL,
-        BLOCK_WOOL_HIT,
-        BLOCK_WOOL_PLACE,
-        BLOCK_WOOL_STEP,
-        ENCHANT_THORNS_HIT,
-        ENTITY_ALLAY_AMBIENT_WITH_ITEM,
-        ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM,
-        ENTITY_ALLAY_DEATH,
-        ENTITY_ALLAY_HURT,
-        ENTITY_ALLAY_ITEM_GIVEN,
-        ENTITY_ALLAY_ITEM_TAKEN,
-        ENTITY_ALLAY_ITEM_THROWN,
-        ENTITY_ARMADILLO_AMBIENT,
-        ENTITY_ARMADILLO_BRUSH,
-        ENTITY_ARMADILLO_DEATH,
-        ENTITY_ARMADILLO_EAT,
-        ENTITY_ARMADILLO_HURT,
-        ENTITY_ARMADILLO_HURT_REDUCED,
-        ENTITY_ARMADILLO_LAND,
-        ENTITY_ARMADILLO_PEEK,
-        ENTITY_ARMADILLO_ROLL,
-        ENTITY_ARMADILLO_SCUTE_DROP,
-        ENTITY_ARMADILLO_STEP,
-        ENTITY_ARMADILLO_UNROLL_FINISH,
-        ENTITY_ARMADILLO_UNROLL_START,
-        ENTITY_ARMOR_STAND_BREAK,
-        ENTITY_ARMOR_STAND_FALL,
-        ENTITY_ARMOR_STAND_HIT,
-        ENTITY_ARMOR_STAND_PLACE,
-        ENTITY_ARROW_HIT,
-        ENTITY_ARROW_HIT_PLAYER,
-        ENTITY_ARROW_SHOOT,
-        ENTITY_AXOLOTL_ATTACK,
-        ENTITY_AXOLOTL_DEATH,
-        ENTITY_AXOLOTL_HURT,
-        ENTITY_AXOLOTL_IDLE_AIR,
-        ENTITY_AXOLOTL_IDLE_WATER,
-        ENTITY_AXOLOTL_SPLASH,
-        ENTITY_AXOLOTL_SWIM,
-        ENTITY_BABY_CAT_AMBIENT,
-        ENTITY_BABY_CAT_BEG_FOR_FOOD,
-        ENTITY_BABY_CAT_DEATH,
-        ENTITY_BABY_CAT_EAT,
-        ENTITY_BABY_CAT_HISS,
-        ENTITY_BABY_CAT_HURT,
-        ENTITY_BABY_CAT_PURR,
-        ENTITY_BABY_CAT_PURREOW,
-        ENTITY_BABY_CAT_STRAY_AMBIENT,
-        ENTITY_BABY_CHICKEN_AMBIENT,
-        ENTITY_BABY_CHICKEN_DEATH,
-        ENTITY_BABY_CHICKEN_HURT,
-        ENTITY_BABY_CHICKEN_STEP,
-        ENTITY_BABY_HORSE_AMBIENT,
-        ENTITY_BABY_HORSE_ANGRY,
-        ENTITY_BABY_HORSE_BREATHE,
-        ENTITY_BABY_HORSE_DEATH,
-        ENTITY_BABY_HORSE_EAT,
-        ENTITY_BABY_HORSE_HURT,
-        ENTITY_BABY_HORSE_LAND,
-        ENTITY_BABY_HORSE_STEP,
-        ENTITY_BABY_NAUTILUS_AMBIENT,
-        ENTITY_BABY_NAUTILUS_AMBIENT_LAND,
-        ENTITY_BABY_NAUTILUS_DEATH,
-        ENTITY_BABY_NAUTILUS_DEATH_LAND,
-        ENTITY_BABY_NAUTILUS_EAT,
-        ENTITY_BABY_NAUTILUS_HURT,
-        ENTITY_BABY_NAUTILUS_HURT_LAND,
-        ENTITY_BABY_NAUTILUS_SWIM,
-        ENTITY_BABY_PIG_AMBIENT,
-        ENTITY_BABY_PIG_DEATH,
-        ENTITY_BABY_PIG_EAT,
-        ENTITY_BABY_PIG_HURT,
-        ENTITY_BABY_PIG_STEP,
-        ENTITY_BABY_WOLF_AMBIENT,
-        ENTITY_BABY_WOLF_DEATH,
-        ENTITY_BABY_WOLF_GROWL,
-        ENTITY_BABY_WOLF_HURT,
-        ENTITY_BABY_WOLF_PANT,
-        ENTITY_BABY_WOLF_STEP,
-        ENTITY_BABY_WOLF_WHINE,
+        BLOCK_BASALT_PLACE,
+        BLOCK_BASALT_HIT,
+        BLOCK_BASALT_FALL,
         ENTITY_BAT_AMBIENT,
         ENTITY_BAT_DEATH,
         ENTITY_BAT_HURT,
         ENTITY_BAT_LOOP,
         ENTITY_BAT_TAKEOFF,
+        BLOCK_BEACON_ACTIVATE,
+        BLOCK_BEACON_AMBIENT,
+        BLOCK_BEACON_DEACTIVATE,
+        BLOCK_BEACON_POWER_SELECT,
         ENTITY_BEE_DEATH,
         ENTITY_BEE_HURT,
-        ENTITY_BEE_LOOP,
         ENTITY_BEE_LOOP_AGGRESSIVE,
-        ENTITY_BEE_POLLINATE,
+        ENTITY_BEE_LOOP,
         ENTITY_BEE_STING,
+        ENTITY_BEE_POLLINATE,
+        BLOCK_BEEHIVE_DRIP,
+        BLOCK_BEEHIVE_ENTER,
+        BLOCK_BEEHIVE_EXIT,
+        BLOCK_BEEHIVE_SHEAR,
+        BLOCK_BEEHIVE_WORK,
+        BLOCK_BELL_USE,
+        BLOCK_BELL_RESONATE,
+        BLOCK_BIG_DRIPLEAF_BREAK,
+        BLOCK_BIG_DRIPLEAF_FALL,
+        BLOCK_BIG_DRIPLEAF_HIT,
+        BLOCK_BIG_DRIPLEAF_PLACE,
+        BLOCK_BIG_DRIPLEAF_STEP,
         ENTITY_BLAZE_AMBIENT,
         ENTITY_BLAZE_BURN,
         ENTITY_BLAZE_DEATH,
@@ -10938,30 +10158,69 @@ public final class SoundEventKeys {
         ENTITY_BOGGED_HURT,
         ENTITY_BOGGED_SHEAR,
         ENTITY_BOGGED_STEP,
+        BLOCK_BONE_BLOCK_BREAK,
+        BLOCK_BONE_BLOCK_FALL,
+        BLOCK_BONE_BLOCK_HIT,
+        BLOCK_BONE_BLOCK_PLACE,
+        BLOCK_BONE_BLOCK_STEP,
+        ITEM_BONE_MEAL_USE,
+        ITEM_BOOK_PAGE_TURN,
+        ITEM_BOOK_PUT,
+        BLOCK_BLASTFURNACE_FIRE_CRACKLE,
+        ITEM_BOTTLE_EMPTY,
+        ITEM_BOTTLE_FILL,
+        ITEM_BOTTLE_FILL_DRAGONBREATH,
         ENTITY_BREEZE_CHARGE,
-        ENTITY_BREEZE_DEATH,
         ENTITY_BREEZE_DEFLECT,
-        ENTITY_BREEZE_HURT,
-        ENTITY_BREEZE_IDLE_AIR,
-        ENTITY_BREEZE_IDLE_GROUND,
         ENTITY_BREEZE_INHALE,
+        ENTITY_BREEZE_IDLE_GROUND,
+        ENTITY_BREEZE_IDLE_AIR,
+        ENTITY_BREEZE_SHOOT,
         ENTITY_BREEZE_JUMP,
         ENTITY_BREEZE_LAND,
-        ENTITY_BREEZE_SHOOT,
         ENTITY_BREEZE_SLIDE,
+        ENTITY_BREEZE_DEATH,
+        ENTITY_BREEZE_HURT,
         ENTITY_BREEZE_WHIRL,
         ENTITY_BREEZE_WIND_BURST,
-        ENTITY_CAMEL_AMBIENT,
-        ENTITY_CAMEL_DASH,
-        ENTITY_CAMEL_DASH_READY,
-        ENTITY_CAMEL_DEATH,
-        ENTITY_CAMEL_EAT,
-        ENTITY_CAMEL_HURT,
-        ENTITY_CAMEL_SADDLE,
-        ENTITY_CAMEL_SIT,
-        ENTITY_CAMEL_STAND,
-        ENTITY_CAMEL_STEP,
-        ENTITY_CAMEL_STEP_SAND,
+        BLOCK_BREWING_STAND_BREW,
+        ITEM_BRUSH_BRUSHING_GENERIC,
+        ITEM_BRUSH_BRUSHING_SAND,
+        ITEM_BRUSH_BRUSHING_GRAVEL,
+        ITEM_BRUSH_BRUSHING_SAND_COMPLETE,
+        ITEM_BRUSH_BRUSHING_GRAVEL_COMPLETE,
+        BLOCK_BUBBLE_COLUMN_BUBBLE_POP,
+        BLOCK_BUBBLE_COLUMN_UPWARDS_AMBIENT,
+        BLOCK_BUBBLE_COLUMN_UPWARDS_INSIDE,
+        BLOCK_BUBBLE_COLUMN_WHIRLPOOL_AMBIENT,
+        BLOCK_BUBBLE_COLUMN_WHIRLPOOL_INSIDE,
+        UI_HUD_BUBBLE_POP,
+        ITEM_BUCKET_EMPTY,
+        ITEM_BUCKET_EMPTY_AXOLOTL,
+        ITEM_BUCKET_EMPTY_FISH,
+        ITEM_BUCKET_EMPTY_LAVA,
+        ITEM_BUCKET_EMPTY_POWDER_SNOW,
+        ITEM_BUCKET_EMPTY_SULFUR_CUBE,
+        ITEM_BUCKET_EMPTY_TADPOLE,
+        ITEM_BUCKET_FILL,
+        ITEM_BUCKET_FILL_AXOLOTL,
+        ITEM_BUCKET_FILL_FISH,
+        ITEM_BUCKET_FILL_LAVA,
+        ITEM_BUCKET_FILL_POWDER_SNOW,
+        ITEM_BUCKET_FILL_SULFUR_CUBE,
+        ITEM_BUCKET_FILL_TADPOLE,
+        ITEM_BUNDLE_DROP_CONTENTS,
+        ITEM_BUNDLE_INSERT,
+        ITEM_BUNDLE_INSERT_FAIL,
+        ITEM_BUNDLE_REMOVE_ONE,
+        BLOCK_CACTUS_FLOWER_BREAK,
+        BLOCK_CACTUS_FLOWER_PLACE,
+        BLOCK_CAKE_ADD_CANDLE,
+        BLOCK_CALCITE_BREAK,
+        BLOCK_CALCITE_STEP,
+        BLOCK_CALCITE_PLACE,
+        BLOCK_CALCITE_HIT,
+        BLOCK_CALCITE_FALL,
         ENTITY_CAMEL_HUSK_AMBIENT,
         ENTITY_CAMEL_HUSK_DASH,
         ENTITY_CAMEL_HUSK_DASH_READY,
@@ -10973,82 +10232,269 @@ public final class SoundEventKeys {
         ENTITY_CAMEL_HUSK_STAND,
         ENTITY_CAMEL_HUSK_STEP,
         ENTITY_CAMEL_HUSK_STEP_SAND,
+        ENTITY_CAMEL_AMBIENT,
+        ENTITY_CAMEL_DASH,
+        ENTITY_CAMEL_DASH_READY,
+        ENTITY_CAMEL_DEATH,
+        ENTITY_CAMEL_EAT,
+        ENTITY_CAMEL_HURT,
+        ENTITY_CAMEL_SADDLE,
+        ENTITY_CAMEL_SIT,
+        ENTITY_CAMEL_STAND,
+        ENTITY_CAMEL_STEP,
+        ENTITY_CAMEL_STEP_SAND,
+        BLOCK_CAMPFIRE_CRACKLE,
+        BLOCK_CANDLE_AMBIENT,
+        BLOCK_CANDLE_BREAK,
+        BLOCK_CANDLE_EXTINGUISH,
+        BLOCK_CANDLE_FALL,
+        BLOCK_CANDLE_HIT,
+        BLOCK_CANDLE_PLACE,
+        BLOCK_CANDLE_STEP,
+        ENTITY_BABY_CAT_AMBIENT,
+        ENTITY_BABY_CAT_STRAY_AMBIENT,
+        ENTITY_BABY_CAT_DEATH,
+        ENTITY_BABY_CAT_EAT,
+        ENTITY_BABY_CAT_HISS,
+        ENTITY_BABY_CAT_BEG_FOR_FOOD,
+        ENTITY_BABY_CAT_HURT,
+        ENTITY_BABY_CAT_PURR,
+        ENTITY_BABY_CAT_PURREOW,
         ENTITY_CAT_AMBIENT,
-        ENTITY_CAT_BEG_FOR_FOOD,
-        ENTITY_CAT_DEATH,
-        ENTITY_CAT_EAT,
+        ENTITY_CAT_STRAY_AMBIENT,
         ENTITY_CAT_HISS,
         ENTITY_CAT_HURT,
+        ENTITY_CAT_DEATH,
+        ENTITY_CAT_EAT,
+        ENTITY_CAT_BEG_FOR_FOOD,
         ENTITY_CAT_PURR,
         ENTITY_CAT_PURREOW,
-        ENTITY_CAT_STRAY_AMBIENT,
         ENTITY_CAT_ROYAL_AMBIENT,
-        ENTITY_CAT_ROYAL_BEG_FOR_FOOD,
-        ENTITY_CAT_ROYAL_DEATH,
-        ENTITY_CAT_ROYAL_EAT,
+        ENTITY_CAT_ROYAL_STRAY_AMBIENT,
         ENTITY_CAT_ROYAL_HISS,
         ENTITY_CAT_ROYAL_HURT,
+        ENTITY_CAT_ROYAL_DEATH,
+        ENTITY_CAT_ROYAL_EAT,
+        ENTITY_CAT_ROYAL_BEG_FOR_FOOD,
         ENTITY_CAT_ROYAL_PURR,
         ENTITY_CAT_ROYAL_PURREOW,
-        ENTITY_CAT_ROYAL_STRAY_AMBIENT,
-        ENTITY_CHICKEN_AMBIENT,
-        ENTITY_CHICKEN_DEATH,
+        BLOCK_CAVE_VINES_BREAK,
+        BLOCK_CAVE_VINES_FALL,
+        BLOCK_CAVE_VINES_HIT,
+        BLOCK_CAVE_VINES_PLACE,
+        BLOCK_CAVE_VINES_STEP,
+        BLOCK_CAVE_VINES_PICK_BERRIES,
+        BLOCK_CHAIN_BREAK,
+        BLOCK_CHAIN_FALL,
+        BLOCK_CHAIN_HIT,
+        BLOCK_CHAIN_PLACE,
+        BLOCK_CHAIN_STEP,
+        BLOCK_CHERRY_WOOD_BREAK,
+        BLOCK_CHERRY_WOOD_FALL,
+        BLOCK_CHERRY_WOOD_HIT,
+        BLOCK_CHERRY_WOOD_PLACE,
+        BLOCK_CHERRY_WOOD_STEP,
+        BLOCK_CHERRY_SAPLING_BREAK,
+        BLOCK_CHERRY_SAPLING_FALL,
+        BLOCK_CHERRY_SAPLING_HIT,
+        BLOCK_CHERRY_SAPLING_PLACE,
+        BLOCK_CHERRY_SAPLING_STEP,
+        BLOCK_CHERRY_LEAVES_BREAK,
+        BLOCK_CHERRY_LEAVES_FALL,
+        BLOCK_CHERRY_LEAVES_HIT,
+        BLOCK_CHERRY_LEAVES_PLACE,
+        BLOCK_CHERRY_LEAVES_STEP,
+        BLOCK_CHERRY_WOOD_HANGING_SIGN_STEP,
+        BLOCK_CHERRY_WOOD_HANGING_SIGN_BREAK,
+        BLOCK_CHERRY_WOOD_HANGING_SIGN_FALL,
+        BLOCK_CHERRY_WOOD_HANGING_SIGN_HIT,
+        BLOCK_CHERRY_WOOD_HANGING_SIGN_PLACE,
+        BLOCK_CHERRY_WOOD_DOOR_CLOSE,
+        BLOCK_CHERRY_WOOD_DOOR_OPEN,
+        BLOCK_CHERRY_WOOD_TRAPDOOR_CLOSE,
+        BLOCK_CHERRY_WOOD_TRAPDOOR_OPEN,
+        BLOCK_CHERRY_WOOD_BUTTON_CLICK_OFF,
+        BLOCK_CHERRY_WOOD_BUTTON_CLICK_ON,
+        BLOCK_CHERRY_WOOD_PRESSURE_PLATE_CLICK_OFF,
+        BLOCK_CHERRY_WOOD_PRESSURE_PLATE_CLICK_ON,
+        BLOCK_CHERRY_WOOD_FENCE_GATE_CLOSE,
+        BLOCK_CHERRY_WOOD_FENCE_GATE_OPEN,
+        BLOCK_CHEST_CLOSE,
+        BLOCK_CHEST_LOCKED,
+        BLOCK_CHEST_OPEN,
+        ENTITY_BABY_CHICKEN_AMBIENT,
+        ENTITY_BABY_CHICKEN_DEATH,
         ENTITY_CHICKEN_EGG,
-        ENTITY_CHICKEN_HURT,
+        ENTITY_BABY_CHICKEN_HURT,
         ENTITY_CHICKEN_STEP,
+        ENTITY_BABY_CHICKEN_STEP,
+        ENTITY_CHICKEN_AMBIENT,
+        ENTITY_CHICKEN_HURT,
+        ENTITY_CHICKEN_DEATH,
         ENTITY_CHICKEN_PICKY_AMBIENT,
-        ENTITY_CHICKEN_PICKY_DEATH,
         ENTITY_CHICKEN_PICKY_HURT,
+        ENTITY_CHICKEN_PICKY_DEATH,
+        BLOCK_CHISELED_BOOKSHELF_BREAK,
+        BLOCK_CHISELED_BOOKSHELF_FALL,
+        BLOCK_CHISELED_BOOKSHELF_HIT,
+        BLOCK_CHISELED_BOOKSHELF_INSERT,
+        BLOCK_CHISELED_BOOKSHELF_INSERT_ENCHANTED,
+        BLOCK_CHISELED_BOOKSHELF_STEP,
+        BLOCK_CHISELED_BOOKSHELF_PICKUP,
+        BLOCK_CHISELED_BOOKSHELF_PICKUP_ENCHANTED,
+        BLOCK_CHISELED_BOOKSHELF_PLACE,
+        BLOCK_CHORUS_FLOWER_DEATH,
+        BLOCK_CHORUS_FLOWER_GROW,
+        ITEM_CHORUS_FRUIT_TELEPORT,
+        BLOCK_COBWEB_BREAK,
+        BLOCK_COBWEB_STEP,
+        BLOCK_COBWEB_PLACE,
+        BLOCK_COBWEB_HIT,
+        BLOCK_COBWEB_FALL,
         ENTITY_COD_AMBIENT,
         ENTITY_COD_DEATH,
         ENTITY_COD_FLOP,
         ENTITY_COD_HURT,
-        ENTITY_COPPER_GOLEM_DEATH,
+        BLOCK_COMPARATOR_CLICK,
+        BLOCK_COMPOSTER_EMPTY,
+        BLOCK_COMPOSTER_FILL,
+        BLOCK_COMPOSTER_FILL_SUCCESS,
+        BLOCK_COMPOSTER_READY,
+        BLOCK_CONDUIT_ACTIVATE,
+        BLOCK_CONDUIT_AMBIENT,
+        BLOCK_CONDUIT_AMBIENT_SHORT,
+        BLOCK_CONDUIT_ATTACK_TARGET,
+        BLOCK_CONDUIT_DEACTIVATE,
+        BLOCK_COPPER_BULB_BREAK,
+        BLOCK_COPPER_BULB_STEP,
+        BLOCK_COPPER_BULB_PLACE,
+        BLOCK_COPPER_BULB_HIT,
+        BLOCK_COPPER_BULB_FALL,
+        BLOCK_COPPER_BULB_TURN_ON,
+        BLOCK_COPPER_BULB_TURN_OFF,
+        BLOCK_COPPER_BREAK,
+        BLOCK_COPPER_STEP,
+        BLOCK_COPPER_PLACE,
+        BLOCK_COPPER_HIT,
+        BLOCK_COPPER_FALL,
+        BLOCK_COPPER_CHEST_CLOSE,
+        BLOCK_COPPER_CHEST_OPEN,
+        BLOCK_COPPER_CHEST_WEATHERED_CLOSE,
+        BLOCK_COPPER_CHEST_WEATHERED_OPEN,
+        BLOCK_COPPER_CHEST_OXIDIZED_CLOSE,
+        BLOCK_COPPER_CHEST_OXIDIZED_OPEN,
+        BLOCK_COPPER_DOOR_CLOSE,
+        BLOCK_COPPER_DOOR_OPEN,
+        ENTITY_COPPER_GOLEM_STEP,
         ENTITY_COPPER_GOLEM_HURT,
-        ENTITY_COPPER_GOLEM_ITEM_DROP,
-        ENTITY_COPPER_GOLEM_ITEM_NO_DROP,
+        ENTITY_COPPER_GOLEM_DEATH,
+        ENTITY_COPPER_GOLEM_WEATHERED_STEP,
+        ENTITY_COPPER_GOLEM_WEATHERED_HURT,
+        ENTITY_COPPER_GOLEM_WEATHERED_DEATH,
+        ENTITY_COPPER_GOLEM_OXIDIZED_STEP,
+        ENTITY_COPPER_GOLEM_OXIDIZED_HURT,
+        ENTITY_COPPER_GOLEM_OXIDIZED_DEATH,
+        ENTITY_COPPER_GOLEM_SPIN,
+        ENTITY_COPPER_GOLEM_WEATHERED_SPIN,
+        ENTITY_COPPER_GOLEM_OXIDIZED_SPIN,
         ENTITY_COPPER_GOLEM_NO_ITEM_GET,
         ENTITY_COPPER_GOLEM_NO_ITEM_NO_GET,
-        ENTITY_COPPER_GOLEM_SHEAR,
-        ENTITY_COPPER_GOLEM_SPAWN,
-        ENTITY_COPPER_GOLEM_SPIN,
-        ENTITY_COPPER_GOLEM_STEP,
+        ENTITY_COPPER_GOLEM_ITEM_DROP,
+        ENTITY_COPPER_GOLEM_ITEM_NO_DROP,
         ENTITY_COPPER_GOLEM_BECOME_STATUE,
-        ENTITY_COPPER_GOLEM_OXIDIZED_DEATH,
-        ENTITY_COPPER_GOLEM_OXIDIZED_HURT,
-        ENTITY_COPPER_GOLEM_OXIDIZED_SPIN,
-        ENTITY_COPPER_GOLEM_OXIDIZED_STEP,
-        ENTITY_COPPER_GOLEM_WEATHERED_DEATH,
-        ENTITY_COPPER_GOLEM_WEATHERED_HURT,
-        ENTITY_COPPER_GOLEM_WEATHERED_SPIN,
-        ENTITY_COPPER_GOLEM_WEATHERED_STEP,
-        ENTITY_COW_AMBIENT,
-        ENTITY_COW_DEATH,
-        ENTITY_COW_HURT,
+        BLOCK_COPPER_GOLEM_STATUE_BREAK,
+        BLOCK_COPPER_GOLEM_STATUE_PLACE,
+        BLOCK_COPPER_GOLEM_STATUE_HIT,
+        BLOCK_COPPER_GOLEM_STATUE_STEP,
+        BLOCK_COPPER_GOLEM_STATUE_FALL,
+        ENTITY_COPPER_GOLEM_SPAWN,
+        ENTITY_COPPER_GOLEM_SHEAR,
+        BLOCK_COPPER_GRATE_BREAK,
+        BLOCK_COPPER_GRATE_STEP,
+        BLOCK_COPPER_GRATE_PLACE,
+        BLOCK_COPPER_GRATE_HIT,
+        BLOCK_COPPER_GRATE_FALL,
+        BLOCK_COPPER_TRAPDOOR_CLOSE,
+        BLOCK_COPPER_TRAPDOOR_OPEN,
+        BLOCK_CORAL_BLOCK_BREAK,
+        BLOCK_CORAL_BLOCK_FALL,
+        BLOCK_CORAL_BLOCK_HIT,
+        BLOCK_CORAL_BLOCK_PLACE,
+        BLOCK_CORAL_BLOCK_STEP,
         ENTITY_COW_MILK,
+        ENTITY_COW_AMBIENT,
+        ENTITY_COW_HURT,
+        ENTITY_COW_DEATH,
         ENTITY_COW_STEP,
         ENTITY_COW_MOODY_AMBIENT,
-        ENTITY_COW_MOODY_DEATH,
         ENTITY_COW_MOODY_HURT,
+        ENTITY_COW_MOODY_DEATH,
         ENTITY_COW_MOODY_STEP,
-        ENTITY_CREAKING_ACTIVATE,
+        BLOCK_CRAFTER_CRAFT,
+        BLOCK_CRAFTER_FAIL,
         ENTITY_CREAKING_AMBIENT,
-        ENTITY_CREAKING_ATTACK,
+        ENTITY_CREAKING_ACTIVATE,
         ENTITY_CREAKING_DEACTIVATE,
+        ENTITY_CREAKING_ATTACK,
         ENTITY_CREAKING_DEATH,
-        ENTITY_CREAKING_FREEZE,
-        ENTITY_CREAKING_SPAWN,
         ENTITY_CREAKING_STEP,
+        ENTITY_CREAKING_FREEZE,
+        ENTITY_CREAKING_UNFREEZE,
+        ENTITY_CREAKING_SPAWN,
         ENTITY_CREAKING_SWAY,
         ENTITY_CREAKING_TWITCH,
-        ENTITY_CREAKING_UNFREEZE,
+        BLOCK_CREAKING_HEART_BREAK,
+        BLOCK_CREAKING_HEART_FALL,
+        BLOCK_CREAKING_HEART_HIT,
+        BLOCK_CREAKING_HEART_HURT,
+        BLOCK_CREAKING_HEART_PLACE,
+        BLOCK_CREAKING_HEART_STEP,
+        BLOCK_CREAKING_HEART_IDLE,
+        BLOCK_CREAKING_HEART_SPAWN,
         ENTITY_CREEPER_DEATH,
         ENTITY_CREEPER_HURT,
         ENTITY_CREEPER_PRIMED,
+        BLOCK_CROP_BREAK,
+        ITEM_CROP_PLANT,
+        ITEM_CROSSBOW_HIT,
+        ITEM_CROSSBOW_LOADING_END,
+        ITEM_CROSSBOW_LOADING_MIDDLE,
+        ITEM_CROSSBOW_LOADING_START,
+        ITEM_CROSSBOW_QUICK_CHARGE_1,
+        ITEM_CROSSBOW_QUICK_CHARGE_2,
+        ITEM_CROSSBOW_QUICK_CHARGE_3,
+        ITEM_CROSSBOW_SHOOT,
         ENTITY_CUSHION_BREAK,
-        ENTITY_CUSHION_GET_UP,
         ENTITY_CUSHION_PLACE,
         ENTITY_CUSHION_SIT,
+        ENTITY_CUSHION_GET_UP,
+        BLOCK_DEADBUSH_IDLE,
+        BLOCK_DECORATED_POT_BREAK,
+        BLOCK_DECORATED_POT_FALL,
+        BLOCK_DECORATED_POT_HIT,
+        BLOCK_DECORATED_POT_INSERT,
+        BLOCK_DECORATED_POT_INSERT_FAIL,
+        BLOCK_DECORATED_POT_STEP,
+        BLOCK_DECORATED_POT_PLACE,
+        BLOCK_DECORATED_POT_SHATTER,
+        BLOCK_DEEPSLATE_BRICKS_BREAK,
+        BLOCK_DEEPSLATE_BRICKS_FALL,
+        BLOCK_DEEPSLATE_BRICKS_HIT,
+        BLOCK_DEEPSLATE_BRICKS_PLACE,
+        BLOCK_DEEPSLATE_BRICKS_STEP,
+        BLOCK_DEEPSLATE_BREAK,
+        BLOCK_DEEPSLATE_FALL,
+        BLOCK_DEEPSLATE_HIT,
+        BLOCK_DEEPSLATE_PLACE,
+        BLOCK_DEEPSLATE_STEP,
+        BLOCK_DEEPSLATE_TILES_BREAK,
+        BLOCK_DEEPSLATE_TILES_FALL,
+        BLOCK_DEEPSLATE_TILES_HIT,
+        BLOCK_DEEPSLATE_TILES_PLACE,
+        BLOCK_DEEPSLATE_TILES_STEP,
+        BLOCK_DISPENSER_DISPENSE,
+        BLOCK_DISPENSER_FAIL,
+        BLOCK_DISPENSER_LAUNCH,
         ENTITY_DOLPHIN_AMBIENT,
         ENTITY_DOLPHIN_AMBIENT_WATER,
         ENTITY_DOLPHIN_ATTACK,
@@ -11066,7 +10512,32 @@ public final class SoundEventKeys {
         ENTITY_DONKEY_EAT,
         ENTITY_DONKEY_HURT,
         ENTITY_DONKEY_JUMP,
-        ENTITY_DRAGON_FIREBALL_EXPLODE,
+        BLOCK_DRIED_GHAST_BREAK,
+        BLOCK_DRIED_GHAST_STEP,
+        BLOCK_DRIED_GHAST_FALL,
+        BLOCK_DRIED_GHAST_AMBIENT,
+        BLOCK_DRIED_GHAST_AMBIENT_WATER,
+        BLOCK_DRIED_GHAST_PLACE,
+        BLOCK_DRIED_GHAST_PLACE_IN_WATER,
+        BLOCK_DRIED_GHAST_TRANSITION,
+        BLOCK_DRIPSTONE_BLOCK_BREAK,
+        BLOCK_DRIPSTONE_BLOCK_STEP,
+        BLOCK_DRIPSTONE_BLOCK_PLACE,
+        BLOCK_DRIPSTONE_BLOCK_HIT,
+        BLOCK_DRIPSTONE_BLOCK_FALL,
+        BLOCK_DRY_GRASS_AMBIENT,
+        BLOCK_POINTED_DRIPSTONE_BREAK,
+        BLOCK_POINTED_DRIPSTONE_STEP,
+        BLOCK_POINTED_DRIPSTONE_PLACE,
+        BLOCK_POINTED_DRIPSTONE_HIT,
+        BLOCK_POINTED_DRIPSTONE_FALL,
+        BLOCK_POINTED_DRIPSTONE_LAND,
+        BLOCK_POINTED_DRIPSTONE_DRIP_LAVA,
+        BLOCK_POINTED_DRIPSTONE_DRIP_WATER,
+        BLOCK_POINTED_DRIPSTONE_DRIP_LAVA_INTO_CAULDRON,
+        BLOCK_POINTED_DRIPSTONE_DRIP_WATER_INTO_CAULDRON,
+        BLOCK_BIG_DRIPLEAF_TILT_DOWN,
+        BLOCK_BIG_DRIPLEAF_TILT_UP,
         ENTITY_DROWNED_AMBIENT,
         ENTITY_DROWNED_AMBIENT_WATER,
         ENTITY_DROWNED_DEATH,
@@ -11076,6 +10547,7 @@ public final class SoundEventKeys {
         ENTITY_DROWNED_SHOOT,
         ENTITY_DROWNED_STEP,
         ENTITY_DROWNED_SWIM,
+        ITEM_DYE_USE,
         ENTITY_EGG_THROW,
         ENTITY_ELDER_GUARDIAN_AMBIENT,
         ENTITY_ELDER_GUARDIAN_AMBIENT_LAND,
@@ -11085,15 +10557,19 @@ public final class SoundEventKeys {
         ENTITY_ELDER_GUARDIAN_FLOP,
         ENTITY_ELDER_GUARDIAN_HURT,
         ENTITY_ELDER_GUARDIAN_HURT_LAND,
+        ITEM_ELYTRA_FLYING,
+        BLOCK_ENCHANTMENT_TABLE_USE,
+        BLOCK_ENDER_CHEST_CLOSE,
+        BLOCK_ENDER_CHEST_OPEN,
         ENTITY_ENDER_DRAGON_AMBIENT,
         ENTITY_ENDER_DRAGON_DEATH,
+        ENTITY_DRAGON_FIREBALL_EXPLODE,
         ENTITY_ENDER_DRAGON_FLAP,
         ENTITY_ENDER_DRAGON_GROWL,
         ENTITY_ENDER_DRAGON_HURT,
         ENTITY_ENDER_DRAGON_SHOOT,
         ENTITY_ENDER_EYE_DEATH,
         ENTITY_ENDER_EYE_LAUNCH,
-        ENTITY_ENDER_PEARL_THROW,
         ENTITY_ENDERMAN_AMBIENT,
         ENTITY_ENDERMAN_DEATH,
         ENTITY_ENDERMAN_HURT,
@@ -11104,17 +10580,30 @@ public final class SoundEventKeys {
         ENTITY_ENDERMITE_DEATH,
         ENTITY_ENDERMITE_HURT,
         ENTITY_ENDERMITE_STEP,
+        ENTITY_ENDER_PEARL_THROW,
+        BLOCK_END_GATEWAY_SPAWN,
+        BLOCK_END_PORTAL_FRAME_FILL,
+        BLOCK_END_PORTAL_SPAWN,
         ENTITY_EVOKER_AMBIENT,
         ENTITY_EVOKER_CAST_SPELL,
         ENTITY_EVOKER_CELEBRATE,
         ENTITY_EVOKER_DEATH,
+        ENTITY_EVOKER_FANGS_ATTACK,
         ENTITY_EVOKER_HURT,
         ENTITY_EVOKER_PREPARE_ATTACK,
         ENTITY_EVOKER_PREPARE_SUMMON,
         ENTITY_EVOKER_PREPARE_WOLOLO,
-        ENTITY_EVOKER_FANGS_ATTACK,
         ENTITY_EXPERIENCE_BOTTLE_THROW,
         ENTITY_EXPERIENCE_ORB_PICKUP,
+        BLOCK_EYEBLOSSOM_OPEN_LONG,
+        BLOCK_EYEBLOSSOM_OPEN,
+        BLOCK_EYEBLOSSOM_CLOSE_LONG,
+        BLOCK_EYEBLOSSOM_CLOSE,
+        BLOCK_EYEBLOSSOM_IDLE,
+        BLOCK_FENCE_GATE_CLOSE,
+        BLOCK_FENCE_GATE_OPEN,
+        ITEM_FIRECHARGE_USE,
+        BLOCK_FIREFLY_BUSH_IDLE,
         ENTITY_FIREWORK_ROCKET_BLAST,
         ENTITY_FIREWORK_ROCKET_BLAST_FAR,
         ENTITY_FIREWORK_ROCKET_LARGE_BLAST,
@@ -11123,10 +10612,18 @@ public final class SoundEventKeys {
         ENTITY_FIREWORK_ROCKET_SHOOT,
         ENTITY_FIREWORK_ROCKET_TWINKLE,
         ENTITY_FIREWORK_ROCKET_TWINKLE_FAR,
+        BLOCK_FIRE_AMBIENT,
+        BLOCK_FIRE_EXTINGUISH,
         ENTITY_FISH_SWIM,
         ENTITY_FISHING_BOBBER_RETRIEVE,
         ENTITY_FISHING_BOBBER_SPLASH,
         ENTITY_FISHING_BOBBER_THROW,
+        ITEM_FLINTANDSTEEL_USE,
+        BLOCK_FLOWERING_AZALEA_BREAK,
+        BLOCK_FLOWERING_AZALEA_FALL,
+        BLOCK_FLOWERING_AZALEA_HIT,
+        BLOCK_FLOWERING_AZALEA_PLACE,
+        BLOCK_FLOWERING_AZALEA_STEP,
         ENTITY_FOX_AGGRO,
         ENTITY_FOX_AMBIENT,
         ENTITY_FOX_BITE,
@@ -11138,6 +10635,27 @@ public final class SoundEventKeys {
         ENTITY_FOX_SNIFF,
         ENTITY_FOX_SPIT,
         ENTITY_FOX_TELEPORT,
+        BLOCK_SUSPICIOUS_SAND_BREAK,
+        BLOCK_SUSPICIOUS_SAND_STEP,
+        BLOCK_SUSPICIOUS_SAND_PLACE,
+        BLOCK_SUSPICIOUS_SAND_HIT,
+        BLOCK_SUSPICIOUS_SAND_FALL,
+        BLOCK_SUSPICIOUS_GRAVEL_BREAK,
+        BLOCK_SUSPICIOUS_GRAVEL_STEP,
+        BLOCK_SUSPICIOUS_GRAVEL_PLACE,
+        BLOCK_SUSPICIOUS_GRAVEL_HIT,
+        BLOCK_SUSPICIOUS_GRAVEL_FALL,
+        BLOCK_FROGLIGHT_BREAK,
+        BLOCK_FROGLIGHT_FALL,
+        BLOCK_FROGLIGHT_HIT,
+        BLOCK_FROGLIGHT_PLACE,
+        BLOCK_FROGLIGHT_STEP,
+        BLOCK_FROGSPAWN_STEP,
+        BLOCK_FROGSPAWN_BREAK,
+        BLOCK_FROGSPAWN_FALL,
+        BLOCK_FROGSPAWN_HATCH,
+        BLOCK_FROGSPAWN_HIT,
+        BLOCK_FROGSPAWN_PLACE,
         ENTITY_FROG_AMBIENT,
         ENTITY_FROG_DEATH,
         ENTITY_FROG_EAT,
@@ -11146,6 +10664,12 @@ public final class SoundEventKeys {
         ENTITY_FROG_LONG_JUMP,
         ENTITY_FROG_STEP,
         ENTITY_FROG_TONGUE,
+        BLOCK_ROOTS_BREAK,
+        BLOCK_ROOTS_STEP,
+        BLOCK_ROOTS_PLACE,
+        BLOCK_ROOTS_HIT,
+        BLOCK_ROOTS_FALL,
+        BLOCK_FURNACE_FIRE_CRACKLE,
         ENTITY_GENERIC_BIG_FALL,
         ENTITY_GENERIC_BURN,
         ENTITY_GENERIC_DEATH,
@@ -11167,6 +10691,17 @@ public final class SoundEventKeys {
         ENTITY_GHASTLING_DEATH,
         ENTITY_GHASTLING_HURT,
         ENTITY_GHASTLING_SPAWN,
+        BLOCK_GILDED_BLACKSTONE_BREAK,
+        BLOCK_GILDED_BLACKSTONE_FALL,
+        BLOCK_GILDED_BLACKSTONE_HIT,
+        BLOCK_GILDED_BLACKSTONE_PLACE,
+        BLOCK_GILDED_BLACKSTONE_STEP,
+        BLOCK_GLASS_BREAK,
+        BLOCK_GLASS_FALL,
+        BLOCK_GLASS_HIT,
+        BLOCK_GLASS_PLACE,
+        BLOCK_GLASS_STEP,
+        ITEM_GLOW_INK_SAC_USE,
         ENTITY_GLOW_ITEM_FRAME_ADD_ITEM,
         ENTITY_GLOW_ITEM_FRAME_BREAK,
         ENTITY_GLOW_ITEM_FRAME_PLACE,
@@ -11179,12 +10714,12 @@ public final class SoundEventKeys {
         ENTITY_GOAT_AMBIENT,
         ENTITY_GOAT_DEATH,
         ENTITY_GOAT_EAT,
-        ENTITY_GOAT_HORN_BREAK,
         ENTITY_GOAT_HURT,
         ENTITY_GOAT_LONG_JUMP,
         ENTITY_GOAT_MILK,
         ENTITY_GOAT_PREPARE_RAM,
         ENTITY_GOAT_RAM_IMPACT,
+        ENTITY_GOAT_HORN_BREAK,
         ENTITY_GOAT_SCREAMING_AMBIENT,
         ENTITY_GOAT_SCREAMING_DEATH,
         ENTITY_GOAT_SCREAMING_EAT,
@@ -11194,6 +10729,20 @@ public final class SoundEventKeys {
         ENTITY_GOAT_SCREAMING_PREPARE_RAM,
         ENTITY_GOAT_SCREAMING_RAM_IMPACT,
         ENTITY_GOAT_STEP,
+        ITEM_GOLDEN_DANDELION_USE,
+        ITEM_GOLDEN_DANDELION_UNUSE,
+        BLOCK_GRASS_BREAK,
+        BLOCK_GRASS_FALL,
+        BLOCK_GRASS_HIT,
+        BLOCK_GRASS_PLACE,
+        BLOCK_GRASS_STEP,
+        BLOCK_GRAVEL_BREAK,
+        BLOCK_GRAVEL_FALL,
+        BLOCK_GRAVEL_HIT,
+        BLOCK_GRAVEL_PLACE,
+        BLOCK_GRAVEL_STEP,
+        BLOCK_GRINDSTONE_USE,
+        BLOCK_GROWING_PLANT_CROP,
         ENTITY_GUARDIAN_AMBIENT,
         ENTITY_GUARDIAN_AMBIENT_LAND,
         ENTITY_GUARDIAN_ATTACK,
@@ -11202,14 +10751,56 @@ public final class SoundEventKeys {
         ENTITY_GUARDIAN_FLOP,
         ENTITY_GUARDIAN_HURT,
         ENTITY_GUARDIAN_HURT_LAND,
+        BLOCK_HANGING_ROOTS_BREAK,
+        BLOCK_HANGING_ROOTS_FALL,
+        BLOCK_HANGING_ROOTS_HIT,
+        BLOCK_HANGING_ROOTS_PLACE,
+        BLOCK_HANGING_ROOTS_STEP,
+        BLOCK_HANGING_SIGN_STEP,
+        BLOCK_HANGING_SIGN_BREAK,
+        BLOCK_HANGING_SIGN_FALL,
+        BLOCK_HANGING_SIGN_HIT,
+        BLOCK_HANGING_SIGN_PLACE,
         ENTITY_HAPPY_GHAST_AMBIENT,
         ENTITY_HAPPY_GHAST_DEATH,
-        ENTITY_HAPPY_GHAST_EQUIP,
-        ENTITY_HAPPY_GHAST_HARNESS_GOGGLES_DOWN,
-        ENTITY_HAPPY_GHAST_HARNESS_GOGGLES_UP,
         ENTITY_HAPPY_GHAST_HURT,
         ENTITY_HAPPY_GHAST_RIDING,
+        BLOCK_HEAVY_CORE_BREAK,
+        BLOCK_HEAVY_CORE_FALL,
+        BLOCK_HEAVY_CORE_HIT,
+        BLOCK_HEAVY_CORE_PLACE,
+        BLOCK_HEAVY_CORE_STEP,
+        BLOCK_NETHER_WOOD_HANGING_SIGN_STEP,
+        BLOCK_NETHER_WOOD_HANGING_SIGN_BREAK,
+        BLOCK_NETHER_WOOD_HANGING_SIGN_FALL,
+        BLOCK_NETHER_WOOD_HANGING_SIGN_HIT,
+        BLOCK_NETHER_WOOD_HANGING_SIGN_PLACE,
+        BLOCK_BAMBOO_WOOD_HANGING_SIGN_STEP,
+        BLOCK_BAMBOO_WOOD_HANGING_SIGN_BREAK,
+        BLOCK_BAMBOO_WOOD_HANGING_SIGN_FALL,
+        BLOCK_BAMBOO_WOOD_HANGING_SIGN_HIT,
+        BLOCK_BAMBOO_WOOD_HANGING_SIGN_PLACE,
+        BLOCK_TRIAL_SPAWNER_BREAK,
+        BLOCK_TRIAL_SPAWNER_STEP,
+        BLOCK_TRIAL_SPAWNER_PLACE,
+        BLOCK_TRIAL_SPAWNER_HIT,
+        BLOCK_TRIAL_SPAWNER_FALL,
+        BLOCK_TRIAL_SPAWNER_SPAWN_MOB,
+        BLOCK_TRIAL_SPAWNER_ABOUT_TO_SPAWN_ITEM,
+        BLOCK_TRIAL_SPAWNER_SPAWN_ITEM,
+        BLOCK_TRIAL_SPAWNER_SPAWN_ITEM_BEGIN,
+        BLOCK_TRIAL_SPAWNER_DETECT_PLAYER,
+        BLOCK_TRIAL_SPAWNER_OMINOUS_ACTIVATE,
+        BLOCK_TRIAL_SPAWNER_AMBIENT,
+        BLOCK_TRIAL_SPAWNER_AMBIENT_OMINOUS,
+        BLOCK_TRIAL_SPAWNER_OPEN_SHUTTER,
+        BLOCK_TRIAL_SPAWNER_CLOSE_SHUTTER,
+        BLOCK_TRIAL_SPAWNER_EJECT_ITEM,
+        ENTITY_HAPPY_GHAST_EQUIP,
         ENTITY_HAPPY_GHAST_UNEQUIP,
+        ENTITY_HAPPY_GHAST_HARNESS_GOGGLES_UP,
+        ENTITY_HAPPY_GHAST_HARNESS_GOGGLES_DOWN,
+        ITEM_HOE_TILL,
         ENTITY_HOGLIN_AMBIENT,
         ENTITY_HOGLIN_ANGRY,
         ENTITY_HOGLIN_ATTACK,
@@ -11218,18 +10809,43 @@ public final class SoundEventKeys {
         ENTITY_HOGLIN_HURT,
         ENTITY_HOGLIN_RETREAT,
         ENTITY_HOGLIN_STEP,
+        BLOCK_HONEY_BLOCK_BREAK,
+        BLOCK_HONEY_BLOCK_FALL,
+        BLOCK_HONEY_BLOCK_HIT,
+        BLOCK_HONEY_BLOCK_PLACE,
+        BLOCK_HONEY_BLOCK_SLIDE,
+        BLOCK_HONEY_BLOCK_STEP,
+        ITEM_HONEYCOMB_WAX_ON,
+        ITEM_HONEY_BOTTLE_DRINK,
+        ITEM_GOAT_HORN_SOUND_0,
+        ITEM_GOAT_HORN_SOUND_1,
+        ITEM_GOAT_HORN_SOUND_2,
+        ITEM_GOAT_HORN_SOUND_3,
+        ITEM_GOAT_HORN_SOUND_4,
+        ITEM_GOAT_HORN_SOUND_5,
+        ITEM_GOAT_HORN_SOUND_6,
+        ITEM_GOAT_HORN_SOUND_7,
         ENTITY_HORSE_AMBIENT,
+        ENTITY_BABY_HORSE_AMBIENT,
         ENTITY_HORSE_ANGRY,
+        ENTITY_BABY_HORSE_ANGRY,
         ENTITY_HORSE_ARMOR,
+        ITEM_HORSE_ARMOR_UNEQUIP,
         ENTITY_HORSE_BREATHE,
+        ENTITY_BABY_HORSE_BREATHE,
         ENTITY_HORSE_DEATH,
+        ENTITY_BABY_HORSE_DEATH,
         ENTITY_HORSE_EAT,
+        ENTITY_BABY_HORSE_EAT,
         ENTITY_HORSE_GALLOP,
         ENTITY_HORSE_HURT,
+        ENTITY_BABY_HORSE_HURT,
         ENTITY_HORSE_JUMP,
         ENTITY_HORSE_LAND,
+        ENTITY_BABY_HORSE_LAND,
         ENTITY_HORSE_SADDLE,
         ENTITY_HORSE_STEP,
+        ENTITY_BABY_HORSE_STEP,
         ENTITY_HORSE_STEP_WOOD,
         ENTITY_HOSTILE_BIG_FALL,
         ENTITY_HOSTILE_DEATH,
@@ -11249,19 +10865,53 @@ public final class SoundEventKeys {
         ENTITY_ILLUSIONER_MIRROR_MOVE,
         ENTITY_ILLUSIONER_PREPARE_BLINDNESS,
         ENTITY_ILLUSIONER_PREPARE_MIRROR,
+        ITEM_INK_SAC_USE,
+        BLOCK_IRON_BREAK,
+        BLOCK_IRON_STEP,
+        BLOCK_IRON_PLACE,
+        BLOCK_IRON_HIT,
+        BLOCK_IRON_FALL,
+        BLOCK_IRON_DOOR_CLOSE,
+        BLOCK_IRON_DOOR_OPEN,
         ENTITY_IRON_GOLEM_ATTACK,
         ENTITY_IRON_GOLEM_DAMAGE,
         ENTITY_IRON_GOLEM_DEATH,
         ENTITY_IRON_GOLEM_HURT,
         ENTITY_IRON_GOLEM_REPAIR,
         ENTITY_IRON_GOLEM_STEP,
-        ENTITY_ITEM_BREAK,
-        ENTITY_ITEM_PICKUP,
+        BLOCK_IRON_TRAPDOOR_CLOSE,
+        BLOCK_IRON_TRAPDOOR_OPEN,
         ENTITY_ITEM_FRAME_ADD_ITEM,
         ENTITY_ITEM_FRAME_BREAK,
         ENTITY_ITEM_FRAME_PLACE,
         ENTITY_ITEM_FRAME_REMOVE_ITEM,
         ENTITY_ITEM_FRAME_ROTATE_ITEM,
+        ENTITY_ITEM_BREAK,
+        ENTITY_ITEM_PICKUP,
+        BLOCK_LADDER_BREAK,
+        BLOCK_LADDER_FALL,
+        BLOCK_LADDER_HIT,
+        BLOCK_LADDER_PLACE,
+        BLOCK_LADDER_STEP,
+        BLOCK_LANTERN_BREAK,
+        BLOCK_LANTERN_FALL,
+        BLOCK_LANTERN_HIT,
+        BLOCK_LANTERN_PLACE,
+        BLOCK_LANTERN_STEP,
+        BLOCK_LARGE_AMETHYST_BUD_BREAK,
+        BLOCK_LARGE_AMETHYST_BUD_PLACE,
+        BLOCK_LAVA_AMBIENT,
+        BLOCK_LAVA_EXTINGUISH,
+        BLOCK_LAVA_POP,
+        BLOCK_LEAF_LITTER_BREAK,
+        BLOCK_LEAF_LITTER_STEP,
+        BLOCK_LEAF_LITTER_PLACE,
+        BLOCK_LEAF_LITTER_HIT,
+        BLOCK_LEAF_LITTER_FALL,
+        ITEM_LEAD_UNTIED,
+        ITEM_LEAD_TIED,
+        ITEM_LEAD_BREAK,
+        BLOCK_LEVER_CLICK,
         ENTITY_LIGHTNING_BOLT_IMPACT,
         ENTITY_LIGHTNING_BOLT_THUNDER,
         ENTITY_LINGERING_POTION_THROW,
@@ -11274,21 +10924,78 @@ public final class SoundEventKeys {
         ENTITY_LLAMA_SPIT,
         ENTITY_LLAMA_STEP,
         ENTITY_LLAMA_SWAG,
-        ENTITY_MAGMA_CUBE_DEATH,
+        ITEM_LLAMA_CARPET_UNEQUIP,
         ENTITY_MAGMA_CUBE_DEATH_SMALL,
+        BLOCK_LODESTONE_BREAK,
+        BLOCK_LODESTONE_STEP,
+        BLOCK_LODESTONE_PLACE,
+        BLOCK_LODESTONE_HIT,
+        BLOCK_LODESTONE_FALL,
+        ITEM_LODESTONE_COMPASS_LOCK,
+        ITEM_SPEAR_LUNGE_1,
+        ITEM_SPEAR_LUNGE_2,
+        ITEM_SPEAR_LUNGE_3,
+        ITEM_MACE_SMASH_AIR,
+        ITEM_MACE_SMASH_GROUND,
+        ITEM_MACE_SMASH_GROUND_HEAVY,
+        ENTITY_MAGMA_CUBE_DEATH,
         ENTITY_MAGMA_CUBE_HURT,
         ENTITY_MAGMA_CUBE_HURT_SMALL,
         ENTITY_MAGMA_CUBE_JUMP,
         ENTITY_MAGMA_CUBE_SQUISH,
         ENTITY_MAGMA_CUBE_SQUISH_SMALL,
-        ENTITY_MINECART_INSIDE,
+        BLOCK_MANGROVE_ROOTS_BREAK,
+        BLOCK_MANGROVE_ROOTS_FALL,
+        BLOCK_MANGROVE_ROOTS_HIT,
+        BLOCK_MANGROVE_ROOTS_PLACE,
+        BLOCK_MANGROVE_ROOTS_STEP,
+        BLOCK_MEDIUM_AMETHYST_BUD_BREAK,
+        BLOCK_MEDIUM_AMETHYST_BUD_PLACE,
+        BLOCK_METAL_BREAK,
+        BLOCK_METAL_FALL,
+        BLOCK_METAL_HIT,
+        BLOCK_METAL_PLACE,
+        BLOCK_METAL_PRESSURE_PLATE_CLICK_OFF,
+        BLOCK_METAL_PRESSURE_PLATE_CLICK_ON,
+        BLOCK_METAL_STEP,
         ENTITY_MINECART_INSIDE_UNDERWATER,
+        ENTITY_MINECART_INSIDE,
         ENTITY_MINECART_RIDING,
         ENTITY_MOOSHROOM_CONVERT,
         ENTITY_MOOSHROOM_EAT,
         ENTITY_MOOSHROOM_MILK,
-        ENTITY_MOOSHROOM_SHEAR,
         ENTITY_MOOSHROOM_SUSPICIOUS_MILK,
+        ENTITY_MOOSHROOM_SHEAR,
+        BLOCK_MOSS_CARPET_BREAK,
+        BLOCK_MOSS_CARPET_FALL,
+        BLOCK_MOSS_CARPET_HIT,
+        BLOCK_MOSS_CARPET_PLACE,
+        BLOCK_MOSS_CARPET_STEP,
+        BLOCK_PINK_PETALS_BREAK,
+        BLOCK_PINK_PETALS_FALL,
+        BLOCK_PINK_PETALS_HIT,
+        BLOCK_PINK_PETALS_PLACE,
+        BLOCK_PINK_PETALS_STEP,
+        BLOCK_MOSS_BREAK,
+        BLOCK_MOSS_FALL,
+        BLOCK_MOSS_HIT,
+        BLOCK_MOSS_PLACE,
+        BLOCK_MOSS_STEP,
+        BLOCK_MUD_BREAK,
+        BLOCK_MUD_FALL,
+        BLOCK_MUD_HIT,
+        BLOCK_MUD_PLACE,
+        BLOCK_MUD_STEP,
+        BLOCK_MUD_BRICKS_BREAK,
+        BLOCK_MUD_BRICKS_FALL,
+        BLOCK_MUD_BRICKS_HIT,
+        BLOCK_MUD_BRICKS_PLACE,
+        BLOCK_MUD_BRICKS_STEP,
+        BLOCK_MUDDY_MANGROVE_ROOTS_BREAK,
+        BLOCK_MUDDY_MANGROVE_ROOTS_FALL,
+        BLOCK_MUDDY_MANGROVE_ROOTS_HIT,
+        BLOCK_MUDDY_MANGROVE_ROOTS_PLACE,
+        BLOCK_MUDDY_MANGROVE_ROOTS_STEP,
         ENTITY_MULE_AMBIENT,
         ENTITY_MULE_ANGRY,
         ENTITY_MULE_CHEST,
@@ -11296,6 +11003,60 @@ public final class SoundEventKeys {
         ENTITY_MULE_EAT,
         ENTITY_MULE_HURT,
         ENTITY_MULE_JUMP,
+        MUSIC_CREATIVE,
+        MUSIC_CREDITS,
+        MUSIC_DISC_5,
+        MUSIC_DISC_11,
+        MUSIC_DISC_13,
+        MUSIC_DISC_BLOCKS,
+        MUSIC_DISC_BOUNCE,
+        MUSIC_DISC_CAT,
+        MUSIC_DISC_CHIRP,
+        MUSIC_DISC_FAR,
+        MUSIC_DISC_LAVA_CHICKEN,
+        MUSIC_DISC_MALL,
+        MUSIC_DISC_MELLOHI,
+        MUSIC_DISC_PIGSTEP,
+        MUSIC_DISC_STAL,
+        MUSIC_DISC_STRAD,
+        MUSIC_DISC_WAIT,
+        MUSIC_DISC_WARD,
+        MUSIC_DISC_OTHERSIDE,
+        MUSIC_DISC_RELIC,
+        MUSIC_DISC_CREATOR,
+        MUSIC_DISC_CREATOR_MUSIC_BOX,
+        MUSIC_DISC_PRECIPICE,
+        MUSIC_DISC_TEARS,
+        MUSIC_DRAGON,
+        MUSIC_END,
+        MUSIC_GAME,
+        MUSIC_MENU,
+        MUSIC_NETHER_BASALT_DELTAS,
+        MUSIC_NETHER_CRIMSON_FOREST,
+        MUSIC_OVERWORLD_DEEP_DARK,
+        MUSIC_OVERWORLD_DRIPSTONE_CAVES,
+        MUSIC_OVERWORLD_GROVE,
+        MUSIC_OVERWORLD_JAGGED_PEAKS,
+        MUSIC_OVERWORLD_LUSH_CAVES,
+        MUSIC_OVERWORLD_SWAMP,
+        MUSIC_OVERWORLD_FOREST,
+        MUSIC_OVERWORLD_OLD_GROWTH_TAIGA,
+        MUSIC_OVERWORLD_MEADOW,
+        MUSIC_OVERWORLD_CHERRY_GROVE,
+        MUSIC_NETHER_NETHER_WASTES,
+        MUSIC_OVERWORLD_FROZEN_PEAKS,
+        MUSIC_OVERWORLD_SNOWY_SLOPES,
+        MUSIC_NETHER_SOUL_SAND_VALLEY,
+        MUSIC_OVERWORLD_STONY_PEAKS,
+        MUSIC_NETHER_WARPED_FOREST,
+        MUSIC_OVERWORLD_FLOWER_FOREST,
+        MUSIC_OVERWORLD_DESERT,
+        MUSIC_OVERWORLD_BADLANDS,
+        MUSIC_OVERWORLD_JUNGLE,
+        MUSIC_OVERWORLD_SPARSE_JUNGLE,
+        MUSIC_OVERWORLD_BAMBOO_JUNGLE,
+        MUSIC_OVERWORLD_SULFUR_CAVES,
+        MUSIC_UNDER_WATER,
         ENTITY_NAUTILUS_AMBIENT,
         ENTITY_NAUTILUS_AMBIENT_LAND,
         ENTITY_NAUTILUS_DASH,
@@ -11307,24 +11068,119 @@ public final class SoundEventKeys {
         ENTITY_NAUTILUS_EAT,
         ENTITY_NAUTILUS_HURT,
         ENTITY_NAUTILUS_HURT_LAND,
-        ENTITY_NAUTILUS_RIDING,
         ENTITY_NAUTILUS_SWIM,
+        BLOCK_NETHER_BRICKS_BREAK,
+        BLOCK_NETHER_BRICKS_STEP,
+        BLOCK_NETHER_BRICKS_PLACE,
+        BLOCK_NETHER_BRICKS_HIT,
+        BLOCK_NETHER_BRICKS_FALL,
+        BLOCK_NETHER_WART_BREAK,
+        ITEM_NETHER_WART_PLANT,
+        BLOCK_NETHER_WOOD_BREAK,
+        BLOCK_NETHER_WOOD_FALL,
+        BLOCK_NETHER_WOOD_HIT,
+        BLOCK_NETHER_WOOD_PLACE,
+        BLOCK_NETHER_WOOD_STEP,
+        BLOCK_NETHER_WOOD_DOOR_CLOSE,
+        BLOCK_NETHER_WOOD_DOOR_OPEN,
+        BLOCK_NETHER_WOOD_TRAPDOOR_CLOSE,
+        BLOCK_NETHER_WOOD_TRAPDOOR_OPEN,
+        BLOCK_NETHER_WOOD_BUTTON_CLICK_OFF,
+        BLOCK_NETHER_WOOD_BUTTON_CLICK_ON,
+        BLOCK_NETHER_WOOD_PRESSURE_PLATE_CLICK_OFF,
+        BLOCK_NETHER_WOOD_PRESSURE_PLATE_CLICK_ON,
+        BLOCK_NETHER_WOOD_FENCE_GATE_CLOSE,
+        BLOCK_NETHER_WOOD_FENCE_GATE_OPEN,
+        INTENTIONALLY_EMPTY,
+        BLOCK_PACKED_MUD_BREAK,
+        BLOCK_PACKED_MUD_FALL,
+        BLOCK_PACKED_MUD_HIT,
+        BLOCK_PACKED_MUD_PLACE,
+        BLOCK_PACKED_MUD_STEP,
+        BLOCK_STEM_BREAK,
+        BLOCK_STEM_STEP,
+        BLOCK_STEM_PLACE,
+        BLOCK_STEM_HIT,
+        BLOCK_STEM_FALL,
+        BLOCK_NYLIUM_BREAK,
+        BLOCK_NYLIUM_STEP,
+        BLOCK_NYLIUM_PLACE,
+        BLOCK_NYLIUM_HIT,
+        BLOCK_NYLIUM_FALL,
+        BLOCK_NETHER_SPROUTS_BREAK,
+        BLOCK_NETHER_SPROUTS_STEP,
+        BLOCK_NETHER_SPROUTS_PLACE,
+        BLOCK_NETHER_SPROUTS_HIT,
+        BLOCK_NETHER_SPROUTS_FALL,
+        BLOCK_FUNGUS_BREAK,
+        BLOCK_FUNGUS_STEP,
+        BLOCK_FUNGUS_PLACE,
+        BLOCK_FUNGUS_HIT,
+        BLOCK_FUNGUS_FALL,
+        BLOCK_WEEPING_VINES_BREAK,
+        BLOCK_WEEPING_VINES_STEP,
+        BLOCK_WEEPING_VINES_PLACE,
+        BLOCK_WEEPING_VINES_HIT,
+        BLOCK_WEEPING_VINES_FALL,
+        BLOCK_WART_BLOCK_BREAK,
+        BLOCK_WART_BLOCK_STEP,
+        BLOCK_WART_BLOCK_PLACE,
+        BLOCK_WART_BLOCK_HIT,
+        BLOCK_WART_BLOCK_FALL,
+        BLOCK_NETHERITE_BLOCK_BREAK,
+        BLOCK_NETHERITE_BLOCK_STEP,
+        BLOCK_NETHERITE_BLOCK_PLACE,
+        BLOCK_NETHERITE_BLOCK_HIT,
+        BLOCK_NETHERITE_BLOCK_FALL,
+        BLOCK_NETHERRACK_BREAK,
+        BLOCK_NETHERRACK_STEP,
+        BLOCK_NETHERRACK_PLACE,
+        BLOCK_NETHERRACK_HIT,
+        BLOCK_NETHERRACK_FALL,
+        BLOCK_NOTE_BLOCK_BASEDRUM,
+        BLOCK_NOTE_BLOCK_BASS,
+        BLOCK_NOTE_BLOCK_BELL,
+        BLOCK_NOTE_BLOCK_CHIME,
+        BLOCK_NOTE_BLOCK_FLUTE,
+        BLOCK_NOTE_BLOCK_GUITAR,
+        BLOCK_NOTE_BLOCK_HARP,
+        BLOCK_NOTE_BLOCK_HAT,
+        BLOCK_NOTE_BLOCK_PLING,
+        BLOCK_NOTE_BLOCK_SNARE,
+        BLOCK_NOTE_BLOCK_TRUMPET,
+        BLOCK_NOTE_BLOCK_TRUMPET_EXPOSED,
+        BLOCK_NOTE_BLOCK_TRUMPET_OXIDIZED,
+        BLOCK_NOTE_BLOCK_TRUMPET_WEATHERED,
+        BLOCK_NOTE_BLOCK_XYLOPHONE,
+        BLOCK_NOTE_BLOCK_IRON_XYLOPHONE,
+        BLOCK_NOTE_BLOCK_COW_BELL,
+        BLOCK_NOTE_BLOCK_DIDGERIDOO,
+        BLOCK_NOTE_BLOCK_BIT,
+        BLOCK_NOTE_BLOCK_BANJO,
+        BLOCK_NOTE_BLOCK_IMITATE_ZOMBIE,
+        BLOCK_NOTE_BLOCK_IMITATE_SKELETON,
+        BLOCK_NOTE_BLOCK_IMITATE_CREEPER,
+        BLOCK_NOTE_BLOCK_IMITATE_ENDER_DRAGON,
+        BLOCK_NOTE_BLOCK_IMITATE_WITHER_SKELETON,
+        BLOCK_NOTE_BLOCK_IMITATE_PIGLIN,
+        ENTITY_OCELOT_HURT,
         ENTITY_OCELOT_AMBIENT,
         ENTITY_OCELOT_DEATH,
-        ENTITY_OCELOT_HURT,
+        ITEM_OMINOUS_BOTTLE_DISPOSE,
         ENTITY_PAINTING_BREAK,
         ENTITY_PAINTING_PLACE,
-        ENTITY_PANDA_AGGRESSIVE_AMBIENT,
-        ENTITY_PANDA_AMBIENT,
-        ENTITY_PANDA_BITE,
-        ENTITY_PANDA_CANT_BREED,
-        ENTITY_PANDA_DEATH,
-        ENTITY_PANDA_EAT,
-        ENTITY_PANDA_HURT,
+        BLOCK_PALE_HANGING_MOSS_IDLE,
         ENTITY_PANDA_PRE_SNEEZE,
         ENTITY_PANDA_SNEEZE,
+        ENTITY_PANDA_AMBIENT,
+        ENTITY_PANDA_DEATH,
+        ENTITY_PANDA_EAT,
         ENTITY_PANDA_STEP,
+        ENTITY_PANDA_CANT_BREED,
+        ENTITY_PANDA_AGGRESSIVE_AMBIENT,
         ENTITY_PANDA_WORRIED_AMBIENT,
+        ENTITY_PANDA_HURT,
+        ENTITY_PANDA_BITE,
         ENTITY_PARCHED_AMBIENT,
         ENTITY_PARCHED_DEATH,
         ENTITY_PARCHED_HURT,
@@ -11351,8 +11207,8 @@ public final class SoundEventKeys {
         ENTITY_PARROT_IMITATE_HUSK,
         ENTITY_PARROT_IMITATE_ILLUSIONER,
         ENTITY_PARROT_IMITATE_MAGMA_CUBE,
-        ENTITY_PARROT_IMITATE_PARCHED,
         ENTITY_PARROT_IMITATE_PHANTOM,
+        ENTITY_PARROT_IMITATE_PARCHED,
         ENTITY_PARROT_IMITATE_PIGLIN,
         ENTITY_PARROT_IMITATE_PIGLIN_BRUTE,
         ENTITY_PARROT_IMITATE_PILLAGER,
@@ -11381,40 +11237,47 @@ public final class SoundEventKeys {
         ENTITY_PHANTOM_FLAP,
         ENTITY_PHANTOM_HURT,
         ENTITY_PHANTOM_SWOOP,
-        ENTITY_PIG_AMBIENT,
-        ENTITY_PIG_DEATH,
-        ENTITY_PIG_EAT,
-        ENTITY_PIG_HURT,
         ENTITY_PIG_SADDLE,
         ENTITY_PIG_STEP,
-        ENTITY_PIG_BIG_AMBIENT,
-        ENTITY_PIG_BIG_DEATH,
-        ENTITY_PIG_BIG_EAT,
-        ENTITY_PIG_BIG_HURT,
+        ENTITY_BABY_PIG_STEP,
+        ENTITY_BABY_PIG_AMBIENT,
+        ENTITY_BABY_PIG_EAT,
+        ENTITY_BABY_PIG_HURT,
+        ENTITY_BABY_PIG_DEATH,
+        ENTITY_PIG_AMBIENT,
+        ENTITY_PIG_HURT,
+        ENTITY_PIG_DEATH,
+        ENTITY_PIG_EAT,
         ENTITY_PIG_MINI_AMBIENT,
+        ENTITY_PIG_MINI_HURT,
         ENTITY_PIG_MINI_DEATH,
         ENTITY_PIG_MINI_EAT,
-        ENTITY_PIG_MINI_HURT,
+        ENTITY_PIG_BIG_AMBIENT,
+        ENTITY_PIG_BIG_HURT,
+        ENTITY_PIG_BIG_DEATH,
+        ENTITY_PIG_BIG_EAT,
         ENTITY_PIGLIN_ADMIRING_ITEM,
         ENTITY_PIGLIN_AMBIENT,
         ENTITY_PIGLIN_ANGRY,
         ENTITY_PIGLIN_CELEBRATE,
-        ENTITY_PIGLIN_CONVERTED_TO_ZOMBIFIED,
         ENTITY_PIGLIN_DEATH,
-        ENTITY_PIGLIN_HURT,
         ENTITY_PIGLIN_JEALOUS,
+        ENTITY_PIGLIN_HURT,
         ENTITY_PIGLIN_RETREAT,
         ENTITY_PIGLIN_STEP,
+        ENTITY_PIGLIN_CONVERTED_TO_ZOMBIFIED,
         ENTITY_PIGLIN_BRUTE_AMBIENT,
         ENTITY_PIGLIN_BRUTE_ANGRY,
-        ENTITY_PIGLIN_BRUTE_CONVERTED_TO_ZOMBIFIED,
         ENTITY_PIGLIN_BRUTE_DEATH,
         ENTITY_PIGLIN_BRUTE_HURT,
         ENTITY_PIGLIN_BRUTE_STEP,
+        ENTITY_PIGLIN_BRUTE_CONVERTED_TO_ZOMBIFIED,
         ENTITY_PILLAGER_AMBIENT,
         ENTITY_PILLAGER_CELEBRATE,
         ENTITY_PILLAGER_DEATH,
         ENTITY_PILLAGER_HURT,
+        BLOCK_PISTON_CONTRACT,
+        BLOCK_PISTON_EXTEND,
         ENTITY_PLAYER_ATTACK_CRIT,
         ENTITY_PLAYER_ATTACK_KNOCKBACK,
         ENTITY_PLAYER_ATTACK_NODAMAGE,
@@ -11442,35 +11305,145 @@ public final class SoundEventKeys {
         ENTITY_POLAR_BEAR_HURT,
         ENTITY_POLAR_BEAR_STEP,
         ENTITY_POLAR_BEAR_WARNING,
+        BLOCK_POLISHED_DEEPSLATE_BREAK,
+        BLOCK_POLISHED_DEEPSLATE_FALL,
+        BLOCK_POLISHED_DEEPSLATE_HIT,
+        BLOCK_POLISHED_DEEPSLATE_PLACE,
+        BLOCK_POLISHED_DEEPSLATE_STEP,
+        BLOCK_PORTAL_AMBIENT,
+        BLOCK_PORTAL_TRAVEL,
+        BLOCK_PORTAL_TRIGGER,
+        BLOCK_POWDER_SNOW_BREAK,
+        BLOCK_POWDER_SNOW_FALL,
+        BLOCK_POWDER_SNOW_HIT,
+        BLOCK_POWDER_SNOW_PLACE,
+        BLOCK_POWDER_SNOW_STEP,
         ENTITY_PUFFER_FISH_BLOW_OUT,
         ENTITY_PUFFER_FISH_BLOW_UP,
         ENTITY_PUFFER_FISH_DEATH,
         ENTITY_PUFFER_FISH_FLOP,
         ENTITY_PUFFER_FISH_HURT,
         ENTITY_PUFFER_FISH_STING,
+        BLOCK_PUMPKIN_CARVE,
         ENTITY_RABBIT_AMBIENT,
         ENTITY_RABBIT_ATTACK,
         ENTITY_RABBIT_DEATH,
         ENTITY_RABBIT_HURT,
         ENTITY_RABBIT_JUMP,
+        EVENT_RAID_HORN,
         ENTITY_RAVAGER_AMBIENT,
         ENTITY_RAVAGER_ATTACK,
         ENTITY_RAVAGER_CELEBRATE,
         ENTITY_RAVAGER_DEATH,
         ENTITY_RAVAGER_HURT,
-        ENTITY_RAVAGER_ROAR,
         ENTITY_RAVAGER_STEP,
         ENTITY_RAVAGER_STUNNED,
+        ENTITY_RAVAGER_ROAR,
+        BLOCK_NETHER_GOLD_ORE_BREAK,
+        BLOCK_NETHER_GOLD_ORE_FALL,
+        BLOCK_NETHER_GOLD_ORE_HIT,
+        BLOCK_NETHER_GOLD_ORE_PLACE,
+        BLOCK_NETHER_GOLD_ORE_STEP,
+        BLOCK_NETHER_ORE_BREAK,
+        BLOCK_NETHER_ORE_FALL,
+        BLOCK_NETHER_ORE_HIT,
+        BLOCK_NETHER_ORE_PLACE,
+        BLOCK_NETHER_ORE_STEP,
+        BLOCK_REDSTONE_TORCH_BURNOUT,
+        BLOCK_RESIN_BREAK,
+        BLOCK_RESIN_FALL,
+        BLOCK_RESIN_PLACE,
+        BLOCK_RESIN_STEP,
+        BLOCK_RESIN_BRICKS_BREAK,
+        BLOCK_RESIN_BRICKS_FALL,
+        BLOCK_RESIN_BRICKS_HIT,
+        BLOCK_RESIN_BRICKS_PLACE,
+        BLOCK_RESIN_BRICKS_STEP,
+        BLOCK_RESPAWN_ANCHOR_AMBIENT,
+        BLOCK_RESPAWN_ANCHOR_CHARGE,
+        BLOCK_RESPAWN_ANCHOR_DEPLETE,
+        BLOCK_RESPAWN_ANCHOR_SET_SPAWN,
+        BLOCK_ROOTED_DIRT_BREAK,
+        BLOCK_ROOTED_DIRT_FALL,
+        BLOCK_ROOTED_DIRT_HIT,
+        BLOCK_ROOTED_DIRT_PLACE,
+        BLOCK_ROOTED_DIRT_STEP,
         ENTITY_SALMON_AMBIENT,
         ENTITY_SALMON_DEATH,
         ENTITY_SALMON_FLOP,
         ENTITY_SALMON_HURT,
+        BLOCK_SAND_BREAK,
+        BLOCK_SAND_FALL,
+        BLOCK_SAND_HIT,
+        BLOCK_SAND_PLACE,
+        BLOCK_SAND_STEP,
+        BLOCK_SAND_IDLE,
+        BLOCK_SCAFFOLDING_BREAK,
+        BLOCK_SCAFFOLDING_FALL,
+        BLOCK_SCAFFOLDING_HIT,
+        BLOCK_SCAFFOLDING_PLACE,
+        BLOCK_SCAFFOLDING_STEP,
+        BLOCK_SCULK_SPREAD,
+        BLOCK_SCULK_CHARGE,
+        BLOCK_SCULK_BREAK,
+        BLOCK_SCULK_FALL,
+        BLOCK_SCULK_HIT,
+        BLOCK_SCULK_PLACE,
+        BLOCK_SCULK_STEP,
+        BLOCK_SCULK_CATALYST_BLOOM,
+        BLOCK_SCULK_CATALYST_BREAK,
+        BLOCK_SCULK_CATALYST_FALL,
+        BLOCK_SCULK_CATALYST_HIT,
+        BLOCK_SCULK_CATALYST_PLACE,
+        BLOCK_SCULK_CATALYST_STEP,
+        BLOCK_SCULK_SENSOR_CLICKING,
+        BLOCK_SCULK_SENSOR_CLICKING_STOP,
+        BLOCK_SCULK_SENSOR_BREAK,
+        BLOCK_SCULK_SENSOR_FALL,
+        BLOCK_SCULK_SENSOR_HIT,
+        BLOCK_SCULK_SENSOR_PLACE,
+        BLOCK_SCULK_SENSOR_STEP,
+        BLOCK_SCULK_SHRIEKER_BREAK,
+        BLOCK_SCULK_SHRIEKER_FALL,
+        BLOCK_SCULK_SHRIEKER_HIT,
+        BLOCK_SCULK_SHRIEKER_PLACE,
+        BLOCK_SCULK_SHRIEKER_SHRIEK,
+        BLOCK_SCULK_SHRIEKER_STEP,
+        BLOCK_SCULK_VEIN_BREAK,
+        BLOCK_SCULK_VEIN_FALL,
+        BLOCK_SCULK_VEIN_HIT,
+        BLOCK_SCULK_VEIN_PLACE,
+        BLOCK_SCULK_VEIN_STEP,
         ENTITY_SHEEP_AMBIENT,
         ENTITY_SHEEP_DEATH,
         ENTITY_SHEEP_HURT,
         ENTITY_SHEEP_SHEAR,
         ENTITY_SHEEP_STEP,
+        ITEM_SHEARS_SNIP,
+        BLOCK_SHELF_ACTIVATE,
+        BLOCK_SHELF_BREAK,
+        BLOCK_SHELF_DEACTIVATE,
+        BLOCK_SHELF_FALL,
+        BLOCK_SHELF_HIT,
+        BLOCK_SHELF_MULTI_SWAP,
+        BLOCK_SHELF_PLACE,
+        BLOCK_SHELF_PLACE_ITEM,
+        BLOCK_SHELF_SINGLE_SWAP,
+        BLOCK_SHELF_STEP,
+        BLOCK_SHELF_TAKE_ITEM,
+        ITEM_SHIELD_BLOCK,
+        ITEM_SHIELD_BREAK,
+        BLOCK_SHROOMLIGHT_BREAK,
+        BLOCK_SHROOMLIGHT_STEP,
+        BLOCK_SHROOMLIGHT_PLACE,
+        BLOCK_SHROOMLIGHT_HIT,
+        BLOCK_SHROOMLIGHT_FALL,
+        ITEM_SHOVEL_FLATTEN,
         ENTITY_SHULKER_AMBIENT,
+        BLOCK_SHULKER_BOX_CLOSE,
+        BLOCK_SHULKER_BOX_OPEN,
+        ENTITY_SHULKER_BULLET_HIT,
+        ENTITY_SHULKER_BULLET_HURT,
         ENTITY_SHULKER_CLOSE,
         ENTITY_SHULKER_DEATH,
         ENTITY_SHULKER_HURT,
@@ -11478,8 +11451,6 @@ public final class SoundEventKeys {
         ENTITY_SHULKER_OPEN,
         ENTITY_SHULKER_SHOOT,
         ENTITY_SHULKER_TELEPORT,
-        ENTITY_SHULKER_BULLET_HIT,
-        ENTITY_SHULKER_BULLET_HURT,
         ENTITY_SILVERFISH_AMBIENT,
         ENTITY_SILVERFISH_DEATH,
         ENTITY_SILVERFISH_HURT,
@@ -11487,112 +11458,180 @@ public final class SoundEventKeys {
         ENTITY_SKELETON_AMBIENT,
         ENTITY_SKELETON_CONVERTED_TO_STRAY,
         ENTITY_SKELETON_DEATH,
+        ENTITY_SKELETON_HORSE_AMBIENT,
+        ENTITY_SKELETON_HORSE_DEATH,
+        ENTITY_SKELETON_HORSE_HURT,
+        ENTITY_SKELETON_HORSE_SWIM,
+        ENTITY_SKELETON_HORSE_AMBIENT_WATER,
+        ENTITY_SKELETON_HORSE_GALLOP_WATER,
+        ENTITY_SKELETON_HORSE_JUMP_WATER,
+        ENTITY_SKELETON_HORSE_STEP_WATER,
         ENTITY_SKELETON_HURT,
         ENTITY_SKELETON_SHOOT,
         ENTITY_SKELETON_STEP,
-        ENTITY_SKELETON_HORSE_AMBIENT,
-        ENTITY_SKELETON_HORSE_AMBIENT_WATER,
-        ENTITY_SKELETON_HORSE_DEATH,
-        ENTITY_SKELETON_HORSE_GALLOP_WATER,
-        ENTITY_SKELETON_HORSE_HURT,
-        ENTITY_SKELETON_HORSE_JUMP_WATER,
-        ENTITY_SKELETON_HORSE_STEP_WATER,
-        ENTITY_SKELETON_HORSE_SWIM,
         ENTITY_SLIME_ATTACK,
         ENTITY_SLIME_DEATH,
-        ENTITY_SLIME_DEATH_SMALL,
         ENTITY_SLIME_HURT,
-        ENTITY_SLIME_HURT_SMALL,
         ENTITY_SLIME_JUMP,
-        ENTITY_SLIME_JUMP_SMALL,
         ENTITY_SLIME_SQUISH,
+        BLOCK_SLIME_BLOCK_BREAK,
+        BLOCK_SLIME_BLOCK_FALL,
+        BLOCK_SLIME_BLOCK_HIT,
+        BLOCK_SLIME_BLOCK_PLACE,
+        BLOCK_SLIME_BLOCK_STEP,
+        BLOCK_SMALL_AMETHYST_BUD_BREAK,
+        BLOCK_SMALL_AMETHYST_BUD_PLACE,
+        BLOCK_SMALL_DRIPLEAF_BREAK,
+        BLOCK_SMALL_DRIPLEAF_FALL,
+        BLOCK_SMALL_DRIPLEAF_HIT,
+        BLOCK_SMALL_DRIPLEAF_PLACE,
+        BLOCK_SMALL_DRIPLEAF_STEP,
+        BLOCK_SOUL_SAND_BREAK,
+        BLOCK_SOUL_SAND_STEP,
+        BLOCK_SOUL_SAND_PLACE,
+        BLOCK_SOUL_SAND_HIT,
+        BLOCK_SOUL_SAND_FALL,
+        BLOCK_SOUL_SOIL_BREAK,
+        BLOCK_SOUL_SOIL_STEP,
+        BLOCK_SOUL_SOIL_PLACE,
+        BLOCK_SOUL_SOIL_HIT,
+        BLOCK_SOUL_SOIL_FALL,
+        PARTICLE_SOUL_ESCAPE,
+        BLOCK_SPAWNER_BREAK,
+        BLOCK_SPAWNER_FALL,
+        BLOCK_SPAWNER_HIT,
+        BLOCK_SPAWNER_PLACE,
+        BLOCK_SPAWNER_STEP,
+        ITEM_SPEAR_USE,
+        ITEM_SPEAR_HIT,
+        ITEM_SPEAR_ATTACK,
+        ITEM_SPEAR_WOOD_USE,
+        ITEM_SPEAR_WOOD_HIT,
+        ITEM_SPEAR_WOOD_ATTACK,
+        BLOCK_SPORE_BLOSSOM_BREAK,
+        BLOCK_SPORE_BLOSSOM_FALL,
+        BLOCK_SPORE_BLOSSOM_HIT,
+        BLOCK_SPORE_BLOSSOM_PLACE,
+        BLOCK_SPORE_BLOSSOM_STEP,
+        ENTITY_STRIDER_AMBIENT,
+        ENTITY_STRIDER_HAPPY,
+        ENTITY_STRIDER_RETREAT,
+        ENTITY_STRIDER_DEATH,
+        ENTITY_STRIDER_HURT,
+        ENTITY_STRIDER_STEP,
+        ENTITY_STRIDER_STEP_LAVA,
+        ENTITY_STRIDER_EAT,
+        ENTITY_STRIDER_SADDLE,
+        ENTITY_SLIME_DEATH_SMALL,
+        ENTITY_SLIME_HURT_SMALL,
+        ENTITY_SLIME_JUMP_SMALL,
         ENTITY_SLIME_SQUISH_SMALL,
-        ENTITY_SMALL_SULFUR_CUBE_DEATH,
-        ENTITY_SMALL_SULFUR_CUBE_EAT,
-        ENTITY_SMALL_SULFUR_CUBE_HURT,
-        ENTITY_SMALL_SULFUR_CUBE_JUMP,
-        ENTITY_SMALL_SULFUR_CUBE_SQUISH,
+        BLOCK_SMITHING_TABLE_USE,
+        BLOCK_SMOKER_SMOKE,
+        ENTITY_SNIFFER_STEP,
+        ENTITY_SNIFFER_EAT,
+        ENTITY_SNIFFER_IDLE,
+        ENTITY_SNIFFER_HURT,
         ENTITY_SNIFFER_DEATH,
+        ENTITY_SNIFFER_DROP_SEED,
+        ENTITY_SNIFFER_SCENTING,
+        ENTITY_SNIFFER_SNIFFING,
+        ENTITY_SNIFFER_SEARCHING,
         ENTITY_SNIFFER_DIGGING,
         ENTITY_SNIFFER_DIGGING_STOP,
-        ENTITY_SNIFFER_DROP_SEED,
-        ENTITY_SNIFFER_EAT,
         ENTITY_SNIFFER_HAPPY,
-        ENTITY_SNIFFER_HURT,
-        ENTITY_SNIFFER_IDLE,
-        ENTITY_SNIFFER_SCENTING,
-        ENTITY_SNIFFER_SEARCHING,
-        ENTITY_SNIFFER_SNIFFING,
-        ENTITY_SNIFFER_STEP,
+        BLOCK_SNIFFER_EGG_PLOP,
+        BLOCK_SNIFFER_EGG_CRACK,
+        BLOCK_SNIFFER_EGG_HATCH,
+        ENTITY_SNOWBALL_THROW,
+        BLOCK_SNOW_BREAK,
+        BLOCK_SNOW_FALL,
         ENTITY_SNOW_GOLEM_AMBIENT,
         ENTITY_SNOW_GOLEM_DEATH,
         ENTITY_SNOW_GOLEM_HURT,
-        ENTITY_SNOW_GOLEM_SHEAR,
         ENTITY_SNOW_GOLEM_SHOOT,
-        ENTITY_SNOWBALL_THROW,
+        ENTITY_SNOW_GOLEM_SHEAR,
+        BLOCK_SNOW_HIT,
+        BLOCK_SNOW_PLACE,
+        BLOCK_SNOW_STEP,
         ENTITY_SPIDER_AMBIENT,
         ENTITY_SPIDER_DEATH,
         ENTITY_SPIDER_HURT,
         ENTITY_SPIDER_STEP,
         ENTITY_SPLASH_POTION_BREAK,
         ENTITY_SPLASH_POTION_THROW,
+        BLOCK_SPONGE_BREAK,
+        BLOCK_SPONGE_FALL,
+        BLOCK_SPONGE_HIT,
+        BLOCK_SPONGE_PLACE,
+        BLOCK_SPONGE_STEP,
+        BLOCK_SPONGE_ABSORB,
+        ITEM_SPYGLASS_USE,
+        ITEM_SPYGLASS_STOP_USING,
         ENTITY_SQUID_AMBIENT,
         ENTITY_SQUID_DEATH,
         ENTITY_SQUID_HURT,
         ENTITY_SQUID_SQUIRT,
+        BLOCK_STONE_BREAK,
+        BLOCK_STONE_BUTTON_CLICK_OFF,
+        BLOCK_STONE_BUTTON_CLICK_ON,
+        BLOCK_STONE_FALL,
+        BLOCK_STONE_HIT,
+        BLOCK_STONE_PLACE,
+        BLOCK_STONE_PRESSURE_PLATE_CLICK_OFF,
+        BLOCK_STONE_PRESSURE_PLATE_CLICK_ON,
+        BLOCK_STONE_STEP,
         ENTITY_STRAY_AMBIENT,
         ENTITY_STRAY_DEATH,
         ENTITY_STRAY_HURT,
         ENTITY_STRAY_STEP,
-        ENTITY_STRIDER_AMBIENT,
-        ENTITY_STRIDER_DEATH,
-        ENTITY_STRIDER_EAT,
-        ENTITY_STRIDER_HAPPY,
-        ENTITY_STRIDER_HURT,
-        ENTITY_STRIDER_RETREAT,
-        ENTITY_STRIDER_SADDLE,
-        ENTITY_STRIDER_STEP,
-        ENTITY_STRIDER_STEP_LAVA,
-        ENTITY_SULFUR_CUBE_ABSORB,
-        ENTITY_SULFUR_CUBE_BOUNCE,
-        ENTITY_SULFUR_CUBE_BOUNCY_HIT,
-        ENTITY_SULFUR_CUBE_BOUNCY_PUSH,
-        ENTITY_SULFUR_CUBE_DEATH,
-        ENTITY_SULFUR_CUBE_EJECT,
-        ENTITY_SULFUR_CUBE_EXPLOSIVE_HIT,
-        ENTITY_SULFUR_CUBE_EXPLOSIVE_PUSH,
-        ENTITY_SULFUR_CUBE_FAST_FLAT_HIT,
-        ENTITY_SULFUR_CUBE_FAST_FLAT_PUSH,
-        ENTITY_SULFUR_CUBE_FAST_SLIDING_HIT,
-        ENTITY_SULFUR_CUBE_FAST_SLIDING_PUSH,
-        ENTITY_SULFUR_CUBE_HIGH_RESISTANCE_HIT,
-        ENTITY_SULFUR_CUBE_HIGH_RESISTANCE_PUSH,
-        ENTITY_SULFUR_CUBE_HOT_HIT,
-        ENTITY_SULFUR_CUBE_HOT_PUSH,
-        ENTITY_SULFUR_CUBE_HURT,
-        ENTITY_SULFUR_CUBE_JUMP,
-        ENTITY_SULFUR_CUBE_LIGHT_HIT,
-        ENTITY_SULFUR_CUBE_LIGHT_PUSH,
-        ENTITY_SULFUR_CUBE_REGULAR_HIT,
-        ENTITY_SULFUR_CUBE_REGULAR_PUSH,
-        ENTITY_SULFUR_CUBE_SLOW_BOUNCY_HIT,
-        ENTITY_SULFUR_CUBE_SLOW_BOUNCY_PUSH,
-        ENTITY_SULFUR_CUBE_SLOW_FLAT_HIT,
-        ENTITY_SULFUR_CUBE_SLOW_FLAT_PUSH,
-        ENTITY_SULFUR_CUBE_SLOW_SLIDING_HIT,
-        ENTITY_SULFUR_CUBE_SLOW_SLIDING_PUSH,
-        ENTITY_SULFUR_CUBE_SQUISH,
-        ENTITY_SULFUR_CUBE_STICKY_HIT,
-        ENTITY_SULFUR_CUBE_STICKY_PUSH,
+        BLOCK_SULFUR_SPIKE_BREAK,
+        BLOCK_SULFUR_SPIKE_STEP,
+        BLOCK_SULFUR_SPIKE_PLACE,
+        BLOCK_SULFUR_SPIKE_HIT,
+        BLOCK_SULFUR_SPIKE_FALL,
+        BLOCK_SULFUR_SPIKE_LAND,
+        BLOCK_SWEET_BERRY_BUSH_BREAK,
+        BLOCK_SWEET_BERRY_BUSH_PLACE,
+        BLOCK_SWEET_BERRY_BUSH_PICK_BERRIES,
         ENTITY_TADPOLE_DEATH,
         ENTITY_TADPOLE_FLOP,
         ENTITY_TADPOLE_GROW_UP,
         ENTITY_TADPOLE_HURT,
+        ENCHANT_THORNS_HIT,
         ENTITY_TNT_PRIMED,
+        ITEM_TOTEM_USE,
+        ITEM_TRIDENT_HIT,
+        ITEM_TRIDENT_HIT_GROUND,
+        ITEM_TRIDENT_RETURN,
+        ITEM_TRIDENT_RIPTIDE_1,
+        ITEM_TRIDENT_RIPTIDE_2,
+        ITEM_TRIDENT_RIPTIDE_3,
+        ITEM_TRIDENT_THROW,
+        ITEM_TRIDENT_THUNDER,
+        BLOCK_TRIPWIRE_ATTACH,
+        BLOCK_TRIPWIRE_CLICK_OFF,
+        BLOCK_TRIPWIRE_CLICK_ON,
+        BLOCK_TRIPWIRE_DETACH,
         ENTITY_TROPICAL_FISH_AMBIENT,
         ENTITY_TROPICAL_FISH_DEATH,
         ENTITY_TROPICAL_FISH_FLOP,
         ENTITY_TROPICAL_FISH_HURT,
+        BLOCK_TUFF_BREAK,
+        BLOCK_TUFF_STEP,
+        BLOCK_TUFF_PLACE,
+        BLOCK_TUFF_HIT,
+        BLOCK_TUFF_FALL,
+        BLOCK_TUFF_BRICKS_BREAK,
+        BLOCK_TUFF_BRICKS_FALL,
+        BLOCK_TUFF_BRICKS_HIT,
+        BLOCK_TUFF_BRICKS_PLACE,
+        BLOCK_TUFF_BRICKS_STEP,
+        BLOCK_POLISHED_TUFF_BREAK,
+        BLOCK_POLISHED_TUFF_FALL,
+        BLOCK_POLISHED_TUFF_HIT,
+        BLOCK_POLISHED_TUFF_PLACE,
+        BLOCK_POLISHED_TUFF_STEP,
         ENTITY_TURTLE_AMBIENT_LAND,
         ENTITY_TURTLE_DEATH,
         ENTITY_TURTLE_DEATH_BABY,
@@ -11605,6 +11644,29 @@ public final class SoundEventKeys {
         ENTITY_TURTLE_SHAMBLE,
         ENTITY_TURTLE_SHAMBLE_BABY,
         ENTITY_TURTLE_SWIM,
+        UI_BUTTON_CLICK,
+        UI_LOOM_SELECT_PATTERN,
+        UI_LOOM_TAKE_RESULT,
+        UI_CARTOGRAPHY_TABLE_TAKE_RESULT,
+        UI_STONECUTTER_TAKE_RESULT,
+        UI_STONECUTTER_SELECT_RECIPE,
+        UI_TOAST_CHALLENGE_COMPLETE,
+        UI_TOAST_IN,
+        UI_TOAST_OUT,
+        BLOCK_VAULT_ACTIVATE,
+        BLOCK_VAULT_AMBIENT,
+        BLOCK_VAULT_BREAK,
+        BLOCK_VAULT_CLOSE_SHUTTER,
+        BLOCK_VAULT_DEACTIVATE,
+        BLOCK_VAULT_EJECT_ITEM,
+        BLOCK_VAULT_REJECT_REWARDED_PLAYER,
+        BLOCK_VAULT_FALL,
+        BLOCK_VAULT_HIT,
+        BLOCK_VAULT_INSERT_ITEM,
+        BLOCK_VAULT_INSERT_ITEM_FAIL,
+        BLOCK_VAULT_OPEN_SHUTTER,
+        BLOCK_VAULT_PLACE,
+        BLOCK_VAULT_STEP,
         ENTITY_VEX_AMBIENT,
         ENTITY_VEX_CHARGE,
         ENTITY_VEX_DEATH,
@@ -11615,6 +11677,7 @@ public final class SoundEventKeys {
         ENTITY_VILLAGER_HURT,
         ENTITY_VILLAGER_NO,
         ENTITY_VILLAGER_TRADE,
+        ENTITY_VILLAGER_YES,
         ENTITY_VILLAGER_WORK_ARMORER,
         ENTITY_VILLAGER_WORK_BUTCHER,
         ENTITY_VILLAGER_WORK_CARTOGRAPHER,
@@ -11628,11 +11691,16 @@ public final class SoundEventKeys {
         ENTITY_VILLAGER_WORK_SHEPHERD,
         ENTITY_VILLAGER_WORK_TOOLSMITH,
         ENTITY_VILLAGER_WORK_WEAPONSMITH,
-        ENTITY_VILLAGER_YES,
         ENTITY_VINDICATOR_AMBIENT,
         ENTITY_VINDICATOR_CELEBRATE,
         ENTITY_VINDICATOR_DEATH,
         ENTITY_VINDICATOR_HURT,
+        BLOCK_VINE_BREAK,
+        BLOCK_VINE_FALL,
+        BLOCK_VINE_HIT,
+        BLOCK_VINE_PLACE,
+        BLOCK_VINE_STEP,
+        BLOCK_LILY_PAD_PLACE,
         ENTITY_WANDERING_TRADER_AMBIENT,
         ENTITY_WANDERING_TRADER_DEATH,
         ENTITY_WANDERING_TRADER_DISAPPEARED,
@@ -11663,8 +11731,25 @@ public final class SoundEventKeys {
         ENTITY_WARDEN_SONIC_CHARGE,
         ENTITY_WARDEN_STEP,
         ENTITY_WARDEN_TENDRIL_CLICKS,
-        ENTITY_WIND_CHARGE_THROW,
+        BLOCK_HANGING_SIGN_WAXED_INTERACT_FAIL,
+        BLOCK_SIGN_WAXED_INTERACT_FAIL,
+        BLOCK_WATER_AMBIENT,
+        WEATHER_END_FLASH,
+        WEATHER_RAIN,
+        WEATHER_RAIN_ABOVE,
+        BLOCK_WET_GRASS_BREAK,
+        BLOCK_WET_GRASS_FALL,
+        BLOCK_WET_GRASS_HIT,
+        BLOCK_WET_GRASS_PLACE,
+        BLOCK_WET_GRASS_STEP,
+        BLOCK_WET_SPONGE_BREAK,
+        BLOCK_WET_SPONGE_DRIES,
+        BLOCK_WET_SPONGE_FALL,
+        BLOCK_WET_SPONGE_HIT,
+        BLOCK_WET_SPONGE_PLACE,
+        BLOCK_WET_SPONGE_STEP,
         ENTITY_WIND_CHARGE_WIND_BURST,
+        ENTITY_WIND_CHARGE_THROW,
         ENTITY_WITCH_AMBIENT,
         ENTITY_WITCH_CELEBRATE,
         ENTITY_WITCH_DEATH,
@@ -11676,43 +11761,30 @@ public final class SoundEventKeys {
         ENTITY_WITHER_DEATH,
         ENTITY_WITHER_HURT,
         ENTITY_WITHER_SHOOT,
-        ENTITY_WITHER_SPAWN,
         ENTITY_WITHER_SKELETON_AMBIENT,
         ENTITY_WITHER_SKELETON_DEATH,
         ENTITY_WITHER_SKELETON_HURT,
         ENTITY_WITHER_SKELETON_STEP,
+        ENTITY_WITHER_SPAWN,
+        ITEM_WOLF_ARMOR_BREAK,
+        ENTITY_BABY_WOLF_AMBIENT,
+        ITEM_WOLF_ARMOR_CRACK,
+        ITEM_WOLF_ARMOR_DAMAGE,
+        ITEM_WOLF_ARMOR_REPAIR,
+        ENTITY_BABY_WOLF_DEATH,
+        ENTITY_BABY_WOLF_GROWL,
+        ENTITY_BABY_WOLF_HURT,
+        ENTITY_BABY_WOLF_PANT,
+        ENTITY_WOLF_SHAKE,
+        ENTITY_WOLF_STEP,
+        ENTITY_BABY_WOLF_STEP,
+        ENTITY_BABY_WOLF_WHINE,
         ENTITY_WOLF_AMBIENT,
         ENTITY_WOLF_DEATH,
         ENTITY_WOLF_GROWL,
         ENTITY_WOLF_HURT,
         ENTITY_WOLF_PANT,
-        ENTITY_WOLF_SHAKE,
-        ENTITY_WOLF_STEP,
         ENTITY_WOLF_WHINE,
-        ENTITY_WOLF_ANGRY_AMBIENT,
-        ENTITY_WOLF_ANGRY_DEATH,
-        ENTITY_WOLF_ANGRY_GROWL,
-        ENTITY_WOLF_ANGRY_HURT,
-        ENTITY_WOLF_ANGRY_PANT,
-        ENTITY_WOLF_ANGRY_WHINE,
-        ENTITY_WOLF_BIG_AMBIENT,
-        ENTITY_WOLF_BIG_DEATH,
-        ENTITY_WOLF_BIG_GROWL,
-        ENTITY_WOLF_BIG_HURT,
-        ENTITY_WOLF_BIG_PANT,
-        ENTITY_WOLF_BIG_WHINE,
-        ENTITY_WOLF_CUTE_AMBIENT,
-        ENTITY_WOLF_CUTE_DEATH,
-        ENTITY_WOLF_CUTE_GROWL,
-        ENTITY_WOLF_CUTE_HURT,
-        ENTITY_WOLF_CUTE_PANT,
-        ENTITY_WOLF_CUTE_WHINE,
-        ENTITY_WOLF_GRUMPY_AMBIENT,
-        ENTITY_WOLF_GRUMPY_DEATH,
-        ENTITY_WOLF_GRUMPY_GROWL,
-        ENTITY_WOLF_GRUMPY_HURT,
-        ENTITY_WOLF_GRUMPY_PANT,
-        ENTITY_WOLF_GRUMPY_WHINE,
         ENTITY_WOLF_PUGLIN_AMBIENT,
         ENTITY_WOLF_PUGLIN_DEATH,
         ENTITY_WOLF_PUGLIN_GROWL,
@@ -11725,6 +11797,48 @@ public final class SoundEventKeys {
         ENTITY_WOLF_SAD_HURT,
         ENTITY_WOLF_SAD_PANT,
         ENTITY_WOLF_SAD_WHINE,
+        ENTITY_WOLF_ANGRY_AMBIENT,
+        ENTITY_WOLF_ANGRY_DEATH,
+        ENTITY_WOLF_ANGRY_GROWL,
+        ENTITY_WOLF_ANGRY_HURT,
+        ENTITY_WOLF_ANGRY_PANT,
+        ENTITY_WOLF_ANGRY_WHINE,
+        ENTITY_WOLF_GRUMPY_AMBIENT,
+        ENTITY_WOLF_GRUMPY_DEATH,
+        ENTITY_WOLF_GRUMPY_GROWL,
+        ENTITY_WOLF_GRUMPY_HURT,
+        ENTITY_WOLF_GRUMPY_PANT,
+        ENTITY_WOLF_GRUMPY_WHINE,
+        ENTITY_WOLF_BIG_AMBIENT,
+        ENTITY_WOLF_BIG_DEATH,
+        ENTITY_WOLF_BIG_GROWL,
+        ENTITY_WOLF_BIG_HURT,
+        ENTITY_WOLF_BIG_PANT,
+        ENTITY_WOLF_BIG_WHINE,
+        ENTITY_WOLF_CUTE_AMBIENT,
+        ENTITY_WOLF_CUTE_DEATH,
+        ENTITY_WOLF_CUTE_GROWL,
+        ENTITY_WOLF_CUTE_HURT,
+        ENTITY_WOLF_CUTE_PANT,
+        ENTITY_WOLF_CUTE_WHINE,
+        BLOCK_WOODEN_DOOR_CLOSE,
+        BLOCK_WOODEN_DOOR_OPEN,
+        BLOCK_WOODEN_TRAPDOOR_CLOSE,
+        BLOCK_WOODEN_TRAPDOOR_OPEN,
+        BLOCK_WOODEN_BUTTON_CLICK_OFF,
+        BLOCK_WOODEN_BUTTON_CLICK_ON,
+        BLOCK_WOODEN_PRESSURE_PLATE_CLICK_OFF,
+        BLOCK_WOODEN_PRESSURE_PLATE_CLICK_ON,
+        BLOCK_WOOD_BREAK,
+        BLOCK_WOOD_FALL,
+        BLOCK_WOOD_HIT,
+        BLOCK_WOOD_PLACE,
+        BLOCK_WOOD_STEP,
+        BLOCK_WOOL_BREAK,
+        BLOCK_WOOL_FALL,
+        BLOCK_WOOL_HIT,
+        BLOCK_WOOL_PLACE,
+        BLOCK_WOOL_STEP,
         ENTITY_ZOGLIN_AMBIENT,
         ENTITY_ZOGLIN_ANGRY,
         ENTITY_ZOGLIN_ATTACK,
@@ -11732,20 +11846,19 @@ public final class SoundEventKeys {
         ENTITY_ZOGLIN_HURT,
         ENTITY_ZOGLIN_STEP,
         ENTITY_ZOMBIE_AMBIENT,
-        ENTITY_ZOMBIE_ATTACK_IRON_DOOR,
         ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR,
+        ENTITY_ZOMBIE_ATTACK_IRON_DOOR,
         ENTITY_ZOMBIE_BREAK_WOODEN_DOOR,
         ENTITY_ZOMBIE_CONVERTED_TO_DROWNED,
         ENTITY_ZOMBIE_DEATH,
         ENTITY_ZOMBIE_DESTROY_EGG,
-        ENTITY_ZOMBIE_HURT,
-        ENTITY_ZOMBIE_INFECT,
-        ENTITY_ZOMBIE_STEP,
         ENTITY_ZOMBIE_HORSE_AMBIENT,
         ENTITY_ZOMBIE_HORSE_ANGRY,
         ENTITY_ZOMBIE_HORSE_DEATH,
         ENTITY_ZOMBIE_HORSE_EAT,
         ENTITY_ZOMBIE_HORSE_HURT,
+        ENTITY_ZOMBIE_HURT,
+        ENTITY_ZOMBIE_INFECT,
         ENTITY_ZOMBIE_NAUTILUS_AMBIENT,
         ENTITY_ZOMBIE_NAUTILUS_AMBIENT_LAND,
         ENTITY_ZOMBIE_NAUTILUS_DASH,
@@ -11758,206 +11871,98 @@ public final class SoundEventKeys {
         ENTITY_ZOMBIE_NAUTILUS_HURT,
         ENTITY_ZOMBIE_NAUTILUS_HURT_LAND,
         ENTITY_ZOMBIE_NAUTILUS_SWIM,
+        ENTITY_ZOMBIFIED_PIGLIN_AMBIENT,
+        ENTITY_ZOMBIFIED_PIGLIN_ANGRY,
+        ENTITY_ZOMBIFIED_PIGLIN_DEATH,
+        ENTITY_ZOMBIFIED_PIGLIN_HURT,
+        ENTITY_ZOMBIE_STEP,
         ENTITY_ZOMBIE_VILLAGER_AMBIENT,
         ENTITY_ZOMBIE_VILLAGER_CONVERTED,
         ENTITY_ZOMBIE_VILLAGER_CURE,
         ENTITY_ZOMBIE_VILLAGER_DEATH,
         ENTITY_ZOMBIE_VILLAGER_HURT,
         ENTITY_ZOMBIE_VILLAGER_STEP,
-        ENTITY_ZOMBIFIED_PIGLIN_AMBIENT,
-        ENTITY_ZOMBIFIED_PIGLIN_ANGRY,
-        ENTITY_ZOMBIFIED_PIGLIN_DEATH,
-        ENTITY_ZOMBIFIED_PIGLIN_HURT,
         EVENT_MOB_EFFECT_BAD_OMEN,
-        EVENT_MOB_EFFECT_RAID_OMEN,
         EVENT_MOB_EFFECT_TRIAL_OMEN,
-        EVENT_RAID_HORN,
-        INTENTIONALLY_EMPTY,
-        ITEM_ARMOR_EQUIP_CHAIN,
-        ITEM_ARMOR_EQUIP_COPPER,
-        ITEM_ARMOR_EQUIP_DIAMOND,
-        ITEM_ARMOR_EQUIP_ELYTRA,
-        ITEM_ARMOR_EQUIP_GENERIC,
-        ITEM_ARMOR_EQUIP_GOLD,
-        ITEM_ARMOR_EQUIP_IRON,
-        ITEM_ARMOR_EQUIP_LEATHER,
-        ITEM_ARMOR_EQUIP_NAUTILUS,
-        ITEM_ARMOR_EQUIP_NETHERITE,
-        ITEM_ARMOR_EQUIP_TURTLE,
-        ITEM_ARMOR_EQUIP_WOLF,
-        ITEM_ARMOR_UNEQUIP_NAUTILUS,
-        ITEM_ARMOR_UNEQUIP_WOLF,
-        ITEM_AXE_SCRAPE,
-        ITEM_AXE_STRIP,
-        ITEM_AXE_WAX_OFF,
-        ITEM_BONE_MEAL_USE,
-        ITEM_BOOK_PAGE_TURN,
-        ITEM_BOOK_PUT,
-        ITEM_BOTTLE_EMPTY,
-        ITEM_BOTTLE_FILL,
-        ITEM_BOTTLE_FILL_DRAGONBREATH,
-        ITEM_BRUSH_BRUSHING_GENERIC,
-        ITEM_BRUSH_BRUSHING_GRAVEL,
-        ITEM_BRUSH_BRUSHING_GRAVEL_COMPLETE,
-        ITEM_BRUSH_BRUSHING_SAND,
-        ITEM_BRUSH_BRUSHING_SAND_COMPLETE,
-        ITEM_BUCKET_EMPTY,
-        ITEM_BUCKET_EMPTY_AXOLOTL,
-        ITEM_BUCKET_EMPTY_FISH,
-        ITEM_BUCKET_EMPTY_LAVA,
-        ITEM_BUCKET_EMPTY_POWDER_SNOW,
-        ITEM_BUCKET_EMPTY_SULFUR_CUBE,
-        ITEM_BUCKET_EMPTY_TADPOLE,
-        ITEM_BUCKET_FILL,
-        ITEM_BUCKET_FILL_AXOLOTL,
-        ITEM_BUCKET_FILL_FISH,
-        ITEM_BUCKET_FILL_LAVA,
-        ITEM_BUCKET_FILL_POWDER_SNOW,
-        ITEM_BUCKET_FILL_SULFUR_CUBE,
-        ITEM_BUCKET_FILL_TADPOLE,
-        ITEM_BUNDLE_DROP_CONTENTS,
-        ITEM_BUNDLE_INSERT,
-        ITEM_BUNDLE_INSERT_FAIL,
-        ITEM_BUNDLE_REMOVE_ONE,
-        ITEM_CHORUS_FRUIT_TELEPORT,
-        ITEM_CROP_PLANT,
-        ITEM_CROSSBOW_HIT,
-        ITEM_CROSSBOW_LOADING_END,
-        ITEM_CROSSBOW_LOADING_MIDDLE,
-        ITEM_CROSSBOW_LOADING_START,
-        ITEM_CROSSBOW_QUICK_CHARGE_1,
-        ITEM_CROSSBOW_QUICK_CHARGE_2,
-        ITEM_CROSSBOW_QUICK_CHARGE_3,
-        ITEM_CROSSBOW_SHOOT,
-        ITEM_DYE_USE,
-        ITEM_ELYTRA_FLYING,
-        ITEM_FIRECHARGE_USE,
-        ITEM_FLINTANDSTEEL_USE,
-        ITEM_GLOW_INK_SAC_USE,
-        ITEM_GOAT_HORN_SOUND_0,
-        ITEM_GOAT_HORN_SOUND_1,
-        ITEM_GOAT_HORN_SOUND_2,
-        ITEM_GOAT_HORN_SOUND_3,
-        ITEM_GOAT_HORN_SOUND_4,
-        ITEM_GOAT_HORN_SOUND_5,
-        ITEM_GOAT_HORN_SOUND_6,
-        ITEM_GOAT_HORN_SOUND_7,
-        ITEM_GOLDEN_DANDELION_UNUSE,
-        ITEM_GOLDEN_DANDELION_USE,
-        ITEM_HOE_TILL,
-        ITEM_HONEY_BOTTLE_DRINK,
-        ITEM_HONEYCOMB_WAX_ON,
-        ITEM_HORSE_ARMOR_UNEQUIP,
-        ITEM_INK_SAC_USE,
-        ITEM_LEAD_BREAK,
-        ITEM_LEAD_TIED,
-        ITEM_LEAD_UNTIED,
-        ITEM_LLAMA_CARPET_UNEQUIP,
-        ITEM_LODESTONE_COMPASS_LOCK,
-        ITEM_MACE_SMASH_AIR,
-        ITEM_MACE_SMASH_GROUND,
-        ITEM_MACE_SMASH_GROUND_HEAVY,
-        ITEM_NAUTILUS_SADDLE_EQUIP,
-        ITEM_NAUTILUS_SADDLE_UNDERWATER_EQUIP,
-        ITEM_NETHER_WART_PLANT,
-        ITEM_OMINOUS_BOTTLE_DISPOSE,
+        EVENT_MOB_EFFECT_RAID_OMEN,
         ITEM_SADDLE_UNEQUIP,
-        ITEM_SHEARS_SNIP,
-        ITEM_SHIELD_BLOCK,
-        ITEM_SHIELD_BREAK,
-        ITEM_SHOVEL_FLATTEN,
-        ITEM_SPEAR_ATTACK,
-        ITEM_SPEAR_HIT,
-        ITEM_SPEAR_LUNGE_1,
-        ITEM_SPEAR_LUNGE_2,
-        ITEM_SPEAR_LUNGE_3,
-        ITEM_SPEAR_USE,
-        ITEM_SPEAR_WOOD_ATTACK,
-        ITEM_SPEAR_WOOD_HIT,
-        ITEM_SPEAR_WOOD_USE,
-        ITEM_SPYGLASS_STOP_USING,
-        ITEM_SPYGLASS_USE,
-        ITEM_TOTEM_USE,
-        ITEM_TRIDENT_HIT,
-        ITEM_TRIDENT_HIT_GROUND,
-        ITEM_TRIDENT_RETURN,
-        ITEM_TRIDENT_RIPTIDE_1,
-        ITEM_TRIDENT_RIPTIDE_2,
-        ITEM_TRIDENT_RIPTIDE_3,
-        ITEM_TRIDENT_THROW,
-        ITEM_TRIDENT_THUNDER,
-        ITEM_WOLF_ARMOR_BREAK,
-        ITEM_WOLF_ARMOR_CRACK,
-        ITEM_WOLF_ARMOR_DAMAGE,
-        ITEM_WOLF_ARMOR_REPAIR,
-        MUSIC_CREATIVE,
-        MUSIC_CREDITS,
-        MUSIC_DRAGON,
-        MUSIC_END,
-        MUSIC_GAME,
-        MUSIC_MENU,
-        MUSIC_NETHER_BASALT_DELTAS,
-        MUSIC_NETHER_CRIMSON_FOREST,
-        MUSIC_NETHER_NETHER_WASTES,
-        MUSIC_NETHER_SOUL_SAND_VALLEY,
-        MUSIC_NETHER_WARPED_FOREST,
-        MUSIC_OVERWORLD_BADLANDS,
-        MUSIC_OVERWORLD_BAMBOO_JUNGLE,
-        MUSIC_OVERWORLD_CHERRY_GROVE,
-        MUSIC_OVERWORLD_DEEP_DARK,
-        MUSIC_OVERWORLD_DESERT,
-        MUSIC_OVERWORLD_DRIPSTONE_CAVES,
-        MUSIC_OVERWORLD_FLOWER_FOREST,
-        MUSIC_OVERWORLD_FOREST,
-        MUSIC_OVERWORLD_FROZEN_PEAKS,
-        MUSIC_OVERWORLD_GROVE,
-        MUSIC_OVERWORLD_JAGGED_PEAKS,
-        MUSIC_OVERWORLD_JUNGLE,
-        MUSIC_OVERWORLD_LUSH_CAVES,
-        MUSIC_OVERWORLD_MEADOW,
-        MUSIC_OVERWORLD_OLD_GROWTH_TAIGA,
-        MUSIC_OVERWORLD_SNOWY_SLOPES,
-        MUSIC_OVERWORLD_SPARSE_JUNGLE,
-        MUSIC_OVERWORLD_STONY_PEAKS,
-        MUSIC_OVERWORLD_SULFUR_CAVES,
-        MUSIC_OVERWORLD_SWAMP,
-        MUSIC_UNDER_WATER,
-        MUSIC_DISC_11,
-        MUSIC_DISC_13,
-        MUSIC_DISC_5,
-        MUSIC_DISC_BLOCKS,
-        MUSIC_DISC_BOUNCE,
-        MUSIC_DISC_CAT,
-        MUSIC_DISC_CHIRP,
-        MUSIC_DISC_CREATOR,
-        MUSIC_DISC_CREATOR_MUSIC_BOX,
-        MUSIC_DISC_FAR,
-        MUSIC_DISC_LAVA_CHICKEN,
-        MUSIC_DISC_MALL,
-        MUSIC_DISC_MELLOHI,
-        MUSIC_DISC_OTHERSIDE,
-        MUSIC_DISC_PIGSTEP,
-        MUSIC_DISC_PRECIPICE,
-        MUSIC_DISC_RELIC,
-        MUSIC_DISC_STAL,
-        MUSIC_DISC_STRAD,
-        MUSIC_DISC_TEARS,
-        MUSIC_DISC_WAIT,
-        MUSIC_DISC_WARD,
-        PARTICLE_SOUL_ESCAPE,
-        UI_BUTTON_CLICK,
-        UI_CARTOGRAPHY_TABLE_TAKE_RESULT,
-        UI_HUD_BUBBLE_POP,
-        UI_LOOM_SELECT_PATTERN,
-        UI_LOOM_TAKE_RESULT,
-        UI_STONECUTTER_SELECT_RECIPE,
-        UI_STONECUTTER_TAKE_RESULT,
-        UI_TOAST_CHALLENGE_COMPLETE,
-        UI_TOAST_IN,
-        UI_TOAST_OUT,
-        WEATHER_END_FLASH,
-        WEATHER_RAIN,
-        WEATHER_RAIN_ABOVE
+        ITEM_NAUTILUS_SADDLE_UNDERWATER_EQUIP,
+        ITEM_NAUTILUS_SADDLE_EQUIP,
+        BLOCK_SULFUR_BREAK,
+        BLOCK_SULFUR_STEP,
+        BLOCK_SULFUR_PLACE,
+        BLOCK_SULFUR_HIT,
+        BLOCK_SULFUR_FALL,
+        BLOCK_POTENT_SULFUR_BREAK,
+        BLOCK_POTENT_SULFUR_STEP,
+        BLOCK_POTENT_SULFUR_PLACE,
+        BLOCK_POTENT_SULFUR_HIT,
+        BLOCK_POTENT_SULFUR_FALL,
+        BLOCK_POTENT_SULFUR_GEYSER_ERUPTION,
+        BLOCK_POTENT_SULFUR_GEYSER_ERUPTION_ACTIVE,
+        BLOCK_POTENT_SULFUR_GEYSER_CONTINUOUS_ERUPTION,
+        BLOCK_POTENT_SULFUR_GEYSER_CONTINUOUS_ERUPTION_ACTIVE,
+        BLOCK_CINNABAR_BREAK,
+        BLOCK_CINNABAR_STEP,
+        BLOCK_CINNABAR_PLACE,
+        BLOCK_CINNABAR_HIT,
+        BLOCK_CINNABAR_FALL,
+        ENTITY_SULFUR_CUBE_ABSORB,
+        ENTITY_SULFUR_CUBE_BOUNCE,
+        ENTITY_SULFUR_CUBE_DEATH,
+        ENTITY_SULFUR_CUBE_EJECT,
+        ENTITY_SULFUR_CUBE_HURT,
+        ENTITY_SULFUR_CUBE_JUMP,
+        ENTITY_SULFUR_CUBE_REGULAR_HIT,
+        ENTITY_SULFUR_CUBE_REGULAR_PUSH,
+        ENTITY_SULFUR_CUBE_BOUNCY_HIT,
+        ENTITY_SULFUR_CUBE_BOUNCY_PUSH,
+        ENTITY_SULFUR_CUBE_SLOW_BOUNCY_HIT,
+        ENTITY_SULFUR_CUBE_SLOW_BOUNCY_PUSH,
+        ENTITY_SULFUR_CUBE_SLOW_FLAT_HIT,
+        ENTITY_SULFUR_CUBE_SLOW_FLAT_PUSH,
+        ENTITY_SULFUR_CUBE_FAST_FLAT_HIT,
+        ENTITY_SULFUR_CUBE_FAST_FLAT_PUSH,
+        ENTITY_SULFUR_CUBE_LIGHT_HIT,
+        ENTITY_SULFUR_CUBE_LIGHT_PUSH,
+        ENTITY_SULFUR_CUBE_FAST_SLIDING_HIT,
+        ENTITY_SULFUR_CUBE_FAST_SLIDING_PUSH,
+        ENTITY_SULFUR_CUBE_SLOW_SLIDING_HIT,
+        ENTITY_SULFUR_CUBE_SLOW_SLIDING_PUSH,
+        ENTITY_SULFUR_CUBE_STICKY_HIT,
+        ENTITY_SULFUR_CUBE_STICKY_PUSH,
+        ENTITY_SULFUR_CUBE_HIGH_RESISTANCE_HIT,
+        ENTITY_SULFUR_CUBE_HIGH_RESISTANCE_PUSH,
+        ENTITY_SULFUR_CUBE_EXPLOSIVE_HIT,
+        ENTITY_SULFUR_CUBE_EXPLOSIVE_PUSH,
+        ENTITY_SULFUR_CUBE_HOT_HIT,
+        ENTITY_SULFUR_CUBE_HOT_PUSH,
+        ENTITY_SULFUR_CUBE_SQUISH,
+        BLOCK_POTENT_SULFUR_NOXIOUS_GAS,
+        ENTITY_SMALL_SULFUR_CUBE_DEATH,
+        ENTITY_SMALL_SULFUR_CUBE_HURT,
+        ENTITY_SMALL_SULFUR_CUBE_JUMP,
+        ENTITY_SMALL_SULFUR_CUBE_SQUISH,
+        ENTITY_SMALL_SULFUR_CUBE_EAT,
+        BLOCK_SHELF_MUSHROOM_BREAK,
+        BLOCK_SHELF_MUSHROOM_FALL,
+        BLOCK_SHELF_MUSHROOM_PLACE,
+        BLOCK_SHELF_MUSHROOM_STEP,
+        BLOCK_SHELF_MUSHROOM_BOUNCE,
+        BLOCK_POPLAR_LEAVES_BREAK,
+        BLOCK_POPLAR_LEAVES_HIT,
+        BLOCK_POPLAR_LEAVES_FALL,
+        BLOCK_POPLAR_LEAVES_PLACE,
+        BLOCK_POPLAR_LEAVES_STEP,
+        BLOCK_POPLAR_LEAVES_AMBIENT,
+        BLOCK_STRAW_BED_BREAK,
+        BLOCK_STRAW_BED_BREAK_LEAVE,
+        BLOCK_STRAW_BED_STEP,
+        BLOCK_STRAW_BED_PLACE,
+        BLOCK_STRAW_BED_HIT,
+        BLOCK_STRAW_BED_FALL,
+        BLOCK_RED_SHRUB_BREAK,
+        BLOCK_RED_SHRUB_PLACE
     );
 
     private SoundEventKeys() {
@@ -11975,5 +11980,14 @@ public final class SoundEventKeys {
      */
     public static Stream<TypedKey<SoundEvent>> values() {
         return VALUES.stream();
+    }
+
+    /**
+     * Returns this registry's tags (namespaced tag identifier to member entries).
+     *
+     * @return an immutable map of tags, or an empty map if this registry defines none
+     */
+    public static Map<Key, List<Key>> tags() {
+        return Map.of();
     }
 }
