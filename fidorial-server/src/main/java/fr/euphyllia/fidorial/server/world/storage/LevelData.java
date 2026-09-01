@@ -61,7 +61,7 @@ public final class LevelData {
     public boolean difficultyLocked = false;
     public boolean allowCommands = true;
 
-    public int dataVersion = AnvilChunkSerializer.DATA_VERSION_26_3_SNAPSHOT_10;
+    public int dataVersion = AnvilChunkSerializer.DATA_VERSION_26_3_PRE_1;
     public String versionName = "26.3-snapshot-10";
     public boolean snapshot = true; // CHANGE ME
     public boolean wasModded = false;

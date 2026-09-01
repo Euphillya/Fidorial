@@ -4,6 +4,7 @@ import fr.fidorial.entity.EntityType;
 import fr.fidorial.registry.data.Attribute;
 import fr.fidorial.registry.data.BannerPattern;
 import fr.fidorial.registry.data.Biome;
+import fr.fidorial.registry.data.BlockTransformer;
 import fr.fidorial.registry.data.BlockType;
 import fr.fidorial.registry.data.CatSoundVariant;
 import fr.fidorial.registry.data.CatVariant;
@@ -14,6 +15,7 @@ import fr.fidorial.registry.data.CowSoundVariant;
 import fr.fidorial.registry.data.CowVariant;
 import fr.fidorial.registry.data.DamageType;
 import fr.fidorial.registry.data.DataComponentType;
+import fr.fidorial.registry.data.DecoratedPotPattern;
 import fr.fidorial.registry.data.Dialog;
 import fr.fidorial.registry.data.DimensionType;
 import fr.fidorial.registry.data.Enchantment;
@@ -64,6 +66,11 @@ public record RegistryKey<T>(Key key) {
      * Registry key for {@code minecraft:worldgen/biome}.
      */
     public static final RegistryKey<Biome> BIOME = of("worldgen/biome");
+
+    /**
+     * Registry key for {@code minecraft:block_transformer}.
+     */
+    public static final RegistryKey<BlockTransformer> BLOCK_TRANSFORMER = of("block_transformer");
 
     /**
      * Registry key for {@code minecraft:block}.
@@ -124,6 +131,11 @@ public record RegistryKey<T>(Key key) {
      * Registry key for {@code minecraft:dimension_type}.
      */
     public static final RegistryKey<DimensionType> DIMENSION_TYPE = of("dimension_type");
+
+    /**
+     * Registry key for {@code minecraft:decorated_pot_pattern}.
+     */
+    public static final RegistryKey<DecoratedPotPattern> DECORATED_POT_PATTERN = of("decorated_pot_pattern");
 
     /**
      * Registry key for {@code minecraft:enchantment}.

@@ -122,6 +122,7 @@
       "minecraft:cherry_grove",
       "minecraft:cold_ocean",
       "minecraft:crimson_forest",
+      "minecraft:dappled_forest",
       "minecraft:dark_forest",
       "minecraft:deep_cold_ocean",
       "minecraft:deep_dark",
@@ -198,7 +199,9 @@
       "minecraft:has_structure/abandoned_camp_cherry_grove": [
         "minecraft:cherry_grove"
       ],
-      "minecraft:has_structure/abandoned_camp_dappled_forest": [],
+      "minecraft:has_structure/abandoned_camp_dappled_forest": [
+        "minecraft:dappled_forest"
+      ],
       "minecraft:has_structure/abandoned_camp_flower_forest": [
         "minecraft:flower_forest"
       ],
@@ -276,6 +279,7 @@
         "minecraft:birch_forest",
         "minecraft:cherry_grove",
         "minecraft:cold_ocean",
+        "minecraft:dappled_forest",
         "minecraft:dark_forest",
         "minecraft:deep_cold_ocean",
         "minecraft:deep_frozen_ocean",
@@ -417,6 +421,7 @@
       "minecraft:has_structure/ruined_portal_standard": [
         "minecraft:beach",
         "minecraft:birch_forest",
+        "minecraft:dappled_forest",
         "minecraft:dark_forest",
         "minecraft:dripstone_caves",
         "minecraft:flower_forest",
@@ -466,6 +471,7 @@
         "minecraft:birch_forest",
         "minecraft:cherry_grove",
         "minecraft:cold_ocean",
+        "minecraft:dappled_forest",
         "minecraft:dark_forest",
         "minecraft:deep_cold_ocean",
         "minecraft:deep_dark",
@@ -534,6 +540,7 @@
         "minecraft:birch_forest",
         "minecraft:cherry_grove",
         "minecraft:cold_ocean",
+        "minecraft:dappled_forest",
         "minecraft:dark_forest",
         "minecraft:deep_cold_ocean",
         "minecraft:deep_frozen_ocean",
@@ -627,6 +634,7 @@
       ],
       "minecraft:is_forest": [
         "minecraft:birch_forest",
+        "minecraft:dappled_forest",
         "minecraft:dark_forest",
         "minecraft:flower_forest",
         "minecraft:forest",
@@ -677,6 +685,7 @@
         "minecraft:birch_forest",
         "minecraft:cherry_grove",
         "minecraft:cold_ocean",
+        "minecraft:dappled_forest",
         "minecraft:dark_forest",
         "minecraft:deep_cold_ocean",
         "minecraft:deep_dark",
@@ -775,6 +784,7 @@
       ],
       "minecraft:spawns_cold_variant_farm_animals": [
         "minecraft:cold_ocean",
+        "minecraft:dappled_forest",
         "minecraft:deep_cold_ocean",
         "minecraft:deep_dark",
         "minecraft:deep_frozen_ocean",
@@ -952,6 +962,14 @@
         "minecraft:mushroom_fields"
       ]
     }
+  },
+  "minecraft:block_transformer": {
+    "entries": [
+      "minecraft:axe",
+      "minecraft:hoe",
+      "minecraft:shovel"
+    ],
+    "tags": {}
   },
   "minecraft:cat_sound_variant": {
     "entries": [
@@ -1393,6 +1411,34 @@
       "minecraft:overworld_caves",
       "minecraft:the_end",
       "minecraft:the_nether"
+    ],
+    "tags": {}
+  },
+  "minecraft:decorated_pot_pattern": {
+    "entries": [
+      "minecraft:angler",
+      "minecraft:archer",
+      "minecraft:arms_up",
+      "minecraft:blade",
+      "minecraft:brewer",
+      "minecraft:burn",
+      "minecraft:danger",
+      "minecraft:explorer",
+      "minecraft:flow",
+      "minecraft:friend",
+      "minecraft:guster",
+      "minecraft:heart",
+      "minecraft:heartbreak",
+      "minecraft:howl",
+      "minecraft:miner",
+      "minecraft:mourner",
+      "minecraft:plenty",
+      "minecraft:prize",
+      "minecraft:scrape",
+      "minecraft:sheaf",
+      "minecraft:shelter",
+      "minecraft:skull",
+      "minecraft:snort"
     ],
     "tags": {}
   },

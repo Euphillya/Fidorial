@@ -112,7 +112,7 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
         Files.createDirectories(dataDir);
 
         final CompoundBinaryTag.Builder root = CompoundBinaryTag.builder();
-        root.putInt("DataVersion", AnvilChunkSerializer.DATA_VERSION_26_3_SNAPSHOT_10);
+        root.putInt("DataVersion", AnvilChunkSerializer.DATA_VERSION_26_3_PRE_1);
         root.putInt("playerGameModeId", data.gameMode().id());
 
         final Key respawnWorld = data.respawnWorld();

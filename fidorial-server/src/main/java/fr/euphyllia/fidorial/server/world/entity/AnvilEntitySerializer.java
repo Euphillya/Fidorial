@@ -30,7 +30,7 @@ public class AnvilEntitySerializer {
     private final int dataVersion;
 
     public AnvilEntitySerializer() {
-        this(AnvilChunkSerializer.DATA_VERSION_26_3_SNAPSHOT_10);
+        this(AnvilChunkSerializer.DATA_VERSION_26_3_PRE_1);
     }
 
     public AnvilEntitySerializer(final int dataVersion) {

@@ -14,7 +14,7 @@ public final class PlayerEnderChestCodec {
     }
 
     public static byte[] encode(final EnderChestInventory enderChest) throws IOException {
-        return ContainerCodecs.encode(ROOT_NAME, LIST_NAME, AnvilChunkSerializer.DATA_VERSION_26_3_SNAPSHOT_10,
+        return ContainerCodecs.encode(ROOT_NAME, LIST_NAME, AnvilChunkSerializer.DATA_VERSION_26_3_PRE_1,
                 ContainerCodecs.containerCodec(EnderChestInventory::new), enderChest);
     }
 
