@@ -597,9 +597,11 @@ public final class PlayPacketHandler implements PlayPacketListener {
     private void onMoved(final double x, final double y, final double z, final float yaw, final float pitch, final int flags) {
         final Location previous = player.location();
         final Location current = new Location(x, y, z, yaw, pitch);
-        trackFall(previous, current);
+        final boolean wasOnGround = player.onGround();
+        final boolean isOnGround = (flags & 0x01) != 0;
+        trackFall(previous, current, wasOnGround, isOnGround);
         player.setLocation(current);
-        player.setOnGround((flags & 0x01) != 0);
+        player.setOnGround(isOnGround);
         serverWorld().entityManager().moved(player, previous.chunk(), current.chunk());
 
         player.sendToTrackers(new ClientboundEntityPositionSyncPacket(
@@ -860,21 +862,27 @@ public final class PlayPacketHandler implements PlayPacketListener {
         openChunkView(world, server.dynamicRegistries(), destination);
     }
 
-    private void trackFall(final Location previous, final Location current) {
+    private void trackFall(final Location previous, final Location current, final boolean wasOnGround, final boolean isOnGround) {
+        if (wasOnGround && isOnGround) return;
+
         if (player.gameMode() == GameMode.CREATIVE || player.gameMode() == GameMode.SPECTATOR) {
             player.setFallDistance(0.0);
             player.setFalling(false);
             return;
         }
+
+        if (isOnGround) {
+            if (player.fallDistance() > 0.0) {
+                player.landAfterFall();
+            }
+            player.setFalling(false);
+            return;
+        }
+
         final double dy = current.y() - previous.y();
         if (dy < 0.0) {
             player.setFallDistance(player.fallDistance() - dy);
             player.setFalling(true);
-            return;
-        }
-
-        if (player.isFalling()) {
-            player.landAfterFall();
         }
     }
 
