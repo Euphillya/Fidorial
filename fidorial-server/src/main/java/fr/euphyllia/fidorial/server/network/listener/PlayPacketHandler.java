@@ -577,9 +577,6 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     @Override
     public void handlePlayerAbilities(final ServerboundPlayerAbilitiesPacket packet) {
-        final ServerPlayer player = connection.player();
-
-        player.setFlying(packet.isFlying());
     }
 
     private boolean instantMine(final BlockPos position) {
@@ -589,26 +586,27 @@ public final class PlayPacketHandler implements PlayPacketListener {
     @Override
     public void handleMovePlayerPos(final ServerboundMovePlayerPosPacket packet) {
         final Location old = player.location();
-        onMoved(packet.x(), packet.y(), packet.z(), old.yaw(), old.pitch());
+        onMoved(packet.x(), packet.y(), packet.z(), old.yaw(), old.pitch(), packet.flags());
     }
 
     @Override
     public void handleMovePlayerPosRot(final ServerboundMovePlayerPosRotPacket packet) {
-        onMoved(packet.x(), packet.y(), packet.z(), packet.yaw(), packet.pitch());
+        onMoved(packet.x(), packet.y(), packet.z(), packet.yaw(), packet.pitch(), packet.flags());
     }
 
-    private void onMoved(final double x, final double y, final double z, final float yaw, final float pitch) {
+    private void onMoved(final double x, final double y, final double z, final float yaw, final float pitch, final int flags) {
         final Location previous = player.location();
         final Location current = new Location(x, y, z, yaw, pitch);
         trackFall(previous, current);
         player.setLocation(current);
+        player.setOnGround((flags & 0x01) != 0);
         serverWorld().entityManager().moved(player, previous.chunk(), current.chunk());
 
         player.sendToTrackers(new ClientboundEntityPositionSyncPacket(
                 player.entityId(),
                 new PositionData.LinearPositionPath(LocationPositionData.vec3(current)),
                 LocationPositionData.floatRotation(current),
-                !player.isFlying()));
+                player.onGround()));
         player.sendToTrackers(new ClientboundRotateHeadPacket(player.entityId(), yaw));
         server.entityTracker().update(player, server.players());
 
@@ -642,7 +640,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
                     player.entityId(),
                     new PositionData.LinearPositionPath(LocationPositionData.vec3(location)),
                     LocationPositionData.floatRotation(location),
-                    !player.isFlying()));
+                    player.onGround()));
             player.sendToTrackers(new ClientboundRotateHeadPacket(player.entityId(), location.yaw()));
 
             if (chunkView != null && chunkView.moveTo(destChunk.x(), destChunk.z()) && ticket != null) {
