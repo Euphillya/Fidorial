@@ -12,10 +12,21 @@ public record PluginMeta(
         String main,
         List<String> authors,
         List<String> depends,
-        Map<String, PermissionEntry> permissions
+        Map<String, PermissionEntry> permissions,
+        List<String> repositories
 ) {
+
     public PluginMeta(final String id, final String name, final String version, final String main, final List<String> authors, final List<String> depends) {
-        this(id, name, version, main, authors, depends, Map.of());
+        this(id, name, version, main, authors, depends, Map.of(), List.of());
+    }
+
+    public PluginMeta(final String id, final String name, final String version, final String main, final List<String> authors, final List<String> depends, final Map<String, PermissionEntry> permissions) {
+        this(id, name, version, main, authors, depends, permissions, List.of());
+    }
+
+    @Override
+    public List<String> repositories() {
+        return repositories == null ? List.of() : repositories;
     }
 
     public record PermissionEntry(String description, TriState regular, TriState operator) {

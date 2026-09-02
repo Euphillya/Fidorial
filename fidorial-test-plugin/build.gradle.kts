@@ -2,11 +2,18 @@ extra.set("readUnnamedModules", setOf("fr.fidorial.test", "fr.fidorial"))
 
 plugins {
     id("com.gradleup.shadow")
+    id("fr.fidorial.plugin-libraries")
+}
+
+repositories {
+    maven("https://jitpack.io/")
 }
 
 dependencies {
     compileOnly(libs.brigadier)
     compileOnly(projects.fidorialApi)
+
+    fidorialLibrary("org.apache.commons:commons-text:1.12.0")
 }
 
 tasks.jar {

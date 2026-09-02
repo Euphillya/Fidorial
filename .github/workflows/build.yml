@@ -62,11 +62,7 @@ jobs:
         run: ./gradlew spotlessCheck --no-daemon --no-configuration-cache
 
       - name: Build and test
-        run: ./gradlew build --no-daemon
-
-      - name: Build fat jar
-        if: inputs.upload-jar
-        run: ./gradlew :fidorial-server:shadowJar --no-daemon
+        run: ./gradlew build --no-daemon --no-configuration-cache
 
       - name: Collect jar metadata
         id: jar

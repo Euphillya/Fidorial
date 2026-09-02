@@ -32,5 +32,9 @@ gradlePlugin {
             id = "fr.fidorial.dependency-patcher"
             implementationClass = "fr.euphyllia.fidorial.gradle.patcher.DependencyPatcherPlugin"
         }
+        register("pluginLibraries") {
+            id = "fr.fidorial.plugin-libraries"
+            implementationClass = "fr.euphyllia.fidorial.gradle.libraries.PluginLibrariesPlugin"
+        }
     }
 }
