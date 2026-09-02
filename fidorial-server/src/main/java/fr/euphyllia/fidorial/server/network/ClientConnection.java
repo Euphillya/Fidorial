@@ -282,7 +282,9 @@ public final class ClientConnection extends SimpleChannelInboundHandler<ByteBuf>
                                 new PlayerDataStorage.PlayerData(
                                         disconnecting.gameMode(),
                                         point == null ? null : point.world().key(),
-                                        point == null ? null : point.location()));
+                                        point == null ? null : point.location(),
+                                        disconnecting.world().key(),
+                                        disconnecting.location()));
                 LOGGER.debug("Inventory + Ender Chest and data for {} saved", disconnecting.name());
             } catch (final Exception e) {
                 LOGGER.error("Unable to save inventory for {}", disconnecting.name(), e);

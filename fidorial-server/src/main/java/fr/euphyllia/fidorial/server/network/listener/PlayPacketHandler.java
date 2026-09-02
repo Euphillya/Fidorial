@@ -125,9 +125,10 @@ public final class PlayPacketHandler implements PlayPacketListener {
             return;
         }
 
-        final ServerWorld world = server.worldManager().overworld(); // FIXME: dont hardcode
-        final Location spawn = new Location(config.spawnX(), config.spawnY(), config.spawnZ(), 0f, 0f); // we should preserve the player's loc in NBT
-        this.player = createPlayer(world, spawn);
+        this.player = createPlayer();
+        final ServerWorld world = (ServerWorld) player.world();
+        final Location spawn = player.location();
+
         connection.setPlayer(player);
         world.addEntity(player);
 
@@ -172,13 +173,30 @@ public final class PlayPacketHandler implements PlayPacketListener {
         }
     }
 
-    private ServerPlayer createPlayer(final ServerWorld world, final Location spawn) {
+    private ServerPlayer createPlayer() {
         final PlayerProfile profile = connection.profile();
         if (profile == null) {
             throw new IllegalStateException(
                     "Attempt to create a player without an authenticated profile (incomplete login)");
         }
         final PlayerDataStorage.PlayerData data = loadPlayerData(profile);
+
+        final ServerWorld defaultWorld = server.worldManager().overworld();
+        final Location defaultSpawn = new Location(config.spawnX(), config.spawnY(), config.spawnZ(), 0f, 0f);
+
+        ServerWorld world = defaultWorld;
+        Location spawn = defaultSpawn;
+
+        if (data.hasLastLocation()) {
+            final ServerWorld saved = server.worldManager().world(data.world());
+            if (saved != null) {
+                world = saved;
+                spawn = data.location();
+            } else {
+                LOGGER.warn("{} last played in the unloaded world {}, world spawn used instead", profile.name(), data.world());
+            }
+        }
+
         final ServerPlayer created = new ServerPlayer(
                 server.entityIds().allocate(),
                 profile,
@@ -230,7 +248,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private PlayerDataStorage.PlayerData loadPlayerData(final PlayerProfile profile) {
-        final PlayerDataStorage.PlayerData defaults = new PlayerDataStorage.PlayerData(config.defaultGameMode(), null, null);
+        final PlayerDataStorage.PlayerData defaults = new PlayerDataStorage.PlayerData(config.defaultGameMode(), null, null, null, null);
         try {
             return server.playerDataStorage().load(profile.uuid(), defaults);
         } catch (final Exception e) {
