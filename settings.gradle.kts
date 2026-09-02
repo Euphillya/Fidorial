@@ -13,5 +13,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include("fidorial-api")
 include("fidorial-auth")
+include("fidorial-bootstrap")
 include("fidorial-server")
 include("fidorial-test-plugin")
