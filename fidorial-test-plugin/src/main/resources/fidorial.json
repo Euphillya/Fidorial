@@ -18,7 +18,7 @@
       "operator": "FALSE"
     },
     "testplugin.admin": {
-      "description": "Acces aux sous-commandes sensibles",git
+      "description": "Acces aux sous-commandes sensibles",
       "operator": "TRUE",
       "regular": "FALSE"
     }
