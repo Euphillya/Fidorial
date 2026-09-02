@@ -140,8 +140,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
         server.addPlayerConnection(connection);
         for (final ServerPlayer other : server.players()) {
             if (other == player) continue;
-            connection.send(new ClientboundPlayerInfoUpdatePacket(other.profile(), other.gameMode().id(), 0));
-            other.connection().send(new ClientboundPlayerInfoUpdatePacket(player.profile(), player.gameMode().id(), 0));
+            connection.send(new ClientboundPlayerInfoUpdatePacket(other.profile(), other.gameMode().id(), player.ping()));
+            other.connection().send(new ClientboundPlayerInfoUpdatePacket(player.profile(), player.gameMode().id(), player.ping()));
         }
         server.events().post(new PlayerJoinEvent(player));
         LOGGER.info("{} logged with uuid {}", player.name(), player.uuid());
@@ -240,7 +240,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     private void sendLoginSequence() {
-        final int dimensionType = server.dimensionTypes().networkId(worldManager().world(worldId()).generator.dimensionType().key());
+        final int dimensionType = server.dimensionTypes().networkId(serverWorld().generator.dimensionType().key());
         final Key[] dimensions = worldManager().worlds().stream().map(ServerWorld::key).toArray(Key[]::new);
         connection.send(new ClientboundLoginPacket(
                 player.entityId(),
@@ -251,11 +251,11 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 worldManager().levelData().hashedSeed(),
                 config.viewDistance(),
                 player.gameMode().id(),
-                describeGenerator(worldId()) instanceof ChunkGeneratorConfig.Debug,
-                describeGenerator(worldId()) instanceof ChunkGeneratorConfig.Flat,
+                describeGenerator(serverWorld()) instanceof ChunkGeneratorConfig.Debug,
+                describeGenerator(serverWorld()) instanceof ChunkGeneratorConfig.Flat,
                 server.config().onlineMode()));
         connection.send(new ClientboundPlayerInfoUpdatePacket(
-                player.profile(), player.gameMode().id(), 0));
+                player.profile(), player.gameMode().id(), player.ping()));
         connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(player.gameMode()));
         connection.send(ClientboundSetEntityMetadataPacket.of(
                 player.entityId(),
@@ -263,7 +263,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         player.invalidatePermissions();
         connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         server.weatherEngine().syncTo(connection::send);
-        server.dayNightEngine().syncTo(worldManager().world(worldId()), connection::send);
+        server.dayNightEngine().syncTo(serverWorld(), connection::send);
         server.bossBarRegistry().syncTo(player);
     }
 
@@ -684,8 +684,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 worldManager().levelData().hashedSeed(),
                 player.gameMode().id(),
                 ClientboundRespawnPacket.KEEP_ALL,
-                describeGenerator(target.dimension().id()) instanceof ChunkGeneratorConfig.Debug,
-                describeGenerator(target.dimension().id()) instanceof ChunkGeneratorConfig.Flat));
+                describeGenerator(target) instanceof ChunkGeneratorConfig.Debug,
+                describeGenerator(target) instanceof ChunkGeneratorConfig.Flat));
         connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(player.gameMode()));
         connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
         openChunkView(target, dynamic, destChunk);
@@ -806,8 +806,8 @@ public final class PlayPacketHandler implements PlayPacketListener {
                 worldManager().levelData().hashedSeed(),
                 player.gameMode().id(),
                 ClientboundRespawnPacket.KEEP_NOTHING,
-                describeGenerator(world.dimension().id()) instanceof ChunkGeneratorConfig.Debug,
-                describeGenerator(world.dimension().id()) instanceof ChunkGeneratorConfig.Flat));
+                describeGenerator(world) instanceof ChunkGeneratorConfig.Debug,
+                describeGenerator(world) instanceof ChunkGeneratorConfig.Flat));
         connection.send(ClientboundPlayerAbilitiesPacket.forGameMode(player.gameMode()));
         connection.send(new ClientboundSetHealthPacket(player.health(), 20, 5.0f));
         connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.START_WAITING_FOR_CHUNKS, 0f));
@@ -898,8 +898,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         return server.worldManager();
     }
 
-    private @Nullable ChunkGeneratorConfig describeGenerator(final Key dimensionKey) {
-        final ServerWorld world = worldManager().world(dimensionKey);
-        return world == null ? null : world.generator.describeForSave();
+    private ChunkGeneratorConfig describeGenerator(final ServerWorld world) {
+        return world.generator.describeForSave();
     }
 }
