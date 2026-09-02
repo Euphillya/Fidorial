@@ -7,6 +7,9 @@
     "Euphyllia"
   ],
   "depends": [],
+  "repositories": [
+    "https://jitpack.io/"
+  ],
   "defaultPermission": "op",
   "permissions": {
     "testplugin.use": {
@@ -15,7 +18,7 @@
       "operator": "FALSE"
     },
     "testplugin.admin": {
-      "description": "Acces aux sous-commandes sensibles",
+      "description": "Acces aux sous-commandes sensibles",git
       "operator": "TRUE",
       "regular": "FALSE"
     }
