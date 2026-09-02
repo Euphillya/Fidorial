@@ -252,6 +252,8 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     }
 
     public boolean onGround() {
+        // FIXME: This currently relies fully on the bits the client sends; without any server-side validation.
+        // Needs to be revisited in the future.
         return this.onGround;
     }
 
