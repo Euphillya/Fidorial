@@ -2,6 +2,7 @@ package fr.fidorial.item;
 
 import fr.fidorial.item.component.AttackRange;
 import fr.fidorial.item.component.BannerPatterns;
+import fr.fidorial.item.component.DyeColor;
 import fr.fidorial.item.component.ItemAttributeModifiers;
 import fr.fidorial.item.component.ItemLore;
 import fr.fidorial.registry.keys.DataComponentTypeKeys;
@@ -93,6 +94,18 @@ public class DataComponentTypes {
      */
     public static final DataComponentType<BannerPatterns> BANNER_PATTERNS =
             register(DataComponentTypeKeys.BANNER_PATTERNS.key(), BannerPatterns.class);
+
+    /**
+     * The base colour a shield's banner is drawn on. Meaningless on anything but a
+     * shield, so, like {@link #BANNER_PATTERNS}, deliberately without a shortcut on
+     * {@link DataComponentEditor}.
+     *
+     * <p>Setting it also renames the item to "&lt;colour&gt; Shield". A shield with
+     * neither this nor {@link #BANNER_PATTERNS} keeps its plain wooden texture; one
+     * with patterns but no base colour is drawn on white.
+     */
+    public static final DataComponentType<DyeColor> BASE_COLOR =
+            register(DataComponentTypeKeys.BASE_COLOR.key(), DyeColor.class);
 
     private DataComponentTypes() {
         throw new UnsupportedOperationException("DataComponentTypes cannot be instantiated.");

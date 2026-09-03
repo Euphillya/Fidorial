@@ -64,7 +64,7 @@ public final class DataComponentNetworkCodecs {
         register(DataComponentTypes.ATTACK_RANGE, attackRangeCodec());
         register(DataComponentTypes.ATTRIBUTE_MODIFIERS, attributeModifiersCodec());
         register(DataComponentTypes.BANNER_PATTERNS, bannerPatternsCodec());
-
+        register(DataComponentTypes.BASE_COLOR, dyeColorCodec());
     }
 
     private DataComponentNetworkCodecs() {
@@ -295,13 +295,7 @@ public final class DataComponentNetworkCodecs {
                 for (int i = 0; i < size; i++) {
                     final BannerPattern pattern = readBannerPattern(buf, frozen);
 
-                    final int colorId = buf.readVarInt();
-                    final DyeColor color = DyeColor.byNetworkId(colorId);
-                    if (color == null) {
-                        throw new DecoderException("Unknown dye colour network id: " + colorId);
-                    }
-
-                    layers.add(new BannerPatterns.Layer(pattern, color));
+                    layers.add(new BannerPatterns.Layer(pattern, readDyeColor(buf)));
                 }
 
                 return BannerPatterns.of(layers);
@@ -322,6 +316,31 @@ public final class DataComponentNetworkCodecs {
                 buf.writeString(inline.translationKey());
             }
         }
+    }
+
+    private static Codec<DyeColor> dyeColorCodec() {
+        return new Codec<>() {
+            @Override
+            public void write(final PacketBuffer buf, final RegistryHolder frozen, final DyeColor value) {
+                buf.writeVarInt(value.networkId());
+            }
+
+            @Override
+            public DyeColor read(final PacketBuffer buf, final RegistryHolder frozen) {
+                return readDyeColor(buf);
+            }
+        };
+    }
+
+    private static DyeColor readDyeColor(final PacketBuffer buf) {
+        final int colorId = buf.readVarInt();
+
+        final DyeColor color = DyeColor.byNetworkId(colorId);
+        if (color == null) {
+            throw new DecoderException("Unknown dye colour network id: " + colorId);
+        }
+
+        return color;
     }
 
     private static BannerPattern readBannerPattern(final PacketBuffer buf, final RegistryHolder frozen) {

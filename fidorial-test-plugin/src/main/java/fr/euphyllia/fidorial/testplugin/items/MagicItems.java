@@ -35,6 +35,10 @@ public class MagicItems {
     public static final Key MAGIC_BANNER = Key.key("fidorialtest", "banniere_magique");
     public static final Key BLACK_BANNER = ItemKeys.BLACK_BANNER.key();
 
+    private static final int SHIELD_DURABILITY = 336;
+    public static final Key MAGIC_SHIELD = Key.key("fidorialtest", "bouclier_magique");
+    public static final Key SHIELD = ItemKeys.SHIELD.key();
+
     private MagicItems() {
     }
 
@@ -94,5 +98,19 @@ public class MagicItems {
 
         items.register(banner, owner);
         logger.info("[TestPlugin] Item {} registered, rendered as {}", MAGIC_BANNER, BLACK_BANNER.asString());
+    }
+
+    public static void registerMagicShield(final ItemRegistry items, final Object owner, final ComponentLogger logger) {
+        final ItemDefinition shield = ItemDefinition.builder(MAGIC_SHIELD, SHIELD)
+                .maxStackSize(1)
+                .maxDamage(SHIELD_DURABILITY)
+                .edit(components -> components
+                        .set(DataComponentTypes.BASE_COLOR, DyeColor.LIME)
+                        .set(DataComponentTypes.BANNER_PATTERNS, BannerPatterns.EMPTY
+                                .plus(BannerPatternKeys.STRIPE_DOWNRIGHT.key(), DyeColor.PURPLE)))
+                .build();
+
+        items.register(shield, owner);
+        logger.info("[TestPlugin] Item {} registered, rendered as {}", MAGIC_SHIELD, SHIELD.asString());
     }
 }

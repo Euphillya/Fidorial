@@ -280,7 +280,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     private void spawnPlayer(final Location spawn) {
         connection.send(new ClientboundPlayerPositionPacket(player.nextTeleportId(), spawn.x(), spawn.y(), spawn.z()));
-        connection.send(player.inventoryMenu().buildSyncPacket(server.registries().frozen()));
+        connection.send(player.inventoryMenu().buildSyncPacket(server.registries().network()));
     }
 
     @Override

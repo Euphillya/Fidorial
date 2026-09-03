@@ -99,7 +99,7 @@ public final class ItemComponentCodecs {
             .listOf()
             .xmap(ItemAttributeModifiers::of, ItemAttributeModifiers::modifiers);
 
-    private static final Codec<DyeColor> DYE_COLOR_CODEC = Codec.STRING.comapFlatMap(
+    public static final Codec<DyeColor> DYE_COLOR_CODEC = Codec.STRING.comapFlatMap(
             name -> {
                 final DyeColor color = DyeColor.byName(name);
                 return color == null
