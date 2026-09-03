@@ -1,5 +1,6 @@
 package fr.fidorial.item;
 
+import fr.fidorial.item.component.AttackRange;
 import fr.fidorial.item.component.ItemLore;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -181,6 +182,34 @@ public final class DataComponentEditor implements DataComponentHolder {
     public DataComponentEditor itemModel(final @Nullable Key itemModel) {
         return setOrReset(DataComponentTypes.ITEM_MODEL, itemModel);
     }
+
+    /**
+     * How far this item reaches when swung.
+     *
+     * @param attackRange the reach, or {@code null} to clear it
+     * @return this editor
+     * @since 0.1.0
+     */
+    public DataComponentEditor attackRange(final @Nullable AttackRange attackRange) {
+        return setOrReset(DataComponentTypes.ATTACK_RANGE, attackRange);
+    }
+
+    /**
+     * Sets how far this item reaches, leaving the other reach fields at their
+     * defaults. Note this brings a hitbox margin of
+     * {@value AttackRange#DEFAULT_HITBOX_MARGIN} with it, which an item carrying no
+     * reach at all does not have — build an {@link AttackRange} yourself to say
+     * otherwise.
+     *
+     * @param maxReach the furthest a target may be and still be hit
+     * @return this editor
+     * @since 0.1.0
+     */
+    public DataComponentEditor attackRange(final float maxReach) {
+        return attackRange(AttackRange.of(maxReach));
+    }
+
+
 
     /**
      * @param damage the spent durability

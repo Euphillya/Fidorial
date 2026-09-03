@@ -7,6 +7,7 @@ import fr.fidorial.attribute.AttributeModifier;
 import fr.fidorial.inventory.EquipmentSlotGroup;
 import fr.fidorial.item.DataComponentType;
 import fr.fidorial.item.DataComponentTypes;
+import fr.fidorial.item.component.AttackRange;
 import fr.fidorial.item.component.ItemLore;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.key.Key;
@@ -43,6 +44,8 @@ public final class DataComponentNetworkCodecs {
         register(DataComponentTypes.CUSTOM_NAME, textCodec());
         register(DataComponentTypes.ITEM_NAME, textCodec());
         register(DataComponentTypes.LORE, loreCodec());
+
+        register(DataComponentTypes.ATTACK_RANGE, attackRangeCodec());
 
     }
 
@@ -151,6 +154,37 @@ public final class DataComponentNetworkCodecs {
                 }
 
                 return new ItemLore(lines);
+            }
+        };
+    }
+
+    private static Codec<AttackRange> attackRangeCodec() {
+        return new Codec<>() {
+            @Override
+            public void write(final PacketBuffer buf, final RegistryHolder frozen, final AttackRange value) {
+                buf.writeFloat(value.minReach());
+                buf.writeFloat(value.maxReach());
+                buf.writeFloat(value.minCreativeReach());
+                buf.writeFloat(value.maxCreativeReach());
+                buf.writeFloat(value.hitboxMargin());
+                buf.writeFloat(value.mobFactor());
+            }
+
+            @Override
+            public AttackRange read(final PacketBuffer buf, final RegistryHolder frozen) {
+                final float minReach = buf.readFloat();
+                final float maxReach = buf.readFloat();
+                final float minCreativeReach = buf.readFloat();
+                final float maxCreativeReach = buf.readFloat();
+                final float hitboxMargin = buf.readFloat();
+                final float mobFactor = buf.readFloat();
+
+                try {
+                    return new AttackRange(
+                            minReach, maxReach, minCreativeReach, maxCreativeReach, hitboxMargin, mobFactor);
+                } catch (final IllegalArgumentException e) {
+                    throw new DecoderException("Implausible attack range: " + e.getMessage(), e);
+                }
             }
         };
     }

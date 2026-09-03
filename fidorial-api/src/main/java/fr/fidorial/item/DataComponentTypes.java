@@ -1,5 +1,6 @@
 package fr.fidorial.item;
 
+import fr.fidorial.item.component.AttackRange;
 import fr.fidorial.item.component.ItemLore;
 import fr.fidorial.registry.keys.DataComponentTypeKeys;
 import net.kyori.adventure.key.Key;
@@ -68,6 +69,13 @@ public class DataComponentTypes {
     public static final DataComponentType<Boolean> ENCHANTMENT_GLINT_OVERRIDE =
             register(DataComponentTypeKeys.ENCHANTMENT_GLINT_OVERRIDE.key(), Boolean.class);
 
+    /**
+     * How far this item reaches when swung, and how far outside its hitbox a target
+     * can still be hit. Absent on an item that reaches
+     * {@value AttackRange#DEFAULT_MAX_REACH} blocks with no margin.
+     */
+    public static final DataComponentType<AttackRange> ATTACK_RANGE =
+            register(DataComponentTypeKeys.ATTACK_RANGE.key(), AttackRange.class);
 
     private DataComponentTypes() {
         throw new UnsupportedOperationException("DataComponentTypes cannot be instantiated.");

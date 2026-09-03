@@ -2,6 +2,7 @@ package fr.euphyllia.fidorial.testplugin.items;
 
 import fr.fidorial.item.ItemDefinition;
 import fr.fidorial.item.ItemRegistry;
+import fr.fidorial.item.component.AttackRange;
 import fr.fidorial.registry.keys.ItemKeys;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -16,6 +17,9 @@ public class MagicItems {
 
     private static final int SWORD_DURABILITY = 500;
 
+    private static final float SWORD_REACH = 4.5F;
+    private static final float SWORD_HITBOX_MARGIN = 0.125F;
+
     private MagicItems() {
     }
 
@@ -26,6 +30,11 @@ public class MagicItems {
                 .edit(components -> components
                         .itemName(Component.text("Magic Sword", NamedTextColor.LIGHT_PURPLE))
                         .lore(Component.text("First line"), Component.text("Second line"))
+                        .attackRange(AttackRange.builder()
+                                .maxReach(SWORD_REACH)
+                                .hitboxMargin(SWORD_HITBOX_MARGIN)
+                                .build()
+                        )
                         .glint(true))
                 .build();
 

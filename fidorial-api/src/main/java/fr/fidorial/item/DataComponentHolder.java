@@ -1,5 +1,6 @@
 package fr.fidorial.item;
 
+import fr.fidorial.item.component.AttackRange;
 import fr.fidorial.item.component.ItemLore;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -50,6 +51,50 @@ public interface DataComponentHolder {
      */
     default boolean has(final DataComponentType<?> type) {
         return components().has(type);
+    }
+
+    /**
+     * How far this item reaches when swung.
+     *
+     * <p>{@code null} rather than {@link AttackRange#DEFAULT} when unset, because
+     * the two differ: an item with no component has no hitbox margin, while
+     * {@link AttackRange#DEFAULT} carries
+     * {@value AttackRange#DEFAULT_HITBOX_MARGIN}.
+     *
+     * @return the reach, or {@code null}
+     * @since 0.1.0
+     */
+    default @Nullable AttackRange attackRange() {
+        return get(DataComponentTypes.ATTACK_RANGE);
+    }
+
+    /**
+     * @return {@code true} when {@link #attackRange()} is set
+     * @since 0.1.0
+     */
+    default boolean hasAttackRange() {
+        return has(DataComponentTypes.ATTACK_RANGE);
+    }
+
+    /**
+     * @param creative whether the attacker is a player in creative mode
+     * @return the furthest a target may be and still be hit, falling back to
+     *         {@value AttackRange#DEFAULT_MAX_REACH} when the component is unset
+     * @since 0.1.0
+     */
+    default float maxReach(final boolean creative) {
+        final AttackRange range = attackRange();
+        return range != null ? range.maxReachFor(creative) : AttackRange.DEFAULT_MAX_REACH;
+    }
+
+    /**
+     * @return how far outside its hitbox a target can still be hit; {@code 0} when
+     *         the component is unset
+     * @since 0.1.0
+     */
+    default float hitboxMargin() {
+        final AttackRange range = attackRange();
+        return range != null ? range.hitboxMargin() : 0.0F;
     }
 
     /**

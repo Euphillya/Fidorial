@@ -7,6 +7,7 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.euphyllia.fidorial.server.codecs.adventure.ComponentCodecs;
+import fr.euphyllia.fidorial.server.codecs.item.ItemComponentCodecs;
 import fr.fidorial.item.DataComponentMap;
 import fr.fidorial.item.DataComponentType;
 import fr.fidorial.item.DataComponentTypes;
@@ -42,6 +43,7 @@ public final class ItemStackCodecs {
         register(DataComponentTypes.CUSTOM_NAME, ComponentCodecs.COMPONENT_CODEC);
         register(DataComponentTypes.ITEM_NAME, ComponentCodecs.COMPONENT_CODEC);
         register(DataComponentTypes.LORE, ComponentCodecs.LORE_CODEC);
+        register(DataComponentTypes.ATTACK_RANGE, ItemComponentCodecs.ATTACK_RANGE_CODEC);
     }
 
     public static final Codec<DataComponentMap> COMPONENT_MAP_CODEC = new Codec<>() {
