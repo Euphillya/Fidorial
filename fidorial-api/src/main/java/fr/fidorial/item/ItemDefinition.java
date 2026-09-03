@@ -103,8 +103,8 @@ public record ItemDefinition(Key key, Key networkType, DataComponentMap componen
 
         private Builder(final Key key, final Key networkType) {
             this(key, networkType, DataComponentEditor.empty()
-                    .set(DataComponentTypes.MAX_STACK_SIZE, DEFAULT_MAX_STACK_SIZE)
-                    .set(DataComponentTypes.ITEM_MODEL, key));
+                    .maxStackSize(DEFAULT_MAX_STACK_SIZE)
+                    .itemModel(key));
         }
 
         private Builder(final Key key, final Key networkType, final DataComponentEditor components) {
@@ -154,7 +154,8 @@ public record ItemDefinition(Key key, Key networkType, DataComponentMap componen
          * @since 0.1.0
          */
         public Builder maxStackSize(final int maxStackSize) {
-            return set(DataComponentTypes.MAX_STACK_SIZE, maxStackSize);
+            components.maxStackSize(maxStackSize);
+            return this;
         }
 
         /**
@@ -163,9 +164,8 @@ public record ItemDefinition(Key key, Key networkType, DataComponentMap componen
          * @since 0.1.0
          */
         public Builder maxDamage(final int maxDamage) {
-            return maxDamage == 0
-                    ? reset(DataComponentTypes.MAX_DAMAGE)
-                    : set(DataComponentTypes.MAX_DAMAGE, maxDamage);
+            components.maxDamage(maxDamage == 0 ? null : maxDamage);
+            return this;
         }
 
         /**
@@ -174,7 +174,8 @@ public record ItemDefinition(Key key, Key networkType, DataComponentMap componen
          * @since 0.1.0
          */
         public Builder itemModel(final Key itemModel) {
-            return set(DataComponentTypes.ITEM_MODEL, itemModel);
+            components.itemModel(itemModel);
+            return this;
         }
 
         /**

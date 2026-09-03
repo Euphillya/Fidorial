@@ -53,6 +53,14 @@ public interface DataComponentHolder {
     }
 
     /**
+     * @return durability already spent; {@code 0} is pristine
+     * @since 0.1.0
+     */
+    default int damage() {
+        return getOrDefault(DataComponentTypes.DAMAGE, 0);
+    }
+
+    /**
      * The name an anvil sets, drawn in italics.
      *
      * @return the player-assigned name, or {@code null}

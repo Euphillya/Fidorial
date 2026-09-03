@@ -7,6 +7,7 @@ import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.inventory.Container;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.item.ItemDefaults;
 import fr.fidorial.item.ItemStack;
 import net.kyori.adventure.text.Component;
 
@@ -46,7 +47,7 @@ public abstract class ContainerMenu {
     }
 
     protected static int maxStackSize(final ItemStack stack) {
-        return Math.max(1, stack.maxStackSize());
+        return Math.max(1, ItemDefaults.maxStackSize(stack.id(), stack));
     }
 
     public final int windowId() {

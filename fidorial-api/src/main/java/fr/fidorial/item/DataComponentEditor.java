@@ -183,14 +183,6 @@ public final class DataComponentEditor implements DataComponentHolder {
     }
 
     /**
-     * @return durability already spent; {@code 0} is pristine
-     * @since 0.1.0
-     */
-    public int damage() {
-        return getOrDefault(DataComponentTypes.DAMAGE, 0);
-    }
-
-    /**
      * @param damage the spent durability
      * @return this editor
      * @since 0.1.0

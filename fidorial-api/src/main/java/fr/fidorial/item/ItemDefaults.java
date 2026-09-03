@@ -134,4 +134,32 @@ public final class ItemDefaults {
         final Properties override = OVERRIDES.get(item);
         return override != null ? override.maxDamage() : source.maxDamage(item);
     }
+
+    /**
+     * Resolves how many fit in one slot: what {@code patch} says, and failing that
+     * the item's own limit.
+     *
+     * @param item  namespaced item identifier
+     * @param patch the stack's components
+     * @return how many of this item fit in one slot
+     * @since 0.1.0
+     */
+    public static int maxStackSize(final Key item, final DataComponentHolder patch) {
+        final Integer patched = patch.get(DataComponentTypes.MAX_STACK_SIZE);
+        return patched != null ? patched : maxStackSize(item);
+    }
+
+    /**
+     * Resolves total durability: what {@code patch} says, and failing that the
+     * item's own.
+     *
+     * @param item  namespaced item identifier
+     * @param patch the stack's components
+     * @return total durability, or {@code 0} when the item cannot break
+     * @since 0.1.0
+     */
+    public static int maxDamage(final Key item, final DataComponentHolder patch) {
+        final Integer patched = patch.get(DataComponentTypes.MAX_DAMAGE);
+        return patched != null ? patched : maxDamage(item);
+    }
 }

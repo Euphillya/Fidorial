@@ -8,6 +8,7 @@ import fr.euphyllia.fidorial.testplugin.items.MagicItems;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Player;
+import fr.fidorial.item.ItemDefaults;
 import fr.fidorial.item.ItemStack;
 import fr.fidorial.registry.keys.ItemKeys;
 import net.kyori.adventure.text.Component;
@@ -76,12 +77,13 @@ public final class ItemCommand {
         plugin.msg(player, "[TestPlugin] id=" + held.id()
                 + " count=" + held.count()
                 + " translationKey=" + held.translationKey());
-        plugin.msg(player, "[TestPlugin] damageable=" + held.isDamageable()
+        final int maxDamage = ItemDefaults.maxDamage(held.id(), held);
+        plugin.msg(player, "[TestPlugin] damageable=" + (maxDamage > 0)
                 + " damage=" + held.damage()
-                + "/" + held.maxDamage()
-                + " restant=" + held.remainingDurability()
-                + " willBreak=" + held.willBreak());
-        plugin.msg(player, "[TestPlugin] maxStackSize=" + held.maxStackSize()
+                + "/" + maxDamage
+                + " remaining=" + Math.max(0, maxDamage - held.damage())
+                + " willBreak=" + (maxDamage > 0 && held.damage() >= maxDamage - 1));
+        plugin.msg(player, "[TestPlugin] maxStackSize=" + ItemDefaults.maxStackSize(held.id(), held)
                 + " hasCustomName=" + held.hasCustomName());
 
         plugin.msg(player, "[TestPlugin] hasLore=" + held.hasLore()
@@ -136,17 +138,20 @@ public final class ItemCommand {
         final int slot = player.selectedSlot();
         final ItemStack held = player.inventory().get(slot);
 
-        if (held.isEmpty() || !held.isDamageable()) {
+        final int maxDamage = ItemDefaults.maxDamage(held.id(), held);
+
+        if (held.isEmpty() || maxDamage <= 0) {
             plugin.msg(player, "[TestPlugin] This item cannot be damaged..");
             return Command.SINGLE_SUCCESS;
         }
 
-        final ItemStack damaged = held.damaged(1);
+        final ItemStack damaged = held.edit(
+                components -> components.damage(Math.clamp(components.damage() + 1, 0, maxDamage)));
         player.inventory().set(slot, damaged);
 
         plugin.msg(player, "[TestPlugin] Damage inflicted: " + damaged.damage()
-                + "/" + damaged.maxDamage()
-                + " (willBreak=" + damaged.willBreak() + ")");
+                + "/" + maxDamage
+                + " (willBreak=" + (damaged.damage() >= maxDamage - 1) + ")");
 
         return Command.SINGLE_SUCCESS;
     }

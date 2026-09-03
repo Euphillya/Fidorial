@@ -76,6 +76,7 @@ import fr.fidorial.event.player.PlayerRespawnEvent;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.EquipmentSlotGroup;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.item.ItemDefaults;
 import fr.fidorial.item.ItemStack;
 import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.storage.player.PlayerDataStorage;
@@ -337,7 +338,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             return;
         }
 
-        final int maxCount = Math.max(1, stack.maxStackSize());
+        final int maxCount = Math.max(1, ItemDefaults.maxStackSize(stack.id(), stack));
         player.inventory().set(slot, stack.count() > maxCount ? stack.withCount(maxCount) : stack);
     }
 
