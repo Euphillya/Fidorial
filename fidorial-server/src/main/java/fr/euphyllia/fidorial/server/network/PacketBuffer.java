@@ -5,6 +5,7 @@ import fr.fidorial.registry.RegistryKey;
 import fr.fidorial.world.BlockPos;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
+import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.BinaryTagTypes;
@@ -201,7 +202,11 @@ public final class PacketBuffer {
 
     public Key readKey() {
         final String read = this.readString(32767);
-        return Key.key(read);
+        try {
+            return Key.key(read);
+        } catch (final InvalidKeyException e) {
+            throw new DecoderException("Malformed identifier: " + e.getMessage(), e);
+        }
     }
 
     public PacketBuffer writeKey(final Key key) {

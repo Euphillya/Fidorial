@@ -10,9 +10,13 @@ import fr.fidorial.item.DataComponentTypes;
 import fr.fidorial.item.ItemStack;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
+
 public class ItemStackReader {
+
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(ItemStackReader.class);
 
     private static final Key ITEM_REGISTRY = Key.key("item");
     private static final Key DATA_COMPONENT_TYPE_REGISTRY = Key.key("data_component_type");
@@ -72,20 +76,37 @@ public class ItemStackReader {
                                       final DataComponentMap.Builder components) {
 
         final int typeId = buf.readVarInt();
+        final int length = buf.readVarInt();
+        if (length < 0 || length > buf.readableBytes()) {
+            throw new DecoderException("Implausible payload length " + length
+                    + " for data component network id " + typeId);
+        }
+
+        final PacketBuffer payload = new PacketBuffer(buf.nettyBuf().readSlice(length));
         final Key key = entryOf(frozen, DATA_COMPONENT_TYPE_REGISTRY, typeId);
 
         if (key == null) {
-            throw new DecoderException("Unknown data component network id: " + typeId
-                    + "; the rest of this slot cannot be read");
+            LOGGER.debug("Skipping unknown data component network id {} ({} bytes)", typeId, length);
+            return;
         }
 
         final DataComponentType<?> type = DataComponentTypes.byKey(key);
-        if (type == null) {
-            throw new DecoderException("Data component " + key.asString()
-                    + " is not modelled; the rest of this slot cannot be read");
+        if (type == null || !DataComponentNetworkCodecs.hasCodec(type)) {
+            LOGGER.debug("Skipping component {}: not modelled here ({} bytes)", key.asString(), length);
+            return;
         }
 
-        readInto(buf, frozen, components, type);
+        try {
+            readInto(payload, frozen, components, type);
+        } catch (final RuntimeException e) {
+            LOGGER.warn("Dropping component {}: {}", key.asString(), e.getMessage());
+            return;
+        }
+
+        if (payload.readableBytes() != 0) {
+            LOGGER.warn("Component {} left {} of its {} bytes unread; the wire format here is wrong",
+                    key.asString(), payload.readableBytes(), length);
+        }
     }
 
     private static <T> void readInto(final PacketBuffer buf,

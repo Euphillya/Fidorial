@@ -7,7 +7,6 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.listener.PlayPacketL
 import fr.fidorial.item.ItemStack;
 import fr.fidorial.protocol.PacketListener;
 import fr.fidorial.protocol.ServerboundPacket;
-import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 public record ServerboundSetCreativeModeSlotPacket(short slot, ItemStack stack)
@@ -23,7 +22,7 @@ public record ServerboundSetCreativeModeSlotPacket(short slot, ItemStack stack)
         try {
             final ItemStack stack = ItemStackReader.readSlot(buf, FidorialServer.getInstance().registries().network());
             return new ServerboundSetCreativeModeSlotPacket(slot, stack);
-        } catch (final DecoderException e) {
+        } catch (final RuntimeException e) {
             LOGGER.warn("Unreadable creative slot {}, treating it as empty: {}", slot, e.getMessage());
             return new ServerboundSetCreativeModeSlotPacket(slot, ItemStack.EMPTY);
         }
