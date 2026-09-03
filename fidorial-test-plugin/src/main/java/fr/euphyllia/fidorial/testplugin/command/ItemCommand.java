@@ -8,7 +8,6 @@ import fr.euphyllia.fidorial.testplugin.items.MagicItems;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Player;
-import fr.fidorial.item.DataComponentTypes;
 import fr.fidorial.item.ItemStack;
 import fr.fidorial.registry.keys.ItemKeys;
 import net.kyori.adventure.text.Component;
@@ -29,6 +28,7 @@ public final class ItemCommand {
                 .then(literal("give").executes(ItemCommand::give))
                 .then(literal("info").executes(ItemCommand::info))
                 .then(literal("damage").executes(ItemCommand::damage))
+                .then(literal("edit").executes(ItemCommand::edit))
                 .build();
     }
 
@@ -40,12 +40,13 @@ public final class ItemCommand {
         }
 
         final ItemStack sword = ItemStack.builder(ItemKeys.NETHERITE_SWORD.key())
-                .customName(Component.text("Croc de Fidorial", NamedTextColor.LIGHT_PURPLE)
-                        .decoration(TextDecoration.ITALIC, false))
-                .itemName(Component.text("Epee legendaire"))
-                .glint(true)
-                .set(DataComponentTypes.MAX_DAMAGE, 250)
-                .damage(80)
+                .edit(components -> components
+                        .customName(Component.text("Fidorial's Fang", NamedTextColor.LIGHT_PURPLE)
+                                .decoration(TextDecoration.ITALIC, false))
+                        .itemName(Component.text("Legendary sword"))
+                        .glint(true)
+                        .maxDamage(250)
+                        .damage(80))
                 .build();
 
         final ItemStack magicSword = plugin.server().items().create(MagicItems.MAGIC_SWORD);
@@ -53,7 +54,7 @@ public final class ItemCommand {
         player.inventory().set(player.selectedSlot(), magicSword);
         player.updateInventory();
 
-        plugin.msg(player, "[TestPlugin] Vous recevez " + magicSword);
+        plugin.msg(player, "[TestPlugin] You receive " + magicSword);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -67,11 +68,11 @@ public final class ItemCommand {
         final ItemStack held = player.inventory().get(player.selectedSlot());
 
         if (held.isEmpty()) {
-            plugin.msg(player, "[TestPlugin] Vous ne tenez rien en main.");
+            plugin.msg(player, "[TestPlugin] You aren't holding anything..");
             return Command.SINGLE_SUCCESS;
         }
 
-        player.sendMessage(Component.text("[TestPlugin] Item en main: ").append(held.displayName()));
+        player.sendMessage(Component.text("[TestPlugin] Item in hand: ").append(held.displayName()));
         plugin.msg(player, "[TestPlugin] id=" + held.id()
                 + " count=" + held.count()
                 + " translationKey=" + held.translationKey());
@@ -94,6 +95,37 @@ public final class ItemCommand {
         return Command.SINGLE_SUCCESS;
     }
 
+    private static int edit(final CommandContext<CommandSource> ctx) {
+        final CommandSender sender = ctx.getSource().sender();
+        if (!(sender instanceof final Player player)) {
+            plugin.msg(sender, "<red>[TestPlugin] Run this command in-game.</red>");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        final int slot = player.selectedSlot();
+        final ItemStack held = player.inventory().get(slot);
+
+        if (held.isEmpty()) {
+            plugin.msg(player, "[TestPlugin] You aren't holding anything..");
+            return Command.SINGLE_SUCCESS;
+        }
+
+        final ItemStack edited = held.edit(components -> components
+                .customName(Component.text("Renamed via edit", NamedTextColor.GOLD)
+                        .decoration(TextDecoration.ITALIC, false))
+                .addLore(Component.text("Line added on " + System.currentTimeMillis()))
+                .glint(true));
+
+        player.inventory().set(slot, edited);
+        player.updateInventory();
+
+        plugin.msg(player, "[TestPlugin] held unchanged ? " + (held.lore().size() != edited.lore().size())
+                + " lines before=" + held.lore().size()
+                + " after=" + edited.lore().size());
+
+        return Command.SINGLE_SUCCESS;
+    }
+
     private static int damage(final CommandContext<CommandSource> ctx) {
         final CommandSender sender = ctx.getSource().sender();
         if (!(sender instanceof final Player player)) {
@@ -105,14 +137,14 @@ public final class ItemCommand {
         final ItemStack held = player.inventory().get(slot);
 
         if (held.isEmpty() || !held.isDamageable()) {
-            plugin.msg(player, "[TestPlugin] Cet item ne peut pas etre endommage.");
+            plugin.msg(player, "[TestPlugin] This item cannot be damaged..");
             return Command.SINGLE_SUCCESS;
         }
 
         final ItemStack damaged = held.damaged(1);
         player.inventory().set(slot, damaged);
 
-        plugin.msg(player, "[TestPlugin] Degat inflige: " + damaged.damage()
+        plugin.msg(player, "[TestPlugin] Damage inflicted: " + damaged.damage()
                 + "/" + damaged.maxDamage()
                 + " (willBreak=" + damaged.willBreak() + ")");
 

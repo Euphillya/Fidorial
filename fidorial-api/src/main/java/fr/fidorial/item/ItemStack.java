@@ -1,7 +1,6 @@
 package fr.fidorial.item;
 
 import fr.fidorial.attribute.AttributeModifier;
-import fr.fidorial.item.component.ItemLore;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -11,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 /**
@@ -66,14 +66,49 @@ public record ItemStack(Key id, int count, DataComponentMap components)
      * @return a builder for a stack of one
      */
     public static Builder builder(final Key key) {
-        return new Builder(key, 1, DataComponentMap.builder());
+        return new Builder(key, 1, DataComponentEditor.empty());
     }
 
     /**
      * @return a builder pre-populated with this stack
      */
     public Builder toBuilder() {
-        return new Builder(id, count, components.toBuilder());
+        return new Builder(id, count, editor());
+    }
+
+    /**
+     * Hands back an editor over this stack's components. Changing it does
+     * <em>not</em> change this stack; feed it back through
+     * {@link #withComponents(DataComponentEditor)} when you are done, or use
+     * {@link #edit(Consumer)} to do both at once.
+     *
+     * @return a fresh editor
+     * @since 0.1.0
+     */
+    public DataComponentEditor editor() {
+        return DataComponentEditor.of(components);
+    }
+
+    /**
+     * @param editor the editor whose components to take
+     * @return a new stack carrying those components, or this one when nothing changed
+     * @since 0.1.0
+     */
+    public ItemStack withComponents(final DataComponentEditor editor) {
+        final DataComponentMap patched = Objects.requireNonNull(editor, "editor").components();
+        return patched.equals(components) ? this : new ItemStack(id, count, patched);
+    }
+
+    /**
+     * Reads an editor, hands it to {@code editor}, and returns the resulting stack.
+     * @param editor given an editor over this stack's components
+     * @return a new stack, or this one when nothing changed
+     * @since 0.1.0
+     */
+    public ItemStack edit(final Consumer<DataComponentEditor> editor) {
+        final DataComponentEditor components = editor();
+        editor.accept(components);
+        return withComponents(components);
     }
 
     /**
@@ -202,22 +237,6 @@ public record ItemStack(Key id, int count, DataComponentMap components)
     }
 
     /**
-     * @return the anvil-style name, or {@code null}
-     */
-    public @Nullable Component customName() {
-        return get(DataComponentTypes.CUSTOM_NAME);
-    }
-
-    /**
-     * Shorthand for {@code lore().lines()}.
-     *
-     * @return the tooltip lines, empty when unset
-     */
-    public List<Component> loreLines() {
-        return lore().lines();
-    }
-
-    /**
      * @return the attribute modifiers this stack sets, empty when unset
      */
     public List<AttributeModifier> attributeModifiers() {
@@ -237,13 +256,6 @@ public record ItemStack(Key id, int count, DataComponentMap components)
      */
     public int enchantmentLevel(final Key enchantment) {
         return 0;
-    }
-
-    /**
-     * @return {@code true} when {@link #customName()} is set
-     */
-    public boolean hasCustomName() {
-        return has(DataComponentTypes.CUSTOM_NAME);
     }
 
     /**
@@ -284,38 +296,6 @@ public record ItemStack(Key id, int count, DataComponentMap components)
         return withCount(Math.max(0, count + delta));
     }
 
-    /**
-     * @param name the anvil-style name
-     * @return a new stack
-     */
-    public ItemStack withCustomName(final Component name) {
-        return with(DataComponentTypes.CUSTOM_NAME, name);
-    }
-
-    /**
-     * @param name the intrinsic name
-     * @return a new stack
-     */
-    public ItemStack withItemName(final Component name) {
-        return with(DataComponentTypes.ITEM_NAME, name);
-    }
-
-    /**
-     * @param lines the tooltip lines, in the order they are drawn
-     * @return a new stack
-     */
-    public ItemStack withLore(final List<Component> lines) {
-        return with(DataComponentTypes.LORE, ItemLore.of(lines));
-    }
-
-    /**
-     * @param lines the tooltip lines, in the order they are drawn
-     * @return a new stack
-     */
-    public ItemStack withLore(final Component... lines) {
-        return with(DataComponentTypes.LORE, ItemLore.of(lines));
-    }
-
     @Override
     public HoverEvent<HoverEvent.ShowItem> asHoverEvent(final UnaryOperator<HoverEvent.ShowItem> op) {
         return HoverEvent.showItem(op.apply(HoverEvent.ShowItem.showItem(id, count)));
@@ -344,13 +324,13 @@ public record ItemStack(Key id, int count, DataComponentMap components)
     public static final class Builder {
 
         private final Key id;
-        private final DataComponentMap.Builder components;
+        private final DataComponentEditor components;
         private int count;
 
-        private Builder(final Key id, final int count, final DataComponentMap.Builder components) {
+        private Builder(final Key id, final int count, final DataComponentEditor components) {
             this.id = Objects.requireNonNull(id, "id");
             this.count = count;
-            this.components = components;
+            this.components = Objects.requireNonNull(components, "components");
         }
 
         /**
@@ -359,6 +339,19 @@ public record ItemStack(Key id, int count, DataComponentMap components)
          */
         public Builder count(final int newCount) {
             this.count = newCount;
+            return this;
+        }
+
+        /**
+         * Everything past the identifier and the count is described here, so there
+         * is one place to learn rather than three that drift apart.
+         *
+         * @param editor given the editor this builder is filling in
+         * @return this builder
+         * @since 0.1.0
+         */
+        public Builder edit(final Consumer<DataComponentEditor> editor) {
+            editor.accept(components);
             return this;
         }
 
@@ -383,62 +376,20 @@ public record ItemStack(Key id, int count, DataComponentMap components)
         }
 
         /**
-         * @param name the anvil-style name
+         * @param type the component to stop patching
          * @return this builder
+         * @since 0.1.0
          */
-        public Builder customName(final Component name) {
-            return set(DataComponentTypes.CUSTOM_NAME, name);
-        }
-
-        /**
-         * @param name the intrinsic name
-         * @return this builder
-         */
-        public Builder itemName(final Component name) {
-            return set(DataComponentTypes.ITEM_NAME, name);
-        }
-
-        /**
-         * @param lines the tooltip lines, in the order they are drawn
-         * @return this builder
-         */
-        public Builder lore(final List<Component> lines) {
-            return set(DataComponentTypes.LORE, ItemLore.of(lines));
-        }
-
-        /**
-         * @param lines the tooltip lines, in the order they are drawn
-         * @return this builder
-         */
-        public Builder lore(final Component... lines) {
-            return set(DataComponentTypes.LORE, ItemLore.of(lines));
-        }
-
-        /**
-         * @param damage spent durability
-         * @return this builder
-         */
-        public Builder damage(final int damage) {
-            return set(DataComponentTypes.DAMAGE, damage);
-        }
-
-        /**
-         * @param glint {@code true} to force the enchantment shimmer on
-         * @return this builder
-         */
-        public Builder glint(final boolean glint) {
-            return set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, glint);
+        public Builder reset(final DataComponentType<?> type) {
+            components.reset(type);
+            return this;
         }
 
         /**
          * @return the built stack
          */
         public ItemStack build() {
-            return new ItemStack(id, count, components.build());
-        }
-
-        public Builder unbreakable() {
-            return this; // Todo set
+            return new ItemStack(id, count, components.components());
         }
     }
 }

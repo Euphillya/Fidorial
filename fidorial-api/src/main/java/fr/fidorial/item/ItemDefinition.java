@@ -1,11 +1,9 @@
 package fr.fidorial.item;
 
-import fr.fidorial.item.component.ItemLore;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Everything the server needs to build an item a plugin invented.
@@ -89,7 +87,7 @@ public record ItemDefinition(Key key, Key networkType, DataComponentMap componen
      * @since 0.1.0
      */
     public Builder toBuilder() {
-        return new Builder(key, networkType, components.toBuilder());
+        return new Builder(key, networkType, DataComponentEditor.of(components));
     }
 
     /**
@@ -101,18 +99,31 @@ public record ItemDefinition(Key key, Key networkType, DataComponentMap componen
 
         private final Key key;
         private final Key networkType;
-        private final DataComponentMap.Builder components;
+        private final DataComponentEditor components;
 
         private Builder(final Key key, final Key networkType) {
-            this(key, networkType, DataComponentMap.builder()
+            this(key, networkType, DataComponentEditor.empty()
                     .set(DataComponentTypes.MAX_STACK_SIZE, DEFAULT_MAX_STACK_SIZE)
                     .set(DataComponentTypes.ITEM_MODEL, key));
         }
 
-        private Builder(final Key key, final Key networkType, final DataComponentMap.Builder components) {
+        private Builder(final Key key, final Key networkType, final DataComponentEditor components) {
             this.key = Objects.requireNonNull(key, "key");
             this.networkType = Objects.requireNonNull(networkType, "networkType");
-            this.components = components;
+            this.components = Objects.requireNonNull(components, "components");
+        }
+
+        /**
+         * Describes what every stack of this item starts out looking like, through
+         * the same editor {@link ItemStack#edit(Consumer)} hands out.
+         *
+         * @param editor given the editor this builder is filling in
+         * @return this builder
+         * @since 0.1.0
+         */
+        public Builder edit(final Consumer<DataComponentEditor> editor) {
+            editor.accept(components);
+            return this;
         }
 
         /**
@@ -158,15 +169,6 @@ public record ItemDefinition(Key key, Key networkType, DataComponentMap componen
         }
 
         /**
-         * @param itemName the name drawn upright
-         * @return this builder
-         * @since 0.1.0
-         */
-        public Builder itemName(final Component itemName) {
-            return set(DataComponentTypes.ITEM_NAME, itemName);
-        }
-
-        /**
          * @param itemModel the model a resource pack draws; defaults to the item's own key
          * @return this builder
          * @since 0.1.0
@@ -176,40 +178,11 @@ public record ItemDefinition(Key key, Key networkType, DataComponentMap componen
         }
 
         /**
-         * @param lines the tooltip lines every stack of this item starts with
-         * @return this builder
-         * @since 0.1.0
-         */
-        public Builder lore(final List<Component> lines) {
-            final ItemLore lore = ItemLore.of(lines);
-            return lore.isEmpty() ? reset(DataComponentTypes.LORE) : set(DataComponentTypes.LORE, lore);
-        }
-
-        /**
-         * @param lines the tooltip lines every stack of this item starts with
-         * @return this builder
-         * @since 0.1.0
-         */
-        public Builder lore(final Component... lines) {
-            return lore(List.of(lines));
-        }
-
-        /**
-         * @param glint whether the enchantment shimmer is forced on; {@code false}
-         *              forces it <em>off</em>, even on an enchanted item
-         * @return this builder
-         * @since 0.1.0
-         */
-        public Builder glint(final boolean glint) {
-            return set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, glint);
-        }
-
-        /**
          * @return the assembled definition
          * @since 0.1.0
          */
         public ItemDefinition build() {
-            return new ItemDefinition(key, networkType, components.build());
+            return new ItemDefinition(key, networkType, components.components());
         }
     }
 }

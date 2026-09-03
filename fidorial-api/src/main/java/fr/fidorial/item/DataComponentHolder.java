@@ -5,6 +5,8 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 /**
  * Something that carries a patch over an item's default components.
  *
@@ -51,6 +53,16 @@ public interface DataComponentHolder {
     }
 
     /**
+     * The name an anvil sets, drawn in italics.
+     *
+     * @return the player-assigned name, or {@code null}
+     * @since 0.1.0
+     */
+    default @Nullable Component customName() {
+        return get(DataComponentTypes.CUSTOM_NAME);
+    }
+
+    /**
      * @return the name drawn upright, or {@code null}
      * @since 0.1.0
      */
@@ -75,11 +87,29 @@ public interface DataComponentHolder {
     }
 
     /**
+     * Shorthand for {@code lore().lines()}.
+     *
+     * @return the tooltip lines, empty when unset
+     * @since 0.1.0
+     */
+    default List<Component> loreLines() {
+        return lore().lines();
+    }
+
+    /**
      * @return whether the enchantment shimmer is forced on
      * @since 0.1.0
      */
     default boolean glint() {
         return getOrDefault(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, false);
+    }
+
+    /**
+     * @return {@code true} when {@link #customName()} is set
+     * @since 0.1.0
+     */
+    default boolean hasCustomName() {
+        return has(DataComponentTypes.CUSTOM_NAME);
     }
 
     /**

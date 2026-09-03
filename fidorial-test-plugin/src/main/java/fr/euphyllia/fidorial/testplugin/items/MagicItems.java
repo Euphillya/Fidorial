@@ -23,12 +23,13 @@ public class MagicItems {
         final ItemDefinition sword = ItemDefinition.builder(MAGIC_SWORD, NETHERITE_SWORD)
                 .maxStackSize(1)
                 .maxDamage(SWORD_DURABILITY)
-                .itemName(Component.text("Epee magique", NamedTextColor.LIGHT_PURPLE))
-                .lore(Component.text("First line"), Component.text("Second line"))
-                .glint(true)
+                .edit(components -> components
+                        .itemName(Component.text("Magic Sword", NamedTextColor.LIGHT_PURPLE))
+                        .lore(Component.text("First line"), Component.text("Second line"))
+                        .glint(true))
                 .build();
 
         items.register(sword, owner);
-        logger.info("[TestPlugin] Item {} enregistre, rendu comme {}", MAGIC_SWORD, NETHERITE_SWORD.asString());
+        logger.info("[TestPlugin] Item {} registered, rendered as {}", MAGIC_SWORD, NETHERITE_SWORD.asString());
     }
 }
