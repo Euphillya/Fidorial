@@ -18,7 +18,8 @@ public final class FrozenRegistries {
     private static final Map<Key, List<Key>> ENTRIES = Map.ofEntries(
         Map.entry(Key.key("item"), item()),
         Map.entry(Key.key("data_component_type"), dataComponentType()),
-        Map.entry(Key.key("menu"), menu())
+        Map.entry(Key.key("menu"), menu()),
+        Map.entry(Key.key("attribute"), attribute())
     );
 
     private FrozenRegistries() {
@@ -1767,6 +1768,58 @@ public final class FrozenRegistries {
     private static List<Key> menu() {
         final List<Key> entries = new ArrayList<>(25);
         menu0(entries);
+        return List.copyOf(entries);
+    }
+
+    private static void attribute0(final List<Key> entries) {
+        entries.add(Key.key("air_drag_modifier"));
+        entries.add(Key.key("armor"));
+        entries.add(Key.key("armor_toughness"));
+        entries.add(Key.key("attack_damage"));
+        entries.add(Key.key("attack_knockback"));
+        entries.add(Key.key("attack_speed"));
+        entries.add(Key.key("below_name_distance"));
+        entries.add(Key.key("block_break_speed"));
+        entries.add(Key.key("block_interaction_range"));
+        entries.add(Key.key("bounciness"));
+        entries.add(Key.key("burning_time"));
+        entries.add(Key.key("camera_distance"));
+        entries.add(Key.key("explosion_knockback_resistance"));
+        entries.add(Key.key("entity_interaction_range"));
+        entries.add(Key.key("fall_damage_multiplier"));
+        entries.add(Key.key("flying_speed"));
+        entries.add(Key.key("follow_range"));
+        entries.add(Key.key("friction_modifier"));
+        entries.add(Key.key("gravity"));
+        entries.add(Key.key("jump_strength"));
+        entries.add(Key.key("knockback_resistance"));
+        entries.add(Key.key("luck"));
+        entries.add(Key.key("max_absorption"));
+        entries.add(Key.key("max_health"));
+        entries.add(Key.key("mining_efficiency"));
+        entries.add(Key.key("movement_efficiency"));
+        entries.add(Key.key("movement_speed"));
+        entries.add(Key.key("name_tag_distance"));
+        entries.add(Key.key("oxygen_bonus"));
+        entries.add(Key.key("safe_fall_distance"));
+        entries.add(Key.key("scale"));
+        entries.add(Key.key("sneaking_speed"));
+        entries.add(Key.key("spawn_reinforcements"));
+        entries.add(Key.key("step_height"));
+        entries.add(Key.key("submerged_mining_speed"));
+        entries.add(Key.key("sweeping_damage_ratio"));
+        entries.add(Key.key("tempt_range"));
+        entries.add(Key.key("water_movement_efficiency"));
+        entries.add(Key.key("waypoint_transmit_range"));
+        entries.add(Key.key("waypoint_receive_range"));
+    }
+
+    /**
+     * @return {@code minecraft:attribute}, indexed by network ID
+     */
+    private static List<Key> attribute() {
+        final List<Key> entries = new ArrayList<>(40);
+        attribute0(entries);
         return List.copyOf(entries);
     }
 }

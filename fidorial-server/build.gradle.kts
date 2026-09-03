@@ -219,7 +219,8 @@ fidorialRegistryGenerator {
         listOf(
             "minecraft:item",
             "minecraft:data_component_type",
-            "minecraft:menu"
+            "minecraft:menu",
+            "minecraft:attribute"
         )
     )
 

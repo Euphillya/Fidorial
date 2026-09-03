@@ -1,6 +1,9 @@
 package fr.fidorial.item;
 
+import fr.fidorial.attribute.AttributeModifier;
+import fr.fidorial.inventory.EquipmentSlotGroup;
 import fr.fidorial.item.component.AttackRange;
+import fr.fidorial.item.component.ItemAttributeModifiers;
 import fr.fidorial.item.component.ItemLore;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -95,6 +98,39 @@ public interface DataComponentHolder {
     default float hitboxMargin() {
         final AttackRange range = attackRange();
         return range != null ? range.hitboxMargin() : 0.0F;
+    }
+
+    /**
+     * The attribute modifiers this holder sets.
+     *
+     * <p>{@link ItemAttributeModifiers#EMPTY} both when the component is unset and
+     * when it is set to nothing, which are different things: the first leaves an
+     * item's built-in modifiers alone, the second strips them. Use
+     * {@link #hasAttributeModifiers()} to tell them apart.
+     *
+     * @return the modifiers, {@link ItemAttributeModifiers#EMPTY} when unset
+     * @since 0.1.0
+     */
+    default ItemAttributeModifiers attributeModifiers() {
+        return getOrDefault(DataComponentTypes.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
+    }
+
+    /**
+     * @return {@code true} when this holder sets the component at all, including to
+     *         no modifiers
+     * @since 0.1.0
+     */
+    default boolean hasAttributeModifiers() {
+        return has(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+    }
+
+    /**
+     * @param slot the slot the item is sitting in
+     * @return the modifiers that apply there, in order
+     * @since 0.1.0
+     */
+    default List<AttributeModifier> attributeModifiers(final EquipmentSlotGroup slot) {
+        return attributeModifiers().forSlot(slot);
     }
 
     /**

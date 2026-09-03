@@ -1,8 +1,21 @@
 package fr.euphyllia.fidorial.server.codecs.item;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.euphyllia.fidorial.server.codecs.DispatchCodecs;
+import fr.euphyllia.fidorial.server.codecs.adventure.ComponentCodecs;
+import fr.fidorial.attribute.AttributeModifier;
+import fr.fidorial.attribute.AttributeModifierDisplay;
+import fr.fidorial.inventory.EquipmentSlotGroup;
 import fr.fidorial.item.component.AttackRange;
+import fr.fidorial.item.component.ItemAttributeModifiers;
+
+import java.util.List;
+import java.util.Objects;
+
+import static fr.euphyllia.fidorial.server.codecs.CommonCodecs.KEY_CODEC;
 
 public final class ItemComponentCodecs {
 
@@ -25,6 +38,62 @@ public final class ItemComponentCodecs {
                             .optionalFieldOf("mob_factor", AttackRange.DEFAULT_MOB_FACTOR)
                             .forGetter(AttackRange::mobFactor)
             ).apply(instance, AttackRange::new));
+
+    private static final Codec<AttributeModifier.Operation> OPERATION_CODEC = Codec.STRING.comapFlatMap(
+            name -> {
+                for (final AttributeModifier.Operation operation : AttributeModifier.Operation.values()) {
+                    if (operation.serializedName().equals(name)) {
+                        return DataResult.success(operation);
+                    }
+                }
+                return DataResult.error(() -> "Unknown attribute modifier operation: " + name);
+            },
+            AttributeModifier.Operation::serializedName);
+
+    private static final Codec<EquipmentSlotGroup> SLOT_GROUP_CODEC = Codec.STRING.comapFlatMap(
+            name -> {
+                for (final EquipmentSlotGroup group : EquipmentSlotGroup.values()) {
+                    if (group.serializedName().equals(name)) {
+                        return DataResult.success(group);
+                    }
+                }
+                return DataResult.error(() -> "Unknown equipment slot group: " + name);
+            },
+            EquipmentSlotGroup::serializedName);
+
+    private static final MapCodec<AttributeModifierDisplay> DISPLAY_MAP_CODEC =
+            DispatchCodecs.matcher("type", List.of(
+                    DispatchCodecs.Variant.of(
+                            AttributeModifierDisplay.Type.DEFAULT.serializedName(), null, true,
+                            display -> display.type() == AttributeModifierDisplay.Type.DEFAULT,
+                            MapCodec.unit(AttributeModifierDisplay.DEFAULT)),
+                    DispatchCodecs.Variant.<AttributeModifierDisplay, AttributeModifierDisplay>of(
+                            AttributeModifierDisplay.Type.HIDDEN.serializedName(), null, true,
+                            display -> display.type() == AttributeModifierDisplay.Type.HIDDEN,
+                            MapCodec.unit(AttributeModifierDisplay.HIDDEN)),
+                    DispatchCodecs.Variant.of(
+                            AttributeModifierDisplay.Type.OVERRIDE.serializedName(), null, true,
+                            display -> display.type() == AttributeModifierDisplay.Type.OVERRIDE,
+                            RecordCodecBuilder.mapCodec(instance -> instance.group(
+                                    ComponentCodecs.COMPONENT_CODEC.fieldOf("value")
+                                            .forGetter(display -> Objects.requireNonNull(display.value(), "value"))
+                            ).apply(instance, AttributeModifierDisplay::override)))));
+
+    public static final Codec<AttributeModifier> ATTRIBUTE_MODIFIER_CODEC =
+            RecordCodecBuilder.create(instance -> instance.group(
+                    KEY_CODEC.fieldOf("type").forGetter(AttributeModifier::attribute),
+                    KEY_CODEC.fieldOf("id").forGetter(AttributeModifier::id),
+                    Codec.DOUBLE.fieldOf("amount").forGetter(AttributeModifier::amount),
+                    OPERATION_CODEC.fieldOf("operation").forGetter(AttributeModifier::operation),
+                    SLOT_GROUP_CODEC.optionalFieldOf("slot", EquipmentSlotGroup.ANY)
+                            .forGetter(AttributeModifier::slot),
+                    DISPLAY_MAP_CODEC.codec().optionalFieldOf("display", AttributeModifierDisplay.DEFAULT)
+                            .forGetter(AttributeModifier::display)
+            ).apply(instance, AttributeModifier::new));
+
+    public static final Codec<ItemAttributeModifiers> ATTRIBUTE_MODIFIERS_CODEC = ATTRIBUTE_MODIFIER_CODEC
+            .listOf()
+            .xmap(ItemAttributeModifiers::of, ItemAttributeModifiers::modifiers);
 
     private ItemComponentCodecs() {
         throw new UnsupportedOperationException("ItemComponentCodecs cannot be instantiated.");

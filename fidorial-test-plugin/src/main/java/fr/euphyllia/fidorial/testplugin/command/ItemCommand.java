@@ -85,6 +85,11 @@ public final class ItemCommand {
                 + " willBreak=" + (maxDamage > 0 && held.damage() >= maxDamage - 1));
         plugin.msg(player, "[TestPlugin] maxStackSize=" + ItemDefaults.maxStackSize(held.id(), held)
                 + " hasCustomName=" + held.hasCustomName());
+        plugin.msg(player, "[TestPlugin] List of attributes: " + held.attributeModifiers().size());
+
+        for (final var entry : held.attributeModifiers().modifiers()) {
+            plugin.msg(player, "[TestPlugin]   " + entry.attribute() + " -> " + entry.amount() + " (" + entry.operation() + ") in " + entry.slot());
+        }
 
         plugin.msg(player, "[TestPlugin] hasLore=" + held.hasLore()
                 + " lignes=" + held.lore().size());

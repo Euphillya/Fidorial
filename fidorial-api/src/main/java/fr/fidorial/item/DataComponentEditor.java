@@ -1,6 +1,8 @@
 package fr.fidorial.item;
 
+import fr.fidorial.attribute.AttributeModifier;
 import fr.fidorial.item.component.AttackRange;
+import fr.fidorial.item.component.ItemAttributeModifiers;
 import fr.fidorial.item.component.ItemLore;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -209,7 +211,56 @@ public final class DataComponentEditor implements DataComponentHolder {
         return attackRange(AttackRange.of(maxReach));
     }
 
+    /**
+     * The attribute modifiers this item applies while equipped. This <em>replaces</em>
+     * the item's built-in modifiers rather than adding to them, so a sword given a
+     * lone modifier loses its attack damage and attack speed unless you restate them.
+     *
+     * @param attributeModifiers the modifiers, or {@code null} to leave the item's
+     *                           own alone
+     * @return this editor
+     * @since 0.1.0
+     */
+    public DataComponentEditor attributeModifiers(final @Nullable ItemAttributeModifiers attributeModifiers) {
+        return setOrReset(DataComponentTypes.ATTRIBUTE_MODIFIERS, attributeModifiers);
+    }
 
+    /**
+     * @param modifiers the modifiers, in the order they are drawn; {@code null}
+     *                  leaves the item's own alone
+     * @return this editor
+     * @since 0.1.0
+     */
+    public DataComponentEditor attributeModifiers(final @Nullable List<AttributeModifier> modifiers) {
+        return attributeModifiers(modifiers == null ? null : ItemAttributeModifiers.of(modifiers));
+    }
+
+    /**
+     * Note {@code attributeModifiers()} with no argument resolves to the
+     * {@link DataComponentHolder#attributeModifiers() getter}, not to this method
+     * with an empty array. Pass {@link ItemAttributeModifiers#EMPTY} to strip an
+     * item's built-in modifiers.
+     *
+     * @param modifiers the modifiers, in the order they are drawn
+     * @return this editor
+     * @since 0.1.0
+     */
+    public DataComponentEditor attributeModifiers(final AttributeModifier... modifiers) {
+        return attributeModifiers(ItemAttributeModifiers.of(modifiers));
+    }
+
+    /**
+     * Appends to whatever this editor already patches. Careful on an item with
+     * built-in modifiers: this appends to the <em>patch</em>, which starts empty,
+     * so the first call still replaces the item's own.
+     *
+     * @param modifier the modifier to append
+     * @return this editor
+     * @since 0.1.0
+     */
+    public DataComponentEditor addAttributeModifier(final AttributeModifier modifier) {
+        return attributeModifiers(attributeModifiers().plus(modifier));
+    }
 
     /**
      * @param damage the spent durability

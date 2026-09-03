@@ -1,8 +1,12 @@
 package fr.euphyllia.fidorial.testplugin.items;
 
+import fr.fidorial.attribute.Attribute;
+import fr.fidorial.attribute.AttributeModifier;
+import fr.fidorial.inventory.EquipmentSlotGroup;
 import fr.fidorial.item.ItemDefinition;
 import fr.fidorial.item.ItemRegistry;
 import fr.fidorial.item.component.AttackRange;
+import fr.fidorial.item.component.ItemAttributeModifiers;
 import fr.fidorial.registry.keys.ItemKeys;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -20,6 +24,10 @@ public class MagicItems {
     private static final float SWORD_REACH = 4.5F;
     private static final float SWORD_HITBOX_MARGIN = 0.125F;
 
+    private static final double SWORD_ATTACK_DAMAGE = 12.0D;
+    private static final double SWORD_ATTACK_SPEED = -2.4D;
+    private static final double SWORD_MOVEMENT_BONUS = 0.1D;
+
     private MagicItems() {
     }
 
@@ -35,6 +43,29 @@ public class MagicItems {
                                 .hitboxMargin(SWORD_HITBOX_MARGIN)
                                 .build()
                         )
+                        .attributeModifiers(ItemAttributeModifiers.of(
+                                AttributeModifier.of(
+                                        Attribute.ATTACK_DAMAGE,
+                                        Key.key("fidorialtest", "sword_damage"),
+                                        SWORD_ATTACK_DAMAGE,
+                                        AttributeModifier.Operation.ADD_VALUE,
+                                        EquipmentSlotGroup.MAIN_HAND
+                                ),
+                                AttributeModifier.of(
+                                        Attribute.ATTACK_SPEED,
+                                        Key.key("fidorialtest", "sword_speed"),
+                                        SWORD_ATTACK_SPEED,
+                                        AttributeModifier.Operation.ADD_VALUE,
+                                        EquipmentSlotGroup.MAIN_HAND
+                                ),
+                                AttributeModifier.of(
+                                        Attribute.MOVEMENT_SPEED,
+                                        Key.key("fidorialtest", "sword_movement"),
+                                        SWORD_MOVEMENT_BONUS,
+                                        AttributeModifier.Operation.ADD_MULTIPLIED_BASE,
+                                        EquipmentSlotGroup.MAIN_HAND
+                                )
+                        ))
                         .glint(true))
                 .build();
 

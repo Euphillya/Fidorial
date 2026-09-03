@@ -4,14 +4,17 @@ import fr.euphyllia.fidorial.server.network.PacketBuffer;
 import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.fidorial.attribute.AttributeModifier;
+import fr.fidorial.attribute.AttributeModifierDisplay;
 import fr.fidorial.inventory.EquipmentSlotGroup;
 import fr.fidorial.item.DataComponentType;
 import fr.fidorial.item.DataComponentTypes;
 import fr.fidorial.item.component.AttackRange;
+import fr.fidorial.item.component.ItemAttributeModifiers;
 import fr.fidorial.item.component.ItemLore;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -22,7 +25,13 @@ import java.util.Objects;
 
 public final class DataComponentNetworkCodecs {
 
+    private static final ComponentLogger LOGGER = ComponentLogger.logger(DataComponentNetworkCodecs.class);
+
     private static final int MAX_COMPONENT_TEXT_LENGTH = 262_144;
+
+    private static final Key ATTRIBUTE_REGISTRY = Key.key("attribute");
+
+    private static final int MAX_ATTRIBUTE_MODIFIERS = 256;
 
     public interface Codec<T> {
 
@@ -46,6 +55,7 @@ public final class DataComponentNetworkCodecs {
         register(DataComponentTypes.LORE, loreCodec());
 
         register(DataComponentTypes.ATTACK_RANGE, attackRangeCodec());
+        register(DataComponentTypes.ATTRIBUTE_MODIFIERS, attributeModifiersCodec());
 
     }
 
@@ -186,6 +196,84 @@ public final class DataComponentNetworkCodecs {
                     throw new DecoderException("Implausible attack range: " + e.getMessage(), e);
                 }
             }
+        };
+    }
+
+    private static Codec<ItemAttributeModifiers> attributeModifiersCodec() {
+        return new Codec<>() {
+            @Override
+            public void write(final PacketBuffer buf,
+                              final RegistryHolder frozen,
+                              final ItemAttributeModifiers value) {
+
+                final List<AttributeModifier> writable = new ArrayList<>(value.size());
+                for (final AttributeModifier modifier : value.modifiers()) {
+                    if (frozen.networkId(ATTRIBUTE_REGISTRY, modifier.attribute()) < 0) {
+                        LOGGER.warn("Dropping modifier {}: attribute {} is not in the registry",
+                                modifier.id().asString(), modifier.attribute().asString());
+                        continue;
+                    }
+                    writable.add(modifier);
+                }
+
+                buf.writeVarInt(writable.size());
+
+                for (final AttributeModifier modifier : writable) {
+                    buf.writeVarInt(frozen.networkId(ATTRIBUTE_REGISTRY, modifier.attribute()));
+                    buf.writeKey(modifier.id());
+                    buf.writeDouble(modifier.amount());
+                    buf.writeVarInt(modifier.operation().networkId());
+                    buf.writeVarInt(modifier.slot().networkId());
+                    writeDisplay(buf, modifier.display());
+                }
+            }
+
+            @Override
+            public ItemAttributeModifiers read(final PacketBuffer buf, final RegistryHolder frozen) {
+                final int size = readBoundedLength(buf, MAX_ATTRIBUTE_MODIFIERS, "attribute modifiers");
+
+                final List<AttributeModifier> modifiers = new ArrayList<>(size);
+                for (int i = 0; i < size; i++) {
+                    final int attributeId = buf.readVarInt();
+                    final Key attribute = entryOf(frozen, ATTRIBUTE_REGISTRY, attributeId);
+                    if (attribute == null) {
+                        throw new DecoderException("Unknown attribute network id: " + attributeId);
+                    }
+
+                    final Key id = buf.readKey();
+                    final double amount = buf.readDouble();
+                    final AttributeModifier.Operation operation = operationOf(buf.readVarInt());
+                    final EquipmentSlotGroup slot = slotGroupOf(buf.readVarInt());
+                    final AttributeModifierDisplay display = readDisplay(buf);
+
+                    modifiers.add(new AttributeModifier(attribute, id, amount, operation, slot, display));
+                }
+
+                return ItemAttributeModifiers.of(modifiers);
+            }
+        };
+    }
+
+    private static void writeDisplay(final PacketBuffer buf, final AttributeModifierDisplay display) {
+        buf.writeVarInt(display.type().networkId());
+
+        if (display.type() == AttributeModifierDisplay.Type.OVERRIDE) {
+            buf.writeComponent(Objects.requireNonNull(display.value(), "value"));
+        }
+    }
+
+    private static AttributeModifierDisplay readDisplay(final PacketBuffer buf) {
+        final int typeId = buf.readVarInt();
+
+        final AttributeModifierDisplay.Type type = AttributeModifierDisplay.Type.byNetworkId(typeId);
+        if (type == null) {
+            throw new DecoderException("Unknown attribute modifier display type: " + typeId);
+        }
+
+        return switch (type) {
+            case DEFAULT -> AttributeModifierDisplay.DEFAULT;
+            case HIDDEN -> AttributeModifierDisplay.HIDDEN;
+            case OVERRIDE -> AttributeModifierDisplay.override(buf.readComponent(MAX_COMPONENT_TEXT_LENGTH));
         };
     }
 

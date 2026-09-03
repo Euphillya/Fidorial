@@ -1,6 +1,5 @@
 package fr.fidorial.item;
 
-import fr.fidorial.attribute.AttributeModifier;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -8,7 +7,6 @@ import net.kyori.adventure.text.event.HoverEventSource;
 import net.kyori.adventure.translation.Translatable;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
@@ -166,13 +164,6 @@ public record ItemStack(Key id, int count, DataComponentMap components)
     }
 
     /**
-     * @return the attribute modifiers this stack sets, empty when unset
-     */
-    public List<AttributeModifier> attributeModifiers() {
-        return List.of();
-    }
-
-    /**
      * @return the applied enchantments, empty when unset
      */
     public Object enchantments() {
@@ -185,13 +176,6 @@ public record ItemStack(Key id, int count, DataComponentMap components)
      */
     public int enchantmentLevel(final Key enchantment) {
         return 0;
-    }
-
-    /**
-     * @return {@code true} when this stack sets attribute modifiers
-     */
-    public boolean hasAttributeModifiers() {
-        return !attributeModifiers().isEmpty();
     }
 
     /**

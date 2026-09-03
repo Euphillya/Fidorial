@@ -1,6 +1,7 @@
 package fr.fidorial.item;
 
 import fr.fidorial.item.component.AttackRange;
+import fr.fidorial.item.component.ItemAttributeModifiers;
 import fr.fidorial.item.component.ItemLore;
 import fr.fidorial.registry.keys.DataComponentTypeKeys;
 import net.kyori.adventure.key.Key;
@@ -76,6 +77,13 @@ public class DataComponentTypes {
      */
     public static final DataComponentType<AttackRange> ATTACK_RANGE =
             register(DataComponentTypeKeys.ATTACK_RANGE.key(), AttackRange.class);
+
+    /**
+     * The attribute modifiers this item applies while equipped. Setting it replaces
+     * the item's built-in modifiers rather than adding to them.
+     */
+    public static final DataComponentType<ItemAttributeModifiers> ATTRIBUTE_MODIFIERS =
+            register(DataComponentTypeKeys.ATTRIBUTE_MODIFIERS.key(), ItemAttributeModifiers.class);
 
     private DataComponentTypes() {
         throw new UnsupportedOperationException("DataComponentTypes cannot be instantiated.");

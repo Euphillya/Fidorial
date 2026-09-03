@@ -44,6 +44,7 @@ public final class ItemStackCodecs {
         register(DataComponentTypes.ITEM_NAME, ComponentCodecs.COMPONENT_CODEC);
         register(DataComponentTypes.LORE, ComponentCodecs.LORE_CODEC);
         register(DataComponentTypes.ATTACK_RANGE, ItemComponentCodecs.ATTACK_RANGE_CODEC);
+        register(DataComponentTypes.ATTRIBUTE_MODIFIERS, ItemComponentCodecs.ATTRIBUTE_MODIFIERS_CODEC);
     }
 
     public static final Codec<DataComponentMap> COMPONENT_MAP_CODEC = new Codec<>() {
