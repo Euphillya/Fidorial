@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.codecs.item;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
@@ -10,6 +11,9 @@ import fr.fidorial.attribute.AttributeModifier;
 import fr.fidorial.attribute.AttributeModifierDisplay;
 import fr.fidorial.inventory.EquipmentSlotGroup;
 import fr.fidorial.item.component.AttackRange;
+import fr.fidorial.item.component.BannerPattern;
+import fr.fidorial.item.component.BannerPatterns;
+import fr.fidorial.item.component.DyeColor;
 import fr.fidorial.item.component.ItemAttributeModifiers;
 
 import java.util.List;
@@ -94,6 +98,39 @@ public final class ItemComponentCodecs {
     public static final Codec<ItemAttributeModifiers> ATTRIBUTE_MODIFIERS_CODEC = ATTRIBUTE_MODIFIER_CODEC
             .listOf()
             .xmap(ItemAttributeModifiers::of, ItemAttributeModifiers::modifiers);
+
+    private static final Codec<DyeColor> DYE_COLOR_CODEC = Codec.STRING.comapFlatMap(
+            name -> {
+                final DyeColor color = DyeColor.byName(name);
+                return color == null
+                        ? DataResult.error(() -> "Unknown dye colour: " + name)
+                        : DataResult.success(color);
+            },
+            DyeColor::serializedName);
+
+    private static final Codec<BannerPattern.Inline> INLINE_BANNER_PATTERN_CODEC =
+            RecordCodecBuilder.create(instance -> instance.group(
+                    KEY_CODEC.fieldOf("asset_id").forGetter(BannerPattern.Inline::assetId),
+                    Codec.STRING.fieldOf("translation_key").forGetter(BannerPattern.Inline::translationKey)
+            ).apply(instance, BannerPattern.Inline::new));
+
+    private static final Codec<BannerPattern> BANNER_PATTERN_CODEC = Codec.either(
+                    KEY_CODEC, INLINE_BANNER_PATTERN_CODEC)
+            .xmap(
+                    either -> either.map(BannerPattern::reference, pattern -> pattern),
+                    pattern -> pattern instanceof final BannerPattern.Reference reference
+                            ? Either.left(reference.pattern())
+                            : Either.right((BannerPattern.Inline) pattern));
+
+    private static final Codec<BannerPatterns.Layer> BANNER_LAYER_CODEC =
+            RecordCodecBuilder.create(instance -> instance.group(
+                    BANNER_PATTERN_CODEC.fieldOf("pattern").forGetter(BannerPatterns.Layer::pattern),
+                    DYE_COLOR_CODEC.fieldOf("color").forGetter(BannerPatterns.Layer::color)
+            ).apply(instance, BannerPatterns.Layer::new));
+
+    public static final Codec<BannerPatterns> BANNER_PATTERNS_CODEC = BANNER_LAYER_CODEC
+            .listOf()
+            .xmap(BannerPatterns::of, BannerPatterns::layers);
 
     private ItemComponentCodecs() {
         throw new UnsupportedOperationException("ItemComponentCodecs cannot be instantiated.");

@@ -3,10 +3,14 @@ package fr.euphyllia.fidorial.testplugin.items;
 import fr.fidorial.attribute.Attribute;
 import fr.fidorial.attribute.AttributeModifier;
 import fr.fidorial.inventory.EquipmentSlotGroup;
+import fr.fidorial.item.DataComponentTypes;
 import fr.fidorial.item.ItemDefinition;
 import fr.fidorial.item.ItemRegistry;
 import fr.fidorial.item.component.AttackRange;
+import fr.fidorial.item.component.BannerPatterns;
+import fr.fidorial.item.component.DyeColor;
 import fr.fidorial.item.component.ItemAttributeModifiers;
+import fr.fidorial.registry.keys.BannerPatternKeys;
 import fr.fidorial.registry.keys.ItemKeys;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -27,6 +31,9 @@ public class MagicItems {
     private static final double SWORD_ATTACK_DAMAGE = 12.0D;
     private static final double SWORD_ATTACK_SPEED = -2.4D;
     private static final double SWORD_MOVEMENT_BONUS = 0.1D;
+
+    public static final Key MAGIC_BANNER = Key.key("fidorialtest", "banniere_magique");
+    public static final Key BLACK_BANNER = ItemKeys.BLACK_BANNER.key();
 
     private MagicItems() {
     }
@@ -71,5 +78,21 @@ public class MagicItems {
 
         items.register(sword, owner);
         logger.info("[TestPlugin] Item {} registered, rendered as {}", MAGIC_SWORD, NETHERITE_SWORD.asString());
+    }
+
+    public static void registerMagicBanner(final ItemRegistry items, final Object owner, final ComponentLogger logger) {
+        final BannerPatterns patterns = BannerPatterns.EMPTY
+                .plus(BannerPatternKeys.TRIANGLE_TOP.key(), DyeColor.RED)
+                .plus(BannerPatternKeys.CROSS.key(), DyeColor.WHITE);
+
+        final ItemDefinition banner = ItemDefinition.builder(MAGIC_BANNER, BLACK_BANNER)
+                .maxStackSize(16)
+                .edit(components -> components
+                        .itemName(Component.text("Magic Banner", NamedTextColor.LIGHT_PURPLE))
+                        .set(DataComponentTypes.BANNER_PATTERNS, patterns))
+                .build();
+
+        items.register(banner, owner);
+        logger.info("[TestPlugin] Item {} registered, rendered as {}", MAGIC_BANNER, BLACK_BANNER.asString());
     }
 }

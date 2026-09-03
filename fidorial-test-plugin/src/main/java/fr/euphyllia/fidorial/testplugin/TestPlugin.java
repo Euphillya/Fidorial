@@ -115,6 +115,7 @@ public final class TestPlugin implements Plugin {
 
 //        BullMobs.attachToCows(context.server().mobs(), this, context.logger());
         MagicItems.registerMagicSword(context.server().items(), this, context.logger());
+        MagicItems.registerMagicBanner(context.server().items(), this, context.logger());
         BullMobs.registerBull(context.server().mobs(), this, context.logger());
         CompanionMobs.register(context.server().mobs(), this, context.logger());
 

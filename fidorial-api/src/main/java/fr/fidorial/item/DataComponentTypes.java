@@ -1,6 +1,7 @@
 package fr.fidorial.item;
 
 import fr.fidorial.item.component.AttackRange;
+import fr.fidorial.item.component.BannerPatterns;
 import fr.fidorial.item.component.ItemAttributeModifiers;
 import fr.fidorial.item.component.ItemLore;
 import fr.fidorial.registry.keys.DataComponentTypeKeys;
@@ -84,6 +85,14 @@ public class DataComponentTypes {
      */
     public static final DataComponentType<ItemAttributeModifiers> ATTRIBUTE_MODIFIERS =
             register(DataComponentTypeKeys.ATTRIBUTE_MODIFIERS.key(), ItemAttributeModifiers.class);
+
+    /**
+     * The patterns drawn on a banner or shield. Meaningless on anything else, and
+     * deliberately without a shortcut on {@link DataComponentEditor}: reach for it
+     * through this type so the call site says which item it expects.
+     */
+    public static final DataComponentType<BannerPatterns> BANNER_PATTERNS =
+            register(DataComponentTypeKeys.BANNER_PATTERNS.key(), BannerPatterns.class);
 
     private DataComponentTypes() {
         throw new UnsupportedOperationException("DataComponentTypes cannot be instantiated.");

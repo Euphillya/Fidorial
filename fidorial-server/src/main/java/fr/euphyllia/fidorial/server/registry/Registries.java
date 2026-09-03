@@ -93,6 +93,7 @@ public final class Registries {
 
     private final RegistryHolder dynamic;
     private final RegistryHolder frozen;
+    private final RegistryHolder network;
     private final Map<RegistryKey<?>, Registry<?>> typedRegistries;
     private final FidorialBiomeRegistry biomes;
     private final FidorialDialogRegistry dialogs;
@@ -108,7 +109,7 @@ public final class Registries {
     ) {
         this.dynamic = dynamic;
         this.frozen = frozen;
-        this.typedRegistries = Map.copyOf(typedRegistries);
+        this.network = RegistryHolder.merged(dynamic, frozen);        this.typedRegistries = Map.copyOf(typedRegistries);
         this.biomes = biomes;
         this.dialogs = dialogs;
         this.dimensionTypes = dimensionTypes;
@@ -201,6 +202,10 @@ public final class Registries {
 
     public RegistryHolder frozen() {
         return frozen;
+    }
+
+    public RegistryHolder network() {
+        return network;
     }
 
     @SuppressWarnings("unchecked")

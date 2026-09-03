@@ -9,6 +9,9 @@ import fr.fidorial.inventory.EquipmentSlotGroup;
 import fr.fidorial.item.DataComponentType;
 import fr.fidorial.item.DataComponentTypes;
 import fr.fidorial.item.component.AttackRange;
+import fr.fidorial.item.component.BannerPattern;
+import fr.fidorial.item.component.BannerPatterns;
+import fr.fidorial.item.component.DyeColor;
 import fr.fidorial.item.component.ItemAttributeModifiers;
 import fr.fidorial.item.component.ItemLore;
 import io.netty.handler.codec.DecoderException;
@@ -30,6 +33,10 @@ public final class DataComponentNetworkCodecs {
     private static final int MAX_COMPONENT_TEXT_LENGTH = 262_144;
 
     private static final Key ATTRIBUTE_REGISTRY = Key.key("attribute");
+    private static final Key BANNER_PATTERN_REGISTRY = Key.key("banner_pattern");
+    private static final int MAX_BANNER_LAYERS = 1_024;
+    private static final int INLINE_HOLDER = 0;
+    private static final int MAX_TRANSLATION_KEY_LENGTH = 32_767;
 
     private static final int MAX_ATTRIBUTE_MODIFIERS = 256;
 
@@ -56,6 +63,7 @@ public final class DataComponentNetworkCodecs {
 
         register(DataComponentTypes.ATTACK_RANGE, attackRangeCodec());
         register(DataComponentTypes.ATTRIBUTE_MODIFIERS, attributeModifiersCodec());
+        register(DataComponentTypes.BANNER_PATTERNS, bannerPatternsCodec());
 
     }
 
@@ -252,6 +260,83 @@ public final class DataComponentNetworkCodecs {
                 return ItemAttributeModifiers.of(modifiers);
             }
         };
+    }
+
+    private static Codec<BannerPatterns> bannerPatternsCodec() {
+        return new Codec<>() {
+            @Override
+            public void write(final PacketBuffer buf,
+                              final RegistryHolder frozen,
+                              final BannerPatterns value) {
+                final List<BannerPatterns.Layer> writable = new ArrayList<>(value.size());
+                for (final BannerPatterns.Layer layer : value.layers()) {
+                    if (layer.pattern() instanceof BannerPattern.Reference(final Key pattern)
+                            && frozen.networkId(BANNER_PATTERN_REGISTRY, pattern) < 0) {
+                        LOGGER.warn("Dropping banner layer: pattern {} is not in the registry",
+                                pattern.asString());
+                        continue;
+                    }
+                    writable.add(layer);
+                }
+
+                buf.writeVarInt(writable.size());
+
+                for (final BannerPatterns.Layer layer : writable) {
+                    writeBannerPattern(buf, frozen, layer.pattern());
+                    buf.writeVarInt(layer.color().networkId());
+                }
+            }
+
+            @Override
+            public BannerPatterns read(final PacketBuffer buf, final RegistryHolder frozen) {
+                final int size = readBoundedLength(buf, MAX_BANNER_LAYERS, "banner layers");
+
+                final List<BannerPatterns.Layer> layers = new ArrayList<>(size);
+                for (int i = 0; i < size; i++) {
+                    final BannerPattern pattern = readBannerPattern(buf, frozen);
+
+                    final int colorId = buf.readVarInt();
+                    final DyeColor color = DyeColor.byNetworkId(colorId);
+                    if (color == null) {
+                        throw new DecoderException("Unknown dye colour network id: " + colorId);
+                    }
+
+                    layers.add(new BannerPatterns.Layer(pattern, color));
+                }
+
+                return BannerPatterns.of(layers);
+            }
+        };
+    }
+
+    private static void writeBannerPattern(final PacketBuffer buf,
+                                           final RegistryHolder frozen,
+                                           final BannerPattern pattern) {
+
+        switch (pattern) {
+            case final BannerPattern.Reference reference ->
+                    buf.writeVarInt(frozen.networkId(BANNER_PATTERN_REGISTRY, reference.pattern()) + 1);
+            case final BannerPattern.Inline inline -> {
+                buf.writeVarInt(INLINE_HOLDER);
+                buf.writeKey(inline.assetId());
+                buf.writeString(inline.translationKey());
+            }
+        }
+    }
+
+    private static BannerPattern readBannerPattern(final PacketBuffer buf, final RegistryHolder frozen) {
+        final int holderId = buf.readVarInt();
+
+        if (holderId == INLINE_HOLDER) {
+            return BannerPattern.inline(buf.readKey(), buf.readString(MAX_TRANSLATION_KEY_LENGTH));
+        }
+
+        final Key pattern = entryOf(frozen, BANNER_PATTERN_REGISTRY, holderId - 1);
+        if (pattern == null) {
+            throw new DecoderException("Unknown banner pattern network id: " + (holderId - 1));
+        }
+
+        return BannerPattern.reference(pattern);
     }
 
     private static void writeDisplay(final PacketBuffer buf, final AttributeModifierDisplay display) {

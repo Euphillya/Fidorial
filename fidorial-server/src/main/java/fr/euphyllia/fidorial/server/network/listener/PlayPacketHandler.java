@@ -460,7 +460,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             server.chestViewers().close(enderChest.position(), this::broadcastLid);
             broadcastChestSound(enderChest.position(), "block.ender_chest.close");
         }
-        connection.send(player.inventoryMenu().buildSyncPacket(server.registries().frozen()));
+        connection.send(player.inventoryMenu().buildSyncPacket(server.registries().network()));
     }
 
     private @Nullable ContainerMenu menuFor(final int windowId) {
@@ -475,11 +475,11 @@ public final class PlayPacketHandler implements PlayPacketListener {
     public void handleContainerClick(final ServerboundContainerClickPacket packet) {
         final ContainerMenu menu = menuFor(packet.windowId());
         if (menu == null) {
-            connection.send(player.inventoryMenu().buildSyncPacket(server.registries().frozen()));
+            connection.send(player.inventoryMenu().buildSyncPacket(server.registries().network()));
             return;
         }
         menu.click(packet);
-        connection.send(menu.buildSyncPacket(server.registries().frozen()));
+        connection.send(menu.buildSyncPacket(server.registries().network()));
     }
 
     @Override
@@ -488,7 +488,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
             final PlayerInventoryMenu inventoryMenu = player.inventoryMenu();
             inventoryMenu.returnCarried();
             inventoryMenu.onClosed();
-            connection.send(inventoryMenu.buildSyncPacket(server.registries().frozen()));
+            connection.send(inventoryMenu.buildSyncPacket(server.registries().network()));
             return;
         }
         closeOpenMenu(false);

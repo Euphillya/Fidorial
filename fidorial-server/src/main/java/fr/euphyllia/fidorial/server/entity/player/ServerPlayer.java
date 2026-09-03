@@ -206,7 +206,7 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     public void updateInventory() {
         final ContainerMenu menu = openMenu;
         connection.send((menu != null ? menu : inventoryMenu)
-                .buildSyncPacket(connection.server().registries().frozen()));
+                .buildSyncPacket(connection.server().registries().network()));
     }
 
     /**
@@ -247,9 +247,9 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         this.openMenu = menu;
         connection.send(new ClientboundOpenScreenPacket(
                 menu.windowId(),
-                menu.menuTypeId(connection.server().registries().frozen()),
+                menu.menuTypeId(connection.server().registries().network()),
                 menu.title()));
-        connection.send(menu.buildSyncPacket(connection.server().registries().frozen()));
+        connection.send(menu.buildSyncPacket(connection.server().registries().network()));
     }
 
     /**

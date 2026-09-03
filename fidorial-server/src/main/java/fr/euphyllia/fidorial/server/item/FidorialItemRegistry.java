@@ -31,7 +31,7 @@ public final class FidorialItemRegistry implements ItemRegistry {
     @Override
     public void register(final ItemDefinition definition, final Object owner) {
 
-        final RegistryHolder frozen = FidorialServer.getInstance().registries().frozen();
+        final RegistryHolder frozen = FidorialServer.getInstance().registries().network();
 
         if (frozen.networkId(ITEM_REGISTRY, definition.networkType()) < 0) {
             throw new IllegalArgumentException(
@@ -97,7 +97,7 @@ public final class FidorialItemRegistry implements ItemRegistry {
     @Override
     public Set<Key> types() {
 
-        final RegistryHolder frozen = FidorialServer.getInstance().registries().frozen();
+        final RegistryHolder frozen = FidorialServer.getInstance().registries().network();
         final fr.euphyllia.fidorial.server.registry.Registry items = frozen.get(ITEM_REGISTRY);
 
         final Set<Key> keys = new LinkedHashSet<>(items == null ? List.of() : items.entries());
@@ -109,7 +109,7 @@ public final class FidorialItemRegistry implements ItemRegistry {
     @Override
     public boolean isItem(final Key itemType) {
         return definitions.containsKey(itemType)
-                || FidorialServer.getInstance().registries().frozen().networkId(ITEM_REGISTRY, itemType) >= 0;
+                || FidorialServer.getInstance().registries().network().networkId(ITEM_REGISTRY, itemType) >= 0;
     }
 
     @Override

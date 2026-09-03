@@ -50,12 +50,12 @@ public final class ItemCommand {
                         .damage(80))
                 .build();
 
-        final ItemStack magicSword = plugin.server().items().create(MagicItems.MAGIC_SWORD);
+        final ItemStack magicBanner = plugin.server().items().create(MagicItems.MAGIC_BANNER);
 
-        player.inventory().set(player.selectedSlot(), magicSword);
+        player.inventory().set(player.selectedSlot(), magicBanner);
         player.updateInventory();
 
-        plugin.msg(player, "[TestPlugin] You receive " + magicSword);
+        plugin.msg(player, "[TestPlugin] You receive " + magicBanner.translationKey());
         return Command.SINGLE_SUCCESS;
     }
 
