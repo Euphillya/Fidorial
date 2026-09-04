@@ -38,6 +38,7 @@ module fr.fidorial.server {
     requires io.papermc.adventurex.nbt.dfu;
     requires java.logging;
     requires java.instrument;
+    requires fr.fidorial.bootstrap;
 
     opens fr.euphyllia.fidorial.server.tests to fr.fidorial;
 }

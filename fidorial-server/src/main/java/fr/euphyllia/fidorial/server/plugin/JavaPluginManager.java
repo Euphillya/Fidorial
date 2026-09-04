@@ -2,6 +2,8 @@ package fr.euphyllia.fidorial.server.plugin;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import fr.euphyllia.fidorial.bootstrap.Artifact;
+import fr.euphyllia.fidorial.bootstrap.BootstrapException;
 import fr.euphyllia.fidorial.server.events.SimpleEventBus;
 import fr.fidorial.Server;
 import fr.fidorial.permission.PermissionDefinition;
@@ -33,7 +35,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.jar.JarFile;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
 
 public final class JavaPluginManager implements PluginManager, AutoCloseable {
 
@@ -202,27 +206,41 @@ public final class JavaPluginManager implements PluginManager, AutoCloseable {
     }
 
     private Optional<Candidate> readCandidate(final Path jar) {
-        URLClassLoader classLoader = null;
-        try {
-            final URL url = jar.toUri().toURL();
-            classLoader = new URLClassLoader(
-                    "fidorial-plugin:" + jar.getFileName(),
-                    new URL[] {url},
-                    getClass().getClassLoader());
-            try (final InputStream in = classLoader.getResourceAsStream(DESCRIPTOR)) {
-                if (in == null) {
-                    LOGGER.warn("{} ignored: no {} at the root", jar.getFileName(), DESCRIPTOR);
-                    classLoader.close();
-                    return Optional.empty();
-                }
-                final PluginMeta meta = GSON.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginMeta.class);
-                if (meta == null) {
-                    throw new JsonSyntaxException(DESCRIPTOR + " is empty");
-                }
-                return Optional.of(new Candidate(meta, jar, classLoader));
+        PluginClassLoader classLoader = null;
+        try (final JarFile archive = new JarFile(jar.toFile())) {
+            final ZipEntry descriptor = archive.getEntry(DESCRIPTOR);
+            if (descriptor == null) {
+                LOGGER.warn("{} ignored: no {} at the root", jar.getFileName(), DESCRIPTOR);
+                return Optional.empty();
             }
+
+            final PluginMeta meta;
+            try (final InputStream in = archive.getInputStream(descriptor)) {
+                meta = GSON.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), PluginMeta.class);
+            }
+            if (meta == null) {
+                throw new JsonSyntaxException(DESCRIPTOR + " is empty");
+            }
+
+            final List<Artifact> libraries = PluginLibraries.declared(archive);
+            final List<Path> resolved = PluginLibraries.resolve(meta.id(), libraries, meta.repositories());
+
+            final List<URL> urls = new ArrayList<>(resolved.size() + 1);
+            urls.add(jar.toUri().toURL());
+            for (final Path library : resolved) {
+                urls.add(library.toUri().toURL());
+            }
+
+            classLoader = new PluginClassLoader(
+                    meta.id(),
+                    urls.toArray(new URL[0]),
+                    getClass().getClassLoader(),
+                    ApiPackages.get());
+            return Optional.of(new Candidate(meta, jar, classLoader));
         } catch (final JsonSyntaxException | NullPointerException | IllegalArgumentException e) {
             LOGGER.error("{} ignored: invalid {}", jar.getFileName(), DESCRIPTOR, e);
+        } catch (final BootstrapException e) {
+            LOGGER.error("{} ignored: {}", jar.getFileName(), e.getMessage());
         } catch (final IOException e) {
             LOGGER.error("{} is unreadable", jar.getFileName(), e);
         }

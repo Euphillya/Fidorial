@@ -1,3 +1,5 @@
+import fr.euphyllia.fidorial.gradle.libraries.GenerateApiPackageIndexTask
+import fr.euphyllia.fidorial.gradle.libraries.PrepareBootstrapPayloadTask
 import fr.fidorial.registrygen.task.GenerateBlockStatesTask
 
 extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
@@ -6,7 +8,6 @@ plugins {
     application
     id("fr.fidorial.dependency-patcher")
     id("fr.fidorial.registry-generator")
-    id("com.gradleup.shadow")
 }
 
 repositories {
@@ -14,7 +15,9 @@ repositories {
     maven("https://repo.lucko.me/")
 }
 
+
 dependencies {
+    implementation(projects.fidorialBootstrap)
     implementation(libs.faststats.config)
     implementation(libs.faststats.core)
     implementation(libs.jline.ffm)
@@ -54,6 +57,83 @@ java {
     }
 }
 
+val apiSurface: Configuration by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+    description = "fidorial-api and everything it re-exports to plugins"
+}
+
+dependencies {
+    apiSurface(projects.fidorialApi)
+}
+
+val generateApiPackageIndex = tasks.register<GenerateApiPackageIndexTask>("generateApiPackageIndex") {
+    group = "build"
+    description = "Records which packages plugins must always load from the server."
+    apiSurface.from(configurations.named("apiSurface"))
+    outputDirectory.set(layout.buildDirectory.dir("generated/fidorial-api-index"))
+}
+
+sourceSets.main {
+    resources.srcDir(generateApiPackageIndex)
+}
+
+val bootstrapLauncher: Configuration by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+    isTransitive = false
+    description = "The launcher classes that sit at the root of the release jar"
+}
+
+dependencies {
+    bootstrapLauncher(projects.fidorialBootstrap)
+}
+
+val bootstrapPayload = tasks.register<PrepareBootstrapPayloadTask>("prepareBootstrapPayload") {
+    group = "build"
+    description = "Splits the runtime classpath into bundled jars and downloadable libraries."
+
+    val runtimeClasspath = configurations.named("runtimeClasspath")
+    runtimeArtifacts.set(runtimeClasspath.flatMap { it.incoming.artifacts.resolvedArtifacts })
+    runtimeFiles.from(runtimeClasspath)
+
+    extraBundled.from(tasks.named("jar"))
+
+    excludedModules.set(setOf("com.mojang:brigadier"))
+
+    pinSnapshots.set(false)
+
+    repositories.set(emptyList<String>())
+
+    outputDirectory.set(layout.buildDirectory.dir("bootstrap-payload"))
+}
+
+val bootstrapJar = tasks.register<Jar>("bootstrapJar") {
+    group = "build"
+    description = "The distributable server jar: launcher + Fidorial's own code, no third-party libraries."
+
+    archiveBaseName.set("Fidorial")
+    archiveClassifier.set("")
+
+    from(zipTree(bootstrapLauncher.elements.map { it.single().asFile }))
+    into("META-INF/fidorial") {
+        from(bootstrapPayload)
+    }
+
+    manifest {
+        attributes(
+            "Main-Class" to "fr.euphyllia.fidorial.bootstrap.Main",
+            "Enable-Native-Access" to "ALL-UNNAMED",
+            "Implementation-Title" to "Fidorial",
+            "Implementation-Version" to project.version,
+        )
+    }
+}
+
+tasks.assemble {
+    dependsOn(bootstrapJar)
+}
+
 tasks.run {
     description = "Spin up a test server without assembling a jar"
     standardInput = System.`in`
@@ -88,30 +168,6 @@ tasks.register<JavaExec>("testScenarios") {
 
 tasks.test {
     dependsOn("testScenarios")
-}
-
-tasks.shadowJar {
-    archiveBaseName.set("Fidorial")
-    archiveClassifier.set("")
-    mergeServiceFiles()
-    filesMatching("META-INF/services/**") {
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    }
-
-    relocate("net.kyori.adventure.text.feature.pagination", "me.lucko.spark.lib.adventure.pagination")
-    relocate("net.bytebuddy", "me.lucko.spark.lib.bytebuddy")
-    relocate("com.google.protobuf", "me.lucko.spark.lib.protobuf")
-    relocate("org.objectweb.asm", "me.lucko.spark.lib.asm")
-    relocate("one.profiler", "me.lucko.spark.lib.asyncprofiler")
-    relocate("me.lucko.bytesocks.client", "me.lucko.spark.lib.bytesocks")
-    relocate("org.java_websocket", "me.lucko.spark.lib.bytesocks.ws")
-
-    exclude("linux-arm64/**")
-    exclude("linux-x64/**")
-    exclude("macos/**")
-    exclude("**/*.proto")
-    exclude("**/*.proto.bin")
-    exclude("META-INF/proguard/**")
 }
 
 tasks.withType<GenerateBlockStatesTask>().configureEach {
