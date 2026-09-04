@@ -277,6 +277,23 @@ public final class PacketBuffer {
         return NbtIo.readNbt(buf, maxBytes);
     }
 
+    public PacketBuffer writeSizedNbt(final @Nullable CompoundBinaryTag nbt) {
+        final ByteBuf payload = buf.alloc().buffer();
+        try {
+            if (nbt == null) {
+                payload.writeByte(BinaryTagTypes.END.id());
+            } else {
+                NbtIo.writeNbt(payload, nbt);
+            }
+
+            writeVarInt(payload.readableBytes());
+            buf.writeBytes(payload);
+        } finally {
+            payload.release();
+        }
+        return this;
+    }
+
     public PacketBuffer writeNbt(final @Nullable CompoundBinaryTag nbt) {
         if (nbt == null) {
             buf.writeByte(BinaryTagTypes.END.id());

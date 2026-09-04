@@ -8,11 +8,13 @@ import fr.fidorial.item.ItemDefinition;
 import fr.fidorial.item.ItemRegistry;
 import fr.fidorial.item.component.AttackRange;
 import fr.fidorial.item.component.BannerPatterns;
+import fr.fidorial.item.component.Bees;
 import fr.fidorial.item.component.DyeColor;
 import fr.fidorial.item.component.ItemAttributeModifiers;
 import fr.fidorial.registry.keys.BannerPatternKeys;
 import fr.fidorial.registry.keys.ItemKeys;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
@@ -38,6 +40,10 @@ public class MagicItems {
     private static final int SHIELD_DURABILITY = 336;
     public static final Key MAGIC_SHIELD = Key.key("fidorialtest", "bouclier_magique");
     public static final Key SHIELD = ItemKeys.SHIELD.key();
+
+    public static final Key MAGIC_HIVE = Key.key("fidorialtest", "ruche_magique");
+    public static final Key BEE_NEST = ItemKeys.BEE_NEST.key();
+    private static final int HIVE_MIN_TICKS = 60;
 
     private MagicItems() {
     }
@@ -112,5 +118,26 @@ public class MagicItems {
 
         items.register(shield, owner);
         logger.info("[TestPlugin] Item {} registered, rendered as {}", MAGIC_SHIELD, SHIELD.asString());
+    }
+
+    public static void registerMagicHive(final ItemRegistry items, final Object owner, final ComponentLogger logger) {
+        final Bees bees = Bees.EMPTY
+                .plus(Bees.Occupant.of(CompoundBinaryTag.builder()
+                        .putString("id", "minecraft:bee")
+                        .putString("CustomName", "\"Maya\"")
+                        .build(), HIVE_MIN_TICKS))
+                .plus(Bees.Occupant.of(CompoundBinaryTag.builder()
+                        .putString("id", "minecraft:bee")
+                        .build(), HIVE_MIN_TICKS));
+
+        final ItemDefinition hive = ItemDefinition.builder(MAGIC_HIVE, BEE_NEST)
+                .maxStackSize(1)
+                .edit(components -> components
+                        .itemName(Component.text("Magic Hive", NamedTextColor.LIGHT_PURPLE))
+                        .set(DataComponentTypes.BEES, bees))
+                .build();
+
+        items.register(hive, owner);
+        logger.info("[TestPlugin] Item {} registered, rendered as {}", MAGIC_HIVE, BEE_NEST.asString());
     }
 }

@@ -8,9 +8,13 @@ import fr.euphyllia.fidorial.testplugin.items.MagicItems;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.entity.Player;
+import fr.fidorial.item.DataComponentTypes;
 import fr.fidorial.item.ItemDefaults;
 import fr.fidorial.item.ItemStack;
+import fr.fidorial.item.component.Bees;
 import fr.fidorial.registry.keys.ItemKeys;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -19,6 +23,8 @@ import static fr.fidorial.command.Commands.literal;
 
 public final class ItemCommand {
     private static TestPlugin plugin;
+    public static final Key BEE_NEST = ItemKeys.BEE_NEST.key();
+    private static final int HIVE_MIN_TICKS = 60;
 
     public ItemCommand(final TestPlugin plugin) {
         ItemCommand.plugin = plugin;
@@ -50,12 +56,25 @@ public final class ItemCommand {
                         .damage(80))
                 .build();
 
-        final ItemStack magicShield = plugin.server().items().create(MagicItems.MAGIC_SHIELD);
+        final Bees bees = Bees.EMPTY
+                .plus(Bees.Occupant.of(CompoundBinaryTag.builder()
+                        .putString("id", "minecraft:bee")
+                        .putString("CustomName", "\"Maya\"")
+                        .build(), HIVE_MIN_TICKS))
+                .plus(Bees.Occupant.of(CompoundBinaryTag.builder()
+                        .putString("id", "minecraft:bee")
+                        .build(), HIVE_MIN_TICKS));
 
-        player.inventory().set(player.selectedSlot(), magicShield);
+        final ItemStack nest = ItemStack.builder(ItemKeys.BEE_NEST.key())
+                .set(DataComponentTypes.BEES, bees)
+                .build();
+
+        final ItemStack magicHive = plugin.server().items().create(MagicItems.MAGIC_HIVE);
+
+        player.inventory().set(player.selectedSlot(), magicHive);
         player.updateInventory();
 
-        plugin.msg(player, "[TestPlugin] You receive " + magicShield.translationKey());
+        plugin.msg(player, "[TestPlugin] You receive " + magicHive.translationKey());
         return Command.SINGLE_SUCCESS;
     }
 

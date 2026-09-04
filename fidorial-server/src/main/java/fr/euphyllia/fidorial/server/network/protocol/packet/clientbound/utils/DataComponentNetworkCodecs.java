@@ -11,11 +11,14 @@ import fr.fidorial.item.DataComponentTypes;
 import fr.fidorial.item.component.AttackRange;
 import fr.fidorial.item.component.BannerPattern;
 import fr.fidorial.item.component.BannerPatterns;
+import fr.fidorial.item.component.Bees;
 import fr.fidorial.item.component.DyeColor;
 import fr.fidorial.item.component.ItemAttributeModifiers;
 import fr.fidorial.item.component.ItemLore;
 import io.netty.handler.codec.DecoderException;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.jspecify.annotations.Nullable;
@@ -39,6 +42,9 @@ public final class DataComponentNetworkCodecs {
     private static final int MAX_TRANSLATION_KEY_LENGTH = 32_767;
 
     private static final int MAX_ATTRIBUTE_MODIFIERS = 256;
+
+    private static final int MAX_HIVE_OCCUPANTS = 1_024;
+    private static final int MAX_ENTITY_NBT_BYTES = 2_097_152;
 
     public interface Codec<T> {
 
@@ -65,6 +71,7 @@ public final class DataComponentNetworkCodecs {
         register(DataComponentTypes.ATTRIBUTE_MODIFIERS, attributeModifiersCodec());
         register(DataComponentTypes.BANNER_PATTERNS, bannerPatternsCodec());
         register(DataComponentTypes.BASE_COLOR, dyeColorCodec());
+        register(DataComponentTypes.BEES, beesCodec());
     }
 
     private DataComponentNetworkCodecs() {
@@ -356,6 +363,45 @@ public final class DataComponentNetworkCodecs {
         }
 
         return BannerPattern.reference(pattern);
+    }
+
+    private static Codec<Bees> beesCodec() {
+        return new Codec<>() {
+            @Override
+            public void write(final PacketBuffer buf, final RegistryHolder frozen, final Bees value) {
+                buf.writeVarInt(value.size());
+
+                for (final Bees.Occupant occupant : value.occupants()) {
+                    buf.writeSizedNbt(occupant.entityData());
+                    buf.writeVarInt(occupant.ticksInHive());
+                    buf.writeVarInt(occupant.minTicksInHive());
+                }
+            }
+
+            @Override
+            public Bees read(final PacketBuffer buf, final RegistryHolder frozen) {
+                final int size = readBoundedLength(buf, MAX_HIVE_OCCUPANTS, "hive occupants");
+
+                final List<Bees.Occupant> occupants = new ArrayList<>(size);
+                for (int i = 0; i < size; i++) {
+                    final BinaryTag entityData = buf.readSizedNbt(MAX_ENTITY_NBT_BYTES);
+
+                    if (!(entityData instanceof final CompoundBinaryTag compound)) {
+                        throw new DecoderException("Hive occupant " + i + " is not a compound tag");
+                    }
+                    final int ticksInHive = buf.readVarInt();
+                    final int minTicksInHive = buf.readVarInt();
+
+                    try {
+                        occupants.add(new Bees.Occupant(compound, minTicksInHive, ticksInHive));
+                    } catch (final IllegalArgumentException e) {
+                        throw new DecoderException("Implausible hive occupant: " + e.getMessage(), e);
+                    }
+                }
+
+                return Bees.of(occupants);
+            }
+        };
     }
 
     private static void writeDisplay(final PacketBuffer buf, final AttributeModifierDisplay display) {

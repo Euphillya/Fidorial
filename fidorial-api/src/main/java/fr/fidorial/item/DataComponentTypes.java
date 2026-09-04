@@ -2,6 +2,7 @@ package fr.fidorial.item;
 
 import fr.fidorial.item.component.AttackRange;
 import fr.fidorial.item.component.BannerPatterns;
+import fr.fidorial.item.component.Bees;
 import fr.fidorial.item.component.DyeColor;
 import fr.fidorial.item.component.ItemAttributeModifiers;
 import fr.fidorial.item.component.ItemLore;
@@ -106,6 +107,12 @@ public class DataComponentTypes {
      */
     public static final DataComponentType<DyeColor> BASE_COLOR =
             register(DataComponentTypeKeys.BASE_COLOR.key(), DyeColor.class);
+
+    /**
+     * The entities shut inside a beehive or bee nest.
+     */
+    public static final DataComponentType<Bees> BEES =
+            register(DataComponentTypeKeys.BEES.key(), Bees.class);
 
     private DataComponentTypes() {
         throw new UnsupportedOperationException("DataComponentTypes cannot be instantiated.");

@@ -7,12 +7,14 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.euphyllia.fidorial.server.codecs.DispatchCodecs;
 import fr.euphyllia.fidorial.server.codecs.adventure.ComponentCodecs;
+import fr.euphyllia.fidorial.server.codecs.adventure.NbtCodecs;
 import fr.fidorial.attribute.AttributeModifier;
 import fr.fidorial.attribute.AttributeModifierDisplay;
 import fr.fidorial.inventory.EquipmentSlotGroup;
 import fr.fidorial.item.component.AttackRange;
 import fr.fidorial.item.component.BannerPattern;
 import fr.fidorial.item.component.BannerPatterns;
+import fr.fidorial.item.component.Bees;
 import fr.fidorial.item.component.DyeColor;
 import fr.fidorial.item.component.ItemAttributeModifiers;
 
@@ -131,6 +133,18 @@ public final class ItemComponentCodecs {
     public static final Codec<BannerPatterns> BANNER_PATTERNS_CODEC = BANNER_LAYER_CODEC
             .listOf()
             .xmap(BannerPatterns::of, BannerPatterns::layers);
+
+    private static final Codec<Bees.Occupant> HIVE_OCCUPANT_CODEC =
+            RecordCodecBuilder.create(instance -> instance.group(
+                    NbtCodecs.COMPOUND_BINARY_TAG_CODEC.fieldOf("entity_data")
+                            .forGetter(Bees.Occupant::entityData),
+                    Codec.INT.fieldOf("min_ticks_in_hive").forGetter(Bees.Occupant::minTicksInHive),
+                    Codec.INT.fieldOf("ticks_in_hive").forGetter(Bees.Occupant::ticksInHive)
+            ).apply(instance, Bees.Occupant::new));
+
+    public static final Codec<Bees> BEES_CODEC = HIVE_OCCUPANT_CODEC
+            .listOf()
+            .xmap(Bees::of, Bees::occupants);
 
     private ItemComponentCodecs() {
         throw new UnsupportedOperationException("ItemComponentCodecs cannot be instantiated.");

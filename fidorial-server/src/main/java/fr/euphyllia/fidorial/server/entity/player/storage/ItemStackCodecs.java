@@ -47,6 +47,7 @@ public final class ItemStackCodecs {
         register(DataComponentTypes.ATTRIBUTE_MODIFIERS, ItemComponentCodecs.ATTRIBUTE_MODIFIERS_CODEC);
         register(DataComponentTypes.BANNER_PATTERNS, ItemComponentCodecs.BANNER_PATTERNS_CODEC);
         register(DataComponentTypes.BASE_COLOR, ItemComponentCodecs.DYE_COLOR_CODEC);
+        register(DataComponentTypes.BEES, ItemComponentCodecs.BEES_CODEC);
     }
 
     public static final Codec<DataComponentMap> COMPONENT_MAP_CODEC = new Codec<>() {
