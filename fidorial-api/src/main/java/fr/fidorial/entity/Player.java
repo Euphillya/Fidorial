@@ -2,6 +2,8 @@ package fr.fidorial.entity;
 
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
+import fr.fidorial.event.player.PlayerJoinEvent;
+import fr.fidorial.event.player.PlayerQuitEvent;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.PlayerInventory;
 import fr.fidorial.permission.PermissionHolder;
@@ -127,4 +129,15 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
     default void setRespawnPoint(final Location location) {
         setRespawnPoint(new RespawnPoint(world(), location));
     }
+
+    /**
+     * Switches this player's connection status from PLAY to CONFIGURATION.
+     * Useful for resending data synced during the CONFIGURATION phase.
+     *
+     * @since 0.1.0
+     * @apiNote This removes the player from the world fully and creates them anew,
+     * firing {@link PlayerQuitEvent}, {@link PlayerJoinEvent}, and saving their data to disk.
+     * Any reference to this {@link Player} held before this call should be considered stale.
+     */
+    void enterConfigurationPhase();
 }

@@ -176,6 +176,8 @@ public final class WorldManager implements AutoCloseable {
                     seed,
                     generator != null ? generator.getClass().getName() : "flat");
         }
+        // resend worlds
+        FidorialServer.getInstance().players().forEach(ServerPlayer::enterConfigurationPhase);
         return world;
     }
 
@@ -211,6 +213,8 @@ public final class WorldManager implements AutoCloseable {
         }
         worlds.remove(key);
         LOGGER.debug("Removing world '{}' from manager (save={})", key, save);
+        // resend worlds
+        FidorialServer.getInstance().players().forEach(ServerPlayer::enterConfigurationPhase);
 
         return world;
     }
