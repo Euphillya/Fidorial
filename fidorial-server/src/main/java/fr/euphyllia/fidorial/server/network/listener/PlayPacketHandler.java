@@ -141,7 +141,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
         server.addPlayerConnection(connection);
         for (final ServerPlayer other : server.players()) {
             if (other == player) continue;
-            connection.send(new ClientboundPlayerInfoUpdatePacket(other.profile(), other.gameMode().id(), player.ping()));
+            connection.send(new ClientboundPlayerInfoUpdatePacket(other.profile(), other.gameMode().id(), other.ping()));
             other.connection().send(new ClientboundPlayerInfoUpdatePacket(player.profile(), player.gameMode().id(), player.ping()));
         }
         server.events().post(new PlayerJoinEvent(player));

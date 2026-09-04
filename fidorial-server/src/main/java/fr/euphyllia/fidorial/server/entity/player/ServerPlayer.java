@@ -600,7 +600,7 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
 
     @Override
     public void sendSpawnPackets(final ClientConnection viewer) {
-        viewer.send(new ClientboundPlayerInfoUpdatePacket(profile(), gameMode().id(), 0));
+        viewer.send(new ClientboundPlayerInfoUpdatePacket(profile(), gameMode().id(), ping()));
         viewer.send(ClientboundAddEntityPacket.of(this));
         viewer.send(new ClientboundRotateHeadPacket(entityId(), location().yaw()));
         viewer.send(ClientboundSetEntityMetadataPacket.of(
