@@ -4,9 +4,11 @@ import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundContainerSetContentPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundContainerClickPacket;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
+import fr.fidorial.entity.GameMode;
 import fr.fidorial.inventory.Container;
-import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.item.ItemDefaults;
+import fr.fidorial.item.ItemStack;
 import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
@@ -14,27 +16,23 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-
 public abstract class ContainerMenu {
 
-    private static final int MAIN_FIRST = 9;
+    protected static final int MAIN_FIRST = 9;
 
-    private static final int MAIN_LAST = 35;
-    private static final int MAIN_COUNT = MAIN_LAST - MAIN_FIRST + 1;
+    protected static final int MAIN_LAST = 35;
+    protected static final int MAIN_COUNT = MAIN_LAST - MAIN_FIRST + 1;
 
-    private static final int HOTBAR_FIRST = 0;
+    protected static final int HOTBAR_FIRST = 0;
 
-    private static final int HOTBAR_COUNT = 9;
+    protected static final int HOTBAR_COUNT = 9;
 
-    private static final int OFFHAND_SLOT = 40;
-
-    private static final int DEFAULT_MAX_STACK = 64;
+    protected static final int OFFHAND_SLOT = 40;
 
     protected final ServerPlayer player;
     private final int windowId;
 
     private final Set<Integer> dragSlots = new LinkedHashSet<>();
-    private ItemStack carried = ItemStack.EMPTY;
     private int stateId;
     private int dragButton = -1;
     private boolean dragging;
@@ -44,19 +42,12 @@ public abstract class ContainerMenu {
         this.windowId = windowId;
     }
 
-    private static boolean canStack(final ItemStack a, final ItemStack b) {
-        if (a.isEmpty() || b.isEmpty()) {
-            return false;
-        }
-        return a.id().equals(b.id())
-                && java.util.Objects.equals(a.customName(), b.customName())
-                && java.util.Objects.equals(a.itemName(), b.itemName())
-                && a.lore().equals(b.lore())
-                && a.attributeModifiers().equals(b.attributeModifiers());
+    protected static boolean canStack(final ItemStack a, final ItemStack b) {
+        return !a.isEmpty() && a.isSimilar(b);
     }
 
-    private static int maxStackSize(final ItemStack stack) {
-        return DEFAULT_MAX_STACK;
+    protected static int maxStackSize(final ItemStack stack) {
+        return Math.max(1, ItemDefaults.maxStackSize(stack.id(), stack));
     }
 
     public final int windowId() {
@@ -68,7 +59,11 @@ public abstract class ContainerMenu {
     }
 
     public final ItemStack carried() {
-        return carried;
+        return player.carried();
+    }
+
+    protected final void setCarried(final ItemStack stack) {
+        player.setCarried(stack);
     }
 
     protected abstract Container top();
@@ -84,11 +79,19 @@ public abstract class ContainerMenu {
         return top().size();
     }
 
-    public final int slotCount() {
+    public int slotCount() {
         return topSize() + MAIN_COUNT + HOTBAR_COUNT;
     }
 
-    private ItemStack read(final int windowSlot) {
+    protected int playerSectionStart() {
+        return topSize();
+    }
+
+    protected int playerSectionEnd() {
+        return slotCount();
+    }
+
+    protected ItemStack read(final int windowSlot) {
         final int top = topSize();
         if (windowSlot < top) {
             return top().get(windowSlot);
@@ -96,7 +99,7 @@ public abstract class ContainerMenu {
         return player.inventory().get(toInventorySlot(windowSlot));
     }
 
-    private void write(final int windowSlot, final ItemStack stack) {
+    protected void write(final int windowSlot, final ItemStack stack) {
         final int top = topSize();
         if (windowSlot < top) {
             top().set(windowSlot, stack);
@@ -113,11 +116,11 @@ public abstract class ContainerMenu {
         return HOTBAR_FIRST + (offset - MAIN_COUNT);
     }
 
-    private boolean isTopSlot(final int windowSlot) {
+    protected boolean isTopSlot(final int windowSlot) {
         return windowSlot < topSize();
     }
 
-    private boolean isValidSlot(final int windowSlot) {
+    protected final boolean isValidSlot(final int windowSlot) {
         return windowSlot >= 0 && windowSlot < slotCount();
     }
 
@@ -143,15 +146,16 @@ public abstract class ContainerMenu {
         }
     }
 
-    private void pickup(final int slot, final int button) {
+    protected void pickup(final int slot, final int button) {
         if (slot == ServerboundContainerClickPacket.SLOT_OUTSIDE) {
             dropCarried(button == 0);
             return;
         }
-        if (!isValidSlot(slot)) {
+        if (!isValidSlot(slot) || !mayPlace(slot)) {
             return;
         }
         final ItemStack inSlot = read(slot);
+        final ItemStack carried = carried();
         final boolean leftClick = button == 0;
 
         if (carried.isEmpty()) {
@@ -159,11 +163,11 @@ public abstract class ContainerMenu {
                 return;
             }
             if (leftClick) {
-                carried = inSlot;
+                setCarried(inSlot);
                 write(slot, ItemStack.EMPTY);
             } else {
                 final int taken = (inSlot.count() + 1) / 2;
-                carried = inSlot.withCount(taken);
+                setCarried(inSlot.withCount(taken));
                 write(slot, remainderOrEmpty(inSlot, inSlot.count() - taken));
             }
             return;
@@ -172,10 +176,10 @@ public abstract class ContainerMenu {
         if (inSlot.isEmpty()) {
             if (leftClick) {
                 write(slot, carried);
-                carried = ItemStack.EMPTY;
+                setCarried(ItemStack.EMPTY);
             } else {
                 write(slot, carried.withCount(1));
-                carried = remainderOrEmpty(carried, carried.count() - 1);
+                setCarried(remainderOrEmpty(carried, carried.count() - 1));
             }
             return;
         }
@@ -188,17 +192,17 @@ public abstract class ContainerMenu {
             }
             final int moved = leftClick ? Math.min(room, carried.count()) : Math.min(room, 1);
             write(slot, inSlot.withCount(inSlot.count() + moved));
-            carried = remainderOrEmpty(carried, carried.count() - moved);
+            setCarried(remainderOrEmpty(carried, carried.count() - moved));
             return;
         }
 
         if (leftClick) {
             write(slot, carried);
-            carried = inSlot;
+            setCarried(inSlot);
         }
     }
 
-    private void quickMove(final int slot) {
+    protected void quickMove(final int slot) {
         if (!isValidSlot(slot)) {
             return;
         }
@@ -206,13 +210,14 @@ public abstract class ContainerMenu {
         if (stack.isEmpty()) {
             return;
         }
-        final ItemStack leftover =
-                isTopSlot(slot) ? insert(stack, topSize(), slotCount()) : insert(stack, 0, topSize());
+        final ItemStack leftover = isTopSlot(slot)
+                ? insert(stack, playerSectionStart(), playerSectionEnd())
+                : insert(stack, 0, topSize());
         write(slot, leftover);
     }
 
-    private void swap(final int slot, final int button) {
-        if (!isValidSlot(slot)) {
+    protected void swap(final int slot, final int button) {
+        if (!isValidSlot(slot) || !mayPlace(slot)) {
             return;
         }
         final int target;
@@ -230,30 +235,28 @@ public abstract class ContainerMenu {
         inventory.set(target, inSlot);
     }
 
-
-    private void clone(final int slot) {
-        if (!isValidSlot(slot) || player.gameMode() != fr.fidorial.entity.GameMode.CREATIVE) {
+    protected void clone(final int slot) {
+        if (!isValidSlot(slot) || player.gameMode() != GameMode.CREATIVE) {
             return;
         }
-        if (!carried.isEmpty()) {
+        if (!carried().isEmpty()) {
             return;
         }
         final ItemStack inSlot = read(slot);
         if (inSlot.isEmpty()) {
             return;
         }
-        carried = inSlot.withCount(maxStackSize(inSlot));
+        setCarried(inSlot.withCount(maxStackSize(inSlot)));
     }
 
-    private void throwOut(final int slot) {
-        if (!isValidSlot(slot)) {
-        }
+    protected void throwOut(final int slot) {
+        // No ground item entity yet: dropping would destroy the stack, so we keep it.
     }
 
-    private void quickCraft(final int slot, final int button) {
+    protected void quickCraft(final int slot, final int button) {
         switch (button) {
             case 0, 4 -> {
-                if (carried.isEmpty()) {
+                if (carried().isEmpty()) {
                     resetDrag();
                     return;
                 }
@@ -262,11 +265,11 @@ public abstract class ContainerMenu {
                 dragSlots.clear();
             }
             case 1, 5 -> {
-                if (!dragging || button != dragButton + 1 || !isValidSlot(slot)) {
+                if (!dragging || button != dragButton + 1 || !isValidSlot(slot) || !mayPlace(slot)) {
                     return;
                 }
                 final ItemStack inSlot = read(slot);
-                if (inSlot.isEmpty() || canStack(inSlot, carried)) {
+                if (inSlot.isEmpty() || canStack(inSlot, carried())) {
                     dragSlots.add(slot);
                 }
             }
@@ -281,6 +284,7 @@ public abstract class ContainerMenu {
     }
 
     private void applyDrag() {
+        final ItemStack carried = carried();
         if (carried.isEmpty() || dragSlots.isEmpty()) {
             return;
         }
@@ -303,7 +307,7 @@ public abstract class ContainerMenu {
             write(slot, carried.withCount(current + moved));
             remaining -= moved;
         }
-        carried = remainderOrEmpty(carried, remaining);
+        setCarried(remainderOrEmpty(carried, remaining));
     }
 
     private void resetDrag() {
@@ -312,7 +316,8 @@ public abstract class ContainerMenu {
         dragSlots.clear();
     }
 
-    private void pickupAll(final int slot) {
+    protected void pickupAll(final int slot) {
+        ItemStack carried = carried();
         if (carried.isEmpty()) {
             return;
         }
@@ -332,20 +337,28 @@ public abstract class ContainerMenu {
                 write(i, remainderOrEmpty(inSlot, inSlot.count() - moved));
             }
         }
+        setCarried(carried);
     }
 
-    private void dropCarried(final boolean wholeStack) {
+    protected void dropCarried(final boolean wholeStack) {
         // Same reason as throwOut: without a ground item entity, we prefer to lose nothing.
     }
 
-    private ItemStack remainderOrEmpty(final ItemStack source, final int count) {
+    protected boolean mayPlace(final int windowSlot) {
+        return true;
+    }
+
+    protected final ItemStack remainderOrEmpty(final ItemStack source, final int count) {
         return count <= 0 ? ItemStack.EMPTY : source.withCount(count);
     }
 
-    private ItemStack insert(final ItemStack stack, final int from, final int to) {
+    protected final ItemStack insert(final ItemStack stack, final int from, final int to) {
         ItemStack remaining = stack;
 
         for (int i = from; i < to && !remaining.isEmpty(); i++) {
+            if (!mayPlace(i)) {
+                continue;
+            }
             final ItemStack inSlot = read(i);
             if (!canStack(inSlot, remaining)) {
                 continue;
@@ -361,7 +374,7 @@ public abstract class ContainerMenu {
         }
 
         for (int i = from; i < to && !remaining.isEmpty(); i++) {
-            if (read(i).isEmpty()) {
+            if (mayPlace(i) && read(i).isEmpty()) {
                 write(i, remaining);
                 remaining = ItemStack.EMPTY;
             }
@@ -375,13 +388,14 @@ public abstract class ContainerMenu {
         for (int i = 0; i < slotCount(); i++) {
             slots.add(read(i));
         }
-        return new ClientboundContainerSetContentPacket(windowId, stateId, slots, carried, frozen);
+        return new ClientboundContainerSetContentPacket(windowId, stateId, slots, carried(), frozen);
     }
 
     public final void returnCarried() {
+        final ItemStack carried = carried();
         if (carried.isEmpty()) {
             return;
         }
-        carried = insert(carried, topSize(), slotCount());
+        setCarried(insert(carried, playerSectionStart(), playerSectionEnd()));
     }
 }

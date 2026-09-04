@@ -9,12 +9,12 @@ import fr.euphyllia.fidorial.server.entity.player.InventorySlots;
 import fr.euphyllia.fidorial.server.entity.player.ServerPlayer;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
 import fr.euphyllia.fidorial.server.inventory.EnderChestMenu;
+import fr.euphyllia.fidorial.server.inventory.PlayerInventoryMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundAnimatePacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBlockChangedAckPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundBlockEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundCommandSuggestionsPacket;
-import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundContainerSetContentPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundEntityPositionSyncPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundGameEventPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.clientbound.play.ClientboundLoginPacket;
@@ -54,7 +54,6 @@ import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.Ser
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundSwingPacket;
 import fr.euphyllia.fidorial.server.network.protocol.packet.serverbound.play.ServerboundUseItemOnPacket;
 import fr.euphyllia.fidorial.server.network.session.ChunkViewTracker;
-import fr.euphyllia.fidorial.server.registry.Registry;
 import fr.euphyllia.fidorial.server.registry.RegistryHolder;
 import fr.euphyllia.fidorial.server.world.ChunkGeneratorConfig;
 import fr.euphyllia.fidorial.server.world.ChunkNetworkSerializer;
@@ -76,8 +75,9 @@ import fr.fidorial.event.player.PlayerQuitEvent;
 import fr.fidorial.event.player.PlayerRespawnEvent;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.EquipmentSlotGroup;
-import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.item.ItemDefaults;
+import fr.fidorial.item.ItemStack;
 import fr.fidorial.registry.keys.BlockTypeKeys;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.world.BlockFace;
@@ -280,8 +280,7 @@ public final class PlayPacketHandler implements PlayPacketListener {
 
     private void spawnPlayer(final Location spawn) {
         connection.send(new ClientboundPlayerPositionPacket(player.nextTeleportId(), spawn.x(), spawn.y(), spawn.z()));
-        connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
-                player.inventory(), 0, ItemStack.EMPTY, server.registries().frozen()));
+        connection.send(player.inventoryMenu().buildSyncPacket(server.registries().network()));
     }
 
     @Override
@@ -322,7 +321,6 @@ public final class PlayPacketHandler implements PlayPacketListener {
     }
 
     @Override
-    @SuppressWarnings("PatternValidation")
     public void handleSetCreativeModeSlot(final ServerboundSetCreativeModeSlotPacket packet) {
         if (player.gameMode() != GameMode.CREATIVE) {
             LOGGER.debug("{} envoie un paquet creatif hors mode creatif (ignore)", player.name());
@@ -332,16 +330,16 @@ public final class PlayPacketHandler implements PlayPacketListener {
         if (slot == InventorySlots.INVALID || slot >= player.inventory().size()) {
             return;
         }
-        if (packet.count() <= 0 || packet.itemId() < 0) {
+
+        final ItemStack stack = packet.stack();
+
+        if (stack.isEmpty()) {
             player.inventory().set(slot, ItemStack.EMPTY);
             return;
         }
-        final Registry items = server.registries().frozen().get(Key.key("item"));
-        if (items == null || packet.itemId() >= items.entries().size()) {
-            LOGGER.warn("{} envoie un id d'item hors borne : {}", player.name(), packet.itemId());
-            return;
-        }
-        player.inventory().set(slot, new ItemStack(items.entries().get(packet.itemId()), packet.count()));
+
+        final int maxCount = Math.max(1, ItemDefaults.maxStackSize(stack.id(), stack));
+        player.inventory().set(slot, stack.count() > maxCount ? stack.withCount(maxCount) : stack);
     }
 
     @Override
@@ -462,24 +460,37 @@ public final class PlayPacketHandler implements PlayPacketListener {
             server.chestViewers().close(enderChest.position(), this::broadcastLid);
             broadcastChestSound(enderChest.position(), "block.ender_chest.close");
         }
-        connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
-                player.inventory(), 0, ItemStack.EMPTY, server.registries().frozen()));
+        connection.send(player.inventoryMenu().buildSyncPacket(server.registries().network()));
+    }
+
+    private @Nullable ContainerMenu menuFor(final int windowId) {
+        if (windowId == PlayerInventoryMenu.WINDOW_ID) {
+            return player.inventoryMenu();
+        }
+        final ContainerMenu menu = player.openMenu();
+        return menu != null && menu.windowId() == windowId ? menu : null;
     }
 
     @Override
     public void handleContainerClick(final ServerboundContainerClickPacket packet) {
-        final ContainerMenu menu = player.openMenu();
-        if (menu == null || menu.windowId() != packet.windowId()) {
-            connection.send(ClientboundContainerSetContentPacket.ofPlayerInventory(
-                    player.inventory(), 0, ItemStack.EMPTY, server.registries().frozen()));
+        final ContainerMenu menu = menuFor(packet.windowId());
+        if (menu == null) {
+            connection.send(player.inventoryMenu().buildSyncPacket(server.registries().network()));
             return;
         }
         menu.click(packet);
-        connection.send(menu.buildSyncPacket(server.registries().frozen()));
+        connection.send(menu.buildSyncPacket(server.registries().network()));
     }
 
     @Override
     public void handleContainerClose(final ServerboundContainerClosePacket packet) {
+        if (packet.windowId() == PlayerInventoryMenu.WINDOW_ID) {
+            final PlayerInventoryMenu inventoryMenu = player.inventoryMenu();
+            inventoryMenu.returnCarried();
+            inventoryMenu.onClosed();
+            connection.send(inventoryMenu.buildSyncPacket(server.registries().network()));
+            return;
+        }
         closeOpenMenu(false);
     }
 

@@ -4,6 +4,7 @@ import fr.euphyllia.fidorial.server.FidorialServer;
 import fr.euphyllia.fidorial.server.entity.AbstractLivingEntity;
 import fr.euphyllia.fidorial.server.entity.EntityTypes;
 import fr.euphyllia.fidorial.server.inventory.ContainerMenu;
+import fr.euphyllia.fidorial.server.inventory.PlayerInventoryMenu;
 import fr.euphyllia.fidorial.server.network.ClientConnection;
 import fr.euphyllia.fidorial.server.network.nbt.ComponentResolver;
 import fr.euphyllia.fidorial.server.network.protocol.catalog.PlayClientboundPackets;
@@ -37,8 +38,8 @@ import fr.fidorial.entity.PlayerProfile;
 import fr.fidorial.entity.RespawnPoint;
 import fr.fidorial.event.player.PlayerRespawnEvent;
 import fr.fidorial.inventory.EnderChestInventory;
-import fr.fidorial.inventory.ItemStack;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.item.ItemStack;
 import fr.fidorial.permission.PermissionResolver;
 import fr.fidorial.permission.PermissionState;
 import fr.fidorial.permission.PermissionStateHolder;
@@ -107,6 +108,8 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
     private volatile int lastTeleportId;
     private volatile boolean flying;
     private volatile @Nullable ContainerMenu openMenu;
+    private final PlayerInventoryMenu inventoryMenu;
+    private volatile ItemStack carried = ItemStack.EMPTY;
     private volatile @Nullable RespawnPoint respawnPoint;
     private int nextWindowId = 1;
     private Locale locale;
@@ -124,6 +127,7 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         super(entityId, profile.uuid(), EntityTypes.PLAYER, world, location, MAX_HEALTH);
         this.profile = profile;
         this.inventory = inventory;
+        this.inventoryMenu = new PlayerInventoryMenu(this);
         this.enderChest = enderChest;
         this.gameMode = gameMode;
         this.connection = connection;
@@ -198,11 +202,30 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         return enderChest;
     }
 
+    @Override
+    public void updateInventory() {
+        final ContainerMenu menu = openMenu;
+        connection.send((menu != null ? menu : inventoryMenu)
+                .buildSyncPacket(connection.server().registries().network()));
+    }
+
     /**
      * The currently open container window, or {@code null}.
      */
     public @Nullable ContainerMenu openMenu() {
         return openMenu;
+    }
+
+    public PlayerInventoryMenu inventoryMenu() {
+        return inventoryMenu;
+    }
+
+    public ItemStack carried() {
+        return carried;
+    }
+
+    public void setCarried(final @Nullable ItemStack stack) {
+        this.carried = stack == null ? ItemStack.EMPTY : stack;
     }
 
     /**
@@ -224,9 +247,9 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         this.openMenu = menu;
         connection.send(new ClientboundOpenScreenPacket(
                 menu.windowId(),
-                menu.menuTypeId(connection.server().registries().frozen()),
+                menu.menuTypeId(connection.server().registries().network()),
                 menu.title()));
-        connection.send(menu.buildSyncPacket(connection.server().registries().frozen()));
+        connection.send(menu.buildSyncPacket(connection.server().registries().network()));
     }
 
     /**
@@ -283,6 +306,7 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         return this.locale;
     }
 
+    @Override
     public ItemStack heldItem() {
         return inventory.get(selectedSlot);
     }
@@ -597,10 +621,12 @@ public final class ServerPlayer extends AbstractLivingEntity implements Player, 
         return Collections.unmodifiableSet(activeBossBars.keySet());
     }
 
+    @Override
     public int selectedSlot() {
         return selectedSlot;
     }
 
+    @Override
     public void setSelectedSlot(final int selectedSlot) {
         if (selectedSlot < 0 || selectedSlot > 8) {
             throw new IllegalArgumentException("slot de hotbar invalide : " + selectedSlot);

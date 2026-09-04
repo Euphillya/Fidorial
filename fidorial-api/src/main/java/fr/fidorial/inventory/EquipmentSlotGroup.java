@@ -14,7 +14,8 @@ public enum EquipmentSlotGroup {
     CHEST(6, "chest"),
     HEAD(7, "head"),
     ARMOR(8, "armor"),
-    BODY(9, "body");
+    BODY(9, "body"),
+    SADDLE(10, "saddle");
 
     private final int networkId;
     private final String serializedName;

@@ -10,6 +10,7 @@ import com.mojang.serialization.ListBuilder;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.euphyllia.fidorial.server.codecs.DispatchCodecs;
+import fr.fidorial.item.component.ItemLore;
 import net.kyori.adventure.text.BlockNBTComponent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.EntityNBTComponent;
@@ -42,6 +43,16 @@ public final class ComponentCodecs {
 
     public static final Codec<Component> COMPONENT_CODEC =
             Codec.recursive("adventure:component", ComponentCodecs::createCodec);
+
+
+    public static final Codec<ItemLore> LORE_CODEC = ComponentCodecs.COMPONENT_CODEC
+            .listOf()
+            .comapFlatMap(
+                    lines -> lines.size() > ItemLore.MAX_LINES
+                            ? DataResult.error(() -> "Lore has " + lines.size()
+                                                     + " lines, the most allowed is " + ItemLore.MAX_LINES)
+                            : DataResult.success(new ItemLore(lines)),
+                    ItemLore::lines);
 
     private static final MapCodec<TextComponent> TEXT_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.STRING.fieldOf("text").forGetter(TextComponent::content)

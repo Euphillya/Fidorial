@@ -46,6 +46,8 @@ module fr.fidorial {
     exports fr.fidorial.event.server;
     exports fr.fidorial.event;
     exports fr.fidorial.inventory;
+    exports fr.fidorial.item;
+    exports fr.fidorial.item.component;
     exports fr.fidorial.permission;
     exports fr.fidorial.plugin;
     exports fr.fidorial.registry.data;

@@ -4,9 +4,11 @@ import fr.euphyllia.fidorial.testplugin.command.ApiTestCommand;
 import fr.euphyllia.fidorial.testplugin.command.BiomeCommand;
 import fr.euphyllia.fidorial.testplugin.command.CustomMobCommand;
 import fr.euphyllia.fidorial.testplugin.command.DialogCommand;
+import fr.euphyllia.fidorial.testplugin.command.ItemCommand;
 import fr.euphyllia.fidorial.testplugin.command.PregenCommand;
 import fr.euphyllia.fidorial.testplugin.command.WorldgenCommand;
 import fr.euphyllia.fidorial.testplugin.dialog.TestDialogs;
+import fr.euphyllia.fidorial.testplugin.items.MagicItems;
 import fr.euphyllia.fidorial.testplugin.mob.BullMobs;
 import fr.euphyllia.fidorial.testplugin.mob.CompanionMobs;
 import fr.euphyllia.fidorial.testplugin.pregen.PregenTask;
@@ -112,7 +114,11 @@ public final class TestPlugin implements Plugin {
         TestDimensionTypes.registerAll(context.server().dimensionTypes(), context.logger());
 
 //        BullMobs.attachToCows(context.server().mobs(), this, context.logger());
-       BullMobs.registerBull(context.server().mobs(), this, context.logger());
+        MagicItems.registerMagicSword(context.server().items(), this, context.logger());
+        MagicItems.registerMagicBanner(context.server().items(), this, context.logger());
+        MagicItems.registerMagicShield(context.server().items(), this, context.logger());
+        MagicItems.registerMagicHive(context.server().items(), this, context.logger());
+        BullMobs.registerBull(context.server().mobs(), this, context.logger());
         CompanionMobs.register(context.server().mobs(), this, context.logger());
 
         final long seed = resolveSeed(context.logger());
@@ -287,5 +293,6 @@ public final class TestPlugin implements Plugin {
         registry.register(context.meta(), new WorldgenCommand(this).create());
         registry.register(context.meta(), new DialogCommand(this).create());
         registry.register(context.meta(), new CustomMobCommand(this).create());
+        registry.register(context.meta(), new ItemCommand(this).create());
     }
 }

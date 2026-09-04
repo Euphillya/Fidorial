@@ -4,6 +4,7 @@ import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.inventory.EnderChestInventory;
 import fr.fidorial.inventory.PlayerInventory;
+import fr.fidorial.item.ItemStack;
 import fr.fidorial.permission.PermissionHolder;
 import fr.fidorial.world.Location;
 import fr.fidorial.world.World;
@@ -72,6 +73,46 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
 
     EnderChestInventory enderChest();
 
+    /**
+     * @return the hotbar slot ({@code 0}-{@code 8}) currently selected by this player
+     * @since 0.1.0
+     */
+    int selectedSlot();
+
+    /**
+     * @param slot the hotbar slot to select, {@code 0}-{@code 8}
+     * @throws IllegalArgumentException if {@code slot} is out of {@code [0, 8]}
+     * @since 0.1.0
+     */
+    void setSelectedSlot(int slot);
+
+    /**
+     * @return the stack in the currently {@linkplain #selectedSlot() selected} hotbar slot,
+     * never {@code null} ({@link ItemStack#EMPTY} when nothing is held)
+     * @since 0.1.0
+     */
+    default ItemStack heldItem() {
+        return inventory().get(selectedSlot());
+    }
+
+    /**
+     * Replaces the stack in the currently {@linkplain #selectedSlot() selected} hotbar slot.
+     *
+     * @param stack the new stack, {@code null} is normalized to {@link ItemStack#EMPTY}
+     * @since 0.1.0
+     */
+    default void setHeldItem(final @Nullable ItemStack stack) {
+        inventory().set(selectedSlot(), stack);
+    }
+
+
+    /**
+     * Resyncs this player's own inventory window on their client.
+     *
+     * @since 0.1.0
+     */
+    void updateInventory();
+
     GameMode gameMode();
 
     void setGameMode(GameMode gameMode);
@@ -127,4 +168,5 @@ public interface Player extends LivingEntity, PermissionHolder, CommandSource, C
     default void setRespawnPoint(final Location location) {
         setRespawnPoint(new RespawnPoint(world(), location));
     }
+
 }
