@@ -1,5 +1,6 @@
 package fr.fidorial.entity;
 
+import fr.fidorial.Server;
 import fr.fidorial.command.CommandSender;
 import fr.fidorial.command.CommandSource;
 import fr.fidorial.event.player.PlayerJoinEvent;
@@ -19,6 +20,19 @@ import org.jspecify.annotations.Nullable;
 import java.net.InetAddress;
 import java.util.UUID;
 
+/**
+ * Represents a player currently connected to the server.
+ * <p>
+ * A {@code Player} reference is not stable across the server lifecycle, as entering the
+ * CONFIGURATION phase (see {@link #enterConfigurationPhase()}) discards the
+ * underlying player and recreates it, which invalidates every reference held
+ * before that point.
+ * {@code Player} references should not be cached, as a reference obtained from an event or lookup is only
+ * guaranteed valid for the duration of that call. Instead, re-fetch by UUID or name via
+ * {@link Server#player(UUID)} or {@link Server#player(String)}.
+ *
+ * @since 0.1.0
+ */
 public interface Player extends LivingEntity, PermissionHolder, CommandSource, CommandSender, Identified, BossBarViewer, ObjectContentsLike {
 
     void refreshCommands();
