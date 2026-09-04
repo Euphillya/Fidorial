@@ -1405,15 +1405,6 @@
       "minecraft:quick_actions": []
     }
   },
-  "minecraft:dimension_type": {
-    "entries": [
-      "minecraft:overworld",
-      "minecraft:overworld_caves",
-      "minecraft:the_end",
-      "minecraft:the_nether"
-    ],
-    "tags": {}
-  },
   "minecraft:decorated_pot_pattern": {
     "entries": [
       "minecraft:angler",
@@ -1439,6 +1430,15 @@
       "minecraft:shelter",
       "minecraft:skull",
       "minecraft:snort"
+    ],
+    "tags": {}
+  },
+  "minecraft:dimension_type": {
+    "entries": [
+      "minecraft:overworld",
+      "minecraft:overworld_caves",
+      "minecraft:the_end",
+      "minecraft:the_nether"
     ],
     "tags": {}
   },

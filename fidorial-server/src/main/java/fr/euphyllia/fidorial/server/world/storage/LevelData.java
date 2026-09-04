@@ -1,8 +1,8 @@
 package fr.euphyllia.fidorial.server.world.storage;
 
 import com.google.common.hash.Hashing;
+import fr.euphyllia.fidorial.server.VersionConstants;
 import fr.euphyllia.fidorial.server.world.ChunkGeneratorConfig;
-import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
 import fr.euphyllia.fidorial.server.world.chunk.BlockState;
 import fr.euphyllia.fidorial.server.world.entity.AnvilEntitySerializer;
 import net.kyori.adventure.bossbar.BossBar;
@@ -61,9 +61,9 @@ public final class LevelData {
     public boolean difficultyLocked = false;
     public boolean allowCommands = true;
 
-    public int dataVersion = AnvilChunkSerializer.DATA_VERSION_26_3_PRE_1;
-    public String versionName = "26.3-pre-1";
-    public boolean snapshot = true; // CHANGE ME
+    public int dataVersion = VersionConstants.DATA_VERSION;
+    public String versionName = VersionConstants.MINECRAFT_VERSION_ID;
+    public boolean snapshot = !VersionConstants.IS_RELEASE;
     public boolean wasModded = false;
     public final List<Integer> versionHistory = new ArrayList<>();
 

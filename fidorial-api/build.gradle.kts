@@ -103,7 +103,7 @@ val verifyRegistryDataset = tasks.register("verifyRegistryDataset") {
 tasks.named("check") { dependsOn(verifyRegistryDataset) }
 
 fidorialRegistryGenerator {
-    minecraftVersion.set("26.3-pre-1")
+    minecraftVersion.set("26.3-pre-2")
 
     generatedSourcesDirectory.set(
         layout.projectDirectory.dir(

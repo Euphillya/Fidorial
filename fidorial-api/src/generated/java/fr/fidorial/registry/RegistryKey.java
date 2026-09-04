@@ -128,14 +128,14 @@ public record RegistryKey<T>(Key key) {
     public static final RegistryKey<Dialog> DIALOG = of("dialog");
 
     /**
-     * Registry key for {@code minecraft:dimension_type}.
-     */
-    public static final RegistryKey<DimensionType> DIMENSION_TYPE = of("dimension_type");
-
-    /**
      * Registry key for {@code minecraft:decorated_pot_pattern}.
      */
     public static final RegistryKey<DecoratedPotPattern> DECORATED_POT_PATTERN = of("decorated_pot_pattern");
+
+    /**
+     * Registry key for {@code minecraft:dimension_type}.
+     */
+    public static final RegistryKey<DimensionType> DIMENSION_TYPE = of("dimension_type");
 
     /**
      * Registry key for {@code minecraft:enchantment}.

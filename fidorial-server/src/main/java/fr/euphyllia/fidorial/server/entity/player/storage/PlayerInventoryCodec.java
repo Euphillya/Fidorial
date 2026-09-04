@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.player.storage;
 
-import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
+import fr.euphyllia.fidorial.server.VersionConstants;
 import fr.fidorial.inventory.PlayerInventory;
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ public final class PlayerInventoryCodec {
     }
 
     public static byte[] encode(final PlayerInventory inventory) throws IOException {
-        return ContainerCodecs.encode(ROOT_NAME, LIST_NAME, AnvilChunkSerializer.DATA_VERSION_26_3_PRE_1,
+        return ContainerCodecs.encode(ROOT_NAME, LIST_NAME, VersionConstants.DATA_VERSION,
                 ContainerCodecs.containerCodec(PlayerInventory::new), inventory);
     }
 

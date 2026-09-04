@@ -176,7 +176,7 @@ tasks.withType<GenerateBlockStatesTask>().configureEach {
 }
 
 fidorialRegistryGenerator {
-    minecraftVersion.set("26.3-pre-1")
+    minecraftVersion.set("26.3-pre-2")
     prismarineMinecraftData.set("26.3-snapshot-10")
     prismarineDataRepository.set("Toffikk/minecraft-data") // PrismarineJS/minecraft-data
     prismarineDataRef.set("ver/26.3-snapshot-10") // master

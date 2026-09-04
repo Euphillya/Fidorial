@@ -1,6 +1,6 @@
 package fr.euphyllia.fidorial.server.entity.player.storage;
 
-import fr.euphyllia.fidorial.server.world.chunk.AnvilChunkSerializer;
+import fr.euphyllia.fidorial.server.VersionConstants;
 import fr.fidorial.entity.GameMode;
 import fr.fidorial.storage.player.PlayerDataStorage;
 import fr.fidorial.world.Location;
@@ -142,7 +142,7 @@ public class NbtPlayerDataStorage implements PlayerDataStorage {
         Files.createDirectories(dataDir);
 
         final CompoundBinaryTag.Builder root = CompoundBinaryTag.builder();
-        root.putInt("DataVersion", AnvilChunkSerializer.DATA_VERSION_26_3_PRE_1);
+        root.putInt("DataVersion", VersionConstants.DATA_VERSION);
         root.putInt("playerGameModeId", data.gameMode().id());
 
         final Key respawnWorld = data.respawnWorld();

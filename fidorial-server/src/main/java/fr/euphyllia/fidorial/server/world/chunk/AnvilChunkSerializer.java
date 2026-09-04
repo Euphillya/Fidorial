@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.world.chunk;
 
+import fr.euphyllia.fidorial.server.VersionConstants;
 import fr.euphyllia.fidorial.server.world.block.blockentity.BlockEntity;
 import fr.euphyllia.fidorial.server.world.light.ChunkLightData;
 import fr.fidorial.world.light.LightType;
@@ -18,13 +19,10 @@ import java.util.TreeMap;
 
 public class AnvilChunkSerializer {
 
-    // https://minecraft.wiki/w/Data_version#List_of_data_versions
-    public static final int DATA_VERSION_26_3_PRE_1 = 5017;
-
     private final int dataVersion;
 
     public AnvilChunkSerializer() {
-        this(DATA_VERSION_26_3_PRE_1);
+        this(VersionConstants.DATA_VERSION);
     }
 
     public AnvilChunkSerializer(final int dataVersion) {
