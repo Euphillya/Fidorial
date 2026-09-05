@@ -166,7 +166,7 @@ public final class ServerWorld implements World {
     @Override
     public Optional<Chunk> getChunkIfLoaded(final int chunkX, final int chunkZ) {
         final ChunkColumn cached = loaded.get(ChunkPos.chunkKey(chunkX, chunkZ));
-        return Optional.of(cached).map(this::wrap);
+        return Optional.ofNullable(cached).map(this::wrap);
     }
 
     @Override

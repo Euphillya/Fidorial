@@ -1,4 +1,11 @@
-extra.set("readUnnamedModules", setOf("fr.fidorial.auth"))
+plugins {
+    id("fidorial-spotless")
+    id("fidorial-build-conventions")
+}
+
+fidorialBuild {
+    readUnnamedModules = setOf("fr.fidorial.auth")
+}
 
 dependencies {
     api(libs.gson)

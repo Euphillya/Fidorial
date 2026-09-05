@@ -1,5 +1,6 @@
 package fr.euphyllia.fidorial.server.world;
 
+@Deprecated(forRemoval = true)
 public final class WorldConstants {
 
     public static final int MIN_Y = -64;

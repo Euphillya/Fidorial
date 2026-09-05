@@ -68,11 +68,11 @@ public final class WorldManager implements AutoCloseable {
 
         final LevelData levelData;
         if (paths.levelDat().toFile().isFile()) {
-            levelData = LevelData.read(paths.levelDat());
+            levelData = LevelData.read(paths.dataDir(), paths.levelDat());
             LOGGER.info("Monde chargé : {} (DataVersion {})", levelData.levelName, levelData.dataVersion);
         } else {
             levelData = new LevelData();
-            levelData.write(paths.levelDat());
+            levelData.write(paths.dataDir(), paths.levelDat());
             LOGGER.info("Nouveau monde créé dans {}", worldRoot);
         }
 
@@ -208,7 +208,7 @@ public final class WorldManager implements AutoCloseable {
         if (save) {
             final WorldTimeEngine cycle = world.dayNightCycle();
             levelData.setWorldTime(world.dimension().id(), cycle.worldAge(), cycle.time(), cycle.doDaylightCycle());
-            levelData.write(paths.levelDat());
+            levelData.write(paths.dataDir(), paths.levelDat());
             world.saveAll();
         }
         worlds.remove(key);
@@ -237,7 +237,7 @@ public final class WorldManager implements AutoCloseable {
 
     public void saveAll() throws IOException {
         captureTimes();
-        levelData.write(paths.levelDat());
+        levelData.write(paths.dataDir(), paths.levelDat());
         for (final ServerWorld w : worlds.values()) {
             w.saveAll();
         }
