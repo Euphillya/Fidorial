@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("fidorial-spotless")
+    id("fidorial-spotless") apply false
     alias(libs.plugins.shadow) apply false
 }
 
