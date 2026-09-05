@@ -1,7 +1,6 @@
-extra.set("readUnnamedModules", setOf("fr.fidorial"))
-
 plugins {
     `maven-publish`
+    id("fidorial-build-conventions")
     id("fr.fidorial.registry-generator")
 }
 
@@ -17,6 +16,10 @@ dependencies {
     api(platform(libs.adventure.bom))
     api(libs.fastutil)
     compileOnly(libs.jetbrains.annotations)
+}
+
+fidorialBuild {
+    readUnnamedModules = setOf("fr.fidorial")
 }
 
 java {

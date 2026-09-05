@@ -1,12 +1,15 @@
-extra.set("readUnnamedModules", setOf("fr.fidorial.test", "fr.fidorial"))
-
 plugins {
     id("com.gradleup.shadow")
+    id("fidorial-build-conventions")
     id("fr.fidorial.plugin-libraries")
 }
 
 repositories {
     maven("https://jitpack.io/")
+}
+
+fidorialBuild {
+    readUnnamedModules = setOf("fr.fidorial.test", "fr.fidorial")
 }
 
 dependencies {
@@ -28,7 +31,7 @@ tasks.shadowJar {
 val deployToRun = tasks.register<Copy>("deployToRun") {
     from(tasks.shadowJar)
     rename { "TestPlugin.jar" }
-    val destination = rootProject.layout.projectDirectory.dir("fidorial-server/run/plugins").asFile
+    val destination = isolated.rootProject.projectDirectory.dir("fidorial-server/run/plugins").asFile
     into(destination)
     doFirst {
         destination.resolve("TestPlugin.jar").delete()

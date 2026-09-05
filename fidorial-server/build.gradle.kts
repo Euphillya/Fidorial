@@ -2,11 +2,10 @@ import fr.euphyllia.fidorial.gradle.libraries.GenerateApiPackageIndexTask
 import fr.euphyllia.fidorial.gradle.libraries.PrepareBootstrapPayloadTask
 import fr.fidorial.registrygen.task.GenerateBlockStatesTask
 
-extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
-
 plugins {
     application
     alias(libs.plugins.blossom)
+    id("fidorial-build-conventions")
     id("fr.fidorial.dependency-patcher")
     id("fr.fidorial.registry-generator")
 }
@@ -45,6 +44,10 @@ dependencies {
     runtimeOnly(libs.netty.epoll)
     runtimeOnly(libs.netty.iouring)
     runtimeOnly(libs.netty.kqueue)
+}
+
+fidorialBuild {
+    readUnnamedModules = setOf("fr.fidorial", "fr.fidorial.server")
 }
 
 application {
