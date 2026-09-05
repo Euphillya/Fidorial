@@ -6,6 +6,7 @@ extra.set("readUnnamedModules", setOf("fr.fidorial", "fr.fidorial.server"))
 
 plugins {
     application
+    alias(libs.plugins.blossom)
     id("fr.fidorial.dependency-patcher")
     id("fr.fidorial.registry-generator")
 }
@@ -50,6 +51,17 @@ application {
     mainClass.set("fr.euphyllia.fidorial.server.Main")
 }
 
+sourceSets.main {
+    blossom.javaSources {
+        property("minecraftVersionId", providers.gradleProperty("minecraftVersion"))
+        property("minecraftVersionName", providers.gradleProperty("minecraftVersionName"))
+        property("isRelease", providers.gradleProperty("minecraftVersion")
+            .map { it.matches(Regex("\\d+\\.\\d+(?:\\.\\d+)?")).toString() }) // MAJOR.MINOR or MAJOR.MINOR.PATCH
+        property("protocolVersion", providers.gradleProperty("protocolVersion"))
+        property("dataVersion", providers.gradleProperty("dataVersion"))
+    }
+}
+
 java {
     sourceSets.main {
         java.srcDir("src/generated/java")
@@ -57,7 +69,7 @@ java {
     }
 }
 
-val apiSurface: Configuration by configurations.creating {
+val apiSurface = configurations.register("apiSurface") {
     isCanBeConsumed = false
     isCanBeResolved = true
     description = "fidorial-api and everything it re-exports to plugins"
@@ -78,7 +90,7 @@ sourceSets.main {
     resources.srcDir(generateApiPackageIndex)
 }
 
-val bootstrapLauncher: Configuration by configurations.creating {
+val bootstrapLauncher = configurations.register("bootstrapLauncher") {
     isCanBeConsumed = false
     isCanBeResolved = true
     isTransitive = false
@@ -115,7 +127,7 @@ val bootstrapJar = tasks.register<Jar>("bootstrapJar") {
     archiveBaseName.set("Fidorial")
     archiveClassifier.set("")
 
-    from(zipTree(bootstrapLauncher.elements.map { it.single().asFile }))
+    from(zipTree(bootstrapLauncher.flatMap { it.elements.map { it.single().asFile } }))
     into("META-INF/fidorial") {
         from(bootstrapPayload)
     }
@@ -176,7 +188,7 @@ tasks.withType<GenerateBlockStatesTask>().configureEach {
 }
 
 fidorialRegistryGenerator {
-    minecraftVersion.set("26.3-pre-2")
+    minecraftVersion.set(providers.gradleProperty("minecraftVersion"))
     prismarineMinecraftData.set("26.3-snapshot-10")
     prismarineDataRepository.set("Toffikk/minecraft-data") // PrismarineJS/minecraft-data
     prismarineDataRef.set("ver/26.3-snapshot-10") // master
